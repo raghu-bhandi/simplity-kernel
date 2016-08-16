@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 /**
- * conventions while communicating with a simplity based server
+ * conventions while communicating with a simplity based server.
  * 
  */
 var POCOL = {
