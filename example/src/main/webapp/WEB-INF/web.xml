@@ -28,4 +28,7 @@
     <servlet-name>o</servlet-name>
     <url-pattern>*._o</url-pattern>
   </servlet-mapping>
+  <welcome-file-list>
+  	<welcome-file>home.html</welcome-file>
+  </welcome-file-list>
 </web-app>
