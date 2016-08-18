@@ -149,11 +149,12 @@ public class XmlUtil {
 	 *            instance to which the data from xml is to be loaded to
 	 * @throws XmlParseException
 	 */
-	public static void xmlToObject(InputStream stream, Object object)
+	public static Object xmlToObject(InputStream stream, Object object)
 			throws XmlParseException {
 		Document doc = getDocument(stream);
 		Element rootElement = doc.getDocumentElement();
-		elementToObject(rootElement, object);
+		Object obj = elementToObject(rootElement, object);
+		return obj;
 	}
 
 	/***
@@ -203,7 +204,7 @@ public class XmlUtil {
 	 * @param object
 	 * @throws XmlParseException
 	 */
-	public static void elementToObject(Element element, Object object)
+	public static Object elementToObject(Element element, Object object)
 			throws XmlParseException {
 		Map<String, Field> fields = ReflectUtil.getAllFields(object);
 
@@ -241,6 +242,7 @@ public class XmlUtil {
 			}
 			child = child.getNextSibling();
 		}
+		return object;
 	}
 
 	/**
