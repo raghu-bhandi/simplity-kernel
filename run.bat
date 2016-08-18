@@ -1,5 +1,5 @@
 mkdir javadocs
-echo "\javadocs\" >> .gitignore
+echo /javadocs/ >> .gitignore
 git add .
 git commit -m ".gitignore javadocs"
 git push origin master
