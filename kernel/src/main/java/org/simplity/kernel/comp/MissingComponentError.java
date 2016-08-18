@@ -37,7 +37,9 @@ public class MissingComponentError extends ApplicationError {
 	 * Missing Component error
 	 *
 	 * @param componentType
+	 * 			ComponentType
 	 * @param componentName
+	 * 			ComponentName
 	 */
 	public MissingComponentError(String componentType, String componentName) {
 		super("Component " + componentName + " of type " + componentType

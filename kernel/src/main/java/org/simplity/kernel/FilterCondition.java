@@ -85,6 +85,7 @@ public enum FilterCondition {
 	 * parse a text into enum
 	 *
 	 * @param text
+	 * 			Text
 	 * @return filter condition, or null if there is no filter for this text
 	 */
 	public static FilterCondition parse(String text) {

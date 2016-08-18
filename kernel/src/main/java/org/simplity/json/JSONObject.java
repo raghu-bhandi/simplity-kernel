@@ -467,6 +467,9 @@ public class JSONObject {
 	/**
 	 * Get the enum value associated with a key.
 	 *
+	 * @param <E> 
+	 * 		  Enum class		
+	 *
 	 * @param clazz
 	 *            The type of enum to retrieve.
 	 * @param key
@@ -697,6 +700,7 @@ public class JSONObject {
 	/**
 	 * Get an array of field names from an Object.
 	 * @param object 
+	 * 			Object
 	 *
 	 * @return An array of field names, or null if there are no names.
 	 */
@@ -1235,6 +1239,7 @@ public class JSONObject {
 	 *            A Collection value.
 	 * @return this.
 	 * @throws JSONException
+	 * 			Exception
 	 */
 	public JSONObject put(String key, Collection<?> value) throws JSONException {
 		this.put(key, new JSONArray(value));
@@ -1318,6 +1323,7 @@ public class JSONObject {
 	 *            A Map value.
 	 * @return this.
 	 * @throws JSONException
+	 * 			Exception
 	 */
 	public JSONObject put(String key, Map<?, ?> value) throws JSONException {
 		this.put(key, new JSONObject(value));
@@ -1418,9 +1424,13 @@ public class JSONObject {
 
 	/**
 	 * @param string
+	 * 			String
 	 * @param w
+	 * 			w
 	 * @return writer
+	 * 			Writer
 	 * @throws IOException
+	 * 			Exception
 	 */
 	public static Writer quote(String string, Writer w) throws IOException {
 		if (string == null || string.length() == 0) {
@@ -1801,9 +1811,10 @@ public class JSONObject {
 	 * <p>
 	 * Warning: This method assumes that the data structure is acyclical.
 	 * @param writer 
-	 *
+	 *			Writer
 	 * @return The writer.
 	 * @throws JSONException
+	 * 			Exception
 	 */
 	public Writer write(Writer writer) throws JSONException {
 		return this.write(writer, 0, 0);
@@ -1865,6 +1876,7 @@ public class JSONObject {
 	 *            The indention of the top level.
 	 * @return The writer.
 	 * @throws JSONException
+	 * 			Exception
 	 */
 	public Writer write(Writer writer, int indentFactor, int indent)
 			throws JSONException {

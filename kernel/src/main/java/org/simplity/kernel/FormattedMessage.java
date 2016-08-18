@@ -67,8 +67,11 @@ public class FormattedMessage implements Jsonable {
 	 * attributes can be optionally set
 	 *
 	 * @param name
+	 * 			Name
 	 * @param type
+	 * 			Type
 	 * @param text
+	 * 			Text
 	 */
 	public FormattedMessage(String name, MessageType type, String text) {
 		this.name = name;
@@ -90,7 +93,9 @@ public class FormattedMessage implements Jsonable {
 	/**
 	 *
 	 * @param messageName
+	 * 			MessageName
 	 * @param params
+	 * 			params
 	 */
 	public FormattedMessage(String messageName, String... params) {
 		Message msg = ComponentManager.getMessageOrNull(messageName);
@@ -110,11 +115,17 @@ public class FormattedMessage implements Jsonable {
 	/**
 	 *
 	 * @param msgName
+	 * 			msgname
 	 * @param tableName
+	 * 			tableName
 	 * @param fieldName
+	 * 			fieldName
 	 * @param otherFieldName
+	 * 			otherFieldName
 	 * @param rowNumber
+	 * 			rowNumber
 	 * @param params
+	 * 			params
 	 */
 	public FormattedMessage(String msgName, String tableName, String fieldName,
 			String otherFieldName, int rowNumber, String... params) {

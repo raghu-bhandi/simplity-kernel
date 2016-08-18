@@ -31,6 +31,7 @@ public interface Jsonable {
 	 * write yourself to json writer. assume that attName : [write-yourself-here],...
 	 * It can be just a value like 23, true, "abcd" or an object like {.....} or an array like [.....]
 	 * @param writer
+	 * 		Writer
 	 */
 	public void writeJsonValue(JSONWriter writer);
 }

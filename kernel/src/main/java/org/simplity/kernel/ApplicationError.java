@@ -48,6 +48,7 @@ public class ApplicationError extends RuntimeException {
 	 * construct with cause of this error
 	 *
 	 * @param error
+	 * 			Error
 	 */
 	public ApplicationError(String error) {
 		this.msg = error;
@@ -57,7 +58,9 @@ public class ApplicationError extends RuntimeException {
 	 * handles SqlException that is likely to be chained to get all messages
 	 *
 	 * @param e
+	 * 			e
 	 * @param msg
+	 * 			msg
 	 */
 	public ApplicationError(Exception e, String msg) {
 		Tracer.trace(e, msg);

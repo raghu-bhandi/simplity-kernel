@@ -107,7 +107,9 @@ public class Messages {
 	 * get message text for this message after formatting based on parameters
 	 *
 	 * @param messageName
+	 * 			Messagename
 	 * @param parameters
+	 * 			parameters
 	 * @return formatted message text
 	 */
 	public static FormattedMessage getMessage(String messageName, String... parameters) {
