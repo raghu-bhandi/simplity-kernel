@@ -49,8 +49,11 @@ public class PassiveHelper implements SessionHelper {
 	 * set up desired types
 	 * 
 	 * @param paramNames
+	 * 			parameter names
 	 * @param userIdName
+	 * 			user id
 	 * @param userIdType
+	 * 			user type
 	 */
 	public void setUp(Parameter[] paramNames, String userIdName,
 			ValueType userIdType) {

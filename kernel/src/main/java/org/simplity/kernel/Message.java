@@ -89,6 +89,7 @@ public class Message implements Component {
 	 * not yet implemented. You will get it in English
 	 *
 	 * @param language
+	 * 			Language
 	 * @return text for the desired language
 	 */
 	public String toString(String language) {
@@ -99,6 +100,7 @@ public class Message implements Component {
 	 * substitute parameter values into text
 	 *
 	 * @param args
+	 * 		Args
 	 * @return formatted text
 	 */
 	public String toString(String[] args) {
@@ -121,8 +123,10 @@ public class Message implements Component {
 	 * yet implemented.
 	 *
 	 * @param language
+	 * 			Language
 	 *
 	 * @param args
+	 * 			Args
 	 * @return formatted text
 	 */
 	public String toString(String language, String[] args) {
@@ -133,6 +137,7 @@ public class Message implements Component {
 	 * substitute parameter values into text
 	 *
 	 * @param args
+	 * 			Args
 	 * @return formatted text
 	 */
 	public FormattedMessage getFormattedMessage(String[] args) {
@@ -146,8 +151,9 @@ public class Message implements Component {
 	 * yet implemented.
 	 *
 	 * @param language
-	 *
+	 *			Language
 	 * @param args
+	 * 			Args	
 	 * @return formatted text
 	 */
 	public FormattedMessage getFormattedMessage(String language, String[] args) {

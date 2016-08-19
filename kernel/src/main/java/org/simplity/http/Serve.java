@@ -60,6 +60,7 @@ public class Serve extends HttpServlet {
 	 * notify that the start-up is successful, and we can go ahead and serve
 	 *
 	 * @param succeeded
+	 * 			Success flag
 	 */
 	public static void updateStartupStatus(boolean succeeded) {
 		if (succeeded) {

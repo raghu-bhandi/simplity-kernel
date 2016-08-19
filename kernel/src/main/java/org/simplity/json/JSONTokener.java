@@ -68,6 +68,7 @@ public class JSONTokener {
 	 * @param inputStream
 	 *            The source.
 	 * @throws JSONException
+	 * 			Exception
 	 */
 	public JSONTokener(InputStream inputStream) throws JSONException {
 		this(new InputStreamReader(inputStream));
@@ -89,6 +90,7 @@ public class JSONTokener {
 	 * next number or identifier.
 	 *
 	 * @throws JSONException
+	 * 			Exception
 	 */
 	public void back() throws JSONException {
 		if (this.usePrevious || this.index <= 0) {
@@ -134,6 +136,7 @@ public class JSONTokener {
 	 *
 	 * @return true if not yet at the end of the source.
 	 * @throws JSONException 
+	 * 			Exception
 	 */
 	public boolean more() throws JSONException {
 		this.next();
@@ -149,6 +152,7 @@ public class JSONTokener {
 	 *
 	 * @return The next character, or 0 if past the end of the source string.
 	 * @throws JSONException 
+	 * 			Exception
 	 */
 	public char next() throws JSONException {
 		int c;
@@ -223,6 +227,7 @@ public class JSONTokener {
 	 * Get the next char in the string, skipping whitespace.
 	 *
 	 * @throws JSONException
+	 * 			Exception
 	 * @return A character, or 0 if there are no more characters.
 	 */
 	public char nextClean() throws JSONException {
@@ -304,7 +309,8 @@ public class JSONTokener {
 	 * @param delimiter
 	 *            A delimiter character.
 	 * @return A string.
-	 * @throws JSONException 
+	 * @throws JSONException
+	 * 			Exception
 	 */
 	public String nextTo(char delimiter) throws JSONException {
 		StringBuilder sb = new StringBuilder();
@@ -328,6 +334,7 @@ public class JSONTokener {
 	 *            A set of delimiter characters.
 	 * @return A string, trimmed.
 	 * @throws JSONException 
+	 * 			Exception
 	 */
 	public String nextTo(String delimiters) throws JSONException {
 		char c;

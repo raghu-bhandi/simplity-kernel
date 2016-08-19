@@ -42,7 +42,9 @@ public class ReferredComponent {
 	 * create a new reference. All fields are to be non-null
 	 *
 	 * @param compType
+	 * 			compType
 	 * @param compName
+	 * 			compName
 	 */
 	public ReferredComponent(ComponentType compType, String compName) {
 		this.compType = compType;

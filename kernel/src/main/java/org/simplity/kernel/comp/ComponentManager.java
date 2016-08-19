@@ -93,6 +93,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param sqlName
+	 * 		SQLname
 	 * @return sql failing which an application error is thrown
 	 */
 	public static Sql getSql(String sqlName) {
@@ -106,6 +107,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param sqlName
+	 * 			SQLname
 	 * @return sql or null
 	 */
 	public static Sql getSqlOrNull(String sqlName) {
@@ -115,6 +117,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param serviceName
+	 * 			serviceName
 	 * @return service failing which an application error is thrown
 	 */
 	public static ServiceInterface getService(String serviceName) {
@@ -134,6 +137,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param serviceName
+	 * 			serviceName
 	 * @return service or null
 	 */
 	public static ServiceInterface getServiceOrNull(String serviceName) {
@@ -152,6 +156,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param recordName
+	 * 			recordname
 	 * @return record failing which an application error is thrown
 	 */
 	public static Record getRecord(String recordName) {
@@ -166,6 +171,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param recordName
+	 * 			recordname
 	 * @return record or null
 	 */
 	public static Record getRecordOrNull(String recordName) {
@@ -175,6 +181,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param messageName
+	 * 			messagename
 	 * @return Message failing which an application error is thrown
 	 */
 	public static Message getMessage(String messageName) {
@@ -189,6 +196,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param messageName
+	 * 			messagename
 	 * @return Message or null if there is no message with this name
 	 */
 	public static Message getMessageOrNull(String messageName) {
@@ -198,6 +206,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param dataTypeName
+	 * 			dataTypeName
 	 * @return data type, failing which an application error is thrown
 	 */
 	public static DataType getDataType(String dataTypeName) {
@@ -212,6 +221,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param dataTypeName
+	 * 			dataTypename
 	 * @return data type, or null if no data type is found with that name
 	 */
 	public static DataType getDataTypeOrNull(String dataTypeName) {
@@ -221,6 +231,7 @@ public class ComponentManager<T extends Component> {
 	/**
 	 *
 	 * @param spName
+	 * 			SPName
 	 * @return stored procedure failing which an application error is thrown
 	 */
 	public static StoredProcedure getStoredProcedure(String spName) {
@@ -454,6 +465,7 @@ public class ComponentManager<T extends Component> {
 	 * This MUST be called after setApplicationRootFolder
 	 *
 	 * @param compRelativeToRoot
+	 * 			compRelativeToRoot
 	 */
 	public static void setComponentFolder(String compRelativeToRoot) {
 		componentFolder = compRelativeToRoot;
@@ -549,6 +561,7 @@ public class ComponentManager<T extends Component> {
 
 	/**
 	 * @param object
+	 * 			Object
 	 * @param fileName
 	 *            file name, including extension to be used for loading the
 	 *            object

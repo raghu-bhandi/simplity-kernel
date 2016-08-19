@@ -168,6 +168,7 @@ public class JSONArray implements Iterable<Object> {
 	 * Construct a JSONArray from an array
 	 *
 	 * @param array
+	 * 			Array
 	 *
 	 * @throws JSONException
 	 *             If not an array.
@@ -286,6 +287,8 @@ public class JSONArray implements Iterable<Object> {
 	/**
 	 * Get the enum value associated with an index.
 	 *
+	 * @param	<E>
+	 * 			Enum class
 	 * @param clazz
 	 *            The type of enum to retrieve.
 	 * @param index
@@ -597,8 +600,11 @@ public class JSONArray implements Iterable<Object> {
 	/**
 	 * Get the enum value associated with a key.
 	 *
+	 * @param <E>
+	 * 		Enum class	
+	 *
 	 * @param clazz
-	 *            The type of enum to retrieve.
+	 *          The type of enum to retrieve.
 	 * @param index
 	 *            The index must be between 0 and length() - 1.
 	 * @return The enum value at the index location or null if not found
@@ -610,6 +616,8 @@ public class JSONArray implements Iterable<Object> {
 	/**
 	 * Get the enum value associated with a key.
 	 *
+	 * @param <E>
+	 *        Enum class 
 	 * @param clazz
 	 *            The type of enum to retrieve.
 	 * @param index
@@ -1096,6 +1104,7 @@ public class JSONArray implements Iterable<Object> {
 	 *         bracket)</small> and ending with <code>]</code>
 	 *         &nbsp;<small>(right bracket)</small>.
 	 * @throws JSONException
+	 * 			Exception
 	 */
 	public String toString(int indentFactor) throws JSONException {
 		StringWriter sw = new StringWriter();
@@ -1111,9 +1120,11 @@ public class JSONArray implements Iterable<Object> {
 	 * Warning: This method assumes that the data structure is acyclical.
 	 *
 	 * @param writer
+	 * 		Writer
 	 *
 	 * @return The writer.
 	 * @throws JSONException
+	 * 			Exception
 	 */
 	public Writer write(Writer writer) throws JSONException {
 		return this.write(writer, 0, 0);
@@ -1133,6 +1144,7 @@ public class JSONArray implements Iterable<Object> {
 	 *            The indention of the top level.
 	 * @return The writer.
 	 * @throws JSONException
+	 * 			Exception
 	 */
 	public Writer write(Writer writer, int indentFactor, int indent)
 			throws JSONException {

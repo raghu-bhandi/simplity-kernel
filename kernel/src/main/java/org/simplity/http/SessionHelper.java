@@ -66,7 +66,9 @@ public interface SessionHelper {
 	 * remove session
 	 *
 	 * @param session
+	 * 			http session
 	 * @param token
+	 * 			that was returned when this session was created
 	 */
 	public void removeSession(HttpSession session, String token);
 
@@ -74,6 +76,7 @@ public interface SessionHelper {
 	 * create session data for this user in this session.
 	 * 
 	 * @param session
+	 * 			http session 
 	 * @param data
 	 *            to be pushed to session
 	 * @param existingToken
@@ -87,6 +90,7 @@ public interface SessionHelper {
 
 	/**
 	 * @param session
+	 * 			http session	
 	 * @return user token, or null if this session has no user token
 	 */
 	public String getUserToken(HttpSession session);

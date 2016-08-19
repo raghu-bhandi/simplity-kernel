@@ -39,6 +39,7 @@ public interface OnTheFlyManager<T extends Component> {
 	 * create a component for the name.
 	 *
 	 * @param compName
+	 * 			CompName
 	 *
 	 * @return component, or null if no component can be created on the fly for
 	 *         the name

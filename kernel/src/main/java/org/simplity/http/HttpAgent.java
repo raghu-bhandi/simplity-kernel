@@ -93,9 +93,13 @@ public class HttpAgent {
 	 * servlet
 	 *
 	 * @param req
+	 * 			http request
 	 * @param resp
+	 * 			http response
 	 * @throws ServletException
+	 * 			Servlet exception 
 	 * @throws IOException
+	 * 			IO exception
 	 */
 	public static void serveOld(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -207,9 +211,14 @@ public class HttpAgent {
 	 * serve this service. Main entrance to the server from an http client.
 	 *
 	 * @param req
+	 * 			http request
 	 * @param resp
+	 * 			http response
 	 * @throws ServletException
+	 * 			Servlet exception 
 	 * @throws IOException
+	 * 			IO exception
+	 *
 	 */
 	public static void serve(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -364,7 +373,9 @@ public class HttpAgent {
 	 * be calling the spec
 	 *
 	 * @param loginId
+	 * 			Login ID
 	 * @param securityToken
+	 * 			Security Token
 	 * @param session
 	 *            for accessing session
 	 * @return token for this session that needs to be supplied for any service
@@ -399,6 +410,7 @@ public class HttpAgent {
 	 * logout after executing desired service
 	 *
 	 * @param session
+	 * 			http session
 	 * @param timedOut
 	 *            is this triggered on session time-out? false means a specific
 	 *            logout request from user

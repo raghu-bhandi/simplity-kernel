@@ -310,10 +310,11 @@ public class CommonData implements CommonDataInterface {
 	/**
 	 * Way to pass an object to subsequent action
 	 * @param dataName name by which this is referred
-	 * @param objetc
+	 * @param object
+	 * 			object
 	 */
-	public void setObject(String dataName, Object objetc){
-		this.allObjects.put(dataName, objetc);
+	public void setObject(String dataName, Object object){
+		this.allObjects.put(dataName, object);
 	}
 	
 	/**

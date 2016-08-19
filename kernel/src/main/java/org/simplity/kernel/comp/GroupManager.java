@@ -45,6 +45,7 @@ public class GroupManager<T extends Component> implements Loadable {
 	 * add components from this group into the collection.
 	 *
 	 * @param collection
+	 * 			Collection
 	 */
 	public void moveComponents(Map<String, T> collection) {
 		collection.putAll(this.components);

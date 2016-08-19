@@ -49,6 +49,7 @@ public class Parameter {
 	/**
 	 * parse a text value 
 	 * @param value
+	 * 			value
 	 * @return value. Throws ApplicaitonError in case the value is not the right type
 	 */
 	public Value parseValue(String value){
