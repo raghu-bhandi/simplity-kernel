@@ -1,6 +1,7 @@
 /.metadata/
 /RemoteSystemsTempFiles/
 /Servers/
+/.recommenders
 /.settings/
 /javadocs/ 
 /target/
