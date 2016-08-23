@@ -4,7 +4,7 @@
 	applicationId="simplityTutorial"
 	dbVendor="mysql"
 	dbDriverClassName="com.mysql.jdbc.Driver"
-	connectionString="jdbc:mysql://localhost:3306/sakila?user=root;password=root" 
+	connectionString="jdbc:mysql://172.30.141.5:3306/sakila?user=root;password=root" 
 	sendTraceToClient="true"
 	logSqls="true"
 >
