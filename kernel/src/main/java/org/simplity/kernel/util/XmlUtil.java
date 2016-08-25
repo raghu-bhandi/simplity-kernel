@@ -22,7 +22,6 @@
  */
 package org.simplity.kernel.util;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
@@ -45,7 +44,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MapDetails;
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.comp.Loadable;
+import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.value.Value;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -138,6 +137,10 @@ public class XmlUtil {
 	 */
 	private static final String CLASS_NAME = "_class";
 	private static final String COMP_LIST = "_compList";
+	private static final String COMPONENTS = "components";
+	private static final String NAME_ATTRIBUTE = "name";
+	private static final String ENTRY = "entry";
+	private static final String CLASS_NAME_ATTRIBUTE = "className";
 
 	/**
 	 * bind data from an xml stream into object
@@ -149,12 +152,209 @@ public class XmlUtil {
 	 *            instance to which the data from xml is to be loaded to
 	 * @throws XmlParseException
 	 */
-	public static Object xmlToObject(InputStream stream, Object object)
+	public static void xmlToObject(InputStream stream, Object object)
 			throws XmlParseException {
-		Document doc = getDocument(stream);
-		Element rootElement = doc.getDocumentElement();
-		Object obj = elementToObject(rootElement, object);
-		return obj;
+		Element rootElement = getDocument(stream).getDocumentElement();
+		elementToObject(rootElement, object);
+	}
+
+	/**
+	 * bind data from an xml stream into object
+	 *
+	 * @param fileName
+	 *            relative to file manager's root, and not absolute path
+	 *
+	 * @param object
+	 *            instance to which the data from xml is to be loaded to
+	 * @return true if we are able to load. false otherwise
+	 * @throws XmlParseException
+	 */
+	public static boolean xmlToObject(String fileName, Object object)
+			throws XmlParseException {
+		InputStream stream = null;
+		Tracer.trace("Going to load a component from " + fileName);
+		try {
+			stream = FileManager.getResourceStream(fileName);
+			if (stream == null) {
+				Tracer.trace("Resource " + fileName + " not found.");
+				return false;
+			}
+			Element rootElement = getDocument(stream).getDocumentElement();
+			elementToObject(rootElement, object);
+			return true;
+		} catch (Exception e) {
+			Tracer.trace(e, "Resource " + fileName + " failed to load.");
+			return false;
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (Exception e) {
+					//
+				}
+			}
+		}
+	}
+
+	/**
+	 * load components or name-className maps into collection
+	 *
+	 * @param stream
+	 *            xml
+	 * @param objects
+	 *            collection to which components/entries are to be added to
+	 * @param packageName
+	 *            package name ending with a '.', so that when we add simple
+	 *            class name it becomes a fully-qualified class name
+	 * @throws XmlParseException
+	 */
+	public static void xmlToCollection(InputStream stream,
+			Map<String, Object> objects, String packageName)
+					throws XmlParseException {
+		Node node = getDocument(stream).getDocumentElement().getFirstChild();
+		while (node != null) {
+			if (node.getNodeName().equals(COMPONENTS) == false) {
+				node = node.getNextSibling();
+				continue;
+			}
+			/*
+			 * we got the element we need
+			 */
+			Node firstNode = node.getFirstChild();
+			if (firstNode == null) {
+				break;
+			}
+			if (packageName == null) {
+				/*
+				 * list of name and className
+				 */
+				loadEntries(firstNode, objects);
+			} else {
+				/*
+				 * list of components
+				 */
+				loadObjects(firstNode, objects, packageName);
+			}
+			return;
+		}
+
+		/*
+		 * we did not get the component element at all
+		 */
+		Tracer.trace("XML has no components in it.");
+	}
+
+	/**
+	 * load components or name-className maps into collection
+	 *
+	 * @param fileName
+	 *            relative to FileManager root, and not absolute path of the
+	 *            file xml
+	 * @param objects
+	 *            collection to which components/entries are to be added to
+	 * @param packageName
+	 *            package name ending with a '.', so that when we add simple
+	 *            class name it becomes a fully-qualified class name
+	 * @return true if we are able to load from the file. false otherwise
+	 */
+	public static boolean xmlToCollection(String fileName,
+			Map<String, Object> objects, String packageName) {
+		InputStream stream = null;
+		try {
+			stream = FileManager.getResourceStream(fileName);
+			if (stream == null) {
+				Tracer.trace("Unable to open file " + fileName
+						+ " failed to load.");
+				return false;
+			}
+			xmlToCollection(stream, objects, packageName);
+			return true;
+		} catch (Exception e) {
+			Tracer.trace(e, "Resource " + fileName + " failed to load.");
+			return false;
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (Exception e) {
+					//
+				}
+			}
+		}
+	}
+
+	/**
+	 * elements are loaded and added to objects collection
+	 *
+	 * @param firstNode
+	 * @param objects
+	 * @param packageName
+	 *            includes a '.' at the end so that packageName + className is a
+	 *            valid qualified classNAme
+	 * @throws XmlParseException
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static void loadObjects(Node firstNode, Map objects,
+			String packageName) throws XmlParseException {
+		Node node = firstNode;
+		while (node != null) {
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				Element ele = (Element) node;
+				String className = TextUtil.nameToClassName(node.getNodeName());
+				try {
+					Class klass = Class.forName(packageName + className);
+					Object object = klass.newInstance();
+					String compName = ele.getAttribute(NAME_ATTRIBUTE);
+					elementToObject(ele, object);
+					objects.put(compName, object);
+				} catch (ClassNotFoundException e) {
+					Tracer.trace(className
+							+ " is not a valid class in package " + packageName
+							+ ". element ignored while loadiing components");
+				} catch (InstantiationException e) {
+					Tracer.trace(className + " in package " + packageName
+							+ "Could not be instantiated: " + e.getMessage());
+				} catch (IllegalAccessException e) {
+					Tracer.trace(className + " in package " + packageName
+							+ "Could not be instantiated: " + e.getMessage());
+				}
+			}
+			node = node.getNextSibling();
+		}
+	}
+
+	/**
+	 * name-className pairs are added to objects collection
+	 *
+	 * @param firstNode
+	 * @param objects
+	 * @param initializeThem
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private static void loadEntries(Node firstNode, Map objects) {
+		Node node = firstNode;
+		while (node != null) {
+			if (node.getNodeType() == Node.ELEMENT_NODE) {
+				String nodeName = node.getNodeName();
+				if (nodeName.equals(ENTRY)) {
+					Element ele = (Element) node;
+					String compName = ele.getAttribute(NAME_ATTRIBUTE);
+					String className = ele.getAttribute(CLASS_NAME_ATTRIBUTE);
+					if (compName == null || className == null) {
+						Tracer.trace("We expect attributes " + NAME_ATTRIBUTE
+								+ " and " + CLASS_NAME_ATTRIBUTE
+								+ " as attributes of element " + ENTRY
+								+ ". Element ignored");
+					} else {
+						objects.put(compName, className);
+					}
+				} else {
+					Tracer.trace("Expecting an element named " + ENTRY
+							+ " but found " + nodeName + ". Element ignored.");
+				}
+			}
+			node = node.getNextSibling();
+		}
 	}
 
 	/***
@@ -183,12 +383,6 @@ public class XmlUtil {
 					+ e.getColumnNumber();
 		} catch (Exception e) {
 			msg = "Error while reading resource file. " + e.getMessage();
-		} finally {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				//
-			}
 		}
 		if (msg != null) {
 			throw new XmlParseException(msg);
@@ -204,7 +398,7 @@ public class XmlUtil {
 	 * @param object
 	 * @throws XmlParseException
 	 */
-	public static Object elementToObject(Element element, Object object)
+	public static void elementToObject(Element element, Object object)
 			throws XmlParseException {
 		Map<String, Field> fields = ReflectUtil.getAllFields(object);
 
@@ -242,7 +436,6 @@ public class XmlUtil {
 			}
 			child = child.getNextSibling();
 		}
-		return object;
 	}
 
 	/**
@@ -557,33 +750,28 @@ public class XmlUtil {
 	 */
 	private static Object elementToSubclass(Element element, Field field,
 			Class<?> referenceType, Object parentObject)
-			throws XmlParseException {
+					throws XmlParseException {
 
 		Object thisObject = null;
 		String elementName = element.getTagName();
 		try {
-			if (parentObject instanceof Loadable) {
-				thisObject = ((Loadable) parentObject)
-						.getObjectToLoad(elementName);
-			} else {
-				String className = element.getAttribute(CLASS_NAME);
-				if (className == null || className.length() == 0) {
-					String packageName = null;
-					MapDetails ant = field.getAnnotation(MapDetails.class);
-					if (ant != null) {
-						packageName = ant.packgaeName();
-					} else {
-						packageName = referenceType.getPackage().getName();
-					}
-					/*
-					 * we take package name either from annotation on the field
-					 * or from the reference type
-					 */
-					className = packageName + '.'
-							+ elementName.substring(0, 1).toUpperCase()
-							+ elementName.substring(1);
-					thisObject = Class.forName(className).newInstance();
+			String className = element.getAttribute(CLASS_NAME);
+			if (className == null || className.length() == 0) {
+				String packageName = null;
+				MapDetails ant = field.getAnnotation(MapDetails.class);
+				if (ant != null) {
+					packageName = ant.packgaeName();
+				} else {
+					packageName = referenceType.getPackage().getName();
 				}
+				/*
+				 * we take package name either from annotation on the field or
+				 * from the reference type
+				 */
+				className = packageName + '.'
+						+ elementName.substring(0, 1).toUpperCase()
+						+ elementName.substring(1);
+				thisObject = Class.forName(className).newInstance();
 			}
 			elementToObject(element, thisObject);
 			return thisObject;

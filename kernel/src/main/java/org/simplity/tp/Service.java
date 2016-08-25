@@ -55,6 +55,23 @@ import org.simplity.service.ServiceProtocol;
  */
 public class Service implements ServiceInterface {
 
+	/*
+	 * constants used by on-the-fly services
+	 */
+	private static final char PREFIX_DELIMITER = '_';
+	private static final String GET = "get";
+	private static final String FILTER = "filter";
+	private static final String SAVE = "save";
+	/**
+	 * used by suggestion service as well
+	 */
+	public static final String SUGGEST = "suggest";
+
+	/**
+	 * list service needs to use this
+	 */
+	private static final String LIST = "list";
+
 	/**
 	 * stop the execution of this service as success
 	 */
@@ -781,5 +798,61 @@ public class Service implements ServiceInterface {
 	@Override
 	public ComponentType getComponentType() {
 		return MY_TYPE;
+	}
+
+	/**
+	 * generate a service on the fly, if possible
+	 *
+	 * @param serviceName
+	 *            that follows on-the-fly-service-name pattern
+	 * @return service, or null if name is not a valid on-the-fly service name
+	 */
+	public static ServiceInterface generateService(String serviceName) {
+		Tracer.trace("Trying " + serviceName + " as a fly-by-night operator");
+		int idx = serviceName.indexOf(PREFIX_DELIMITER);
+		if (idx == -1) {
+			return null;
+		}
+
+		String operation = serviceName.substring(0, idx);
+		String recordName = serviceName.substring(idx + 1);
+		/*
+		 * once we have established that this name follows our on-the-fly naming
+		 * convention, we are quite likely to to get the record.
+		 */
+
+		Record record = null;
+		try {
+			record = (Record) ComponentType.REC.getComponent(recordName);
+		} catch (Exception e) {
+			Tracer.trace(e, "Error while loading record " + recordName);
+		}
+		if (record == null) {
+			Tracer.trace(recordName
+					+ " is not defined as a record, and hence we are unable to generate a servce named "
+					+ serviceName);
+			return null;
+		}
+		if (operation.equals(LIST)) {
+			return ListService.getService(serviceName, record);
+		}
+
+		if (operation.equals(FILTER)) {
+			return getFilterService(serviceName, record);
+		}
+		if (operation.equals(GET)) {
+			return getReadService(serviceName, record);
+		}
+		if (operation.equals(SAVE)) {
+			return getSaveService(serviceName, record);
+		}
+		if (operation.equals(SUGGEST)) {
+			return SuggestionService.getService(serviceName, record);
+		}
+
+		Tracer.trace("We have no on-the-fly servce generator for operation "
+				+ operation);
+		return null;
+
 	}
 }

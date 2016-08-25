@@ -89,135 +89,16 @@ public class HttpAgent {
 	private static SessionHelper sessionHelper = new HelperForNoLogin();
 
 	/**
-	 * processes an http request and responds back. Suitable to be called from a
-	 * servlet
-	 *
-	 * @param req
-	 * 			http request
-	 * @param resp
-	 * 			http response
-	 * @throws ServletException
-	 * 			Servlet exception 
-	 * @throws IOException
-	 * 			IO exception
-	 */
-	public static void serveOld(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-
-		String serviceName = req.getHeader(ServiceProtocol.SERVICE_NAME);
-		long startedAt = new Date().getTime();
-		long elapsed = 0;
-		Value userId = null;
-		HttpSession session = req.getSession();
-		ServiceData outData = null;
-		Tracer.startAccumulation();
-		FormattedMessage message = null;
-		do {
-			try {
-				if (serviceName == null) {
-					message = NO_SERVICE;
-					break;
-				}
-				/*
-				 * we send token, possibly null to sessionHelper. It is up to
-				 * him to tell us whether
-				 */
-				String clientToken = req.getHeader(ServiceProtocol.CSRF_HEADER);
-				ServiceData inData = new ServiceData();
-				/*
-				 * session helper decides whether login is required etc..
-				 */
-				if (sessionHelper.getSessionData(session, clientToken, inData) == false) {
-					message = NO_LOGIN;
-					break;
-				}
-				Object obj = inData.get(ServiceProtocol.USER_ID);
-				if (obj != null && obj instanceof Value) {
-					userId = (Value) obj;
-				} else {
-					Tracer.trace("Session helper is saying OK with no userId. Sending the request to service layer with fingers crossed");
-				}
-				/*
-				 * try-catch specifically for any possible I/O errors
-				 */
-				try {
-					inData.setPayLoad(readInput(req));
-				} catch (Exception e) {
-					message = DATA_ERROR;
-					break;
-				}
-				inData.setServiceName(serviceName);
-				/*
-				 * all right. Go ahead and ask server to deliver this service
-				 */
-				outData = ServiceAgent.getAgent().executeService(inData);
-				/*
-				 * by our convention, server may send data in inData to be set
-				 * to session
-				 */
-				if (outData.hasErrors() == false) {
-					sessionHelper.setSessionData(session, clientToken, outData);
-				}
-			} catch (Exception e) {
-				Tracer.trace(e, "Internal error");
-				message = INTERNAL_ERROR;
-			}
-		} while (false);
-		elapsed = new Date().getTime() - startedAt;
-		resp.setHeader(ServiceProtocol.SERVICE_EXECUTION_TIME, elapsed + "");
-		String response = null;
-		if (outData == null) {
-			/*
-			 * we got error
-			 */
-			Tracer.trace("Error on web tier");
-			FormattedMessage[] messages = { message };
-			response = JsonUtil.toJson(messages);
-			resp.setHeader(ServiceProtocol.REQUEST_STATUS, "1");
-		} else {
-			if (outData.hasErrors()) {
-				Tracer.trace("Service returned with errors");
-				resp.setHeader(ServiceProtocol.REQUEST_STATUS, "1");
-				response = JsonUtil.toJson(outData.getMessages());
-			} else {
-				/*
-				 * all OK
-				 */
-				resp.setHeader(ServiceProtocol.REQUEST_STATUS, "0");
-				response = outData.getPayLoad();
-				Tracer.trace("Service has no errors and has "
-						+ (response == null ? "no " : (response.length())
-								+ " chars ") + " payload");
-			}
-		}
-		if (response != null) {
-			resp.getOutputStream().print(response);
-		}
-		if (outData != null) {
-			String serverTrace = outData.getTrace();
-			if (serverTrace != null) {
-				System.out.println("-------Server Trace Begin ----------");
-				System.out.println(serverTrace);
-				System.out.println("-------Server Trace END ----------");
-			}
-		}
-		String trace = Tracer.stopAccumulation();
-		String log = TAG + startedAt + ELAPSED + elapsed + SERVICE
-				+ serviceName + USER + userId + CLOSE + trace + TAG_CLOSE;
-		myLogger.info(log);
-	}
-
-	/**
 	 * serve this service. Main entrance to the server from an http client.
 	 *
 	 * @param req
-	 * 			http request
+	 *            http request
 	 * @param resp
-	 * 			http response
+	 *            http response
 	 * @throws ServletException
-	 * 			Servlet exception 
+	 *             Servlet exception
 	 * @throws IOException
-	 * 			IO exception
+	 *             IO exception
 	 *
 	 */
 	public static void serve(HttpServletRequest req, HttpServletResponse resp)
@@ -373,9 +254,9 @@ public class HttpAgent {
 	 * be calling the spec
 	 *
 	 * @param loginId
-	 * 			Login ID
+	 *            Login ID
 	 * @param securityToken
-	 * 			Security Token
+	 *            Security Token
 	 * @param session
 	 *            for accessing session
 	 * @return token for this session that needs to be supplied for any service
@@ -410,7 +291,7 @@ public class HttpAgent {
 	 * logout after executing desired service
 	 *
 	 * @param session
-	 * 			http session
+	 *            http session
 	 * @param timedOut
 	 *            is this triggered on session time-out? false means a specific
 	 *            logout request from user

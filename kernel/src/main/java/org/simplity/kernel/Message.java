@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel;
 
-import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.Component;
+import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 
 /**
@@ -89,7 +89,7 @@ public class Message implements Component {
 	 * not yet implemented. You will get it in English
 	 *
 	 * @param language
-	 * 			Language
+	 *            ignored as of now
 	 * @return text for the desired language
 	 */
 	public String toString(String language) {
@@ -99,19 +99,19 @@ public class Message implements Component {
 	/**
 	 * substitute parameter values into text
 	 *
-	 * @param args
-	 * 		Args
+	 * @param params
+	 *            parameters for message
 	 * @return formatted text
 	 */
-	public String toString(String[] args) {
+	public String toString(String[] params) {
 		String txt = this.text;
-		if (args != null && args.length > 0) {
-			for (int i = 0; i < args.length; i++) {
+		if (params != null && params.length > 0) {
+			for (int i = 0; i < params.length; i++) {
 				String parm = Message.PREFIX + (i + 1);
 				if (txt.indexOf(parm) == -1) {
-					txt += args[i];
+					txt += params[i];
 				} else {
-					txt = txt.replace(parm, args[i]);
+					txt = txt.replace(parm, params[i]);
 				}
 			}
 		}
@@ -123,26 +123,26 @@ public class Message implements Component {
 	 * yet implemented.
 	 *
 	 * @param language
-	 * 			Language
+	 *            ignored as of now
 	 *
-	 * @param args
-	 * 			Args
+	 * @param params
+	 *            parameters for message
 	 * @return formatted text
 	 */
-	public String toString(String language, String[] args) {
-		return this.toString(args);
+	public String toString(String language, String[] params) {
+		return this.toString(params);
 	}
 
 	/**
 	 * substitute parameter values into text
 	 *
-	 * @param args
-	 * 			Args
+	 * @param params
+	 *            additional parameters
 	 * @return formatted text
 	 */
-	public FormattedMessage getFormattedMessage(String[] args) {
+	public FormattedMessage getFormattedMessage(String[] params) {
 		FormattedMessage msg = new FormattedMessage(this.getName(),
-				this.messageType, this.toString(args));
+				this.messageType, this.toString(params));
 		return msg;
 	}
 
@@ -151,20 +151,21 @@ public class Message implements Component {
 	 * yet implemented.
 	 *
 	 * @param language
-	 *			Language
-	 * @param args
-	 * 			Args	
+	 *            not yet implemented. ignored as of now.
+	 *
+	 * @param params
+	 *            additional parameters for the message
 	 * @return formatted text
 	 */
-	public FormattedMessage getFormattedMessage(String language, String[] args) {
+	public FormattedMessage getFormattedMessage(String language, String[] params) {
 		FormattedMessage msg = new FormattedMessage(this.getName(),
-				this.messageType, this.toString(args));
+				this.messageType, this.toString(params));
 		return msg;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#validate()
 	 */
 	@Override

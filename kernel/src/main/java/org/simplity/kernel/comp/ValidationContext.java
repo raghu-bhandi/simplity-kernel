@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.dm.Record;
+import org.simplity.kernel.dt.DataType;
 
 /**
  * @author simplity.org
@@ -38,10 +39,10 @@ public class ValidationContext {
 
 	@SuppressWarnings("unchecked")
 	private Map<String, String[]>[] allMessages = (Map<String, String[]>[]) (new Object[ComponentType
-			.values().length]);
+	                                                                                    .values().length]);
 	@SuppressWarnings("unchecked")
 	private List<ReferredComponent>[][] allRefs = (List<ReferredComponent>[][]) (new Object[ComponentType
-			.values().length][]);
+	                                                                                        .values().length][]);
 	private ComponentType currentType;
 	private String currentCompName;
 	private List<String> messages = new ArrayList<String>();
@@ -53,10 +54,8 @@ public class ValidationContext {
 	 * calling endValidation()) before starting the next one.
 	 *
 	 * @param compType
-	 * 		compType
 	 * @param compName
-	 * 		compName
-	 */	
+	 */
 	public void beginValidation(ComponentType compType, String compName) {
 		if (this.currentType != null) {
 			throw new ApplicationError("startValidaiton() invoked for "
@@ -95,7 +94,6 @@ public class ValidationContext {
 	 * add an error message
 	 *
 	 * @param error
-	 * 			Error
 	 */
 	public void addError(String error) {
 		if (this.currentType == null) {
@@ -109,9 +107,7 @@ public class ValidationContext {
 	/**
 	 *
 	 * @param refType
-	 * 			refType
 	 * @param refName
-	 * 			refName
 	 */
 	public void addReference(ComponentType refType, String refName) {
 		if (this.currentType == null) {
@@ -133,11 +129,8 @@ public class ValidationContext {
 	 * record as reference, and add error in case it i not defined
 	 *
 	 * @param recName
-	 * 			recnName
 	 * @param fieldName
-	 * 			fieldName
 	 * @param isRequired
-	 * 			isRequired
 	 *
 	 * @return 0 if all ok, 1 if an error got added
 	 */
@@ -169,11 +162,8 @@ public class ValidationContext {
 	 * this data type as reference, and add error in case it i not defined
 	 *
 	 * @param dataTypeName
-	 * 			dataTypeName
 	 * @param fieldName
-	 * 			fieldName
 	 * @param isRequired
-	 * 			isRequired
 	 *
 	 * @return 0 if all ok, 1 if an error got added
 	 */
@@ -188,8 +178,8 @@ public class ValidationContext {
 		}
 		this.addReference(ComponentType.DT, dataTypeName);
 		try {
-			Record rec = ComponentManager.getRecordOrNull(dataTypeName);
-			if (rec == null) {
+			DataType dt = ComponentManager.getDataTypeOrNull(dataTypeName);
+			if (dt == null) {
 				this.addError(fieldName + " is set to " + dataTypeName
 						+ " but that data type is not defined.");
 				return 1;
@@ -204,9 +194,7 @@ public class ValidationContext {
 	 * check existence of a class and whether it implements the right interface
 	 *
 	 * @param className
-	 * 			className
 	 * @param klass
-	 * 			klass
 	 * @return 0 if all OK, 1 if an error got added
 	 */
 	public int checkClassName(String className, Class<?> klass) {

@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -79,7 +79,8 @@ public class CommonData implements CommonDataInterface {
 		if (nameParts.rowIdx == CommonData.NOT_APPLICABLE) {
 			return nameParts.sheet.getValue(nameParts.fieldName);
 		}
-		return nameParts.sheet.getColumnValue(nameParts.fieldName, nameParts.rowIdx);
+		return nameParts.sheet.getColumnValue(nameParts.fieldName,
+				nameParts.rowIdx);
 	}
 
 	@Override
@@ -99,7 +100,8 @@ public class CommonData implements CommonDataInterface {
 		}
 
 		if (nameParts.rowIdx != CommonData.NOT_APPLICABLE) {
-			nameParts.sheet.setColumnValue(nameParts.fieldName, nameParts.rowIdx, value);
+			nameParts.sheet.setColumnValue(nameParts.fieldName,
+					nameParts.rowIdx, value);
 			return;
 		}
 
@@ -127,8 +129,10 @@ public class CommonData implements CommonDataInterface {
 			return nameParts.sheet.removeValue(fieldName);
 		}
 
-		Value value = nameParts.sheet.getColumnValue(nameParts.fieldName, nameParts.rowIdx);
-		nameParts.sheet.setColumnValue(nameParts.fieldName, nameParts.rowIdx, null);
+		Value value = nameParts.sheet.getColumnValue(nameParts.fieldName,
+				nameParts.rowIdx);
+		nameParts.sheet.setColumnValue(nameParts.fieldName, nameParts.rowIdx,
+				null);
 		return value;
 	}
 
@@ -148,7 +152,8 @@ public class CommonData implements CommonDataInterface {
 		if (nameParts.rowIdx == CommonData.NOT_APPLICABLE) {
 			return nameParts.sheet.hasValue(fieldName);
 		}
-		return nameParts.sheet.getColumnValue(nameParts.fieldName, nameParts.rowIdx) != null;
+		return nameParts.sheet.getColumnValue(nameParts.fieldName,
+				nameParts.rowIdx) != null;
 	}
 
 	@Override
@@ -172,7 +177,8 @@ public class CommonData implements CommonDataInterface {
 	}
 
 	@Override
-	public final DataSheetIterator startIteration(String sheetName) throws AlreadyIteratingException {
+	public final DataSheetIterator startIteration(String sheetName)
+			throws AlreadyIteratingException {
 		DataSheet sheet = this.getDataSheet(sheetName);
 
 		if (sheet == null || this.iteratedSheets.containsKey(sheetName)) {
@@ -288,8 +294,11 @@ public class CommonData implements CommonDataInterface {
 			String sheetName = fullName.substring(0, idx).trim();
 			this.sheet = CommonData.this.getDataSheet(sheetName);
 			if (this.sheet == null) {
-				throw new ApplicationError("Data sheet " + sheetName
-						+ " is not available in context for a put/get/remove operation for field " + fullName);
+				throw new ApplicationError(
+						"Data sheet "
+								+ sheetName
+								+ " is not available in context for a put/get/remove operation for field "
+								+ fullName);
 			}
 			if (this.sheet instanceof MultiRowsSheet) {
 				SheetIterator iter = CommonData.this.getIterator(sheetName);
@@ -309,27 +318,31 @@ public class CommonData implements CommonDataInterface {
 
 	/**
 	 * Way to pass an object to subsequent action
-	 * @param dataName name by which this is referred
+	 * 
+	 * @param dataName
+	 *            name by which this is referred
 	 * @param object
-	 * 			object
+	 *            object being set to this name
 	 */
-	public void setObject(String dataName, Object object){
+	public void setObject(String dataName, Object object) {
 		this.allObjects.put(dataName, object);
 	}
-	
+
 	/**
-	 * @param dataName name by which this is referred
+	 * @param dataName
+	 *            name by which this is referred
 	 * @return get the named object, or null if the object does not exists
 	 */
-	public Object getObject(String dataName){
+	public Object getObject(String dataName) {
 		return this.allObjects.get(dataName);
 	}
 
 	/**
-	 * @param dataName name of the object to be removed
+	 * @param dataName
+	 *            name of the object to be removed
 	 * @return object being removed, null if object was not found
 	 */
-	public Object removeObject(String dataName){
+	public Object removeObject(String dataName) {
 		return this.allObjects.remove(dataName);
 	}
 }

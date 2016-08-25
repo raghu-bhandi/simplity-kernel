@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -45,7 +45,7 @@ public interface CommonDataInterface extends FieldsInterface {
 	 * get sheet, or null if no such field
 	 *
 	 * @param sheetName
-	 * 		sheetName
+	 *            name of the sheet
 	 * @return sheet or null if sheet does not exist
 	 */
 	public DataSheet getDataSheet(String sheetName);
@@ -54,9 +54,9 @@ public interface CommonDataInterface extends FieldsInterface {
 	 * add/replace a data sheet.
 	 *
 	 * @param sheetName
-	 *            not null
+	 *            name of the sheet. not null
 	 * @param sheet
-	 *            not null, but vaule.isNull() could be true
+	 *            a sheet object. not null
 	 */
 	public void putDataSheet(String sheetName, DataSheet sheet);
 
@@ -64,7 +64,7 @@ public interface CommonDataInterface extends FieldsInterface {
 	 * do we have this data sheet?
 	 *
 	 * @param sheetName
-	 * 			sheetName
+	 *            name of the sheet. not null
 	 * @return true if sheet exists. False otherwise.
 	 */
 	public boolean hasDataSheet(String sheetName);
@@ -73,7 +73,7 @@ public interface CommonDataInterface extends FieldsInterface {
 	 * remove a data sheet
 	 *
 	 * @param sheetName
-	 * 		sheetName
+	 *            name of the sheet. not null
 	 * @return existing sheet, or null if no such sheet existed before this
 	 *         operation
 	 */
@@ -88,12 +88,13 @@ public interface CommonDataInterface extends FieldsInterface {
 	 * middle of an iteration.
 	 *
 	 * @param sheetName
-	 * 			sheetName
+	 *            name of the sheet. not null
 	 * @return iterator instance for looping on each row of this sheet
 	 * @throws AlreadyIteratingException
 	 *             if this sheet is in the middle of an iteration (earlier one
 	 *             is neither completed, not cancelled)
 	 */
-	public DataSheetIterator startIteration(String sheetName) throws AlreadyIteratingException;
+	public DataSheetIterator startIteration(String sheetName)
+			throws AlreadyIteratingException;
 
 }

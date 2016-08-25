@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -22,7 +22,7 @@
  */
 package org.simplity.kernel;
 
-import org.simplity.kernel.comp.ComponentManager;
+import org.simplity.kernel.comp.ComponentType;
 
 /**
  * This class works as a wrapper on top of component manager to deal with
@@ -34,7 +34,7 @@ import org.simplity.kernel.comp.ComponentManager;
 public class Messages {
 	/*
 	 * messages used internally
-	 *
+	 * 
 	 * these are defined in kernel.xml under msg folder. we have to ensure that
 	 * this list and that file are in synch.
 	 */
@@ -107,15 +107,15 @@ public class Messages {
 	 * get message text for this message after formatting based on parameters
 	 *
 	 * @param messageName
-	 * 			Messagename
 	 * @param parameters
-	 * 			parameters
 	 * @return formatted message text
 	 */
-	public static FormattedMessage getMessage(String messageName, String... parameters) {
-		Message message = ComponentManager.getMessageOrNull(messageName);
+	public static FormattedMessage getMessage(String messageName,
+			String... parameters) {
+		Message message = (Message) ComponentType.MSG
+				.getComponentOrNull(messageName);
 		if (message == null) {
-			message =  defaultMessage(messageName);
+			message = defaultMessage(messageName);
 		}
 		return message.getFormattedMessage(parameters);
 	}
@@ -123,7 +123,8 @@ public class Messages {
 	private static Message defaultMessage(String messageName) {
 		Message msg = new Message();
 		msg.name = messageName;
-		msg.text = messageName + " : description for this message is not found.";
+		msg.text = messageName
+				+ " : description for this message is not found.";
 		Tracer.trace("Missing mssage : " + messageName);
 		return msg;
 	}

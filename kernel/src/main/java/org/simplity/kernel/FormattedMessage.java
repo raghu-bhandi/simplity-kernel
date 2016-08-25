@@ -23,7 +23,7 @@ package org.simplity.kernel;
 
 import org.simplity.json.JSONWriter;
 import org.simplity.json.Jsonable;
-import org.simplity.kernel.comp.ComponentManager;
+import org.simplity.kernel.comp.ComponentType;
 
 /**
  * formatted message data structure.
@@ -67,11 +67,8 @@ public class FormattedMessage implements Jsonable {
 	 * attributes can be optionally set
 	 *
 	 * @param name
-	 * 			Name
 	 * @param type
-	 * 			Type
 	 * @param text
-	 * 			Text
 	 */
 	public FormattedMessage(String name, MessageType type, String text) {
 		this.name = name;
@@ -93,12 +90,14 @@ public class FormattedMessage implements Jsonable {
 	/**
 	 *
 	 * @param messageName
-	 * 			MessageName
+	 *            message name
 	 * @param params
-	 * 			params
+	 *            message parameters
 	 */
 	public FormattedMessage(String messageName, String... params) {
-		Message msg = ComponentManager.getMessageOrNull(messageName);
+
+		Message msg = (Message) ComponentType.MSG
+				.getComponentOrNull(messageName);
 		if (msg == null) {
 			this.name = messageName;
 			this.text = messageName
@@ -115,17 +114,17 @@ public class FormattedMessage implements Jsonable {
 	/**
 	 *
 	 * @param msgName
-	 * 			msgname
+	 *            message name
 	 * @param tableName
-	 * 			tableName
+	 *            table/sheet associated with this message
 	 * @param fieldName
-	 * 			fieldName
+	 *            name of the field/column associated with this message
 	 * @param otherFieldName
-	 * 			otherFieldName
+	 *            other field, (like from-to) that this message refers to
 	 * @param rowNumber
-	 * 			rowNumber
+	 *            if a table/sheet is associated, then the row number
 	 * @param params
-	 * 			params
+	 *            additional parameters for the message
 	 */
 	public FormattedMessage(String msgName, String tableName, String fieldName,
 			String otherFieldName, int rowNumber, String... params) {
@@ -140,7 +139,7 @@ public class FormattedMessage implements Jsonable {
 	@Override
 	public void writeJsonValue(JSONWriter writer) {
 		writer.object().key("name").value(this.name).key("text")
-				.value(this.text).key("messageType").value(this.messageType);
+		.value(this.text).key("messageType").value(this.messageType);
 		if (this.fieldName != null) {
 			writer.key("fieldName").value(this.fieldName);
 		}

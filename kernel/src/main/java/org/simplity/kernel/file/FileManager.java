@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,17 +23,16 @@
 package org.simplity.kernel.file;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Set;
 
 import javax.servlet.ServletContext;
 
 /**
- * File has a simple conotation to most programmers : it is available on the
+ * File has a simple connotation to most programmers : it is available on the
  * disk. if you write to it, you should be able to read it later, even across
  * layers. file manager will try to provide that view
  *
@@ -49,6 +48,7 @@ public class FileManager {
 	private static String applicationRootFolder = "/";
 
 	private static ServletContext applicationContext = null;
+
 	/**
 	 * @param ctx
 	 *            servlet context
@@ -66,11 +66,19 @@ public class FileManager {
 	 * @return collection. never null. will be an empty collection in case of
 	 *         any error. (like non-existing folder)
 	 */
-	public static Set<String> getResources(String folder) {
-		return applicationContext.getResourcePaths(applicationRootFolder + folder);
+	public static String[] getResources(String folder) {
+		if (applicationContext == null) {
+			File file = new File(folder);
+			String[] files = file.list();
+			for (int i = 0; i < files.length; i++) {
+				files[i] = folder + files[i];
+			}
+			return files;
+		}
+		return applicationContext.getResourcePaths(
+				applicationRootFolder + folder).toArray(new String[0]);
 	}
-	
-	
+
 	/**
 	 * read a file and return its contents
 	 *
@@ -80,21 +88,22 @@ public class FileManager {
 	 * @throws Exception
 	 *             in case of any issue while reading this file
 	 */
-	@SuppressWarnings("unused")
-	private static String readResource(String fileName) throws Exception {
+	public static String readResource(String fileName) throws Exception {
 		InputStream in = null;
-		String nameToUse = applicationRootFolder + fileName;
 		try {
-			in = applicationContext.getResourceAsStream(nameToUse);
-			if(in == null){
-				
-				throw new Exception("File " + nameToUse
-						+ " is not available to be read.");
+			in = getResourceStream(fileName);
+			if (in == null) {
+				throw new Exception(
+						"File "
+								+ fileName
+								+ " is not available to be read with applicationRoot being set to ."
+								+ applicationRootFolder);
 			}
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					in, "UTF-8"));
 			StringBuilder sbf = new StringBuilder();
 			String line;
-			while((line = reader.readLine()) != null){
+			while ((line = reader.readLine()) != null) {
 				sbf.append(line);
 			}
 			return sbf.toString();
@@ -109,6 +118,7 @@ public class FileManager {
 		}
 
 	}
+
 	/**
 	 * read a file and return its contents
 	 *
@@ -118,8 +128,17 @@ public class FileManager {
 	 * @throws Exception
 	 *             in case of any issue while reading this file
 	 */
-	public static InputStream getResourceStream(String fileName) throws Exception {
-		return applicationContext.getResourceAsStream(applicationRootFolder + fileName);
+	public static InputStream getResourceStream(String fileName)
+			throws Exception {
+		if (applicationContext == null) {
+			File file = new File(fileName);
+			if (file.exists()) {
+				return new FileInputStream(file);
+			}
+			return null;
+		}
+		return applicationContext.getResourceAsStream(applicationRootFolder
+				+ fileName);
 
 	}
 
@@ -129,28 +148,13 @@ public class FileManager {
 	 *
 	 * @param stream
 	 */
-	public void safelyClose(InputStream stream) {
+	public static void safelyClose(InputStream stream) {
 		if (stream != null) {
 			try {
 				stream.close();
 			} catch (IOException e) {
 				// cool
 			}
-		}
-	}
-
-	/**
-	 *
-	 * @param fileName
-	 *            relative to application root folder
-	 * @return file
-	 */
-	@SuppressWarnings("unused")
-	private static URL getResource(String resourceName) {
-		try {
-			return applicationContext.getResource(resourceName);
-		} catch (MalformedURLException e) {
-			return null;
 		}
 	}
 
