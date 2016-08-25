@@ -151,7 +151,7 @@ public class ServiceAgentTest extends Mockito {
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		System.out.println(obj.getString("hello"));
 		assertNotNull(outData.getPayLoad());
-		assertEquals("Helloooooo Java", obj.getString("hello"));
+		assertEquals("Hellooooo World from a Java class 1234sdfas !!", obj.getString("hello"));
 	}
 
 	/**

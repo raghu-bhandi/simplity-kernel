@@ -14,7 +14,9 @@ public class HelloWorldAction implements LogicInterface {
 
 	@Override
 	public Value execute(ServiceContext ctx) {
-		ctx.setValue("hello", Value.newTextValue("Helloooo World"));
-		return Value.VALUE_TRUE;
+		Value value = Value.newTextValue("Hellooooo World from a Java class 1234sdfas !!");
+		ctx.setValue("hello", value);
+		return value;
+
 	}
 }
