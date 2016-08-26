@@ -12,9 +12,6 @@
 			className="org.simplity.HelloWorldAction" />
 	</actions>
 	
-	<outputData>
-		<outputRecords>
-			<outputRecord sheetName="" recordName=""/>
-		</outputRecords>
+	<outputData fieldNames="hello">
 	</outputData>
 </service>
