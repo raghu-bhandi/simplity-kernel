@@ -34,12 +34,15 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
-import org.simplity.kernel.comp.ComponentManager;
+import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.file.FileManager;
+import org.simplity.kernel.util.XmlUtil;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 
 public class ServiceAgentTest extends Mockito {
+	private static final String COMP_PATH = "resources/comp/";
+	final static String TEST_PATH = "src/test/java";
 	@Mock
 	HttpServletRequest request;
 
@@ -77,9 +80,8 @@ public class ServiceAgentTest extends Mockito {
 
 		MockitoAnnotations.initMocks(this);
 		ServletContext context = mock(ServletContext.class);
-		ComponentManager.setComponentFolder("resources/comp");
+		ComponentType.setComponentFolder(COMP_PATH);
 		FileManager.setContext(context);
-		String path = "src/test/java";
 
 		when(context.getResourceAsStream(anyString())).thenAnswer(new Answer<InputStream>() {
 
@@ -95,7 +97,7 @@ public class ServiceAgentTest extends Mockito {
 					return is;
 				}
 
-				file = new File(Paths.get("", path).toAbsolutePath().toString(), newPath);
+				file = new File(Paths.get("", TEST_PATH).toAbsolutePath().toString(), newPath);
 				is = new FileInputStream(file);
 
 				return is;
@@ -105,13 +107,12 @@ public class ServiceAgentTest extends Mockito {
 		when(context.getResourcePaths(anyString())).thenAnswer(new Answer<Set<String>>() {
 
 			public Set<String> answer(InvocationOnMock invocation) throws Throwable {
-				@SuppressWarnings("unchecked")
-				Collection<File> files = FileUtils.listFiles(new File(Paths.get("", path).toAbsolutePath().toString(),
+				Collection<File> files = FileUtils.listFiles(new File(Paths.get("", TEST_PATH).toAbsolutePath().toString(),
 						(String) invocation.getArguments()[0]), null, false);
 
-				Set<String> set = new HashSet<>();
+				Set<String> set = new HashSet<String>();
 				for (Iterator<File> iterator = files.iterator(); iterator.hasNext();) {
-					File file = (File) iterator.next();
+					File file = iterator.next();
 					set.add(file.getAbsolutePath());
 				}
 				return set;
@@ -119,8 +120,12 @@ public class ServiceAgentTest extends Mockito {
 		});
 
 		Application app = new Application();
-		ComponentManager.loadObject(app, "application.xml");
-		ComponentManager.initialLoad();
+		XmlUtil.xmlToObject(COMP_PATH + "application.xml", app);
+		/*
+		 * app.configure() takes care of all initial set up, while preLoad() takes care of loading components
+		 */
+		app.configure();
+		//ComponentType.preLoad();
 	}
 
 	@Test

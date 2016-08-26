@@ -318,6 +318,7 @@ public class HttpAgent {
 	 * @throws IOException
 	 */
 	private static String readInput(HttpServletRequest req) throws IOException {
+		@SuppressWarnings("resource")
 		BufferedReader reader = null;
 		StringBuilder sbf = new StringBuilder();
 		try {

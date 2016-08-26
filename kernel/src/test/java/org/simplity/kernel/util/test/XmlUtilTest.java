@@ -7,24 +7,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
-import java.net.URL;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.simplity.kernel.Application;
 import org.simplity.kernel.Message;
-import org.simplity.kernel.comp.ComponentManager;
-import org.simplity.kernel.comp.GroupManager;
-import org.simplity.kernel.db.Sql;
 import org.simplity.kernel.db.StoredProcedure;
 import org.simplity.kernel.dm.Record;
-import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.util.XmlUtil;
-import org.simplity.service.ServiceInterface;
-import org.simplity.tp.OnTheFlyServiceManager;
 import org.simplity.tp.Service;
 
 public class XmlUtilTest {
@@ -64,13 +56,13 @@ public class XmlUtilTest {
 	@Test
 	public final void serviceXmlToObject() {
 		Object object = new Service();
-		Object object1 = null;
+		Object object1 = new Service();
 		try {
 			ClassLoader classLoader = getClass().getClassLoader();
 			InputStream fis = classLoader.getResourceAsStream("resources/xml/Service.xml");
 
 			
-			 object1= XmlUtil.xmlToObject(fis, object);
+			 XmlUtil.xmlToObject(fis, object);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -86,13 +78,13 @@ public class XmlUtilTest {
 	@Test
 	public final void messageXmlToObject() {
 		Object object = new Message();
-		Object object1 = null;
+		Object object1 = new Message();
 		try {
 			ClassLoader classLoader = getClass().getClassLoader();
 			InputStream fis = classLoader.getResourceAsStream("resources/xml/Message.xml");
 
 			
-			 object1= XmlUtil.xmlToObject(fis, object);
+			 XmlUtil.xmlToObject(fis, object);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -108,13 +100,13 @@ public class XmlUtilTest {
 	@Test
 	public final void storedProcXmlToObject() {
 		Object object = new StoredProcedure();
-		Object object1 = null;
+		Object object1 = new StoredProcedure();
 		try {
 			ClassLoader classLoader = getClass().getClassLoader();
 			InputStream fis = classLoader.getResourceAsStream("resources/xml/SP.xml");
 
 			
-			 object1= XmlUtil.xmlToObject(fis, object);
+			 XmlUtil.xmlToObject(fis, object);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -129,13 +121,13 @@ public class XmlUtilTest {
 	@Test
 	public final void recordProcXmlToObject() {
 		Object object = new Record();
-		Object object1 = null;
+		Object object1 = new Record();
 		try {
 			ClassLoader classLoader = getClass().getClassLoader();
 			InputStream fis = classLoader.getResourceAsStream("resources/xml/Record.xml");
 
 			
-			 object1= XmlUtil.xmlToObject(fis, object);
+			 XmlUtil.xmlToObject(fis, object);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
