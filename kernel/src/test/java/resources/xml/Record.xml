@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<record xmlns="http://www.simplity.org/schema" childrenToBeRead="" childrenToBeSaved="testRecord" defaultRefRecord="defalutRec" defaultSheetName="defalutsheet" description="testingrecord" expectedNbrRows="testrow" keyGeneratorName="testkeygen" keyToBeGenerated="true" logicalPrimaryKeyFields="primaryfield" moduleName="testmodule" name="NCName" okToSelectAll="true" readOnly="true" recordType="storage" suggestionKeyName="NCName" suggestionOutputNames="testoutput" tableName="testtable" valueListFieldName="NCName" valueListKeyName="NCName" xmlns:p="htt//www.simplity.org/schema" xmlns:xsi="htt//www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="htt//www.simplity.org/schema ../../../../../../archetype/src/main/resources/archetype-resources/src/main/webapp/WEB-INF/comp/schema/kernel.xsd ">
-  <fields>
-    <field basedOnField="NCName" columnName="NCName" dataType="testDT" defaultValue="defalutvalue" description="testdesc" fieldType="data" fromField="NCName" isNullable="true" isRequired="true" label="testlabel" messageName="NCName" name="NCName" otherField="NCName" referredField="NCName" referredRecord="testref" toField="NCName" valueList="1,2"/>
-  </fields>
-</record>

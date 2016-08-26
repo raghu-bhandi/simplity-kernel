@@ -9,7 +9,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -21,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,7 +40,7 @@ import org.simplity.service.ServiceData;
 
 public class ServiceAgentTest extends Mockito {
 	private static final String COMP_PATH = "resources/comp/";
-	final static String TEST_PATH = "src/test/java";
+	final static String TEST_PATH = "src/test/java/";
 	@Mock
 	HttpServletRequest request;
 
@@ -91,13 +89,13 @@ public class ServiceAgentTest extends Mockito {
 				if (newPath.startsWith("/")) {
 					newPath = newPath.substring(1);
 				}
-				File file = new File(Paths.get(newPath).toAbsolutePath().toString());
+				File file = new File(TestUtils.getFile(newPath));
 				if (file.exists()) {
 					is = new FileInputStream(file);
 					return is;
 				}
 
-				file = new File(Paths.get("", TEST_PATH).toAbsolutePath().toString(), newPath);
+				file = new File(TestUtils.getFile(newPath,TEST_PATH));
 				is = new FileInputStream(file);
 
 				return is;
@@ -105,17 +103,8 @@ public class ServiceAgentTest extends Mockito {
 		});
 
 		when(context.getResourcePaths(anyString())).thenAnswer(new Answer<Set<String>>() {
-
 			public Set<String> answer(InvocationOnMock invocation) throws Throwable {
-				Collection<File> files = FileUtils.listFiles(new File(Paths.get("", TEST_PATH).toAbsolutePath().toString(),
-						(String) invocation.getArguments()[0]), null, false);
-
-				Set<String> set = new HashSet<String>();
-				for (Iterator<File> iterator = files.iterator(); iterator.hasNext();) {
-					File file = iterator.next();
-					set.add(file.getAbsolutePath());
-				}
-				return set;
+				return TestUtils.listFiles(new File(TestUtils.getFile((String) invocation.getArguments()[0], TEST_PATH)));
 			}
 		});
 
