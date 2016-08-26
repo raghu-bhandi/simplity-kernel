@@ -11,5 +11,10 @@
 			actionName="sayHello"
 			className="org.simplity.HelloWorldAction" />
 	</actions>
-	<outputData fieldNames="hello"></outputData>
+	
+	<outputData>
+		<outputRecords>
+			<outputRecord sheetName="" recordName=""/>
+		</outputRecords>
+	</outputData>
 </service>

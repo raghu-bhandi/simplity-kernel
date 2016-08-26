@@ -55,6 +55,7 @@
 			<version>5.1.6</version>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 	<reporting>
 		<plugins>

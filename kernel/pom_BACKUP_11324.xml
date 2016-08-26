@@ -55,6 +55,20 @@
 			<version>5.1.6</version>
 			<scope>test</scope>
 		</dependency>
+<<<<<<< HEAD
+=======
+	<dependency>
+	    <groupId>commons-io</groupId>
+	    <artifactId>commons-io</artifactId>
+	    <version>2.5</version>
+	</dependency>
+	<dependency>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<version>5.1.6</version>
+	</dependency>
+>>>>>>> dbd9368a29f0929aabfd97bae6cb177d230611ba
+
 	</dependencies>
 	<reporting>
 		<plugins>
