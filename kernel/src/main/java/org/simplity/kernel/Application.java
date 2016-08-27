@@ -365,8 +365,16 @@ public class Application {
 	 * login-user. One can use this to run the application as that user
 	 *
 	 * @param args
+	 *            comFolderName serviceName param1=value1 param2=value2 .....
 	 */
 	public static void main(String[] args) {
+		String[] parms = { "e:/repos/simplity/WebContent/WEB-INF/comp/",
+		"tutorial.fn" };
+		myTest(parms);
+		// myTest(args);
+	}
+
+	private static void myTest(String[] args) {
 		int nbr = args.length;
 		if (nbr < 2) {
 			printUsage();

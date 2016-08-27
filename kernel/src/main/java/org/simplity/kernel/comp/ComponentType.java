@@ -34,6 +34,8 @@ import org.simplity.kernel.db.StoredProcedure;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.file.FileManager;
+import org.simplity.kernel.fn.Concat;
+import org.simplity.kernel.fn.Function;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.service.ServiceInterface;
 import org.simplity.tp.Service;
@@ -65,7 +67,7 @@ public enum ComponentType {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see
 		 * org.simplity.kernel.comp.ComponentType#generateComp(java.lang.String)
 		 */
@@ -107,7 +109,57 @@ public enum ComponentType {
 	/**
 	 * Stored procedure
 	 */
-	SP(5, StoredProcedure.class, "sp/", false);
+	SP(5, StoredProcedure.class, "sp/", false),
+	/**
+	 * function
+	 */
+	FUNCTION(6, Function.class, "fn/", true) {
+		@Override
+		protected void loadAll() {
+			try {
+				loadGroups(this.folder, null, this.cachedOnes);
+				/*
+				 * we have to initialize the components
+				 */
+				for (Map.Entry<String, Object> entry : this.cachedOnes
+						.entrySet()) {
+					String fname = entry.getValue().toString();
+					Object obj = null;
+					try {
+						obj = Class.forName(fname).newInstance();
+					} catch (Exception e) {
+						Tracer.trace(e,
+								"Unable to create an instance of Function based on class "
+										+ fname);
+					}
+					if (obj != null) {
+						if (obj instanceof Function) {
+							entry.setValue(obj);
+						} else {
+							Tracer.trace(fname
+									+ " is a valid class but not a sub-class of Function. Function entry ignored.");
+						}
+					}
+				}
+				Tracer.trace(this.cachedOnes.size() + " " + this + " loaded.");
+			} catch (Exception e) {
+				this.cachedOnes.clear();
+				Tracer.trace(
+						e,
+						this
+						+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
+			}
+			for (Function fn : BUILT_IN_FUNCTIONS) {
+				String fname = fn.getSimpleName();
+				if (this.cachedOnes.get(fname) != null) {
+					Tracer.trace(fname
+							+ " is a built-in function and can not be over-ridden. User defined funciton with the same name is discarded.");
+				}
+				this.cachedOnes.put(fname, fn);
+			}
+		}
+
+	};
 
 	/*
 	 * constants
@@ -117,6 +169,10 @@ public enum ComponentType {
 	private static final char DELIMITER = '.';
 	private static final String EXTN = ".xml";
 	private static final String CLASS_FOLDER = "service/list/";
+	/*
+	 * list of built-in functions
+	 */
+	protected static final Function[] BUILT_IN_FUNCTIONS = { new Concat() };
 
 	/**
 	 * root folder where components are located, relative to file-manager's
@@ -140,12 +196,12 @@ public enum ComponentType {
 	/**
 	 * class associated with this type that is used for loading component/s
 	 */
-	private final Class<?> cls;
+	protected final Class<?> cls;
 
 	/**
 	 * folder name under which components are saved
 	 */
-	private final String folder;
+	protected final String folder;
 
 	/**
 	 * is this loaded on a need basis or pre-loaded?
@@ -172,7 +228,7 @@ public enum ComponentType {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Enum#toString()
 	 */
 	@Override
@@ -379,7 +435,7 @@ public enum ComponentType {
 	 * @param packageName
 	 * @param objects
 	 */
-	private void loadAll() {
+	protected void loadAll() {
 		try {
 			loadGroups(this.folder, this.cls, this.cachedOnes);
 			/*
@@ -394,7 +450,7 @@ public enum ComponentType {
 			Tracer.trace(
 					e,
 					this
-							+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
+					+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
 		}
 	}
 
@@ -412,7 +468,7 @@ public enum ComponentType {
 	 *            is to be loaded as name-value pairs.
 	 * @param objects
 	 */
-	private static void loadGroups(String folderName, Class<?> rootClass,
+	protected static void loadGroups(String folderName, Class<?> rootClass,
 			Map<String, Object> objects) {
 		String packageName = null;
 		if (rootClass != null) {

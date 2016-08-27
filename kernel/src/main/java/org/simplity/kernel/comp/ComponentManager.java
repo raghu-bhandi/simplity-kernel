@@ -21,11 +21,15 @@
  */
 package org.simplity.kernel.comp;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Message;
+import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.db.Sql;
 import org.simplity.kernel.db.StoredProcedure;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dt.DataType;
+import org.simplity.kernel.fn.Function;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceInterface;
 
 /**
@@ -39,6 +43,7 @@ public class ComponentManager {
 	/**
 	 *
 	 * @param messageName
+	 *            name
 	 * @return message if it is defined, null otherwise
 	 */
 	public static Message getMessageOrNull(String messageName) {
@@ -49,6 +54,7 @@ public class ComponentManager {
 	 * note that this throws an error if message is not found
 	 *
 	 * @param messageName
+	 *            name
 	 * @return message if it is defined, error otherwise
 	 */
 	public static Message getMessage(String messageName) {
@@ -58,6 +64,7 @@ public class ComponentManager {
 	/**
 	 *
 	 * @param dataTypeName
+	 *            name
 	 * @return dataType if it is defined, null otherwise
 	 */
 	public static DataType getDataTypeOrNull(String dataTypeName) {
@@ -65,9 +72,10 @@ public class ComponentManager {
 	}
 
 	/**
-	 * note that this throws an error if message is not found
+	 * note that this throws an error if data type is not found
 	 *
 	 * @param dataTypeName
+	 *            name
 	 * @return DataType if it is defined, error otherwise
 	 */
 	public static DataType getDataType(String dataTypeName) {
@@ -77,6 +85,7 @@ public class ComponentManager {
 	/**
 	 *
 	 * @param recordName
+	 *            name
 	 * @return Record if it is defined, null otherwise
 	 */
 	public static Record getRecordOrNull(String recordName) {
@@ -84,9 +93,10 @@ public class ComponentManager {
 	}
 
 	/**
-	 * note that this throws an error if message is not found
+	 * note that this throws an error if record is not found
 	 *
 	 * @param recordName
+	 *            name
 	 * @return Record if it is defined, error otherwise
 	 */
 	public static Record getRecord(String recordName) {
@@ -96,6 +106,7 @@ public class ComponentManager {
 	/**
 	 *
 	 * @param serviceName
+	 *            name
 	 * @return Service if it is defined, null otherwise
 	 */
 	public static ServiceInterface getServiceOrNull(String serviceName) {
@@ -104,9 +115,10 @@ public class ComponentManager {
 	}
 
 	/**
-	 * note that this throws an error if message is not found
+	 * note that this throws an error if service is not found
 	 *
 	 * @param serviceName
+	 *            name
 	 * @return Service if it is defined, error otherwise
 	 */
 	public static ServiceInterface getService(String serviceName) {
@@ -117,6 +129,7 @@ public class ComponentManager {
 	/**
 	 *
 	 * @param sqlName
+	 *            name
 	 * @return Sql if it is defined, null otherwise
 	 */
 	public static Sql getSqlOrNull(String sqlName) {
@@ -124,9 +137,10 @@ public class ComponentManager {
 	}
 
 	/**
-	 * note that this throws an error if message is not found
+	 * note that this throws an error if sql is not found
 	 *
 	 * @param sqlName
+	 *            name
 	 * @return message if it is defined, error otherwise
 	 */
 	public static Sql getSql(String sqlName) {
@@ -136,6 +150,7 @@ public class ComponentManager {
 	/**
 	 *
 	 * @param procedureName
+	 *            name
 	 * @return StoredProcedure if it is defined, null otherwise
 	 */
 	public static StoredProcedure getStoredProcedureOrNull(String procedureName) {
@@ -144,9 +159,10 @@ public class ComponentManager {
 	}
 
 	/**
-	 * note that this throws an error if message is not found
+	 * note that this throws an error if stored procedure is not found
 	 *
 	 * @param procedureName
+	 *            name
 	 * @return StoredProcedure if it is defined, error otherwise
 	 */
 	public static StoredProcedure getStoredProcedure(String procedureName) {
@@ -154,4 +170,49 @@ public class ComponentManager {
 				.getComponentOrNull(procedureName);
 	}
 
+	/**
+	 *
+	 * @param functionName
+	 *            name
+	 * @return a function if it is defined, null otherwise
+	 */
+	public static Function getFunctionOrNull(String functionName) {
+		return (Function) ComponentType.FUNCTION
+				.getComponentOrNull(functionName);
+	}
+
+	/**
+	 * note that this throws an error if function is not found
+	 *
+	 * @param functionName
+	 *            name
+	 * @return StoredProcedure if it is defined, error otherwise
+	 */
+	public static Function getFunction(String functionName) {
+		return (Function) ComponentType.FUNCTION
+				.getComponentOrNull(functionName);
+	}
+
+	/**
+	 * evaluate a function and return its value
+	 *
+	 * @param functionName
+	 *            name of function
+	 * @param valueList
+	 *            array of arguments. Must match arguments of function in the
+	 *            right order. null or empty array if this function does not
+	 *            require any arguments
+	 * @param data
+	 *            fields context that may contain other fields that the function
+	 *            may refer at run time. This is typically the fieds from
+	 *            serviceCOntext
+	 * @return value is never null. However value.isNull() could be true.
+	 * @throws ApplicationError
+	 *             in case the function is not defined, or you are passing wrong
+	 *             type of arguments for the function
+	 */
+	public static Value evaluate(String functionName, Value[] valueList,
+			FieldsInterface data) {
+		return getFunction(functionName).execute(valueList, data);
+	}
 }

@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,56 +19,62 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.simplity.kernel.fn;
 
-import org.simplity.kernel.comp.ComponentType;
-import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.util.TextUtil;
+import org.simplity.kernel.Tracer;
+import org.simplity.kernel.data.FieldsInterface;
+import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
 
 /**
- * use this as the base class if you are developing a function meant only for
- * this. the core function methods for concrete class
+ * @author simplity.org
  *
  */
-public abstract class AbstractFunction implements Function {
-	protected static final ComponentType MY_TYPE = ComponentType.FUNCTION;
-
-	@Override
-	public String getSimpleName() {
-		String name = this.getClass().getSimpleName();
-		return TextUtil.classNameToName(name);
-	}
-
-	@Override
-	public String getQualifiedName() {
-		return this.getSimpleName();
-	}
-
-	@Override
-	public void getReady() {
-		//
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.simplity.kernel.comp.Component#getComponentType()
+public class Concat extends AbstractFunction {
+	/**
+	 * null as the last entry means var args..
 	 */
-	@Override
-	public ComponentType getComponentType() {
-		return MY_TYPE;
-	}
+	private static final ValueType[] MY_ARG_TYPES = { ValueType.TEXT, null };
 
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
-	 * ValidationContext)
+	 * org.simplity.kernel.fn.Function#execute(org.simplity.kernel.value.Value
+	 * [], org.simplity.kernel.data.FieldsInterface)
 	 */
 	@Override
-	public int validate(ValidationContext ctx) {
-		return 0;
+	public Value execute(Value[] arguments, FieldsInterface data) {
+		if (arguments == null || arguments.length == 0) {
+			return Value.VALUE_EMPTY;
+		}
+		StringBuilder sbf = new StringBuilder();
+		for (Value val : arguments) {
+			Tracer.trace("arg " + val);
+			sbf.append(val);
+		}
+		return Value.newTextValue(sbf.toString());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.simplity.kernel.fn.Function#getReturnType()
+	 */
+	@Override
+	public ValueType getReturnType() {
+		return ValueType.TEXT;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.simplity.kernel.fn.Function#getArgDataTypes()
+	 */
+	@Override
+	public ValueType[] getArgDataTypes() {
+		return MY_ARG_TYPES;
 	}
 
 }

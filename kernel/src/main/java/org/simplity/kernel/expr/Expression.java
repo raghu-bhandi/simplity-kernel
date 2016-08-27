@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.util.DateUtil;
 import org.simplity.kernel.value.InvalidValueException;
@@ -67,8 +68,7 @@ import org.simplity.kernel.value.ValueType;
  * note that we do lazy-evaluation. That is, if first operand is true we do not
  * evaluate the second one in an | operation.
  * <li>, is a pseudo operator between two operands to satisfy syntax. that is
- * how you specify argument list for a function like foo(a, b, 12)
- * </ul>
+ * how you specify argument list for a function like foo(a, b, 12) </ul>
  *
  * <p>
  * Braces
@@ -108,7 +108,7 @@ public class Expression {
 	 * model, if an expression has n operands, it is solved in n-1 steps, each
 	 * step carrying out one binary operation between two operands replacing
 	 * them with the resultant value.
-	 *
+	 * 
 	 * <p>And, we handle braces by parsing them into 'sub-expression'.
 	 * sub-expression is treated like an operand.
 	 */
@@ -158,7 +158,8 @@ public class Expression {
 			parser.parse(this.expressionText.toCharArray(), 0, false);
 			parser.setupShop();
 		} catch (InternalParseException e) {
-			throw new InvalidExpressionException(this.expressionText, e.error, e.errorAt);
+			throw new InvalidExpressionException(this.expressionText, e.error,
+					e.errorAt);
 		}
 	}
 
@@ -172,15 +173,14 @@ public class Expression {
 	 *            if this sub-expression is for function
 	 * @throws InternalParseException
 	 */
-	Expression(char[] chars, int startingAt, boolean commaOk) throws InternalParseException {
+	Expression(char[] chars, int startingAt, boolean commaOk)
+			throws InternalParseException {
 
 		MyParser worker = new MyParser();
 		worker.parse(chars, startingAt, commaOk);
-		this.expressionText = new String(chars, startingAt + 1, worker.parsingAt - startingAt);
+		this.expressionText = new String(chars, startingAt + 1,
+				worker.parsingAt - startingAt - 1);
 		worker.setupShop();
-		/*
-		 * worker would be pointing to the closing bracket
-		 */
 	}
 
 	/**
@@ -190,7 +190,8 @@ public class Expression {
 	 * @return value of this expression
 	 * @throws InvalidOperationException
 	 */
-	public Value evaluate(FieldsInterface data) throws InvalidOperationException {
+	public Value evaluate(FieldsInterface data)
+			throws InvalidOperationException {
 		/*
 		 * this is just a safety. As per our current design, this should not
 		 * happen
@@ -237,6 +238,9 @@ public class Expression {
 			return values;
 		}
 
+		/*
+		 * there are nulls at the end.
+		 */
 		Value[] valuesToreturn = new Value[nbrArgs];
 		for (int i = 0; i < nbrArgs; i++) {
 			valuesToreturn[i] = values[i];
@@ -251,14 +255,15 @@ public class Expression {
 	 * @param data
 	 * @throws InvalidOperationException
 	 */
-	private void takeSteps(Value[] values, FieldsInterface data) throws InvalidOperationException {
+	private void takeSteps(Value[] values, FieldsInterface data)
+			throws InvalidOperationException {
 		/*
-		 * comma operators would be at the end. We will take them outside of the
-		 * loop
+		 * steps involving commas (for functions) would be at the end. We comma
+		 * operators would be at the end. We will take them outside of the loop
 		 */
-		int lastStep = this.calculationSteps.length - this.nbrCommas;
+		int actualSteps = this.calculationSteps.length - this.nbrCommas;
 
-		for (int i = 0; i < lastStep; i++) {
+		for (int i = 0; i < actualSteps; i++) {
 			Step step = this.calculationSteps[i];
 			/*
 			 * values[] contains null, unless a calculated value is placed in a
@@ -304,21 +309,53 @@ public class Expression {
 					result = step.bop.operate(leftValue, rightValue);
 				}
 			} catch (InvalidValueException e) {
-				throw new InvalidOperationException(step.bop, leftValue.getValueType(), rightValue.getValueType());
+				throw new InvalidOperationException(step.bop,
+						leftValue.getValueType(), rightValue.getValueType());
 			}
 			values[step.left] = result;
 		}
 
+		/*
+		 * if there are no comma operators, then the result would be in
+		 * values[0]. And we are done.
+		 */
 		if (this.nbrCommas == 0) {
 			return;
 		}
+
 		/*
-		 * we have to just shift the values to the left so that all comma
-		 * operands are at
+		 * first argument is always at idx=0. idx of subsequent arguments in
+		 * value[] are available as step.right attribute.
+		 *
+		 * For example if it is a simple (a,b), then there is one step with
+		 * left=0, and right=1
+		 *
+		 * if it is (a+b, c) then left=0, right=2 for step[1]
 		 */
+
+		/*
+		 * if the first argument was not an expression, let us copy the
+		 * argument-value to value[0];
+		 */
+		if (values[0] == null) {
+			values[0] = this.operands[0].getValue(data);
+		}
+		/*
+		 * each of the step gives us the idx of the next argument as its right.
+		 */
+		int stepIdx = actualSteps;
 		for (int i = 1; i <= this.nbrCommas; i++) {
-			values[i] = values[this.calculationSteps[lastStep].right];
-			lastStep++;
+			int idx = this.calculationSteps[stepIdx].right;
+			Value value = values[idx];
+			/*
+			 * value is null if it is just an operand, and not an expression.
+			 * Hence copy its operand-value
+			 */
+			if (value == null) {
+				value = this.operands[idx].getValue(data);
+			}
+			values[i] = value;
+			stepIdx++;
 		}
 	}
 
@@ -333,7 +370,8 @@ public class Expression {
 		int i = 1;
 		int nbrSubExpr = 0;
 		for (Operand operand : this.operands) {
-			sbf.append(i).append(" : ").append(operand.uop == null ? "" : operand.uop);
+			sbf.append(i).append(" : ")
+					.append(operand.uop == null ? "" : operand.uop);
 			if (operand.value != null) {
 				sbf.append(operand.value);
 			}
@@ -347,7 +385,8 @@ public class Expression {
 		sbf.append("   STEPS    \n");
 		i = 1;
 		for (Step step : this.calculationSteps) {
-			sbf.append(i).append(" : operand-").append(step.left + 1).append("  ").append(step.bop).append("  ")
+			sbf.append(i).append(" : operand-").append(step.left + 1)
+					.append("  ").append(step.bop).append("  ")
 					.append(step.right + 1).append("\n");
 			i++;
 		}
@@ -419,10 +458,21 @@ public class Expression {
 		MyParser() {
 		}
 
-		void parse(char[] charsToParse, int startAt, boolean forFunction) throws InternalParseException {
+		void parse(char[] charsToParse, int startAt, boolean forFunction)
+				throws InternalParseException {
 			this.chars = charsToParse;
 			this.nbrChars = charsToParse.length;
 			this.commaOk = forFunction;
+
+			char openingBracket = 0;
+			if (startAt > 0) {
+				/*
+				 * this is a sub-expression
+				 */
+				openingBracket = this.chars[startAt - 1];
+				Tracer.trace("GOing to parse a sub-expression starting at "
+						+ startAt + " for " + openingBracket);
+			}
 			/*
 			 * loop is not for each character though we re incrementing char
 			 * pointer in this for loop. That is because the tokenizers alter
@@ -436,20 +486,30 @@ public class Expression {
 				}
 
 				if (this.isCloseBracket(c)) {
-					if (startAt == 0) {
-						throw new InternalParseException("close brace found with no matching open brace ",
+					if (openingBracket == 0) {
+						throw new InternalParseException(
+								"close brace found with no matching open brace ",
 								this.parsingAt);
 					}
-					char startChar = this.chars[startAt - 1];
-					if (startChar == Chars.OPEN_CURVE && c == Chars.CLOSE_CURVE
-							|| startChar == Chars.OPEN_SQUARE && c == Chars.CLOSE_SQUARE
-							|| startChar == Chars.OPEN_FLOWER && c == Chars.CLOSE_FLOWER) {
+					if (openingBracket == Chars.OPEN_CURVE
+							&& c == Chars.CLOSE_CURVE
+							|| openingBracket == Chars.OPEN_SQUARE
+							&& c == Chars.CLOSE_SQUARE
+							|| openingBracket == Chars.OPEN_FLOWER
+							&& c == Chars.CLOSE_FLOWER) {
+						/*
+						 * reset to 0 to indicate that we did find corresponding
+						 * one
+						 */
+						openingBracket = 0;
 						break;
 					}
 
-					throw new InternalParseException(startAt + " " + this.parsingAt + " " + "Opening brace "
-							+ this.chars[startAt - 1] + " found a matching, but different closing brace " + c,
-							this.parsingAt);
+					throw new InternalParseException(startAt + " "
+							+ this.parsingAt + " " + "Opening brace "
+							+ this.chars[startAt - 1]
+							+ " found a matching, but different closing brace "
+							+ c, this.parsingAt);
 				}
 				if (this.operandExpected) {
 					this.parseForOperand(c);
@@ -461,12 +521,22 @@ public class Expression {
 			/*
 			 * was it an unexpected end?
 			 */
+			if (openingBracket != 0) {
+				throw new InternalParseException(
+						"No closing brace found for the opening brace "
+								+ openingBracket + " that was at " + startAt,
+								this.parsingAt);
+			}
+
 			if (this.operandExpected) {
 				/*
 				 * unless we havn't parsed anything yet..
 				 */
-				if (this.operandList.size() > 0 || this.currentOperand.uop != null) {
-					throw new InternalParseException("expression ended on a wrong foot!! ", this.parsingAt);
+				if (this.operandList.size() > 0
+						|| this.currentOperand.uop != null) {
+					throw new InternalParseException(
+							"expression ended on a wrong foot!! ",
+							this.parsingAt);
 				}
 			}
 			/*
@@ -479,7 +549,8 @@ public class Expression {
 			 * is it empty? ok for function
 			 */
 			if (this.operandList.size() == 0 && forFunction == false) {
-				throw new InternalParseException("nothing found between braces", this.parsingAt);
+				throw new InternalParseException(
+						"nothing found between braces", this.parsingAt);
 			}
 		}
 
@@ -491,7 +562,8 @@ public class Expression {
 		 */
 		void setupShop() {
 			if (this.operandList.size() > 0) {
-				Expression.this.operands = this.operandList.toArray(new Operand[0]);
+				Expression.this.operands = this.operandList
+						.toArray(new Operand[0]);
 			}
 			/*
 			 * no steps if there is only one operand
@@ -572,7 +644,8 @@ public class Expression {
 			} else if (this.isQuote(c)) {
 				this.currentOperand.operandType = Operand.CONSTANT;
 				this.currentOperand.value = this.parseLiteral();
-			} else if (this.currentOperand.uop == null && this.isUnaryOperator(c)) {
+			} else if (this.currentOperand.uop == null
+					&& this.isUnaryOperator(c)) {
 				this.currentOperand.uop = UnaryOperator.getOperator(c);
 				this.operandExpected = true;
 				return;
@@ -580,28 +653,33 @@ public class Expression {
 				/*
 				 * we got something unexpected
 				 */
-				throw new InternalParseException("Got " + c + " when an operand is expected.", this.parsingAt);
+				throw new InternalParseException("Got " + c
+						+ " when an operand is expected.", this.parsingAt);
 			}
 			/*
 			 * look for invalid unary operators on constants
 			 */
 			if (this.currentOperand.isValid() == false) {
-				throw new InternalParseException("This operand has an invalid unary opeator " + this.currentOperand.uop,
-						this.parsingAt - 1);
+				throw new InternalParseException(
+						"This operand has an invalid unary opeator "
+								+ this.currentOperand.uop, this.parsingAt - 1);
 			}
 		}
 
-		private Expression parseSubExpression(boolean forFunction) throws InternalParseException {
+		private Expression parseSubExpression(boolean forFunction)
+				throws InternalParseException {
 			/*
 			 * skip the open bracket
 			 */
 			this.parsingAt++;
-			Expression expr = new Expression(this.chars, this.parsingAt, forFunction);
+			Expression expr = new Expression(this.chars, this.parsingAt,
+					forFunction);
 			/*
 			 * pointer is to point to the last char parsed. point to the close
-			 * bracket that ended the sub-expression
+			 * bracket that ended the sub-expression. + 1 because close bracket
+			 * is not added to text
 			 */
-			this.parsingAt += expr.expressionText.length();
+			this.parsingAt += expr.expressionText.length() + 1;
 			return expr;
 		}
 
@@ -617,7 +695,8 @@ public class Expression {
 					 */
 					if (!this.currentOperand.isValid()) {
 						throw new InternalParseException(
-								"This operand has an invalid unary opeator " + this.currentOperand.uop,
+								"This operand has an invalid unary opeator "
+										+ this.currentOperand.uop,
 								this.parsingAt - 1);
 					}
 					Expression exp = this.parseSubExpression(true);
@@ -633,14 +712,16 @@ public class Expression {
 					 */
 					return;
 				}
-				throw new InternalParseException("Got " + c + " when an operator is expected.", this.parsingAt);
+				throw new InternalParseException("Got " + c
+						+ " when an operator is expected.", this.parsingAt);
 
 			}
 			/*
 			 * that was the only exception. we do expect a binary operator now
 			 */
 			if (this.isBinaryOperator(c) == false) {
-				throw new InternalParseException("Got " + c + " when an operator is expected.", this.parsingAt);
+				throw new InternalParseException("Got " + c
+						+ " when an operator is expected.", this.parsingAt);
 			}
 			if (c == Chars.LIST) {
 				if (this.commaOk) {
@@ -685,16 +766,18 @@ public class Expression {
 				}
 			}
 			if (foundAt == -1) {
-				throw new InternalParseException("No matching delimiter " + delimiter + " found for literal.",
-						this.nbrChars);
+				throw new InternalParseException("No matching delimiter "
+						+ delimiter + " found for literal.", this.nbrChars);
 			}
-			String token = new String(this.chars, this.parsingAt, foundAt - this.parsingAt);
+			String token = new String(this.chars, this.parsingAt, foundAt
+					- this.parsingAt);
 			Value value = null;
 			if (delimiter == Chars.DIVIDE) {
 				Date date = DateUtil.parseYmd(token);
-				if(date == null) {
+				if (date == null) {
 					throw new InternalParseException(
-							token + " is not a valid date. yyyy-mm-dd is the only acceptable format for date.",
+							token
+									+ " is not a valid date. yyyy-mm-dd is the only acceptable format for date.",
 							this.parsingAt);
 				}
 				value = Value.newDateValue(date);
@@ -719,7 +802,8 @@ public class Expression {
 				}
 				break;
 			}
-			String token = new String(this.chars, startedAt, this.parsingAt - startedAt);
+			String token = new String(this.chars, startedAt, this.parsingAt
+					- startedAt);
 			/*
 			 * we have already pointing to the next char. step back.
 			 */
@@ -730,11 +814,13 @@ public class Expression {
 				}
 				return Value.newIntegerValue(Long.parseLong(token));
 			} catch (NumberFormatException e) {
-				throw new InternalParseException(token + " is not a valid number", this.parsingAt);
+				throw new InternalParseException(token
+						+ " is not a valid number", this.parsingAt);
 			}
 		}
 
-		private BinaryOperator parseBinaryOperator(char c) throws InternalParseException {
+		private BinaryOperator parseBinaryOperator(char c)
+				throws InternalParseException {
 
 			/*
 			 * c is guaranteed to be a binary operator. let us check if it is a
@@ -742,7 +828,9 @@ public class Expression {
 			 */
 			int j = this.parsingAt + 1;
 			if (j >= this.nbrChars) {
-				throw new InternalParseException("Reached end when an operand is expected", this.nbrChars);
+				throw new InternalParseException(
+						"Reached end when an operand is expected",
+						this.nbrChars);
 			}
 			char c1 = this.chars[j];
 			/*
@@ -778,50 +866,61 @@ public class Expression {
 			} else if (c != Chars.NOT) { // ! should have c1 == EQUAL
 				return BinaryOperator.getOperator(c);
 			}
-			throw new InternalParseException(c + Chars.EQUAL + " is not a valid binary operator", this.parsingAt + 1);
+			throw new InternalParseException(c + Chars.EQUAL
+					+ " is not a valid binary operator", this.parsingAt + 1);
 		}
 
 		private String parseName() {
 			int endAt = this.parsingAt + 1;
-			while (endAt < this.chars.length && this.isAlphaNumeric(this.chars[endAt])) {
+			while (endAt < this.chars.length
+					&& this.isAlphaNumeric(this.chars[endAt])) {
 				endAt++;
 			}
 			/*
 			 * endAt is pointing one char next to our name
 			 */
-			String parsedName = new String(this.chars, this.parsingAt, endAt - this.parsingAt);
+			String parsedName = new String(this.chars, this.parsingAt, endAt
+					- this.parsingAt);
 			this.parsingAt = endAt - 1;
 			return parsedName;
 		}
 
 		private boolean isWhiteSpace(char c) {
-			return c == Chars.SPACE || c == Chars.TAB || c == Chars.NL || c == Chars.CR;
+			return c == Chars.SPACE || c == Chars.TAB || c == Chars.NL
+					|| c == Chars.CR;
 		}
 
 		private boolean isBinaryOperator(char c) {
-			return c == Chars.PLUS || c == Chars.MINUS || c == Chars.MULT || c == Chars.DIVIDE || c == Chars.MODULO
-					|| c == Chars.EQUAL || c == Chars.NOT || c == Chars.LESS || c == Chars.GREATER || c == Chars.AND
-					|| c == Chars.OR || c == Chars.LIST;
+			return c == Chars.PLUS || c == Chars.MINUS || c == Chars.MULT
+					|| c == Chars.DIVIDE || c == Chars.MODULO
+					|| c == Chars.EQUAL || c == Chars.NOT || c == Chars.LESS
+					|| c == Chars.GREATER || c == Chars.AND || c == Chars.OR
+					|| c == Chars.LIST;
 		}
 
 		private boolean isUnaryOperator(char c) {
-			return c == Chars.MINUS || c == Chars.NOT || c == Chars.IS_KNOWN || c == Chars.IS_UNKNOWN;
+			return c == Chars.MINUS || c == Chars.NOT || c == Chars.IS_KNOWN
+					|| c == Chars.IS_UNKNOWN;
 		}
 
 		private boolean isOpenBracket(char c) {
-			return c == Chars.OPEN_CURVE || c == Chars.OPEN_FLOWER || c == Chars.OPEN_SQUARE;
+			return c == Chars.OPEN_CURVE || c == Chars.OPEN_FLOWER
+					|| c == Chars.OPEN_SQUARE;
 		}
 
 		private boolean isCloseBracket(char c) {
-			return c == Chars.CLOSE_CURVE || c == Chars.CLOSE_FLOWER || c == Chars.CLOSE_SQUARE;
+			return c == Chars.CLOSE_CURVE || c == Chars.CLOSE_FLOWER
+					|| c == Chars.CLOSE_SQUARE;
 		}
 
 		private boolean isQuote(char c) {
-			return c == Chars.SINGLE_QUOTE || c == Chars.DOUBLE_QUOTE || c == Chars.DIVIDE;
+			return c == Chars.SINGLE_QUOTE || c == Chars.DOUBLE_QUOTE
+					|| c == Chars.DIVIDE;
 		}
 
 		private boolean isAlpha(char c) {
-			return c >= Chars.LOWER_A && c <= Chars.LOWER_Z || c >= Chars.UPPER_A && c <= Chars.UPPER_Z;
+			return c >= Chars.LOWER_A && c <= Chars.LOWER_Z
+					|| c >= Chars.UPPER_A && c <= Chars.UPPER_Z;
 		}
 
 		private boolean isNumber(char c) {
@@ -829,17 +928,33 @@ public class Expression {
 		}
 
 		private boolean isAlphaNumeric(char c) {
-			return this.isAlpha(c) || this.isNumber(c) || c == Chars.DOT || c == Chars.UNDER_SCORE;
+			return this.isAlpha(c) || this.isNumber(c) || c == Chars.DOT
+					|| c == Chars.UNDER_SCORE;
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return this.expressionText;
+	}
+
+	/**
+	 *
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		String text = "concat(\"a\" + \"A\", \"b\"+ \"B\", 123 + 456)";
+		// String text = "\"a\" , \"A\", \"b\", \"B\", 123 , 456)";
+		try {
+			Expression expr = new Expression(text);
+			Tracer.trace("Expression : " + expr.toString());
+		} catch (Exception e) {
+			Tracer.trace(e, "unable to parse/execute expression");
+		}
 	}
 }
