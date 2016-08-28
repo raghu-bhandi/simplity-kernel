@@ -8,7 +8,7 @@
 		DO NOT DELETE THESE. 
 		These are available in declaredDataTypes.xsd
 		
-		These serve as only quick-and-dirty types to kick-start your applicaiton.
+		These serve as only quick-and-dirty types to kick-start your application.
 		But you should look at other .xml files in this folder
 	 -->
 	<components>

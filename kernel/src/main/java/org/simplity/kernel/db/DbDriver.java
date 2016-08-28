@@ -243,7 +243,7 @@ public class DbDriver {
 			String dataSourceName, String driverClassName, String conString,
 			boolean logSqls, SchemaDetail[] schemaDetails) {
 		if (vendor == null) {
-			Tracer.trace("This Application has not set dbVendor. We assume that the applicaiton does not require any db connection.");
+			Tracer.trace("This Application has not set dbVendor. We assume that the application does not require any db connection.");
 			if (dataSourceName != null || driverClassName != null
 					|| conString != null || schemaDetails != null) {
 				Tracer.trace("WARNING: Since dbVendor is not set, we ignore other db related settings.");
@@ -268,7 +268,7 @@ public class DbDriver {
 								"schemaName and dataSourceName are required for mutli-schema operation");
 					}
 					if (sd.connectionString != null) {
-						Tracer.trace("Warning : This applicaiton uses data source, and hence conenction string for schema "
+						Tracer.trace("Warning : This application uses data source, and hence conenction string for schema "
 								+ sd.schemaName + " ignored");
 					}
 					setDataSource(sd.schemaName.toUpperCase(),
@@ -310,7 +310,7 @@ public class DbDriver {
 							"schemaName and connectionString are required for mutli-schema operation");
 				}
 				if (sd.dataSourceName != null) {
-					Tracer.trace("Warning: This applicaiton uses connection string, and hence dataSource for schema "
+					Tracer.trace("Warning: This application uses connection string, and hence dataSource for schema "
 							+ sd.schemaName + " ignored");
 				}
 				setConnection(sd.schemaName.toUpperCase(), sd.connectionString);

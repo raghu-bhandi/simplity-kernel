@@ -277,7 +277,7 @@ public class Application {
 	public int validate(ValidationContext ctx) {
 		int count = 0;
 		if (this.applicationId == null) {
-			ctx.addError("applicationId must be specified as a unique id for your applicaiton on your corporate network. This id can be used for inter-application communication.");
+			ctx.addError("applicationId must be specified as a unique id for your application on your corporate network. This id can be used for inter-application communication.");
 			count++;
 		}
 
@@ -431,8 +431,8 @@ public class Application {
 
 	private static void printUsage() {
 		System.out
-		.println("Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
+		.println("Usage : java  org.simplity.kernel.application componentFolderPath serviceName inputParam1=vaue1 ...");
 		System.out
-		.println("example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
+		.println("example : java  org.simplity.kernel.application /usr/data/ serviceName inputParam1=vaue1 ...");
 	}
 }

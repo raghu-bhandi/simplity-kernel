@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service dbAccessType="none" description="Test the Logic xml"
+	executeInBackground="true" moduleName="test" name="Logic"
+	xmlns="http://www.simplity.org/schema">
+
+	<outputData fieldNames="island,leader,gang,adversaries,novel,lostBoys">
+		<outputRecords>
+			<outputRecord sheetName="weekendBoxOffice"/>
+		</outputRecords>
+	</outputData>
+	<actions>
+		<logic actionName="1" className="org.simplity.test.CustomLogicAction" />
+
+		<setValue actionName="2" fieldName="novel" fieldValue="The Little White Bird"
+			executeOnCondition="?leader"></setValue>			
+
+	</actions>
+</service>

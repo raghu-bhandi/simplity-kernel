@@ -154,7 +154,7 @@ public class Expression {
 		}
 
 		try {
-			MyParser parser = new MyParser();
+			ExpressionParser parser = new ExpressionParser();
 			parser.parse(this.expressionText.toCharArray(), 0, false);
 			parser.setupShop();
 		} catch (InternalParseException e) {
@@ -174,7 +174,7 @@ public class Expression {
 	 */
 	Expression(char[] chars, int startingAt, boolean commaOk) throws InternalParseException {
 
-		MyParser worker = new MyParser();
+		ExpressionParser worker = new ExpressionParser();
 		worker.parse(chars, startingAt, commaOk);
 		this.expressionText = new String(chars, startingAt + 1, worker.parsingAt - startingAt);
 		worker.setupShop();
@@ -368,7 +368,7 @@ public class Expression {
 	/**
 	 * inner worker class for parsing.
 	 */
-	class MyParser {
+	class ExpressionParser {
 		private static final String TRUE = "true";
 		private static final String FALSE = "false";
 		/**
@@ -416,7 +416,7 @@ public class Expression {
 		 * convenience sub-class to keep state while parsing
 		 */
 
-		MyParser() {
+		ExpressionParser() {
 		}
 
 		void parse(char[] charsToParse, int startAt, boolean forFunction) throws InternalParseException {
@@ -647,7 +647,7 @@ public class Expression {
 					Expression.this.nbrCommas++;
 				} else {
 					throw new InternalParseException(
-							"Comma i valid only as parameter separator in an arguemnt list for function.",
+							"Comma is valid only as parameter separator in an arguemnt list for function.",
 							this.parsingAt);
 				}
 			}

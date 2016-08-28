@@ -789,7 +789,7 @@ public class Service implements ServiceInterface {
 		if (this.schemaName != null && DbDriver.getDefaultSchema() == null) {
 			ctx.addError("schemaName set to "
 					+ this.schemaName
-					+ " but this applicaiton is not configured for multiple schemas.");
+					+ " but this application is not configured for multiple schemas.");
 			count++;
 		}
 		return count;
