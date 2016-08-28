@@ -303,13 +303,13 @@ public class Service implements ServiceInterface {
 		}
 		int i = 0;
 		for (Action action : this.actions) {
+			action.getReady(i);
 			if (this.indexedActions.containsKey(action.actionName)) {
 				throw new ApplicationError("Service " + this.name
 						+ " has duplicate action name " + action.actionName
 						+ " as its action nbr " + (i + 1));
 			}
 			this.indexedActions.put(action.getName(), new Integer(i));
-			action.getReady(i);
 			i++;
 		}
 		if (this.requestTextFieldName != null) {

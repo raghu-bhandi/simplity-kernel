@@ -84,8 +84,7 @@
 		>
 			<xs:annotation>
 				<xs:documentation>
-					name of function that is used by the
-					client-side
+					name of function that is used by the client-side
 					script for formatting this value
 				</xs:documentation>
 			</xs:annotation>
@@ -2141,21 +2140,16 @@
 		</xs:complexType>
 	</xs:element>
 
-
-	<!-- *********************** custom services ************************************** -->
-	<xs:element name="services">
-
-		<xs:annotation>
-			<xs:documentation>Define services that are implemented using java
-				class
-			</xs:documentation>
-		</xs:annotation>
-		<xs:complexType>
-			<xs:sequence
-				minOccurs="1"
-				maxOccurs="1"
-			>
-				<xs:element name="components">
+	<xs:element name="functions" type="nameValuePairs">
+	<xs:annotation><xs:documentation>define functions by mapping name to class</xs:documentation></xs:annotation>
+	</xs:element>
+	
+	<xs:complexType name="nameValuePairs">
+		<xs:sequence
+			minOccurs="1"
+			maxOccurs="1"
+		>
+			<xs:element name="components">
 					<xs:complexType>
 						<xs:sequence
 							minOccurs="1"
@@ -2200,19 +2194,17 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-			</xs:sequence>
-			<xs:attribute
-				name="name"
-				type="xs:NCName"
-				use="required"
-			>
-				<xs:annotation>
-					<xs:documentation>name should match the fiel name. all services
-						will be qualified with this name.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-		</xs:complexType>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- *********************** custom services ************************************** -->
+	<xs:element name="services" type="nameValuePairs">
+
+		<xs:annotation>
+			<xs:documentation>Define services that are implemented using java
+				class
+			</xs:documentation>
+		</xs:annotation>
 	</xs:element>
 
 	<xs:element name="application">
@@ -2253,11 +2245,21 @@
 							<xs:element
 								name="schemaDetail"
 								minOccurs="1"
-								maxOccurs="unbounded">
+								maxOccurs="unbounded"
+							>
 								<xs:complexType>
-									<xs:attribute name="schemaName" type="xs:string" use="required"/>
-									<xs:attribute name="dataSourceName" type="xs:string" use="optional"/>
-									<xs:attribute name="connectionString" type="xs:string" use="optional"/>
+									<xs:attribute
+										name="schemaName"
+										type="xs:string"
+										use="required" />
+									<xs:attribute
+										name="dataSourceName"
+										type="xs:string"
+										use="optional" />
+									<xs:attribute
+										name="connectionString"
+										type="xs:string"
+										use="optional" />
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>

@@ -23,8 +23,8 @@
 package org.simplity.kernel.expr;
 
 import org.simplity.kernel.Tracer;
+import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.data.FieldsInterface;
-import org.simplity.kernel.fn.FunctionManager;
 import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
@@ -90,7 +90,7 @@ class Operand {
 						valueToReturn = Value.newUnknownValue(ValueType.TEXT);
 					}
 				} else {
-					valueToReturn = FunctionManager.evaluate(fname,
+					valueToReturn = ComponentManager.evaluate(fname,
 							this.expression.getValueList(data), data);
 				}
 			}
