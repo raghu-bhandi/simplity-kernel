@@ -400,6 +400,7 @@ public class Service implements ServiceInterface {
 		Service service = new Service();
 		service.dbAccessType = DbAccessType.READ_ONLY;
 		service.setName(serviceName);
+		service.schemaName = record.getSchemaName();
 
 		/*
 		 * what is to be input
@@ -442,6 +443,7 @@ public class Service implements ServiceInterface {
 		Service service = new Service();
 		service.dbAccessType = DbAccessType.READ_ONLY;
 		service.setName(serviceName);
+		service.schemaName = record.getSchemaName();
 
 		/*
 		 * input for filter
@@ -486,6 +488,7 @@ public class Service implements ServiceInterface {
 		Service service = new Service();
 		service.dbAccessType = DbAccessType.READ_ONLY;
 		service.setName(serviceName);
+		service.schemaName = record.getSchemaName();
 
 		/*
 		 * input for suggest
@@ -533,6 +536,7 @@ public class Service implements ServiceInterface {
 		Service service = new Service();
 		service.dbAccessType = DbAccessType.READ_ONLY;
 		service.setName(serviceName);
+		service.schemaName = record.getSchemaName();
 
 		/*
 		 * input for suggest
@@ -584,6 +588,7 @@ public class Service implements ServiceInterface {
 		Service service = new Service();
 		service.dbAccessType = DbAccessType.READ_WRITE;
 		service.setName(serviceName);
+		service.schemaName = record.getSchemaName();
 
 		/*
 		 * data for this record is expected in fields, while rows for
@@ -786,11 +791,11 @@ public class Service implements ServiceInterface {
 			ctx.addError("More than one output specifications. Use one of dataOutput, responseTextFieldName or referredServiceForOutput.");
 			count++;
 		}
-		if (this.schemaName != null && DbDriver.getDefaultSchema() == null) {
-			ctx.addError("schemaName set to "
+		if (this.schemaName != null
+				&& DbDriver.isSchmeaDefined(this.schemaName) == false) {
+			ctx.addError("schemaName is set to "
 					+ this.schemaName
-					+ " but this application is not configured for multiple schemas.");
-			count++;
+					+ " but it is not defined as one of additional schema names in application.xml");
 		}
 		return count;
 	}

@@ -47,6 +47,7 @@ public class DateUtil {
 
 	static {
 		DATE_FORMATTER.setLenient(false);
+		DATE_FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
 		UTC_FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
 	}
 

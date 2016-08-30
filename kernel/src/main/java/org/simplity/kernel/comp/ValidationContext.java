@@ -30,6 +30,7 @@ import java.util.Map;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dt.DataType;
+import org.simplity.service.ServiceInterface;
 
 /**
  * @author simplity.org
@@ -39,10 +40,10 @@ public class ValidationContext {
 
 	@SuppressWarnings("unchecked")
 	private Map<String, String[]>[] allMessages = (Map<String, String[]>[]) (new Object[ComponentType
-	                                                                                    .values().length]);
+			.values().length]);
 	@SuppressWarnings("unchecked")
 	private List<ReferredComponent>[][] allRefs = (List<ReferredComponent>[][]) (new Object[ComponentType
-	                                                                                        .values().length][]);
+			.values().length][]);
 	private ComponentType currentType;
 	private String currentCompName;
 	private List<String> messages = new ArrayList<String>();
@@ -211,6 +212,29 @@ public class ValidationContext {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * is this service in error? If so add a message and return true.
+	 * 
+	 * @param serviceName
+	 *            name of service
+	 * @param attName
+	 *            attribute that uses this service
+	 * @return true if service is in error. false otherwise
+	 */
+	public boolean checkServiceName(String serviceName, String attName) {
+		if (serviceName == null) {
+			return false;
+		}
+		ServiceInterface service = ComponentManager
+				.getServiceOrNull(serviceName);
+		if (service == null) {
+			this.addError(attName + " is set to" + serviceName
+					+ " but it is not a vaid service name.");
+			return true;
+		}
+		return false;
 	}
 
 }

@@ -1336,128 +1336,107 @@
 				name="addColumn"
 				type="addColumn"
 				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
+				maxOccurs="unbounded" />
 			<xs:element
-				name="copyRows"
-				type="copyRows"
+				name="addMessage"
+				type="addMessage"
 				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
+				maxOccurs="unbounded" />
 			<xs:element
 				name="complexLogic"
 				type="logic"
 				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
+				maxOccurs="unbounded" />
 			<xs:element
-				name="executeSp"
-				type="executeSp"
+				name="copyRows"
+				type="copyRows"
 				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="executeSql"
-				type="executeSql"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="filter"
-				type="filter"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="log"
-				type="log"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="logic"
-				type="logic"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="loop"
-				type="loop"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="jumpTo"
-				type="jumpTo"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="read"
-				type="read"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="readWithSql"
-				type="readWithSql"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="renameSheet"
-				type="renameSheet"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="save"
-				type="save"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
-			<xs:element
-				name="setValue"
-				type="setValue"
-				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
+				maxOccurs="unbounded" />
 			<xs:element
 				name="copyUserId"
 				type="copyUserId"
 				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
+				maxOccurs="unbounded" />
+			<xs:element
+				name="createSheet"
+				type="createSheet"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="executeSp"
+				type="executeSp"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="executeSql"
+				type="executeSql"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="filter"
+				type="filter"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="jumpTo"
+				type="jumpTo"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="log"
+				type="log"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="logic"
+				type="logic"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="loop"
+				type="loop"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="read"
+				type="read"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="readWithSql"
+				type="readWithSql"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="renameSheet"
+				type="renameSheet"
+				minOccurs="0"
+				maxOccurs="unbounded" />
 			<xs:element
 				name="rowExists"
 				type="rowExists"
 				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
+				maxOccurs="unbounded" />
+			<xs:element
+				name="save"
+				type="save"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="setValue"
+				type="setValue"
+				minOccurs="0"
+				maxOccurs="unbounded" />
 			<xs:element
 				name="subService"
 				type="subService"
 				minOccurs="0"
-				maxOccurs="unbounded"
-			>
-			</xs:element>
+				maxOccurs="unbounded" />
+			<xs:element
+				name="suggest"
+				type="suggest"
+				minOccurs="0"
+				maxOccurs="unbounded" />
 		</xs:choice>
 	</xs:complexType>
 
@@ -1858,6 +1837,51 @@
 		</xs:attribute>
 	</xs:complexType>
 
+	<xs:complexType name="createSheet">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="sheetName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Name by which sheet is to be added to
+					serviceContext. Once added, this sheet is available for subsequent
+					actions, as well as for output
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="data"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>
+					Of the form
+					header1,header2...;val11,val12,val13...;val21,val22,val23....
+					rows
+					are separated by semicolumn(;)and cells are separated by comma(,)
+					forst row is header. refer to fieldValue attrivute of setValue for
+					syntax of cells. Each cell can be either a field name ($fieldNAme)
+					or constant.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="fieldValue"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>
+					use either a constant, or a $fieldName as value
+					ofthe field. If you use this, you should not specify expression.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
 	<xs:complexType name="copyUserId">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1896,6 +1920,48 @@
 		</xs:attribute>
 	</xs:complexType>
 
+	<xs:complexType name="suggest">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Fully qualified service name</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="fieldToMatch"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Fied to filter on. defaults to what is secified in
+					record.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="matchType"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Specify if it fixed at design time. Leave it if it
+					to be decided at run time.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="outputSheetName"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Name of the output data sheet. If not specified,
+					it defaults to the name as specified in record.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
 
 	<xs:complexType name="subService">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -2140,65 +2206,74 @@
 		</xs:complexType>
 	</xs:element>
 
-	<xs:element name="functions" type="nameValuePairs">
-	<xs:annotation><xs:documentation>define functions by mapping name to class</xs:documentation></xs:annotation>
+	<xs:element
+		name="functions"
+		type="nameValuePairs"
+	>
+		<xs:annotation>
+			<xs:documentation>define functions by mapping name to class
+			</xs:documentation>
+		</xs:annotation>
 	</xs:element>
-	
+
 	<xs:complexType name="nameValuePairs">
 		<xs:sequence
 			minOccurs="1"
 			maxOccurs="1"
 		>
 			<xs:element name="components">
-					<xs:complexType>
-						<xs:sequence
-							minOccurs="1"
-							maxOccurs="unbounded"
-						>
-							<xs:element name="entry">
-								<xs:complexType>
-									<xs:attribute
-										name="name"
-										type="xs:string"
-										use="required"
-									>
-										<xs:annotation>
-											<xs:documentation>Simple name. This service will be referred
-												as fileName.name
-											</xs:documentation>
-										</xs:annotation>
-									</xs:attribute>
-									<xs:attribute
-										name="description"
-										type="xs:string"
-										use="optional"
-									>
-										<xs:annotation>
-											<xs:documentation>Of course, good description, but not story.
-											</xs:documentation>
-										</xs:annotation>
-									</xs:attribute>
-									<xs:attribute
-										name="className"
-										type="xs:string"
-										use="required"
-									>
-										<xs:annotation>
-											<xs:documentation>fully qualified class name like
-												com.example.a.service.MyService
-											</xs:documentation>
-										</xs:annotation>
-									</xs:attribute>
-								</xs:complexType>
-							</xs:element>
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
+				<xs:complexType>
+					<xs:sequence
+						minOccurs="1"
+						maxOccurs="unbounded"
+					>
+						<xs:element name="entry">
+							<xs:complexType>
+								<xs:attribute
+									name="name"
+									type="xs:string"
+									use="required"
+								>
+									<xs:annotation>
+										<xs:documentation>Simple name. This service will be referred
+											as fileName.name
+										</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute
+									name="description"
+									type="xs:string"
+									use="optional"
+								>
+									<xs:annotation>
+										<xs:documentation>Of course, good description, but not story.
+										</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+								<xs:attribute
+									name="className"
+									type="xs:string"
+									use="required"
+								>
+									<xs:annotation>
+										<xs:documentation>fully qualified class name like
+											com.example.a.service.MyService
+										</xs:documentation>
+									</xs:annotation>
+								</xs:attribute>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 
 	<!-- *********************** custom services ************************************** -->
-	<xs:element name="services" type="nameValuePairs">
+	<xs:element
+		name="services"
+		type="nameValuePairs"
+	>
 
 		<xs:annotation>
 			<xs:documentation>Define services that are implemented using java

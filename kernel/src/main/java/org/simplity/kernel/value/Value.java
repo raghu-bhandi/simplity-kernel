@@ -468,7 +468,6 @@ public abstract class Value implements Serializable {
 		if (n == DATE_LENGTH && c == DATE_DILIMITER
 				&& text.charAt(LAST_POSITION) == DATE_DILIMITER) {
 			String dateText = text.substring(1, text.length() - 1);
-			System.out.println("dateText = " + dateText);
 			Date date = DateUtil.parseYmd(dateText);
 			if (date != null) {
 				return Value.newDateValue(date);
@@ -529,7 +528,7 @@ public abstract class Value implements Serializable {
 	/**
 	 * parse an object, say one that is returned from rdbms, or from JSON, into
 	 * a Value
-	 * 
+	 *
 	 * @param object
 	 * @return Value of this object based on the object type
 	 */

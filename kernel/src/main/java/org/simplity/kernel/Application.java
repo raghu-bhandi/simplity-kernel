@@ -277,7 +277,7 @@ public class Application {
 	public int validate(ValidationContext ctx) {
 		int count = 0;
 		if (this.applicationId == null) {
-			ctx.addError("applicationId must be specified as a unique id for your application on your corporate network. This id can be used for inter-application communication.");
+			ctx.addError("applicationId must be specified as a unique id for your applicaiton on your corporate network. This id can be used for inter-application communication.");
 			count++;
 		}
 
@@ -369,7 +369,7 @@ public class Application {
 	 */
 	public static void main(String[] args) {
 		String[] parms = { "e:/repos/simplity/WebContent/WEB-INF/comp/",
-		"tutorial.fn" };
+				"tutorial.createSheet" };
 		myTest(parms);
 		// myTest(args);
 	}
@@ -385,8 +385,8 @@ public class Application {
 		File file = new File(compPath);
 		if (file.exists() == false) {
 			System.out
-			.println(compPath
-					+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
+					.println(compPath
+							+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
 			System.exit(-1);
 		}
 
@@ -432,15 +432,15 @@ public class Application {
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		System.out.println("response :" + outData.getPayLoad());
 		System.out
-		.println("message :" + JsonUtil.toJson(outData.getMessages()));
+				.println("message :" + JsonUtil.toJson(outData.getMessages()));
 		System.out.println("trace :" + outData.getTrace());
 
 	}
 
 	private static void printUsage() {
 		System.out
-		.println("Usage : java  org.simplity.kernel.application componentFolderPath serviceName inputParam1=vaue1 ...");
+				.println("Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
 		System.out
-		.println("example : java  org.simplity.kernel.application /usr/data/ serviceName inputParam1=vaue1 ...");
+				.println("example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
 	}
 }

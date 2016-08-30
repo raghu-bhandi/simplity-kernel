@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,6 +35,7 @@ import org.simplity.kernel.expr.InvalidExpressionException;
 public class TextUtil {
 	private static final String[] TRUE_VALUES = { "1", "TRUE", "YES" };
 	private static final String ARRAY_DELIMITER = ",";
+	private static final String ROW_DLIMITER = ";";
 	private static final char DOLLAR = '$';
 	private static final char LOWER_A = 'a';
 	private static final char LOWER_Z = 'z';
@@ -118,7 +119,8 @@ public class TextUtil {
 	 *             if any issue with parsing the text into appropriate type
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static Object parse(String text, Class type) throws XmlParseException {
+	public static Object parse(String text, Class type)
+			throws XmlParseException {
 		String value = text.trim();
 		if (type.equals(String.class)) {
 			return value;
@@ -165,6 +167,13 @@ public class TextUtil {
 			Class<?> eleType = type.getComponentType();
 			if (ReflectUtil.isValueType(eleType)) {
 				return parseArray(eleType, value);
+			} else if (eleType.isArray()
+					&& ReflectUtil.isValueType(eleType.getComponentType())) {
+				/*
+				 * 2-d array of values?
+				 */
+				return parse2dArray(eleType, value);
+
 			}
 		} else if (type.equals(Expression.class)) {
 			try {
@@ -175,7 +184,8 @@ public class TextUtil {
 		} else if (type.equals(Date.class)) {
 			Date date = DateUtil.parseYmd(value);
 			if (date == null) {
-				throw new XmlParseException(value + " is not in yyyy-mm-dd format");
+				throw new XmlParseException(value
+						+ " is not in yyyy-mm-dd format");
 			}
 			return date;
 		} else if (type.equals(Pattern.class)) {
@@ -195,16 +205,50 @@ public class TextUtil {
 	 *            to be parsed
 	 * @return array that is parsed from text value
 	 * @throws XmlParseException
-	 *             for any issue while parsing teh text into an array of this
+	 *             for any issue while parsing the text into an array of this
 	 *             type
 	 */
-	public static Object parseArray(Class<?> type, String value) throws XmlParseException {
+	public static Object parseArray(Class<?> type, String value)
+			throws XmlParseException {
 		String[] parts = value.split(ARRAY_DELIMITER);
 		int nbr = parts.length;
 		Object array = Array.newInstance(type, nbr);
 		for (int i = 0; i < parts.length; i++) {
 			Object thisObject = parse(parts[i].trim(), type);
 			Array.set(array, i, thisObject);
+		}
+		return array;
+	}
+
+	/**
+	 * parse an array of arrays: rows separated by ; and columns separated by ,
+	 *
+	 * @param type
+	 *            of the elements of the main array. This would be an Array[].
+	 *            That is this class.getComponentType() woudl be a rimitive.
+	 * @param text
+	 *            to be parsed
+	 * @return array[][] that is parsed from text value
+	 * @throws XmlParseException
+	 *             for any issue while parsing the text
+	 */
+	public static Object parse2dArray(Class<?> type, String text)
+			throws XmlParseException {
+		String[] parts = text.split(ROW_DLIMITER);
+		int nbr = parts.length;
+		Object array = Array.newInstance(type, nbr);
+		Class<?> valueType = type.getComponentType();
+		for (int i = 0; i < parts.length; i++) {
+			String[] subParts = parts[i].trim().split(ARRAY_DELIMITER);
+			int nbrSub = subParts.length;
+			Object subArray = Array.newInstance(valueType, nbrSub);
+			{
+				for (int j = 0; j < subParts.length; j++) {
+					Object val = parse(subParts[j].trim(), valueType);
+					Array.set(subArray, j, val);
+				}
+			}
+			Array.set(array, i, subArray);
 		}
 		return array;
 	}
@@ -308,7 +352,8 @@ public class TextUtil {
 		}
 		if (name.charAt(0) == DOLLAR) {
 			char c = name.charAt(1);
-			if ((c >= LOWER_A && c <= LOWER_Z) || (c >= A && c <= Z) || c == UNDERSCORE) {
+			if ((c >= LOWER_A && c <= LOWER_Z) || (c >= A && c <= Z)
+					|| c == UNDERSCORE) {
 				return name.substring(1);
 			}
 		}
