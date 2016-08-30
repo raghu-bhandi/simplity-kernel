@@ -744,6 +744,19 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="schemaName"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>If the underlying table/view is in a schema other
+						than the default, use this attribute for on-the-fly services for
+						this record to use the right schema. Note that this attriute is
+						not used for regular service. You have to use schemaName attriute
+						at the service level there</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 
@@ -1938,7 +1951,8 @@
 		>
 			<xs:annotation>
 				<xs:documentation>Fied to filter on. defaults to what is secified in
-					record.</xs:documentation>
+					record.
+				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
@@ -1948,7 +1962,8 @@
 		>
 			<xs:annotation>
 				<xs:documentation>Specify if it fixed at design time. Leave it if it
-					to be decided at run time.</xs:documentation>
+					to be decided at run time.
+				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
@@ -1958,7 +1973,8 @@
 		>
 			<xs:annotation>
 				<xs:documentation>Name of the output data sheet. If not specified,
-					it defaults to the name as specified in record.</xs:documentation>
+					it defaults to the name as specified in record.
+				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
