@@ -124,7 +124,7 @@ public class InputField {
 	public boolean extractInput(Object objectValue, ServiceContext ctx) {
 		Value value = Value.parseObject(objectValue,
 				this.dataTypeObject.getValueType());
-		if (value == null) {
+		if (value == null || value.isUnknown()) {
 			value = this.defaultObject;
 			if (value == null && this.isRequired) {
 				Tracer.trace(this.name + " failed mandatory criterion");
