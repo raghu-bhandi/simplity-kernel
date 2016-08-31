@@ -15,8 +15,6 @@ public class CustomLogicAction implements LogicInterface {
 	@Override
 	public Value execute(ServiceContext ctx) {
 		
-		System.out.println(ctx.getValue("switch"));
-		
 		ctx.setValue("island", Value.newTextValue("NeverLand"));
 		ctx.setValue("leader", Value.newTextValue("Peter Pan"));
 		ctx.setValue("gang", Value.newTextValue("Lost Boys"));
