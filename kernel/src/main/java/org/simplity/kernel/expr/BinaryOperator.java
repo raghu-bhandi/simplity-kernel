@@ -570,7 +570,7 @@ public enum BinaryOperator {
 			return this.doOperate(leftValue, rightValue);
 		} catch (InvalidValueException e) {
 			throw new InvalidOperationException(
-					"Binary operaiton " + this + " is not possible between " + leftValue.getValueType() + "("
+					"Binary operation " + this + " is not possible between " + leftValue.getValueType() + "("
 							+ leftValue + ") and " + rightValue.getValueType() + "(" + rightValue + ")");
 		}
 	}

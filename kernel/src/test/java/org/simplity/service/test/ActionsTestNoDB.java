@@ -26,7 +26,10 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
+<<<<<<< HEAD
 import org.simplity.kernel.FormattedMessage;
+=======
+>>>>>>> branch 'master' of https://github.com/simplity/simplity
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;
