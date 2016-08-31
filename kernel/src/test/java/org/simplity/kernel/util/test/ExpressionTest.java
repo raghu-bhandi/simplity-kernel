@@ -59,42 +59,41 @@ public class ExpressionTest {
 	 * good examples for reference/testing. "4 & 4" is good for parsing, but
 	 * will fail during execution
 	 */
-	private static final String[] goodExamples = { "a", "a.a", "a1", "a__a", "1", "1.005", "1.", "''", "'\"'",
-			"\"''' -_!@#$%^&*()_+{}[]|\\:;'<,>.?/\"", "/1960-05-06/", "/2016-02-29/", "!a", "?a", "~b", "-a",
-			"-1.234", "foo()", "-foo()", "a+b", "a - b", "a--b", "a +-12 * foo(1,a, ( 1 + 2))", "(a)",
-			"a <= 12  " };
-			/**
-			 * expressions that should parse OK but will generate
-			 * exception during execution
-			 */
-	private static final String[] runTimeErrors = { "4 < 'abd'" };
+			private static final String[] goodExamples = { "a", "a.a", "a1", "a__a", "1", "1.005", "1.", "''", "'\"'",
+					"\"''' -_!@#$%^&*()_+{}[]|\\:;'<,>.?/\"", "/1960-05-06/", "/2016-02-29/", "!a", "?a", "~b", "-a",
+					"-1.234", "foo()", "-foo()", "a+b", "a - b", "a--b", "a +-12 * foo(1,a, ( 1 + 2))", "(a)",
+					"a <= 12  " };
+					/**
+					 * expressions that should parse OK but will generate
+					 * exception during execution
+					 */
+					private static final String[] runTimeErrors = { "4 < 'abd'" };
 
 	/**
 	 * expressions that should evaluate to a value as in testResults
 	 */
-	private static final String[] integralExpressions = { "1 + 2", " 1 + -2", "-1 + -1",
-			"123456789 - 12345678", " -2 * -3", "2 * 4", "2 * -5", "6 / 2", "7/2", "2/5", "7%5", "8%8",
-			" 2 + 3 * 6 - 4 + 4 / 3", "(2 + 4) * ( 5 -3) ",
-			"(/2015-01-28/-/2016-08-30/) * (/2015-01-31/-/2014-01-31/)" };
+					private static final String[] integralExpressions = { "1 + 2", " 1 + -2", "-1 + -1",
+							"123456789 - 12345678", " -2 * -3", "2 * 4", "2 * -5", "6 / 2", "7/2", "2/5", "7%5", "8%8",
+							" 2 + 3 * 6 - 4 + 4 / 3", "(2 + 4) * ( 5 -3) "};
 
 	/**
 	 * expected result for testExpressions
 	 */
-	private static final long[] integralResults = { 3, -1, -2, 111111111, 6, 8, -10, 3, 3, 0, 2,0, 17, 12, -580, 12 };
+							private static final long[] integralResults = { 3, -1, -2, 111111111, 6, 8, -10, 3, 3, 0, 2,
+									0, 17, 12, -580, 12 };
 
 	@Test
 	public final void testInvalids() throws InvalidExpressionException {
-		int nbrIssues = 0;
 		for (String text : ExpressionTest.badExamples) {
 			exception.expect(InvalidExpressionException.class);
-			Expression expr = new Expression(text);
+			new Expression(text);
 		}
 	}
 
 	@Test
 	public final void testValids() throws InvalidExpressionException {
 		for (String text : ExpressionTest.goodExamples) {
-			Expression expr = new Expression(text);
+			new Expression(text);
 		}
 	}
 
@@ -103,8 +102,8 @@ public class ExpressionTest {
 		DataSheet data = new DynamicSheet();
 		for (String text : ExpressionTest.runTimeErrors) {
 			Expression expr = new Expression(text);
-
-			exception.expect(InvalidExpressionException.class);
+			// Expecting exception
+			exception.expect(InvalidOperationException.class);
 			expr.evaluate(data);
 		}
 	}
