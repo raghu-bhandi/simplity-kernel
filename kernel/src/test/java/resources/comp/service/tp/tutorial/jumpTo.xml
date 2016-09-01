@@ -10,7 +10,7 @@
 		<setValue actionName="one" fieldName="island" fieldValue="NeverLand" description="Where did they live?"></setValue>
 		<setValue actionName="two" fieldName="leader" fieldValue="Peter Pan"></setValue>
 		<setValue actionName="three" fieldName="gang" fieldValue="Lost Boys"></setValue>
-		<jumpTo toAction="six"/>
+		<jumpTo toAction="six" executeOnCondition="gang='Lost Boys'"/>
 		<setValue actionName="four" fieldName="adversary1" fieldValue="Captain Hook"></setValue>
 		<setValue actionName="five" fieldName="adversary2" fieldValue="Mr.Smee"></setValue>
 		<setValue actionName="six" fieldName="comma" fieldValue="James Patrik"></setValue>

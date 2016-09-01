@@ -216,4 +216,14 @@ public class ActionsTestNoDB extends Mockito {
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(false, obj.has("adversary1"));
 	}
+	
+	/**
+	 * Test for copyUserIdTest action 
+	 */
+	@Test
+	public void copyUserIdTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.copyUserId");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(obj.get("UserIDCopy"),"100");
+	}
 }
