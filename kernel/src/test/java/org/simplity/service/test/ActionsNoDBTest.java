@@ -32,7 +32,7 @@ import org.simplity.kernel.util.XmlUtil;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 
-public class ActionsTestNoDB extends Mockito {
+public class ActionsNoDBTest extends Mockito {
 	private static final String COMP_PATH = "resources/comp/";
 	final static String TEST_PATH = "src/test/java/";
 	@Mock

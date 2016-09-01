@@ -61,7 +61,7 @@ public class ExpressionTest {
 	 */
 			private static final String[] goodExamples = { "a", "a.a", "a1", "a__a", "1", "1.005", "1.", "''", "'\"'",
 					"\"''' -_!@#$%^&*()_+{}[]|\\:;'<,>.?/\"", "/1960-05-06/", "/2016-02-29/", "!a", "?a", "~b", "-a",
-					"-1.234", "foo()", "-foo()", "a+b", "a - b", "a--b", "a +-12 * foo(1,a, ( 1 + 2))", "(a)",
+					"-1.234", "a+b", "a - b", "a--b", "a +-12 * foo(1,a, ( 1 + 2))", "(a)",
 					"a <= 12  " };
 					/**
 					 * expressions that should parse OK but will generate

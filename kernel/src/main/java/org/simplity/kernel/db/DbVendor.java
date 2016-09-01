@@ -105,7 +105,27 @@ public enum DbVendor {
 			return S + schema;
 		}
 
-	};
+	}
+	/**
+	 * h2
+	 */
+	,
+	H_2 {
+		private static final String G = "SELECT DATABASE()";
+		private static final String S = "USE ";
+
+		@Override
+		public String getGetSchemaSql() {
+			return G;
+		}
+
+		@Override
+		public String getSetSchemaSql(String schema) {
+			return S + schema;
+		}
+
+	}
+	;
 
 	/*
 	 * fields default to standard
