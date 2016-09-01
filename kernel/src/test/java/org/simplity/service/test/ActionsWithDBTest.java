@@ -26,9 +26,13 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
+
+import org.simplity.kernel.FormattedMessage;
+
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 
@@ -99,6 +103,7 @@ public class ActionsWithDBTest extends Mockito {
 		ServiceData inData = new ServiceData();
 		inData.setPayLoad(null);
 		inData.setServiceName(servicename);
+		inData.setUserId(Value.newTextValue("100"));
 		outData = ServiceAgent.getAgent().executeService(inData);
 		return outData;
 	}
@@ -140,4 +145,85 @@ public class ActionsWithDBTest extends Mockito {
 		obj.get("NotEmptyDS");
 	}
 
+	
+	/**
+	 * Test for addColumn action 
+	 */
+	@Test
+	public void addColumnTest(){
+		
+		ServiceData outData = serviceAgentSetup("tutorial.addColumn");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		
+		assertEquals(((JSONObject) ((JSONArray) obj.get("weekendBoxOffice")).get(0)).get("testcolumn"), "testValue");
+	}
+	
+	/**
+	 * Test for copyRows action 
+	 */
+	@Test
+	public void copyRowsTest(){
+		
+		ServiceData outData = serviceAgentSetup("tutorial.copyRows");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		
+		assertEquals(((JSONObject) ((JSONArray) obj.get("weekendBoxOffice")).get(0)).get("Theaters"), "465");
+	}
+	
+	/**
+	 * Test for renameSheet action 
+	 */
+	@Test
+	public void renameSheetTest(){
+		
+		ServiceData outData = serviceAgentSetup("tutorial.renameSheet");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		
+		assertEquals(((JSONObject) ((JSONArray) obj.get("newweekendBoxOffice")).get(0)).get("Theaters"), "465");
+	}
+	
+	/**
+	 * Test for add Message action 
+	 */
+	@Test
+	public void addMessageTest(){
+		
+		ServiceData outData = serviceAgentSetup("tutorial.addMessage");
+		FormattedMessage[] msgs = outData.getMessages();
+		
+		assertEquals(msgs[0].text, "NeverLand Custom Message From My Messages XML File");
+	}
+	
+	/**
+	 * Test for add createSheet action 
+	 */
+	@Test
+	public void createSheetTest(){
+		
+		ServiceData outData = serviceAgentSetup("tutorial.createSheet");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		
+		assertEquals(((JSONObject) ((JSONArray) obj.get("newsheet")).get(0)).get("text"), "first row first column text");
+	}
+	
+	
+	/**
+	 * Test for jumpToTest action 
+	 */
+	@Test
+	public void jumpToTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.jumpTo");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(false, obj.has("adversary1"));
+	}
+	
+	/**
+	 * Test for copyUserIdTest action 
+	 */
+	@Test
+	public void copyUserIdTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.copyUserId");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(obj.get("UserIDCopy"),"100");
+	}
 }
