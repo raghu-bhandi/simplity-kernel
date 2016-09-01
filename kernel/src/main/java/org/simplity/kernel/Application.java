@@ -374,6 +374,10 @@ public class Application {
 		// myTest(args);
 	}
 
+	public String getConnectionString() {
+		return connectionString;
+	}
+
 	private static void myTest(String[] args) {
 		int nbr = args.length;
 		if (nbr < 2) {

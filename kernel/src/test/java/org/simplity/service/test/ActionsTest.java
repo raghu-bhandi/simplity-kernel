@@ -4,7 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
@@ -13,7 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.h2.tools.RunScript;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,13 +31,17 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
+
+import org.simplity.kernel.FormattedMessage;
+
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 
-public class ActionsNoDBTest extends Mockito {
+public class ActionsTest extends Mockito {
 	private static final String COMP_PATH = "resources/comp/";
 	final static String TEST_PATH = "src/test/java/";
 	@Mock
@@ -53,9 +62,9 @@ public class ActionsNoDBTest extends Mockito {
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 
-	@Before
-	public void setUp() throws Exception {
-		MockitoAnnotations.initMocks(this);
+	@BeforeClass
+	public static void setUp() throws Exception {
+		MockitoAnnotations.initMocks(ActionsTest.class);
 		ServletContext context = mock(ServletContext.class);
 		ComponentType.setComponentFolder(COMP_PATH);
 		FileManager.setContext(context);
@@ -87,11 +96,19 @@ public class ActionsNoDBTest extends Mockito {
 		});
 
 		Application app = new Application();
-		XmlUtil.xmlToObject(COMP_PATH + "applicationNoDB.xml", app);
+		XmlUtil.xmlToObject(COMP_PATH + "applicationH2.xml", app);
 		/*
 		 * app.configure() takes care of all initial set up
 		 */
 		app.configure();
+
+		/*
+		 * Load the db data
+		 */
+		Class.forName("org.h2.Driver");
+		Connection conn = DriverManager.getConnection(app.getConnectionString());
+		RunScript.execute(conn,
+				new FileReader(new File("src/test/java/resources/data/scripts/create_classicmodels.sql").getAbsolutePath()));
 	}
 
 	private ServiceData serviceAgentSetup(String servicename) {
@@ -99,6 +116,7 @@ public class ActionsNoDBTest extends Mockito {
 		ServiceData inData = new ServiceData();
 		inData.setPayLoad(null);
 		inData.setServiceName(servicename);
+		inData.setUserId(Value.newTextValue("100"));
 		outData = ServiceAgent.getAgent().executeService(inData);
 		return outData;
 	}
@@ -129,15 +147,94 @@ public class ActionsNoDBTest extends Mockito {
 		assertEquals(((JSONObject) ((JSONArray) obj.get("weekendBoxOffice")).get(0)).get("Theaters"), "465");
 
 		assertEquals(obj.get("emptyDS"), "Sheet is empty");
-		
+
 		assertEquals(obj.getInt("checkExpression"), 3);
-				
-		
-		//Check for defaultValue assignment to Inputfield	
+
+		// Check for defaultValue assignment to Inputfield
 		assertEquals(obj.get("switch"), "winner");
-		
+
 		exception.expect(JSONException.class);
 		obj.get("NotEmptyDS");
 	}
 
+	/**
+	 * Test for addColumn action
+	 */
+	@Test
+	public void addColumnTest() {
+
+		ServiceData outData = serviceAgentSetup("tutorial.addColumn");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+
+		assertEquals(((JSONObject) ((JSONArray) obj.get("weekendBoxOffice")).get(0)).get("testcolumn"), "testValue");
+	}
+
+	/**
+	 * Test for copyRows action
+	 */
+	@Test
+	public void copyRowsTest() {
+
+		ServiceData outData = serviceAgentSetup("tutorial.copyRows");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+
+		assertEquals(((JSONObject) ((JSONArray) obj.get("weekendBoxOffice")).get(0)).get("Theaters"), "465");
+	}
+
+	/**
+	 * Test for renameSheet action
+	 */
+	@Test
+	public void renameSheetTest() {
+
+		ServiceData outData = serviceAgentSetup("tutorial.renameSheet");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+
+		assertEquals(((JSONObject) ((JSONArray) obj.get("newweekendBoxOffice")).get(0)).get("Theaters"), "465");
+	}
+
+	/**
+	 * Test for add Message action
+	 */
+	@Test
+	public void addMessageTest() {
+
+		ServiceData outData = serviceAgentSetup("tutorial.addMessage");
+		FormattedMessage[] msgs = outData.getMessages();
+
+		assertEquals(msgs[0].text, "NeverLand Custom Message From My Messages XML File");
+	}
+
+	/**
+	 * Test for add createSheet action
+	 */
+	@Test
+	public void createSheetTest() {
+
+		ServiceData outData = serviceAgentSetup("tutorial.createSheet");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+
+		assertEquals(((JSONObject) ((JSONArray) obj.get("newsheet")).get(0)).get("text"),
+				"first row first column text");
+	}
+
+	/**
+	 * Test for jumpToTest action
+	 */
+	@Test
+	public void jumpToTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.jumpTo");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(false, obj.has("adversary1"));
+	}
+
+	/**
+	 * Test for copyUserIdTest action
+	 */
+	@Test
+	public void copyUserIdTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.copyUserId");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(obj.get("UserIDCopy"), "100");
+	}
 }

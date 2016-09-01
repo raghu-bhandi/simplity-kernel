@@ -2406,6 +2406,7 @@
 						<xs:enumeration value="postgre" />
 						<xs:enumeration value="oracle" />
 						<xs:enumeration value="mssql" />
+						<xs:enumeration value="h2" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

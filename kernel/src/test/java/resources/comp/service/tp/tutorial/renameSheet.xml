@@ -10,7 +10,7 @@
 		</outputRecords>
 	</outputData>
 	<actions>
-	<logic actionName="1" className="org.simplity.test.CustomFilterAction" />
-<renameSheet newSheetName="newweekendBoxOffice" sheetName="weekendBoxOffice" actionName="renameSheetAction"/>
+	<logic actionName="1" className="org.simplity.test.CustomLogicAction" />
+	<renameSheet newSheetName="newweekendBoxOffice" sheetName="weekendBoxOffice" actionName="renameSheetAction"/>
 	</actions>
 </service>

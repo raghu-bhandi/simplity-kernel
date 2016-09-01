@@ -9,7 +9,7 @@
 		</inputFields>
 	</inputData>
 
-	<outputData fieldNames="island,leader,gang,adversaries,novel,lostBoys,emptyDS,NotEmptyDS,checkExpression">
+	<outputData fieldNames="switch,island,leader,gang,adversaries,novel,lostBoys,emptyDS,NotEmptyDS,checkExpression">
 		<outputRecords>
 			<outputRecord sheetName="weekendBoxOffice"/>
 			<outputRecord sheetName="emptySheet"/>
