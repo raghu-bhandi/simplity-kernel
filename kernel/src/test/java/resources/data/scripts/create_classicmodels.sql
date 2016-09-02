@@ -45,7 +45,7 @@ CREATE TABLE Customers (
   salesRepEmployeeNumber INTEGER NULL,
   creditLimit DOUBLE NULL,
   PRIMARY KEY (customerNumber)
-) AS SELECT * FROM CSVREAD('src/test/java/resources/data/datafiles/Customers.txt');
+) AS SELECT * FROM CSVREAD('~/datafiles/customer.txt');
 
 CREATE TABLE Employees (
   employeeNumber INTEGER NOT NULL,

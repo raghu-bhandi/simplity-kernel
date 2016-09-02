@@ -8,6 +8,8 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Set;
 
 import javax.servlet.RequestDispatcher;
@@ -107,6 +109,10 @@ public class ActionsTest extends Mockito {
 		 */
 		Class.forName("org.h2.Driver");
 		Connection conn = DriverManager.getConnection(app.getConnectionString());
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery("CALL DATABASE_PATH()");
+		rs.next();
+		System.out.println(rs.getString(1));
 		RunScript.execute(conn,
 				new FileReader(new File("src/test/java/resources/data/scripts/create_classicmodels.sql").getAbsolutePath()));
 	}
