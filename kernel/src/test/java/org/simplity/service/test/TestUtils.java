@@ -101,6 +101,7 @@ public class TestUtils {
 			}
 			in.close();
 			out.close();
+			System.out.println("Written "+ targetLocation.getAbsolutePath());
 		}
 	}
 }
