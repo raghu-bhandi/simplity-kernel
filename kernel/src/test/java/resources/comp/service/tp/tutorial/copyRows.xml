@@ -4,12 +4,12 @@
 	description="Test actions copy rows">
 	<outputData>
 		<outputRecords>
-			<outputRecord sheetName="weekendBoxOffice" />
+			<outputRecord sheetName="copiedweekendBoxOffice" />
 		</outputRecords>
 	</outputData>
 	<actions>
 		<logic actionName="1" className="org.simplity.test.CustomCopyRowsAction" />
-		<copyRows fromSheetName="weekendBoxOffice" toSheetName="weekendBoxOffice1"
+		<copyRows fromSheetName="weekendBoxOffice" toSheetName="copiedweekendBoxOffice"
 			actionName="copyRowsAction" />
 
 	</actions>

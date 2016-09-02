@@ -16,13 +16,10 @@ public class CustomCopyRowsAction implements LogicInterface{
 		DataSheet toSheet = null;
 		try {
 			fromSheet = TestUtils.loadDS("weekendBoxOffice");
-			toSheet = TestUtils.loadDS("weekendBoxOffice1");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		ctx.putDataSheet("weekendBoxOffice", fromSheet);
-		ctx.putDataSheet("weekendBoxOffice1", toSheet);
-
 		return Value.newTextValue(" from CustomFilterAction");
 	
 	}

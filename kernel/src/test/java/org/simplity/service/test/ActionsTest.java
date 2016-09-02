@@ -191,7 +191,7 @@ public class ActionsTest extends Mockito {
 		ServiceData outData = serviceAgentSetup("tutorial.copyRows");
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 
-		assertEquals(((JSONObject) ((JSONArray) obj.get("weekendBoxOffice")).get(0)).get("Theaters"), "465");
+		assertEquals(((JSONObject) ((JSONArray) obj.get("copiedweekendBoxOffice")).get(0)).get("Theaters"), "465");
 	}
 
 	/**
