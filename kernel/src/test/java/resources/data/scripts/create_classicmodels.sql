@@ -29,6 +29,7 @@ DROP TABLE IF EXISTS Payments;
 DROP TABLE IF EXISTS Products; 
 
 /* Create the full set of Classic Models Tables */
+SET @DBPATH = DATABASE_PATH();
 
 CREATE TABLE Customers (
   customerNumber INTEGER NOT NULL,
@@ -45,7 +46,7 @@ CREATE TABLE Customers (
   salesRepEmployeeNumber INTEGER NULL,
   creditLimit DOUBLE NULL,
   PRIMARY KEY (customerNumber)
-) AS SELECT * FROM CSVREAD('~/datafiles/customer.txt');
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\customers.txt'));
 
 CREATE TABLE Employees (
   employeeNumber INTEGER NOT NULL,
@@ -57,7 +58,7 @@ CREATE TABLE Employees (
   reportsTo INTEGER NULL,
   jobTitle VARCHAR(50) NOT NULL,
   PRIMARY KEY (employeeNumber)
-) AS SELECT * FROM CSVREAD('src/test/java/resources/data/datafiles/employees.txt');
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\employees.txt'));
 
 CREATE TABLE Offices (
   officeCode VARCHAR(50) NOT NULL,
@@ -70,7 +71,7 @@ CREATE TABLE Offices (
   postalCode VARCHAR(10) NOT NULL,
   territory VARCHAR(10) NOT NULL,
   PRIMARY KEY (officeCode)
-) AS SELECT * FROM CSVREAD('src/test/java/resources/data/datafiles/offices.txt');
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\offices.txt'));
 
 CREATE TABLE OrderDetails (
   orderNumber INTEGER NOT NULL,
@@ -79,7 +80,7 @@ CREATE TABLE OrderDetails (
   priceEach DOUBLE NOT NULL,
   orderLineNumber SMALLINT NOT NULL,
   PRIMARY KEY (orderNumber, productCode)
-) AS SELECT * FROM CSVREAD('src/test/java/resources/data/datafiles/orderDetails.txt');
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\orderDetails.txt'));
 
 CREATE TABLE Orders (
   orderNumber INTEGER NOT NULL,
@@ -90,7 +91,7 @@ CREATE TABLE Orders (
   comments TEXT NULL,
   customerNumber INTEGER NOT NULL,
   PRIMARY KEY (orderNumber)
-) AS SELECT * FROM CSVREAD('src/test/java/resources/data/datafiles/orders.txt');
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\orders.txt'));
 
 CREATE TABLE Payments (
   customerNumber INTEGER NOT NULL,
@@ -98,7 +99,7 @@ CREATE TABLE Payments (
   paymentDate DATETIME NOT NULL,
   amount DOUBLE NOT NULL,
   PRIMARY KEY (customerNumber, checkNumber)
-) AS SELECT * FROM CSVREAD('src/test/java/resources/data/datafiles/payments.txt');
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\payments.txt'));
 
 CREATE TABLE Products (
   productCode VARCHAR(50) NOT NULL,
@@ -111,5 +112,5 @@ CREATE TABLE Products (
   buyPrice DOUBLE NOT NULL,
   MSRP DOUBLE NOT NULL,
   PRIMARY KEY (productCode)
-) AS SELECT * FROM CSVREAD('src/test/java/resources/data/datafiles/products.txt');
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\products.txt'));
 

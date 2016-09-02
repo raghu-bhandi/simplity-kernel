@@ -110,9 +110,16 @@ public class ActionsTest extends Mockito {
 		Class.forName("org.h2.Driver");
 		Connection conn = DriverManager.getConnection(app.getConnectionString());
 		Statement st = conn.createStatement();
-		ResultSet rs = st.executeQuery("CALL DATABASE_PATH()");
+		ResultSet rs = st.executeQuery("CALL DATABASE_PATH()");		
 		rs.next();
-		System.out.println("output database: "+ rs.getString(1));
+		String dbPath = rs.getString(1);
+		
+		//create destination dir
+		File destFile = new File(dbPath);
+		if(!destFile.exists()){
+			destFile.mkdir();
+		}
+		TestUtils.copyDirectory(new File("src/test/java/resources/data/datafiles"), destFile);
 		RunScript.execute(conn,
 				new FileReader(new File("src/test/java/resources/data/scripts/create_classicmodels.sql").getAbsolutePath()));
 	}
