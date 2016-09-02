@@ -6,6 +6,8 @@ package org.simplity.kernel.util.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.junit.After;
@@ -56,19 +58,17 @@ public class XmlUtilTest {
 	@Test
 	public final void serviceXmlToObject() {
 		Object object = new Service();
-		Object object1 = new Service();
 		try {
-			ClassLoader classLoader = getClass().getClassLoader();
-			InputStream fis = classLoader.getResourceAsStream("resources/xml/Service.xml");
+			File fs = new File("src/test/java/resources/xml/service.xml");
+			InputStream fis = new FileInputStream(fs);
 
-			
-			 XmlUtil.xmlToObject(fis, object);
+			XmlUtil.xmlToObject(fis, object);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		assertNotNull(object1);
-		assertEquals(Service.class, object1.getClass());
+		assertNotNull(object);
+		assertEquals(Service.class, object.getClass());
 		
 	}
 	
@@ -78,19 +78,17 @@ public class XmlUtilTest {
 	@Test
 	public final void messageXmlToObject() {
 		Object object = new Message();
-		Object object1 = new Message();
 		try {
-			ClassLoader classLoader = getClass().getClassLoader();
-			InputStream fis = classLoader.getResourceAsStream("resources/xml/Message.xml");
-
+			File fs = new File("src/test/java/resources/xml/message.xml");
+			InputStream fis = new FileInputStream(fs);
 			
 			 XmlUtil.xmlToObject(fis, object);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		assertNotNull(object1);
-		assertEquals(Message.class, object1.getClass());
+		assertNotNull(object);
+		assertEquals(Message.class, object.getClass());
 		
 	}
 	
@@ -100,10 +98,9 @@ public class XmlUtilTest {
 	@Test
 	public final void storedProcXmlToObject() {
 		Object object = new StoredProcedure();
-		Object object1 = new StoredProcedure();
 		try {
-			ClassLoader classLoader = getClass().getClassLoader();
-			InputStream fis = classLoader.getResourceAsStream("resources/xml/SP.xml");
+			File fs = new File("src/test/java/resources/xml/sp.xml");
+			InputStream fis = new FileInputStream(fs);
 
 			
 			 XmlUtil.xmlToObject(fis, object);
@@ -111,8 +108,8 @@ public class XmlUtilTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		assertNotNull(object1);
-		assertEquals(StoredProcedure.class, object1.getClass());
+		assertNotNull(object);
+		assertEquals(StoredProcedure.class, object.getClass());
 		
 	}
 	/**
@@ -121,10 +118,9 @@ public class XmlUtilTest {
 	@Test
 	public final void recordProcXmlToObject() {
 		Object object = new Record();
-		Object object1 = new Record();
 		try {
-			ClassLoader classLoader = getClass().getClassLoader();
-			InputStream fis = classLoader.getResourceAsStream("resources/xml/Record.xml");
+			File fs = new File("src/test/java/resources/xml/record.xml");
+			InputStream fis = new FileInputStream(fs);
 
 			
 			 XmlUtil.xmlToObject(fis, object);
@@ -132,8 +128,8 @@ public class XmlUtilTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		assertNotNull(object1);
-		assertEquals(Record.class, object1.getClass());
+		assertNotNull(object);
+		assertEquals(Record.class, object.getClass());
 		
 	}
 }
