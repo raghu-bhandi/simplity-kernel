@@ -46,7 +46,7 @@ CREATE TABLE Customers (
   salesRepEmployeeNumber INTEGER NULL,
   creditLimit DOUBLE NULL,
   PRIMARY KEY (customerNumber)
-) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\customers.txt'));
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/Customers.txt'));
 
 CREATE TABLE Employees (
   employeeNumber INTEGER NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE Employees (
   reportsTo INTEGER NULL,
   jobTitle VARCHAR(50) NOT NULL,
   PRIMARY KEY (employeeNumber)
-) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\employees.txt'));
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/Employees.txt'));
 
 CREATE TABLE Offices (
   officeCode VARCHAR(50) NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE Offices (
   postalCode VARCHAR(10) NOT NULL,
   territory VARCHAR(10) NOT NULL,
   PRIMARY KEY (officeCode)
-) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\offices.txt'));
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/Offices.txt'));
 
 CREATE TABLE OrderDetails (
   orderNumber INTEGER NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE OrderDetails (
   priceEach DOUBLE NOT NULL,
   orderLineNumber SMALLINT NOT NULL,
   PRIMARY KEY (orderNumber, productCode)
-) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\orderDetails.txt'));
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/OrderDetails.txt'));
 
 CREATE TABLE Orders (
   orderNumber INTEGER NOT NULL,
@@ -91,7 +91,7 @@ CREATE TABLE Orders (
   comments TEXT NULL,
   customerNumber INTEGER NOT NULL,
   PRIMARY KEY (orderNumber)
-) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\orders.txt'));
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/Orders.txt'));
 
 CREATE TABLE Payments (
   customerNumber INTEGER NOT NULL,
@@ -99,7 +99,7 @@ CREATE TABLE Payments (
   paymentDate DATETIME NOT NULL,
   amount DOUBLE NOT NULL,
   PRIMARY KEY (customerNumber, checkNumber)
-) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\payments.txt'));
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/Payments.txt'));
 
 CREATE TABLE Products (
   productCode VARCHAR(50) NOT NULL,
@@ -112,5 +112,5 @@ CREATE TABLE Products (
   buyPrice DOUBLE NOT NULL,
   MSRP DOUBLE NOT NULL,
   PRIMARY KEY (productCode)
-) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'\products.txt'));
+) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/Products.txt'));
 
