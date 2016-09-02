@@ -112,7 +112,7 @@ public class ActionsTest extends Mockito {
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery("CALL DATABASE_PATH()");
 		rs.next();
-		System.out.println(rs.getString(1));
+		System.out.println("output database: "+ rs.getString(1));
 		RunScript.execute(conn,
 				new FileReader(new File("src/test/java/resources/data/scripts/create_classicmodels.sql").getAbsolutePath()));
 	}
