@@ -1,8 +1,8 @@
 language: java
-script: 
+script:
 - bash ./deploy.sh
 - mvn test
 env:
   global:
-  - ENCRYPTION_LABEL: "2bb2144f4e4f"
-  - COMMIT_AUTHOR_EMAIL: "archetana@gmail.com"	
+  - ENCRYPTION_LABEL: 2b48ee9c5ea2
+  - COMMIT_AUTHOR_EMAIL: archetana@gmail.com
