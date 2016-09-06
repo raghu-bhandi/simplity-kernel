@@ -1,5 +1,6 @@
 language: java
 script:
+- bash ./deploy.sh
 - mvn test
 env:
   global:
