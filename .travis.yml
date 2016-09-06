@@ -1,9 +1,8 @@
 language: java
-install: 
-- chmod +x pagesetup.sh
-- ./pagesetup.sh
-script: mvn test
+script: 
+- bash ./deploy.sh
+- mvn test
 env:
   global:
   - ENCRYPTION_LABEL: "2bb2144f4e4f"
-  - COMMIT_AUTHOR_EMAIL: "archetana@gmail.com"
+  - COMMIT_AUTHOR_EMAIL: "archetana@gmail.com"	
