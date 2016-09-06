@@ -1,8 +1,10 @@
 language: java
 script:
-- bash ./deploy.sh
 - mvn test
 env:
   global:
   - ENCRYPTION_LABEL: 2b48ee9c5ea2
   - COMMIT_AUTHOR_EMAIL: archetana@gmail.com
+before_install:
+- openssl aes-256-cbc -K $encrypted_2b48ee9c5ea2_key -iv $encrypted_2b48ee9c5ea2_iv
+  -in deploy_key.enc -out deploy_key -d
