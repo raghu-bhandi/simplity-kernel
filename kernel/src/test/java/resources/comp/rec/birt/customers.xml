@@ -5,6 +5,7 @@
 	recordType="storage"
 	okToSelectAll="true"
 	keyToBeGenerated="true"
+	tableName="Customers"
 	>
 	<fields>
 		<field name="customerNumber" dataType="id" fieldType="primaryKey" />

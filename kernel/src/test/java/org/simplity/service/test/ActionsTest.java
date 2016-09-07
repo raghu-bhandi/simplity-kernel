@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.h2.tools.RunScript;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,9 +32,7 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
-
 import org.simplity.kernel.FormattedMessage;
-
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;
@@ -250,4 +247,35 @@ public class ActionsTest extends Mockito {
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("UserIDCopy"), "100");
 	}
+	
+	/**
+	 * Test for filter action
+	 */
+	@Test
+	public void filterTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.filterTest");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(((JSONObject) ((JSONArray) obj.get("customers")).get(0)).get("customerName"), "Signal Gift Stores");
+	}
+	
+	/**
+	 * Test for rowExists action
+	 */
+	@Test
+	public void rowExistsTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.rowExists");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(obj.get("testValue"), 1234);
+	}
+	
+	/**
+	 * Test for read action
+	 */
+	@Test
+	public void readDataTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.readData");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(obj.get("customerName"), "Signal Gift Stores");
+	}
+	
 }
