@@ -6,5 +6,5 @@
 /javadocs/ 
 /target/
 run.bat
-sshtravis
 .DS_Store
+deploy_key
