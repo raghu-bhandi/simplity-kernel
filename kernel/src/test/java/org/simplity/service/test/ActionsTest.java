@@ -278,4 +278,15 @@ public class ActionsTest extends Mockito {
 		assertEquals(obj.get("customerName"), "Signal Gift Stores");
 	}
 	
+	/**
+	 * Test for read action
+	 */
+	@Test
+	public void suggestTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.suggest");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		//assertEquals(obj.get("firstName"), "Mar");
+		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("firstName"), "Mary");
+		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(1)).get("firstName"), "Martin");
+	}
 }
