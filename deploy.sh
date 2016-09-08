@@ -15,6 +15,8 @@ ssh-add deploy_key
 SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
 
+chmod 755 compile.sh
+
 function doCompile {
   ./compile.sh
 }
