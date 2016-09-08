@@ -15,11 +15,6 @@ ssh-add deploy_key
 SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
 
-chmod 755 compile.sh
-
-function doCompile {
-  ./compile.sh
-}
 # Pull requests and commits to other branches shouldn't try to deploy, just build to verify
 if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
     echo "Skipping deploy; just doing a build."
@@ -44,7 +39,12 @@ cd ..
 rm -rf javadocs/**/* || exit 0
 
 # Run our compile script
-doCompile
+mvn javadoc:aggregate
+mkdir -p javadocs
+cd javadocs
+git clone -b gh-pages https://github.com/simplity/simplity.git
+cd ..
+cp -r target/site/apidocs javadocs/simplity 
 
 # Now let's go have some fun with the cloned repo
 cd javadocs
@@ -63,4 +63,4 @@ git add .
 git commit -m "Deploy to GitHub Pages: ${SHA}"
 echo "git push $SSH_REPO $TARGET_BRANCH"
 # Now that we're all set up, we can push.
-git push $SSH_REPO $TARGET_BRANCH
+git push origin $TARGET_BRANCH
