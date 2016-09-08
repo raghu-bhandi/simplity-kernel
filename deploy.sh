@@ -15,6 +15,7 @@ ssh-add deploy_key
 SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
 
+
 # Pull requests and commits to other branches shouldn't try to deploy, just build to verify
 if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
     echo "Skipping deploy; just doing a build."
@@ -63,4 +64,4 @@ git add .
 git commit -m "Deploy to GitHub Pages: ${SHA}"
 echo "git push $SSH_REPO $TARGET_BRANCH"
 # Now that we're all set up, we can push.
-git push origin $TARGET_BRANCH
+git push SSH_REPO $TARGET_BRANCH
