@@ -2,6 +2,11 @@ language: java
 script:
 - bash ./deploy.sh
 - mvn test
+deploy:
+  provider: openshift
+  user: "archetana@gmail.com"
+  password: "c48c849b64fac1c8eb35dc1acaf4325e" # can be encrypted
+  domain: "simplity"
 env:
   global:
   - ENCRYPTION_LABEL: 2b48ee9c5ea2
