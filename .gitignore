@@ -1,0 +1,10 @@
+/.metadata/
+/RemoteSystemsTempFiles/
+/Servers/
+/.recommenders/
+/.settings/
+/javadocs/ 
+/target/
+run.bat
+.DS_Store
+deploy_key

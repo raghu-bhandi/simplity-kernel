@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="getCustomer"
+	moduleName="birt"
+	dbAccessType="readOnly"
+	description="Example service that reads a row from a table based on primary key"
+>
+<inputData>
+	<inputRecords>
+	<!-- specify the record name with purpose as read. A field with name of primary key is expected in the input -->
+	<inputRecord recordName="birt.customer" purpose="read"/>
+	</inputRecords>
+</inputData>
+
+<actions>
+<!-- read action read all fields from the specified record with matching primary key. 
+	you may specify outputSheetName="customers" in case you want the response to be an array rather than just fields.
+	-->
+	<read recordName="birt.customer"  />
+</actions>
+
+<!--  remember, reading is different from output. Only fields/sheets specified in output are sent to client -->
+<outputData fieldNames="txt">
+	<outputRecords>
+	<!--  all fields form the record are sent back -->
+		<outputRecord recordName="birt.customer"/>
+	<!-- comment the above an uncomment the below in case you want an array as response -->
+	<!-- 
+		<outputRecord sheetName="customers"/>
+	 -->	
+	</outputRecords>
+</outputData>
+</service>
