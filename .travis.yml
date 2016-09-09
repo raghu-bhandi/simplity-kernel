@@ -11,6 +11,8 @@ deploy:
   domain: simplity
   on:
     repo: simplity/simplity
+after_success:
+- bash ./openshift.sh
 env:
   global:
   - ENCRYPTION_LABEL: 2b48ee9c5ea2
