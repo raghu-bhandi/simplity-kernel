@@ -279,7 +279,7 @@ public class ActionsTest extends Mockito {
 	}
 	
 	/**
-	 * Test for read action
+	 * Test for suggest action
 	 */
 	@Test
 	public void suggestTest() {
@@ -288,5 +288,35 @@ public class ActionsTest extends Mockito {
 		//assertEquals(obj.get("firstName"), "Mar");
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("firstName"), "Mary");
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(1)).get("firstName"), "Martin");
+	}
+	
+	/**
+	 * Test for saveDataDelete action
+	 */
+	@Test
+	public void saveDataDeleteTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.saveDataDelete");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(obj.get("testValue"), 1234);
+	}
+	
+	/**
+	 * Test for saveDataAdd action
+	 */
+	@Test
+	public void saveDataAddTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.saveDataAdd");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(obj.get("testValue"), 1234);
+	}
+	
+	/**
+	 * Test for saveDataAdd action
+	 */
+	@Test
+	public void saveDataModifyTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.saveDataModify");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(obj.get("testValue"), 1234);
 	}
 }

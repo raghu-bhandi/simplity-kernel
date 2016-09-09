@@ -49,7 +49,7 @@ CREATE TABLE Customers (
 ) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/Customers.txt'));
 
 CREATE TABLE Employees (
-  employeeNumber INTEGER NOT NULL,
+  employeeNumber INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
   lastName VARCHAR(50) NOT NULL,
   firstName VARCHAR(50) NOT NULL,
   extension VARCHAR(10) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE Employees (
   officeCode VARCHAR(20) NOT NULL,
   reportsTo INTEGER NULL,
   jobTitle VARCHAR(50) NOT NULL,
-  PRIMARY KEY (employeeNumber)
+  --PRIMARY KEY (employeeNumber)
 ) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/Employees.txt'));
 
 CREATE TABLE Offices (
