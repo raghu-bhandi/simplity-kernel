@@ -11,7 +11,7 @@ deploy:
   domain: simplity
   on:
     repo: simplity/simplity
-after_success:
+after_deploy:
 - bash ./openshift.sh
 env:
   global:
