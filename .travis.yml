@@ -2,8 +2,18 @@ language: java
 script:
 - bash ./deploy.sh
 - mvn test
+deploy:
+  provider: openshift
+  user: archetana@gmail.com
+  password:
+    secure: fF2vuJsNnrui+xzwLUNW08+6qGYChX7xNBQKsmqqdw5UWJnZQtRAvqTdDutPiK7y9aFqe+oivvZ02ekAlBkct8ShbnU3KR0G3QpHATz/9n7aPZvsEg4bZRVsvM6yuBu6I46MC49lF5uKalOs+YMoDkn2hp9lcl5Z1Z5nk5VBpn85wIRW6cuVx3qsZmkOkH6pDeeJbz0DrD4VywXm7kG7QzdEH8vxxIEeiIuJp6OvvVTfshyTjXMxBp5psRNnI6QKiKmFMlO/PnQwGqRph9FL6w89aF9n/vBwzfNJ36OYof3Mo8sSeyds+S8TWD2TLlR0LSL3hy9CDuEWTqYTLc1tjadn5txYHSh3liop3kGkyTTczdt5lG6UYQD0i04p5ana3aNvH+ymrj6Sl/r/wEmYLoJSGBKWx8t5MigaZ6WE+KqCRqpUnGN8AnXagJBa6BuPrzPfS1CjXZwO46QvR+aVjY+1+yrfQZCofgmzAmnGp9Ly0ruUQ5aYG8FSVZeodp6d8m+EQ0w4MNYW44QHs+F9teXjqBZigTB25nWHiqA0RYaE0yUBWdqPB3Oxlan8+QgOLhqqtSOjqOlgpx1CROLuIu2LwNUvEVW+/Bsvfmv4cSQvWMHUTjgthPAXqEKfMbPRDCqPO2NL7ZP68BKGAF85OsgDF/OM5eeaECIngovjXrM=
+  app: example
+  domain: simplity
+  on:
+    repo: simplity/simplity
+after_deploy:
+- bash ./openshift.sh
 env:
   global:
   - ENCRYPTION_LABEL: 2b48ee9c5ea2
   - COMMIT_AUTHOR_EMAIL: archetana@gmail.com
-
