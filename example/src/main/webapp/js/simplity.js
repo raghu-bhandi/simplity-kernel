@@ -55,6 +55,24 @@ var POCOL = {
 	 * value of CCRF token that indicates that it is a command to remove it
 	 */
 	REMOVE_CSRF : "remove",
+
+	/**
+	 * file-upload call, header field for optional name of file
+	 */
+	FILE_NAME : "_fileName",
+
+	/**
+	 * mime type of the file being uploaded.
+	 */
+	MIME_TYPE : "_mimeType",
+
+	/**
+	 * serviceName header field value to be used to discard a file that was
+	 * uploaded earlier. For example when user decides against using it as part
+	 * of next upload. This is only a courtesy to the server, but not required.
+	 * Unused files will any way be garbage collected
+	 */
+	DISCARD_FILE : "_discard",
 	/*
 	 * server response back to client
 	 */
@@ -63,6 +81,13 @@ var POCOL = {
 	 * data. Any other value means that the response is an array of messages
 	 */
 	REQUEST_STATUS : "_requestStatus",
+	/**
+	 * header field name used by server to intimate the token for the uploaded
+	 * file. This token is to be sent back as part of data for next service that
+	 * may use this uploaded file
+	 */
+	FILE_TOKEN : "_fileToken",
+
 	/**
 	 * server trace being pumped to client
 	 */
@@ -364,8 +389,14 @@ var Simplity = (function() {
 		 * go with each attribute of the json
 		 */
 		for ( var att in json) {
+			/*
+			 * attribute starting with _ are not ours
+			 */
+			if (att.indexOf('_') === 0) {
+				log('Ignoring the reserved attribute ' + att);
+				continue;
+			}
 			var val = json[att];
-			log(att + ' = ' + val);
 			var ele;
 			if (Array.isArray(val)) {
 				/*
@@ -451,24 +482,35 @@ var Simplity = (function() {
 		 * parent to outerHTML of this row.
 		 */
 		ele.style.display = 'none';
-		if (nbrRows < 2) {
-			ele.parentNode.innerHTML = ele.outerHTML;
+		var parentEle = ele.parentNode;
+		if (!nbrRows) {
+			log('No data in table ' + tableName);
+			parentEle.innerHTML = ele.outerHTML;
 			return;
 		}
-		var txt = ele.outerHTML;
 		/*
-		 * t is the array that will have the new intterHTMl fpr parent. Let us
+		 * we are going to manipulate ele.parentNode. Let us hide it when we are
+		 * doing that....
+		 */
+		parentEle.style.display = 'none';
+		/*
+		 * t is the array that will have the new innerHTML for parent. Let us
 		 * push the master row first
 		 */
-		var t = [ txt ];
+		var t = [ ele.outerHTML ];
+
+		/*
+		 * we clone the innerHTML of master row, but not when it is hidden !!
+		 */
+		ele.style.display = '';
 		/*
 		 * ele has to be cloned. So we take outer html.
 		 */
-		var parts = txt.split(ROW_PART_DELIM);
+		var parts = ele.outerHTML.split(ROW_PART_DELIM);
 		/*
-		 * parts[0] is <tag... id=" , parts[1] is namme, then we will have
-		 * pairs: parts[n] is html, and parts[n+1] column name... last part is
-		 * html. so we have to have odd number of parts.
+		 * parts[0] is <tag... id=" , parts[1] is name, then we will have pairs:
+		 * parts[n] is html, and parts[n+1] column name... last part is html. so
+		 * we have to have odd number of parts.
 		 */
 		var nbrParts = parts.length;
 		if (nbrParts % 2 !== 1) {
@@ -482,7 +524,7 @@ var Simplity = (function() {
 			var row = table[i];
 			t.push(parts[0]);
 			/*
-			 * push id
+			 * push id in place of part[1]
 			 */
 			t.push(tableName + '_' + i);
 			t.push(parts[2]);
@@ -491,19 +533,29 @@ var Simplity = (function() {
 			 */
 			var idx = 3;
 			while (idx < nbrParts) {
-				t.push(parts[idx++]);
-				var colName = parts[idx++];
+				var colName = parts[idx];
+				idx++;
 				if (colName === 'i') {
 					/*
 					 * special name for just pushing 1-based index
 					 */
 					t.push(i + 1);
 				} else {
-					t.push(convertValue(row[colName]));
+					if (row.hasOwnProperty(colName)) {
+						t.push(convertValue(row[colName]));
+					} else {
+						log('No value for column ' + colName
+								+ '. cell value set to empty string');
+					}
 				}
+				t.push(parts[idx]);
+				idx++;
+
 			}
 		}
-		ele.parentNode.innerHTML = t.join('');
+		parentEle.innerHTML = t.join('');
+		ele.style.display = 'none';
+		parentEle.style.display = '';
 	};
 
 	/**
@@ -574,8 +626,6 @@ var Simplity = (function() {
 	 */
 	var setValueToEle = function(ele, fieldName, fieldValue) {
 		var tag = ele.tagName.toLowerCase();
-		log('Trying a value of ' + fieldValue + ' for a ' + tag + " with id "
-				+ fieldName);
 		/*
 		 * most common - input field
 		 */
@@ -660,6 +710,7 @@ var Simplity = (function() {
 	 */
 	var METHOD = "POST";
 	var URL = 'a._s';
+	var FILE_URL = 'a._f';
 	var LOGIN_URL = 'a._i';
 	var LOGOUT_URL = 'a._o';
 	var TIMEOUT = 12000;
@@ -836,6 +887,188 @@ var Simplity = (function() {
 			} ]);
 		}
 	};
+
+	/**
+	 * uploads a file to web-tier and gets a token for this uploaded file.
+	 * onSuccess()is called back with this token. Server can be asked to pick
+	 * this file-up as part of a subsequent service request.
+	 * 
+	 * @param {File}
+	 *            File object. This is typically fileField.files[0]
+	 * @param {Function}
+	 *            call back function is called with file-token as the only
+	 *            argument. Null argument implies that there was some error,and
+	 *            the operation did not go thru.
+	 * @param {Function}
+	 *            call back function for progress bar. is called back with %
+	 *            completed periodically
+	 */
+	var uploadFile = function(file, callbackFn, progressFn) {
+		log('File ' + file.name + ' of mime-type ' + file.mime + ' of size '
+				+ file.size + ' is being uploaded');
+		if (!callbackFn) {
+			error('No callback funciton. We wil set window._uploadedFileKey to the returned key');
+		}
+
+		var xhr = new XMLHttpRequest();
+		/*
+		 * attach call back function
+		 */
+		xhr.onreadystatechange = function() {
+			if (this.readyState != '4') {
+				return;
+			}
+			/*
+			 * any issue with HTTP Connection?
+			 */
+			var token = null;
+			if (xhr.status != 200 && xhr.status != 0) {
+				log('non 200 status : ' + xhr.status);
+			} else {
+				token = xhr.getResponseHeader(POCOL.FILE_TOKEN);
+			}
+			if (callbackFn) {
+				callbackFn(token);
+			} else {
+				window._uploadedFileKey = token;
+			}
+		};
+		/*
+		 * safe to use time-out
+		 */
+		xhr.ontimeout = function() {
+			log('file upload timed out');
+			if (callbackFn) {
+				callbackFn(null);
+			}
+		};
+
+		/*
+		 * is there a progress call back?
+		 */
+		if (progressFn) {
+			xhr.upload.onprogress = function(e) {
+				if (e.lengthComputable) {
+					var progress = Math.round((e.loaded * 100) / e.total);
+					progressFn(progress);
+				}
+			};
+		}
+		/*
+		 * let us upload the file
+		 */
+		try {
+			xhr.open(METHOD, FILE_URL, true);
+			xhr.timeout = TIMEOUT;
+			xhr.setRequestHeader(POCOL.FILE_NAME, file.name);
+			log("header field " + POCOL.FILE_NAME + '=' + file.name);
+			if (file.mime) {
+				xhr.setRequestHeader(POCOL.MIME_TYPE, file.mime);
+				log("header field " + POCOL.MIME_TYPE + '=' + file.mime);
+			}
+
+			xhr.send(file);
+		} catch (e) {
+			error("error during xhr : " + e);
+			if (callbackFn) {
+				callbackFn(null);
+			}
+		}
+	};
+
+	/**
+	 * lets the server know that we wouldn't be using the token returned by an
+	 * earlier file-upload utility.
+	 * 
+	 * @param {string}
+	 *            token that is being discarded
+	 */
+	var discardFile = function(key) {
+		if (!key) {
+			error("No file token specified for discard request");
+			return;
+		}
+		var xhr = new XMLHttpRequest();
+		try {
+			xhr.open(METHOD, FILE_URL, true);
+			xhr.setRequestHeader(POCOL.FILE_TOKEN, key);
+			xhr.setRequestHeader(POCOL.SERVICE_NAME, POCOL.DISCARD);
+			xhr.send();
+		} catch (e) {
+			error("error during xhr for discarding token : " + key
+					+ ". error :" + e);
+		}
+
+	};
+
+	/**
+	 * downoads the file and calls back function with the content.
+	 * 
+	 * @param {string}
+	 *            key. A token that is returned by a service call that actually
+	 *            downloaded the file to buffer area.
+	 * @param {Function}
+	 *            call back function is called with content of ths file. called
+	 *            back with null in case of any issue.
+	 */
+	var downloadFile = function(key, callbackFn, progressFn) {
+		if (!key) {
+			error("No file token specified for download request");
+			return;
+		}
+
+		var xhr = new XMLHttpRequest();
+		/*
+		 * attach call back function
+		 */
+		xhr.onlodend = function() {
+			/*
+			 * any issue with HTTP Connection?
+			 */
+			var resp = null;
+			if (xhr.status != 200 && xhr.status != 0) {
+				log('non 200 status : ' + xhr.status);
+				callbackFn(null);
+			} else {
+				resp = xhr.response;
+			}
+			if (callbackFn) {
+				callbackFn(resp);
+			} else {
+				Simplity.message('We successfully downloaded file for key '
+						+ key + ' with content-type='
+						+ xhr.getResponseHeader('Content-Type')
+						+ ' and total size of '
+						+ xhr.getResponseHeader('Content-Length'));
+			}
+		};
+		/*
+		 * safe to use time-out
+		 */
+		xhr.ontimeout = function() {
+			log('file download timed out');
+			callbackFn(null);
+		};
+
+		/*
+		 * is there a progress call back?
+		 */
+		if (progressFn) {
+			xhr.onprogress = function(e) {
+				if (e.lengthComputable) {
+					var progress = Math.round((e.loaded * 100) / e.total);
+					progressFn(progress);
+				}
+			};
+		}
+		try {
+			xhr.open('GET', FILE_URL + '?' + key, true);
+			xhr.send();
+		} catch (e) {
+			error("error during xhr for downloading token : " + key
+					+ ". error :" + e);
+		}
+	};
 	/*
 	 * what we want to expose as API
 	 */
@@ -853,5 +1086,8 @@ var Simplity = (function() {
 		login : login,
 		logout : logout,
 		pushDataToPage : pushDataToPage,
+		uploadFile : uploadFile,
+		discardFile : discardFile,
+		downloadFile : downloadFile
 	};
 })();

@@ -1450,6 +1450,16 @@
 				type="suggest"
 				minOccurs="0"
 				maxOccurs="unbounded" />
+			<xs:element
+				name="download"
+				type="upOrDownload"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="upload"
+				type="upOrDownload"
+				minOccurs="0"
+				maxOccurs="unbounded" />
 		</xs:choice>
 	</xs:complexType>
 
@@ -2134,6 +2144,50 @@
 		</xs:attribute>
 	</xs:complexType>
 
+	<xs:complexType name="upOrDownload">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="keyField"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Field that has the key to the file to be up/down loaded
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="fileNameField"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Field to which the file name is to be copied after up/down oading the file. This is optional.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="mimeTypeField"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Field to which mime-type of the file is to be copied after up/down oading the file. This is optional.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="sheetName"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>In case this action is to be rpeated for each row of a sheet. key,file and mime type attributes are used as column names.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
 
 	<xs:simpleType name="valueType">
 		<xs:restriction base="xs:NCName">
@@ -2406,7 +2460,6 @@
 						<xs:enumeration value="postgre" />
 						<xs:enumeration value="oracle" />
 						<xs:enumeration value="mssql" />
-						<xs:enumeration value="h2" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

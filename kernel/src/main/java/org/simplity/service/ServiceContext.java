@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,6 +37,7 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.media.Media;
 
 /**
  * Context is created for an execution of a service. A service execution
@@ -60,6 +61,11 @@ public class ServiceContext extends CommonData {
 	private final Value userId;
 	private List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
 	private int nbrErrors = 0;
+
+	/**
+	 * downoaded media
+	 */
+	private Collection<Media> downloads;
 
 	/**
 	 * @param serviceName
@@ -90,7 +96,8 @@ public class ServiceContext extends CommonData {
 	 *            is to be taken from context
 	 * @return type of message that got added
 	 */
-	public MessageType addValidationMessage(String messageName, String referredField, String otherReferredField,
+	public MessageType addValidationMessage(String messageName,
+			String referredField, String otherReferredField,
 			String referredTable, int rowNumber, String... params) {
 		String[] values = null;
 		if (params != null && params.length > 0) {
@@ -133,7 +140,8 @@ public class ServiceContext extends CommonData {
 	 * @return type of message that got added
 	 */
 	public MessageType addMessage(String messageName, String... paramValues) {
-		return this.addValidationMessage(messageName, null, null, null, 0, paramValues);
+		return this.addValidationMessage(messageName, null, null, null, 0,
+				paramValues);
 	}
 
 	/**
@@ -144,7 +152,8 @@ public class ServiceContext extends CommonData {
 	 *            in English always
 	 */
 	public void addInternalMessage(MessageType messageType, String messageText) {
-		this.addMessageRow(ServiceContext.INTERNAL, messageType, messageText, null, null, null, 0);
+		this.addMessageRow(ServiceContext.INTERNAL, messageType, messageText,
+				null, null, null, 0);
 	}
 
 	/**
@@ -158,12 +167,14 @@ public class ServiceContext extends CommonData {
 	 * @param referredTable
 	 * @param rowNumber
 	 */
-	public void addMessageRow(String messageName, MessageType messageType, String messageText, String referredField,
+	public void addMessageRow(String messageName, MessageType messageType,
+			String messageText, String referredField,
 			String otherReferredField, String referredTable, int rowNumber) {
 		if (messageType == MessageType.ERROR) {
 			this.nbrErrors++;
 		}
-		FormattedMessage msg = new FormattedMessage(messageName, messageType, messageText);
+		FormattedMessage msg = new FormattedMessage(messageName, messageType,
+				messageText);
 		msg.fieldName = referredField;
 		msg.relatedFieldName = otherReferredField;
 		msg.tableName = referredTable;
@@ -228,7 +239,8 @@ public class ServiceContext extends CommonData {
 	 */
 	public String getSummaryInfo() {
 		StringBuilder sbf = new StringBuilder("Context has ");
-		sbf.append(this.allFields.size()).append(" fields and ").append(this.allSheets.size()).append(" sheets and ")
+		sbf.append(this.allFields.size()).append(" fields and ")
+		.append(this.allSheets.size()).append(" sheets and ")
 				.append(this.messages.size()).append(" messages.");
 		return sbf.toString();
 	}
@@ -259,5 +271,72 @@ public class ServiceContext extends CommonData {
 			return 0;
 		}
 		return ds.length();
+	}
+
+	/**
+	 * get a media data structure for the supplied key
+	 *
+	 * @param mediaKey
+	 *            key by which this media is identified. This is typically the
+	 *            key returned by temp storage manager
+	 *
+	 * @return media, or null if no such media exists
+	 */
+	public Media getUpload(String mediaKey) {
+		Object obj = this.allObjects.get(mediaKey);
+		if (obj == null || obj instanceof Media == false) {
+			return null;
+		}
+		return (Media) obj;
+	}
+
+	/**
+	 * put a media data structure into the map
+	 *
+	 * @param mediaKey
+	 *            key by which this media is identified. This is typically the
+	 *            key returned by temp storage manager
+	 * @param media
+	 *            media data structure.
+	 *
+	 */
+	public void putUpload(String mediaKey, Media media) {
+		this.allObjects.put(mediaKey, media);
+	}
+
+	/**
+	 * put all media data structure into the map
+	 *
+	 * @param allMedia
+	 *            media data structures. null implies that it is removed
+	 *
+	 */
+	public void putUpload(Map<String, Media> allMedia) {
+		if (allMedia == null) {
+			return;
+		}
+		this.allObjects.putAll(allMedia);
+	}
+
+	/**
+	 * put a downloaded media into the context
+	 *
+	 * @param media
+	 *            that is downloaded and to be referred back to the client
+	 */
+	public void putDownLoad(Media media) {
+		if (this.downloads == null) {
+			this.downloads = new ArrayList<Media>();
+		}
+		this.downloads.add(media);
+	}
+
+	/**
+	 * get a collection of downloaded messages
+	 *
+	 * @return collection or null of none
+	 */
+	public Collection<Media> getAllDownloads() {
+		return this.downloads;
 	}
 }

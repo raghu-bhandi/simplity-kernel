@@ -25,7 +25,7 @@ package org.simplity.service;
 /***
  * All names/Constants used for communication with the engine
  *
- * rg bhandi
+ * @author simplity.org
  *
  */
 public abstract class ServiceProtocol {
@@ -41,7 +41,7 @@ public abstract class ServiceProtocol {
 
 	/**
 	 * HTTP header with which to exchange CSRF token. sent by client with every
-	 * request (except login) Returned by server on login/logut
+	 * request (except login) Returned by server on login/logout
 	 */
 	public static final String CSRF_HEADER = "X-CSRF-Token";
 
@@ -246,7 +246,7 @@ public abstract class ServiceProtocol {
 	public static final String SUGGEST_STARTING = "_matchStarting";
 
 	/**
-	 * list of values can be separated with this. eg a,b,s
+	 * list of values can be separated with this. e.g. a,b,s
 	 */
 	public static final char LIST_SEPARATOR = ',';
 	/**
@@ -266,4 +266,32 @@ public abstract class ServiceProtocol {
 	 * logout
 	 */
 	public static final String TIMED_OUT = "timedOut";
+
+	/**
+	 * header field that has the name of the file being uploaded
+	 */
+	public static final String HEADER_MIME_TYPE = "_mimeType";
+
+	/**
+	 * header field that has the name of the file being uploaded
+	 */
+	public static final String HEADER_FILE_NAME = "_fileName";
+
+	/**
+	 * header field that has the token for the uploaded file returned from
+	 * server. This token needs to to sent back to server as a reference for the
+	 * uploaded file
+	 */
+	public static final String HEADER_FILE_TOKEN = "_fileToken";
+	/**
+	 * if file name is not set for an uploaded file we use this as the default
+	 * file name
+	 */
+	public static final String DEFAULT_FILE_NAME = "_noName";
+	/**
+	 * value of header field SERVICE_NAME to request to discard an media that
+	 * was uploaded earlier
+	 */
+
+	public static final String SERVICE_DELETE_FILE = "_discard";
 }

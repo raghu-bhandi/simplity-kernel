@@ -21,13 +21,19 @@
  */
 package org.simplity.kernel.data;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.value.BooleanValue;
+import org.simplity.kernel.value.DateValue;
+import org.simplity.kernel.value.DecimalValue;
+import org.simplity.kernel.value.IntegerValue;
 import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
 
 /**
  * Default generic data structure that is created for implementing a service. We
@@ -318,7 +324,7 @@ public class CommonData implements CommonDataInterface {
 
 	/**
 	 * Way to pass an object to subsequent action
-	 * 
+	 *
 	 * @param dataName
 	 *            name by which this is referred
 	 * @param object
@@ -344,5 +350,166 @@ public class CommonData implements CommonDataInterface {
 	 */
 	public Object removeObject(String dataName) {
 		return this.allObjects.remove(dataName);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#getTextValue(java.lang.String
+	 * )
+	 */
+	@Override
+	public String getTextValue(String fieldName) {
+		Value val = this.getValue(fieldName);
+		if (Value.isNull(val)) {
+			return null;
+		}
+		return val.toString();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#getLongValue(java.lang.String
+	 * )
+	 */
+	@Override
+	public long getLongValue(String fieldName) {
+		Value val = this.getValue(fieldName);
+		if (Value.isNull(val)) {
+			return 0;
+		}
+		ValueType vt = val.getValueType();
+		if (vt == ValueType.INTEGER) {
+			return ((IntegerValue) val).getLong();
+		}
+		if (vt == ValueType.DECIMAL) {
+			return ((DecimalValue) val).getLong();
+		}
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#getDateValue(java.lang.String
+	 * )
+	 */
+	@Override
+	public Date getDateValue(String fieldName) {
+		Value val = this.getValue(fieldName);
+		if (Value.isNull(val)) {
+			return null;
+		}
+
+		if (val.getValueType() == ValueType.DECIMAL) {
+			return new Date(((DateValue) val).getDate());
+		}
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#getBooleanValue(java.lang
+	 * .String)
+	 */
+	@Override
+	public boolean getBooleanValue(String fieldName) {
+		Value val = this.getValue(fieldName);
+		if (Value.isNull(val)) {
+			return false;
+		}
+		if (val.getValueType() == ValueType.BOOLEAN) {
+			return ((BooleanValue) val).getBoolean();
+		}
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#getDoubleValue(java.lang
+	 * .String)
+	 */
+	@Override
+	public double getDoubleValue(String fieldName) {
+		Value val = this.getValue(fieldName);
+		if (Value.isNull(val)) {
+			return 0;
+		}
+		ValueType vt = val.getValueType();
+		if (vt == ValueType.DECIMAL) {
+			return ((DecimalValue) val).getDouble();
+		}
+		if (vt == ValueType.INTEGER) {
+			return ((IntegerValue) val).getDouble();
+		}
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#setTextValue(java.lang.String
+	 * , java.lang.String)
+	 */
+	@Override
+	public void setTextValue(String fieldName, String value) {
+		this.setValue(fieldName, Value.newTextValue(value));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#setLongValue(java.lang.String
+	 * , long)
+	 */
+	@Override
+	public void setLongValue(String fieldName, long value) {
+		this.setValue(fieldName, Value.newIntegerValue(value));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#setDoubleValue(java.lang
+	 * .String, java.lang.Double)
+	 */
+	@Override
+	public void setDoubleValue(String fieldName, double value) {
+		this.setValue(fieldName, Value.newDecimalValue(value));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#setDateValue(java.lang.String
+	 * , java.util.Date)
+	 */
+	@Override
+	public void setDateValue(String fieldName, Date value) {
+		this.setValue(fieldName, Value.newDateValue(value));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.CommonDataInterface#setBooleanValue(java.lang
+	 * .String, boolean)
+	 */
+	@Override
+	public void setBooleanValue(String fieldName, boolean value) {
+		this.setValue(fieldName, Value.newBooleanValue(value));
 	}
 }

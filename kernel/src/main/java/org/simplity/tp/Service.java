@@ -206,7 +206,7 @@ public class Service implements ServiceInterface {
 			}
 		}
 		/*
-		 * execute service, but only if input is all OK
+		 * let us proceed if all OK
 		 */
 		if (ctx.isInError() == false) {
 			/*
@@ -220,6 +220,14 @@ public class Service implements ServiceInterface {
 					ctx.setObject(key, val);
 				}
 			}
+			/*
+			 * copy any media
+			 */
+			ctx.putUpload(inData.getAllMedia());
+
+			/*
+			 * all set to start with actions
+			 */
 			try {
 				ActionBlock worker = new ActionBlock(this.actions,
 						this.indexedActions, ctx);
@@ -272,6 +280,10 @@ public class Service implements ServiceInterface {
 				Tracer.trace("Service " + this.name
 						+ " is designed to send no response.");
 			}
+			/*
+			 * any downloaded media?
+			 */
+			response.putMedia(ctx.getAllDownloads());
 		}
 		return response;
 	}

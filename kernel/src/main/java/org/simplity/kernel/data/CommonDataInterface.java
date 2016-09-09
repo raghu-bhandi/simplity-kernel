@@ -21,6 +21,8 @@
  */
 package org.simplity.kernel.data;
 
+import java.util.Date;
+
 /**
  * Default generic data structure that can be used as memory organization for
  * implementing any logic. for example implementing a service. created for
@@ -96,5 +98,98 @@ public interface CommonDataInterface extends FieldsInterface {
 	 */
 	public DataSheetIterator startIteration(String sheetName)
 			throws AlreadyIteratingException;
+
+	/*
+	 * we add convenient type-specific methods over getValue() and setValue()
+	 */
+
+	/**
+	 * get value of this key-value pair as text value
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @return text value, or null if there is no value
+	 */
+	public String getTextValue(String fieldName);
+
+	/**
+	 * value associated with this field/key
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @return long value if the value is indeed numeric. 0 if no value, or if
+	 *         it is non-numeric
+	 */
+	public long getLongValue(String fieldName);
+
+	/**
+	 * value associated with this field/key
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @return date value if found. null if no such field, or if the vaue is not
+	 *         a date
+	 */
+	public Date getDateValue(String fieldName);
+
+	/**
+	 * value associated with this field/key
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @return boolean value of the field if found. false if no such field, or
+	 *         if the field value is not boolean
+	 */
+	public boolean getBooleanValue(String fieldName);
+
+	/**
+	 * value associated with this field/key
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @return double value if the field has a numeric value. 0 if no such
+	 *         field, or value is non-numeric
+	 */
+	public double getDoubleValue(String fieldName);
+
+	/**
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @param value
+	 */
+	public void setTextValue(String fieldName, String value);
+
+	/**
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @param value
+	 */
+	public void setLongValue(String fieldName, long value);
+
+	/**
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @param value
+	 */
+	public void setDoubleValue(String fieldName, double value);
+
+	/**
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @param value
+	 */
+	public void setDateValue(String fieldName, Date value);
+
+	/**
+	 *
+	 * @param fieldName
+	 *            name of the field
+	 * @param value
+	 */
+	public void setBooleanValue(String fieldName, boolean value);
 
 }
