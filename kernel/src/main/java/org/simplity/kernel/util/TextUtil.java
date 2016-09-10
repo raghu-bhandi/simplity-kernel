@@ -21,6 +21,27 @@
  */
 package org.simplity.kernel.util;
 
+/*
+ * Copyright (c) 2016 simplity.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.regex.Pattern;
@@ -29,7 +50,9 @@ import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidExpressionException;
 
 /**
- * @author rg bandi
+ * utility methods relating to text handling and manipulation
+ *
+ * @author simplity.org
  *
  */
 public class TextUtil {
@@ -57,10 +80,10 @@ public class TextUtil {
 		StringBuilder result = new StringBuilder();
 		char[] chars = variable.toCharArray();
 		for (char ch : chars) {
-			if (ch <= LOWER_Z && ch >= LOWER_A) {
-				ch = (char) (ch - TO_LOWER);
-			} else {
+			if (ch <= Z && ch >= A) {
 				result.append(UNDERSCORE);
+			} else if (ch <= LOWER_Z && ch >= LOWER_A) {
+				ch = (char) (ch - TO_LOWER);
 			}
 			result.append(ch);
 		}
@@ -87,12 +110,13 @@ public class TextUtil {
 		 * We do not have any enum with more than two words as of now, hence we
 		 * do not use string builder
 		 */
-		result = parts[0];
+		StringBuilder buffer = new StringBuilder(parts[0].toLowerCase());
 		for (int i = 1; i < parts.length; i++) {
 			String part = parts[i];
-			result += (char) (part.charAt(0) - TO_LOWER) + part.substring(1);
+			buffer.append(part.charAt(0)).append(
+					part.substring(1).toLowerCase());
 		}
-		return result;
+		return buffer.toString();
 	}
 
 	/**

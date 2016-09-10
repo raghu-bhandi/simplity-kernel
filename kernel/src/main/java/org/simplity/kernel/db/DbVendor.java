@@ -33,125 +33,67 @@ public enum DbVendor {
 	/**
 	 * oracle
 	 */
-	ORACLE {
-		private static final String G = "select sys_context('userenv','current_schema') x from dual";
-		private static final String S = "ALTER SESSION SET CURRENT_SCHEMA = ";
-
-		@Override
-		public String getGetSchemaSql() {
-			return G;
-		}
-
-		@Override
-		public String getSetSchemaSql(String schema) {
-			return S + schema;
-		}
-
-	}
+	ORACLE("select sys_context('userenv','current_schema') x from dual",
+			"ALTER SESSION SET CURRENT_SCHEMA = ")
 
 	/**
 	 * Microsoft Sql Server
 	 */
-	,
-	MSSQL('%', '_', '[', ']') {
-		private static final String G = "select schem_name()";
-		private static final String S = "use ";
-
-		@Override
-		public String getGetSchemaSql() {
-			return G;
-		}
-
-		@Override
-		public String getSetSchemaSql(String schema) {
-			return S + schema;
-		}
-	}
+	, MSSQL("CURRENT_TIMESTAMP", "select schem_name()", "use ", '%', '_', '[',
+			']')
 
 	/**
 	 * postgre sql
 	 */
-	,
-	POSTGRE {
-		private static final String G = "select current_schema()";
-		private static final String S = "SET schema ";
-
-		@Override
-		public String getGetSchemaSql() {
-			return G;
-		}
-
-		@Override
-		public String getSetSchemaSql(String schema) {
-			return S + schema;
-		}
-	}
+	, POSTGRE("select current_schema()", "SET schema ")
 
 	/**
 	 * my sql
 	 */
-	,
-	MYSQL {
-		private static final String G = "SELECT DATABASE()";
-		private static final String S = "USE ";
+	, MYSQL
 
-		@Override
-		public String getGetSchemaSql() {
-			return G;
-		}
-
-		@Override
-		public String getSetSchemaSql(String schema) {
-			return S + schema;
-		}
-
-	}
 	/**
-	 * h2
+	 * S2 data base
 	 */
-	,
-	H_2 {
-		private static final String G = "SELECT DATABASE()";
-		private static final String S = "USE ";
-
-		@Override
-		public String getGetSchemaSql() {
-			return G;
-		}
-
-		@Override
-		public String getSetSchemaSql(String schema) {
-			return S + schema;
-		}
-
-	}
-	;
+	, S2;
 
 	/*
 	 * fields default to standard
 	 */
-	private String timeStampFunctionName;
-	private char[] escapeCharsForLike;
+	private String timeStampFunctionName = "CURRENT_TIMESTAMP";
+	private char[] escapeCharsForLike = { '%', '_' };
+	private String getSchema = "SELECT DATABASE()";
+	private String setSchema = "USE ";
 
+	/*
+	 * standard sql compliant vendor
+	 */
 	DbVendor() {
-		this.timeStampFunctionName = "CURRENT_TIMESTAMP";
-		char[] ec = { '%', '_' };
-		this.escapeCharsForLike = ec;
 	}
 
 	/**
-	 *
+	 * with non-standard parameters
 	 */
-	private DbVendor(String timeStampFunctionName, char... escapeCharsForLike) {
+	private DbVendor(String timeStampFunctionName, String getSchema,
+			String setSchema, char... escapeCharsForLike) {
 		this.timeStampFunctionName = timeStampFunctionName;
+		this.getSchema = getSchema;
+		this.setSchema = setSchema;
 		this.escapeCharsForLike = escapeCharsForLike;
 	}
 
 	/**
-	 *
+	 * standard except for schema...
+	 */
+	private DbVendor(String getSchema, String setSchema) {
+		this.getSchema = getSchema;
+		this.setSchema = setSchema;
+	}
+
+	/**
+	 * standard except for escape chars..
 	 */
 	private DbVendor(char... escapeCharsForLike) {
-		this.timeStampFunctionName = "CURRENT_TIMESTAMP";
 		this.escapeCharsForLike = escapeCharsForLike;
 	}
 
@@ -176,12 +118,16 @@ public enum DbVendor {
 	 * @return get the sql that returns the default schema for the logged-in
 	 *         user
 	 */
-	public abstract String getGetSchemaSql();
+	public String getGetSchemaSql() {
+		return this.getSchema;
+	}
 
 	/**
 	 * @param schema
 	 *            to bw set as default
 	 * @return ddl sql get the sql that sets the schema
 	 */
-	public abstract String getSetSchemaSql(String schema);
+	public String getSetSchemaSql(String schema) {
+		return this.setSchema + schema;
+	}
 }
