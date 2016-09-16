@@ -37,6 +37,9 @@ import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.simplity.media.MediaFolder;
+import org.simplity.media.MediaManager;
+import org.simplity.media.MediaStorageAssistant;
 import org.simplity.service.AccessController;
 import org.simplity.service.CacheManager;
 import org.simplity.service.ExceptionListener;
@@ -188,6 +191,20 @@ public class Application {
 	SchemaDetail[] schemaDetails;
 
 	/**
+	 * Simplity provides a rudimentary, folder-based system that can be used for
+	 * storing and retrieving attachments/media/files. If you want to use that,
+	 * provide the folder that is available for the server instance
+	 */
+	String mediaStorageFolderPath;
+	/**
+	 * If you have an infrastructure for storing and retrieving
+	 * attachments/media/files that you want to use, provide the class name that
+	 * implements MediaStorageAssistant. A single instance of this class is
+	 * re-used
+	 */
+	String mediStorageAssistantClass;
+
+	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
 	 * servlet in a web-app
@@ -244,6 +261,10 @@ public class Application {
 				this.logoutServiceName, this.sendTraceToClient, casher, gard,
 				listener);
 
+		/*
+		 * Some components like data-type are to be pre-loaded for the app to
+		 * work.
+		 */
 		ComponentType.preLoad();
 		if (this.cacheComponents) {
 			ComponentType.startCaching();
@@ -263,6 +284,22 @@ public class Application {
 				Tracer.trace(this.sessionHelperClassName
 						+ " could not be used to instantiate a sesion helper. "
 						+ e.getMessage() + " we will use a default helper.");
+			}
+		}
+		/*
+		 * what about file/media/attachment storage assistant?
+		 */
+		if (this.mediaStorageFolderPath != null) {
+			MediaManager.setStorageAssistant(new MediaFolder(
+					this.mediaStorageFolderPath));
+		} else if (this.mediStorageAssistantClass != null) {
+			try {
+				MediaManager.setStorageAssistant((MediaStorageAssistant) Class
+						.forName(this.mediStorageAssistantClass).newInstance());
+			} catch (Exception e) {
+				Tracer.trace(e,
+						"Error while setting media storage asstistant based on class "
+								+ this.mediStorageAssistantClass);
 			}
 		}
 	}
@@ -297,6 +334,23 @@ public class Application {
 		}
 		if (this.classInError(SessionHelper.class, this.sessionHelperClassName,
 				"sessionHelperClassName", ctx)) {
+			count++;
+		}
+		if (this.mediaStorageFolderPath != null) {
+			File file = new File(this.mediaStorageFolderPath);
+			if (file.exists() == false) {
+				ctx.addError("mediaStorageFolderPath is set to "
+						+ this.mediaStorageFolderPath
+						+ " but it is notnan valid folder path.");
+				count++;
+			}
+			if (this.mediStorageAssistantClass != null) {
+				ctx.addError("Choose either built-in media manager with mediaStorageFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
+			}
+		}
+		if (this.classInError(MediaStorageAssistant.class,
+				this.mediStorageAssistantClass, "mediStorageAssistantClass",
+				ctx)) {
 			count++;
 		}
 		if (this.serviceInError(this.loginServiceName, ctx)) {
@@ -369,15 +423,20 @@ public class Application {
 	 */
 	public static void main(String[] args) {
 		String[] parms = { "e:/repos/simplity/WebContent/WEB-INF/comp/",
-				"tutorial.createSheet" };
+		"tutorial.createSheet" };
 		myTest(parms);
 		// myTest(args);
 	}
-
+	
+	/**
+	 * TODO: to be removed. User should use DBDriver class instead.
+	 * get connection string being used by this application
+	 * @return connection string, or null if this application does not use one.
+	 */
 	public String getConnectionString() {
-		return connectionString;
+		return this.connectionString;
 	}
-
+	
 	private static void myTest(String[] args) {
 		int nbr = args.length;
 		if (nbr < 2) {
@@ -389,8 +448,8 @@ public class Application {
 		File file = new File(compPath);
 		if (file.exists() == false) {
 			System.out
-					.println(compPath
-							+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
+			.println(compPath
+					+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
 			System.exit(-1);
 		}
 
@@ -436,15 +495,15 @@ public class Application {
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		System.out.println("response :" + outData.getPayLoad());
 		System.out
-				.println("message :" + JsonUtil.toJson(outData.getMessages()));
+		.println("message :" + JsonUtil.toJson(outData.getMessages()));
 		System.out.println("trace :" + outData.getTrace());
 
 	}
 
 	private static void printUsage() {
 		System.out
-				.println("Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
+		.println("Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
 		System.out
-				.println("example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
+		.println("example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
 	}
 }
