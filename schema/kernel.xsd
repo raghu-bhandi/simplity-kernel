@@ -2609,6 +2609,26 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="mediStorageAssistantClass"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>feature for iterfacing with infrastructue systems for storing and retrieving attachments/files/media. Refer to org.simplity.MediaStorage class
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="mediaStorageFolderPath"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>Simplity povides a runimentory storage/retrieval system that uses folder. Use this if this suits your needs.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 </xs:schema>
