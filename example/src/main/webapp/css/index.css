@@ -94,8 +94,8 @@ xmp {
     padding:0 10 0 10;
 }
 
-.rightcontainer button{
-	    display: block;
+.buttonstyle{
+	display: block;
     font-size: 1.17em;
     -webkit-margin-before: 1em;
     -webkit-margin-after: 1em;

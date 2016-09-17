@@ -13,10 +13,8 @@
 	<name>example Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<resourcespath>
-			${project.basedir}/src/main/resources
-		</resourcespath>
-	</properties>	
+		<resourcespath>	${project.build.directory}/classes</resourcespath>
+	</properties>
 	<repositories>
 		<repository>
 			<id>codelds</id>
@@ -53,6 +51,12 @@
 
 	<build>
 		<finalName>example</finalName>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -67,7 +71,7 @@
 				</dependencies>
 				<configuration>
 					<driver>org.h2.Driver</driver>
-					<url>jdbc:h2:file:target/db/testdb</url>
+					<url>jdbc:h2:file:target/db/classicmodels</url>
 					<username>sa</username>
 					<password></password>
 					<autocommit>true</autocommit>
@@ -83,7 +87,6 @@
 						<configuration>
 							<srcFiles>
 								<srcFile>${resourcespath}/scripts/create_classicmodels.sql</srcFile>
-								<srcFile>${resourcespath}/scripts/load_classicmodels.sql</srcFile>
 							</srcFiles>
 						</configuration>
 					</execution>

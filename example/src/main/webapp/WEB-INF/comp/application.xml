@@ -2,42 +2,10 @@
 <application
 	xmlns="http://www.simplity.org/schema"
 	applicationId="simplityTutorial"
-	dbVendor="mysql"
-	dbDriverClassName="com.mysql.jdbc.Driver"
-	connectionString="jdbc:mysql://localhost:3306/sakila?user=root" 
+	dbVendor="s2"
+	dbDriverClassName="org.h2.Driver"
+	connectionString="jdbc:h2:file:target/db/classicmodels;user=sa;" 
 	sendTraceToClient="true"
 	logSqls="true"
 >
-<!-- 
-	<schemaDetails>
-		<schemaDetail
-			schemaName="simplity"
-			connectionString="jdbc:oracle:thin:simplity/simplity@localhost:1521:XE" />
-	</schemaDetails>
- -->
-	<!-- 
-		** file-manager setting for storage folder ** 
-		mediaStorageFolderPath="e:/storage/"
-		
-		
-		some example attribute settings
-		
-		** mySql connection string **
-		dbVendor="mysql" 
-		dbDriverClassName="com.mysql.jdbc.Driver" 
-		connectionString="jdbc:mysql://localhost:3306/birt?user=root&amp;password=simplity" 
-		
-		** MS SQL **
-		dbVendor="mssql" 
-		dbDriverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver" 
-		connectionString="jdbc:sqlserver://dbinstancename\\inst4:1433;integratedSecurity=true;" 
-		connectionString="jdbc:sqlserver://localhost:1433;databaseName=xel;user=user;password=pwd" 
-		
-		** ORACLE **
-		dbVendor="oracle" 
-		dbDriverClassName="oracle.jdbc.OracleDriver" 
-		connectionString="jdbc:oracle:thin:oracle/oracle@localhost:1521:XE" 
-		
-		** file/attachment/media storage folder setting **
-		-->
 </application>
