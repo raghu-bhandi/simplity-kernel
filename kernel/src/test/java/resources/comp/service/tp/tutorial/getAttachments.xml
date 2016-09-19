@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="getAttachments"
+	moduleName="tutorial"
+	dbAccessType="none"
+	description="down load a set of files for demosntration purposes"
+>
+	<actions>
+		<logic
+			className="org.simplity.test.GetStoredFiles"
+			description="Creats sheet named files that has the keys for files to be downaded" />
+		<download
+			sheetName="files"
+			keyField="key"
+			fileNameField="name"
+			mimeTypeField="mime"
+			description="Downloads a file for each row in sheet files. 
+				Uses column named key as key to the file to be downloaded. 
+				copies file name and mime-type of teh downloaded file to the columns file and mime respectively." />
+	</actions>
+	
+	<outputData fieldNames="rootFolder">
+		<outputRecords>
+			<outputRecord sheetName="files" />
+		</outputRecords>
+	</outputData>
+</service>

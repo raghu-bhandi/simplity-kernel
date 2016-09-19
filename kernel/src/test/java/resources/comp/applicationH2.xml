@@ -4,7 +4,7 @@
 	applicationId="simplityTutorial"	 
 	sendTraceToClient="true"
 	logSqls="true"
-	dbVendor="h2"
+	dbVendor="s2"
 	dbDriverClassName="org.h2.Driver"
 	connectionString="jdbc:h2:~/classicmodels">
 </application>

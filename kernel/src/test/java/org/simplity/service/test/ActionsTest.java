@@ -1,6 +1,7 @@
 package org.simplity.service.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -318,5 +319,26 @@ public class ActionsTest extends Mockito {
 		ServiceData outData = serviceAgentSetup("tutorial.saveDataModify");
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
+	}
+	
+	
+	/**
+	 * Test for saveAtachment action
+	 */
+	@Test
+	public void saveAttachmentTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.saveAttachment");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertTrue(( ((JSONArray) obj.get("files")).toString().contains("record.xml")));
+	}
+	
+	/**
+	 * Test for download action
+	 */
+	@Test
+	public void downloadAttachmentTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.getAttachments");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertTrue(( ((JSONArray) obj.get("files")).toString().contains("record.xml")));
 	}
 }
