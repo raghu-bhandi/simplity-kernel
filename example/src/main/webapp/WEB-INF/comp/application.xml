@@ -6,6 +6,6 @@
 	dbDriverClassName="org.h2.Driver"
 	connectionString="jdbc:h2:file:target/db/classicmodels;user=sa;" 
 	sendTraceToClient="true"
-	logSqls="true"
+	logSqls="true"	
 >
 </application>
