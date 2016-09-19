@@ -67,6 +67,16 @@ ul.tab li a:focus, .active {background-color: #ccc;}
     overflow:auto;
 }
 
+/* Style the tab content */
+.output {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-top: none;
+    height: 250px;
+    overflow:auto;
+}
+
 xmp {
     white-space: pre-wrap;
 }

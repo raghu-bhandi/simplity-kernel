@@ -50,7 +50,7 @@ public class GetStoredFiles implements LogicInterface {
 			File file = new File(pathToNirvana);
 			if (file.exists()) {
 				if (file.isDirectory()) {
-					Tracer.trace("reusing a folder that surviced an earlier demo..");
+					Tracer.trace("reusing a folder that survived an earlier demo..");
 				} else {
 					/*
 					 * we should ruthlessly delete this file

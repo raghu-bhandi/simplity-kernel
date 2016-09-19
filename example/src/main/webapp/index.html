@@ -42,7 +42,8 @@
         <a id="sidebar-example" class="sidebar-nav-item" href="#" onclick="return templateFunc('example');"
            toggle="false">Examples</a>
         <a class="sidebar-nav-subitem" href="#setvaluetag" onclick="return templateFunc('example');">setvalue</a>
-        <a class="sidebar-nav-subitem" href="#top" onclick="return templateFunc('example');">Top</a>
+        <a class="sidebar-nav-subitem" href="#logictag" onclick="return templateFunc('example');">logic</a>
+        <a class="sidebar-nav-subitem" href="#createsheettag" onclick="return templateFunc('example');">createSheet</a>
         <a class="sidebar-nav-item" href="">Contact</a>
         <a class="sidebar-nav-item" href="">GitHub project</a>
         <span class="sidebar-nav-item">Currently v1.0</span>
@@ -71,44 +72,33 @@
     <template id="content">
         <div class="container content">
             <div class="home">
-
                 <h1 class="page-heading">Posts</h1>
-
                 <ul class="post-list">
-
                     <li>
                         <span class="post-meta">Sep 16, 2016</span>
-
                         <h2>
                             <a class="post-link" href="jekyll/update/2016/09/12/welcome-to-jekyll.html">Welcome to
                                 Jekyll!</a>
                         </h2>
                     </li>
-
                     <li>
                         <span class="post-meta">Jan 2, 2014</span>
-
                         <h2>
                             <a class="post-link" href="2014/01/02/introducing-lanyon.html">Introducing Lanyon</a>
                         </h2>
                     </li>
-
                     <li>
                         <span class="post-meta">Jan 1, 2014</span>
-
                         <h2>
                             <a class="post-link" href="example-content.html">Example content</a>
                         </h2>
                     </li>
-
                     <li>
                         <span class="post-meta">Dec 31, 2013</span>
-
                         <h2>
                             <a class="post-link" href="2013/12/31/whats-jekyll.html">What&#39;s Jekyll?</a>
                         </h2>
                     </li>
-
                 </ul>
 
                 <p class="rss-subscribe">subscribe <a href="/feed.xml">via RSS</a></p>
@@ -126,14 +116,36 @@
             <h1 class="post-title">Example content</h1>
             <span class="post-date">16 Sep 2016</span>
 <!-- Set value example -->
-            <a name="setvaluetag"></a>
-            <h2 id="inline-html-elements">set-value</h2>
+            <h2 id="setvaluetag">set-value</h2>
 
             <p>Set value for a field in the service xml on the server side. On the client side, simplity js populates the node with field name as id</p>
             <iframe id="setvalue" src="setvalue.html" onload="resizer('setvalue')"></iframe>
 
-<!-- Set value example -->
+<!-- /Set value example -->
+<hr>
+<!-- Logic example -->
+            <h2 id="logictag">logic</h2>
 
+            <p>Logic action allows java classes to manipulate the data fields. The Java class must implement LogicInterface</p>
+            <iframe id="logic" src="logic.html" onload="resizer('logic')"></iframe>
+
+<!-- /Logic example -->
+<hr>
+<!-- Create Sheet example -->
+            <h2 id="createsheettag">createsheet</h2>
+
+            <p>Create Sheet action allows creation of JSON arrays</p>
+            <iframe id="createsheet" src="createsheet.html" onload="resizer('createsheet')"></iframe>
+
+<!-- /Create Sheet example example -->
+<hr>
+<!-- Create Sheet example -->
+            <h2 id="createsheettag">createsheet</h2>
+
+            <p>Create Sheet action allows creation of JSON arrays</p>
+            <iframe id="createsheet" src="createsheet.html" onload="resizer('createsheet')"></iframe>
+
+<!-- /Create Sheet example example -->
 </template>
 <script type="text/javascript" src="js/index.js"></script>
 

@@ -19,9 +19,8 @@
 <div id="XML" class="tabcontent" style="display:block">
     <xmp>
 <!-- File name: SetValue.xml under comp/services/tp/tutorial -->
-<?xml version="1.0" encoding="UTF-8"?>
 <service dbAccessType="none" description="Action setvalue test"
-         executeInBackground="true" moduleName="test" name="SetValue"
+         executeInBackground="true" moduleName="tutorial" name="SetValue"
          xmlns="http://www.simplity.org/schema">
     <!-- No Input data required for setValye action -->
     <outputData fieldNames="island,leader,gang,adversaries,novel,lostBoys">
@@ -52,9 +51,9 @@ Simplity.getResponse('tutorial.SetValue')
 </div>
 <div class="rightcontainer">
     <ul class="tab">
-        <li><a href="JavaScript:void(0)" class="tablinks active" onclick="openTab(event, 'OUTPUT')">Output</a></li>
+        <li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
     </ul>
-    <div id="OUTPUT" class="tabcontent" style="display:block">
+    <div id="OUTPUT" class="output" style="display:block">
         <div id="island"></div>
     </div>
 </div>
