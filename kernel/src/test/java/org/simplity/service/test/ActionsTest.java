@@ -351,4 +351,14 @@ public class ActionsTest extends Mockito {
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("lastName"), "Patterson");
 	}
+	
+	/**
+	 * Test for executesql action
+	 */
+	@Test
+	public void executeSqlTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.executeSql");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(obj.get("updateSql"),1);
+	}
 }
