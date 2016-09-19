@@ -341,4 +341,14 @@ public class ActionsTest extends Mockito {
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertTrue(( ((JSONArray) obj.get("files")).toString().contains("record.xml")));
 	}
+	
+	/**
+	 * Test for read with sql action
+	 */
+	@Test
+	public void readWithSqlTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.readWithSql");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("lastName"), "Patterson");
+	}
 }
