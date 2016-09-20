@@ -402,7 +402,7 @@ var Simplity = (function() {
 				/*
 				 * array can be source for a dom element with id="__att__"
 				 */
-				ele = doc.getElementById(ROW_PART_DELIM + att + ROW_PART_DELIM);
+				ele = doc.querySelector('#'+ROW_PART_DELIM + att + ROW_PART_DELIM);
 				if (ele) {
 					setTableToEle(ele, val, att);
 					continue;
@@ -411,7 +411,7 @@ var Simplity = (function() {
 				 * if we did not find an element for this table, we will try
 				 * other options later
 				 */
-				log('No destinaiton found for table ' + att);
+				log('No destination found for table ' + att);
 				nbrUnused++;
 				continue;
 			}
@@ -419,7 +419,7 @@ var Simplity = (function() {
 			 * it could be a primitive, or an object. In any case, we need an
 			 * element
 			 */
-			var ele = doc.getElementById(att);
+			var ele = doc.querySelector('#'+att);
 			if (ele) {
 				setValueToEle(ele, att, val);
 				continue;
@@ -427,8 +427,8 @@ var Simplity = (function() {
 			/*
 			 * we try show-hide element for this
 			 */
-			var ele1 = doc.getElementById(att + '-true');
-			var ele2 = doc.getElementById(att + '-false');
+			var ele1 = doc.querySelector('#'+att + '-true');
+			var ele2 = doc.querySelector('#'+att + '-false');
 			if (ele1 || ele2) {
 				showOrHideEle(ele1, ele2, val);
 				continue;

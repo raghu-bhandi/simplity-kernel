@@ -1,108 +1,34 @@
-<div>
-<div>
-<div style="width:60%;float:left;padding:0 10 0 10;"><h3 id="code">Code</h3></div>
-<div style="width:33%;float:left;padding:0 10 0 10;"><button class="buttonstyle" onclick="Simplity.getResponse('tutorial.Logic')" style="width: 50px;">Run</button></div>
-</div>
-<div>
-<div class="leftcontainer"> 
-
-<a name="tab-1"></a>
-<ul class="tab">
-    <li><a href="JavaScript:void(0)" class="tablinks active" onclick="openTab(event, 'XML')">XML</a></li>
-    <li><a href="JavaScript:void(0)" class="tablinks" onclick="openTab(event, 'JAVA')">JAVA</a></li>    
-    <li><a href="JavaScript:void(0)" class="tablinks" onclick="openTab(event, 'JS')">JS</a></li>
-</ul>
-
-<div id="XML" class="tabcontent" style="display:block">
-    <xmp>
-<!-- File name: Logic.xml under comp/services/tp/tutorial -->
-<service
-	dbAccessType="none"
-	description="Test the Logic xml"
-	executeInBackground="true"
-	moduleName="tutorial"
-	name="Logic"
-	xmlns="http://www.simplity.org/schema">
-	<inputData>
-		<inputFields>
-			<inputField
-				dataType="_text"
-				name="switch"
-				defaultValue="winner"
-				isRequired="true" />
-		</inputFields>
-	</inputData>
-	<outputData
-		fieldNames="switch,island,leader,gang,adversaries,
-		novel,lostBoys,emptyDS,NotEmptyDS,checkExpression">
-		<outputRecords>
-			<outputRecord sheetName="weekendBoxOffice" />
-			<outputRecord sheetName="emptySheet" />
-		</outputRecords>
-	</outputData>
-	<actions>
-		<logic
-			actionName="1"
-			className="org.simplity.tutorial.CustomLogicAction" />
-		<log
-			names="switch,island,leader,gang,adversaries,novel,
-			lostBoys,emptyDS,NotEmptyDS,checkExpression" />
-	</actions>
-</service>
-    </xmp>
-</div>
-
-<div id="JAVA" class="tabcontent">
-    <xmp>
-public class CustomLogicAction implements LogicInterface {
-
-	@Override
-	public Value execute(ServiceContext ctx) {
-
-		ctx.setValue("island", Value.newTextValue("NeverLand"));
-		ctx.setValue("leader", Value.newTextValue("Peter Pan"));
-		ctx.setValue("gang", Value.newTextValue("Lost Boys"));
-
-		ctx.setValue("adversary1", Value.newTextValue("Captain Hook"));
-		ctx.setValue("adversary2", Value.newTextValue("Mr.Smee"));
-		ctx.setValue("adversaries", Value.newTextValue(ctx.getValue("adversary1") + "," + ctx.getValue("adversary2")));
-
-		DataSheet sheet = null;
-		try {
-			sheet = TestUtils.loadDS("weekendBoxOffice");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		ctx.putDataSheet("weekendBoxOffice", sheet);
-
-		return Value.newTextValue(" from CustomLogicAction");
-	}
-}
-
-    </xmp>
-</div>
-
-<div id="JS" class="tabcontent">
-   <xmp>
-Simplity.getResponse('tutorial.Logic')dsf
-    </xmp>
-</div>
-<div id="HTML" class="tabcontent">
-   <xmp>
-<div id="novel"></div>
-    </xmp>
-</div>
-
-</div>
-<div class="rightcontainer">
-    <ul class="tab">
-        <li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
-    </ul>
-    <div id="OUTPUT" class="output" style="display:block">
-        <div id="leader"></div>
-    </div>
-</div>
-</div>
-
-
+<div id="logicexample" ng-controller="LogicCtrl">
+	<div>
+		<div style="width: 60%; float: left; padding: 0 10 0 10;">
+			<h3 id="code">Code</h3>
+		</div>
+		<div style="width: 33%; float: left; padding: 0 10 0 10;">
+			<button class="buttonstyle"
+				ng-click="common.runSimplity('tutorial.Logic','#logicexample')">Run</button>
+		</div>
+	</div>
+	<div>
+		<div class="leftcontainer">
+			<div id="logictabs">
+				<ul class="tab">
+					<li ng-repeat="tab in logictabs"
+						ng-class="{active:isActiveTab(tab.url)}" 
+						ng-click="onClickTab(tab)">{{tab.title}}</li>
+				</ul>
+				<div id="logicmainView" class="tabcontent">
+					<p ng-bind-html="logiccurrentTab" class="binding"></p>
+				</div>
+			</div>
+		</div>
+		<div class="rightcontainer">
+			<ul class="tab">
+				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+			</ul>
+			<div id="OUTPUT" class="output" style="display: block">
+				<div id="island"></div>
+				<div id="leader"></div>
+			</div>
+		</div>
+	</div>
 </div>

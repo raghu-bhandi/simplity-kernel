@@ -1,96 +1,43 @@
-    <link rel="stylesheet" href="css/index.css">
-    <script type="text/javascript" src="js/accordion.js"></script>
-    <script type="text/javascript" src="js/simplity.js"></script>
-
-<div>
-<div>
-<div style="width:60%;float:left;padding:0 10 0 10;"><h3 id="code">Code</h3></div>
-<div style="width:33%;float:left;padding:0 10 0 10;"><button class="buttonstyle" 
-onclick="Simplity.getResponse('tutorial.createSheet')" style="width: 50px;">Run</button></div>
-</div>
-<div>
-<div class="leftcontainer"> 
-
-<a name="tab-1"></a>
-<ul class="tab">
-    <li><a href="JavaScript:void(0)" class="tablinks active" onclick="openTab(event, 'XML')">XML</a></li>
-    <li><a href="JavaScript:void(0)" class="tablinks" onclick="openTab(event, 'JS')">JS</a></li>
-    <li><a href="JavaScript:void(0)" class="tablinks" onclick="openTab(event, 'HTML')">HTML</a></li>
-</ul>
-
-<div id="XML" class="tabcontent" style="display:block">
-    <xmp>
-<!-- File name: createsheet.xml under comp/services/tp/tutorial -->
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<service
-	xmlns="http://www.simplity.org/schema"
-	name="createSheet"
-	moduleName="tutorial"
-	dbAccessType="none"
-	description="example service to create a data sheet">
-	<actions>
-		<!-- creating a field that can be used to demonstrate hot use run-time 
-			value in createSheet action -->
-		<setValue
-			fieldName="dateField"
-			fieldValue="/2015-01-31/" />
-		<!-- we have to ensure that each row has exactly same number of cells, 
-			and each column has data of same value type across all rows. Otherwise a 
-			run-time error is raised -->
-		<createSheet
-			sheetName="outsheet"
-			data="text,int,decimal,date,bool;first row first column text,  1, 1.1, /2016-12-31/,true;secondrow,2,2.2, $dateField, true" />
-	</actions>
-	<outputData>
-		<outputRecords>
-			<outputRecord sheetName="outsheet" />
-		</outputRecords>
-	</outputData>
-</service>
-    </xmp>
-</div>
-
-<div id="JS" class="tabcontent">
-   <xmp>
-Simplity.getResponse('tutorial.createSheet')
-   </xmp>
-</div>
-<div id="HTML" class="tabcontent">
-   <xmp>
- <table>
- <tbody>
-    <tr id="__list__" style="display: none;">
-	   <td>__text__</td>
-	   <td>__int__</td>
-	   <td>__decimal__</td>
-	   <td>__date__</td>
-	   <td>__bool__<</td>
-    </tr>
-  </tbody>
-  </table>
-   </xmp>
-
-</div>
-</div>
-<div class="rightcontainer">
-    <ul class="tab">
-        <li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
-    </ul>
-    <div id="OUTPUT" class="output" style="display:block">
-    <table>
-    <tbody>
-        <tr id="__list__" style="display: none;">
-     		   <td>__text__</td>
-     		   <td>__int__</td>
-     		   <td>__decimal__</td>
-     		   <td>__date__</td>
-     		   <td>__bool__<</td>
-        </tr>
-     </tbody>
-     </table>
-    </div>
-</div>
-</div>
-
-
+<div id="createsheetexample" ng-controller="createsheetCtrl">
+	<div>
+		<div style="width: 60%; float: left; padding: 0 10 0 10;">
+			<h3 id="code">Code</h3>
+		</div>
+		<div style="width: 33%; float: left; padding: 0 10 0 10;">
+			<button class="buttonstyle"
+				ng-click="common.runSimplity('tutorial.createSheet','#createsheetexample')">Run</button>
+		</div>
+	</div>
+	<div>
+		<div class="leftcontainer">
+			<div id="createsheettabs">
+				<ul class="tab">
+					<li ng-repeat="tab in createsheettabs"
+						ng-class="{active:isActiveTab(tab.url)}"
+						ng-click="onClickTab(tab)">{{tab.title}}</li>
+				</ul>
+				<div id="createsheetmainView" class="tabcontent">
+					<p ng-bind-html="createsheetcurrentTab" class="binding"></p>
+				</div>
+			</div>
+		</div>
+		<div class="rightcontainer">
+			<ul class="tab">
+				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+			</ul>
+			<div id="OUTPUT" class="output" style="display: block">
+				<table>
+					<tbody>
+						<tr id="__list__" style="display: none;">
+							<td>__text__</td>
+							<td>__int__</td>
+							<td>__decimal__</td>
+							<td>__date__</td>
+							<td>__bool__<</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
 </div>
