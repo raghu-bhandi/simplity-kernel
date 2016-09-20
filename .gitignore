@@ -7,4 +7,5 @@
 /target/
 run.bat
 .DS_Store
+/.openshift/
 deploy_key
