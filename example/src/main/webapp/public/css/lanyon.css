@@ -82,7 +82,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (min-width: 56em) {
   .container {
-    max-width: 50rem;
+    max-width: 100%;
   }
 }
 
@@ -157,7 +157,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (min-width: 30em) {
   .sidebar {
-    font-size: .75rem; /* 14px */
+    font-size: 1rem; /* 14px */
   }
 }
 

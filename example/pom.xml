@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.simplity</groupId>
@@ -13,7 +15,7 @@
 	<name>example Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<resourcespath>	${project.build.directory}/classes</resourcespath>
+		<resourcespath> ${project.build.directory}/classes</resourcespath>
 	</properties>
 	<repositories>
 		<repository>
@@ -21,8 +23,6 @@
 			<url>https://code.lds.org/nexus/content/groups/main-repo</url>
 		</repository>
 	</repositories>
-
-
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -48,7 +48,6 @@
 			<version>1.3.166</version>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<finalName>example</finalName>
 		<resources>
@@ -57,30 +56,39 @@
 				<filtering>true</filtering>
 			</resource>
 		</resources>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>sql-maven-plugin</artifactId>
+					<version>1.5</version>
+					<dependencies>
+						<dependency>
+							<groupId>com.h2database</groupId>
+							<artifactId>h2</artifactId>
+							<version>1.3.166</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<driver>org.h2.Driver</driver>
+						<url>jdbc:h2:file:target/db/classicmodels</url>
+						<username>sa</username>
+						<password></password>
+						<autocommit>true</autocommit>
+						<skip>${maven.test.skip}</skip>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>sql-maven-plugin</artifactId>
-				<version>1.5</version>
-				<dependencies>
-					<dependency>
-						<groupId>com.h2database</groupId>
-						<artifactId>h2</artifactId>
-						<version>1.3.166</version>
-					</dependency>
-				</dependencies>
-				<configuration>
-					<driver>org.h2.Driver</driver>
-					<url>jdbc:h2:file:target/db/classicmodels</url>
-					<username>sa</username>
-					<password></password>
-					<autocommit>true</autocommit>
-					<skip>${maven.test.skip}</skip>
-				</configuration>
 				<executions>
 					<execution>
 						<id>create-db</id>
-						<phase>process-test-resources</phase>
+						<phase>install</phase>
 						<goals>
 							<goal>execute</goal>
 						</goals>
@@ -94,13 +102,12 @@
 			</plugin>
 		</plugins>
 	</build>
-
 	<profiles>
 		<profile>
-			<!-- When built in OpenShift the 'openshift' profile will be used when 
-				invoking mvn. -->
-			<!-- Use this profile for any OpenShift specific customization your app 
-				will need. -->
+			<!-- When built in OpenShift the 'openshift' profile will be used 
+				when invoking mvn. -->
+			<!-- Use this profile for any OpenShift specific customization your 
+				app will need. -->
 			<!-- By default that is to put the resulting archive into the 'deployments' 
 				folder. -->
 			<!-- http://maven.apache.org/guides/mini/guide-building-for-different-environments.html -->

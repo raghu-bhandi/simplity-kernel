@@ -48,6 +48,7 @@ mainApp.factory('CommonService', ['$cacheFactory',function($cacheFactory) {
 			}else{
 				scope[currenttab] = root.cache.get(filename);
 			}
+			scope['currentTab'] = filename;
 		};			
 
 	    return root;
@@ -144,7 +145,7 @@ mainApp.controller('createsheetCtrl',  ['$scope', '$cacheFactory',"CommonService
 	} ];	
 	
 	$scope.common.getcodefiles($scope,"createsheet","createSheet.xml","createsheetcurrentTab");
-
+	
 	$scope.onClickTab = function(tab) {
 		$scope.common.getcodefiles($scope,"createsheet",tab.url,"createsheetcurrentTab");
 	}
