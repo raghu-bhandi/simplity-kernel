@@ -763,7 +763,7 @@
 	<!-- Sql. -->
 	<xs:element name="sql">
 		<xs:complexType>
-			<xs:choice>
+			<xs:all>
 				<xs:element
 					name="preparedStatement"
 					minOccurs="0"
@@ -785,7 +785,7 @@
 					type="sqlParameters"
 					minOccurs="0"
 					maxOccurs="1" />
-			</xs:choice>
+			</xs:all>
 			<xs:attributeGroup ref="sqlAttributes" />
 			<xs:attribute
 				name="preparedStatement"
@@ -2460,7 +2460,7 @@
 						<xs:enumeration value="postgre" />
 						<xs:enumeration value="oracle" />
 						<xs:enumeration value="mssql" />
-						<xs:enumeration value="s2" />
+						<xs:enumeration value="h2" />
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>

@@ -53,9 +53,9 @@ public enum DbVendor {
 	, MYSQL
 
 	/**
-	 * S2 data base
+	 * H2 data base
 	 */
-	, S2;
+	, H2;
 
 	/*
 	 * fields default to standard
