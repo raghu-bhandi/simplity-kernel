@@ -154,3 +154,182 @@ mainApp.controller('createsheetCtrl',  ['$scope', '$cacheFactory',"CommonService
 		return tabUrl == $scope.currentTab;
 	}
 }]);
+
+mainApp.controller('renamesheetCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.renamesheettabs = [ {
+		title : 'XML',
+		url : 'renameSheet.xml'
+	}, {
+		title : 'JS',
+		url : 'renameSheet.js'
+	}, {
+		title : 'HTML',
+		url : 'renameSheet.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"renamesheet","renameSheet.xml","renamesheetcurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"renamesheet",tab.url,"renamesheetcurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+mainApp.controller('jumptoCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.jumptotabs = [ {
+		title : 'XML',
+		url : 'jumpto.xml'
+	}, {
+		title : 'JS',
+		url : 'jumpto.js'
+	}, {
+		title : 'HTML',
+		url : 'jumpto.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"jumpto","jumpto.xml","jumptocurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"jumpto",tab.url,"jumptocurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+
+mainApp.controller('rowexistsCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.rowexiststabs = [ {
+		title : 'XML',
+		url : 'rowexists.xml'
+	}, {
+		title : 'JS',
+		url : 'rowexists.js'
+	}, {
+		title : 'HTML',
+		url : 'rowexists.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"rowexists","rowexists.xml","rowexistscurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"rowexists",tab.url,"rowexistscurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+mainApp.controller('addcolumnCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.addcolumntabs = [ {
+		title : 'XML',
+		url : 'addcolumn.xml'
+	}, {
+		title : 'JS',
+		url : 'addcolumn.js'
+	}, {
+		title : 'HTML',
+		url : 'addcolumn.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"addcolumn","addcolumn.xml","addcolumncurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"addcolumn",tab.url,"addcolumncurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+
+mainApp.controller('copyrowsCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.copyrowstabs = [ {
+		title : 'XML',
+		url : 'copyrows.xml'
+	}, {
+		title : 'JS',
+		url : 'copyrows.js'
+	}, {
+		title : 'HTML',
+		url : 'copyrows.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"copyrows","copyrows.xml","copyrowscurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"copyrows",tab.url,"copyrowscurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+
+mainApp.controller('addmessageCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.addmessagetabs = [ {
+		title : 'XML',
+		url : 'addmessage.xml'
+	}, {
+		title : 'JS',
+		url : 'addmessage.js'
+	}, {
+		title : 'HTML',
+		url : 'addmessage.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"addmessage","addmessage.xml","addmessagecurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"addmessage",tab.url,"addmessagecurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+
+mainApp.controller('copyuseridCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.copyuseridtabs = [ {
+		title : 'XML',
+		url : 'copyuserid.xml'
+	}, {
+		title : 'JS',
+		url : 'copyuserid.js'
+	}, {
+		title : 'HTML',
+		url : 'copyuserid.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"copyuserid","copyuserid.xml","copyuseridcurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"copyuserid",tab.url,"copyuseridcurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);

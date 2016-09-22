@@ -1,0 +1,39 @@
+<div id="jumptoexample" ng-controller="jumptoCtrl">
+	<div>
+		<div style="width: 60%; float: left; padding: 0 10 0 10;">
+			<h3 id="code">Code</h3>
+		</div>
+		<div style="width: 33%; float: left; padding: 0 10 0 10;">
+			<button class="buttonstyle"
+				ng-click="common.runSimplity('tutorial.jumpTo','#jumptoexample')">Run</button>
+		</div>
+	</div>
+	<div>
+		<div class="leftcontainer">
+			<div id="jumptotabs">
+				<ul class="tab">
+					<li ng-repeat="tab in jumptotabs"
+						ng-class="{active:isActiveTab(tab.url)}" 
+						ng-click="onClickTab(tab)">{{tab.title}}</li>
+				</ul>
+				<div id="jumptomainView" class="tabcontent">
+					<p ng-bind-html="jumptocurrentTab" class="binding"></p>
+				</div>
+			</div>
+		</div>
+		<div class="rightcontainer">
+			<ul class="tab">
+				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+			</ul>
+			<div id="OUTPUT" class="output" style="display: block">
+				<div id="island"></div>
+				<div id="leader"></div>
+				<div id="gang"></div>
+				<div id="adversary1"></div>
+				<div id="adversary2"></div>
+				<div id="comma"></div>
+				<div id="novel"></div>
+			</div>
+		</div>
+	</div>
+</div>
