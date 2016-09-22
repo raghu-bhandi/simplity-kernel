@@ -333,3 +333,233 @@ mainApp.controller('copyuseridCtrl',  ['$scope', '$cacheFactory',"CommonService"
 		return tabUrl == $scope.currentTab;
 	}
 }]);
+
+
+mainApp.controller('readdataCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.readdatatabs = [ {
+		title : 'XML',
+		url : 'readdata.xml'
+	}, {
+		title : 'JS',
+		url : 'readdata.js'
+	}, {
+		title : 'HTML',
+		url : 'readdata.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"readdata","readdata.xml","readdatacurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"readdata",tab.url,"readdatacurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+mainApp.controller('suggestCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.suggesttabs = [ {
+		title : 'XML',
+		url : 'suggest.xml'
+	}, {
+		title : 'JS',
+		url : 'suggest.js'
+	}, {
+		title : 'HTML',
+		url : 'suggest.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"suggest","suggest.xml","suggestcurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"suggest",tab.url,"suggestcurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+
+mainApp.controller('filterCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.filtertabs = [ {
+		title : 'XML',
+		url : 'filter.xml'
+	}, {
+		title : 'JS',
+		url : 'filter.js'
+	}, {
+		title : 'HTML',
+		url : 'filter.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"filter","filter.xml","filtercurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"filter",tab.url,"filtercurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+
+mainApp.controller('savedataaddCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.savedataaddtabs = [ {
+		title : 'XML',
+		url : 'savedataadd.xml'
+	}, {
+		title : 'JS',
+		url : 'savedataadd.js'
+	}, {
+		title : 'HTML',
+		url : 'savedataadd.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"savedataadd","savedataadd.xml","savedataaddcurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"savedataadd",tab.url,"savedataaddcurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+
+mainApp.controller('savedatamodifyCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.savedatamodifytabs = [ {
+		title : 'XML',
+		url : 'savedatamodify.xml'
+	}, {
+		title : 'JS',
+		url : 'savedatamodify.js'
+	}, {
+		title : 'HTML',
+		url : 'savedatamodify.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"savedatamodify","savedatamodify.xml","savedatamodifycurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"savedatamodify",tab.url,"savedatamodifycurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+mainApp.controller('savedatadeleteCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.savedatadeletetabs = [ {
+		title : 'XML',
+		url : 'savedatadelete.xml'
+	}, {
+		title : 'JS',
+		url : 'savedatadelete.js'
+	}, {
+		title : 'HTML',
+		url : 'savedatadelete.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"savedatadelete","savedatadelete.xml","savedatadeletecurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"savedatadelete",tab.url,"savedatadeletecurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+mainApp.controller('readwithsqlCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.readwithsqltabs = [ {
+		title : 'XML',
+		url : 'readwithsql.xml'
+	}, {
+		title : 'JS',
+		url : 'readwithsql.js'
+	}, {
+		title : 'HTML',
+		url : 'readwithsql.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"readwithsql","readwithsql.xml","readwithsqlcurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"readwithsql",tab.url,"readwithsqlcurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+
+mainApp.controller('executesqlCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.executesqltabs = [ {
+		title : 'XML',
+		url : 'executesql.xml'
+	}, {
+		title : 'JS',
+		url : 'executesql.js'
+	}, {
+		title : 'HTML',
+		url : 'executesql.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"executesql","executesql.xml","executesqlcurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"executesql",tab.url,"executesqlcurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+mainApp.controller('uploadCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	$scope.uploadtabs = [ {
+		title : 'XML',
+		url : 'upload.xml'
+	}, {
+		title : 'JS',
+		url : 'upload.js'
+	}, {
+		title : 'HTML',
+		url : 'upload.html'
+	} ];	
+	
+	$scope.common.getcodefiles($scope,"upload","upload.xml","uploadcurrentTab");
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"upload",tab.url,"uploadcurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);

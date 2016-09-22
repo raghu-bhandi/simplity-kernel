@@ -1,0 +1,45 @@
+<div id="uploadexample" ng-controller="uploadCtrl">
+	<div>
+		<div style="width: 60%; float: left; padding: 0 10 0 10;">
+			<h3 id="code">Code</h3>
+		</div>
+		<div style="width: 33%; float: left; padding: 0 10 0 10;">
+			<button class="buttonstyle"
+				ng-click="common.runSimplity('tutorial.saveAttachment1','#uploadexample')">Run</button>
+		</div>
+	</div>
+	<div>
+		<div class="leftcontainer">
+			<div id="uploadtabs">
+				<ul class="tab">
+					<li ng-repeat="tab in uploadtabs"
+						ng-class="{active:isActiveTab(tab.url)}"
+						ng-click="onClickTab(tab)">{{tab.title}}</li>
+				</ul>
+				<div id="uploadmainView" class="tabcontent">
+					<p ng-bind-html="uploadcurrentTab" class="binding"></p>
+				</div>
+			</div>
+		</div>
+		<div class="rightcontainer">
+			<ul class="tab">
+				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+			</ul>
+			<div id="OUTPUT" class="output" style="display: block">
+				<table>
+					<tbody>
+						<tr id="__files__" style="display: none;">
+							<td>__name__</td>
+						<td>__mime__</td>
+						<td>__key__</td>
+						<td><a href="a._f?download=__key__">download</a></td>
+						<td><a href="a._f?__key__" target="_new">open in new
+								window</a></td>
+							
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

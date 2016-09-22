@@ -1,0 +1,33 @@
+<div id="savedatamodifyexample" ng-controller="savedatamodifyCtrl">
+	<div>
+		<div style="width: 60%; float: left; padding: 0 10 0 10;">
+			<h3 id="code">Code</h3>
+		</div>
+		<div style="width: 33%; float: left; padding: 0 10 0 10;">
+			<button class="buttonstyle"
+				ng-click="common.runSimplity('tutorial.saveDataModify','#savedatamodifyexample')">Run</button>
+		</div>
+	</div>
+	<div>
+		<div class="leftcontainer">
+			<div id="savedatamodifytabs">
+				<ul class="tab">
+					<li ng-repeat="tab in savedatamodifytabs"
+						ng-class="{active:isActiveTab(tab.url)}"
+						ng-click="onClickTab(tab)">{{tab.title}}</li>
+				</ul>
+				<div id="savedatamodifymainView" class="tabcontent">
+					<p ng-bind-html="savedatamodifycurrentTab" class="binding"></p>
+				</div>
+			</div>
+		</div>
+		<div class="rightcontainer">
+			<ul class="tab">
+				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+			</ul>
+			<div id="OUTPUT" class="output" style="display: block">
+				No. of rows modified:<div id="testValue"></div>
+			</div>
+		</div>
+	</div>
+</div>

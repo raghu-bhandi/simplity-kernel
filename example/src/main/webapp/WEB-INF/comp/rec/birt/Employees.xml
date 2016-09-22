@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<record xmlns="http://www.simplity.org/schema" keyToBeGenerated="true" keyGeneratorName="auto_increment"
+<record xmlns="http://www.simplity.org/schema" keyToBeGenerated="false" 
 	name="Employees" tableName="EMPLOYEES" moduleName="birt" okToSelectAll="true" suggestionKeyName="firstName" suggestionOutputNames="firstName" >
 	<fields>
 		<field name="employeeNumber" dataType="id" fieldType="primaryKey"

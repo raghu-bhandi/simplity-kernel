@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service xmlns="http://www.simplity.org/schema" name="saveAttachment1"
+	moduleName="tutorial" dbAccessType="none" description="save an attachment.">
+	<actions>
+		<logic className="org.simplity.tutorial.GenerateKey" />
+		<upload keyField="key" fileNameField="name" mimeTypeField="mime"
+			description="We save the file that was uploaded with key." />
+		<setValue fieldName="log">
+			<expression><![CDATA["a file was uploaded by the user having key as " + key +
+				". we saved this with fileName=" + name + " of mime-type=" + mime + " storage key=" + key]]></expression>
+		</setValue>
+		<log names="log" />
+		<subService serviceName="tutorial.getAttachments"
+			description="Refresh attachment list" />
+	</actions>
+
+	<outputData fieldNames="rootFolder">
+		<outputRecords>
+			<outputRecord sheetName="files" />
+		</outputRecords>
+	</outputData>
+</service>
