@@ -1,0 +1,55 @@
+<div class="container content">
+	<div class="home">
+		<h2>Messages</h2>
+		<p>Messages help us send non-data response to client in a
+			structured and manageable way. Messages can have placeholders for
+			run-time values. Messages can be translated to the desired language
+			before responding back to client. Messages are organized in one or
+			more files under msg/ folder. Attributes of messages are:</p>
+		<p><b>Example</b></p>
+		<table>
+			<tr>
+				<td>&lt;?xml version="1.0" encoding="UTF-8"
+					standalone="no"?&gt;<br> &lt;messages name="myMessages"
+					xmlns="http://www.simplity.org/schema" &gt;<br>
+					&lt;components&gt;<br> <!-- 
+    	Use this file to define messages used in your project.
+    	DO not hesitate to use multiple files in case of large 
+    	project with multiple modules 
+     --> &lt;message messageType="error" name="myMessages.a" text="$1
+					Custom Message From My Messages XML File"/&gt;<br>
+					&lt;/components&gt;<br> &lt;/messages&gt;
+				</td>
+			</tr>
+		</table>
+	<p><b>Attributes</b></p>
+		<table>
+			<tr>
+				<th>Attribute</th>
+				<th>Required?</th>
+				<th>Description</th>
+			</tr>
+			<tr>
+				<td>name</td>
+				<td>yes</td>
+				<td>Should be unique across all files.</td>
+			</tr>
+			<tr>
+				<td>text</td>
+				<td>yes</td>
+				<td>Text of the message in English. This may contain place
+					holders for run-time parameters like $1, $2 etc.. Message is
+					formatted at run time by replacing these place holders with the
+					values that are made available.</td>
+			</tr>
+			<tr>
+				<td>messageType</td>
+				<td>yes</td>
+				<td>error, warning, info and success. We have fixed meaning for
+					type=error. Other types are  mean for client to render them with
+					appropriate style.</td>
+			</tr>
+		</table>
+		</p>
+	</div>
+</div>

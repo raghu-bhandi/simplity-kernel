@@ -21,7 +21,7 @@
 
 		<nav class="sidebar-nav">
 			<a id="sidebar-example" class="sidebar-nav-item" href="#example"
-				toggle="false">Examples</a> 
+				toggle="false">Actions</a> 
 			<a class="sidebar-nav-subitem"	href="#example#setvaluetag">setvalue</a> 
 			<a  class="sidebar-nav-subitem" href="#example#logictag">logic</a> 
 			<a  class="sidebar-nav-subitem" href="#example#createsheettag">createSheet</a>
@@ -41,8 +41,17 @@
 			<a  class="sidebar-nav-subitem" href="#example#readwithsqltag">readwithsql</a>
 			<a  class="sidebar-nav-subitem" href="#example#executesqltag">executesql</a>
 			<a  class="sidebar-nav-subitem" href="#example#uploadtag">upload</a>
-			<a  class="sidebar-nav-item" href="">Contact</a> 
-			<a	class="sidebar-nav-item" href="">GitHub project</a> 
+			<a id="sidebar-datatype" class="sidebar-nav-item" href="#datatype"
+				toggle="false">DataTypes</a>
+			<a class="sidebar-nav-subitem"	href="#datatype#textdatatag">TextData</a>
+			<a class="sidebar-nav-subitem"	href="#datatype#numericdatatag">NumericData</a>
+			<a class="sidebar-nav-subitem"	href="#datatype#datedatatag">DateData</a>
+			<a class="sidebar-nav-subitem"	href="#datatype#booleandatatag">BooleanData</a>
+			<a class="sidebar-nav-item" href="#messages"> Messages </a>
+			<a class="sidebar-nav-item" href="#record"> Record </a>
+			<a class="sidebar-nav-item" href="#application"> Application </a>
+		<!-- 	<a  class="sidebar-nav-item" href="">Contact</a> 
+			<a	class="sidebar-nav-item" href="">GitHub project</a>  -->
 			<span class="sidebar-nav-item">Currently v1.0</span>
 		</nav>
 
@@ -64,6 +73,18 @@
 		</div>
 		<script type="text/ng-template" id="landing">
 			<div ng-include = "'content.html'" style="width:100%;"></div>
+         </script>
+
+		<script type="text/ng-template" id="messages">
+			<div ng-include = "'messages.html'" style="width:100%;"></div>
+         </script>
+
+		<script type="text/ng-template" id="record">
+			<div ng-include = "'record.html'" style="width:100%;"></div>
+         </script>
+         
+         <script type="text/ng-template" id="application">
+			<div ng-include = "'application.html'" style="width:100%;"></div>
          </script>
 
 		<script type="text/ng-template" id="example">
@@ -241,6 +262,52 @@
 		</div>
 	</div>
          </script>
+         
+         
+		<script type="text/ng-template" id="datatype">
+	<div class="container content">
+		<div class="post">
+		<hr>
+			<!-- Text Data example -->
+			<h2 id="textdatatag">TextData</h2>
+
+			<p>Text Data</p>
+			<div ng-include = "'textdata.html'" style="width:100%;height:600px;"></div>
+
+			<!--  Text Data example -->
+
+			<hr>
+			<!-- Numeric Data example -->
+			<h2 id="numericdatatag">NumericData</h2>
+
+			<p>Numeric with or without decimals</p>
+			<div ng-include = "'numericdata.html'" style="width:100%;height:600px;"></div>
+
+			<!--  Numeric Data example -->
+
+
+			<hr>
+			<!-- Date Data example -->
+			<h2 id="datedatatag">DateData</h2>
+
+			<p>Date</p>
+			<div ng-include = "'datedata.html'" style="width:100%;height:600px;"></div>
+
+			<!--  Date Data example -->
+
+
+			<hr>
+			<!-- Boolean Data example -->
+			<h2 id="booleandatatag">BooleanData</h2>
+
+			<p>Boolean</p>
+			<div ng-include = "'booleandata.html'" style="width:100%;height:600px;"></div>
+
+			<!--  Boolean Data example -->
+         </div>
+	</div>
+         </script>
+         
 	</div>
 	<script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
 	<script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-route.min.js"></script>

@@ -11,6 +11,20 @@ sidebarAccordion.addEventListener('click', function(e) {
 	}
 })
 
+
+var sidebarAccordion1 = document.querySelector("#sidebar-datatype");
+sidebarAccordion1.addEventListener('click', function(e) {
+	var subitems = document.querySelectorAll(".sidebar-nav-subitem");
+	for (var i = 0, len = subitems.length; i < len; i++) {
+		var x = subitems[i];
+		if (x.className.indexOf("accordion-show") == -1) {
+			x.className += " accordion-show";
+		} else {
+			x.className = x.className.replace(" accordion-show", "");
+		}
+	}
+})
+
 function resizer(id) {
 	document.getElementById(id).style.height = "400px";
 	document.getElementById(id).style.width = "100%";
@@ -61,12 +75,28 @@ mainApp.config([ '$routeProvider', function($routeProvider) {
 		templateUrl : 'landing',
 		controller : 'LandingController'
 	}).
-
+	when('/messages', {
+		templateUrl : 'messages',
+		controller : 'MessagesController'
+	}).
+	when('/record', {
+		templateUrl : 'record',
+		controller : 'RecordController'
+	}).
+	when('/application', {
+		templateUrl : 'application',
+		controller : 'ApplicationController'
+	}).
 	when('/example', {
 		templateUrl : 'example',
 		controller : 'ExampleController'
 	}).
 
+	when('/datatype', {
+		templateUrl : 'datatype',
+		controller : 'DataTypeController'
+	}).
+	
 	otherwise({
 		redirectTo : '/landing'
 	});
@@ -76,6 +106,18 @@ mainApp.controller('LandingController', function($scope) {
 });
 
 mainApp.controller('ExampleController', function($scope) {
+});
+
+mainApp.controller('DataTypeController', function($scope) {
+});
+
+mainApp.controller('MessagesController', function($scope) {
+});
+
+mainApp.controller('RecordController', function($scope) {
+});
+
+mainApp.controller('ApplicationController', function($scope) {
 });
 
 mainApp.controller('SetValueCtrl',  ['$scope', '$cacheFactory', "CommonService",function($scope,$cacheFactory,CommonService) {
@@ -557,6 +599,64 @@ mainApp.controller('uploadCtrl',  ['$scope', '$cacheFactory',"CommonService",fun
 
 	$scope.onClickTab = function(tab) {
 		$scope.common.getcodefiles($scope,"upload",tab.url,"uploadcurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+
+mainApp.controller('textdataCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	
+	
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"textdata",tab.url,"textdatacurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+mainApp.controller('numericdataCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"numericdata",tab.url,"numericdatacurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+mainApp.controller('datedataCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"datedata",tab.url,"datedatacurrentTab");
+	}
+
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
+mainApp.controller('booleandataCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+	
+	
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"booleandata",tab.url,"booleandatacurrentTab");
 	}
 
 	$scope.isActiveTab = function(tabUrl) {
