@@ -1,22 +1,15 @@
 <div id="createsheetexample" ng-controller="createsheetCtrl">
-	<div>
-		<div style="width: 60%; float: left; padding: 0 10 0 10;">
-			<h3 id="code">Code</h3>
-		</div>
-		<div style="width: 33%; float: left; padding: 0 10 0 10;">
-			<button class="buttonstyle"
-				ng-click="common.runSimplity('tutorial.createSheet','#createsheetexample')">Run</button>
-		</div>
-	</div>
+	<h2 id="createsheettag">createSheet</h2>
+	<p>Create Sheet action allows creation of JSON arrays</p>
 	<div>
 		<div class="leftcontainer">
-			<div id="createsheettabs">
+			<div>
 				<ul class="tab">
 					<li ng-repeat="tab in createsheettabs"
 						ng-class="{active:isActiveTab(tab.url)}"
 						ng-click="onClickTab(tab)">{{tab.title}}</li>
 				</ul>
-				<div id="createsheetmainView" class="tabcontent">
+				<div class="tabcontent">
 					<p ng-bind-html="createsheetcurrentTab" class="binding"></p>
 				</div>
 			</div>
@@ -24,6 +17,9 @@
 		<div class="rightcontainer">
 			<ul class="tab">
 				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+				<li class="runbutton"
+					ng-click="common.runSimplity('tutorial.createSheet','#createsheetexample')"><a
+					href="JavaScript:void(0)">Run</a></li>
 			</ul>
 			<div id="OUTPUT" class="output" style="display: block">
 				<table>

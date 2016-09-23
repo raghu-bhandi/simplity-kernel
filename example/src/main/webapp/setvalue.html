@@ -1,22 +1,19 @@
 <div id="setvalueexample" ng-controller="SetValueCtrl">
-	<div>
-		<div style="width: 60%; float: left; padding: 0 10 0 10;">
-			<h3 id="code">Code</h3>
-		</div>
-		<div style="width: 33%; float: left; padding: 0 10 0 10;">
-			<button class="buttonstyle"
-				ng-click="common.runSimplity('tutorial.SetValue','#setvalueexample')">Run</button>
-		</div>
-	</div>
+
+	<h2 id="setvaluetag">set-value</h2>
+
+	<p>Set value for a field in the service xml on the server side. On
+		the client side, simplity js populates the node with field name as id</p>
+
 	<div>
 		<div class="leftcontainer">
-			<div id="setvaluetabs">
+			<div>
 				<ul class="tab">
 					<li ng-repeat="tab in setvaluetabs"
-						ng-class="{active:isActiveTab(tab.url)}" 
+						ng-class="{active:isActiveTab(tab.url)}"
 						ng-click="onClickTab(tab)">{{tab.title}}</li>
 				</ul>
-				<div id="setvaluemainView" class="tabcontent">
+				<div class="tabcontent">
 					<p ng-bind-html="setvaluecurrentTab" class="binding"></p>
 				</div>
 			</div>
@@ -24,6 +21,9 @@
 		<div class="rightcontainer">
 			<ul class="tab">
 				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+				<li class="runbutton"
+					ng-click="common.runSimplity('tutorial.SetValue','#setvalueexample')"><a
+					href="JavaScript:void(0)">Run</a></li>
 			</ul>
 			<div id="OUTPUT" class="output" style="display: block">
 				<div id="island"></div>

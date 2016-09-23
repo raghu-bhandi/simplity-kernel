@@ -1,0 +1,75 @@
+<html>
+<head>
+<title>Simplity Examples</title>
+<!-- CSS -->
+<link rel="stylesheet" href="public/css/poole.css">
+<link rel="stylesheet" href="public/css/syntax.css">
+<link rel="stylesheet" href="public/css/lanyon.css">
+<link rel="stylesheet" href="public/css/fonts.css">
+<link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+
+	<input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox"
+		checked>
+
+	<div class="sidebar" id="sidebar">
+		<div class="sidebar-item">
+			<a href="#landing"> Ridiculously simple set of APIs/framework for
+				typical transaction processing systems. </a>
+		</div>
+
+		<nav class="sidebar-nav">
+			<a id="sidebar-example" class="sidebar-nav-item" href="#example"
+				toggle="false">Examples</a> 
+			<a class="sidebar-nav-subitem"	href="#example#setvaluetag">setvalue</a> 
+			<a  class="sidebar-nav-subitem" href="#example#logictag">logic</a> 
+			<a  class="sidebar-nav-subitem" href="#example#createsheettag">createSheet</a>
+			<a  class="sidebar-nav-subitem" href="#example#renamesheettag">renameSheet</a>
+			<a  class="sidebar-nav-subitem" href="#example#jumptotag">jumpTo</a>
+			<a  class="sidebar-nav-subitem" href="#example#rowexiststag">rowExists</a>
+			<a  class="sidebar-nav-subitem" href="#example#addcolumntag">addColumn</a>
+			<a  class="sidebar-nav-subitem" href="#example#copyrowstag">copyRows</a>
+			<a  class="sidebar-nav-subitem" href="#example#addmessagetag">addMessage</a>
+			<a  class="sidebar-nav-subitem" href="#example#copyuseridtag">copyUserId</a>
+			<a  class="sidebar-nav-item" href="">Contact</a> 
+			<a	class="sidebar-nav-item" href="">GitHub project</a> 
+			<span class="sidebar-nav-item">Currently v1.0</span>
+		</nav>
+
+		<div class="sidebar-item">
+			<p>&copy; 2016. All rights reserved.</p>
+		</div>
+	</div>
+
+	<div id="container" ng-app="mainApp">
+		<div class="wrap">
+			<div class="masthead">
+				<div class="container">
+					<h3 class="masthead-title">
+						<a href="/" title="Home">Simplity Examples</a> <small></small>
+					</h3>
+				</div>
+			</div>
+			<div ng-view></div>
+		</div>
+		<script type="text/ng-template" id="landing">
+			<div ng-include = "'content.html'" style="width:100%;"></div>
+         </script>
+
+		<script type="text/ng-template" id="example">
+	<div class="container content">
+		<div class="post">
+			<div ng-repeat="action in actions" ng-include="'actiontemplate.html'"></div>
+		</div>
+	</div>
+         </script>
+	</div>
+	<script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+	<script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-route.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-sanitize.js"></script>
+
+	<script type="text/javascript" src="js/index.js"></script>
+	<script type="text/javascript" src="js/simplity.js"></script>
+</body>
+</html>

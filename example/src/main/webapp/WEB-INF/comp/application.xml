@@ -4,7 +4,7 @@
 	applicationId="simplityTutorial"
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
-	connectionString="jdbc:h2:file:target/db/classicmodels;user=sa;" 
+	connectionString="jdbc:h2:file:D:/workspace/simplity/example/target/db/classicmodels;user=sa;" 
 	sendTraceToClient="true"
 	logSqls="true"
 >

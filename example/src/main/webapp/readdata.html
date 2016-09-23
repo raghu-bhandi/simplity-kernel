@@ -1,22 +1,16 @@
 <div id="readdataexample" ng-controller="readdataCtrl">
-	<div>
-		<div style="width: 60%; float: left; padding: 0 10 0 10;">
-			<h3 id="code">Code</h3>
-		</div>
-		<div style="width: 33%; float: left; padding: 0 10 0 10;">
-			<button class="buttonstyle"
-				ng-click="common.runSimplity('tutorial.readData','#readdataexample')">Run</button>
-		</div>
-	</div>
+	<h2 id="readdatatag">readData</h2>
+	<p>Read a row from a record, and possibly read relevant rows from
+		related records</p>
 	<div>
 		<div class="leftcontainer">
-			<div id="readdatatabs">
+			<div>
 				<ul class="tab">
 					<li ng-repeat="tab in readdatatabs"
 						ng-class="{active:isActiveTab(tab.url)}"
 						ng-click="onClickTab(tab)">{{tab.title}}</li>
 				</ul>
-				<div id="readdatamainView" class="tabcontent">
+				<div class="tabcontent">
 					<p ng-bind-html="readdatacurrentTab" class="binding"></p>
 				</div>
 			</div>
@@ -24,9 +18,13 @@
 		<div class="rightcontainer">
 			<ul class="tab">
 				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+				<li class="runbutton"
+					ng-click="common.runSimplity('tutorial.readData','#readdataexample')"><a
+					href="JavaScript:void(0)">Run</a></li>
 			</ul>
 			<div id="OUTPUT" class="output" style="display: block">
-				No. of rows extracted:<div id="testValue"></div>
+				No. of rows extracted:
+				<div id="testValue"></div>
 			</div>
 		</div>
 	</div>

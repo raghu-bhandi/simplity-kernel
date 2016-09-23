@@ -1,13 +1,6 @@
 <div id="addcolumnexample" ng-controller="addcolumnCtrl">
-	<div>
-		<div style="width: 60%; float: left; padding: 0 10 0 10;">
-			<h3 id="code">Code</h3>
-		</div>
-		<div style="width: 33%; float: left; padding: 0 10 0 10;">
-			<button class="buttonstyle"
-				ng-click="common.runSimplity('tutorial.addColumn','#addcolumnexample')">Run</button>
-		</div>
-	</div>
+	<h2 id="addcolumntag">addColumn</h2>
+	<p>Add a column to a data sheet</p>
 	<div>
 		<div class="leftcontainer">
 			<div id="addcolumntabs">
@@ -16,7 +9,7 @@
 						ng-class="{active:isActiveTab(tab.url)}"
 						ng-click="onClickTab(tab)">{{tab.title}}</li>
 				</ul>
-				<div id="addcolumnmainView" class="tabcontent">
+				<div class="tabcontent">
 					<p ng-bind-html="addcolumncurrentTab" class="binding"></p>
 				</div>
 			</div>
@@ -24,6 +17,9 @@
 		<div class="rightcontainer">
 			<ul class="tab">
 				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+				<li class="runbutton"
+					ng-click="common.runSimplity('tutorial.addColumn','#addcolumnexample')"><a
+					href="JavaScript:void(0)" class="tablinks">Run</a></li>
 			</ul>
 			<div id="OUTPUT" class="output" style="display: block">
 				<div id="testValue"></div>

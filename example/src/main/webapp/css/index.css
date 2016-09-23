@@ -60,7 +60,7 @@ ul.tab li:focus, .active {background-color: #ccc;}
     padding: 6px 12px;
     border: 1px solid #ccc;
     border-top: none;
-    height: 250px;
+    height: 200px;
     overflow:auto;
 }
 
@@ -70,7 +70,7 @@ ul.tab li:focus, .active {background-color: #ccc;}
     padding: 6px 12px;
     border: 1px solid #ccc;
     border-top: none;
-    height: 250px;
+    height: 100px;
     overflow:auto;
 }
 
@@ -90,13 +90,13 @@ xmp {
 
 
 .leftcontainer{
-    width:60%;
+    width:100%;
     float:left;
     padding:0 10 0 10;
 }
 
 .rightcontainer{
-    width:33%;
+    width:100%;
     float:left;
     padding:0 10 0 10;
 }
@@ -115,4 +115,14 @@ xmp {
 .binding{
     font-size: 12;
     white-space: pre;
+}
+
+.includepage{
+	width:100%;
+	height: 500px;
+}
+
+ul.tab li.runbutton{
+	float: right;
+	padding-right: 20;
 }

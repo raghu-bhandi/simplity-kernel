@@ -1,22 +1,15 @@
 <div id="rowexistsexample" ng-controller="rowexistsCtrl">
-	<div>
-		<div style="width: 60%; float: left; padding: 0 10 0 10;">
-			<h3 id="code">Code</h3>
-		</div>
-		<div style="width: 33%; float: left; padding: 0 10 0 10;">
-			<button class="buttonstyle"
-				ng-click="common.runSimplity('tutorial.rowExists','#rowexistsexample')">Run</button>
-		</div>
-	</div>
+	<h2 id="rowexiststag">rowExists</h2>
+	<p>Checks if a row exists in this record for the primary key</p>
 	<div>
 		<div class="leftcontainer">
-			<div id="rowexiststabs">
+			<div>
 				<ul class="tab">
 					<li ng-repeat="tab in rowexiststabs"
 						ng-class="{active:isActiveTab(tab.url)}"
 						ng-click="onClickTab(tab)">{{tab.title}}</li>
 				</ul>
-				<div id="rowexistsmainView" class="tabcontent">
+				<div class="tabcontent">
 					<p ng-bind-html="rowexistscurrentTab" class="binding"></p>
 				</div>
 			</div>
@@ -24,6 +17,9 @@
 		<div class="rightcontainer">
 			<ul class="tab">
 				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+				<li class="runbutton"
+					ng-click="common.runSimplity('tutorial.rowExists','#rowexistsexample')"><a
+					href="JavaScript:void(0)">Run</a></li>
 			</ul>
 			<div id="OUTPUT" class="output" style="display: block">
 				<div id="testValue"></div>

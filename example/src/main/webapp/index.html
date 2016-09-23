@@ -91,100 +91,70 @@
 	<div class="container content">
 		<div class="post">
 			<!-- Set value example -->
-			<h2 id="setvaluetag">set-value</h2>
-
-			<p>Set value for a field in the service xml on the server side.
-				On the client side, simplity js populates the node with field name
-				as id</p>			
-            <div ng-include = "'setvalue.html'" style="width:100%;height:400px;"></div>
+		
+            <div ng-include = "'setvalue.html'" class="includepage"></div>
 
 			<!-- /Set value example -->
 			<hr>
-			<!-- Logic example -->
-			<h2 id="logictag">logic</h2>
-
-			<p>Logic action allows java classes to manipulate the data
-				fields. The Java class must implement LogicInterface</p>
-			<div ng-include = "'logic.html'" style="width:100%;height:400px;"></div>
+			<!-- Logic example --> 
+			<div ng-include = "'logic.html'" class="includepage"></div>
 			<!-- /Logic example -->
 			<hr>
 			<!-- Create Sheet example -->
-			<h2 id="createsheettag">createsheet</h2>
 
-			<p>Create Sheet action allows creation of JSON arrays</p>
-			<div ng-include = "'createsheet.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'createsheet.html'" class="includepage"></div>
 
 			<!-- Create Sheet example example -->
 
 			<hr>
 			<!-- Rename Sheet example -->
-			<h2 id="renamesheettag">Renamesheet</h2>
-
-			<p>Rename a data sheet.Returns true if renaming is successful, false otherwise</p>
-			<div ng-include = "'renamesheet.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'renamesheet.html'" class="includepage"></div>
 
 			<!-- Rename Sheet example  -->
 
 			<hr>
 			<!-- Jump To example -->
-			<h2 id="jumptotag">JumpTo</h2>
 
-			<p>Service has actions that are executed in a sequence. JumpTo allows you to change this sequence.</p>
-			<div ng-include = "'jumpto.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'jumpto.html'" class="includepage"></div>
 
 			<!-- Jump To example -->
 
 			<hr>
 			<!-- Row Exists example -->
-			<h2 id="rowexiststag">RowExists</h2>
-
-			<p>Checks if a row exists in this record for the primary key</p>
-			<div ng-include = "'rowexists.html'" style="width:100%;height:400px;"></div>
-
+			<div ng-include = "'rowexists.html'" class="includepage"></div>
 			<!-- Row Exists example -->
 
 			<hr>
 			<!-- Add Column example -->
-			<h2 id="addcolumntag">AddColumn</h2>
 
-			<p>Add a column to a data sheet</p>
-			<div ng-include = "'addcolumn.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'addcolumn.html'" class="includepage"></div>
 
 			<!-- Add Column example -->
 
 			<hr>
 			<!-- Copy Rows example -->
-			<h2 id="copyrowstag">CopyRows</h2>
 
-			<p>Copy rows from a compatible sheet.</p>
-			<div ng-include = "'copyrows.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'copyrows.html'" class="includepage"></div>
 
 			<!-- Copy Rows example -->
 
 			<hr>
 			<!-- Add Message example -->
-			<h2 id="addmessagetag">AddMessage</h2>
 
-			<p>Add a message to the context</p>
-			<div ng-include = "'addmessage.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'addmessage.html'" class="includepage"></div>
 
 			<!-- Add Message example -->
 
 			<hr>
 			<!-- Copy Userid example -->
-			<h2 id="copyuseridtag">CopyUserId</h2>
 
-			<p>Set the special value userId that has the logged-in user id.</p>
-			<div ng-include = "'copyuserid.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'copyuserid.html'" class="includepage"></div>
 
 			<!-- Copy Userid example -->
 
 			<hr>
 			<!-- Read Data example -->
-			<h2 id="readdatatag">Read</h2>
-
-			<p>Read a row from a record, and possibly read relevant rows from related records</p>
-			<div ng-include = "'readdata.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'readdata.html'" class="includepage"></div>
 
 			<!-- Read Data example -->
 
@@ -193,61 +163,44 @@
 			<h2 id="suggesttag">Suggest</h2>
 
 			<p>Get suggestions from the table associated with a record based on the inputs</p>
-			<div ng-include = "'suggest.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'suggest.html'" class="includepage"></div>
 
 			<!-- Suggest example -->
 
 			<hr>
 			<!-- Filter example -->
-			<h2 id="filtertag">Filter</h2>
 
-			<p>Read a row from a record, and possibly read relevant rows from related records</p>
-			<div ng-include = "'filter.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'filter.html'" class="includepage"></div>
 
 			<!-- Filter example -->
 
 			<hr>
 			<!-- SaveDataAdd example -->
-			<h2 id="savedataaddtag">Save(Add)</h2>
-
-			<p>Save (add/modify/delete) a row from a record, and possibly save relevant rows from related records</p>
-			<div ng-include = "'savedataadd.html'" style="width:100%;height:400px;"></div>
-
+			<div ng-include = "'savedataadd.html'" class="includepage"></div>
 			<!-- SaveDataAdd example -->
 
 			<hr>
 			<!-- SaveDataModify example -->
-			<h2 id="savedatamodifytag">Save(Modify)</h2>
-
-			<p>Save (add/modify/delete) a row from a record, and possibly save relevant rows from related records</p>
-			<div ng-include = "'savedatamodify.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'savedatamodify.html'" class="includepage"></div>
 
 			<!-- SaveDataModify example -->
 
 			<hr>
 			<!-- SaveDataDelete example -->
-			<h2 id="savedatadeletetag">Save(Delete)</h2>
-
-			<p>Save (add/modify/delete) a row from a record, and possibly save relevant rows from related records</p>
-			<div ng-include = "'savedatadelete.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'savedatadelete.html'" class="includepage"></div>
 
 			<!-- SaveDataDelete example -->
 
 			<hr>
 			<!-- ReadwithSql example -->
-			<h2 id="readwithsqltag">Read With Sql</h2>
-
-			<p>Read a row/s from as output of a prepared statement/sql</p>
-			<div ng-include = "'readwithsql.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'readwithsql.html'" class="includepage"></div>
 
 			<!-- ReadwithSql example -->
 
 			<hr>
 			<!-- ExecuteSql example -->
-			<h2 id="executesqltag">Execute Sql</h2>
 
-			<p>execute a sql</p>
-			<div ng-include = "'executesql.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'executesql.html'" class="includepage"></div>
 
 			<!-- ExecuteSql example -->
 
@@ -256,7 +209,7 @@
 			<h2 id="uploadtag">Upload</h2>
 
 			<p>upload a file from temp storage to permanent storage and change the file key/token.</p>
-			<div ng-include = "'upload.html'" style="width:100%;height:400px;"></div>
+			<div ng-include = "'upload.html'" class="includepage"></div>
 
 			<!-- Upload example -->
 		</div>
