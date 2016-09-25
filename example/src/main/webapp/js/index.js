@@ -1,34 +1,13 @@
-var sidebarAccordion = document.querySelector("#sidebar-example");
-sidebarAccordion.addEventListener('click', function(e) {
-	var subitems = document.querySelectorAll(".sidebar-nav-subitem");
-	for (var i = 0, len = subitems.length; i < len; i++) {
-		var x = subitems[i];
-		if (x.className.indexOf("accordion-show") == -1) {
-			x.className += " accordion-show";
-		} else {
-			x.className = x.className.replace(" accordion-show", "");
-		}
-	}
-})
-
-
-var sidebarAccordion1 = document.querySelector("#sidebar-datatype");
-sidebarAccordion1.addEventListener('click', function(e) {
-	var subitems = document.querySelectorAll(".sidebar-nav-subitem");
-	for (var i = 0, len = subitems.length; i < len; i++) {
-		var x = subitems[i];
-		if (x.className.indexOf("accordion-show") == -1) {
-			x.className += " accordion-show";
-		} else {
-			x.className = x.className.replace(" accordion-show", "");
-		}
-	}
-})
-
-function resizer(id) {
-	document.getElementById(id).style.height = "400px";
-	document.getElementById(id).style.width = "100%";
-
+var acc = document.getElementsByClassName("sidebar-nav-item");
+var i;
+for (i = 0; i < acc.length; i++) {
+    acc[i].onclick = function(e){
+        this.classList.toggle("active");
+        var list = document.getElementsByClassName(e.target.getAttribute("id"));
+        for(j=0;j<list.length;j++){
+        	list[j].classList.toggle("accordion-show");	
+        }        
+    }
 }
 
 var mainApp = angular.module("mainApp", [ 'ngRoute','ngSanitize' ]);
@@ -44,8 +23,8 @@ mainApp.factory('CommonService', ['$cacheFactory',function($cacheFactory) {
 		    root.cache.put(key, angular.isUndefined(value) ? null : value);
 		};
 		
-		root.runSimplity = function(service,selector){
-			Simplity.getResponse(service,null,function(json){
+		root.runSimplity = function(service,selector,data){
+			Simplity.getResponse(service,data,function(json){
 				Simplity.pushDataToPage(json,document.querySelector(selector));
 			});
 		};	
@@ -580,13 +559,38 @@ mainApp.controller('executesqlCtrl',  ['$scope', '$cacheFactory',"CommonService"
 		return tabUrl == $scope.currentTab;
 	}
 }]);
+mainApp.controller('downloadCtrl',  ['$scope', '$cacheFactory', "CommonService",function($scope,$cacheFactory,CommonService) {
+    $scope.common = CommonService;
+    
+	$scope.downloadtabs = [ {
+		title : 'XML',
+		url : 'getAttachments.xml'
+	}, {
+		title : 'JS',
+		url : 'download.js'
+	}, {
+		title : 'HTML',
+		url : 'download.html'
+	} ];
+		
+	$scope.common.getcodefiles($scope,"download","getAttachments.xml",'downloadcurrentTab');
+
+	$scope.onClickTab = function(tab) {
+		$scope.common.getcodefiles($scope,"download",tab.url,'downloadcurrentTab');
+	}
+	
+	$scope.isActiveTab = function(tabUrl) {
+		return tabUrl == $scope.currentTab;
+	}
+}]);
+
 
 mainApp.controller('uploadCtrl',  ['$scope', '$cacheFactory',"CommonService",function($scope,$cacheFactory,CommonService) {
     $scope.common = CommonService;
 	
 	$scope.uploadtabs = [ {
 		title : 'XML',
-		url : 'upload.xml'
+		url : 'saveAttachment.xml'
 	}, {
 		title : 'JS',
 		url : 'upload.js'
@@ -595,7 +599,7 @@ mainApp.controller('uploadCtrl',  ['$scope', '$cacheFactory',"CommonService",fun
 		url : 'upload.html'
 	} ];	
 	
-	$scope.common.getcodefiles($scope,"upload","upload.xml","uploadcurrentTab");
+	$scope.common.getcodefiles($scope,"upload","saveAttachment.xml","uploadcurrentTab");
 
 	$scope.onClickTab = function(tab) {
 		$scope.common.getcodefiles($scope,"upload",tab.url,"uploadcurrentTab");
@@ -604,6 +608,18 @@ mainApp.controller('uploadCtrl',  ['$scope', '$cacheFactory',"CommonService",fun
 	$scope.isActiveTab = function(tabUrl) {
 		return tabUrl == $scope.currentTab;
 	}
+	$scope.fileChanged = function() {
+		var files = document.getElementById('file').files;
+		Simplity.uploadFile(files[0], function(key) {
+			var data = '{"key":"' + key + '"}';
+			$scope.common.runSimplity('tutorial.saveAttachment','#uploadexample',data)
+			console.log("key: "+key);
+		}, function(progress) {
+			console.log("progress: "+progress);
+		});		
+		
+
+	};	
 }]);
 
 

@@ -15,7 +15,6 @@
 	</inputData>
 	<actions>
 		<upload
-			actionName="upload"
 			keyField="key"
 			fileNameField="name"
 			mimeTypeField="mime"
@@ -25,11 +24,7 @@
 				". we saved this with fileName=" + name + " of mime-type=" + mime + " storage key=" + key]]></expression>
 		</setValue>
 		<log names="log"/>
-		<createSheet
-			sheetName="files"
-			data="key,name,mime;$key,temp,temp" />		
 		<download
-			actionName="download"
 			sheetName="files"
 			keyField="key"
 			fileNameField="name"
