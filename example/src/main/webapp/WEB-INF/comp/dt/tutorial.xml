@@ -70,7 +70,7 @@
 			name="userName"
 			maxLength="16"
 			regex="[a-zA-Z][\w.-_]{1,16}" />
-		
+					
 		<!-- integer -->
 		<numericDataType
 			name="id"

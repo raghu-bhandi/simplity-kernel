@@ -44,6 +44,12 @@ mainApp.factory('CommonService', ['$cacheFactory',function($cacheFactory) {
 			scope['currentTab'] = filename;
 		};			
 
+		root.download = function(service, att) {
+			Simplity.getResponse(service,null,function(json){
+				Simplity.downloadCSV(json[att])
+			});
+		}
+		
 	    return root;
 	}]);
 

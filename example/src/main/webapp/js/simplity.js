@@ -461,6 +461,71 @@ var Simplity = (function() {
 			}
 		}
 	};
+	
+	 /* 
+	 * </pre>
+	 */
+	var downloadCSV = function(arrData) {	
+		if (!Array.isArray(arrData)) {
+			log('Simplity function downloadCSV() requires that the json to be an array. Data not pushed to page');
+			return;
+		}
+		
+		var csv = '';
+		
+	    //1st loop is to extract each row
+	    for (var i = 0; i < arrData.length; i++) {
+	        var row = "";
+
+	        //2nd loop will extract each column and convert it in string comma-seprated
+	        for (var index in arrData[i]) {
+	            row += '"' + arrData[i][index] + '",';
+	        }
+
+	        row.slice(0, row.length - 1);
+
+	        //add a line break after each row
+	        csv += row + '\r\n';
+	    }
+	    
+	    //1st loop is to extract each row
+	    for (var i = 0; i < arrData.length; i++) {
+	        var row = "";
+
+	        //2nd loop will extract each column and convert it in string comma-seprated
+	        for (var index in arrData[i]) {
+	            row += '"' + arrData[i][index] + '",';
+	        }
+
+	        row.slice(0, row.length - 1);
+
+	        //add a line break after each row
+	        csv += row + '\r\n';
+	    }
+
+	    if (csv == '') {
+	        alert("Invalid data");
+	        return;
+	    }
+	    
+	    //Generate a file name
+	    var fileName = "download";
+
+	    //Initialize file format you want csv or xls
+	    var uri = 'data:text/csv;charset=utf-8,' + escape(csv);
+	    var link = document.createElement("a");
+	    link.href = uri;
+
+	    //set the visibility hidden so it will not effect on your web-layout
+	    link.style = "visibility:hidden";
+	    link.download = fileName + ".csv";
+
+	    //this part will append the anchor tag and remove it after automatic click
+	    document.body.appendChild(link);
+	    link.click();
+	    document.body.removeChild(link);
+	    
+	}
 
 	var setOptionsForEle = function(ele, vals) {
 
@@ -1088,6 +1153,7 @@ var Simplity = (function() {
 		pushDataToPage : pushDataToPage,
 		uploadFile : uploadFile,
 		discardFile : discardFile,
-		downloadFile : downloadFile
+		downloadFile : downloadFile,
+		downloadCSV  : downloadCSV
 	};
 })();

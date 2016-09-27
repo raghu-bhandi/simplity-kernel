@@ -8,6 +8,5 @@
 	sendTraceToClient="true"
 	logSqls="true"
 	mediaStorageFolderPath="${user.home}/simplity/files"
-	mediStorageAssistantClass="org.simplity.tutorial.CustomMediaStorageAssistant"
 	>
 </application>
