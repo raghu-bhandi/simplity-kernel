@@ -22,70 +22,70 @@
 
 package org.simplity.media;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.simplity.kernel.ApplicationError;
 
 /**
- * convenient wrapper interface to have a file name and a stream
+ * convenient data structure to represent attributes of a media. we have made
+ * this immutable to make it reliable to through it freely around
  *
  * @author simplity.org
  *
  */
-public interface Media {
-	/**
-	 * get the key to this media as recognized by media manager
-	 *
-	 * @return key to this media as recognized by media manager. Always non-null
-	 */
-	public String getKey();
+public class Media {
+	private final String key;
+	private final String fileName;
+	private final String mimeType;
 
 	/**
 	 *
-	 * @return file name by which this media type is known. Could be null.
+	 * @param key
+	 *            unique key within an application, across all entities, that
+	 *            identifies this media. always non-null
+	 * @param fileName
+	 *            name that user/client associates this media with for e.g.
+	 *            resume.doc, photo.gif. Can not be null
+	 * @param mimeType
+	 *            valid mime-type that the HTTP protocol understands. Null if
+	 *            this is not relevant, or unknown
+	 *
 	 */
-	public String getFileName();
+	public Media(String key, String fileName, String mimeType) {
+		if (key == null || fileName == null) {
+			throw new ApplicationError(
+					"Media with key="
+							+ key
+							+ " filename "
+							+ fileName
+							+ " and mime-type"
+							+ mimeType
+							+ " can not be constructed because key and fileName require non-null values");
+		}
+		this.key = key;
+		this.fileName = fileName;
+		this.mimeType = mimeType;
+	}
 
 	/**
 	 *
-	 * @return mime-type. could be null if this is not relevant.
+	 * @return key to this media as recognized by media manager. always non-null
 	 */
-	public String getMimeType();
+	public String getKey() {
+		return this.key;
+	}
 
 	/**
-	 * create this media using the inStream
 	 *
-	 * @param inStream
-	 *            from which to save this media. Obviously, we do not close
-	 *            inStream. It is caller's duty.
-	 *
-	 * @throws ApplicationError
-	 *             in case stream is not successful
+	 * @return file name by which this media type is known. Always non-null.
 	 */
-	public void streamIn(InputStream inStream);
+	public String getFileName() {
+		return this.fileName;
+	}
 
 	/**
-	 * copy this media to the outStream
 	 *
-	 * @param outStream
-	 *            to which this is to to be copied to. We do not close this
-	 *            stream, as we never opened it. Caller needs to manage that
-	 *
-	 * @throws ApplicationError
-	 *             in case stream is not successful
+	 * @return mime-type. could be null if this is not relevant or is unknown.
 	 */
-	public void streamOut(OutputStream outStream);
-
-	/**
-	 * discard (delete/remove) this media. It is not required any more.
-	 * Subsequent call to StreamIn() streamOut() should raise ApplicationError()
-	 * rather than throwing null-pointer exception
-	 */
-	public void discard();
-
-	/**
-	 * @return true if this discarded. False otherwise;
-	 */
-	public boolean isDiscarded();
+	public String getMimeType() {
+		return this.mimeType;
+	}
 }

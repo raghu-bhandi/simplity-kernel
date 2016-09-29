@@ -22,8 +22,14 @@
 package org.simplity.tp;
 
 import org.simplity.json.JSONObject;
+import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.MessageType;
+import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.value.Value;
+import org.simplity.media.AttachmentManager;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -38,6 +44,18 @@ public class InputData {
 	InputField[] inputFields;
 
 	InputRecord[] inputRecords;
+
+	/**
+	 * comma separated list of field names that carry key to attachments. these
+	 * are processed as per attachmentManagement, and revised key is replaced as
+	 * the field-value
+	 */
+	String[] attachmentFields;
+	/**
+	 * comma separated list of column names in the form
+	 * sheetName.columnName,sheetName1.columnName2....
+	 */
+	String[] attachmentColumns;
 
 	/**
 	 * extract and validate data from input service data into service context
@@ -65,6 +83,103 @@ public class InputData {
 		Tracer.trace("We extracted " + ctx.getAllFields().size()
 				+ " fields in all");
 
+		if (this.attachmentFields != null) {
+			storeFieldAttaches(this.attachmentFields, ctx, true);
+		}
+
+		if (this.attachmentColumns != null) {
+			storeColumnAttaches(this.attachmentColumns, ctx, true);
+		}
+	}
+
+	/**
+	 * this is made static to allow re-use by OutputData as well
+	 * 
+	 * @param columns
+	 * @param ctx
+	 * @param toStore
+	 */
+	static void storeColumnAttaches(String[] columns, ServiceContext ctx,
+			boolean toStore) {
+		for (String ac : columns) {
+			int idx = ac.lastIndexOf('.');
+			if (idx == -1) {
+				throw new ApplicationError(
+						"Invalid attachmentColumns specification");
+			}
+			String sheetName = ac.substring(0, idx);
+			String colName = ac.substring(idx + 1);
+			DataSheet sheet = ctx.getDataSheet(sheetName);
+			if (sheet == null) {
+				Tracer.trace("Data sheet "
+						+ sheetName
+						+ " not input. Hence no attachment management on its column "
+						+ colName);
+				continue;
+			}
+			idx = sheet.getColIdx(colName);
+			if (idx == -1) {
+				Tracer.trace("Data sheet " + sheetName
+						+ " does not have a column named " + colName
+						+ " No attachment management on this column");
+				continue;
+			}
+			int nbr = sheet.length();
+			if (nbr == 0) {
+				Tracer.trace("Data sheet "
+						+ sheetName
+						+ " has no rows. No attachment management on this column");
+				continue;
+			}
+			for (int i = 0; i < nbr; i++) {
+				Value key = sheet.getColumnValue(colName, i);
+				if (Value.isNull(key)) {
+					continue;
+				}
+				String newKey = null;
+				if (toStore) {
+					newKey = AttachmentManager.moveToStorage(key.toText());
+				} else {
+					newKey = AttachmentManager.moveFromStorage(key.toText());
+				}
+				if (newKey == null) {
+					ctx.addInternalMessage(MessageType.ERROR,
+							"Error whiel storing attachment with temp key "
+									+ key);
+				} else {
+					sheet.setColumnValue(colName, i, Value.newTextValue(newKey));
+				}
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param fields
+	 * @param ctx
+	 * @param toStor
+	 */
+	static void storeFieldAttaches(String[] fields, ServiceContext ctx,
+			boolean toStor) {
+		for (String af : fields) {
+			String key = ctx.getTextValue(af);
+			if (key == null) {
+				Tracer.trace("Attachment field " + af
+						+ " is not spcified. Skipping it.");
+				continue;
+			}
+			if (toStor) {
+				key = AttachmentManager.moveToStorage(key);
+			} else {
+				key = AttachmentManager.moveFromStorage(key);
+			}
+			if (key == null) {
+				ctx.addValidationMessage(Messages.INVALID_ATTACHMENT_KEY, af,
+						null, null, 0, key);
+			} else {
+				ctx.setTextValue(af, key);
+			}
+		}
 	}
 
 	/**
@@ -104,6 +219,17 @@ public class InputData {
 		if (this.inputFields != null) {
 			for (InputField fields : this.inputFields) {
 				count += fields.validate(ctx);
+			}
+		}
+		if (this.attachmentColumns != null) {
+			for (String txt : this.attachmentColumns) {
+				int idx = txt.lastIndexOf('.');
+				if (idx == -1) {
+					ctx.addError("attachmentColumns is set to "
+							+ txt
+							+ ". This should be of the form sheetName.columnName");
+					count++;
+				}
 			}
 		}
 		return count;

@@ -137,7 +137,7 @@ public class JsonUtil {
 		/*
 		 * arr corresponds to following json. We are to accumulate child rows
 		 * across all main rows
-		 *
+		 * 
 		 * [...,"attName"=[{},{}....],..],[....,"attName"=[{},{}.... ],..]....
 		 */
 		Field[] inputFields = fields;
@@ -305,7 +305,10 @@ public class JsonUtil {
 			Object val = json.opt(field.getName());
 			Value value = null;
 			if (val != null) {
-				value = Value.parseObject(val);
+				value = field.getValueType().parseObject(val);
+				/*
+				 * this is validation, and not exactly parse
+				 */
 				value = field.parse(value, errors, allFieldsAreOptional, null);
 			}
 			if (value != null) {
@@ -390,7 +393,7 @@ public class JsonUtil {
 		 * filter field need not conform to data-type but it should be of the
 		 * same value type
 		 */
-		Value value = Value.parseObject(obj, valueType);
+		Value value = valueType.parseObject(obj);
 		if (value == null) {
 			if (validationErrors != null) {
 				validationErrors.add(new FormattedMessage(
@@ -418,7 +421,7 @@ public class JsonUtil {
 		Object val = json.opt(otherName);
 		value = null;
 		if (val != null) {
-			value = Value.parseObject(val, valueType);
+			value = valueType.parseObject(val);
 		}
 		if (value == null) {
 			if (validationErrors != null) {
@@ -609,5 +612,69 @@ public class JsonUtil {
 		JSONWriter writer = new JSONWriter(w);
 		addObject(writer, object);
 		return w.toString();
+	}
+
+	/**
+	 * append the text to string builder duly quoted and escaped as per JSON
+	 * standard.
+	 *
+	 * @param value
+	 *            to be appended
+	 * @param json
+	 *            to be appended to
+	 */
+	public static void appendQoutedText(String value, StringBuilder json) {
+		if (value == null || value.length() == 0) {
+			json.append("\"\"");
+			return;
+		}
+
+		char lastChar = 0;
+		String hhhh;
+
+		json.append('"');
+		for (char c : value.toCharArray()) {
+			switch (c) {
+			case '\\':
+			case '"':
+				json.append('\\');
+				json.append(c);
+				break;
+			case '/':
+				if (lastChar == '<') {
+					json.append('\\');
+				}
+				json.append(c);
+				break;
+			case '\b':
+				json.append("\\b");
+				break;
+			case '\t':
+				json.append("\\t");
+				break;
+			case '\n':
+				json.append("\\n");
+				break;
+			case '\f':
+				json.append("\\f");
+				break;
+			case '\r':
+				json.append("\\r");
+				break;
+			default:
+				if (c < ' ' || (c >= '\u0080' && c < '\u00a0')
+						|| (c >= '\u2000' && c < '\u2100')) {
+					json.append("\\u");
+					hhhh = Integer.toHexString(c);
+					json.append("0000", 0, 4 - hhhh.length());
+					json.append(hhhh);
+				} else {
+					json.append(c);
+				}
+			}
+			lastChar = c;
+		}
+		json.append('"');
+
 	}
 }

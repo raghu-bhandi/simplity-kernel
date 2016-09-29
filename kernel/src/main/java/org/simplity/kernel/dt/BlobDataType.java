@@ -19,39 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.tp;
+package org.simplity.kernel.dt;
 
-import org.simplity.kernel.Tracer;
-import org.simplity.media.Media;
-import org.simplity.media.MediaManager;
-import org.simplity.service.ServiceContext;
+import org.simplity.kernel.value.ValueType;
 
 /**
- * download a file from permanent storage to temp storage
+ * Blob is a pseudo data type, because we actually do not allow this data type
+ * to be used for data element. However, the RDBMS has this data type for
+ * storage, and we need to store/retrieve this. BlobDataType is a wrapper on
+ * textDataType to facilitate this. Actual Blob data is saved (before saving, or
+ * after retrieving) in a temp-file. Field that is associated with BlobDataType
+ * has a value of text that is the key to this file.
  *
  * @author simplity.org
  *
  */
-public class Download extends UpOrDownload {
-
+public class BlobDataType extends ClobDataType {
 	@Override
-	protected Media load(String key, ServiceContext ctx) {
-		if (key == null) {
-			Tracer.trace("Upload action has no work as field " + this.keyField
-					+ " has no value.");
-			return null;
-		}
-		/*
-		 * get the media object for temp storage area
-		 */
-		Media media = MediaManager.getFromStorage(key);
-		if (media != null) {
-			ctx.putDownLoad(media);
-			return media;
-		}
-		Tracer.trace("download action has found no media for key "
-				+ key.toString());
-
-		return null;
+	public ValueType getValueType() {
+		return ValueType.BLOB;
 	}
 }

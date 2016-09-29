@@ -39,8 +39,8 @@ public class Upload extends UpOrDownload {
 	@Override
 	protected Media load(String key, ServiceContext ctx) {
 		if (key == null) {
-			Tracer.trace("Upload action has no work as field "
-					+ this.keyField + " has no value.");
+			Tracer.trace("Upload action has no work as field " + this.keyField
+					+ " has no value.");
 			return null;
 		}
 		/*
@@ -54,9 +54,9 @@ public class Upload extends UpOrDownload {
 			Media newMedia = MediaManager.saveToStorage(media);
 			if (newMedia != null) {
 				/*
-				 * discard this media from its storage
+				 * discard this media from its temp storage
 				 */
-				media.discard();
+				MediaManager.removeFromTempArea(media.getKey());
 				return newMedia;
 			}
 			ctx.addInternalMessage(MessageType.ERROR,

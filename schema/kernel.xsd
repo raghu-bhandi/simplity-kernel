@@ -41,6 +41,12 @@
 							<xs:element
 								name="textDataType"
 								type="Ttype" />
+							<xs:element
+								name="clobDataType"
+								type="Ctype" />
+							<xs:element
+								name="blobDataType"
+								type="Ctype" />
 						</xs:choice>
 					</xs:complexType>
 				</xs:element>
@@ -143,6 +149,10 @@
 			use="required"
 		>
 		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="Ctype">
+		<xs:attributeGroup ref="commonAttributes" />
 	</xs:complexType>
 
 	<xs:complexType name="Ntype">
@@ -754,7 +764,8 @@
 						than the default, use this attribute for on-the-fly services for
 						this record to use the right schema. Note that this attriute is
 						not used for regular service. You have to use schemaName attriute
-						at the service level there</xs:documentation>
+						at the service level there
+					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 		</xs:complexType>
@@ -1027,6 +1038,29 @@
 								minOccurs="0"
 								maxOccurs="1" />
 						</xs:sequence>
+						<xs:attribute
+							name="attachmentFields"
+							type="xs:string"
+							use="optional"
+						>
+							<xs:annotation>
+								<xs:documentation>Comma separated list if fields that carry the
+									key for attachment files. These MUST be included in the input
+									fields. This is an additional info about those fields for us to
+									manage the attachment</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute
+							name="attachmentColumns"
+							type="xs:string"
+							use="optional"
+						>
+							<xs:annotation>
+								<xs:documentation>Refer to attachmentFields. This is for columns
+									in sheet. use sheetName.columnName to qualify.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
 					</xs:complexType>
 				</xs:element>
 				<xs:element
@@ -1057,6 +1091,19 @@
 								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
+						<xs:attribute
+							name="attachmentFields"
+							type="xs:string"
+							use="optional"
+						>
+							<xs:annotation>
+								<xs:documentation>Comma separated list if fields that carry the
+									key for attachment files. These MUST be included in the input
+									fields. This is an additional info about those fields for us to
+									manage the attachment</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+
 					</xs:complexType>
 				</xs:element>
 				<xs:element
@@ -2152,7 +2199,8 @@
 			use="required"
 		>
 			<xs:annotation>
-				<xs:documentation>Field that has the key to the file to be up/down loaded
+				<xs:documentation>Field that has the key to the file to be up/down
+					loaded
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2162,7 +2210,8 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>Field to which the file name is to be copied after up/down oading the file. This is optional.
+				<xs:documentation>Field to which the file name is to be copied after
+					up/down oading the file. This is optional.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2172,7 +2221,8 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>Field to which mime-type of the file is to be copied after up/down oading the file. This is optional.
+				<xs:documentation>Field to which mime-type of the file is to be
+					copied after up/down oading the file. This is optional.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2182,7 +2232,9 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>In case this action is to be rpeated for each row of a sheet. key,file and mime type attributes are used as column names.
+				<xs:documentation>In case this action is to be rpeated for each row
+					of a sheet. key,file and mime type attributes are used as column
+					names.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2615,7 +2667,9 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>feature for iterfacing with infrastructue systems for storing and retrieving attachments/files/media. Refer to org.simplity.MediaStorage class
+					<xs:documentation>feature for iterfacing with infrastructue systems
+						for storing and retrieving attachments/files/media. Refer to
+						org.simplity.MediaStorage class
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2625,7 +2679,8 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>Simplity povides a runimentory storage/retrieval system that uses folder. Use this if this suits your needs.
+					<xs:documentation>Simplity povides a runimentory storage/retrieval
+						system that uses folder. Use this if this suits your needs.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>

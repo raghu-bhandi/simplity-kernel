@@ -104,6 +104,12 @@ public class Messages {
 	public static final String SUCCESS = "kernel.success";
 
 	/**
+	 * client has sent an invalid attachment key. Client should send only the
+	 * key that it woudl have received after a successful upload of attachment
+	 */
+	public static final String INVALID_ATTACHMENT_KEY = "kernel.invalidAttachmentKey";
+
+	/**
 	 * get message text for this message after formatting based on parameters
 	 *
 	 * @param messageName

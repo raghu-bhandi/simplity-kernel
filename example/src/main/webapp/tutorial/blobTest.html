@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Blob Clob Test</title>
+<script type="text/javascript" src="../js/simplity.js"></script>
+<script type="text/javascript">
+	var getAllRows = function() {
+		Simplity.getResponse('filter_tutorial.blobTest');
+	};
+	/*
+	 * global fields for file names and keys
+	 */
+	var textFileKey = null;
+	var textFile = null;
+	var byteFileKey = null;
+	var byteFile = null;
+
+	var textFileChanged = function(ele) {
+		if (textFileKey != null) {
+			unloadFile(textFileKey);
+			textFileKey = null;
+		}
+		textFile = null;
+		document.getElementById('textFileProgress').innerHTML = '';
+		var files = ele.files;
+		if (files && files.length) {
+			textFile = files[0];
+		}
+	};
+
+	var byteFileChanged = function(ele) {
+		if (byteFileKey != null) {
+			unloadFile(byteFileKey);
+			byteFileKey = null;
+		}
+		byteFile = null;
+		document.getElementById('byteFileProgress').innerHTML = '';
+		var files = ele.files;
+		if (files && files.length) {
+			byteFile = files[0];
+		}
+	};
+
+	var preloadTextFile = function() {
+		if (!textFile) {
+			Simplity.showMessage("Please select a file before trying to upload..");
+			return;
+		}
+		Simplity
+				.uploadFile(
+						textFile,
+						function(key) {
+							textFileKey = key;
+							document.getElementById('textFileProgress').innerHTML = "Successfully loaded with key = "
+									+ key;
+						},
+						function(progress) {
+							Simplity.log("progress called with " + progress);
+							document.getElementById('textFileProgress').innerHTML = "Loaded "
+									+ progress + " %";
+						});
+	}
+	var preloadByteFile = function() {
+		if (!byteFile) {
+			Simplity.showMessage("Please select a file before trying to upload..");
+			return;
+		}
+		Simplity
+				.uploadFile(
+						byteFile,
+						function(key) {
+							byteFileKey = key;
+							document.getElementById('byteFileProgress').innerHTML = "Successfully loaded with key = "
+									+ key;
+						},
+						function(progress) {
+							document.getElementById('byteFileProgress').innerHTML = "Loaded "
+									+ progress + " %";
+						});
+	}
+	var saveClicked = function() {
+		if (!textFile || !byteFile) {
+			Simplity
+					.showMessage("Please upload text file as well as binary fiel before submitting for save.");
+			return;
+		}
+		var code = document.getElementById('code').value;
+		if(!code){
+			Simplity.showMessage('Select a unique code with which this row is to be saved');
+			return;
+		}
+
+		if (!textFileKey || !byteFileKey) {
+			Simplity
+					.showMessage("Looks lke the upload has failed, or is still in progress. Please submit after files are successfully loaded.");
+			return;
+		}
+
+		var data = {
+			textFile : textFileKey,
+			textFileName : textFile.name,
+			byteFile : byteFileKey,
+			byteFileName : byteFile.name,
+			officeCode:code,
+			_saveAction:'add'
+		};
+		Simplity.getResponse('save_tutorial.blobTest', JSON
+				.stringify(data), function() {
+		});
+	};
+</script>
+</head>
+<body onload="getAllRows()">
+	<h1>Clob Blob Demo</h1>
+	<form>
+		<table border="1">
+			<caption>Existing Entries</caption>
+			<thead>
+				<tr>
+					<th>Id</th>
+					<th>Text File Name</th>
+					<th>&nbsp;</th>
+					<th>Binary FileName</th>
+					<th>&nbsp;</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr id="__blobTest__" style="display: none;">
+					<td>__id__</td>
+					<td>__textFileName__</td>
+					<td><a href="a._f?download=__textFile__">download</a></td>
+					<td>__byteFileName__</td>
+					<td><a href="a._f?download=__byteFile__">download</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<br /> <br />
+		<h2>Add a row</h2>
+		<span>Row Id</span><input type="text" id="code"/><br/>
+		<span>Select Text file</span> <input type="file"
+			onchange="textFileChanged(this)" />
+		<input type="button" onclick="preloadTextFile();" value="Pre-Load Text File"/>
+		<span id="textFileProgress"></span> <br />
+		<span>Select Binary File</span> <input type="file"
+			onchange="byteFileChanged(this)" />
+		<input type="button" onclick="preloadByteFile();" value="Pre-Load Binary File"/>
+		<span id="byteFileProgress"></span> <br />
+		<input type="button" onclick="saveClicked();" value="Create New Row" />
+	</form>
+</body>
+</html>

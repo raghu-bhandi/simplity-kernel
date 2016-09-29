@@ -81,21 +81,21 @@ public abstract class Value implements Serializable {
 	/**
 	 * value is anyway immutable. no need to create new instance
 	 */
-	public static final Value VALUE_TRUE = new BooleanValue(true);
+	public static final BooleanValue VALUE_TRUE = new BooleanValue(true);
 
 	/**
 	 * value is anyway immutable. no need to create new instance
 	 */
-	public static final Value VALUE_FALSE = new BooleanValue(false);
+	public static final BooleanValue VALUE_FALSE = new BooleanValue(false);
 
 	/**
-	 * integral 0 is aso frequently used.
+	 * integral 0 is so frequently used.
 	 */
-	public static final Value VALUE_ZERO = new IntegerValue(0);
+	public static final IntegerValue VALUE_ZERO = new IntegerValue(0);
 	/**
 	 * empty string.
 	 */
-	public static final Value VALUE_EMPTY = new TextValue("");
+	public static final TextValue VALUE_EMPTY = new TextValue("");
 	/*
 	 * why keep producing null/unknown values? cache these immutable object
 	 * instances
@@ -103,24 +103,32 @@ public abstract class Value implements Serializable {
 	/**
 	 * boolean unknown value
 	 */
-	public static final Value UNNOWN_BOOLEAN_VALUE = new BooleanValue();
+	public static final BooleanValue UNNOWN_BOOLEAN_VALUE = new BooleanValue();
 	/**
 	 * unknown date
 	 */
-	public static final Value UNKNOWN_DATE_VALUE = new DateValue();
+	public static final DateValue UNKNOWN_DATE_VALUE = new DateValue();
 	/**
 	 * unknown decimal
 	 */
-	public static final Value UNKNOWN_DECIMAL_VALUE = new DecimalValue();
+	public static final DecimalValue UNKNOWN_DECIMAL_VALUE = new DecimalValue();
 	/**
 	 * unknown integer
 	 */
-	public static final Value UNKNOWN_INTERGRAL_VALUE = new IntegerValue();
+	public static final IntegerValue UNKNOWN_INTERGRAL_VALUE = new IntegerValue();
 	/**
 	 * unknown text
 	 */
-	public static final Value UNKNOWN_TEXT_VALUE = new TextValue();
+	public static final TextValue UNKNOWN_TEXT_VALUE = new TextValue();
 
+	/**
+	 * unknown text
+	 */
+	public static final BlobValue UNKNOWN_BLOB_VALUE = new BlobValue();
+	/**
+	 * unknown text
+	 */
+	public static final ClobValue UNKNOWN_CLOB_VALUE = new ClobValue();
 	/**
 	 * true Boolean
 	 */
@@ -156,8 +164,26 @@ public abstract class Value implements Serializable {
 	 * @param textValue
 	 * @return an instance of Value for textValue.
 	 */
-	public static Value newTextValue(String textValue) {
+	public static TextValue newTextValue(String textValue) {
 		return new TextValue(textValue);
+	}
+
+	/**
+	 *
+	 * @param key
+	 * @return an instance of Value for textValue.
+	 */
+	public static BlobValue newBlobValue(String key) {
+		return new BlobValue(key);
+	}
+
+	/**
+	 *
+	 * @param key
+	 * @return an instance of Value for textValue.
+	 */
+	public static ClobValue newClobValue(String key) {
+		return new ClobValue(key);
 	}
 
 	/**
@@ -165,7 +191,7 @@ public abstract class Value implements Serializable {
 	 * @param integralValue
 	 * @return returns an instance of Value for integralValue
 	 */
-	public static Value newIntegerValue(long integralValue) {
+	public static IntegerValue newIntegerValue(long integralValue) {
 		if (integralValue == 0) {
 			return VALUE_ZERO;
 		}
@@ -177,7 +203,7 @@ public abstract class Value implements Serializable {
 	 * @param decimalValue
 	 * @return returns an instance of Value for decimalValue
 	 */
-	public static Value newDecimalValue(double decimalValue) {
+	public static DecimalValue newDecimalValue(double decimalValue) {
 		return new DecimalValue(decimalValue);
 	}
 
@@ -186,7 +212,7 @@ public abstract class Value implements Serializable {
 	 * @param booleanValue
 	 * @return returns an instance of Value for booleanValue
 	 */
-	public static Value newBooleanValue(boolean booleanValue) {
+	public static BooleanValue newBooleanValue(boolean booleanValue) {
 		if (booleanValue) {
 			return Value.VALUE_TRUE;
 		}
@@ -198,7 +224,7 @@ public abstract class Value implements Serializable {
 	 * @param milliseconds
 	 * @return returns an instance of Value for dateValue
 	 */
-	public static Value newDateValue(long milliseconds) {
+	public static DateValue newDateValue(long milliseconds) {
 		return new DateValue(milliseconds);
 	}
 
@@ -207,7 +233,7 @@ public abstract class Value implements Serializable {
 	 * @param date
 	 * @return returns an instance of Value for date
 	 */
-	public static Value newDateValue(Date date) {
+	public static DateValue newDateValue(Date date) {
 		return new DateValue(date.getTime());
 	}
 
@@ -245,6 +271,10 @@ public abstract class Value implements Serializable {
 				return new IntegerValue(Long.parseLong(text));
 			case TEXT:
 				return new TextValue(text);
+			case BLOB:
+				return new BlobValue(text);
+			case CLOB:
+				return new ClobValue(text);
 			default:
 				return new TextValue(text);
 			}
@@ -260,6 +290,8 @@ public abstract class Value implements Serializable {
 	 */
 	public static Value newUnknownValue(ValueType valueType) {
 		switch (valueType) {
+		case TEXT:
+			return Value.UNKNOWN_TEXT_VALUE;
 		case BOOLEAN:
 			return Value.UNNOWN_BOOLEAN_VALUE;
 		case DATE:
@@ -268,6 +300,10 @@ public abstract class Value implements Serializable {
 			return Value.UNKNOWN_DECIMAL_VALUE;
 		case INTEGER:
 			return Value.UNKNOWN_INTERGRAL_VALUE;
+		case BLOB:
+			return Value.UNKNOWN_BLOB_VALUE;
+		case CLOB:
+			return Value.UNKNOWN_CLOB_VALUE;
 		default:
 			return Value.UNKNOWN_TEXT_VALUE;
 		}
@@ -530,7 +566,8 @@ public abstract class Value implements Serializable {
 	 * a Value
 	 *
 	 * @param object
-	 * @return Value of this object based on the object type
+	 * @return Value of this object based on the object type that can be best
+	 *         guessed
 	 */
 	public static Value parseObject(Object object) {
 		if (object == null) {
@@ -565,14 +602,5 @@ public abstract class Value implements Serializable {
 			return newTextValue(val);
 		}
 		return newDateValue(date);
-	}
-
-	/**
-	 * @param object
-	 * @param valueType
-	 * @return Value of this object based on the object type
-	 */
-	public static Value parseObject(Object object, ValueType valueType) {
-		return valueType.parseObject(object);
 	}
 }

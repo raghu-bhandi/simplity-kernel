@@ -26,32 +26,34 @@ import java.io.InputStream;
 import org.simplity.kernel.ApplicationError;
 
 /**
- * An assistant to MessageManager who can store/retrieve file/media in a
+ * An assistant to AttachmentManager who can store/retrieve file/media in a
  * permanent way. We provide a simple assistant who uses a designated folder on
  * the file system for this.
  *
  * @author simplity.org
  *
  */
-public interface MediaStorageAssistant {
+public interface AttachmentAssistant {
 
 	/**
-	 * store a media into corporate storage area. IMP : we DO NOT close stream.
+	 * store a file into corporate storage area. IMP : we DO NOT close stream.
 	 * We believe the creator has to destroy it.
 	 *
 	 * @param inStream
 	 *            stream to read he media from. Kept open on return. Caller need
 	 *            to close it.
-	 * @param fileName
-	 *            name/label associated with this media/file, or null
-	 * @param mimeType
-	 *            http standard mime type, or null
-	 * @return media that represents stored file/media. media.getKey() would be
-	 *         unique key that is to be used to retrive this later
-	 * @throws ApplicationError
-	 *             in case any set-up error
+	 * @return key/token that can be used to retrive this attachment any time.
 	 */
-	public Media store(InputStream inStream, String fileName, String mimeType);
+	public String store(InputStream inStream);
+
+	/**
+	 * store a file into corporate storage area from its temp-area
+	 *
+	 * @param tempKey
+	 *            key to temp-storage area
+	 * @return key/token that can be used to retrieve this attachment any time.
+	 */
+	public String store(String tempKey);
 
 	/**
 	 * retrieve a media file from central storage
@@ -63,7 +65,7 @@ public interface MediaStorageAssistant {
 	 * @throws ApplicationError
 	 *             if storageKey is not valid
 	 */
-	public Media retrieve(String storageKey);
+	public String retrieve(String storageKey);
 
 	/**
 	 * remove a media file from central storage
@@ -72,5 +74,4 @@ public interface MediaStorageAssistant {
 	 *
 	 */
 	public void remove(String storageKey);
-
 }

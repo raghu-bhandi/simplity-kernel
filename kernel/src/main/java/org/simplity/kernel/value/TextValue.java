@@ -38,7 +38,7 @@ public class TextValue extends Value {
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	private final String value;
+	protected final String value;
 
 	/**
 	 *
@@ -72,10 +72,7 @@ public class TextValue extends Value {
 
 	@Override
 	protected boolean equalValue(Value otherValue) {
-		if (otherValue instanceof TextValue) {
-			return ((TextValue) otherValue).value.equalsIgnoreCase(this.value);
-		}
-		return false;
+		return this.value.equalsIgnoreCase(this.value);
 	}
 
 	@Override

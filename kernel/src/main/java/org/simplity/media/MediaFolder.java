@@ -22,14 +22,13 @@
 package org.simplity.media;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.service.ServiceProtocol;
 
@@ -66,45 +65,6 @@ public class MediaFolder implements MediaStorageAssistant {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.simplity.kernel.MediaStoreRoom#store(org.simplity.kernel.MediaInput)
-	 */
-	@Override
-	public Media store(Media media) {
-		String key = UUID.randomUUID().toString();
-		File folder = this.getFolder(key, true);
-		String fileName = media.getFileName();
-		if (fileName == null) {
-			fileName = ServiceProtocol.DEFAULT_FILE_NAME;
-		}
-		String mimeType = media.getMimeType();
-		File file = this.getFile(folder, fileName, mimeType);
-		OutputStream outStream;
-
-		try {
-			outStream = new FileOutputStream(file);
-		} catch (FileNotFoundException e) {
-			throw new ApplicationError(e,
-					"Error while creating outStream from file "
-							+ file.getAbsolutePath());
-		}
-
-		try {
-			media.streamOut(outStream);
-			return new MediaFile(key, file, fileName, mimeType);
-		} finally {
-
-			try {
-				outStream.close();
-			} catch (IOException ignore) {
-				//
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.simplity.media.MediaStorageAssistant#store(java.io.InputStream,
 	 * java.lang.String, java.lang.String)
 	 */
@@ -118,7 +78,7 @@ public class MediaFolder implements MediaStorageAssistant {
 		}
 		File file = this.getFile(folder, nameToUse, mimeType);
 		FileManager.streamToFile(file, inStream);
-		return new MediaFile(key, file, nameToUse, mimeType);
+		return new Media(key, fileName, mimeType);
 	}
 
 	/*
@@ -142,7 +102,23 @@ public class MediaFolder implements MediaStorageAssistant {
 			mime = fileName.substring(idx + 1);
 			fileName = fileName.substring(0, idx);
 		}
-		return new MediaFile(storageKey, file, fileName, mime);
+		InputStream in = null;
+		try {
+			in = new FileInputStream(file);
+			return MediaManager.saveToTempArea(in, fileName, mime);
+		} catch (FileNotFoundException e) {
+			Tracer.trace("Unable to write media to temp storage fileName="
+					+ fileName + " and mimeType=" + mime);
+			return null;
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
 	}
 
 	/**
@@ -190,5 +166,18 @@ public class MediaFolder implements MediaStorageAssistant {
 	 */
 	public String getRootPath() {
 		return this.storageRoot.getPath();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.media.MediaStorageAssistant#discard(java.lang.String)
+	 */
+	@Override
+	public void remove(String storageKey) {
+		File folder = this.getFolder(storageKey, false);
+		if (folder.exists()) {
+			folder.delete();
+		}
 	}
 }

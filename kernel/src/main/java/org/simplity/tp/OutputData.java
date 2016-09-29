@@ -50,12 +50,35 @@ public class OutputData {
 	String[] sessionFields;
 
 	/**
+	 * comma separated list of field names that carry key to attachments. these
+	 * are processed as per attachmentManagement, and revised key is replaced as
+	 * the field-value
+	 */
+	String[] attachmentFields;
+	/**
+	 * comma separated list of column names in the form
+	 * sheetName.columnName,sheetName1.columnName2....
+	 */
+	String[] attachmentColumns;
+
+	/**
 	 * set response and session parameters
 	 *
 	 * @param ctx
 	 * @param outData
 	 */
 	public void setResponse(ServiceContext ctx, ServiceData outData) {
+
+		/*
+		 * extract attachments if required
+		 */
+		if (this.attachmentFields != null) {
+			InputData.storeFieldAttaches(this.attachmentFields, ctx, false);
+		}
+
+		if (this.attachmentColumns != null) {
+			InputData.storeColumnAttaches(this.attachmentColumns, ctx, false);
+		}
 		/**
 		 * session data if any
 		 */

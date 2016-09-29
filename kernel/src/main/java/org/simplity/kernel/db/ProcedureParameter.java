@@ -203,7 +203,7 @@ public class ProcedureParameter {
 			 * it is a simple primitive value
 			 */
 			Value value = inputFields.getValue(this.name);
-			if (value == null) {
+			if (value == null || Value.isNull(value)) {
 				value = this.defaultValueObjet;
 			}
 			if (value == null) {
@@ -215,7 +215,7 @@ public class ProcedureParameter {
 				stmt.setNull(this.myPosn, this.getValueType().getSqlType());
 				return true;
 			}
-			stmt.setObject(this.myPosn, value.getObject());
+			value.setToStatement(stmt, this.myPosn);
 			return true;
 		}
 		/*
@@ -490,29 +490,22 @@ public class ProcedureParameter {
 		if (this.inOutType == InOutType.INPUT) {
 			return;
 		}
-		Object value = stmt.getObject(this.myPosn);
-		if (value == null) {
-			Tracer.trace("Value for parameter " + this.name
-					+ " is returned as null from stored procedure");
-			return;
-		}
+
 		if (this.recordName == null && this.isArray == false) {
-			/*
-			 * Handle simple case first.
-			 */
-			Value val = Value.parseObject(value, this.getValueType());
-			outputFields.setValue(this.name, val);
+			Value value = this.getValueType().extractFromSp(stmt, this.myPosn);
+			outputFields.setValue(this.name, value);
 			return;
 		}
+		Object object = stmt.getObject(this.myPosn);
 		DataSheet ds;
 		if (this.isArray) {
 			if (this.recordName == null) {
-				ds = this.arrayToDs(value);
+				ds = this.arrayToDs(object);
 			} else {
-				ds = this.structsToDs(value);
+				ds = this.structsToDs(object);
 			}
 		} else {
-			ds = this.StructToDs(value);
+			ds = this.StructToDs(object);
 		}
 		ctx.putDataSheet(this.name, ds);
 	}
@@ -550,7 +543,7 @@ public class ProcedureParameter {
 		Value[] row = new Value[struct.length];
 		int col = 0;
 		for (Object val : struct) {
-			row[col] = Value.parseObject(val, types[col]);
+			row[col] = types[col].parseObject(val);
 			col++;
 		}
 		return row;

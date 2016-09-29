@@ -21,14 +21,22 @@
  */
 package org.simplity.kernel.value;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.Reader;
+import java.sql.Blob;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
+import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.DateUtil;
+import org.simplity.kernel.util.JsonUtil;
 
 /**
  * basic type of values used to represent data values in application.
@@ -40,61 +48,11 @@ public enum ValueType {
 	/**
 	 * textual
 	 */
-	TEXT(Types.VARCHAR, '0', "VARCHAR", "_text") {
+	TEXT(Types.VARCHAR, "VARCHAR", "_text") {
 
 		@Override
 		public void toJson(String value, StringBuilder json) {
-			if (value == null || value.length() == 0) {
-				json.append("\"\"");
-				return;
-			}
-
-			char lastChar = 0;
-			String hhhh;
-
-			json.append('"');
-			for (char c : value.toCharArray()) {
-				switch (c) {
-				case '\\':
-				case '"':
-					json.append('\\');
-					json.append(c);
-					break;
-				case '/':
-					if (lastChar == '<') {
-						json.append('\\');
-					}
-					json.append(c);
-					break;
-				case '\b':
-					json.append("\\b");
-					break;
-				case '\t':
-					json.append("\\t");
-					break;
-				case '\n':
-					json.append("\\n");
-					break;
-				case '\f':
-					json.append("\\f");
-					break;
-				case '\r':
-					json.append("\\r");
-					break;
-				default:
-					if (c < ' ' || (c >= '\u0080' && c < '\u00a0')
-							|| (c >= '\u2000' && c < '\u2100')) {
-						json.append("\\u");
-						hhhh = Integer.toHexString(c);
-						json.append("0000", 0, 4 - hhhh.length());
-						json.append(hhhh);
-					} else {
-						json.append(c);
-					}
-				}
-				lastChar = c;
-			}
-			json.append('"');
+			JsonUtil.appendQoutedText(value, json);
 		}
 
 		@Override
@@ -127,25 +85,11 @@ public enum ValueType {
 		public Value fromObject(Object dbObject) {
 			return Value.newTextValue(dbObject.toString());
 		}
-
-		@Override
-		public Value[] toValues(Object[] arr) {
-			Tracer.trace("Going to convert " + arr.length + " objects into "
-					+ this.name());
-			int n = arr.length;
-			Value[] result = new Value[n];
-			for (int i = 0; i < n; i++) {
-				Object obj = arr[i];
-				String val = obj == null ? "null" : obj.toString();
-				result[i] = Value.newTextValue(val);
-			}
-			return result;
-		}
 	},
 	/**
 	 * whole numbers with no fraction
 	 */
-	INTEGER(Types.BIGINT, '1', "BIGINT", "_number") {
+	INTEGER(Types.BIGINT, "BIGINT", "_number") {
 		@Override
 		public Value extractFromRs(ResultSet resultSet, int idx)
 				throws SQLException {
@@ -168,7 +112,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 */
 		@Override
@@ -201,7 +145,7 @@ public enum ValueType {
 	/**
 	 * number with possible fraction
 	 */
-	DECIMAL(Types.DECIMAL, '2', "DECIMAL", "_decimal") {
+	DECIMAL(Types.DECIMAL, "DECIMAL", "_decimal") {
 		@Override
 		public Value extractFromRs(ResultSet resultSet, int idx)
 				throws SQLException {
@@ -224,7 +168,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 */
 		@Override
@@ -259,7 +203,7 @@ public enum ValueType {
 	 * true-false we would have loved to call it binary, but unfortunately that
 	 * has different connotation :-)
 	 */
-	BOOLEAN(Types.BOOLEAN, '3', "BOOLEAN", "_boolean") {
+	BOOLEAN(Types.BOOLEAN, "BOOLEAN", "_boolean") {
 		@Override
 		public Value extractFromRs(ResultSet resultSet, int idx)
 				throws SQLException {
@@ -294,7 +238,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 */
 		@Override
@@ -338,7 +282,7 @@ public enum ValueType {
 	/**
 	 * date, possibly with specific time of day
 	 */
-	DATE(Types.DATE, '4', "DATE", "_dateTime") {
+	DATE(Types.DATE, "DATE", "_dateTime") {
 		@Override
 		public Value extractFromRs(ResultSet resultSet, int idx)
 				throws SQLException {
@@ -361,7 +305,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 */
 		@Override
@@ -393,34 +337,162 @@ public enum ValueType {
 			return result;
 		}
 
+	},
+	/**
+	 * clob : a wrapper on text specifically for RDBMS clob field. Behaviour
+	 * mimics text except for RDBMS I/O
+	 */
+	CLOB(Types.CLOB, "CLOB", "_clob") {
+
+		/*
+		 * (non-Javadoc) a field of this data type actually contains a text
+		 * value that is key to the CLOB value stored elsewhere. Hence it is
+		 * same as text
+		 * 
+		 * @see org.simplity.kernel.value.ValueType#toJson(java.lang.String,
+		 * java.lang.StringBuilder)
+		 */
+		@Override
+		public void toJson(String value, StringBuilder json) {
+			JsonUtil.appendQoutedText(value, json);
+		}
+
+		/*
+		 * (non-Javadoc) We extract the content and save it to a temp file. We
+		 * return the key to this storage as value
+		 * 
+		 * @see
+		 * org.simplity.kernel.value.ValueType#extractFromRs(java.sql.ResultSet,
+		 * int)
+		 */
+		@Override
+		public Value extractFromRs(ResultSet resultSet, int posn)
+				throws SQLException {
+			Clob clob = resultSet.getClob(posn);
+			if (resultSet.wasNull()) {
+				clob = null;
+			}
+			return this.saveIt(clob);
+		}
+
+		@Override
+		public Value extractFromSp(CallableStatement stmt, int posn)
+				throws SQLException {
+			Clob clob = stmt.getClob(posn);
+			if (stmt.wasNull()) {
+				clob = null;
+			}
+			return this.saveIt(clob);
+		}
+
+		@Override
+		public Value fromObject(Object dbObject) {
+			return Value.newClobValue(dbObject.toString());
+		}
+
+		/*
+		 * save clob into file
+		 */
+		private Value saveIt(Clob clob) throws SQLException {
+			if (clob == null) {
+				return Value.newUnknownValue(CLOB);
+			}
+			Reader reader = clob.getCharacterStream();
+			try {
+				File file = FileManager.createTempFile(reader);
+				if (file == null) {
+					throw new ApplicationError(
+							"Unable to save clob value to a tmp storage.");
+				}
+				return Value.newClobValue(file.getName());
+			} finally {
+				try {
+					reader.close();
+				} catch (Exception e) {
+					//
+				}
+			}
+		}
+	},
+	/**
+	 * Blob : this is a sub-class of text that behaves differently ONLY when
+	 * dealing with RDBMS i/o
+	 */
+	BLOB(Types.BLOB, "BLOB", "_blob") {
+
+		@Override
+		public void toJson(String value, StringBuilder json) {
+			JsonUtil.appendQoutedText(value, json);
+		}
+
+		@Override
+		public Value extractFromRs(ResultSet resultSet, int posn)
+				throws SQLException {
+			Blob blob = resultSet.getBlob(posn);
+			if (resultSet.wasNull()) {
+				return this.saveIt(null);
+			}
+			return this.saveIt(blob);
+		}
+
+		@Override
+		public Value extractFromSp(CallableStatement stmt, int posn)
+				throws SQLException {
+			Blob blob = stmt.getBlob(posn);
+			if (stmt.wasNull()) {
+				return this.saveIt(null);
+			}
+			return this.saveIt(blob);
+		}
+
+		@Override
+		public Value fromObject(Object dbObject) {
+			return Value.newBlobValue(dbObject.toString());
+		}
+
+		/*
+		 * save blob into file
+		 */
+		private Value saveIt(Blob blob) throws SQLException {
+			if (blob == null) {
+				return Value.newUnknownValue(BLOB);
+			}
+			InputStream stream = blob.getBinaryStream();
+			try {
+				File file = FileManager.createTempFile(stream);
+				if (file == null) {
+					throw new ApplicationError(
+							"Unable to save blob value to a tmp storage.");
+				}
+				return Value.newBlobValue(file.getName());
+			} finally {
+				try {
+					stream.close();
+				} catch (Exception e) {
+					//
+				}
+			}
+		}
 	};
 
-	protected static final String QUOTE_STR = "\"";
-	protected static final char QUOTE = '"';
-	protected static final String EMPTY = "\"\"";
-	protected static final String ESCAPED_QUOTE = "\\\"\\\"";
-	protected static final String TRUE = "true";
-	protected static final String FALSE = "false";
 	protected static final String NULL = "null";
 	protected static final char ZERO = '0';
 	protected static final char N = 'N';
 	protected static char N1 = 'n';
 
 	protected final int sqlType;
-	protected final char typePrefix;
 	protected final String sqlText;
 	protected final String defaultDataType;
 
-	ValueType(int sqlType, char typePrefix, String sqlText, String dt) {
+	ValueType(int sqlType, String sqlText, String dt) {
 		this.sqlType = sqlType;
-		this.typePrefix = typePrefix;
 		this.sqlText = sqlText;
 		this.defaultDataType = dt;
 	}
 
 	/**
 	 *
-	 * @return sql type that can be used to register a parameter o fthis type
+	 * @return sql type that can be used to register a parameter of this type
 	 */
 	public int getSqlType() {
 		return this.sqlType;
@@ -477,18 +549,21 @@ public enum ValueType {
 	}
 
 	/**
-	 *
-	 * @return char prefix that indicates the value type
-	 */
-	public char getTypePrefix() {
-		return this.typePrefix;
-	}
-
-	/**
 	 * @param arr
 	 * @return value list for the array object
 	 */
-	public abstract Value[] toValues(Object[] arr);
+	public Value[] toValues(Object[] arr) {
+		Tracer.trace("Going to convert " + arr.length + " objects into "
+				+ this.name());
+		int n = arr.length;
+		Value[] result = new Value[n];
+		for (int i = 0; i < n; i++) {
+			Object obj = arr[i];
+			String val = obj == null ? "null" : obj.toString();
+			result[i] = this.fromObject(val);
+		}
+		return result;
+	}
 
 	/**
 	 * @param dbObject

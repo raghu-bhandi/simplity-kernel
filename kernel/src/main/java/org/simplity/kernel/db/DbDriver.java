@@ -303,6 +303,7 @@ public class DbDriver {
 
 		setConnection(null, conString);
 		if (schemaDetails != null) {
+			Tracer.trace("Checking connection string for additional schemas");
 			otherConStrings = new HashMap<String, String>();
 			for (SchemaDetail sd : schemaDetails) {
 				if (sd.schemaName == null || sd.connectionString == null) {
@@ -376,8 +377,9 @@ public class DbDriver {
 		} catch (Exception e) {
 			throw new ApplicationError(
 					e,
-					" Database set up using connection string failed after successfully setting the driver "
-							+ conString);
+					" Database set up using connection string failed after successfully setting the driver for "
+							+ (schema == null ? " default schema"
+									: (" schema " + schema)));
 		}
 	}
 
@@ -454,7 +456,7 @@ public class DbDriver {
 	 * @param schema
 	 * @return connection
 	 */
-	private static Connection getConnection(DbAccessType acType, String schema) {
+	static Connection getConnection(DbAccessType acType, String schema) {
 		/*
 		 * set sch to an upper-cased schema, but only if it is non-null and
 		 * different from default schema
@@ -924,7 +926,7 @@ public class DbDriver {
 					ValueType[] outputTypes = outputSheet.getValueTypes();
 					ResultSet rs = stmt.getResultSet();
 					while (rs.next()) {
-						outputSheet.addRow(this.getParams(rs, outputTypes));
+						outputSheet.addRow(getParams(rs, outputTypes));
 						result++;
 					}
 					rs.close();
@@ -968,7 +970,7 @@ public class DbDriver {
 	 *            if we are managing transaction, true implies commit, and false
 	 *            implies roll-back
 	 */
-	private static void closeConnection(Connection con, DbAccessType accType,
+	static void closeConnection(Connection con, DbAccessType accType,
 			boolean allOk) {
 		try {
 			Tracer.trace("Going to close a connection of type " + accType
@@ -1027,7 +1029,7 @@ public class DbDriver {
 		ResultSet rs = stmt.executeQuery();
 		int result = 0;
 		while (rs.next()) {
-			outSheet.addRow(this.getParams(rs, outputTypes));
+			outSheet.addRow(getParams(rs, outputTypes));
 			result++;
 		}
 		rs.close();
@@ -1048,7 +1050,7 @@ public class DbDriver {
 		ResultSet rs = stmt.executeQuery();
 		int result = 0;
 		if (rs.next()) {
-			outSheet.addRow(this.getParams(rs, outSheet.getValueTypes()));
+			outSheet.addRow(getParams(rs, outSheet.getValueTypes()));
 
 			result = 1;
 		}
@@ -1109,7 +1111,7 @@ public class DbDriver {
 				: outputTypes;
 		int nbr = 0;
 		while (rs.next()) {
-			iterator.workWithARow(this.getParams(rs, types));
+			iterator.workWithARow(getParams(rs, types));
 			nbr++;
 		}
 		rs.close();
@@ -1170,7 +1172,7 @@ public class DbDriver {
 	 * @param values
 	 * @throws SQLException
 	 */
-	private Value[] getParams(ResultSet rs, ValueType[] types)
+	private static Value[] getParams(ResultSet rs, ValueType[] types)
 			throws SQLException {
 		Value[] values = new Value[types.length];
 		for (int i = 0; i < types.length; i++) {
@@ -1180,15 +1182,16 @@ public class DbDriver {
 	}
 
 	/**
-	 * this is the re-factored method. To be tested thoroughly before making it
-	 * live
+	 * method to be used when the parameters to be extracted are not in the
+	 * right order, or we are not extracting each of them, and teh caller would
+	 * like to specify the position.
 	 *
 	 * @param stmt
 	 * @param values
 	 * @throws SQLException
 	 */
-	private Value[] getParams1(ResultSet rs, ValueType[] types, int[] positions)
-			throws SQLException {
+	private static Value[] getParams(ResultSet rs, ValueType[] types,
+			int[] positions) throws SQLException {
 		Value[] values = new Value[types.length];
 		for (int i = 0; i < types.length; i++) {
 			values[i] = types[i].extractFromRs(rs, positions[i]);
@@ -1284,8 +1287,13 @@ public class DbDriver {
 	 * @return data sheet that has attributes for tables/views. Null if no
 	 *         output
 	 */
-	public DataSheet getTables(String schemaName, String tableName) {
-		return this.getMetaSheet(schemaName, tableName, TABLE_IDX);
+	public static DataSheet getTables(String schemaName, String tableName) {
+		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
+		try {
+			return getMetaSheet(con, schemaName, tableName, TABLE_IDX);
+		} finally {
+			closeConnection(con, DbAccessType.READ_ONLY, true);
+		}
 	}
 
 	/**
@@ -1297,8 +1305,13 @@ public class DbDriver {
 	 *            can be null to get all tables or patern, or actual names
 	 * @return sheet with one row per column. Null if no columns.
 	 */
-	public DataSheet getTableColumns(String schemaName, String tableName) {
-		return this.getMetaSheet(schemaName, tableName, COL_IDX);
+	public static DataSheet getTableColumns(String schemaName, String tableName) {
+		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
+		try {
+			return getMetaSheet(con, schemaName, tableName, COL_IDX);
+		} finally {
+			closeConnection(con, DbAccessType.READ_ONLY, true);
+		}
 	}
 
 	/**
@@ -1308,8 +1321,13 @@ public class DbDriver {
 	 * @return sheet with one row per column. Null if this table does not exist,
 	 *         or something went wrong!!
 	 */
-	public DataSheet getPrimaryKeys(String schemaName) {
-		return this.getMetaSheet(schemaName, null, KEY_IDX);
+	public static DataSheet getPrimaryKeys(String schemaName) {
+		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
+		try {
+			return getMetaSheet(con, schemaName, null, KEY_IDX);
+		} finally {
+			closeConnection(con, DbAccessType.READ_ONLY, true);
+		}
 	}
 
 	/**
@@ -1321,23 +1339,29 @@ public class DbDriver {
 	 *            non-null
 	 * @return key column names
 	 */
-	public String[] getPrimaryKeysForTable(String schemaName, String tableName) {
+	public static String[] getPrimaryKeysForTable(String schemaName,
+			String tableName) {
 		if (tableName == null) {
 			Tracer.trace("getPrimaryKeysForTable() is for a specific table. If you wnat for all tables, use the getPrimaryKeys()");
 			return null;
 		}
-		DataSheet sheet = this.getMetaSheet(schemaName, tableName, KEY_IDX);
-		if (sheet == null) {
-			return null;
+		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
+		try {
+			DataSheet sheet = getMetaSheet(con, schemaName, tableName, KEY_IDX);
+			if (sheet == null) {
+				return null;
+			}
+			int n = sheet.length();
+			String[] result = new String[n];
+			for (int i = 0; i < n; i++) {
+				Value[] row = sheet.getRow(i);
+				int idx = (int) ((IntegerValue) row[1]).getLong() - 1;
+				result[idx] = row[0].toString();
+			}
+			return result;
+		} finally {
+			closeConnection(con, DbAccessType.READ_ONLY, true);
 		}
-		int n = sheet.length();
-		String[] result = new String[n];
-		for (int i = 0; i < n; i++) {
-			Value[] row = sheet.getRow(i);
-			int idx = (int) ((IntegerValue) row[1]).getLong() - 1;
-			result[idx] = row[0].toString();
-		}
-		return result;
 	}
 
 	/**
@@ -1349,8 +1373,14 @@ public class DbDriver {
 	 *            null, pattern or name
 	 * @return data sheet that has attributes of procedures. Null if no output
 	 */
-	public DataSheet getProcedures(String schemaName, String procedureName) {
-		return this.getMetaSheet(schemaName, procedureName, PROC_IDX);
+	public static DataSheet getProcedures(String schemaName,
+			String procedureName) {
+		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
+		try {
+			return getMetaSheet(con, schemaName, procedureName, PROC_IDX);
+		} finally {
+			closeConnection(con, DbAccessType.READ_ONLY, true);
+		}
 	}
 
 	/**
@@ -1364,7 +1394,12 @@ public class DbDriver {
 	 *         or something went wrong!!
 	 */
 	public DataSheet getProcedureParams(String schemaName, String procedureName) {
-		return this.getMetaSheet(schemaName, procedureName, PARAM_IDX);
+		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
+		try {
+			return getMetaSheet(con, schemaName, procedureName, PARAM_IDX);
+		} finally {
+			closeConnection(con, DbAccessType.READ_ONLY, true);
+		}
 	}
 
 	/**
@@ -1377,7 +1412,12 @@ public class DbDriver {
 	 * @return data sheet containing attributes of structures. Null of no output
 	 */
 	public DataSheet getStructs(String schemaName, String structName) {
-		return this.getMetaSheet(schemaName, structName, STRUCT_IDX);
+		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
+		try {
+			return getMetaSheet(con, schemaName, structName, STRUCT_IDX);
+		} finally {
+			closeConnection(con, DbAccessType.READ_ONLY, true);
+		}
 	}
 
 	/**
@@ -1390,14 +1430,23 @@ public class DbDriver {
 	 * @return sheet with one row per column. Null if no output
 	 */
 	public DataSheet getStructAttributes(String schemaName, String structName) {
-		return this.getMetaSheet(schemaName, structName, ATTR_IDX);
+		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
+		try {
+			return getMetaSheet(con, schemaName, structName, ATTR_IDX);
+		} finally {
+			closeConnection(con, DbAccessType.READ_ONLY, true);
+		}
 	}
 
-	private DataSheet getMetaSheet(String schemaName, String metaName,
-			int metaIdx) {
+	private static DataSheet getMetaSheet(Connection con, String schema,
+			String metaName, int metaIdx) {
 		ResultSet rs = null;
+		String schemaName = schema;
+		if (schema == null) {
+			schemaName = defaultSchema;
+		}
 		try {
-			DatabaseMetaData meta = this.connection.getMetaData();
+			DatabaseMetaData meta = con.getMetaData();
 			switch (metaIdx) {
 			case TABLE_IDX:
 				rs = meta.getTables(null, schemaName, metaName,
@@ -1430,7 +1479,7 @@ public class DbDriver {
 				DataSheet sheet = new MultiRowsSheet(META_COLUMNS[metaIdx],
 						META_TYPES[metaIdx]);
 				do {
-					sheet.addRow(this.getParams1(rs, META_TYPES[metaIdx],
+					sheet.addRow(getParams(rs, META_TYPES[metaIdx],
 							META_POSNS[metaIdx]));
 				} while (rs.next());
 				return sheet;
@@ -1510,7 +1559,7 @@ public class DbDriver {
 	 * @param schema
 	 *            name of schema to check for
 	 * @return true is this schema is defined as additional schema. False
-	 *         othrwise
+	 *         otherwise
 	 */
 	public static boolean isSchmeaDefined(String schema) {
 		if (schema == null) {

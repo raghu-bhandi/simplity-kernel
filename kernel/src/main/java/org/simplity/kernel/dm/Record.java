@@ -42,8 +42,6 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.data.SingleRowSheet;
-import org.simplity.kernel.db.DbAccessType;
-import org.simplity.kernel.db.DbClientInterface;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.value.IntegerValue;
@@ -2378,9 +2376,7 @@ public class Record implements Component {
 			if (nam == null) {
 				nam = this.name;
 			}
-			MetaHelper helper = new MetaHelper(nam);
-			DbDriver.workWithDriver(helper, DbAccessType.READ_ONLY);
-			DataSheet columns = helper.getColumns();
+			DataSheet columns = DbDriver.getTableColumns(null, nam);
 			int nbrCols = columns.length();
 			/*
 			 * as of now, we check only if names match. we will do more. refer
@@ -2447,44 +2443,5 @@ public class Record implements Component {
 	 */
 	public String getSchemaName() {
 		return this.schemaName;
-	}
-
-}
-
-/**
- * helper class that is used by record
- *
- * @author simplity.org
- *
- */
-class MetaHelper implements DbClientInterface {
-	private final String table;
-	private DataSheet columns;
-	private String[] keys;
-
-	MetaHelper(String table) {
-		this.table = table;
-	}
-
-	@Override
-	public boolean workWithDriver(DbDriver driver) {
-		String schemaName = null;
-		String tName = this.table;
-		int idx = tName.lastIndexOf('.');
-		if (idx > 0) {
-			schemaName = tName.substring(0, idx);
-			tName = tName.substring(idx + 1);
-		}
-		this.columns = driver.getTableColumns(schemaName, tName);
-		this.keys = driver.getPrimaryKeysForTable(schemaName, tName);
-		return true;
-	}
-
-	DataSheet getColumns() {
-		return this.columns;
-	}
-
-	String[] getKeys() {
-		return this.keys;
 	}
 }

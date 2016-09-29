@@ -70,7 +70,7 @@
 			name="userName"
 			maxLength="16"
 			regex="[a-zA-Z][\w.-_]{1,16}" />
-					
+		
 		<!-- integer -->
 		<numericDataType
 			name="id"
@@ -185,5 +185,11 @@
 			description="yes or no please"
 			valueList="0:Yes,1:No"
 			messageName="invalidYesNo" />
+		<clobDataType
+			name="clob"
+			description="CLOB data type as in RDBMS. However the field actually is a text-field in the sense that teh field contains the text-key for the CLOB content" />
+		<blobDataType
+			name="blob"
+			description="BLOB data type as in RDBMS. However the field actually is a text-field in the sense that teh field contains the text-key for the BLOB content" />
 	</components>
 </dataTypes>

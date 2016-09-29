@@ -22,15 +22,16 @@
  */
 package org.simplity.kernel.file;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
 
 import javax.servlet.ServletContext;
 
@@ -120,12 +121,11 @@ public class FileManager {
 						+ (myContext == null ? "non-" : "")
 						+ "web environmment");
 			}
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					in, "UTF-8"));
+			Reader reader = new InputStreamReader(in, "UTF-8");
 			StringBuilder sbf = new StringBuilder();
-			String line;
-			while ((line = reader.readLine()) != null) {
-				sbf.append(line);
+			int ch;
+			while ((ch = reader.read()) != -1) {
+				sbf.append(ch);
 			}
 			return sbf.toString();
 		} finally {
@@ -165,91 +165,109 @@ public class FileManager {
 	}
 
 	/**
-	 * if we use Java 1.6 or lower, closing stream in exception blocks is bit of
-	 * an irritation. Small utility for that
+	 * create an empty temp file
 	 *
-	 * @param stream
+	 * @return file, never null.
 	 */
-	public static void safelyClose(InputStream stream) {
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// cool
-			}
+	public static File createTempFile() {
+		File file = getNewFile();
+		try {
+			file.createNewFile();
+			Tracer.trace("Creatng and returning an empty file");
+			return file;
+		} catch (IOException e) {
+			throw new ApplicationError(e, MSG);
 		}
 	}
 
 	/**
-	 * create a temp file using the bytes in the stream. Note that we do not
-	 * close inStream, simply because we did not create it :-)
+	 * create a temp file using the bytes in the stream. We DO NOT close
+	 * inStream, based on the tradition creator-should-close after reading
 	 *
 	 * @param inStream
-	 *            from which to create the content of the file. null if a file
-	 *            is to be created, but with no content.
+	 *            from which to create the content of the file.
+	 *
 	 * @return file, in which this inStream is saved. file.getName() is unique,
 	 *         and can be used for next readFile() calls
 	 */
 	public static File createTempFile(InputStream inStream) {
-		long nano = System.nanoTime();
-		String fileName = "" + nano;
-		File file = new File(tempFolder, fileName);
-		/*
-		 * we believe following condition is rare, hence code is not optimized
-		 * for that
-		 */
-		if (file.exists()) {
-			/*
-			 * increase the digits and start incrementing. Only way this can
-			 * fail is when MAX_TRY processes simultaneously use this same
-			 * technique to create temp file at this same nano-second!!!
-			 */
-			nano *= MAX_TRY;
-			for (int i = 0; i < MAX_TRY; i++) {
-				fileName = "" + ++nano;
-				file = new File(tempFolder, fileName);
-				if (file.exists() == false) {
-					break;
-				}
-			}
-			if (file.exists()) {
-				throw new ApplicationError(
-						"Unable to create a temp file even after " + MAX_TRY);
-			}
-		}
-		Tracer.trace("Able to settle for temp file name " + fileName);
-		/*
-		 * just create the file and return if inStream is null;
-		 */
-		if (inStream == null) {
-			try {
-				file.createNewFile();
-				Tracer.trace("Creatng and returning an empty file");
-				return file;
-			} catch (IOException e) {
-				throw new ApplicationError(e, MSG);
-			}
-		}
+		File file = getNewFile();
 
 		OutputStream outStream = null;
 		try {
 			outStream = new FileOutputStream(file);
-		} catch (FileNotFoundException e) {
-			throw new ApplicationError(e, MSG);
-		}
-
-		try {
 			copyOut(inStream, outStream);
 			return file;
 		} catch (Exception e) {
 			throw new ApplicationError(e, MSG);
 		} finally {
-			try {
-				outStream.close();
-			} catch (Exception ignore) {
-				//
+			if (outStream != null) {
+				try {
+					outStream.close();
+				} catch (Exception ignore) {
+					//
+				}
 			}
 		}
+	}
+
+	/**
+	 * create a temp file using the reader. reader is not closed, simply because
+	 * we did not create it
+	 *
+	 * @param reader
+	 *            from which to create the content of the file.
+	 * @return file, in which this reader is saved. file.getName() is unique,
+	 *         and can be used for next readFile() calls
+	 */
+	public static File createTempFile(Reader reader) {
+		File file = getNewFile();
+
+		Writer writer = null;
+		try {
+			writer = new FileWriter(file);
+			for (int ch = reader.read(); ch != -1; ch = reader.read()) {
+				writer.write(ch);
+			}
+			return file;
+		} catch (Exception e) {
+			throw new ApplicationError(e, MSG);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
+	}
+
+	private static File getNewFile() {
+		long nano = System.nanoTime();
+		String fileName = "" + nano;
+		File file = new File(tempFolder, fileName);
+		if (file.exists() == false) {
+			return file;
+		}
+
+		Tracer.trace("Rare condition of a file-name clash for temp file "
+				+ fileName + " going to try suffixing..");
+		/*
+		 * increase the digits and start incrementing. Only way this can fail is
+		 * when MAX_TRY processes simultaneously use this same technique to
+		 * create temp file at this same nano-second!!!
+		 */
+		nano *= MAX_TRY;
+		for (int i = 0; i < MAX_TRY; i++) {
+			fileName = "" + ++nano;
+			file = new File(tempFolder, fileName);
+			if (file.exists() == false) {
+				return file;
+			}
+		}
+		throw new ApplicationError("Unable to create a temp file even after "
+				+ MAX_TRY);
 	}
 
 	/**
@@ -260,14 +278,14 @@ public class FileManager {
 	 *            createTempFile()
 	 * @return stream, or null if file not found.
 	 */
-	public OutputStream readTempFile(String fileName) {
-		try {
-			return new FileOutputStream(new File(tempFolder, fileName));
-		} catch (FileNotFoundException e) {
-			Tracer.trace("Request received for a non-existent temp file "
-					+ fileName);
-			return null;
+	public static File getTempFile(String fileName) {
+		File file = new File(tempFolder, fileName);
+		if (file.exists()) {
+			return file;
 		}
+		Tracer.trace("Non-existing temp file " + fileName
+				+ " requested. returning null");
+		return null;
 	}
 
 	/**
@@ -302,15 +320,9 @@ public class FileManager {
 	 *         happened, but write that to trace.
 	 */
 	public static boolean streamToFile(File file, InputStream inputStream) {
-		OutputStream out;
+		OutputStream out = null;
 		try {
 			out = new FileOutputStream(file);
-		} catch (FileNotFoundException e) {
-			Tracer.trace(e, "unable to open file " + file.getAbsolutePath()
-					+ " for writiing");
-			return false;
-		}
-		try {
 			copyOut(inputStream, out);
 			return true;
 		} catch (Exception e) {
@@ -318,10 +330,12 @@ public class FileManager {
 					"Error while writing to file " + file.getAbsolutePath());
 			return false;
 		} finally {
-			try {
-				out.close();
-			} catch (Exception ignore) {
-				//
+			if (out != null) {
+				try {
+					out.close();
+				} catch (Exception ignore) {
+					//
+				}
 			}
 		}
 	}

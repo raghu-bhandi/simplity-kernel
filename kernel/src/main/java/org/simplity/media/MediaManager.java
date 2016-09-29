@@ -23,8 +23,7 @@
 package org.simplity.media;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -102,52 +101,19 @@ public class MediaManager {
 	public static Media saveToTempArea(InputStream inStream, String fileName,
 			String mimeType) {
 		File file = FileManager.createTempFile(inStream);
-		/**
-		 * temp file creates a unique name. We use this as media key
-		 */
-		Tracer.trace(file.getAbsolutePath()
-				+ " is returned by File manager as temp file that exists="
-				+ file.exists() + " and of size=" + file.length());
 		String key = file.getName();
-		return new MediaFile(key, file, fileName, mimeType);
+		return new Media(key, fileName, mimeType);
 	}
 
 	/**
-	 * save a media that was retrieved from permanent storage into temp/buffer
-	 * area. Used by server that is responding to a request to retrieve a saved
-	 * file from permanent storage
+	 * delete a media from temp storage.
 	 *
-	 * @param media
-	 *            to be saved into temp area
-	 * @return media that points to the temp area
+	 * @param key
+	 *            key of the media being rmoved
+	 *
 	 */
-	public static Media saveToTempArea(Media media) {
-		/*
-		 * create an empty file.
-		 */
-		File file = FileManager.createTempFile(null);
-		OutputStream outStream = null;
-		try {
-			outStream = new FileOutputStream(file);
-		} catch (FileNotFoundException e) {
-			throw new ApplicationError(e,
-					"Error while managing temp file stream " + file.getPath());
-		}
-
-		try {
-			media.streamOut(outStream);
-			/**
-			 * temp file creates a unique name. We use this as media key
-			 */
-			return new MediaFile(file.getName(), file, media.getFileName(),
-					media.getMimeType());
-		} finally {
-			try {
-				outStream.close();
-			} catch (Exception ignore) {
-				//
-			}
-		}
+	public static void removeFromTempArea(String key) {
+		FileManager.deleteTempFile(key);
 	}
 
 	/**
@@ -180,7 +146,29 @@ public class MediaManager {
 	 */
 	public static Media saveToStorage(Media media) {
 		checkAssistant();
-		return storageAssistant.store(media);
+		String tempFileName = media.getKey();
+		InputStream in = null;
+		try {
+			File file = FileManager.getTempFile(tempFileName);
+			in = new FileInputStream(file);
+			return storageAssistant.store(in, media.getFileName(),
+					media.getMimeType());
+		} catch (Exception e) {
+			throw new ApplicationError(
+					"Media with key="
+							+ tempFileName
+							+ "fileName="
+							+ media.getFileName()
+							+ " is not found in temp storage area, but is sent for saving into storage area.");
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
 	}
 
 	/**
@@ -194,6 +182,17 @@ public class MediaManager {
 	public static Media getFromStorage(String key) {
 		checkAssistant();
 		return storageAssistant.retrieve(key);
+	}
+
+	/**
+	 * get it back from storage
+	 *
+	 * @param key
+	 *            that was returned while storing it
+	 */
+	public static void removeFromStorage(String key) {
+		checkAssistant();
+		storageAssistant.remove(key);
 	}
 
 	/**
@@ -224,5 +223,31 @@ public class MediaManager {
 	 */
 	public static MediaStorageAssistant getCurrentAssistant() {
 		return storageAssistant;
+	}
+
+	/**
+	 * @param media
+	 * @param outStream
+	 */
+	public static void streamOut(Media media, OutputStream outStream) {
+		InputStream in = null;
+		String tempFileName = media.getKey();
+		try {
+			in = new FileInputStream(FileManager.getTempFile(tempFileName));
+			FileManager.copyOut(in, outStream);
+		} catch (Exception e) {
+			Tracer.trace(e,
+					"Error while copying media fileName=" + media.getFileName()
+					+ " with key =" + tempFileName
+					+ " to servlet output stream");
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
 	}
 }

@@ -13,6 +13,8 @@
       <xs:enumeration value="_entityName" />
       <xs:enumeration value="_number" />
       <xs:enumeration value="_text" />
+      <xs:enumeration value="_clob" />
+      <xs:enumeration value="_blob" />
       <!-- defined in exampleDataTypes.xml -->
 
       <!--  boolean -->
@@ -53,7 +55,9 @@
       <xs:enumeration value="futureDate" />
       <xs:enumeration value="pastDate" />
       <xs:enumeration value="timeStamp" />
-
+<!-- CLOB-BLOB -->
+      <xs:enumeration value="clob" />
+      <xs:enumeration value="blob" />
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>
