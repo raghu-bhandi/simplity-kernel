@@ -29,10 +29,8 @@ import java.util.Map;
 
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
-import org.simplity.media.Media;
 
 /**
  * data carrier between client tier and service tier. we have few known fields
@@ -81,14 +79,6 @@ public class ServiceData {
 	 * getting the service etc..
 	 */
 	private int executionTime;
-
-	/**
-	 * exchange of attachments/media files across the layers. From web-to-app,
-	 * this contains uploaded media. From app-to-web, it contains media to be
-	 * down-loaded. It also contains keys of uploaded media that are taken-care
-	 * of, and need to be removed. This is indicated by key-null pairs
-	 */
-	private Map<String, Media> savedMedia;
 
 	/**
 	 * @return the trace
@@ -242,68 +232,5 @@ public class ServiceData {
 	 */
 	public FormattedMessage[] getMessages() {
 		return this.messages.toArray(new FormattedMessage[0]);
-	}
-
-	/**
-	 * get a media object for this key
-	 *
-	 * @param key
-	 *            key with which this media is linked to.
-	 * @return media, or null if there is no such media.
-	 */
-
-	public Media getMedia(String key) {
-		if (this.savedMedia == null) {
-			return null;
-		}
-		return this.savedMedia.get(key);
-	}
-
-	/**
-	 * For your reference only. For performance sake, we are not cloning this.
-	 * Do not mutilate.
-	 *
-	 * @return map or null if there are no media.
-	 */
-	public Map<String, Media> getAllMedia() {
-		return this.savedMedia;
-	}
-
-	/**
-	 * mark that a media is made available in the web/client layer for upload or
-	 * download
-	 *
-	 * @param media
-	 *            details of media
-	 */
-	public void putMedia(Media media) {
-		if (media == null) {
-			Tracer.trace("Null recied by service data to be saved as media");
-			return;
-		}
-
-		if (this.savedMedia == null) {
-			this.savedMedia = new HashMap<String, Media>();
-		}
-		this.savedMedia.put(media.getKey(), media);
-	}
-
-	/**
-	 * collect media details for downloaed media
-	 *
-	 * @param allMedia
-	 *            details of media
-	 */
-	public void putMedia(Collection<Media> allMedia) {
-		if (allMedia == null) {
-			return;
-		}
-
-		if (this.savedMedia == null) {
-			this.savedMedia = new HashMap<String, Media>();
-		}
-		for (Media media : allMedia) {
-			this.savedMedia.put(media.getKey(), media);
-		}
 	}
 }

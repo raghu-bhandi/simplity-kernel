@@ -220,10 +220,6 @@ public class Service implements ServiceInterface {
 					ctx.setObject(key, val);
 				}
 			}
-			/*
-			 * copy any media
-			 */
-			ctx.putUpload(inData.getAllMedia());
 
 			/*
 			 * all set to start with actions
@@ -280,10 +276,6 @@ public class Service implements ServiceInterface {
 				Tracer.trace("Service " + this.name
 						+ " is designed to send no response.");
 			}
-			/*
-			 * any downloaded media?
-			 */
-			response.putMedia(ctx.getAllDownloads());
 		}
 		return response;
 	}

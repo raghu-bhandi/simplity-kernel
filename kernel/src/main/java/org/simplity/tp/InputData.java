@@ -28,8 +28,8 @@ import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.file.AttachmentManager;
 import org.simplity.kernel.value.Value;
-import org.simplity.media.AttachmentManager;
 import org.simplity.service.ServiceContext;
 
 /**

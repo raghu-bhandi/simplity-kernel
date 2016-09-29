@@ -33,13 +33,13 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.DbVendor;
 import org.simplity.kernel.db.SchemaDetail;
+import org.simplity.kernel.file.AttachmentAssistant;
+import org.simplity.kernel.file.AttachmentManager;
+import org.simplity.kernel.file.FileBasedAssistant;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
-import org.simplity.media.MediaFolder;
-import org.simplity.media.MediaManager;
-import org.simplity.media.MediaStorageAssistant;
 import org.simplity.service.AccessController;
 import org.simplity.service.CacheManager;
 import org.simplity.service.ExceptionListener;
@@ -192,17 +192,16 @@ public class Application {
 
 	/**
 	 * Simplity provides a rudimentary, folder-based system that can be used for
-	 * storing and retrieving attachments/media/files. If you want to use that,
-	 * provide the folder that is available for the server instance
+	 * storing and retrieving attachments. If you want to use that, provide the
+	 * folder that is available for the server instance
 	 */
-	String mediaStorageFolderPath;
+	String attachmentsFolderPath;
 	/**
-	 * If you have an infrastructure for storing and retrieving
-	 * attachments/media/files that you want to use, provide the class name that
-	 * implements MediaStorageAssistant. A single instance of this class is
-	 * re-used
+	 * If you have an infrastructure for storing and retrieving attachments that
+	 * you want to use, provide the class name that implements
+	 * AttachmentAssistant. A single instance of this class is re-used
 	 */
-	String mediStorageAssistantClass;
+	String attachmentAssistantClass;
 
 	/**
 	 * configure application based on the settings. This MUST be triggered
@@ -289,18 +288,21 @@ public class Application {
 		/*
 		 * what about file/media/attachment storage assistant?
 		 */
-		if (this.mediaStorageFolderPath != null) {
-			MediaManager.setStorageAssistant(new MediaFolder(
-					this.mediaStorageFolderPath));
-		} else if (this.mediStorageAssistantClass != null) {
+		AttachmentAssistant ast = null;
+		if (this.attachmentsFolderPath != null) {
+			ast = new FileBasedAssistant(this.attachmentsFolderPath);
+		} else if (this.attachmentAssistantClass != null) {
 			try {
-				MediaManager.setStorageAssistant((MediaStorageAssistant) Class
-						.forName(this.mediStorageAssistantClass).newInstance());
+				ast = (AttachmentAssistant) Class.forName(
+						this.attachmentAssistantClass).newInstance();
 			} catch (Exception e) {
 				Tracer.trace(e,
-						"Error while setting media storage asstistant based on class "
-								+ this.mediStorageAssistantClass);
+						"Error while setting storage asstistant based on class "
+								+ this.attachmentAssistantClass);
 			}
+		}
+		if (ast != null) {
+			AttachmentManager.setAssistant(ast);
 		}
 	}
 
@@ -336,21 +338,20 @@ public class Application {
 				"sessionHelperClassName", ctx)) {
 			count++;
 		}
-		if (this.mediaStorageFolderPath != null) {
-			File file = new File(this.mediaStorageFolderPath);
+		if (this.attachmentsFolderPath != null) {
+			File file = new File(this.attachmentsFolderPath);
 			if (file.exists() == false) {
-				ctx.addError("mediaStorageFolderPath is set to "
-						+ this.mediaStorageFolderPath
+				ctx.addError("attachmentsFolderPath is set to "
+						+ this.attachmentsFolderPath
 						+ " but it is notnan valid folder path.");
 				count++;
 			}
-			if (this.mediStorageAssistantClass != null) {
-				ctx.addError("Choose either built-in media manager with mediaStorageFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
+			if (this.attachmentAssistantClass != null) {
+				ctx.addError("Choose either built-in attachment manager with attachmntsFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
 			}
 		}
-		if (this.classInError(MediaStorageAssistant.class,
-				this.mediStorageAssistantClass, "mediStorageAssistantClass",
-				ctx)) {
+		if (this.classInError(AttachmentAssistant.class,
+				this.attachmentAssistantClass, "attachmentAssistantClass", ctx)) {
 			count++;
 		}
 		if (this.serviceInError(this.loginServiceName, ctx)) {
@@ -427,16 +428,7 @@ public class Application {
 		myTest(parms);
 		// myTest(args);
 	}
-	
-	/**
-	 * TODO: to be removed. User should use DBDriver class instead.
-	 * get connection string being used by this application
-	 * @return connection string, or null if this application does not use one.
-	 */
-	public String getConnectionString() {
-		return this.connectionString;
-	}
-	
+
 	private static void myTest(String[] args) {
 		int nbr = args.length;
 		if (nbr < 2) {

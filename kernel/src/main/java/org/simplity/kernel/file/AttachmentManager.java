@@ -20,14 +20,14 @@
  * SOFTWARE.
  */
 
-package org.simplity.media;
+package org.simplity.kernel.file;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.file.FileManager;
 
 /**
  * Most corporates have central service that stores files. Attachment Manager is
@@ -122,10 +122,16 @@ public class AttachmentManager {
 	 */
 	public static String moveToStorage(String key) {
 		checkAssistant();
+		File file = FileManager.getTempFile(key);
+		if (file == null) {
+			return null;
+		}
 		InputStream in = null;
+		String newKey = null;
 		try {
-			in = new FileInputStream(FileManager.getTempFile(key));
-			return assistant.store(in);
+
+			in = new FileInputStream(file);
+			newKey = assistant.store(in);
 		} catch (Exception e) {
 			Tracer.trace(e, "Error while moving attacment " + key
 					+ " from temp area to storage");
@@ -139,6 +145,8 @@ public class AttachmentManager {
 				}
 			}
 		}
+		file.delete();
+		return newKey;
 	}
 
 	/**

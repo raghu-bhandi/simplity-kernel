@@ -32,6 +32,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 
@@ -83,12 +84,19 @@ public class FileManager {
 	 *         non-existing folder)
 	 */
 	public static String[] getResources(String parentFolder) {
+		String[] empty = new String[0];
 		if (myContext == null) {
 			/*
 			 * non-web environment. Deal with file system
 			 */
 			File file = new File(parentFolder);
+			if (file.exists() == false) {
+				return empty;
+			}
 			String[] files = file.list();
+			if (files == null) {
+				return empty;
+			}
 			/*
 			 * files has only the simple name. Caller wants path relative to the
 			 * parent
@@ -98,8 +106,12 @@ public class FileManager {
 			}
 			return files;
 		}
-		return myContext.getResourcePaths(FOLDER_CHAR + parentFolder).toArray(
-				new String[0]);
+		Set<String> paths = myContext.getResourcePaths(FOLDER_CHAR
+				+ parentFolder);
+		if (paths == null) {
+			return empty;
+		}
+		return paths.toArray(empty);
 	}
 
 	/**

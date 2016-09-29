@@ -27,21 +27,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.file.FileManager;
-import org.simplity.media.Media;
-import org.simplity.media.MediaManager;
-import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceProtocol;
 
 /**
@@ -57,10 +51,6 @@ public class Stream extends HttpServlet {
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	/**
-	 * name under which a collection of media file names stored in the session
-	 */
-	private static final String MEDIANAMES = "_mediaNames";
 
 	/**
 	 * uploading a file, as well as discarding a file that was uploaded earlier.
@@ -71,12 +61,6 @@ public class Stream extends HttpServlet {
 		Tracer.startAccumulation();
 		try {
 			/*
-			 * mediaMap is created and cached if it is not already there
-			 */
-			Map<String, Media> mediaMap = getMediaMap(req.getSession(true),
-					true);
-
-			/*
 			 * this put request could be to discard a file that was uploaded
 			 * earlier
 			 */
@@ -85,34 +69,22 @@ public class Stream extends HttpServlet {
 				String token = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
 				Tracer.trace("Received a request to discard temp file token "
 						+ token);
-				Media media = mediaMap.remove(token);
-				if (media != null) {
-					MediaManager.removeFromTempArea(media.getKey());
-				}
+				FileManager.deleteTempFile(token);
 			} else {
 
-				/*
-				 * file name, as seen by end-user may be important to save. We
-				 * have provisioned for that as a header field
-				 */
-				String fileName = req
-						.getHeader(ServiceProtocol.HEADER_FILE_NAME);
-				String mimeType = req
-						.getHeader(ServiceProtocol.HEADER_MIME_TYPE);
-				Tracer.trace("Going to upload file " + fileName
-						+ " of mimeType " + mimeType);
+				Tracer.trace("Going to upload file ");
 				InputStream inStream = req.getInputStream();
 				try {
-					Media media = MediaManager.saveToTempArea(inStream,
-							fileName, mimeType);
-					String key = media.getKey();
-					mediaMap.put(key, media);
+					File file = FileManager.createTempFile(inStream);
 					/*
 					 * return the file key/token back to client. Client has to
 					 * use this key/token to refer to this media in a service
 					 * call later
 					 */
-					resp.setHeader(ServiceProtocol.HEADER_FILE_TOKEN, key);
+					if (file != null) {
+						resp.setHeader(ServiceProtocol.HEADER_FILE_TOKEN,
+								file.getName());
+					}
 				} finally {
 					inStream.close();
 				}
@@ -153,19 +125,6 @@ public class Stream extends HttpServlet {
 		 * do we have a file for this token?
 		 */
 
-		Map<String, Media> mediaMap = getMediaMap(req.getSession(), false);
-		Media media = null;
-		if (mediaMap != null) {
-			media = mediaMap.get(token);
-		}
-
-		if (media != null) {
-			this.streamMedia(resp, media, toDownload);
-			return;
-		}
-		/*
-		 * let us try this as a temp file
-		 */
 		File file = FileManager.getTempFile(token);
 		if (file != null) {
 			this.streamFile(resp, file, toDownload);
@@ -173,43 +132,6 @@ public class Stream extends HttpServlet {
 		}
 		Tracer.trace("No file available for token " + token);
 		resp.setStatus(404);
-	}
-
-	private void streamMedia(HttpServletResponse resp, Media media,
-			boolean toDownload) {
-		String mime = media.getMimeType();
-		if (mime != null && mime.length() != 0) {
-			resp.setContentType(mime);
-		}
-		String fileName = media.getFileName();
-		if (toDownload) {
-			String disp = "attachment";
-			if (fileName != null) {
-				disp += "; filename=\"" + fileName + '"';
-			}
-			resp.setHeader("Content-Disposition", disp);
-		} else if (fileName != null) {
-			resp.setHeader(ServiceProtocol.HEADER_FILE_NAME, fileName);
-		}
-
-		OutputStream outStream = null;
-		try {
-			outStream = resp.getOutputStream();
-			MediaManager.streamOut(media, outStream);
-		} catch (Exception e) {
-			Tracer.trace(e,
-					"Error while copyng media from temp area to http output stream for token "
-							+ media.getKey());
-			resp.setStatus(404);
-		} finally {
-			if (outStream != null) {
-				try {
-					outStream.close();
-				} catch (Exception e2) {
-					//
-				}
-			}
-		}
 	}
 
 	/**
@@ -250,68 +172,5 @@ public class Stream extends HttpServlet {
 				}
 			}
 		}
-	}
-
-	/**
-	 * This is not functionality as a servlet. However, we put this
-	 * functionality in this class because this class knows about the media
-	 * being cached etc.. Notice that the functionality is static. HttpAgent
-	 * uses this service.
-	 *
-	 * @param inData
-	 *            data to be sent to server
-	 * @param session
-	 *            http session that contains uploaded media
-	 */
-	public static void putUploads(ServiceData inData, HttpSession session) {
-		Map<String, Media> mediaMap = getMediaMap(session, false);
-		if (mediaMap == null || mediaMap.size() == 0) {
-			return;
-		}
-
-		/*
-		 * it is possible that the server would have discarded some of these
-		 * after saving them.
-		 */
-		for (Media media : mediaMap.values()) {
-			inData.putMedia(media);
-		}
-	}
-
-	/**
-	 * save downloaded media to session
-	 *
-	 * @param outData
-	 *            service data that is returned from server
-	 * @param session
-	 *            http session
-	 */
-	public static void receiveDownLoads(ServiceData outData, HttpSession session) {
-		Map<String, Media> downloads = outData.getAllMedia();
-
-		if (downloads == null) {
-			return;
-		}
-		Map<String, Media> mediaMap = getMediaMap(session, true);
-		mediaMap.putAll(downloads);
-	}
-
-	/**
-	 * get the map, creating it if required
-	 *
-	 * @param session
-	 * @param toCreate
-	 * @return
-	 */
-	private static Map<String, Media> getMediaMap(HttpSession session,
-			boolean toCreate) {
-		@SuppressWarnings("unchecked")
-		Map<String, Media> mediaMap = (Map<String, Media>) session
-		.getAttribute(MEDIANAMES);
-		if (mediaMap == null && toCreate) {
-			mediaMap = new HashMap<String, Media>();
-			session.setAttribute(MEDIANAMES, mediaMap);
-		}
-		return mediaMap;
 	}
 }

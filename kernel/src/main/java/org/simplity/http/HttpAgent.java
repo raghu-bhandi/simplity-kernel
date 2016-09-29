@@ -176,10 +176,6 @@ public class HttpAgent {
 				}
 				inData.setPayLoad(payLoad);
 				inData.setServiceName(serviceName);
-				/*
-				 * all right. Go ahead and ask server to deliver this service
-				 */
-				Stream.putUploads(inData, session);
 				outData = ServiceAgent.getAgent().executeService(inData);
 				/*
 				 * by our convention, server may send data in inData to be set
@@ -231,11 +227,6 @@ public class HttpAgent {
 				Tracer.trace(serverTrace);
 				Tracer.trace("-------Server Trace END ----------");
 			}
-			/*
-			 * any downloaded media into temp area need to be communicated to
-			 * Streamer..
-			 */
-			Stream.receiveDownLoads(outData, session);
 		}
 		String trace = Tracer.stopAccumulation();
 		String log = TAG + startedAt + ELAPSED + elapsed + SERVICE

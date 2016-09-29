@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.media;
+package org.simplity.kernel.file;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,7 +28,6 @@ import java.util.UUID;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.file.FileManager;
 
 /**
  * we use a designated folder to save all attachments
