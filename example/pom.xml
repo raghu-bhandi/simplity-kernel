@@ -72,7 +72,7 @@
 					</dependencies>
 					<configuration>
 						<driver>org.h2.Driver</driver>
-						<url>jdbc:h2:file:${user.home}/db/classicmodels</url>
+						<url>jdbc:h2:file:${user.home}/simplity/db/classicmodels</url>
 						<username>sa</username>
 						<password></password>
 						<autocommit>true</autocommit>

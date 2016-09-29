@@ -188,6 +188,9 @@ mainApp.controller('renamesheetCtrl',  ['$scope', '$cacheFactory',"CommonService
 	$scope.renamesheettabs = [ {
 		title : 'XML',
 		url : 'renameSheet.xml'
+	},{
+		title : 'Java',
+		url : 'CustomLogicAction.java'
 	}, {
 		title : 'JS',
 		url : 'renameSheet.js'
@@ -239,6 +242,9 @@ mainApp.controller('rowexistsCtrl',  ['$scope', '$cacheFactory',"CommonService",
 	$scope.rowexiststabs = [ {
 		title : 'XML',
 		url : 'rowexists.xml'
+	},{
+		title : 'Record',
+		url : 'Employees.xml'
 	}, {
 		title : 'JS',
 		url : 'rowexists.js'
@@ -264,6 +270,9 @@ mainApp.controller('addcolumnCtrl',  ['$scope', '$cacheFactory',"CommonService",
 	$scope.addcolumntabs = [ {
 		title : 'XML',
 		url : 'addcolumn.xml'
+	},{
+		title : 'Java',
+		url : 'CustomLogicAction.java'
 	}, {
 		title : 'JS',
 		url : 'addcolumn.js'
@@ -291,6 +300,9 @@ mainApp.controller('copyrowsCtrl',  ['$scope', '$cacheFactory',"CommonService",f
 		title : 'XML',
 		url : 'copyrows.xml'
 	}, {
+		title : 'Java',
+		url : 'CustomLogicAction.java'
+	},{
 		title : 'JS',
 		url : 'copyrows.js'
 	}, {
@@ -316,6 +328,9 @@ mainApp.controller('addmessageCtrl',  ['$scope', '$cacheFactory',"CommonService"
 	$scope.addmessagetabs = [ {
 		title : 'XML',
 		url : 'addmessage.xml'
+	},{
+		title : 'Message',
+		url : 'myMessages.xml'
 	}, {
 		title : 'JS',
 		url : 'addmessage.js'
@@ -368,6 +383,9 @@ mainApp.controller('readdataCtrl',  ['$scope', '$cacheFactory',"CommonService",f
 	$scope.readdatatabs = [ {
 		title : 'XML',
 		url : 'readdata.xml'
+	},{
+		title : 'Record',
+		url : 'customers.xml'
 	}, {
 		title : 'JS',
 		url : 'readdata.js'
@@ -394,6 +412,9 @@ mainApp.controller('suggestCtrl',  ['$scope', '$cacheFactory',"CommonService",fu
 		title : 'XML',
 		url : 'suggest.xml'
 	}, {
+		title : 'Record',
+		url : 'Employees.xml'
+	},{
 		title : 'JS',
 		url : 'suggest.js'
 	}, {
@@ -420,6 +441,9 @@ mainApp.controller('filterCtrl',  ['$scope', '$cacheFactory',"CommonService",fun
 		title : 'XML',
 		url : 'filter.xml'
 	}, {
+		title : 'Record',
+		url : 'customers.xml'
+	},{
 		title : 'JS',
 		url : 'filter.js'
 	}, {
@@ -446,6 +470,9 @@ mainApp.controller('savedataaddCtrl',  ['$scope', '$cacheFactory',"CommonService
 		title : 'XML',
 		url : 'savedataadd.xml'
 	}, {
+		title : 'Record',
+		url : 'Employees.xml'
+	},{
 		title : 'JS',
 		url : 'savedataadd.js'
 	}, {
@@ -471,6 +498,9 @@ mainApp.controller('savedatamodifyCtrl',  ['$scope', '$cacheFactory',"CommonServ
 	$scope.savedatamodifytabs = [ {
 		title : 'XML',
 		url : 'savedatamodify.xml'
+	},{
+		title : 'Record',
+		url : 'Employees.xml'
 	}, {
 		title : 'JS',
 		url : 'savedatamodify.js'
@@ -496,6 +526,9 @@ mainApp.controller('savedatadeleteCtrl',  ['$scope', '$cacheFactory',"CommonServ
 	$scope.savedatadeletetabs = [ {
 		title : 'XML',
 		url : 'savedatadelete.xml'
+	},{
+		title : 'Record',
+		url : 'Employees.xml'
 	}, {
 		title : 'JS',
 		url : 'savedatadelete.js'
@@ -522,6 +555,9 @@ mainApp.controller('readwithsqlCtrl',  ['$scope', '$cacheFactory',"CommonService
 		title : 'XML',
 		url : 'readwithsql.xml'
 	}, {
+		title : 'Sql',
+		url : 'Employees.xml'
+	},{
 		title : 'JS',
 		url : 'readwithsql.js'
 	}, {
@@ -547,6 +583,9 @@ mainApp.controller('executesqlCtrl',  ['$scope', '$cacheFactory',"CommonService"
 	$scope.executesqltabs = [ {
 		title : 'XML',
 		url : 'executesql.xml'
+	}, {
+		title : 'Sql',
+		url : 'Offices.xml'
 	}, {
 		title : 'JS',
 		url : 'executesql.js'
