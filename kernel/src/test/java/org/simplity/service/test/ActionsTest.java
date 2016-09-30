@@ -35,6 +35,7 @@ import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.comp.ComponentType;
+import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
@@ -106,7 +107,7 @@ public class ActionsTest extends Mockito {
 		 * Load the db data
 		 */
 		Class.forName("org.h2.Driver");
-		Connection conn = DriverManager.getConnection(app.getConnectionString());
+		Connection conn = DriverManager.getConnection("jdbc:h2:~/classicmodels");
 		Statement st = conn.createStatement();
 		ResultSet rs = st.executeQuery("CALL DATABASE_PATH()");		
 		rs.next();
@@ -120,6 +121,24 @@ public class ActionsTest extends Mockito {
 		TestUtils.copyDirectory(new File("src/test/java/resources/data/datafiles"), destFile);
 		RunScript.execute(conn,
 				new FileReader(new File("src/test/java/resources/data/scripts/create_classicmodels.sql").getAbsolutePath()));
+		
+		
+
+		//Schema Details
+		Connection schemaConn = DriverManager.getConnection("jdbc:h2:~/simplitykernel/db/classicmodels;");
+		Statement st1 = schemaConn.createStatement();
+		ResultSet rs1 = st1.executeQuery("CALL DATABASE_PATH()");		
+		rs1.next();
+		String dbPath1 = rs1.getString(1);
+		//create destination dir
+				File destFile1 = new File(dbPath1);
+				if(!destFile1.exists()){
+					destFile1.mkdir();
+				}
+				TestUtils.copyDirectory(new File("src/test/java/resources/data/datafiles"), destFile1);
+				RunScript.execute(schemaConn,
+						new FileReader(new File("src/test/java/resources/data/scripts/create_classicmodels1.sql").getAbsolutePath()));
+		
 	}
 
 	private ServiceData serviceAgentSetup(String servicename) {
@@ -360,5 +379,12 @@ public class ActionsTest extends Mockito {
 		ServiceData outData = serviceAgentSetup("tutorial.executeSql");
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("updateSql"),1);
+	}
+	
+	@Test
+	public void schemaReadWithSqlTest() {
+		ServiceData outData = serviceAgentSetup("tutorial.schemaReadWithSql");
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals(((JSONObject) ((JSONArray) obj.get("Students")).get(0)).get("name"), "Sham");
 	}
 }
