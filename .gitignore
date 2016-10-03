@@ -9,3 +9,4 @@ run.bat
 .DS_Store
 /.openshift/
 deploy_key
+.docx

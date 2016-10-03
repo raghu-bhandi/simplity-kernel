@@ -144,7 +144,7 @@ public class InputData {
 				}
 				if (newKey == null) {
 					ctx.addInternalMessage(MessageType.ERROR,
-							"Error whiel storing attachment with temp key "
+							"Error while storing attachment with temp key "
 									+ key);
 				} else {
 					sheet.setColumnValue(colName, i, Value.newTextValue(newKey));
@@ -165,7 +165,7 @@ public class InputData {
 			String key = ctx.getTextValue(af);
 			if (key == null) {
 				Tracer.trace("Attachment field " + af
-						+ " is not spcified. Skipping it.");
+						+ " is not specified. Skipping it.");
 				continue;
 			}
 			if (toStor) {

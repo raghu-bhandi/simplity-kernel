@@ -268,7 +268,7 @@ public class DbDriver {
 								"schemaName and dataSourceName are required for mutli-schema operation");
 					}
 					if (sd.connectionString != null) {
-						Tracer.trace("Warning : This applicaiton uses data source, and hence conenction string for schema "
+						Tracer.trace("Warning : This application uses data source, and hence conenction string for schema "
 								+ sd.schemaName + " ignored");
 					}
 					setDataSource(sd.schemaName.toUpperCase(),

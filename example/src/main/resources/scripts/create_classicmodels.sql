@@ -27,7 +27,6 @@ DROP TABLE IF EXISTS OrderDetails;
 DROP TABLE IF EXISTS Orders;
 DROP TABLE IF EXISTS Payments;
 DROP TABLE IF EXISTS Products;
-DROP TABLE IF EXISTS StoreFiles;
 DROP TABLE IF EXISTS BLOB_TEST_TABLE;
 
 /* Create the full set of Classic Models Tables */
@@ -115,17 +114,9 @@ CREATE TABLE Products (
   PRIMARY KEY (productCode)
 )  AS SELECT * FROM CSVREAD('${resourcespath}/datafiles/products.txt');
 
---CREATE TABLE StoreFiles (
---  fileCode INTEGER NOT NULL,
---  file BLOB NOT NULL
---  PRIMARY KEY (fileCode)
---);
-
 CREATE TABLE  BLOB_TEST_TABLE 
    (	BLOB_TEST_NAME VARCHAR NOT NULL , 
 	CLOB_IN_ROW CLOB, 
 	CLOB_TEXT  VARCHAR2(1000)  NOT NULL , 
 	BLOB_EXTERNAL  VARCHAR  NOT NULL  
    ) ;
-
---INSERT INTO A StoreFiles values(1, FILE_READ('${resourcespath}/downloads/getstarted/Peter_Pan.jpg'));

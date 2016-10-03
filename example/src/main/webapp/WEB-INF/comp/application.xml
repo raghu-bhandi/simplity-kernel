@@ -7,6 +7,6 @@
 	connectionString="jdbc:h2:file:C:\\Users\\chetana_shanbhag/simplity/db/classicmodels;user=sa;" 
 	sendTraceToClient="true"
 	logSqls="true"
-	mediaStorageFolderPath="C:\\Users\\chetana_shanbhag/simplity/files"
+	attachmentsFolderPath="C:\\Users\\chetana_shanbhag/simplity/files"
 	>
 </application>

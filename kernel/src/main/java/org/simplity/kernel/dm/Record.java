@@ -559,7 +559,7 @@ public class Record implements Component {
 			}
 			if (value.toString().length() == 0) {
 				Tracer.trace("I found " + field.name
-						+ " with an empty vlaue in filtering.");
+						+ " with an empty value in filtering.");
 				continue;
 			}
 			FilterCondition condition = FilterCondition.Equal;
@@ -604,7 +604,7 @@ public class Record implements Component {
 				throw new ApplicationError(
 						"Record "
 								+ this.name
-								+ " is likley to contain large number of records, and hence we do not allow select-all operation");
+								+ " is likely to contain large number of records, and hence we do not allow select-all operation");
 			}
 			sql.append(" 1 = 1 ");
 			values = new Value[0];

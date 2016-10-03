@@ -6,20 +6,9 @@
 	dbAccessType="none"
 	description="save an attachment."
 >
-	<inputData>
-		<inputFields>
-			<inputField
-				dataType="text"
-				name="key" />
-		</inputFields>
+	<inputData attachmentFields="key">
 	</inputData>
 	<actions>
-		<upload
-			actionName="upload"
-			keyField="key"
-			fileNameField="name"
-			mimeTypeField="mime"
-			description="We save the file that was uploaded with key." />
 		<setValue fieldName="log">
 			<expression><![CDATA["a file was uploaded by the user having key as " + key +
 				". we saved this with fileName=" + name + " of mime-type=" + mime + " storage key=" + key]]></expression>
@@ -27,19 +16,10 @@
 		<log names="log"/>
 		<createSheet
 			sheetName="files"
-			data="key,name,mime;$key,temp,temp" />		
-		<download
-			actionName="download"
-			sheetName="files"
-			keyField="key"
-			fileNameField="name"
-			mimeTypeField="mime"
-			description="Downloads a file for each row in sheet files. 
-				Uses column named key as key to the file to be downloaded. 
-				copies file name and mime-type of the downloaded file to the columns file and mime respectively." />
+			data="key,name,mime;$key,temp,temp" />				
 	</actions>
 	
-	<outputData fieldNames="rootFolder">
+	<outputData fieldNames="rootFolder" attachmentColumns="files.key">
 		<outputRecords>
 			<outputRecord sheetName="files" />
 		</outputRecords>
