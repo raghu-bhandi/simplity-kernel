@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="getBlobs"
+	moduleName="tutorial"
+	dbAccessType="readOnly"
+	description="We could have used on-the-fly service like filter_tutorial.getBlobs, but for the externally stored blob.
+	To keep it simple for the demo, we select all rows, and hence no input.
+	We have set-up the application to save attachments in a specific folder"
+>
+	<actions>
+		<filter filterRecordName="tutorial.blobTest" outputSheetName="blobs"></filter>
+	</actions>
+	<!-- attachmentColumns attribute directs Simplity to retrieve externally stored blob using the key in the fiel bolbExternal. 
+		This key is replaced with the new key that poiints to temp-storage from where it can be streamed to client.
+	-->
+	<outputData attachmentColumns="blobs.blobExternal" >
+		<outputRecords>
+			<outputRecord sheetName="blobs" />
+		</outputRecords>
+	</outputData>
+</service>
