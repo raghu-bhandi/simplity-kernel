@@ -4,8 +4,7 @@
 	name="getAttachments"
 	moduleName="tutorial"
 	dbAccessType="none"
-	description="down load a set of files for demonstration purposes"
->
+	description="down load a set of files for demonstration purposes">
 	<actions>
 		<createSheet
 			sheetName="files"

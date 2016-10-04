@@ -4,8 +4,7 @@
 	name="saveAttachment"
 	moduleName="tutorial"
 	dbAccessType="none"
-	description="save an attachment."
->
+	description="save an attachment.">
 	<inputData attachmentFields="key">
 	</inputData>
 	<actions>
