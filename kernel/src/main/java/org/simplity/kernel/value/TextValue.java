@@ -72,7 +72,7 @@ public class TextValue extends Value {
 
 	@Override
 	protected boolean equalValue(Value otherValue) {
-		return this.value.equalsIgnoreCase(otherValue.textValue);
+		return this.value.equalsIgnoreCase(otherValue.toString());
 	}
 
 	@Override

@@ -65,7 +65,7 @@ public class DefaultHelper implements SessionHelper {
 		if (val != null) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> sessionData = (Map<String, Object>) session
-			.getAttribute(val.toString());
+					.getAttribute(val.toString());
 			if (sessionData != null) {
 				for (Map.Entry<String, Object> entry : sessionData.entrySet()) {
 					inData.put(entry.getKey(), entry.getValue());
@@ -87,7 +87,7 @@ public class DefaultHelper implements SessionHelper {
 		if (val != null) {
 			@SuppressWarnings("unchecked")
 			Map<String, Object> sessionData = (Map<String, Object>) session
-			.getAttribute(val.toString());
+					.getAttribute(val.toString());
 			if (sessionData != null) {
 				for (String key : data.getFieldNames()) {
 					sessionData.put(key, data.get(key));
@@ -103,9 +103,10 @@ public class DefaultHelper implements SessionHelper {
 			String existingToken) {
 		Object val = data.get(ServiceProtocol.USER_ID);
 		if (val == null) {
-			throw new ApplicationError(
-					"Session data must have user id in field "
-							+ ServiceProtocol.USER_ID);
+			Tracer.trace("Session data does not have value for field "
+					+ ServiceProtocol.USER_ID
+					+ " and hence we assume that the login has failed.");
+			return null;
 		}
 		if (val instanceof Value == false) {
 			throw new ApplicationError("User id field "
@@ -132,7 +133,7 @@ public class DefaultHelper implements SessionHelper {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.http.SessionHelper#getUserToken(javax.servlet.http.HttpSession
 	 * )

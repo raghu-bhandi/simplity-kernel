@@ -34,7 +34,7 @@ import org.simplity.service.ServiceData;
 public interface SessionHelper {
 	/**
 	 * extracted session data into inData
-	 * 
+	 *
 	 * @param session
 	 *            http session
 	 * @param token
@@ -66,31 +66,32 @@ public interface SessionHelper {
 	 * remove session
 	 *
 	 * @param session
-	 * 			http session
+	 *            http session
 	 * @param token
-	 * 			that was returned when this session was created
+	 *            that was returned when this session was created
 	 */
 	public void removeSession(HttpSession session, String token);
 
 	/**
 	 * create session data for this user in this session.
-	 * 
+	 *
 	 * @param session
-	 * 			http session 
+	 *            http session
 	 * @param data
 	 *            to be pushed to session
 	 * @param existingToken
 	 *            that need to be removed. Null if no session existed for this
 	 *            user
 	 * @return key/token to this session, to be used for subsequent requests for
-	 *         get
+	 *         get. null implies that there is no userId, or some issue, and
+	 *         hence caller should assume that the session creation has failed
 	 */
 	public String newSession(HttpSession session, ServiceData data,
 			String existingToken);
 
 	/**
 	 * @param session
-	 * 			http session	
+	 *            http session
 	 * @return user token, or null if this session has no user token
 	 */
 	public String getUserToken(HttpSession session);

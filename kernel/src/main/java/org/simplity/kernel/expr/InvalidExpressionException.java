@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,9 +36,23 @@ public class InvalidExpressionException extends Exception {
 
 	protected InvalidExpressionException(String expression, String error,
 			int position) {
-		this.message = "Error encountered at position " + (position + 1)
-				+ " while parsing.\nexpression : " + expression + "\n error : "
-				+ error;
+		StringBuilder msg = new StringBuilder(
+				"Error encountered while parsing. ");
+
+		if (expression == null || expression.length() == 0) {
+			msg.append(error);
+		} else {
+			msg.append('\n').append("expression : ").append(expression)
+					.append('\n');
+			if (position >= expression.length()) {
+				msg.append("Unexpected end of expression. ").append(error);
+			} else {
+				msg.append("parsed upto ")
+						.append(expression.substring(0, position)).append('\n')
+						.append(error);
+			}
+		}
+		this.message = msg.toString();
 	}
 
 	@Override

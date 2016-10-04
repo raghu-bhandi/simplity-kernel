@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -42,15 +42,18 @@ public enum BinaryOperator {
 	Multiply {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newIntegerValue(leftValue.toInteger() * rightValue.toInteger());
+				return Value.newIntegerValue(leftValue.toInteger()
+						* rightValue.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value.newDecimalValue(leftValue.toDecimal() * rightValue.toDecimal());
+				return Value.newDecimalValue(leftValue.toDecimal()
+						* rightValue.toDecimal());
 			}
 			throw new InvalidValueException("");
 		}
@@ -71,15 +74,18 @@ public enum BinaryOperator {
 	Divide {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newIntegerValue(leftValue.toInteger() / rightValue.toInteger());
+				return Value.newIntegerValue(leftValue.toInteger()
+						/ rightValue.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value.newDecimalValue(leftValue.toDecimal() / rightValue.toDecimal());
+				return Value.newDecimalValue(leftValue.toDecimal()
+						/ rightValue.toDecimal());
 			}
 			throw new InvalidValueException("");
 		}
@@ -100,12 +106,14 @@ public enum BinaryOperator {
 	Modulo {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newIntegerValue(leftValue.toInteger() % rightValue.toInteger());
+				return Value.newIntegerValue(leftValue.toInteger()
+						% rightValue.toInteger());
 			}
 			throw new InvalidValueException("");
 		}
@@ -126,24 +134,29 @@ public enum BinaryOperator {
 	Plus {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newIntegerValue(leftValue.toInteger() + rightValue.toInteger());
+				return Value.newIntegerValue(leftValue.toInteger()
+						+ rightValue.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value.newDecimalValue(leftValue.toDecimal() + rightValue.toDecimal());
+				return Value.newDecimalValue(leftValue.toDecimal()
+						+ rightValue.toDecimal());
 			}
 			/*
 			 * plus is concatenate for string
 			 */
 			if (lt == ValueType.TEXT || rt == ValueType.TEXT) {
-				return Value.newTextValue(leftValue.toText() + rightValue.toText());
+				return Value.newTextValue(leftValue.toText()
+						+ rightValue.toText());
 			}
 			if (lt == ValueType.DATE && rt == ValueType.INTEGER) {
-				return Value.newDateValue(DateUtil.addDays(leftValue.toInteger(), rightValue.toInteger()));
+				return Value.newDateValue(DateUtil.addDays(
+						leftValue.toInteger(), rightValue.toInteger()));
 			}
 			throw new InvalidValueException("");
 		}
@@ -165,19 +178,23 @@ public enum BinaryOperator {
 	Minus {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newIntegerValue(leftValue.toInteger() - rightValue.toInteger());
+				return Value.newIntegerValue(leftValue.toInteger()
+						- rightValue.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value.newDecimalValue(leftValue.toDecimal() - rightValue.toDecimal());
+				return Value.newDecimalValue(leftValue.toDecimal()
+						- rightValue.toDecimal());
 			}
-			if (lt == ValueType.DATE && rt == ValueType.DATE) {
-				return Value.newIntegerValue(DateUtil.daysBetweenDates(((DateValue) leftValue).getDate(),
-						((DateValue) rightValue).toInteger()));
+			if (opType == BinaryOperator.DATE_SUBTRACT_OPERATION) {
+				return Value.newIntegerValue(DateUtil.daysBetweenDates(
+						((DateValue) leftValue).getDate(),
+						((DateValue) rightValue).getDate()));
 			}
 			throw new InvalidValueException("");
 		}
@@ -198,24 +215,30 @@ public enum BinaryOperator {
 	Less {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newBooleanValue(leftValue.toInteger() < rightValue.toInteger());
+				return Value.newBooleanValue(leftValue.toInteger() < rightValue
+						.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value.newBooleanValue(leftValue.toDecimal() < rightValue.toDecimal());
+				return Value.newBooleanValue(leftValue.toDecimal() < rightValue
+						.toDecimal());
 			}
 
 			if (lt == ValueType.BOOLEAN || lt != rt) {
 				throw new InvalidValueException("");
 			}
 			if (lt == ValueType.DATE) {
-				return Value.newBooleanValue(leftValue.toDate().getTime() < rightValue.toDate().getTime());
+				return Value
+						.newBooleanValue(leftValue.toDate().getTime() < rightValue
+								.toDate().getTime());
 			}
-			return Value.newBooleanValue(leftValue.toText().compareToIgnoreCase(rightValue.toText()) < 0);
+			return Value.newBooleanValue(leftValue.toText()
+					.compareToIgnoreCase(rightValue.toText()) < 0);
 		}
 
 		@Override
@@ -234,24 +257,32 @@ public enum BinaryOperator {
 	LessOrEqual {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newBooleanValue(leftValue.toInteger() <= rightValue.toInteger());
+				return Value
+						.newBooleanValue(leftValue.toInteger() <= rightValue
+								.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value.newBooleanValue(leftValue.toDecimal() <= rightValue.toDecimal());
+				return Value
+						.newBooleanValue(leftValue.toDecimal() <= rightValue
+								.toDecimal());
 			}
 
 			if (lt == ValueType.BOOLEAN || lt != rt) {
 				throw new InvalidValueException("");
 			}
 			if (lt == ValueType.DATE) {
-				return Value.newBooleanValue(leftValue.toDate().getTime() <= rightValue.toDate().getTime());
+				return Value
+						.newBooleanValue(leftValue.toDate().getTime() <= rightValue
+								.toDate().getTime());
 			}
-			return Value.newBooleanValue(leftValue.toText().compareToIgnoreCase(rightValue.toText()) <= 0);
+			return Value.newBooleanValue(leftValue.toText()
+					.compareToIgnoreCase(rightValue.toText()) <= 0);
 		}
 
 		@Override
@@ -270,24 +301,30 @@ public enum BinaryOperator {
 	Greater {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newBooleanValue(leftValue.toInteger() > rightValue.toInteger());
+				return Value.newBooleanValue(leftValue.toInteger() > rightValue
+						.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value.newBooleanValue(leftValue.toDecimal() > rightValue.toDecimal());
+				return Value.newBooleanValue(leftValue.toDecimal() > rightValue
+						.toDecimal());
 			}
 
 			if (lt == ValueType.BOOLEAN || lt != rt) {
 				throw new InvalidValueException("");
 			}
 			if (lt == ValueType.DATE) {
-				return Value.newBooleanValue(leftValue.toDate().getTime() > rightValue.toDate().getTime());
+				return Value
+						.newBooleanValue(leftValue.toDate().getTime() > rightValue
+								.toDate().getTime());
 			}
-			return Value.newBooleanValue(leftValue.toText().compareToIgnoreCase(rightValue.toText()) > 0);
+			return Value.newBooleanValue(leftValue.toText()
+					.compareToIgnoreCase(rightValue.toText()) > 0);
 		}
 
 		@Override
@@ -307,24 +344,32 @@ public enum BinaryOperator {
 	GreaterOrEqual {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newBooleanValue(leftValue.toInteger() >= rightValue.toInteger());
+				return Value
+						.newBooleanValue(leftValue.toInteger() >= rightValue
+								.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value.newBooleanValue(leftValue.toDecimal() >= rightValue.toDecimal());
+				return Value
+						.newBooleanValue(leftValue.toDecimal() >= rightValue
+								.toDecimal());
 			}
 
 			if (lt == ValueType.BOOLEAN || lt != rt) {
 				throw new InvalidValueException("");
 			}
 			if (lt == ValueType.DATE) {
-				return Value.newBooleanValue(leftValue.toDate().getTime() >= rightValue.toDate().getTime());
+				return Value
+						.newBooleanValue(leftValue.toDate().getTime() >= rightValue
+								.toDate().getTime());
 			}
-			return Value.newBooleanValue(leftValue.toText().compareToIgnoreCase(rightValue.toText()) >= 0);
+			return Value.newBooleanValue(leftValue.toText()
+					.compareToIgnoreCase(rightValue.toText()) >= 0);
 		}
 
 		@Override
@@ -343,28 +388,36 @@ public enum BinaryOperator {
 	Equal {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newBooleanValue(leftValue.toInteger() == rightValue.toInteger());
+				return Value
+						.newBooleanValue(leftValue.toInteger() == rightValue
+								.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value
-						.newBooleanValue(leftValue.toDecimal() - rightValue.toDecimal() < BinaryOperator.DECIMAL_ZERO);
+				return Value.newBooleanValue(leftValue.toDecimal()
+						- rightValue.toDecimal() < BinaryOperator.DECIMAL_ZERO);
 			}
 
 			if (lt != rt) {
 				throw new InvalidValueException("");
 			}
 			if (lt == ValueType.DATE) {
-				return Value.newBooleanValue(leftValue.toDate().getTime() == rightValue.toDate().getTime());
+				return Value
+						.newBooleanValue(leftValue.toDate().getTime() == rightValue
+								.toDate().getTime());
 			}
 			if (lt == ValueType.BOOLEAN) {
-				return Value.newBooleanValue(leftValue.toBoolean() == rightValue.toBoolean());
+				return Value
+						.newBooleanValue(leftValue.toBoolean() == rightValue
+								.toBoolean());
 			}
-			return Value.newBooleanValue(leftValue.toText().compareToIgnoreCase(rightValue.toText()) == 0);
+			return Value.newBooleanValue(leftValue.toText()
+					.compareToIgnoreCase(rightValue.toText()) == 0);
 		}
 
 		@Override
@@ -383,28 +436,36 @@ public enum BinaryOperator {
 	NotEqual {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
 			if (opType == BinaryOperator.INTEGER_OPERATION) {
-				return Value.newBooleanValue(leftValue.toInteger() != rightValue.toInteger());
+				return Value
+						.newBooleanValue(leftValue.toInteger() != rightValue
+								.toInteger());
 			}
 			if (opType == BinaryOperator.DECIMAL_OPERATION) {
-				return Value
-						.newBooleanValue(leftValue.toDecimal() - rightValue.toDecimal() > BinaryOperator.DECIMAL_ZERO);
+				return Value.newBooleanValue(leftValue.toDecimal()
+						- rightValue.toDecimal() > BinaryOperator.DECIMAL_ZERO);
 			}
 
 			if (lt != rt) {
 				throw new InvalidValueException("");
 			}
 			if (lt == ValueType.DATE) {
-				return Value.newBooleanValue(leftValue.toDate().getTime() != rightValue.toDate().getTime());
+				return Value
+						.newBooleanValue(leftValue.toDate().getTime() != rightValue
+								.toDate().getTime());
 			}
 			if (lt == ValueType.BOOLEAN) {
-				return Value.newBooleanValue(leftValue.toBoolean() != rightValue.toBoolean());
+				return Value
+						.newBooleanValue(leftValue.toBoolean() != rightValue
+								.toBoolean());
 			}
-			return Value.newBooleanValue(leftValue.toText().compareToIgnoreCase(rightValue.toText()) != 0);
+			return Value.newBooleanValue(leftValue.toText()
+					.compareToIgnoreCase(rightValue.toText()) != 0);
 		}
 
 		@Override
@@ -424,8 +485,10 @@ public enum BinaryOperator {
 	And {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
-			return Value.newBooleanValue(leftValue.toBoolean() && rightValue.toBoolean());
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
+			return Value.newBooleanValue(leftValue.toBoolean()
+					&& rightValue.toBoolean());
 		}
 
 		@Override
@@ -444,8 +507,10 @@ public enum BinaryOperator {
 	Or {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
-			return Value.newBooleanValue(leftValue.toBoolean() && rightValue.toBoolean());
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
+			return Value.newBooleanValue(leftValue.toBoolean()
+					&& rightValue.toBoolean());
 		}
 
 		@Override
@@ -465,7 +530,8 @@ public enum BinaryOperator {
 	List {
 
 		@Override
-		protected Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException {
+		protected Value doOperate(Value leftValue, Value rightValue)
+				throws InvalidValueException {
 			throw new InvalidValueException("");
 		}
 
@@ -562,16 +628,19 @@ public enum BinaryOperator {
 	 *         operands
 	 * @throws InvalidOperationException
 	 */
-	public Value operate(Value leftValue, Value rightValue) throws InvalidOperationException {
-		if (leftValue == null || rightValue == null || leftValue.isUnknown() || rightValue.isUnknown()) {
+	public Value operate(Value leftValue, Value rightValue)
+			throws InvalidOperationException {
+		if (leftValue == null || rightValue == null || leftValue.isUnknown()
+				|| rightValue.isUnknown()) {
 			return Value.newUnknownValue(ValueType.TEXT);
 		}
 		try {
 			return this.doOperate(leftValue, rightValue);
 		} catch (InvalidValueException e) {
-			throw new InvalidOperationException(
-					"Binary operation " + this + " is not possible between " + leftValue.getValueType() + "("
-							+ leftValue + ") and " + rightValue.getValueType() + "(" + rightValue + ")");
+			throw new InvalidOperationException("Binary operation " + this
+					+ " is not possible between " + leftValue.getValueType()
+					+ "(" + leftValue + ") and " + rightValue.getValueType()
+					+ "(" + rightValue + ")");
 		}
 	}
 
@@ -583,7 +652,8 @@ public enum BinaryOperator {
 	 * @return result of tis binary operation
 	 * @throws InvalidValueException
 	 */
-	protected abstract Value doOperate(Value leftValue, Value rightValue) throws InvalidValueException;
+	protected abstract Value doOperate(Value leftValue, Value rightValue)
+			throws InvalidValueException;
 
 	protected int getNumericType(ValueType lt, ValueType rt) {
 		/*

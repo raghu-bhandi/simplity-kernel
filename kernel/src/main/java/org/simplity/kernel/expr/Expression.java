@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.simplity.kernel.Tracer;
+import org.simplity.kernel.data.DynamicSheet;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.util.DateUtil;
 import org.simplity.kernel.value.InvalidValueException;
@@ -179,7 +180,7 @@ public class Expression {
 		ExpressionParser worker = new ExpressionParser();
 		worker.parse(chars, startingAt, commaOk);
 		this.expressionText = new String(chars, startingAt + 1,
-				worker.parsingAt - startingAt - 1);
+				worker.parsingAt - startingAt);
 		worker.setupShop();
 	}
 
@@ -470,8 +471,6 @@ public class Expression {
 				 * this is a sub-expression
 				 */
 				openingBracket = this.chars[startAt - 1];
-				Tracer.trace("GOing to parse a sub-expression starting at "
-						+ startAt + " for " + openingBracket);
 			}
 			/*
 			 * loop is not for each character though we re incrementing char
@@ -676,10 +675,9 @@ public class Expression {
 					forFunction);
 			/*
 			 * pointer is to point to the last char parsed. point to the close
-			 * bracket that ended the sub-expression. + 1 because close bracket
-			 * is not added to text
+			 * bracket that ended the sub-expression.
 			 */
-			this.parsingAt += expr.expressionText.length() + 1;
+			this.parsingAt += expr.expressionText.length();
 			return expr;
 		}
 
@@ -948,13 +946,20 @@ public class Expression {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String text = "concat(\"a\" + \"A\", \"b\"+ \"B\", 123 + 456)";
+		String text = "/2015-12-12/ - /2016-12-22/";
+		// String text =
+		// "concat(\"a\" + \"A\", \"b\"+ \"B\", foo(123, faa(456 - abcd), 12), 14)";
 		// String text = "\"a\" , \"A\", \"b\", \"B\", 123 , 456)";
 		try {
+			Tracer.trace("TRYING " + text);
 			Expression expr = new Expression(text);
-			Tracer.trace("Expression : " + expr.toString());
+			DynamicSheet ds = new DynamicSheet();
+			Value val = expr.evaluate(ds);
+			Tracer.trace("Expression : " + expr.toString()
+					+ " got evaluated to " + val);
 		} catch (Exception e) {
-			Tracer.trace(e, "unable to parse/execute expression");
+			Tracer.trace(e,
+					"unable to parse/execute expression : " + e.getMessage());
 		}
 	}
 }

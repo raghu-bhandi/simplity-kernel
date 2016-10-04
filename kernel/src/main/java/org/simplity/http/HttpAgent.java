@@ -272,16 +272,16 @@ public class HttpAgent {
 		if (outData == null) {
 			return null;
 		}
-		Value userId = outData.getUserId();
-		if (userId == null) {
-			Tracer.trace("Login service did not set userId. We treat this as login failure");
-			return null;
-		}
 		/*
 		 * create and save new session data
 		 */
-		Tracer.trace("Login succeeded for user id " + userId);
-		return sessionHelper.newSession(session, outData, null);
+		String token = sessionHelper.newSession(session, outData, null);
+		if (token == null) {
+			Tracer.trace("Login service did not set userId. We treat this as login failure");
+			return null;
+		}
+		Tracer.trace("Login succeeded");
+		return token;
 	}
 
 	/**
