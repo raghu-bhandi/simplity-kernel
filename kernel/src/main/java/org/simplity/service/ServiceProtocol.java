@@ -85,6 +85,16 @@ public abstract class ServiceProtocol {
 	public static final String REQUEST_OK = "0";
 
 	/**
+	 * no login, and hence request is not honoured
+	 */
+	public static final String REQUEST_NO_LOGIN = "1";
+
+	/**
+	 * Error with the request. The service was not executed because of an error,
+	 * either internal, or with the infrastructure.
+	 */
+	public static final String REQUEST_ERROR = "2";
+	/**
 	 * time taken by this engine to execute this service in milliseconds
 	 */
 	public static final String SERVICE_EXECUTION_TIME = "_serviceExecutionTime";

@@ -131,7 +131,7 @@ public class HttpAgent {
 		ServiceData outData = null;
 		Tracer.startAccumulation();
 		FormattedMessage message = null;
-
+		String errorStatus = ServiceProtocol.REQUEST_ERROR;
 		/*
 		 * let us earnestly try to serve now :-) this do{} is not a loop, but a
 		 * block that helps in handling errors in an elegant way
@@ -152,6 +152,7 @@ public class HttpAgent {
 				 */
 				if (sessionHelper.getSessionData(session, clientToken, inData) == false) {
 					message = NO_LOGIN;
+					errorStatus = ServiceProtocol.REQUEST_NO_LOGIN;
 					break;
 				}
 				Object obj = inData.get(ServiceProtocol.USER_ID);
@@ -197,20 +198,22 @@ public class HttpAgent {
 			/*
 			 * we got error
 			 */
-			Tracer.trace("Error on web tier");
+			Tracer.trace("Error on web tier : " + message);
 			FormattedMessage[] messages = { message };
 			response = JsonUtil.toJson(messages);
-			resp.setHeader(ServiceProtocol.REQUEST_STATUS, "1");
+			resp.setHeader(ServiceProtocol.REQUEST_STATUS, errorStatus);
 		} else {
 			if (outData.hasErrors()) {
 				Tracer.trace("Service returned with errors");
-				resp.setHeader(ServiceProtocol.REQUEST_STATUS, "1");
+				resp.setHeader(ServiceProtocol.REQUEST_STATUS,
+						ServiceProtocol.REQUEST_ERROR);
 				response = JsonUtil.toJson(outData.getMessages());
 			} else {
 				/*
 				 * all OK
 				 */
-				resp.setHeader(ServiceProtocol.REQUEST_STATUS, "0");
+				resp.setHeader(ServiceProtocol.REQUEST_STATUS,
+						ServiceProtocol.REQUEST_ERROR);
 				response = outData.getPayLoad();
 				Tracer.trace("Service has no errors and has "
 						+ (response == null ? "no " : (response.length())

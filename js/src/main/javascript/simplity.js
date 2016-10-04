@@ -106,6 +106,15 @@ var POCOL = {
 	 */
 	REQUEST_OK : "0",
 	/**
+	 * Not valid login. Could be because of session-out, or the client did not
+	 * authenticate before sending this request.
+	 */
+	REQUEST_NO_LOGIN : "1",
+	/**
+	 * Error.
+	 */
+	REQUEST_ERROR : "2",
+	/**
 	 * time taken by this engine to execute this service in milliseconds
 	 */
 	SERVICE_EXECUTION_TIME : "_serviceExecutionTime",
@@ -784,29 +793,50 @@ var Simplity = (function() {
 	 * obtained after a login.
 	 */
 	var token = null;
+
+	/**
+	 * function to be called wenever server retruns with a status of NO-LOGIN
+	 */
+	var reloginFunction = null;
 	/**
 	 * @method login to server with credentials
 	 * @param {text}
 	 *            login name
 	 * @param {text}
 	 *            abrakadabra
+	 * @param {Function}
+	 *            successFn function to be called when login succeeds. Typically
+	 *            you want to navigate to your home page
+	 * 
+	 * @param {Function}
+	 *            failureFn function to be called when login fails. Optional. If
+	 *            not supplied, just a message is flashed, so that the user can
+	 *            re-try
 	 */
-	var login = function(userId, userToken) {
+	var login = function(userId, userToken, successFn, failureFn) {
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
 			if (this.readyState == '4') {
 				token = xhr.getResponseHeader(POCOL.CSRF_HEADER);
 				if (token) {
-					showMessages([ {
-						messageType : 'success',
-						text : 'Successfully logged-in.'
-					} ]);
+					if (successFn) {
+						successFn();
+					} else {
+						showMessages([ {
+							messageType : 'success',
+							text : 'Successfully logged-in.'
+						} ]);
+					}
 				} else {
-					showMessage([ {
-						messageType : 'error',
-						name : 'InvalidCredentials',
-						text : 'Ooops. Your credentials were not honoured. Please re-try.'
-					} ]);
+					if (failureFn) {
+						failureFn();
+					} else {
+						showMessage([ {
+							messageType : 'error',
+							name : 'InvalidCredentials',
+							text : 'Ooops. Your credentials were not honoured. Please re-try.'
+						} ]);
+					}
 				}
 			}
 		};
@@ -923,10 +953,14 @@ var Simplity = (function() {
 			}
 			if (st === POCOL.REQUEST_OK) {
 				onSuccess(json);
-			} else {
-				log('service returned with status=' + st);
-				onError(json);
+				return;
 			}
+			if (st === POCOL.REQUEST_NO_LOGIN && reloginFunction) {
+				reloginFunction(serviceName, data, onSuccess, onError);
+				return;
+			}
+			log('service returned with status=' + st);
+			onError(json);
 		};
 		xhr.ontimeout = function() {
 			log('time out');
@@ -1134,6 +1168,20 @@ var Simplity = (function() {
 					+ ". error :" + e);
 		}
 	};
+	/**
+	 * register a call-back function to be called whenever client detects that a
+	 * login is required
+	 * 
+	 * @param {Function}
+	 *            reloginFn this funciton is called when server returns wth a
+	 *            stus indicating no-login. This function is called back with
+	 *            all the four parameters of getResponse() so that the last
+	 *            service request can be triggered again, there y user not
+	 *            losing anything.
+	 */
+	var registerRelogin = function(reloginFn) {
+		reloginFunction = reloginFn;
+	};
 	/*
 	 * what we want to expose as API
 	 */
@@ -1153,6 +1201,8 @@ var Simplity = (function() {
 		pushDataToPage : pushDataToPage,
 		uploadFile : uploadFile,
 		discardFile : discardFile,
-		downloadFile : downloadFile
+		downloadFile : downloadFile,
+		registerRelogin : registerRelogin,
+		downloadCSV: downloadCSV
 	};
 })();
