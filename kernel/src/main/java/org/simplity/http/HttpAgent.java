@@ -198,7 +198,8 @@ public class HttpAgent {
 			/*
 			 * we got error
 			 */
-			Tracer.trace("Error on web tier : " + message);
+			Tracer.trace("Error on web teir : "
+					+ (message == null ? "Unknow error" : message.text));
 			FormattedMessage[] messages = { message };
 			response = JsonUtil.toJson(messages);
 			resp.setHeader(ServiceProtocol.REQUEST_STATUS, errorStatus);
@@ -213,7 +214,7 @@ public class HttpAgent {
 				 * all OK
 				 */
 				resp.setHeader(ServiceProtocol.REQUEST_STATUS,
-						ServiceProtocol.REQUEST_ERROR);
+						ServiceProtocol.REQUEST_OK);
 				response = outData.getPayLoad();
 				Tracer.trace("Service has no errors and has "
 						+ (response == null ? "no " : (response.length())

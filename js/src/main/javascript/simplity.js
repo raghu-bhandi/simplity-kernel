@@ -975,7 +975,7 @@ var Simplity = (function() {
 			xhr.setRequestHeader("Content-Type", "text/html; charset=utf-8");
 			xhr.setRequestHeader(POCOL.SERVICE_NAME, serviceName);
 			if (token) {
-				xhr.setRequestHeader(POCOL.USER_TOKEN, token);
+				xhr.setRequestHeader(POCOL.CSRF_HEADER, token);
 			}
 			xhr.send(data);
 		} catch (e) {

@@ -61,47 +61,47 @@ public class DefaultHelper implements SessionHelper {
 	@Override
 	public boolean getSessionData(HttpSession session, String token,
 			ServiceData inData) {
-		Object val = session.getAttribute(USER_TOKEN);
-		if (val != null) {
-			@SuppressWarnings("unchecked")
-			Map<String, Object> sessionData = (Map<String, Object>) session
-					.getAttribute(val.toString());
-			if (sessionData != null) {
-				for (Map.Entry<String, Object> entry : sessionData.entrySet()) {
-					inData.put(entry.getKey(), entry.getValue());
-				}
-				return true;
-			}
-			/*
-			 * Should never happen
-			 */
-			Tracer.trace("default Helper is unable to maintain consistency between userId and session token");
+		@SuppressWarnings("unchecked")
+		Map<String, Object> sessionData = (Map<String, Object>) session
+				.getAttribute(token);
+		if (sessionData == null) {
+			return false;
 		}
-		return false;
+
+		for (Map.Entry<String, Object> entry : sessionData.entrySet()) {
+			inData.put(entry.getKey(), entry.getValue());
+		}
+
+		return true;
 	}
 
 	@Override
 	public void setSessionData(HttpSession session, String token,
 			ServiceData data) {
-		Object val = session.getAttribute(USER_TOKEN);
-		if (val != null) {
-			@SuppressWarnings("unchecked")
-			Map<String, Object> sessionData = (Map<String, Object>) session
-					.getAttribute(val.toString());
-			if (sessionData != null) {
-				for (String key : data.getFieldNames()) {
-					sessionData.put(key, data.get(key));
-				}
-				return;
+		@SuppressWarnings("unchecked")
+		Map<String, Object> sessionData = (Map<String, Object>) session
+				.getAttribute(token);
+		if (sessionData == null) {
+			Tracer.trace("No sesison data exists.");
+		} else {
+			for (String key : data.getFieldNames()) {
+				sessionData.put(key, data.get(key));
 			}
 		}
-		Tracer.trace("No sesison data exists.");
 	}
 
 	@Override
 	public String newSession(HttpSession session, ServiceData data,
 			String existingToken) {
-		Object val = data.get(ServiceProtocol.USER_ID);
+		/*
+		 * remove existing session data, if any
+		 */
+		Object val = session.getAttribute(USER_TOKEN);
+		if (val != null) {
+			session.removeAttribute(val.toString());
+		}
+
+		val = data.get(ServiceProtocol.USER_ID);
 		if (val == null) {
 			Tracer.trace("Session data does not have value for field "
 					+ ServiceProtocol.USER_ID
@@ -112,13 +112,6 @@ public class DefaultHelper implements SessionHelper {
 			throw new ApplicationError("User id field "
 					+ ServiceProtocol.USER_ID
 					+ " should have a value of type Value");
-		}
-		/*
-		 * remove existing session data, if any
-		 */
-		val = session.getAttribute(USER_TOKEN);
-		if (val != null) {
-			session.removeAttribute(val.toString());
 		}
 
 		String newToken = UUID.randomUUID().toString();
@@ -133,7 +126,7 @@ public class DefaultHelper implements SessionHelper {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.simplity.http.SessionHelper#getUserToken(javax.servlet.http.HttpSession
 	 * )

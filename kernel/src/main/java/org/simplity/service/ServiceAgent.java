@@ -156,18 +156,20 @@ public class ServiceAgent {
 		 * dummy login..
 		 */
 		ServiceData result = new ServiceData();
+		Tracer.trace("No login service is attched. we use a dummy login.");
 		String userId = "100";
 		Object obj = inputData.get(ServiceProtocol.USER_ID);
 		if (obj == null) {
 			Tracer.trace("Login service is not set. we will set 100 dummy user id and allow this session.");
 		} else {
 			userId = obj.toString();
+			Tracer.trace("we cleared userId=" + userId
+					+ " with no authentication whatsoever.");
 		}
 		Value userIdValue = this.numericUserId ? Value.parseValue(userId,
 				ValueType.INTEGER) : Value.newTextValue(userId);
 		result.put(ServiceProtocol.USER_ID, userIdValue);
 		return result;
-
 	}
 
 	/**
