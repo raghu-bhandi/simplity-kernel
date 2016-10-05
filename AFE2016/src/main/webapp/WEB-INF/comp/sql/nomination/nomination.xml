@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql
+	name="nomination"
+	sqlType="update"
+	xmlns="http://www.simplity.org/schema"
+	moduleName="nomination" 	
+	preparedStatement="insert into nomination(selectedCategory,selectedLevel,nomination,sponsormailid,sponsorname,sponsornumber,members,key) values(?,?,?,?,?,?,?,?)"
+>
+	<inputParameters>
+		<sqlParameter dataType="text" name="selectedCategory"/>
+		<sqlParameter dataType="text" name="selectedLevel"/>
+		<sqlParameter dataType="text" name="nomination"/>
+		<sqlParameter dataType="text" name="sponsormailid"/>
+		<sqlParameter dataType="text" name="sponsorname"/>
+		<sqlParameter dataType="text" name="sponsornumber"/>
+		<sqlParameter dataType="text" name="members"/>
+		<sqlParameter dataType="text" name="key"/>
+	</inputParameters>
+</sql>
