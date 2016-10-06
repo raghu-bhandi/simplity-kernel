@@ -7,10 +7,7 @@
 	</actions>
 	<outputData fieldNames="txt">
 	<outputRecords>
-		<!-- <outputRecord recordName="birt.Employees" /> -->
-	
-		<outputRecord  sheetName="Employees"/>
-		
+			<outputRecord  sheetName="Employees"/>
 	</outputRecords>
 </outputData>
 </service>

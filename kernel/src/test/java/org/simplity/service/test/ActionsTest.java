@@ -305,7 +305,6 @@ public class ActionsTest extends Mockito {
 	public void suggestTest() {
 		ServiceData outData = serviceAgentSetup("tutorial.suggest");
 		JSONObject obj = new JSONObject(outData.getPayLoad());
-		//assertEquals(obj.get("firstName"), "Mar");
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("firstName"), "Mary");
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(1)).get("firstName"), "Martin");
 	}
@@ -340,26 +339,6 @@ public class ActionsTest extends Mockito {
 		assertEquals(obj.get("testValue"), 1234);
 	}
 	
-	
-	/**
-	 * Test for saveAtachment action
-	 */
-	@Test
-	public void saveAttachmentTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.saveAttachment");
-		JSONObject obj = new JSONObject(outData.getPayLoad());
-		assertTrue(( ((JSONArray) obj.get("files")).toString().contains("record.xml")));
-	}
-	
-	/**
-	 * Test for download action
-	 */
-	@Test
-	public void downloadAttachmentTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.getAttachments");
-		JSONObject obj = new JSONObject(outData.getPayLoad());
-		assertTrue(( ((JSONArray) obj.get("files")).toString().contains("record.xml")));
-	}
 	
 	/**
 	 * Test for read with sql action
