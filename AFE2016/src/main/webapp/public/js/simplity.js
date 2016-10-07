@@ -38,23 +38,9 @@ var POCOL = {
 	SERVICE_NAME : "_serviceName",
 
 	/**
-	 * used for login-process along with USER_TOKEN.
-	 */
-	USER_ID : "_userId",
-
-	/**
-	 * used for login-process along with USER_ID.
+	 * used for login-process.
 	 */
 	USER_TOKEN : "_userToken",
-
-	/**
-	 * HTTP header with which to exchange CSRF token
-	 */
-	CSRF_HEADER : "X-CSRF-Token",
-	/**
-	 * value of CCRF token that indicates that it is a command to remove it
-	 */
-	REMOVE_CSRF : "remove",
 
 	/**
 	 * file-upload call, header field for optional name of file
@@ -98,13 +84,26 @@ var POCOL = {
 	 */
 	TRACE_FIELD_NAME : "_messages",
 	/*
-	 * possible values for REQUEST_STATUS
+	 * possible values for HTTP Status that we use
 	 */
 	/**
-	 * valid response is delivered as all was well. Any value other than this
-	 * indicate that the response is an array of messages.
+	 * valid response is delivered as all is well. Any status other than this
+	 * will have only messages as response.
 	 */
-	REQUEST_OK : "0",
+	STATUS_OK : 200,
+	/**
+	 * Not valid login. Could be because of session-out, or the client did not
+	 * authenticate before sending this request.
+	 */
+	STATUS_NO_LOGIN : 401,
+	/**
+	 * Service failed. Could be data error, or business.
+	 */
+	STATUS_FAILED : 444,
+	/**
+	 * Error. Not related to this service, but some issue with the server.
+	 */
+	STATUS_ERROR : 500,
 	/**
 	 * time taken by this engine to execute this service in milliseconds
 	 */
@@ -402,7 +401,7 @@ var Simplity = (function() {
 				/*
 				 * array can be source for a dom element with id="__att__"
 				 */
-				ele = doc.querySelector('#'+ROW_PART_DELIM + att + ROW_PART_DELIM);
+				ele = doc.getElementById(ROW_PART_DELIM + att + ROW_PART_DELIM);
 				if (ele) {
 					setTableToEle(ele, val, att);
 					continue;
@@ -411,7 +410,7 @@ var Simplity = (function() {
 				 * if we did not find an element for this table, we will try
 				 * other options later
 				 */
-				log('No destination found for table ' + att);
+				log('No destinaiton found for table ' + att);
 				nbrUnused++;
 				continue;
 			}
@@ -419,7 +418,7 @@ var Simplity = (function() {
 			 * it could be a primitive, or an object. In any case, we need an
 			 * element
 			 */
-			var ele = doc.querySelector('#'+att);
+			var ele = doc.getElementById(att);
 			if (ele) {
 				setValueToEle(ele, att, val);
 				continue;
@@ -427,8 +426,8 @@ var Simplity = (function() {
 			/*
 			 * we try show-hide element for this
 			 */
-			var ele1 = doc.querySelector('#'+att + '-true');
-			var ele2 = doc.querySelector('#'+att + '-false');
+			var ele1 = doc.getElementById(att + '-true');
+			var ele2 = doc.getElementById(att + '-false');
 			if (ele1 || ele2) {
 				showOrHideEle(ele1, ele2, val);
 				continue;
@@ -461,7 +460,10 @@ var Simplity = (function() {
 			}
 		}
 	};
-	
+
+	var setOptionsForEle = function(ele, vals) {
+
+	};
 	 /* 
 	 * </pre>
 	 */
@@ -528,9 +530,8 @@ var Simplity = (function() {
 	}
 
 	var setOptionsForEle = function(ele, vals) {
-
-	};
-
+	
+	}
 	/**
 	 * @method assign rows data to a dom element. row is of the form <tag
 	 *         id="__thisId__"...><tag1>__colName1__</tag1><tag2
@@ -779,37 +780,59 @@ var Simplity = (function() {
 	var LOGIN_URL = 'a._i';
 	var LOGOUT_URL = 'a._o';
 	var TIMEOUT = 12000;
+
 	/**
-	 * this is the token to be flashed at the server security guard. This is
-	 * obtained after a login.
+	 * function to be called wenever server retruns with a status of NO-LOGIN
 	 */
-	var token = null;
+	var reloginFunction = null;
 	/**
 	 * @method login to server with credentials
 	 * @param {text}
 	 *            login name
 	 * @param {text}
 	 *            abrakadabra
+	 * @param {Function}
+	 *            successFn function to be called when login succeeds. Typically
+	 *            you want to navigate to your home page
+	 * 
+	 * @param {Function}
+	 *            failureFn function to be called when login fails. Optional. If
+	 *            not supplied, just a message is flashed, so that the user can
+	 *            re-try
 	 */
-	var login = function(userId, userToken) {
+	var login = function(userId, userToken, successFn, failureFn) {
+		successFn = successFn || pushDataToPage;
 		var xhr = new XMLHttpRequest();
 		xhr.onreadystatechange = function() {
-			if (this.readyState == '4') {
-				token = xhr.getResponseHeader(POCOL.CSRF_HEADER);
-				if (token) {
-					showMessages([ {
-						messageType : 'success',
-						text : 'Successfully logged-in.'
-					} ]);
-				} else {
-					showMessage([ {
-						messageType : 'error',
-						name : 'InvalidCredentials',
-						text : 'Ooops. Your credentials were not honoured. Please re-try.'
-					} ]);
-				}
+			if (this.readyState != '4') {
+				return;
 			}
+			var json = {};
+			if (xhr.responseText) {
+				json = JSON.parse(xhr.responseText);
+			}
+			/*
+			 * let us act as per status
+			 */
+			if (xhr.status == POCOL.STATUS_OK) {
+				if (successFn) {
+					successFn();
+					return;
+				}
+				showMessages([ {
+					messageType : 'success',
+					text : 'Successfully logged-in.'
+				} ]);
+				pushDataToPage(json);
+				return;
+			}
+			if (failureFn) {
+				failureFn(json);
+				return;
+			}
+			showMessage("Login failed");
 		};
+
 		xhr.ontimeout = function() {
 			showMessages([ {
 				messageType : "error",
@@ -821,10 +844,11 @@ var Simplity = (function() {
 			xhr.open(METHOD, LOGIN_URL, true);
 			xhr.timeout = TIMEOUT;
 			xhr.setRequestHeader("Content-Type", "text/html; charset=utf-8");
-			xhr.setRequestHeader(POCOL.USER_ID, userId);
+			var text = userId;
 			if (userToken) {
-				xhr.setRequestHeader(POCOL.USER_TOKEN, userToken);
+				text += ' ' + userToken;
 			}
+			xhr.setRequestHeader(POCOL.USER_TOKEN, btoa(text));
 			xhr.send('');
 		} catch (e) {
 			showMessages([ {
@@ -842,9 +866,6 @@ var Simplity = (function() {
 		try {
 			xhr.open(METHOD, LOGOUT_URL, true);
 			xhr.setRequestHeader("Content-Type", "text/html; charset=utf-8");
-			if (token) {
-				xhr.setRequestHeader(POCOL.USER_TOKEN, token);
-			}
 			xhr.send('');
 		} catch (e) {
 			showMessages([ {
@@ -852,10 +873,6 @@ var Simplity = (function() {
 				messageType : 'error'
 			} ]);
 		}
-		/*
-		 * our token is no more valid
-		 */
-		token = null;
 	};
 
 	/**
@@ -893,39 +910,43 @@ var Simplity = (function() {
 			if (this.readyState != '4') {
 				return;
 			}
-			/*
-			 * any issue with HTTP Connection?
-			 */
-			if (xhr.status != 200 && xhr.status != 0) {
-				log('non 200 status : ' + xhr.status);
-				onError([ {
-					messageType : 'error',
-					text : 'Our courier returned with an error code='
-							+ xhr.status + ' look at logs for more details.'
-				} ]);
-				return;
-			}
-			/*
-			 * any issue with our web agent?
-			 */
-			var st = xhr.getResponseHeader(POCOL.REQUEST_STATUS);
-			if (st == null) {
-				onError([ {
-					text : 'Unknown error on the server. It failed to indicate any status.',
-					messageType : 'error'
-				} ]);
-				return;
-			}
-
 			var json = {};
 			if (xhr.responseText) {
 				json = JSON.parse(xhr.responseText);
 			}
-			if (st === POCOL.REQUEST_OK) {
+			/*
+			 * any issue with our web agent?
+			 */
+			switch (xhr.status) {
+			case POCOL.STATUS_OK:
 				onSuccess(json);
-			} else {
-				log('service returned with status=' + st);
+				return;
+			case POCOL.STATUS_NO_LOGIN:
+				if (reloginFunction) {
+					log('Login required. invoking relogin');
+					reloginFunction(serviceName, data, onSuccess, onError);
+					return;
+				}
+				onError([ {
+					messageType : 'error',
+					text : 'This service requires a valid login. Please login and try again.'
+				} ]);
+				return;
+			case POCOL.STATUS_FAILED:
 				onError(json);
+				return;
+			case POCOL.STATUS_ERROR:
+				onError([ {
+					messageType : 'error',
+					text : 'There was an internal error on the server. You may retry after some time.'
+				} ]);
+				return;
+			default:
+				onError([ {
+					messageType : 'error',
+					text : 'Unexpected HTPP error with status ' + xhr.status
+				} ]);
+				return;
 			}
 		};
 		xhr.ontimeout = function() {
@@ -940,9 +961,6 @@ var Simplity = (function() {
 			xhr.timeout = TIMEOUT;
 			xhr.setRequestHeader("Content-Type", "text/html; charset=utf-8");
 			xhr.setRequestHeader(POCOL.SERVICE_NAME, serviceName);
-			if (token) {
-				xhr.setRequestHeader(POCOL.USER_TOKEN, token);
-			}
 			xhr.send(data);
 		} catch (e) {
 			error("error during xhr : " + e);
@@ -972,7 +990,7 @@ var Simplity = (function() {
 		log('File ' + file.name + ' of mime-type ' + file.mime + ' of size '
 				+ file.size + ' is being uploaded');
 		if (!callbackFn) {
-			error('No callback funciton. We wil set window._uploadedFileKey to the returned key');
+			error('No callback funciton. We will set window._uploadedFileKey to the returned key');
 		}
 
 		var xhr = new XMLHttpRequest();
@@ -988,7 +1006,7 @@ var Simplity = (function() {
 			 */
 			var token = null;
 			if (xhr.status != 200 && xhr.status != 0) {
-				log('non 200 status : ' + xhr.status);
+				log('File upload failed with non 200 status : ' + xhr.status);
 			} else {
 				token = xhr.getResponseHeader(POCOL.FILE_TOKEN);
 			}
@@ -1086,7 +1104,7 @@ var Simplity = (function() {
 		/*
 		 * attach call back function
 		 */
-		xhr.onlodend = function() {
+		xhr.onloadend = function() {
 			/*
 			 * any issue with HTTP Connection?
 			 */
@@ -1134,6 +1152,21 @@ var Simplity = (function() {
 					+ ". error :" + e);
 		}
 	};
+
+	/**
+	 * register a call-back function to be called whenever client detects that a
+	 * login is required
+	 * 
+	 * @param {Function}
+	 *            reloginFn this funciton is called when server returns wth a
+	 *            stus indicating no-login. This function is called back with
+	 *            all the four parameters of getResponse() so that the last
+	 *            service request can be triggered again, there y user not
+	 *            losing anything.
+	 */
+	var registerRelogin = function(reloginFn) {
+		reloginFunction = reloginFn;
+	};
 	/*
 	 * what we want to expose as API
 	 */
@@ -1154,6 +1187,7 @@ var Simplity = (function() {
 		uploadFile : uploadFile,
 		discardFile : discardFile,
 		downloadFile : downloadFile,
-		downloadCSV  : downloadCSV
+		registerRelogin : registerRelogin,
+		downloadCSV: downloadCSV
 	};
 })();

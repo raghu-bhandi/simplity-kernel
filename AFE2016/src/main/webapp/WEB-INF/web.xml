@@ -24,6 +24,10 @@
 		<servlet-name>i</servlet-name>
 		<servlet-class>com.infosys.submission.servlet.LoginServlet</servlet-class>
 	</servlet>
+	<!-- servlet>
+		<servlet-name>i</servlet-name>
+		<servlet-class>org.simplity.http.DefaultLogin</servlet-class>
+	</servlet-->	
 	<servlet>
 		<servlet-name>o</servlet-name>
 		<servlet-class>org.simplity.http.DefaultLogout</servlet-class>

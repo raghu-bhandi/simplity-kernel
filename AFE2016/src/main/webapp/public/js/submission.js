@@ -109,9 +109,14 @@ app.controller('formCtrl', function ($scope) {
 	 $scope.newnominationhtml=function(){
 		 $scope.state="new";
 	 };
-	 $scope.viewsubmissionhtml=function(){
-		 $scope.state="view";
-		// angular.copy($scope.nominations[0],$scope.nomination );
+	 $scope.viewsubmissionhtml=function(){		 
+		 $scope.state="view";	 
+		 Simplity.getResponse("submission.getnominations",null,function(json){
+			 $scope.nominations = json.nominations;
+			 angular.copy($scope.nominations[0],$scope.nomination );
+			 $scope.$apply();
+		 });
+
 	 };
 	 $scope.viewsubmission=function(nomination){
 		 angular.copy(nomination,$scope.nomination )

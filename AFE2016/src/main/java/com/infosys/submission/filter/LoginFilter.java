@@ -38,7 +38,7 @@ public class LoginFilter implements Filter {
 		HttpSession session = request.getSession(false);
 		String loginURI = request.getContextPath() + "/login.html";
 
-		boolean loggedIn = session != null && session.getAttribute("user") != null;
+		boolean loggedIn = session != null && session.getAttribute("_userIdInSession") != null;
 		boolean loginRequest = request.getRequestURI().equals(loginURI);
 		boolean loginURL = request.getRequestURI().endsWith("._i");
 

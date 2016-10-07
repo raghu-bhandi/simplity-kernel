@@ -8,7 +8,5 @@
 	sendTraceToClient="true"
 	logSqls="true"	
 	attachmentsFolderPath="D:/temp/AFE2016/files"
-	userIdNameInSession="true"
-	loginServiceName="submission.login"
 >
 </application>	
