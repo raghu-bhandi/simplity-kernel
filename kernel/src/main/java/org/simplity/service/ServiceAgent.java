@@ -23,7 +23,6 @@
 package org.simplity.service;
 
 import java.util.Date;
-import java.util.logging.Logger;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Messages;
@@ -44,8 +43,6 @@ import org.simplity.kernel.value.ValueType;
  * the userId.
  */
 public class ServiceAgent {
-
-	private static final String LOGGER_LEVEL = "trace";
 
 	/**
 	 * singleton instance that is instantiated with right parameters
@@ -97,12 +94,6 @@ public class ServiceAgent {
 	private final String logoutService;
 
 	/**
-	 * do we send trace back to client? this is useful during
-	 * development/debugging
-	 */
-	private final boolean sendTraceToClient;
-
-	/**
 	 * service response may be cached. This may also be used to have fake
 	 * responses during development
 	 */
@@ -118,9 +109,10 @@ public class ServiceAgent {
 	private final AccessController securityManager;
 
 	/**
-	 * logger to flush trace out
+	 * have no meaning right now...
 	 */
-	private static final Logger logger = Logger.getLogger(LOGGER_LEVEL);
+	@SuppressWarnings("unused")
+	private final boolean inProduction;
 
 	/***
 	 * We create an immutable instance fully equipped with all plug-ins
@@ -131,10 +123,10 @@ public class ServiceAgent {
 		this.numericUserId = userIdIsNumber;
 		this.loginService = login;
 		this.logoutService = logout;
-		this.sendTraceToClient = !inProduction;
 		this.cacheManager = cacher;
 		this.exceptionListener = listener;
 		this.securityManager = guard;
+		this.inProduction = inProduction;
 	}
 
 	/**
@@ -148,27 +140,49 @@ public class ServiceAgent {
 	 *         case of
 	 */
 	public ServiceData login(ServiceData inputData) {
-		if (this.loginService != null) {
-			return ComponentManager.getService(this.loginService).respond(
+		ServiceData result = null;
+		if (this.loginService == null) {
+			result = this.dummyLogin(inputData);
+		} else {
+			result = ComponentManager.getService(this.loginService).respond(
 					inputData);
 		}
-		/*
-		 * dummy login..
-		 */
+		Object uid = result.get(ServiceProtocol.USER_ID);
+		if (uid == null) {
+			Tracer.trace("Login service did not set value for "
+					+ ServiceProtocol.USER_ID
+					+ ". This implies that the login has failed.");
+		} else {
+			if (uid instanceof Value == false) {
+				throw new ApplicationError(
+						"Login service returned userId as a field in "
+								+ ServiceProtocol.USER_ID
+								+ " but intead of being an instance of Value we found it an instance of "
+								+ uid.getClass().getName());
+			}
+			result.setUserId((Value) uid);
+		}
+		return result;
+	}
+
+	private ServiceData dummyLogin(ServiceData inData) {
 		ServiceData result = new ServiceData();
 		Tracer.trace("No login service is attched. we use a dummy login.");
 		String userId = "100";
-		Object obj = inputData.get(ServiceProtocol.USER_ID);
-		if (obj == null) {
-			Tracer.trace("Login service is not set. we will set 100 dummy user id and allow this session.");
-		} else {
+		Object obj = inData.get(ServiceProtocol.USER_ID);
+		if (obj != null) {
 			userId = obj.toString();
-			Tracer.trace("we cleared userId=" + userId
-					+ " with no authentication whatsoever.");
 		}
 		Value userIdValue = this.numericUserId ? Value.parseValue(userId,
 				ValueType.INTEGER) : Value.newTextValue(userId);
-		result.put(ServiceProtocol.USER_ID, userIdValue);
+		if (Value.isNull(userIdValue)) {
+			Tracer.trace("I would have cleared userId " + userId
+					+ " but for the fact that we insist on a number");
+		} else {
+			Tracer.trace("we cleared userId=" + userId
+					+ " with no authentication whatsoever.");
+			result.put(ServiceProtocol.USER_ID, userIdValue);
+		}
 		return result;
 	}
 
@@ -194,7 +208,7 @@ public class ServiceAgent {
 	 *
 	 */
 	public ServiceData executeService(ServiceData inputData) {
-		String existingTrace = Tracer.startAccumulation();
+		// String existingTrace = Tracer.startAccumulation();
 		String serviceName = inputData.getServiceName();
 		Value userId = inputData.getUserId();
 		ServiceInterface service = ComponentManager
@@ -269,17 +283,6 @@ public class ServiceAgent {
 		long diffTime = endTime.getTime() - startTime.getTime();
 		if (response != null) {
 			response.setExecutionTime((int) diffTime);
-
-			String trace = Tracer.stopAccumulation();
-			if (existingTrace != null && existingTrace.length() > 0) {
-				Tracer.startAccumulation(existingTrace);
-			}
-			if (this.sendTraceToClient) {
-				response.setTrace(trace);
-			} else {
-				logger.info("********Begin Service Trace********\n" + trace
-						+ "\n********End Service Trace********");
-			}
 		}
 		return response;
 	}

@@ -60,7 +60,7 @@ public class Serve extends HttpServlet {
 	 * notify that the start-up is successful, and we can go ahead and serve
 	 *
 	 * @param succeeded
-	 * 			Success flag
+	 *            Success flag
 	 */
 	public static void updateStartupStatus(boolean succeeded) {
 		if (succeeded) {
@@ -114,7 +114,7 @@ public class Serve extends HttpServlet {
 	private void reportError(HttpServletResponse resp, String msg)
 			throws IOException {
 		Tracer.trace(msg);
-		resp.setHeader(ServiceProtocol.REQUEST_STATUS, "1");
+		resp.setStatus(ServiceProtocol.STATUS_FAILED);
 		FormattedMessage message = new FormattedMessage("internalerror",
 				MessageType.ERROR, msg);
 		FormattedMessage[] messages = { message };

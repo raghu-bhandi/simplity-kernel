@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,25 +23,32 @@
 package org.simplity.http;
 
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.Charset;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.kernel.Tracer;
 import org.simplity.service.ServiceProtocol;
+
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 /**
  * Our recommendation is that the client application should be designed to
  * handle login-service...-logout paradigm. It should keep track of login
  * status. Hence we have a separate url for login, service, and logout.
  *
- * This is a dummy servlet that is useful during development. Just send userId
- * and userToken has header fields, and we log-you in nicely
+ * This is a dummy servlet that is useful during development. we expect a call
+ * from ours standard client script. Refer to login() in simplity.js
  *
  * @author simplity.org
  *
  */
+@SuppressWarnings("restriction")
 public class DefaultLogin extends HttpServlet {
 
 	/*
@@ -50,17 +57,41 @@ public class DefaultLogin extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		String text = req.getHeader(ServiceProtocol.USER_TOKEN);
+		if (text == null) {
+			Tracer.trace("No crdentials received in header for login.");
+			return;
+		}
+		try {
+			text = new String(Base64.decode(text), Charset.forName("UTF-8"));
+			Tracer.trace("Received credentials as " + text);
+		} catch (Base64DecodingException e) {
+			Tracer.trace("Error while decoding credentials " + e.getMessage()
+					+ " login aborted");
+			return;
+		}
 		/*
-		 * TODO : work with SSO or any specific login-strategy in your project
-		 * and do establish credentials of logged-in user
+		 * we expect text to be userId + space + password. space and password
+		 * being optional.
 		 */
+		int idx = text.indexOf(' ');
+		String userId = text;
+		String pwd = null;
+		if (idx != -1) {
+			userId = text.substring(0, idx);
+			pwd = text.substring(idx + 1);
+		}
 
-		String userId = req.getHeader(ServiceProtocol.USER_ID);
-		String userToken = req.getHeader(ServiceProtocol.USSER_TOKEN);
-		String csrf = HttpAgent.login(userId, userToken, req.getSession(true));
-		if (csrf != null) {
-			resp.setHeader(ServiceProtocol.CSRF_HEADER, csrf);
+		text = HttpAgent.login(userId, pwd, req.getSession(true));
+		if (text == null) {
+			resp.setStatus(ServiceProtocol.STATUS_FAILED);
+		} else {
+			resp.setStatus(ServiceProtocol.STATUS_OK);
+			Writer writer = resp.getWriter();
+			writer.write(text);
+			writer.close();
 		}
 	}
 }

@@ -39,18 +39,6 @@ public abstract class ServiceProtocol {
 	 */
 	public static final String CHAR_ENCODING = "UTF-8";
 
-	/**
-	 * HTTP header with which to exchange CSRF token. sent by client with every
-	 * request (except login) Returned by server on login/logout
-	 */
-	public static final String CSRF_HEADER = "X-CSRF-Token";
-
-	/**
-	 * CSRF token value that indicates that the earlier value is invalidated.
-	 * Typically after a logout operation
-	 */
-	public static final String REMOVE_CSRF = "remove";
-
 	/*
 	 * client to server. These are also returned back to client for convenience
 	 */
@@ -68,32 +56,26 @@ public abstract class ServiceProtocol {
 	 * typically the password, but it could be third-party token etc.. for
 	 * logging in
 	 */
-	public static final String USSER_TOKEN = "_userToken";
-
-	/*
-	 * server to client
-	 */
-	/**
-	 * What happened to the service request? This status is about the request,
-	 * and not execution of service.
-	 */
-	public static final String REQUEST_STATUS = "_requestStatus";
-	/**
-	 * all OK with the request. However, service may or may not have succeeded.
-	 * that is part of pay-load
-	 */
-	public static final String REQUEST_OK = "0";
+	public static final String USER_TOKEN = "_userToken";
 
 	/**
-	 * no login, and hence request is not honoured
+	 * HTTP status all OK
 	 */
-	public static final String REQUEST_NO_LOGIN = "1";
-
+	public static final int STATUS_OK = 200;
 	/**
-	 * Error with the request. The service was not executed because of an error,
-	 * either internal, or with the infrastructure.
+	 * User needs to login for this service
 	 */
-	public static final String REQUEST_ERROR = "2";
+	public static final int STATUS_NO_LOGIN = 401;
+	/**
+	 * HTTP Status - non-standard custom. Service failed. Could be data error,
+	 * or rejected because of business rules
+	 */
+	public static final int STATUS_FAILED = 444;
+	/**
+	 * HTTP status - error on server, not related to this service
+	 */
+	public static final int STATUS_ERROR = 500;
+
 	/**
 	 * time taken by this engine to execute this service in milliseconds
 	 */

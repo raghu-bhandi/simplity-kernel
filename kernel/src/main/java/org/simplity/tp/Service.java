@@ -247,6 +247,7 @@ public class Service implements ServiceInterface {
 			}
 		}
 		ServiceData response = new ServiceData();
+		response.setUserId(ctx.getUserId());
 		for (FormattedMessage msg : ctx.getMessages()) {
 			response.addMessage(msg);
 		}

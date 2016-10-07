@@ -24,8 +24,6 @@ package org.simplity.kernel;
 import java.io.File;
 
 import org.simplity.http.HttpAgent;
-import org.simplity.http.PassiveHelper;
-import org.simplity.http.SessionHelper;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -39,7 +37,6 @@ import org.simplity.kernel.file.FileBasedAssistant;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
-import org.simplity.kernel.value.ValueType;
 import org.simplity.service.AccessController;
 import org.simplity.service.CacheManager;
 import org.simplity.service.ExceptionListener;
@@ -136,17 +133,11 @@ public class Application {
 	boolean userIdIsNumber;
 
 	/**
-	 * session helper is a class that implements
-	 * org.simplity.http.WebSessionHelper interface. Simplity uses an instance
-	 * of this class to manage session variables. Session management is also
-	 * associated with login requirements.Simplity provides three default
-	 * classes. HelperForNoLogin during development if session variables are not
-	 * used, DefaultHelper that uses a simple session management, and
-	 * PassiveHelper when this application uses Simplity only as a module, and
-	 * session is not managed by Simplity. You may write your session manager
-	 * based on the application design
+	 * if you want to disable login, and use a dummy user id for all services,
+	 * typically during development/demo. Ensure that this value is numeric in
+	 * case you have set userIdIsNumber="true"
 	 */
-	String sessionHelperClassName;
+	String autoLoginUserId;
 
 	/**
 	 * Response for certain services can be cached. Also, during development, we
@@ -268,21 +259,22 @@ public class Application {
 		if (this.cacheComponents) {
 			ComponentType.startCaching();
 		}
-		if (this.sessionHelperClassName != null) {
-			try {
-				SessionHelper helper = (SessionHelper) Class.forName(
-						this.sessionHelperClassName).newInstance();
-				if (helper instanceof PassiveHelper) {
-					ValueType vt = this.userIdIsNumber ? ValueType.INTEGER
-							: ValueType.TEXT;
-					((PassiveHelper) helper).setUp(this.sessionParams,
-							this.userIdNameInSession, vt);
+		if (this.autoLoginUserId != null) {
+			Value uid = null;
+			if (this.userIdIsNumber) {
+				try {
+					uid = Value.newIntegerValue(Integer
+							.parseInt(this.autoLoginUserId));
+				} catch (Exception e) {
+					Tracer.trace("autoLoginUserId is set to "
+							+ this.autoLoginUserId
+							+ " but it has to be a number because userIdIsNumber is set to true. Autologin is not enabled.");
 				}
-				HttpAgent.setUp(helper);
-			} catch (Exception e) {
-				Tracer.trace(this.sessionHelperClassName
-						+ " could not be used to instantiate a sesion helper. "
-						+ e.getMessage() + " we will use a default helper.");
+			} else {
+				uid = Value.newTextValue(this.autoLoginUserId);
+			}
+			if (uid != null) {
+				HttpAgent.setUp(uid);
 			}
 		}
 		/*
@@ -334,16 +326,22 @@ public class Application {
 				ctx)) {
 			count++;
 		}
-		if (this.classInError(SessionHelper.class, this.sessionHelperClassName,
-				"sessionHelperClassName", ctx)) {
-			count++;
+		if (this.autoLoginUserId != null && this.userIdIsNumber) {
+			try {
+				Integer.parseInt(this.autoLoginUserId);
+			} catch (Exception e) {
+				ctx.addError("autoLoginUserId is set to "
+						+ this.autoLoginUserId
+						+ " but it is to be numeric because userIdIsNumber is set to true");
+				count++;
+			}
 		}
 		if (this.attachmentsFolderPath != null) {
 			File file = new File(this.attachmentsFolderPath);
 			if (file.exists() == false) {
 				ctx.addError("attachmentsFolderPath is set to "
 						+ this.attachmentsFolderPath
-						+ " but it is notnan valid folder path.");
+						+ " but it is not a valid folder path.");
 				count++;
 			}
 			if (this.attachmentAssistantClass != null) {
@@ -424,7 +422,7 @@ public class Application {
 	 */
 	public static void main(String[] args) {
 		String[] parms = { "e:/repos/simplity/WebContent/WEB-INF/comp/",
-		"tutorial.createSheet" };
+				"tutorial.createSheet" };
 		myTest(parms);
 		// myTest(args);
 	}
@@ -440,8 +438,8 @@ public class Application {
 		File file = new File(compPath);
 		if (file.exists() == false) {
 			System.out
-			.println(compPath
-					+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
+					.println(compPath
+							+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
 			System.exit(-1);
 		}
 
@@ -487,15 +485,15 @@ public class Application {
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		System.out.println("response :" + outData.getPayLoad());
 		System.out
-		.println("message :" + JsonUtil.toJson(outData.getMessages()));
+				.println("message :" + JsonUtil.toJson(outData.getMessages()));
 		System.out.println("trace :" + outData.getTrace());
 
 	}
 
 	private static void printUsage() {
 		System.out
-		.println("Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
+				.println("Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
 		System.out
-		.println("example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
+				.println("example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
 	}
 }
