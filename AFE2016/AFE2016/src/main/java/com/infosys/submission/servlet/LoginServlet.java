@@ -28,9 +28,10 @@ public class LoginServlet extends DefaultLogin {
 
 		if (values != null && values[0].equals("encore")) {
 			String userId = "encore";
-			String userToken = "encore";			
-			String csrf = HttpAgent.login(userId, userToken, req.getSession(true));
+			String userToken = "encore";
+			HttpAgent.login(userId, userToken, req.getSession());
 		}
-		resp.sendRedirect(req.getContextPath()+"/index.html");
+		String redirectURI = req.getContextPath() + "/index.html";
+		resp.sendRedirect(redirectURI);
 	}
 }

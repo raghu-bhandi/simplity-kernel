@@ -1,0 +1,81 @@
+BODY {
+	FONT-SIZE: 11px; FONT-FAMILY: Verdana,Arial,sans-serif; COLOR: #333333; PADDING-BOTTOM: 0px; TEXT-ALIGN: center; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; LINE-HEIGHT: 1.166; PADDING-RIGHT: 0px
+}
+A {
+	TEXT-DECORATION: none; COLOR: #006699
+}
+A:link {
+	TEXT-DECORATION: none; COLOR: #0267fe
+}
+A:visited {
+	TEXT-DECORATION: none; COLOR: #0267fe
+}
+A:hover {
+	TEXT-DECORATION: underline; BACKGROUND: #ededed; COLOR: #0267fe
+}
+.seprator_1 {
+	HEIGHT: 30px; BACKGROUND-IMAGE: url(../images/seprator.jpg); BACKGROUND-REPEAT: repeat-x
+}
+.seprator_2 {
+	HEIGHT: 100px; BACKGROUND-IMAGE: url(../images/seprator.jpg); BACKGROUND-REPEAT: repeat-x
+}
+A.top:link {
+	COLOR: #0267fe
+}
+A.top:visited {
+	COLOR: #0267fe
+}
+A.top:hover {
+	COLOR: #0267fe
+}
+A.top:hover {
+	TEXT-DECORATION: underline; BACKGROUND: #ffffff
+}
+H1 {
+	FONT-SIZE: 18px; FONT-FAMILY: Arial, Helvetica, sans-serif; COLOR: #000000; PADDING-BOTTOM: 5px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px
+}
+H2 {
+	FONT-SIZE: 16px; FONT-FAMILY: Arial, Helvetica, sans-serif; COLOR: #333333; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px
+}
+H3 {
+	FONT-SIZE: 18px; FONT-FAMILY: Arial, Helvetica, sans-serif; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px
+}
+H4 {
+	FONT-SIZE: 16px; FONT-FAMILY: Arial, Helvetica, sans-serif; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px
+}
+H5 {
+	FONT-SIZE: 10px; FONT-FAMILY: Arial, Helvetica, sans-serif; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px
+}
+H6 {
+	FONT-SIZE: 12px; FONT-FAMILY: Arial, Helvetica, sans-serif; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px
+}
+P {
+	MARGIN: 0px
+}
+UL {
+	LIST-STYLE-TYPE: square
+}
+UL UL {
+	LIST-STYLE-TYPE: disc
+}
+UL UL UL {
+	LIST-STYLE-TYPE: none
+}
+LABEL {
+	FONT-SIZE: 100%; FONT-FAMILY: Verdana,Arial,sans-serif; FONT-WEIGHT: bold; COLOR: #334d55
+}
+FORM {
+	FONT-SIZE: 11px; FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif; COLOR: #333333; MARGIN: 0px
+}
+#NESTED {
+	WIDTH: 993px; POSITION: relative; PADDING-BOTTOM: 0px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 5px; CLEAR: both; Z-INDEX: 2; PADDING-RIGHT: 5px
+}
+#NESTED P {
+	MARGIN: 0px
+}
+#NESTED .LINE {
+	BORDER-TOP: #858585 2px solid; WIDTH: 554px
+}
+#NESTED .tip {
+	POSITION: absolute; Z-INDEX: 90
+}

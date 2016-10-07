@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<context>
+	<!-- Realm
+		className="org.apache.catalina.realm.JNDIRealm"
+		debug="10"
+		connectionURL="ldap://192.168.200.57:3268/"
+		authentication="simple"
+		referrals="follow"
+		userBase="DC=ad,DC=infosys,DC=com"
+		userSearch="(sAMAccountName={0})"
+		userSubtree="true"
+		userRoleName="msExchUserCulture"
+		connectionName="ENCORE@ITLINFOSYS"
+		connectionPassword="Renew@2020" /-->
+</context>
