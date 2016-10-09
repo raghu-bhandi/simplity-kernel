@@ -94,7 +94,7 @@ public class InputData {
 
 	/**
 	 * this is made static to allow re-use by OutputData as well
-	 * 
+	 *
 	 * @param columns
 	 * @param ctx
 	 * @param toStore
@@ -143,10 +143,15 @@ public class InputData {
 					newKey = AttachmentManager.moveFromStorage(key.toText());
 				}
 				if (newKey == null) {
+					Tracer.trace("Unable to move attachment content with key="
+							+ key + " from/to temp area");
 					ctx.addInternalMessage(MessageType.ERROR,
 							"Error while storing attachment with temp key "
 									+ key);
 				} else {
+					Tracer.trace("Attachment key " + key + " replaced with "
+							+ newKey
+							+ " aftr swapping content from/to temp area");
 					sheet.setColumnValue(colName, i, Value.newTextValue(newKey));
 				}
 			}
@@ -168,16 +173,21 @@ public class InputData {
 						+ " is not specified. Skipping it.");
 				continue;
 			}
+			String newKey = null;
 			if (toStor) {
-				key = AttachmentManager.moveToStorage(key);
+				newKey = AttachmentManager.moveToStorage(key);
 			} else {
-				key = AttachmentManager.moveFromStorage(key);
+				newKey = AttachmentManager.moveFromStorage(key);
 			}
-			if (key == null) {
+			if (newKey == null) {
+				Tracer.trace("Error while managing attachment key " + key);
 				ctx.addValidationMessage(Messages.INVALID_ATTACHMENT_KEY, af,
-						null, null, 0, key);
+						null, null, 0, newKey);
 			} else {
-				ctx.setTextValue(af, key);
+				Tracer.trace("Attachment key " + key + " repalced with "
+						+ newKey
+						+ " after swapping the contnts from/to temp area");
+				ctx.setTextValue(af, newKey);
 			}
 		}
 	}

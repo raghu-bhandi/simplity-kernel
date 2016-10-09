@@ -111,15 +111,17 @@ public class Stream extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		String token = req.getQueryString();
-		Tracer.trace("Received a download request for token " + token);
 		/*
 		 * syntax for asking for download is ?download=key, otherwise it is just
 		 * ?key
 		 */
 		boolean toDownload = false;
 		if (token.indexOf(DOWNLOAD) == 0) {
+			Tracer.trace("Received a download request for token " + token);
 			toDownload = true;
 			token = token.substring(DOWNLOAD.length());
+		} else {
+			Tracer.trace("Received request to stream token " + token);
 		}
 		/*
 		 * do we have a file for this token?
@@ -127,7 +129,7 @@ public class Stream extends HttpServlet {
 
 		File file = FileManager.getTempFile(token);
 		if (file != null) {
-			this.streamFile(resp, file, toDownload);
+			this.streamFile(resp, file, toDownload, null);
 			return;
 		}
 		Tracer.trace("No file available for token " + token);
@@ -135,11 +137,14 @@ public class Stream extends HttpServlet {
 	}
 
 	/**
+	 *
 	 * @param resp
 	 * @param file
+	 * @param toDownload
+	 * @param fileName
 	 */
 	private void streamFile(HttpServletResponse resp, File file,
-			boolean toDownload) {
+			boolean toDownload, String fileName) {
 		InputStream in = null;
 		OutputStream out = null;
 		try {
@@ -150,11 +155,17 @@ public class Stream extends HttpServlet {
 				/*
 				 * we do not know the file name or mime type
 				 */
-				resp.setHeader("Content-Disposition",
-						"attachment; fileName=\"file\"");
+				String hdr = "attachment; fileName=\"";
+				if (fileName == null) {
+					hdr += file.getName();
+				} else {
+					hdr += fileName;
+				}
+				hdr += '"';
+				resp.setHeader("Content-Disposition", hdr.toString());
 			}
 		} catch (Exception e) {
-			Tracer.trace(e, "Error whiel copying file to response");
+			Tracer.trace(e, "Error while copying file to response");
 			resp.setStatus(404);
 		} finally {
 			if (out != null) {

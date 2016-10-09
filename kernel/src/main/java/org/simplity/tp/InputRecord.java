@@ -317,7 +317,7 @@ public class InputRecord {
 		}
 
 		if (this.minRows < 0 || this.maxRows < 0 || this.minRows > this.maxRows) {
-			ctx.addError("minRows and maxRows are to be positive an min shoudl not be greater than max.");
+			ctx.addError("minRows and maxRows are to be positive and min should not be greater than max.");
 			count++;
 		}
 		return count;
