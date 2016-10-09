@@ -24,7 +24,6 @@ package org.simplity.http;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.charset.Charset;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -33,9 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.service.ServiceProtocol;
-
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 /**
  * Our recommendation is that the client application should be designed to
@@ -48,7 +44,6 @@ import com.sun.org.apache.xml.internal.security.utils.Base64;
  * @author simplity.org
  *
  */
-@SuppressWarnings("restriction")
 public class DefaultLogin extends HttpServlet {
 
 	/*
@@ -64,14 +59,7 @@ public class DefaultLogin extends HttpServlet {
 			Tracer.trace("No crdentials received in header for login.");
 			return;
 		}
-		try {
-			text = new String(Base64.decode(text), Charset.forName("UTF-8"));
-			Tracer.trace("Received credentials as " + text);
-		} catch (Base64DecodingException e) {
-			Tracer.trace("Error while decoding credentials " + e.getMessage()
-					+ " login aborted");
-			return;
-		}
+
 		/*
 		 * we expect text to be userId + space + password. space and password
 		 * being optional.

@@ -848,7 +848,7 @@ var Simplity = (function() {
 			if (userToken) {
 				text += ' ' + userToken;
 			}
-			xhr.setRequestHeader(POCOL.USER_TOKEN, btoa(text));
+			xhr.setRequestHeader(POCOL.USER_TOKEN, text);
 			xhr.send('');
 		} catch (e) {
 			showMessages([ {
