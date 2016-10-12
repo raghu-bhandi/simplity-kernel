@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,39 +27,68 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.util.DateUtil;
 
 /**
- * represents a date value. java.lang.Date is mutable, and hence is not suitable
- * to represent a value. We keep date.getTime() as a long. We return a new
- * Date() each time some one asks for value
+ * Very special value, and should not be used except for specific timestap field
+ * defined in an rdbms. Simplity uses time-stamp field to take care of
+ * concurrency issues. This class is designed to facilitate that
  *
  * @author simplity.org
  *
  */
-public class DateValue extends Value {
+public class TimestampValue extends Value {
 	/**
 	 *
 	 */
 	private static final long serialVersionUID = 1L;
+	/**
+	 * this is the number of nano-seconds from epoch. this is
+	 * 1000*Date.getTime()
+	 */
 	private long value;
 
-	protected DateValue(long value) {
+	protected TimestampValue(long value) {
 		this.value = value;
 	}
 
-	protected DateValue() {
+	protected TimestampValue(Timestamp value) {
+		this.value = value.getTime() * 1000 + value.getNanos();
+	}
+
+	protected TimestampValue() {
 		this.valueIsNull = true;
 	}
 
 	@Override
 	public ValueType getValueType() {
-		return ValueType.DATE;
+		return ValueType.TIMESTAMP;
 	}
 
 	@Override
 	protected void format() {
 		this.textValue = "" + this.value;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.kernel.value.Value#toInteger()
+	 */
+	@Override
+	public long toInteger() throws InvalidValueException {
+		return this.value;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.simplity.kernel.value.Value#toDecimal()
+	 */
+	@Override
+	public double toDecimal() throws InvalidValueException {
+		return this.value;
 	}
 
 	@Override
@@ -69,13 +97,13 @@ public class DateValue extends Value {
 		 * we return new date instead of caching because Date, unfortunately, is
 		 * mutable
 		 */
-		return new Date(this.value);
+		return new Date(this.value / 1000);
 	}
 
 	@Override
 	protected boolean equalValue(Value otherValue) {
-		if (otherValue instanceof DateValue) {
-			return ((DateValue) otherValue).value == this.value;
+		if (otherValue instanceof TimestampValue) {
+			return ((TimestampValue) otherValue).value == this.value;
 		}
 		return false;
 	}
@@ -86,40 +114,42 @@ public class DateValue extends Value {
 	 * @return date
 	 */
 	public long getDate() {
+		return this.value / 1000;
+	}
+
+	/**
+	 * method to be used on a concrete class to avoid exception handling
+	 *
+	 * @return date
+	 */
+	public long getInteger() {
 		return this.value;
 	}
 
 	@Override
 	public void setToStatement(PreparedStatement statement, int idx)
 			throws SQLException {
-		if (this.isUnknown()) {
-			statement.setNull(idx, Types.DATE);
+		if (this.valueIsNull) {
+			statement.setNull(idx, Types.TIMESTAMP);
 		} else {
-			if (DateUtil.hasTime(this.value)) {
-				Timestamp dateValue = new Timestamp(this.value);
-				statement.setTimestamp(idx, dateValue);
-			} else {
-				java.sql.Date dateValue = new java.sql.Date(this.value);
-				statement.setDate(idx, dateValue);
-			}
+			Timestamp dateValue = new Timestamp(this.value);
+			Tracer.trace("Set set a timestamp of " + DateUtil.format(dateValue));
+			statement.setTimestamp(idx, dateValue);
 		}
 	}
 
 	@Override
 	public Object getObject() {
-		/*
-		 * should it be java.lang.Date? anyways java.sql.Date extends it.
-		 */
-		return new java.sql.Date(this.value);
+		return new Long(this.value);
 	}
 
 	@Override
 	public Object[] toArray(Value[] values) {
 		int n = values.length;
-		java.sql.Date[] arr = new java.sql.Date[n];
+		Long[] arr = new Long[n];
 		for (int i = 0; i < n; i++) {
-			DateValue val = (DateValue) values[i];
-			arr[i] = new java.sql.Date(val.value);
+			TimestampValue val = (TimestampValue) values[i];
+			arr[i] = new Long(val.value);
 		}
 		return arr;
 	}

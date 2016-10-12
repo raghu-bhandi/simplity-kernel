@@ -395,7 +395,7 @@ public class HttpAgent {
 		Value userId = (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-		.getAttribute(SESSION_NAME_FOR_MAP);
+				.getAttribute(SESSION_NAME_FOR_MAP);
 		if (userId == null) {
 			Tracer.trace("Request by non-logged-in session detected.");
 			if (autoLoginUserId == null) {
@@ -445,7 +445,7 @@ public class HttpAgent {
 	private static void setSessionData(HttpSession session, ServiceData data) {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-		.getAttribute(SESSION_NAME_FOR_MAP);
+				.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
 			Tracer.trace("Unexpected situation. setSession invoked with no active session. Action ignored");
@@ -475,5 +475,16 @@ public class HttpAgent {
 		session.setAttribute(SESSION_NAME_FOR_MAP, sessionData);
 		Tracer.trace("New session data created for " + userId);
 		return sessionData;
+	}
+
+	/**
+	 * get the userId that has logged into this session.
+	 * 
+	 * @param session
+	 *            can not be null
+	 * @return userId, or null if no login so far in this session
+	 */
+	public static Value getLoggedInUser(HttpSession session) {
+		return (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
 	}
 }

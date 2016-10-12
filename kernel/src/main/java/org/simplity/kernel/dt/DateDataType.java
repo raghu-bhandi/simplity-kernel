@@ -57,6 +57,10 @@ public class DateDataType extends DataType {
 		if (value.getValueType() != ValueType.DATE) {
 			return null;
 		}
+		/*
+		 * If this is just date, then we assume that the milli-second represents
+		 * the date in UTC
+		 */
 		long date = ((DateValue) value).getDate();
 		int nbrDays = DateUtil.daysFromToday(date);
 		if (nbrDays >= 0) {
@@ -98,8 +102,7 @@ public class DateDataType extends DataType {
 			return value;
 		}
 
-		// trim time from this value
-		return Value.newDateValue(DateUtil.trimTime(date));
+		return Value.newDateValue(DateUtil.trimDate(date));
 	}
 
 	@Override
@@ -135,7 +138,7 @@ public class DateDataType extends DataType {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.simplity.kernel.dt.DataType#synthesiseDscription()
 	 */
 	@Override
@@ -151,13 +154,14 @@ public class DateDataType extends DataType {
 		}
 		if (minDate != null) {
 			if (maxDate != null) {
-				return "Expecting a date between " + DateUtil.format(minDate)
-						+ " and " + DateUtil.format(maxDate);
+				return "Expecting a date between "
+						+ DateUtil.formatDate(minDate) + " and "
+						+ DateUtil.formatDate(maxDate);
 			}
-			return "Expecting a date after " + DateUtil.format(minDate);
+			return "Expecting a date after " + DateUtil.formatDate(minDate);
 		}
 		if (maxDate != null) {
-			return "Expecting a date before " + DateUtil.format(maxDate);
+			return "Expecting a date before " + DateUtil.formatDate(maxDate);
 		}
 		return "Expecting a valid date";
 	}

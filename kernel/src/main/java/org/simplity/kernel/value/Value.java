@@ -24,6 +24,7 @@ package org.simplity.kernel.value;
 import java.io.Serializable;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -129,6 +130,11 @@ public abstract class Value implements Serializable {
 	 * unknown text
 	 */
 	public static final ClobValue UNKNOWN_CLOB_VALUE = new ClobValue();
+
+	/**
+	 * unknown timestamp
+	 */
+	public static final TimestampValue UNKNOWN_TIMESTAMP_VALUE = new TimestampValue();
 	/**
 	 * true Boolean
 	 */
@@ -139,6 +145,18 @@ public abstract class Value implements Serializable {
 	 */
 	public static final Boolean FALSE_OBJECT = new Boolean(false);
 
+	/**
+	 *
+	 */
+	public static final String JSON_NULL = "null";
+	/**
+	 *
+	 */
+	public static final String JSON_TRUE = "true";
+	/**
+	 *
+	 */
+	public static final String JSON_FALSE = "false";
 	private static final int DATE_LENGTH = 12; // "/yyyy-mm-dd-/".length();
 	private static final int LAST_POSITION = DATE_LENGTH - 1;
 	private static final char DATE_DILIMITER = '/';
@@ -238,6 +256,28 @@ public abstract class Value implements Serializable {
 	}
 
 	/**
+	 * create a time-stamp value
+	 *
+	 * @param nanos
+	 *            nano seconds from epoch
+	 * @return new instance of time-stamp value
+	 */
+	public static TimestampValue newTimestampValue(long nanos) {
+		return new TimestampValue(nanos);
+	}
+
+	/**
+	 * create a time-stamp value
+	 *
+	 * @param stamp
+	 *            instance of a time-stamp
+	 * @return new instance of time-stamp value
+	 */
+	public static TimestampValue newTimestampValue(Timestamp stamp) {
+		return new TimestampValue(stamp);
+	}
+
+	/**
 	 * create a value of desired type by parsing the text input
 	 *
 	 * @param textValue
@@ -264,7 +304,11 @@ public abstract class Value implements Serializable {
 				}
 				return null;
 			case DATE:
-				return new DateValue(Long.parseLong(text));
+				Date date = DateUtil.parseDateWithOptionalTime(text);
+				if (date == null) {
+					return null;
+				}
+				return new DateValue(date.getTime());
 			case DECIMAL:
 				return new DecimalValue(Double.parseDouble(text));
 			case INTEGER:
@@ -275,6 +319,8 @@ public abstract class Value implements Serializable {
 				return new BlobValue(text);
 			case CLOB:
 				return new ClobValue(text);
+			case TIMESTAMP:
+				return new TimestampValue(Long.parseLong(text));
 			default:
 				return new TextValue(text);
 			}
@@ -304,8 +350,11 @@ public abstract class Value implements Serializable {
 			return Value.UNKNOWN_BLOB_VALUE;
 		case CLOB:
 			return Value.UNKNOWN_CLOB_VALUE;
+		case TIMESTAMP:
+			return Value.UNKNOWN_TIMESTAMP_VALUE;
 		default:
-			return Value.UNKNOWN_TEXT_VALUE;
+			throw new ApplicationError(
+					"Value class doe snot take care of value type " + valueType);
 		}
 	}
 
@@ -504,7 +553,7 @@ public abstract class Value implements Serializable {
 		if (n == DATE_LENGTH && c == DATE_DILIMITER
 				&& text.charAt(LAST_POSITION) == DATE_DILIMITER) {
 			String dateText = text.substring(1, text.length() - 1);
-			Date date = DateUtil.parseYmd(dateText);
+			Date date = DateUtil.parseDate(dateText);
 			if (date != null) {
 				return Value.newDateValue(date);
 			}
@@ -525,17 +574,15 @@ public abstract class Value implements Serializable {
 			} catch (Exception e) {
 				// we just tried
 			}
-			/*
-			 * date?
-			 */
-			Date date = DateUtil.parseUtc(text);
-			if (date == null) {
-				date = DateUtil.parseYmd(text);
-			}
-			if (date != null) {
-				return Value.newDateValue(date);
-			}
 		}
+		/*
+		 * date?
+		 */
+		Date date = DateUtil.parseDateWithOptionalTime(text);
+		if (date != null) {
+			return Value.newDateValue(date);
+		}
+
 		return Value.newTextValue(text);
 	}
 
@@ -588,16 +635,16 @@ public abstract class Value implements Serializable {
 		}
 
 		if (object instanceof Date) {
+			if (object instanceof Timestamp) {
+				return newTimestampValue((Timestamp) object);
+			}
 			return newDateValue((Date) object);
 		}
 		/*
 		 * we wouldn't consider well-formed date strings as coincidence
 		 */
 		String val = object.toString();
-		Date date = DateUtil.parseUtc(val);
-		if (date == null) {
-			date = DateUtil.parseYmd(val);
-		}
+		Date date = DateUtil.parseDateWithOptionalTime(val);
 		if (date == null) {
 			return newTextValue(val);
 		}

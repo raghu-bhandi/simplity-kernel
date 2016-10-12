@@ -81,8 +81,7 @@ public class SetValue extends Action {
 						+ "\nerror while evaluating : " + e.getMessage());
 			}
 		} else {
-			Tracer.trace("setValue action " + this.actionName
-					+ "has no fieldVale or expression. ");
+			Tracer.trace("Field " + this.fieldName + " is removed from context");
 		}
 		ctx.setValue(this.fieldName, value);
 		return value;
@@ -95,7 +94,7 @@ public class SetValue extends Action {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.simplity.tp.Action#getReady()
 	 */
 	@Override
@@ -116,12 +115,6 @@ public class SetValue extends Action {
 							+ this.actionName + " has an invalid fieldValue="
 							+ this.fieldValue);
 				}
-			}
-		} else {
-			if (this.expression == null) {
-				throw new ApplicationError("SetValue action '"
-						+ this.actionName
-						+ "' has neither specified fieldValue, nor expression.");
 			}
 		}
 	}

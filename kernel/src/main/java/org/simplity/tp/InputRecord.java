@@ -160,8 +160,15 @@ public class InputRecord {
 		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
 		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
 		if (this.sheetName == null) {
-			int nbr = JsonUtil.extractFields(json, this.fields, ctx, errors,
-					allFieldsAreOptional);
+			int nbr = 0;
+			if (this.purpose == DataPurpose.FILTER) {
+				nbr = JsonUtil.extractFilterFields(json, this.fields, ctx,
+						errors);
+
+			} else {
+				nbr = JsonUtil.extractFields(json, this.fields, ctx, errors,
+						allFieldsAreOptional);
+			}
 			Tracer.trace("Input Record extracted " + nbr + " fields into ctx");
 
 			if (errors.size() > 0) {

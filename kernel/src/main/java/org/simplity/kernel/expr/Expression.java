@@ -109,7 +109,7 @@ public class Expression {
 	 * model, if an expression has n operands, it is solved in n-1 steps, each
 	 * step carrying out one binary operation between two operands replacing
 	 * them with the resultant value.
-	 * 
+	 *
 	 * <p>And, we handle braces by parsing them into 'sub-expression'.
 	 * sub-expression is treated like an operand.
 	 */
@@ -327,10 +327,10 @@ public class Expression {
 		/*
 		 * first argument is always at idx=0. idx of subsequent arguments in
 		 * value[] are available as step.right attribute.
-		 *
+		 * 
 		 * For example if it is a simple (a,b), then there is one step with
 		 * left=0, and right=1
-		 *
+		 * 
 		 * if it is (a+b, c) then left=0, right=2 for step[1]
 		 */
 
@@ -372,7 +372,7 @@ public class Expression {
 		int nbrSubExpr = 0;
 		for (Operand operand : this.operands) {
 			sbf.append(i).append(" : ")
-					.append(operand.uop == null ? "" : operand.uop);
+			.append(operand.uop == null ? "" : operand.uop);
 			if (operand.value != null) {
 				sbf.append(operand.value);
 			}
@@ -387,8 +387,8 @@ public class Expression {
 		i = 1;
 		for (Step step : this.calculationSteps) {
 			sbf.append(i).append(" : operand-").append(step.left + 1)
-					.append("  ").append(step.bop).append("  ")
-					.append(step.right + 1).append("\n");
+			.append("  ").append(step.bop).append("  ")
+			.append(step.right + 1).append("\n");
 			i++;
 		}
 		if (nbrSubExpr > 0) {
@@ -507,8 +507,8 @@ public class Expression {
 					throw new InternalParseException(startAt + " "
 							+ this.parsingAt + " " + "Opening brace "
 							+ this.chars[startAt - 1]
-							+ " found a matching, but different closing brace "
-							+ c, this.parsingAt);
+									+ " found a matching, but different closing brace "
+									+ c, this.parsingAt);
 				}
 				if (this.operandExpected) {
 					this.parseForOperand(c);
@@ -524,7 +524,7 @@ public class Expression {
 				throw new InternalParseException(
 						"No closing brace found for the opening brace "
 								+ openingBracket + " that was at " + startAt,
-								this.parsingAt);
+						this.parsingAt);
 			}
 
 			if (this.operandExpected) {
@@ -695,7 +695,7 @@ public class Expression {
 						throw new InternalParseException(
 								"This operand has an invalid unary opeator "
 										+ this.currentOperand.uop,
-								this.parsingAt - 1);
+										this.parsingAt - 1);
 					}
 					Expression exp = this.parseSubExpression(true);
 					if (exp.operands != null) {
@@ -771,11 +771,11 @@ public class Expression {
 					- this.parsingAt);
 			Value value = null;
 			if (delimiter == Chars.DIVIDE) {
-				Date date = DateUtil.parseYmd(token);
+				Date date = DateUtil.parseDateWithOptionalTime(token);
 				if (date == null) {
 					throw new InternalParseException(
 							token
-									+ " is not a valid date. yyyy-mm-dd is the only acceptable format for date.",
+							+ " is not a valid date. yyyy-mm-dd and yyyy-mm-ddThh:mm:ss.sssZ (UTC standard) are the only acceptable format for date.",
 							this.parsingAt);
 				}
 				value = Value.newDateValue(date);
@@ -933,7 +933,7 @@ public class Expression {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

@@ -47,6 +47,9 @@
 							<xs:element
 								name="blobDataType"
 								type="Ctype" />
+							<xs:element
+								name="timestampDataType"
+								type="Ctype"><xs:annotation><xs:documentation>There is a predefined type called timestamp. Use that. There is no point defining another one</xs:documentation></xs:annotation></xs:element>
 						</xs:choice>
 					</xs:complexType>
 				</xs:element>
@@ -646,13 +649,14 @@
 				type="xs:boolean"
 				use="optional" />
 			<xs:attribute
-				name="keyGeneratorName"
+				name="keyValueExpression"
 				type="xs:string"
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>If you are using a sequence, set this field to
-						sat seq1.nextval
+					<xs:documentation>Ignored for non-oracle db. If you use a seqence named seq1,
+						then set this to seq1.nextval.
+						Defaults to tableName_seq.nextval, as per default standard used in oracle
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -1047,7 +1051,8 @@
 								<xs:documentation>Comma separated list if fields that carry the
 									key for attachment files. These MUST be included in the input
 									fields. This is an additional info about those fields for us to
-									manage the attachment</xs:documentation>
+									manage the attachment
+								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
 						<xs:attribute
@@ -1100,7 +1105,8 @@
 								<xs:documentation>Comma separated list if fields that carry the
 									key for attachment files. These MUST be included in the input
 									fields. This is an additional info about those fields for us to
-									manage the attachment</xs:documentation>
+									manage the attachment
+								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
 						<xs:attribute
@@ -2540,17 +2546,16 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="sessionHelperClassName"
+				name="autoLoginUserId"
 				type="xs:string"
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>If this application is managing the session, use
-						org.simplity.htpp.DefaultHelper. If during development we want to
-						work with no login, use org.simplity.http.HelperForNoLogin. If
-						this app has to work under another application that manages
-						session fields, then you may use org.simplity.http.PassiveHelper,
-						or write your own class on those lines.
+					<xs:documentation>During development/demo, login woudl be a
+						nuisance. You may disable that, and use a default userId for all
+						services. Esnure that this is a number in case your project uses
+						numeric value as userId, as set in userIdIsNumber
+						attribute.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2618,7 +2623,9 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>Simplity povides a simple way to store attachments in folder that is accessible to web tier as well as App tier. Use this attribute to set the folder.
+					<xs:documentation>Simplity povides a simple way to store
+						attachments in folder that is accessible to web tier as well as
+						App tier. Use this attribute to set the folder.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2628,7 +2635,9 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>Way to interface with your own attachment management infrastructure. This plug-in handles storage and retrieval for all your services. Refer to
+					<xs:documentation>Way to interface with your own attachment
+						management infrastructure. This plug-in handles storage and
+						retrieval for all your services. Refer to
 						org.simplity.AttachmentManager class
 					</xs:documentation>
 				</xs:annotation>

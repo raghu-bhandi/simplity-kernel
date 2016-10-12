@@ -43,11 +43,10 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.simplity.kernel.util.DateUtil;
-
 import java.util.ResourceBundle;
 import java.util.Set;
+
+import org.simplity.kernel.util.DateUtil;
 
 /**
  * A JSONObject is an unordered collection of name/value pairs. Its external
@@ -467,8 +466,8 @@ public class JSONObject {
 	/**
 	 * Get the enum value associated with a key.
 	 *
-	 * @param <E> 
-	 * 		  Enum class		
+	 * @param <E>
+	 *            Enum class
 	 *
 	 * @param clazz
 	 *            The type of enum to retrieve.
@@ -586,14 +585,13 @@ public class JSONObject {
 	 *            A key string.
 	 * @return The numeric value.
 	 * @throws JSONException
-	 *             if the key is not found or if the value is not a Date
-	 *             object.
+	 *             if the key is not found or if the value is not a Date object.
 	 */
 	public Date getDate(String key) throws JSONException {
-		Date date = optDate(key);
-		if(date == null){
+		Date date = this.optDate(key);
+		if (date == null) {
 			throw new JSONException("JSONObject[" + quote(key)
-			+ "] is not a UTC formatted Date.");
+					+ "] is not a UTC formatted Date.");
 		}
 		return date;
 	}
@@ -678,7 +676,9 @@ public class JSONObject {
 
 	/**
 	 * Get an array of field names from a JSONObject.
-	 * @param jo json object
+	 *
+	 * @param jo
+	 *            json object
 	 *
 	 * @return An array of field names, or null if there are no names.
 	 */
@@ -699,8 +699,9 @@ public class JSONObject {
 
 	/**
 	 * Get an array of field names from an Object.
-	 * @param object 
-	 * 			Object
+	 *
+	 * @param object
+	 *            Object
 	 *
 	 * @return An array of field names, or null if there are no names.
 	 */
@@ -770,7 +771,7 @@ public class JSONObject {
 		} else if (value instanceof BigDecimal) {
 			this.put(key, ((BigDecimal) value).add(BigDecimal.ONE));
 		} else if (value instanceof Integer) {
-			this.put(key, (((Integer)value).intValue() + 1));
+			this.put(key, (((Integer) value).intValue() + 1));
 		} else if (value instanceof Long) {
 			this.put(key, (((Long) value).longValue() + 1));
 		} else if (value instanceof Double) {
@@ -1035,19 +1036,19 @@ public class JSONObject {
 	 * @return Date, or null if there is no value for this key
 	 */
 	public Date optDate(String key) {
-			Object object = this.get(key);
-			if(object == null){
-				return null;
-			}
-			if(object instanceof Date){
-				return (Date) object;
-			}
-			try{
-				return DateUtil.parseUtc(object.toString());
-			}catch(Exception e){
-				return null;
-			}
+		Object object = this.get(key);
+		if (object == null) {
+			return null;
 		}
+		if (object instanceof Date) {
+			return (Date) object;
+		}
+		try {
+			return DateUtil.parseDateWithOptionalTime(object.toString());
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
 	/**
 	 * Get an optional int value associated with a key, or zero if there is no
@@ -1239,7 +1240,7 @@ public class JSONObject {
 	 *            A Collection value.
 	 * @return this.
 	 * @throws JSONException
-	 * 			Exception
+	 *             Exception
 	 */
 	public JSONObject put(String key, Collection<?> value) throws JSONException {
 		this.put(key, new JSONArray(value));
@@ -1274,7 +1275,7 @@ public class JSONObject {
 	 *             If the key or value are null.
 	 */
 	public JSONObject put(String key, Date value) throws JSONException {
-		if(key == null || value == null){
+		if (key == null || value == null) {
 			throw new JSONException("key or value for put is null");
 		}
 		this.put(key, value);
@@ -1323,7 +1324,7 @@ public class JSONObject {
 	 *            A Map value.
 	 * @return this.
 	 * @throws JSONException
-	 * 			Exception
+	 *             Exception
 	 */
 	public JSONObject put(String key, Map<?, ?> value) throws JSONException {
 		this.put(key, new JSONObject(value));
@@ -1400,6 +1401,7 @@ public class JSONObject {
 		}
 		return this;
 	}
+
 	/**
 	 * Produce a string in double quotes with backslash sequences in all the
 	 * right places. A backslash will be inserted within </, producing <\/,
@@ -1424,13 +1426,12 @@ public class JSONObject {
 
 	/**
 	 * @param string
-	 * 			String
+	 *            String
 	 * @param w
-	 * 			w
-	 * @return writer
-	 * 			Writer
+	 *            w
+	 * @return writer Writer
 	 * @throws IOException
-	 * 			Exception
+	 *             Exception
 	 */
 	public static Writer quote(String string, Writer w) throws IOException {
 		if (string == null || string.length() == 0) {
@@ -1586,7 +1587,7 @@ public class JSONObject {
 					if (string.equals(myLong.toString())) {
 						if (myLong == myLong.intValue()) {
 							return myLong.intValue();
-						} 
+						}
 						return myLong;
 					}
 				}
@@ -1736,7 +1737,7 @@ public class JSONObject {
 		 * date added by simplity.org
 		 */
 		if (value instanceof Date) {
-			return quote(DateUtil.toUtc((Date)value));
+			return quote(DateUtil.format((Date) value));
 		}
 		if (value instanceof Map) {
 			Map<?, ?> map = (Map<?, ?>) value;
@@ -1810,11 +1811,12 @@ public class JSONObject {
 	 * compactness, no whitespace is added.
 	 * <p>
 	 * Warning: This method assumes that the data structure is acyclical.
-	 * @param writer 
-	 *			Writer
+	 *
+	 * @param writer
+	 *            Writer
 	 * @return The writer.
 	 * @throws JSONException
-	 * 			Exception
+	 *             Exception
 	 */
 	public Writer write(Writer writer) throws JSONException {
 		return this.write(writer, 0, 0);
@@ -1841,7 +1843,7 @@ public class JSONObject {
 		} else if (value instanceof Boolean) {
 			writer.write(value.toString());
 		} else if (value instanceof Date) {
-			writer.write(quote(DateUtil.toUtc((Date)value)));
+			writer.write(quote(DateUtil.format((Date) value)));
 		} else if (value instanceof JSONString) {
 			Object o;
 			try {
@@ -1876,7 +1878,7 @@ public class JSONObject {
 	 *            The indention of the top level.
 	 * @return The writer.
 	 * @throws JSONException
-	 * 			Exception
+	 *             Exception
 	 */
 	public Writer write(Writer writer, int indentFactor, int indent)
 			throws JSONException {

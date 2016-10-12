@@ -206,7 +206,7 @@ public class TextUtil {
 				throw new XmlParseException(e.getMessage());
 			}
 		} else if (type.equals(Date.class)) {
-			Date date = DateUtil.parseYmd(value);
+			Date date = DateUtil.parseDate(value);
 			if (date == null) {
 				throw new XmlParseException(value
 						+ " is not in yyyy-mm-dd format");

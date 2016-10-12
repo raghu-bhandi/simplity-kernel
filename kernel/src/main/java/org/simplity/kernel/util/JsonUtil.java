@@ -306,17 +306,21 @@ public class JsonUtil {
 			Value value = null;
 			if (val != null) {
 				value = field.getValueType().parseObject(val);
-				/*
-				 * this is validation, and not exactly parse
-				 */
-				value = field.parse(value, errors, allFieldsAreOptional, null);
+				if (value == null) {
+					errors.add(new FormattedMessage(Messages.INVALID_VALUE,
+							null, field.getName(), null, 0, '\''
+									+ val.toString() + "' is not a valid "
+									+ field.getValueType()));
+					continue;
+				}
 			}
+			/*
+			 * this is validation, and not exactly parse.
+			 */
+			value = field.parse(value, errors, allFieldsAreOptional, null);
 			if (value != null) {
 				ctx.setValue(field.getName(), value);
 				result++;
-			} else {
-				Tracer.trace("Field " + field.getName()
-						+ " failed to get any value");
 			}
 		}
 		return result;
@@ -385,7 +389,7 @@ public class JsonUtil {
 			List<FormattedMessage> validationErrors, String fieldName,
 			ValueType valueType) {
 
-		Object obj = json.optString(fieldName);
+		Object obj = json.opt(fieldName);
 		if (obj == null) {
 			return 0;
 		}

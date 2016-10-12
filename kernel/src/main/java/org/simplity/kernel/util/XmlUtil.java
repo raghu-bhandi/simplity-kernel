@@ -210,7 +210,7 @@ public class XmlUtil {
 	 */
 	public static void xmlToCollection(InputStream stream,
 			Map<String, Object> objects, String packageName)
-					throws XmlParseException {
+			throws XmlParseException {
 		Node node = getDocument(stream).getDocumentElement().getFirstChild();
 		while (node != null) {
 			if (node.getNodeName().equals(COMPONENTS) == false) {
@@ -305,12 +305,17 @@ public class XmlUtil {
 					Class klass = Class.forName(packageName + className);
 					Object object = klass.newInstance();
 					String compName = ele.getAttribute(NAME_ATTRIBUTE);
-					elementToObject(ele, object);
-					objects.put(compName, object);
+					if (objects.containsKey(compName)) {
+						Tracer.trace(compName + " is a duplicate " + className
+								+ ". Component definition skipped.");
+					} else {
+						elementToObject(ele, object);
+						objects.put(compName, object);
+					}
 				} catch (ClassNotFoundException e) {
 					Tracer.trace(className
 							+ " is not a valid class in package " + packageName
-							+ ". element ignored while loadiing components");
+							+ ". element ignored while loading components");
 				} catch (InstantiationException e) {
 					Tracer.trace(className + " in package " + packageName
 							+ "Could not be instantiated: " + e.getMessage());
@@ -346,7 +351,12 @@ public class XmlUtil {
 								+ " as attributes of element " + ENTRY
 								+ ". Element ignored");
 					} else {
-						objects.put(compName, className);
+						if (objects.containsKey(compName)) {
+							Tracer.trace(compName
+									+ " is a duplicate entry. class name definition ignored.");
+						} else {
+							objects.put(compName, className);
+						}
 					}
 				} else {
 					Tracer.trace("Expecting an element named " + ENTRY
@@ -750,7 +760,7 @@ public class XmlUtil {
 	 */
 	private static Object elementToSubclass(Element element, Field field,
 			Class<?> referenceType, Object parentObject)
-					throws XmlParseException {
+			throws XmlParseException {
 
 		Object thisObject = null;
 		String elementName = element.getTagName();
@@ -800,7 +810,7 @@ public class XmlUtil {
 	 */
 	private static List<?> elementToList(Element element, Field field,
 			Class<?> referenceType, Object parentObject)
-					throws XmlParseException {
+			throws XmlParseException {
 		List<Object> objects = new ArrayList<Object>();
 		Node child = element.getFirstChild();
 		while (child != null) {
@@ -1024,7 +1034,7 @@ public class XmlUtil {
 		 * just that we expect 80% calls where value is String.
 		 */
 		if (value instanceof String) {
-			value.toString();
+			return value.toString();
 		}
 
 		if (value instanceof Date) {

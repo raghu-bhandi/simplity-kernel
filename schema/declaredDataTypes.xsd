@@ -15,6 +15,7 @@
       <xs:enumeration value="_text" />
       <xs:enumeration value="_clob" />
       <xs:enumeration value="_blob" />
+      <xs:enumeration value="_timestamp" />
       <!-- defined in exampleDataTypes.xml -->
 
       <!--  boolean -->
@@ -33,6 +34,7 @@
       <xs:enumeration value="shortName" />
       <xs:enumeration value="text" />
       <xs:enumeration value="text1" />
+      <xs:enumeration value="text50" />
       <xs:enumeration value="userName" />
       
       <!-- integral -->
@@ -54,10 +56,10 @@
       <xs:enumeration value="dateTime" />
       <xs:enumeration value="futureDate" />
       <xs:enumeration value="pastDate" />
-      <xs:enumeration value="timeStamp" />
-<!-- CLOB-BLOB -->
+<!-- special ones -->
       <xs:enumeration value="clob" />
       <xs:enumeration value="blob" />
+      <xs:enumeration value="timestamp" />
     </xs:restriction>
   </xs:simpleType>
 </xs:schema>

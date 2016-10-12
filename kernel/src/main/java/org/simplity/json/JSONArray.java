@@ -168,7 +168,7 @@ public class JSONArray implements Iterable<Object> {
 	 * Construct a JSONArray from an array
 	 *
 	 * @param array
-	 * 			Array
+	 *            Array
 	 *
 	 * @throws JSONException
 	 *             If not an array.
@@ -262,11 +262,12 @@ public class JSONArray implements Iterable<Object> {
 	 */
 	public Date optDate(int index) {
 		Object object = this.get(index);
-		if(object instanceof Date) {
-			return  (Date) object;
+		if (object instanceof Date) {
+			return (Date) object;
 		}
-		return  DateUtil.parseUtc(object.toString());
+		return DateUtil.parseDateWithOptionalTime(object.toString());
 	}
+
 	/**
 	 * Get the Date value associated with an index.
 	 *
@@ -278,17 +279,19 @@ public class JSONArray implements Iterable<Object> {
 	 *             to a Date.
 	 */
 	public Date getDate(int index) throws JSONException {
-		Date date = optDate(index);
-		if(date == null){
-			throw new JSONException("JSONArray[" + index + "] is not a date or string in UTC date format.");
+		Date date = this.optDate(index);
+		if (date == null) {
+			throw new JSONException("JSONArray[" + index
+					+ "] is not a date or string in UTC date format.");
 		}
 		return date;
 	}
+
 	/**
 	 * Get the enum value associated with an index.
 	 *
-	 * @param	<E>
-	 * 			Enum class
+	 * @param <E>
+	 *            Enum class
 	 * @param clazz
 	 *            The type of enum to retrieve.
 	 * @param index
@@ -601,10 +604,10 @@ public class JSONArray implements Iterable<Object> {
 	 * Get the enum value associated with a key.
 	 *
 	 * @param <E>
-	 * 		Enum class	
+	 *            Enum class
 	 *
 	 * @param clazz
-	 *          The type of enum to retrieve.
+	 *            The type of enum to retrieve.
 	 * @param index
 	 *            The index must be between 0 and length() - 1.
 	 * @return The enum value at the index location or null if not found
@@ -617,7 +620,7 @@ public class JSONArray implements Iterable<Object> {
 	 * Get the enum value associated with a key.
 	 *
 	 * @param <E>
-	 *        Enum class 
+	 *            Enum class
 	 * @param clazz
 	 *            The type of enum to retrieve.
 	 * @param index
@@ -1104,7 +1107,7 @@ public class JSONArray implements Iterable<Object> {
 	 *         bracket)</small> and ending with <code>]</code>
 	 *         &nbsp;<small>(right bracket)</small>.
 	 * @throws JSONException
-	 * 			Exception
+	 *             Exception
 	 */
 	public String toString(int indentFactor) throws JSONException {
 		StringWriter sw = new StringWriter();
@@ -1120,11 +1123,11 @@ public class JSONArray implements Iterable<Object> {
 	 * Warning: This method assumes that the data structure is acyclical.
 	 *
 	 * @param writer
-	 * 		Writer
+	 *            Writer
 	 *
 	 * @return The writer.
 	 * @throws JSONException
-	 * 			Exception
+	 *             Exception
 	 */
 	public Writer write(Writer writer) throws JSONException {
 		return this.write(writer, 0, 0);
@@ -1144,7 +1147,7 @@ public class JSONArray implements Iterable<Object> {
 	 *            The indention of the top level.
 	 * @return The writer.
 	 * @throws JSONException
-	 * 			Exception
+	 *             Exception
 	 */
 	public Writer write(Writer writer, int indentFactor, int indent)
 			throws JSONException {

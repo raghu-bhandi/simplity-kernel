@@ -234,8 +234,8 @@ public class ServiceContext extends CommonData {
 	public String getSummaryInfo() {
 		StringBuilder sbf = new StringBuilder("Context has ");
 		sbf.append(this.allFields.size()).append(" fields and ")
-				.append(this.allSheets.size()).append(" sheets and ")
-		.append(this.messages.size()).append(" messages.");
+		.append(this.allSheets.size()).append(" sheets and ")
+				.append(this.messages.size()).append(" messages.");
 		return sbf.toString();
 	}
 
@@ -250,6 +250,9 @@ public class ServiceContext extends CommonData {
 		}
 		for (FormattedMessage msg : errors) {
 			this.messages.add(msg);
+			if (msg.messageType == MessageType.ERROR) {
+				this.nbrErrors++;
+			}
 		}
 
 	}

@@ -759,9 +759,6 @@ public class DbDriver {
 	 */
 	private void getGeneratedKeys(Statement stmt, long[] generatedKeys)
 			throws SQLException {
-		/*
-		 * SQL server has issues with getting the generated keys...
-		 */
 		ResultSet rs = stmt.getGeneratedKeys();
 		for (int i = 0; i < generatedKeys.length && rs.next(); i++) {
 			generatedKeys[i] = rs.getLong(1);

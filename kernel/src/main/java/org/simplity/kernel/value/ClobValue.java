@@ -78,7 +78,10 @@ public class ClobValue extends TextValue {
 	@Override
 	public void setToStatement(PreparedStatement statement, int idx)
 			throws SQLException {
-		Clob clob = this.getClob(statement.getConnection());
+		Clob clob = null;
+		if (this.valueIsNull == false) {
+			clob = this.getClob(statement.getConnection());
+		}
 		if (clob == null) {
 			statement.setNull(idx, Types.CLOB);
 		} else {

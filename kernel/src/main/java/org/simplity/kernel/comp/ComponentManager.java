@@ -58,7 +58,11 @@ public class ComponentManager {
 	 * @return message if it is defined, error otherwise
 	 */
 	public static Message getMessage(String messageName) {
-		return (Message) ComponentType.MSG.getComponentOrNull(messageName);
+		Component comp = ComponentType.MSG.getComponentOrNull(messageName);
+		if (comp == null) {
+			throw new ApplicationError(messageName + " is not a valid message.");
+		}
+		return (Message) comp;
 	}
 
 	/**
@@ -79,7 +83,12 @@ public class ComponentManager {
 	 * @return DataType if it is defined, error otherwise
 	 */
 	public static DataType getDataType(String dataTypeName) {
-		return (DataType) ComponentType.DT.getComponentOrNull(dataTypeName);
+		Component comp = ComponentType.DT.getComponentOrNull(dataTypeName);
+		if (comp == null) {
+			throw new ApplicationError(dataTypeName
+					+ " is not a valid data type");
+		}
+		return (DataType) comp;
 	}
 
 	/**
@@ -100,7 +109,11 @@ public class ComponentManager {
 	 * @return Record if it is defined, error otherwise
 	 */
 	public static Record getRecord(String recordName) {
-		return (Record) ComponentType.REC.getComponentOrNull(recordName);
+		Component comp = ComponentType.REC.getComponentOrNull(recordName);
+		if (comp == null) {
+			throw new ApplicationError(recordName + " is not a valid record.");
+		}
+		return (Record) comp;
 	}
 
 	/**
@@ -122,8 +135,11 @@ public class ComponentManager {
 	 * @return Service if it is defined, error otherwise
 	 */
 	public static ServiceInterface getService(String serviceName) {
-		return (ServiceInterface) ComponentType.SERVICE
-				.getComponentOrNull(serviceName);
+		Component comp = ComponentType.SERVICE.getComponentOrNull(serviceName);
+		if (comp == null) {
+			throw new ApplicationError(serviceName + " is not a valid service.");
+		}
+		return (ServiceInterface) comp;
 	}
 
 	/**
@@ -144,7 +160,11 @@ public class ComponentManager {
 	 * @return message if it is defined, error otherwise
 	 */
 	public static Sql getSql(String sqlName) {
-		return (Sql) ComponentType.SQL.getComponentOrNull(sqlName);
+		Component comp = ComponentType.SQL.getComponentOrNull(sqlName);
+		if (comp == null) {
+			throw new ApplicationError(sqlName + " is not a valid SQL.");
+		}
+		return (Sql) comp;
 	}
 
 	/**
@@ -166,8 +186,12 @@ public class ComponentManager {
 	 * @return StoredProcedure if it is defined, error otherwise
 	 */
 	public static StoredProcedure getStoredProcedure(String procedureName) {
-		return (StoredProcedure) ComponentType.SP
-				.getComponentOrNull(procedureName);
+		Component comp = ComponentType.SP.getComponentOrNull(procedureName);
+		if (comp == null) {
+			throw new ApplicationError(procedureName
+					+ " is not a valid stored procedure.");
+		}
+		return (StoredProcedure) comp;
 	}
 
 	/**
@@ -189,8 +213,12 @@ public class ComponentManager {
 	 * @return StoredProcedure if it is defined, error otherwise
 	 */
 	public static Function getFunction(String functionName) {
-		return (Function) ComponentType.FUNCTION
+		Component comp = ComponentType.FUNCTION
 				.getComponentOrNull(functionName);
+		if (comp == null) {
+			throw new ApplicationError(functionName + " is not a vaid message.");
+		}
+		return (Function) comp;
 	}
 
 	/**

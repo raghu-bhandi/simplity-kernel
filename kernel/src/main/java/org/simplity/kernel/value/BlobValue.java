@@ -61,7 +61,7 @@ public class BlobValue extends TextValue {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.simplity.kernel.value.TextValue#getValueType()
 	 */
 	@Override
@@ -71,7 +71,7 @@ public class BlobValue extends TextValue {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.simplity.kernel.value.TextValue#setToStatement(java.sql.PreparedStatement
 	 * , int)
@@ -79,7 +79,10 @@ public class BlobValue extends TextValue {
 	@Override
 	public void setToStatement(PreparedStatement statement, int idx)
 			throws SQLException {
-		Blob blob = this.getBlob(statement.getConnection());
+		Blob blob = null;
+		if (this.valueIsNull == false) {
+			blob = this.getBlob(statement.getConnection());
+		}
 		if (blob == null) {
 			statement.setNull(idx, Types.BLOB);
 		} else {

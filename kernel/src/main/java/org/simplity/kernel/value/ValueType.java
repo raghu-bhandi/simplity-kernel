@@ -27,9 +27,9 @@ import java.io.Reader;
 import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 
 import org.simplity.kernel.ApplicationError;
@@ -124,7 +124,8 @@ public enum ValueType {
 				try {
 					val = Long.parseLong(dbObject.toString());
 				} catch (Exception e) {
-					//
+					Tracer.trace(dbObject.toString() + " is an invalid number.");
+					return null;
 				}
 			}
 			return Value.newIntegerValue(val);
@@ -180,10 +181,10 @@ public enum ValueType {
 				try {
 					val = Double.parseDouble(dbObject.toString());
 				} catch (Exception e) {
-					//
+					Tracer.trace(dbObject.toString() + " is an invalid number.");
+					return null;
 				}
 			}
-			Tracer.trace("I converted " + dbObject + " to " + val);
 			return Value.newDecimalValue(val);
 		}
 
@@ -286,17 +287,18 @@ public enum ValueType {
 		@Override
 		public Value extractFromRs(ResultSet resultSet, int idx)
 				throws SQLException {
-			Date val = resultSet.getDate(idx);
+			Timestamp val = resultSet.getTimestamp(idx);
 			if (resultSet.wasNull()) {
 				return Value.newUnknownValue(DATE);
 			}
+			Tracer.trace("DAte value extracted : " + DateUtil.format(val));
 			return Value.newDateValue(val);
 		}
 
 		@Override
 		public Value extractFromSp(CallableStatement stmt, int idx)
 				throws SQLException {
-			Date val = stmt.getDate(idx);
+			Timestamp val = stmt.getTimestamp(idx);
 			if (stmt.wasNull()) {
 				return Value.newUnknownValue(DATE);
 			}
@@ -311,17 +313,15 @@ public enum ValueType {
 		@Override
 		public Value fromObject(Object dbObject) {
 			if (dbObject instanceof java.util.Date) {
-				return Value.newDateValue((java.util.Date) dbObject);
+				return Value
+						.newDateValue(((java.util.Date) dbObject).getTime());
 			}
 			String val = dbObject.toString();
-			java.util.Date date = DateUtil.parseUtc(val);
-			if (date == null) {
-				date = DateUtil.parseYmd(val);
-			}
+			java.util.Date date = DateUtil.parseDateWithOptionalTime(val);
 			if (date != null) {
-				return new DateValue(date.getTime());
+				return Value.newDateValue(date);
 			}
-			return Value.newUnknownValue(this);
+			return null;
 		}
 
 		@Override
@@ -472,6 +472,66 @@ public enum ValueType {
 					//
 				}
 			}
+		}
+	},
+	/**
+	 * time-stamp that is specifically used for RDBMS related operations
+	 */
+	TIMESTAMP(Types.TIMESTAMP, "TIMESTAMP", "_timestamp") {
+		@Override
+		public Value extractFromRs(ResultSet resultSet, int idx)
+				throws SQLException {
+			Timestamp ts = resultSet.getTimestamp(idx);
+			if (resultSet.wasNull()) {
+				return Value.newUnknownValue(INTEGER);
+			}
+			Tracer.trace("Extracted a time stamp " + ts + " and nanos = "
+					+ ts.getNanos());
+			long val = ts.getTime() * 1000 + ts.getNanos();
+			return Value.newIntegerValue(val);
+		}
+
+		@Override
+		public Value extractFromSp(CallableStatement stmt, int idx)
+				throws SQLException {
+			Timestamp ts = stmt.getTimestamp(idx);
+			if (stmt.wasNull()) {
+				return Value.newUnknownValue(INTEGER);
+			}
+			long val = ts.getTime() * 1000 + ts.getNanos();
+			return Value.newIntegerValue(val);
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
+		 * )
+		 */
+		@Override
+		public Value fromObject(Object dbObject) {
+			long val = 0;
+			if (dbObject instanceof Timestamp) {
+				return Value.newTimestampValue((Timestamp) dbObject);
+			}
+			try {
+				val = Long.parseLong(dbObject.toString());
+			} catch (Exception e) {
+				return null;
+			}
+			return Value.newTimestampValue(val);
+		}
+
+		@Override
+		public Value[] toValues(Object[] arr) {
+			int n = arr.length;
+			Value[] result = new Value[n];
+			int i = 0;
+			for (Object obj : arr) {
+				result[i] = this.fromObject(obj);
+				i++;
+			}
+			return result;
 		}
 	};
 

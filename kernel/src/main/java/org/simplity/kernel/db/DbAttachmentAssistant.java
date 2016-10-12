@@ -29,7 +29,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.file.AttachmentAssistant;
@@ -49,6 +48,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 			+ " where attachment_id = ?";
 	private static final String GET_SQL = "SELECT attachment FROM "
 			+ TABLE_NAME + " where attachment_id = ?";
+	private static final String[] KEYS = { "attachment_id" };
 
 	private final String saveSql;
 
@@ -75,29 +75,15 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 		long generatedKey = 0;
 		Connection con = DbDriver.getConnection(DbAccessType.READ_WRITE, null);
 		try {
-			PreparedStatement stmt = con.prepareStatement(this.saveSql);
+			PreparedStatement stmt = con.prepareStatement(this.saveSql, KEYS);
 			stmt.setBinaryStream(1, inStream);
 			int result = stmt.executeUpdate();
 			if (result > 0) {
-				try {
-					ResultSet rs = stmt.getGeneratedKeys();
-					if (rs.next()) {
-						generatedKey = rs.getLong(1);
-					}
-					rs.close();
-				} catch (Exception e) {
-					Tracer.trace("getGeneratedKeys failed. Issue with Oracle.");
-					Statement st = con.createStatement();
-
-					ResultSet rs = st
-							.executeQuery("select max(attachment_id) from internal_attachments");
-					if (rs.next()) {
-						generatedKey = rs.getLong(1);
-					}
-					rs.close();
-					st.close();
-
+				ResultSet rs = stmt.getGeneratedKeys();
+				if (rs.next()) {
+					generatedKey = rs.getLong(1);
 				}
+				rs.close();
 			}
 			stmt.close();
 		} catch (Exception e) {

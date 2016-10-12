@@ -792,7 +792,7 @@ public class Field {
 	 * @param allFieldsAreOptional
 	 * @param recordName
 	 * @return value that is parsed. This could be the same as input, or
-	 *         modified based on some validaiton rules.
+	 *         modified based on some validation rules.
 	 */
 	public Value parse(Value inputValue, List<FormattedMessage> errors,
 			boolean allFieldsAreOptional, String recordName) {

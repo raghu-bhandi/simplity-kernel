@@ -322,9 +322,10 @@ var Simplity = (function() {
 				t.push(msg.messageType.toUpperCase());
 				t.push('\n');
 			}
-			if (msg.name) {
-				t.push(msg.name);
-				t.push(' : ');
+			if (msg.fieldName) {
+				t.push('Field : ');
+				t.push(msg.fieldName);
+				t.push(' - ');
 			}
 			t.push(msg.text);
 			t.push('\n\n');

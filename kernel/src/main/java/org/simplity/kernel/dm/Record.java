@@ -54,9 +54,9 @@ import org.simplity.tp.OutputRecord;
 /**
  *
  * This is the main part of our data model. Every piece of data that the
- * application has to keep as part of "system of records" must be modeled into
+ * application has to keep as part of "system of records" must be modelled into
  * this. Data structures that are used as input to, or output from a service are
- * modeled as records as well.
+ * modelled as records as well.
  *
  * It is common industry practice to have "physical data model" and
  * "logical data model" for proper understanding. We encourage such designs
@@ -84,6 +84,11 @@ public class Record implements Component {
 			.getDefaultField(ServiceProtocol.TABLE_ACTION_FIELD_NAME);
 	private static final ComponentType MY_TYPE = ComponentType.REC;
 
+	/*
+	 * oracle sequence name is generally tableName_SEQ.
+	 */
+	private static final String DEFAULT_SEQ_SUFFIX = "_SEQ.NEXTVAL";
+
 	/***
 	 * Name of this record/entity, as used in application
 	 */
@@ -91,7 +96,8 @@ public class Record implements Component {
 
 	/**
 	 * module name + name would be unique for a component type within an
-	 * application
+	 * application. we also insist on a java-like convention that the the
+	 * resource is stored in a folder structure that mimics module name
 	 */
 	String moduleName;
 	/**
@@ -109,6 +115,15 @@ public class Record implements Component {
 	 * automatically?
 	 */
 	boolean keyToBeGenerated;
+	/**
+	 * oracle does not support auto-increment. Standard practise is to have a
+	 * sequence, typically named as tableName_SEQ, and use sequence.NEXTVAL as
+	 * value of the key field. If you follow different standard that that,
+	 * please specify the expression. We have made this an expression to provide
+	 * flexibility to have any expression, including functions that you may have
+	 * written.
+	 */
+	String keyValueExpression;
 	/**
 	 * if this table is expected to have large number of rows, we would like to
 	 * protect against a select with no where conditions. Of course one can
@@ -153,13 +168,6 @@ public class Record implements Component {
 	String defaultSheetName = null;
 
 	/**
-	 * if keys are to be generated, we may have a sequence, as in oracle. Null
-	 * implies that RDBMS auto-increments and we are not to set any value to
-	 * this column
-	 */
-	String keyGeneratorName;
-
-	/**
 	 * if this record is used for a suggestion service, field that is used for
 	 * search
 	 */
@@ -180,19 +188,20 @@ public class Record implements Component {
 	String defaultRefRecord;
 
 	/**
-	 * primary key is to be unique. Is there candidate key, other than the
-	 * primary key, that may have more than one columns. We assume that the db
-	 * has a constraint for these columns to be unique
-	 */
-	String[] logicalPrimaryKeyFields;
-
-	/**
 	 * if this application uses multiple schemas, and the underlying table of
 	 * this record belongs to a schema other than the default, then specify it
 	 * here, so that the on-the-fly services based on this record can use teh
 	 * right schema.
 	 */
 	String schemaName;
+
+	/**
+	 * should we insist that the client returns the last time stamp during an
+	 * update that we match with the current row before updating it? This
+	 * technique allows us to detect whether the row was updated after it was
+	 * sent to client.
+	 */
+	boolean useTimestampForConcurrency = false;
 	/*
 	 * following fields are assigned for caching/performance
 	 */
@@ -260,6 +269,10 @@ public class Record implements Component {
 	private ValueType[] valueListTypes;
 	private ValueType valueListKeyType;
 	private String suggestSql;
+	/**
+	 * sequence ofr oracle if requried
+	 */
+	private String sequence;
 
 	/*
 	 * methods for ComponentInterface
@@ -585,7 +598,7 @@ public class Record implements Component {
 				if (otherValue == null || otherValue.isUnknown()) {
 					throw new ApplicationError(
 							"To value not supplied for fied " + this.name
-									+ " for filtering");
+							+ " for filtering");
 				}
 				sql.append(" AND ?");
 				filterValues.add(otherValue);
@@ -823,6 +836,13 @@ public class Record implements Component {
 	 */
 	private Value[] getUpdateValues(FieldsInterface row, Value userId) {
 		int nbrFields = this.fields.length;
+		/*
+		 * we need an extra field for concurrency check
+		 */
+		if (this.useTimestampForConcurrency) {
+			nbrFields++;
+		}
+
 		Value[] values = new Value[nbrFields];
 		int valueIdx = 0;
 		for (Field field : this.fields) {
@@ -850,9 +870,9 @@ public class Record implements Component {
 			valueIdx++;
 		}
 		values[valueIdx++] = row.getValue(this.primaryKeyField.name);
-		// if (this.modifiedStampField != null) {
-		// values[valueIdx++] = row.getValue(this.modifiedStampField.name);
-		// }
+		if (this.useTimestampForConcurrency) {
+			values[valueIdx++] = row.getValue(this.modifiedStampField.name);
+		}
 		/*
 		 * did we skip some values?
 		 */
@@ -872,16 +892,13 @@ public class Record implements Component {
 	private Value[] getDeleteValues(FieldsInterface row) {
 		Value keyValue = row.getValue(this.primaryKeyField.name);
 
-		if (this.modifiedStampField == null) {
+		if (this.useTimestampForConcurrency == false) {
 			Value[] values = { keyValue };
 			return values;
 		}
-		/**
-		 * todo: time stamp to be introduced after some re-design
-		 */
-		// Value stampValue = row.getValue(this.modifiedStampField.name);
-		// Value[] values = { keyValue, stampValue };
-		Value[] values = { keyValue };
+		Value stampValue = row.getValue(this.modifiedStampField.name);
+		Value[] values = { keyValue, stampValue };
+
 		return values;
 	}
 
@@ -1276,17 +1293,17 @@ public class Record implements Component {
 					update.append(Record.COMMA);
 				}
 				update.append(field.columnName).append(Record.EQUAL)
-						.append(Record.PARAM);
+				.append(Record.PARAM);
 				values[valueIdx++] = value;
 			}
 		}
 		update.append(" WHERE ").append(this.primaryKeyField.columnName)
-				.append(Record.EQUAL).append(Record.PARAM);
+		.append(Record.EQUAL).append(Record.PARAM);
 		values[valueIdx++] = inData.getValue(this.primaryKeyField.name);
 
 		if (this.modifiedStampField != null) {
 			update.append(" AND ").append(this.modifiedStampField.columnName)
-					.append(Record.EQUAL).append(Record.PARAM);
+			.append(Record.EQUAL).append(Record.PARAM);
 			values[valueIdx++] = inData.getValue(this.modifiedStampField.name);
 		}
 		/*
@@ -1357,11 +1374,11 @@ public class Record implements Component {
 		Tracer.trace("There are " + n + " rows in parent sheet. column "
 				+ keyName + " has " + values.length
 				+ " values with first value=" + values[0]
-				+ ". We are going to read child rows for them using record "
-				+ this.name);
+						+ ". We are going to read child rows for them using record "
+						+ this.name);
 		/*
 		 * for single key we use where key = ?
-		 * 
+		 *
 		 * for multiple, we use where key in (?,?,....)
 		 */
 		if (n == 1) {
@@ -1406,30 +1423,30 @@ public class Record implements Component {
 	 * we will track this during getReady() invocation. getReady() will ask for
 	 * a referred record. That record will execute getReady() before returning.
 	 * It may ask for another record, so an and so forth.
-	 * 
+	 *
 	 * There are two ways to solve this problem.
-	 * 
+	 *
 	 * One way is to differentiate between normal-request and reference-request
 	 * for a record. Pass history during reference request so that we can detect
 	 * circular reference. Issue with this is that getRequest() is a generic
 	 * method and hence we can not customize it.
-	 * 
+	 *
 	 * Other approach is to use thread-local that is initiated by getReady().
-	 * 
+	 *
 	 * our algorithm is :
-	 * 
+	 *
 	 * 1. we initiate refHistory before getReady() and current record to
 	 * pendingOnes.
-	 * 
+	 *
 	 * 2. A referred field may invoke parent.getRefrecord() Referred record is
 	 * requested from ComponentManager.getRecord();
-	 * 
+	 *
 	 * 3. that call will trigger getReady() on the referred record. This chain
 	 * will go-on..
-	 * 
+	 *
 	 * 4. before adding to pending list we check if it already exists. That
 	 * would be a circular reference.
-	 * 
+	 *
 	 * 5. Once we complete getReady(), we remove this record from pendingOnes.
 	 * And if there no more pending ones, we remove it. and that completes the
 	 * check.
@@ -1480,15 +1497,15 @@ public class Record implements Component {
 			StringBuilder sbf = new StringBuilder();
 			if (recordName.equals(this.getQualifiedName())) {
 				sbf.append("Record ")
-						.append(recordName)
-						.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
+				.append(recordName)
+				.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
 			} else {
 				sbf.append("There is a circular reference of records amongst the following records. Please review and fix.\n{\n");
 				int nbr = history.pendingOnes.size();
 				for (int i = 0; i < nbr; i++) {
 
 					sbf.append(i).append(": ")
-							.append(history.pendingOnes.get(i)).append('\n');
+					.append(history.pendingOnes.get(i)).append('\n');
 				}
 				sbf.append(nbr).append(": ").append(recordName).append('\n');
 				sbf.append('}');
@@ -1523,15 +1540,15 @@ public class Record implements Component {
 		StringBuilder sbf = new StringBuilder();
 		if (history.pendingOnes.size() == 1) {
 			sbf.append("Record ")
-					.append(recName)
-					.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
+			.append(recName)
+			.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
 		} else {
 			sbf.append("There is a circular reference of records amongst the following records. Please review and fix.\n{\n");
 			int nbr = history.pendingOnes.size();
 			for (int i = 0; i < nbr; i++) {
 
 				sbf.append(i).append(". ").append(history.pendingOnes.get(i))
-						.append('\n');
+				.append('\n');
 			}
 			sbf.append(nbr).append(". ").append(recName).append('\n');
 			sbf.append('}');
@@ -1582,6 +1599,19 @@ public class Record implements Component {
 		if (this.recordType != RecordUsageType.STORAGE) {
 			this.readOnly = true;
 		}
+
+		if (this.keyToBeGenerated) {
+			if (DbDriver.generatorNameRequired()) {
+				if (this.keyValueExpression == null) {
+					this.sequence = this.tableName + DEFAULT_SEQ_SUFFIX;
+					Tracer.trace("sequence not specified for table "
+							+ this.tableName + ". default sequence name  "
+							+ this.sequence + " is assumed.");
+				} else {
+					this.sequence = this.keyValueExpression;
+				}
+			}
+		}
 		/*
 		 * we track referred records. push to stack
 		 */
@@ -1619,6 +1649,27 @@ public class Record implements Component {
 
 		}
 
+		/*
+		 * are we ok for concurrency check?
+		 */
+		if (this.useTimestampForConcurrency) {
+			if (this.modifiedStampField == null) {
+				throw new ApplicationError(
+						"Record "
+								+ this.name
+								+ " has set useTimestampForConcurrency=true, but not has marked any field as modifiedAt.");
+			}
+			if (this.modifiedStampField.getValueType() != ValueType.TIMESTAMP) {
+				throw new ApplicationError(
+						"Record "
+								+ this.name
+								+ " uses "
+								+ this.modifiedStampField.name
+								+ " as modiedAt field, but has defined it as a "
+								+ this.modifiedStampField.getValueType()
+								+ ". It should be defiened as a TIMESTAMP for it to be used for concurrency check.");
+			}
+		}
 		if (this.defaultSheetName == null) {
 			this.defaultSheetName = this.name;
 		}
@@ -1693,8 +1744,8 @@ public class Record implements Component {
 			/*
 			 * if primary key is managed by rdms, we do not bother about it?
 			 */
-			if (fieldType == FieldType.PRIMARY_KEY
-					&& this.keyToBeGenerated == true) {
+			if (fieldType == FieldType.PRIMARY_KEY && this.keyToBeGenerated
+					&& this.sequence == null) {
 				continue;
 			}
 			if (firstInsertField) {
@@ -1712,7 +1763,7 @@ public class Record implements Component {
 				vals.append(timeStamp);
 			} else if (fieldType == FieldType.PRIMARY_KEY
 					&& this.keyToBeGenerated) {
-				vals.append(this.keyGeneratorName);
+				vals.append(this.sequence);
 			} else {
 				vals.append(Record.PARAM);
 			}
@@ -1730,11 +1781,13 @@ public class Record implements Component {
 		if (this.primaryKeyField != null) {
 			StringBuilder where = new StringBuilder(" WHERE ");
 			where.append(this.primaryKeyField.columnName).append(Record.EQUAL)
-					.append(Record.PARAM);
+			.append(Record.PARAM);
 
-			// if (stampField != null) {
-			// where.append(" AND ").append(stampField.columnName).append("=?");
-			// }
+			if (this.useTimestampForConcurrency) {
+				where.append(" AND ")
+						.append(this.modifiedStampField.columnName)
+						.append("=?");
+			}
 			this.deleteSql = "DELETE FROM " + this.tableName + where;
 			this.updateSql = update.append(where).toString();
 		}
@@ -1755,7 +1808,7 @@ public class Record implements Component {
 				select.append(Record.COMMA);
 			}
 			select.append(field.columnName).append(" \"").append(field.name)
-					.append('"');
+			.append('"');
 		}
 		select.append(" FROM ").append(this.tableName).append(" WHERE ");
 		this.filterSql = select.toString();
@@ -1783,7 +1836,7 @@ public class Record implements Component {
 			this.valueListTypes[0] = field.getValueType();
 		}
 		sbf.append(field.columnName).append(" value from ")
-				.append(this.tableName);
+		.append(this.tableName);
 		if (this.valueListKeyName != null) {
 			field = this.getField(this.valueListKeyName);
 			if (field == null) {
@@ -1821,7 +1874,7 @@ public class Record implements Component {
 		}
 		sbf.setLength(sbf.length() - 1);
 		sbf.append(" from ").append(this.tableName).append(" WHERE ")
-				.append(field.columnName).append(" LIKE ?");
+		.append(field.columnName).append(" LIKE ?");
 		this.suggestSql = sbf.toString();
 	}
 
@@ -2236,7 +2289,7 @@ public class Record implements Component {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
 	 * ValidationContext)
@@ -2331,10 +2384,21 @@ public class Record implements Component {
 					count++;
 				}
 			}
-			if (DbDriver.generatorNameRequired()
-					&& this.keyGeneratorName == null) {
-				ctx.addError("Db Vendor is set to " + DbDriver.getDbVendor()
-						+ " for which keyGeneratorName is required");
+		}
+
+		/*
+		 * we can manage concurrency, but only if a time-stamp field is defined
+		 */
+		if (this.useTimestampForConcurrency) {
+			if (this.modifiedStampField == null) {
+				ctx.addError("useTimestampForConcurrency=true, but no fild of type modifiedAt.");
+				count++;
+			} else if (this.modifiedStampField.getValueType() != ValueType.TIMESTAMP) {
+				ctx.addError("useTimestampForConcurrency=true, but the timestampfield "
+						+ this.modifiedStampField.name
+						+ " is defined as "
+						+ this.modifiedStampField.getValueType()
+						+ ". It should be defined as a timestamp.");
 				count++;
 			}
 		}
