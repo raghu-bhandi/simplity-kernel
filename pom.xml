@@ -9,7 +9,5 @@
   <modules>
     <module>kernel</module>
     <module>js</module>
-    <module>example</module>
-    <module>archetype</module>
   </modules>
 </project>
