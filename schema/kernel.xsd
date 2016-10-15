@@ -696,13 +696,13 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="valueListFieldName"
+				name="listFieldName"
 				type="xs:NCName"
-				use="optional" />
+				use="optional"><xs:annotation><xs:documentation>If this record is to be used for listing key-value pairs, specify the field name to be used for value. Note that key field is always the primary key.</xs:documentation></xs:annotation></xs:attribute>
 			<xs:attribute
-				name="valueListKeyName"
+				name="listGroupKeyName"
 				type="xs:NCName"
-				use="optional" />
+				use="optional"><xs:annotation><xs:documentation>If this record is to be used for listing key-value pairs, and the table contains list of values across groups, like states for all coutries, then you need to specify the field name to be used based on which rows are to be subset. For example it would be coutry-code to get list of states for a given coutry</xs:documentation></xs:annotation></xs:attribute>
 			<xs:attribute
 				name="suggestionKeyName"
 				type="xs:NCName"

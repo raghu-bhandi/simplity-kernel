@@ -26,8 +26,8 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
-import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
+import org.simplity.service.ServiceProtocol;
 
 /**
  * typical list of values for a drop-down. Action is designed in case you need
@@ -69,16 +69,22 @@ public class KeyValueList extends DbAction {
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
 		Record record = ComponentManager.getRecord(this.recordName);
-		Value value = ctx.getValue(record.getValueListKeyName());
-		DataSheet sheet = record
-				.list(value.toString(), driver, ctx.getUserId());
+		String value = null;
+		String keyName = record.getValueListKeyName();
+		if (keyName != null) {
+			value = ctx.getTextValue(keyName);
+			if (value == null) {
+				value = ctx.getTextValue(ServiceProtocol.LIST_SERVICE_KEY);
+			}
+		}
+		DataSheet sheet = record.list(value, driver, ctx.getUserId());
 		if (sheet == null) {
 			return 0;
 		}
 		String sheetName = this.outputSheetName == null ? record
 				.getDefaultSheetName() : this.outputSheetName;
-				ctx.putDataSheet(sheetName, sheet);
-				return sheet.length();
+		ctx.putDataSheet(sheetName, sheet);
+		return sheet.length();
 	}
 
 	@Override

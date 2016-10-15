@@ -130,12 +130,15 @@ public class OutputData {
 		}
 
 		int nbrChildren = 0;
-		for (OutputRecord rec : this.outputRecords) {
-			rec.getReady();
-			if (rec.parentSheetName != null) {
-				nbrChildren++;
+		if (this.outputRecords != null) {
+			for (OutputRecord rec : this.outputRecords) {
+				rec.getReady();
+				if (rec.parentSheetName != null) {
+					nbrChildren++;
+				}
 			}
 		}
+
 		if (nbrChildren == 0) {
 			return;
 		}

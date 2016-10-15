@@ -428,7 +428,7 @@ public class Service implements ServiceInterface {
 		/*
 		 * output fields from record.
 		 */
-		OutputRecord[] outRecs = getOutputRecords(record, false);
+		OutputRecord[] outRecs = getOutputRecords(record);
 		OutputData outData = new OutputData();
 		outData.outputRecords = outRecs;
 		service.outputData = outData;
@@ -471,7 +471,7 @@ public class Service implements ServiceInterface {
 		/*
 		 * output as sheet, possibly child sheets as well
 		 */
-		OutputRecord[] outRecs = getOutputRecords(record, true);
+		OutputRecord[] outRecs = getOutputRecords(record);
 		OutputData outData = new OutputData();
 		outData.outputRecords = outRecs;
 		service.outputData = outData;
@@ -498,7 +498,7 @@ public class Service implements ServiceInterface {
 		/*
 		 * input for suggest
 		 */
-		InputField f1 = new InputField(record.getSuggestionKeyName(),
+		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY,
 				DataType.DEFAULT_TEXT, true, null);
 		InputField f2 = new InputField(ServiceProtocol.SUGGEST_STARTING,
 				DataType.DEFAULT_BOOLEAN, false, null);
@@ -544,20 +544,19 @@ public class Service implements ServiceInterface {
 		service.schemaName = record.getSchemaName();
 
 		/*
-		 * input for suggest
+		 * do we need any input?
 		 */
-		InputField f1 = new InputField(record.getSuggestionKeyName(),
-				DataType.DEFAULT_TEXT, true, null);
-		InputField f2 = new InputField(ServiceProtocol.SUGGEST_STARTING,
-				DataType.DEFAULT_BOOLEAN, false, null);
 
+		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY,
+				DataType.DEFAULT_TEXT, false, null);
+		InputField f2 = new InputField(record.getValueListKeyName(),
+				DataType.DEFAULT_TEXT, false, null);
 		InputField[] inFields = { f1, f2 };
 		InputData inData = new InputData();
 		inData.inputFields = inFields;
 		service.inputData = inData;
-
 		/*
-		 * use a suggest action to do the job
+		 * use a List action to do the job
 		 */
 		Action action = new KeyValueList(record);
 		Action[] actions = { action };
@@ -673,8 +672,7 @@ public class Service implements ServiceInterface {
 		return recs;
 	}
 
-	private static OutputRecord[] getOutputRecords(Record record,
-			boolean forDataSheet) {
+	private static OutputRecord[] getOutputRecords(Record record) {
 		String[] children = record.getChildrenToOutput();
 		int nrecs = 1;
 		if (children != null) {
@@ -685,19 +683,21 @@ public class Service implements ServiceInterface {
 		 * put this record as the first one for fields (not sheet)
 		 */
 		OutputRecord outRec = new OutputRecord();
+		outRec.recordName = record.getQualifiedName();
+		/*
+		 * safe to put sheet name, because outputRec tries fields if sheet is
+		 * not found.
+		 */
+		outRec.sheetName = record.getDefaultSheetName();
 		recs[0] = outRec;
-		if (forDataSheet) {
-			String sheetName = record.getDefaultSheetName();
-			outRec.sheetName = sheetName;
-			if (children != null) {
-				int i = 1;
-				for (String child : children) {
-					recs[i++] = ComponentManager.getRecord(child)
-							.getOutputRecord(sheetName);
-				}
+		if (children != null) {
+			String sheetName = outRec.sheetName;
+			int i = 1;
+			for (String child : children) {
+				recs[i] = ComponentManager.getRecord(child).getOutputRecord(
+						sheetName);
+				i++;
 			}
-		} else {
-			outRec.recordName = record.getQualifiedName();
 		}
 
 		return recs;
@@ -720,6 +720,11 @@ public class Service implements ServiceInterface {
 		inRec.recordName = recordName;
 		inRec.purpose = DataPurpose.SAVE;
 		inRec.saveActionExpected = true;
+		/*
+		 * inputRecord is lenient about sheetName. It is okay to specify that.
+		 * In case one row comes from client as fields, inputRecord manages that
+		 */
+		inRec.sheetName = record.getDefaultSheetName();
 		InputRecord[] recs = new InputRecord[nrecs];
 		recs[0] = inRec;
 		if (children != null) {
@@ -844,7 +849,7 @@ public class Service implements ServiceInterface {
 			return null;
 		}
 		if (operation.equals(LIST)) {
-			return ListService.getService(serviceName, record);
+			return getListService(serviceName, record);
 		}
 
 		if (operation.equals(FILTER)) {
@@ -857,7 +862,7 @@ public class Service implements ServiceInterface {
 			return getSaveService(serviceName, record);
 		}
 		if (operation.equals(SUGGEST)) {
-			return SuggestionService.getService(serviceName, record);
+			return getSuggestionService(serviceName, record);
 		}
 
 		Tracer.trace("We have no on-the-fly servce generator for operation "

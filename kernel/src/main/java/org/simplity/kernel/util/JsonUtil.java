@@ -69,15 +69,24 @@ public class JsonUtil {
 	 * @param allFieldsAreOptional
 	 *            true of we are to consider all fields as optional, even if the
 	 *            field specifies it as mandatory
+	 * @param parentFieldName
+	 *            if this is a child sheet, specify the column name in this
+	 *            sheet that should be populated with the parent key value
+	 * @param parentValue
+	 *            if this is a child sheet, and you have specified
+	 *            parentFieldName, value to be populated in each row for that
+	 *            column
 	 * @return data sheet. Null if no data found or the json is not well
 	 *         formated. was null. case the array is not well-formed
 	 */
 	public static DataSheet getSheet(JSONArray arr, Field[] inputFields,
-			List<FormattedMessage> errors, boolean allFieldsAreOptional) {
+			List<FormattedMessage> errors, boolean allFieldsAreOptional,
+			String parentFieldName, Value parentValue) {
 		if (arr == null || arr.length() == 0) {
 			return null;
 		}
 		Field[] fields = inputFields;
+		int parentIdx = -1;
 		if (fields == null) {
 			/*
 			 * we guess the fields based on the attributes of first element in
@@ -89,6 +98,31 @@ public class JsonUtil {
 				return null;
 			}
 			fields = getFields(exampleObject);
+			if (parentFieldName != null) {
+				Field[] newFields = new Field[fields.length + 1];
+				newFields[0] = Field.getDefaultField(parentFieldName,
+						parentValue.getValueType());
+				int j = 1;
+				for (Field field : fields) {
+					newFields[j] = field;
+					j++;
+				}
+				parentIdx = 0;
+			}
+		} else if (parentFieldName != null) {
+			int j = 0;
+			for (Field field : fields) {
+				if (field.getName().equals(parentFieldName)) {
+					parentIdx = j;
+					break;
+				}
+				j++;
+			}
+			if (parentIdx == -1) {
+				Tracer.trace("Parent field name "
+						+ parentFieldName
+						+ " not found in the fields list for child. Filed will not be populated from parent sheet.");
+			}
 		}
 		DataSheet ds = new MultiRowsSheet(fields);
 		int nbrRows = arr.length();
@@ -105,8 +139,12 @@ public class JsonUtil {
 			Value[] row = new Value[fields.length];
 			for (Field field : fields) {
 				Object val = obj.opt(field.getName());
-				row[j] = field.parseObject(val, errors, allFieldsAreOptional,
-						null);
+				if (j == parentIdx) {
+					row[j] = parentValue;
+				} else {
+					row[j] = field.parseObject(val, errors,
+							allFieldsAreOptional, null);
+				}
 				j++;
 			}
 			ds.addRow(row);
@@ -247,13 +285,14 @@ public class JsonUtil {
 	 * create a data sheet for attributes in this object
 	 *
 	 * @param obj
+	 * @param parentName
 	 * @return
 	 */
 	private static Field[] getFields(JSONObject obj) {
 		String[] names = JSONObject.getNames(obj);
 		int nbrCols = names.length;
-		Field[] fields = new Field[nbrCols];
 		int j = 0;
+		Field[] fields = new Field[nbrCols];
 		int nonAtts = 0;
 		for (String colName : names) {
 			Object val = obj.opt(colName);
@@ -450,7 +489,8 @@ public class JsonUtil {
 		for (String key : json.keySet()) {
 			JSONArray arr = json.optJSONArray(key);
 			if (arr != null) {
-				DataSheet sheet = JsonUtil.getSheet(arr, null, null, true);
+				DataSheet sheet = JsonUtil.getSheet(arr, null, null, true,
+						null, null);
 				if (sheet == null) {
 					Tracer.trace("Table " + key + " could not be etxracted");
 				} else {
@@ -505,7 +545,7 @@ public class JsonUtil {
 			if (arr == null) {
 				arrName = sheetName;
 			} else {
-				ds = JsonUtil.getSheet(arr, null, null, true);
+				ds = JsonUtil.getSheet(arr, null, null, true, null, null);
 			}
 		}
 		if (arr == null) {

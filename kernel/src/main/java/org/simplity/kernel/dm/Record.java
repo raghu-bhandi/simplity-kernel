@@ -152,14 +152,14 @@ public class Record implements Component {
 	 * we use primary key as internal key. Specify the field to be used as
 	 * display value. key of this table is the internal value
 	 */
-	String valueListFieldName = null;
+	String listFieldName = null;
 
 	/**
 	 * relevant only if valueListFieldName is used. If the list of values need
 	 * be further filtered with a key, like country code for list of state,
 	 * specify the that field name.
 	 */
-	String valueListKeyName = null;
+	String listGroupKeyName = null;
 
 	/**
 	 * what is the sheet name to be used as input/output sheet. (specifically
@@ -741,7 +741,7 @@ public class Record implements Component {
 		SaveActionType[] result = new SaveActionType[inSheet.length()];
 		int rowIdx = 0;
 		for (FieldsInterface row : inSheet) {
-			result[rowIdx++] = this.saveOne(row, driver, userId,
+			result[rowIdx] = this.saveOne(row, driver, userId,
 					treatSqlErrorAsNoResult);
 			rowIdx++;
 		}
@@ -1677,7 +1677,7 @@ public class Record implements Component {
 		if (this.readOnly == false) {
 			this.createWriteSqls();
 		}
-		if (this.valueListFieldName != null) {
+		if (this.listFieldName != null) {
 			this.setListSql();
 		}
 		if (this.suggestionKeyName != null) {
@@ -1785,8 +1785,8 @@ public class Record implements Component {
 
 			if (this.useTimestampForConcurrency) {
 				where.append(" AND ")
-						.append(this.modifiedStampField.columnName)
-						.append("=?");
+				.append(this.modifiedStampField.columnName)
+				.append("=?");
 			}
 			this.deleteSql = "DELETE FROM " + this.tableName + where;
 			this.updateSql = update.append(where).toString();
@@ -1819,9 +1819,9 @@ public class Record implements Component {
 	}
 
 	private void setListSql() {
-		Field field = this.getField(this.valueListFieldName);
+		Field field = this.getField(this.listFieldName);
 		if (field == null) {
-			this.invalidFieldName(this.valueListFieldName);
+			this.invalidFieldName(this.listFieldName);
 			return;
 		}
 		StringBuilder sbf = new StringBuilder();
@@ -1837,10 +1837,10 @@ public class Record implements Component {
 		}
 		sbf.append(field.columnName).append(" value from ")
 		.append(this.tableName);
-		if (this.valueListKeyName != null) {
-			field = this.getField(this.valueListKeyName);
+		if (this.listGroupKeyName != null) {
+			field = this.getField(this.listGroupKeyName);
 			if (field == null) {
-				this.invalidFieldName(this.valueListKeyName);
+				this.invalidFieldName(this.listGroupKeyName);
 				return;
 			}
 			sbf.append(" WHERE ").append(field.columnName).append("=?");
@@ -1888,7 +1888,7 @@ public class Record implements Component {
 	 */
 	public DataSheet list(String keyValue, DbDriver driver, Value userId) {
 		Value[] values = null;
-		if (this.valueListKeyName != null) {
+		if (this.listGroupKeyName != null) {
 			if (keyValue == null || keyValue.length() == 0) {
 				return null;
 			}
@@ -2260,10 +2260,12 @@ public class Record implements Component {
 	 */
 	public InputRecord getInputRecord(String parentSheetName) {
 		if (parentSheetName == null) {
-			return new InputRecord(this.defaultSheetName);
+			return new InputRecord(this.getQualifiedName(),
+					this.defaultSheetName);
 		}
-		return new InputRecord(this.defaultSheetName, parentSheetName,
-				this.parentKeyField.name, this.parentKeyField.referredField);
+		return new InputRecord(this.getQualifiedName(), this.defaultSheetName,
+				parentSheetName, this.parentKeyField.name,
+				this.parentKeyField.referredField);
 	}
 
 	/**
@@ -2284,7 +2286,7 @@ public class Record implements Component {
 	 * @return the valueListKeyName
 	 */
 	public String getValueListKeyName() {
-		return this.valueListKeyName;
+		return this.listGroupKeyName;
 	}
 
 	/*
@@ -2405,11 +2407,11 @@ public class Record implements Component {
 		/*
 		 * add referred fields
 		 */
-		if (this.valueListFieldName != null) {
-			referredFields.add(this.valueListFieldName);
+		if (this.listFieldName != null) {
+			referredFields.add(this.listFieldName);
 		}
-		if (this.valueListKeyName != null) {
-			referredFields.add(this.valueListKeyName);
+		if (this.listGroupKeyName != null) {
+			referredFields.add(this.listGroupKeyName);
 		}
 		if (this.suggestionKeyName != null) {
 			referredFields.add(this.suggestionKeyName);

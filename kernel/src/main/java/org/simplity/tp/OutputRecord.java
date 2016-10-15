@@ -85,7 +85,7 @@ public class OutputRecord {
 
 	/**
 	 * create an output record for a data
-	 * 
+	 *
 	 * @param sheetName
 	 */
 	public OutputRecord(String sheetName) {
@@ -94,7 +94,7 @@ public class OutputRecord {
 
 	/**
 	 * create output record for a child sheet
-	 * 
+	 *
 	 * @param sheetName
 	 * @param parentSheetName
 	 * @param childColName
@@ -133,34 +133,53 @@ public class OutputRecord {
 	 * @param ctx
 	 */
 	public void toJson(JSONWriter writer, ServiceContext ctx) {
-		if (this.fields != null) {
-			/*
-			 * output fields
-			 */
-			for (Field field : this.fields) {
-				String fieldName = field.getName();
-				Value value = ctx.getValue(fieldName);
-				if (value == null) {
-					Tracer.trace(fieldName
-							+ " has no value and hence is not added to output");
-				} else {
-					writer.key(fieldName).value(value.toObject());
-				}
-			}
+		if (this.sheetName == null) {
+			this.fieldsToJason(writer, this.fields, ctx);
 			return;
 		}
+		/*
+		 * is this a child sheet?
+		 */
 		if (this.parentSheetName != null) {
 			Tracer.trace("Sheet " + this.sheetName
 					+ " will be output as part of its parent sheet "
 					+ this.parentSheetName);
 			return;
 		}
+		this.sheetToJson(writer, ctx);
+	}
+
+	private void fieldsToJason(JSONWriter writer, Field[] fieldsToOutput,
+			ServiceContext ctx) {
+		for (Field field : fieldsToOutput) {
+			String fieldName = field.getName();
+			Value value = ctx.getValue(fieldName);
+			if (value == null) {
+				Tracer.trace(fieldName
+						+ " has no value and hence is not added to output");
+			} else {
+				writer.key(fieldName).value(value.toObject());
+			}
+		}
+	}
+
+	private void sheetToJson(JSONWriter writer, ServiceContext ctx) {
+		/*
+		 * try and output sheet
+		 */
 		DataSheet sheet = ctx.getDataSheet(this.sheetName);
 		if (sheet == null) {
 			Tracer.trace("Service context has no sheet with name "
-					+ this.sheetName + " for output.");
+					+ this.sheetName + " for output. We try and output fields.");
+			this.fieldsToJason(writer, this.fields, ctx);
+			if (this.childRecords != null) {
+				for (OutputRecord child : this.childRecords) {
+					child.sheetToJson(writer, ctx);
+				}
+			}
 			return;
 		}
+
 		HierarchicalSheet[] children = null;
 		if (this.childRecords != null) {
 			/*
@@ -239,16 +258,14 @@ public class OutputRecord {
 	 * open shop and get ready for service
 	 */
 	public void getReady() {
-		if (this.sheetName == null) {
-			if (this.recordName == null) {
+		if (this.recordName == null) {
+			if (this.sheetName == null) {
 				throw new ApplicationError(
 						"Output record should have either sheet name or record name specified.");
 			}
+		} else {
 			Record record = ComponentManager.getRecord(this.recordName);
 			this.fields = record.getFields();
-		} else if (this.recordName != null) {
-			throw new ApplicationError(
-					"When sheetName is specified for outputRecord, we simply copy that sheet into output. Since we do not validate output, we od not need recordName. However, recordName is used in outputRecordRecord as a short-cut for listing all fields. Hence do not specify both.");
 		}
 	}
 

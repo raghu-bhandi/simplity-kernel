@@ -29,7 +29,6 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
@@ -39,6 +38,7 @@ import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.util.JsonUtil;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceMessages;
 
@@ -119,22 +119,28 @@ public class InputRecord {
 	/**
 	 * create an output record for a data
 	 *
+	 * @param recName
+	 *
 	 * @param sheetName
 	 */
-	public InputRecord(String sheetName) {
+	public InputRecord(String recName, String sheetName) {
+		this.recordName = recName;
 		this.sheetName = sheetName;
 	}
 
 	/**
 	 * create output record for a child sheet
 	 *
+	 * @param recName
+	 *
 	 * @param sheetName
 	 * @param parentSheetName
 	 * @param childColName
 	 * @param parentColName
 	 */
-	public InputRecord(String sheetName, String parentSheetName,
-			String childColName, String parentColName) {
+	public InputRecord(String recName, String sheetName,
+			String parentSheetName, String childColName, String parentColName) {
+		this.recordName = recName;
 		this.sheetName = sheetName;
 		this.parentSheetName = parentSheetName;
 		this.linkColumnInThisSheet = childColName;
@@ -157,53 +163,74 @@ public class InputRecord {
 					this.parentSheetName);
 			return;
 		}
-		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
-		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
+
 		if (this.sheetName == null) {
-			int nbr = 0;
-			if (this.purpose == DataPurpose.FILTER) {
-				nbr = JsonUtil.extractFilterFields(json, this.fields, ctx,
-						errors);
-
-			} else {
-				nbr = JsonUtil.extractFields(json, this.fields, ctx, errors,
-						allFieldsAreOptional);
-			}
-			Tracer.trace("Input Record extracted " + nbr + " fields into ctx");
-
-			if (errors.size() > 0) {
-				Tracer.trace(" We got " + errors.size()
-						+ " validaiton errors before inter-field validations");
-			}
-			if (this.hasInterFieldValidations && allFieldsAreOptional == false
-					&& nbr > 1) {
-				for (Field field : this.fields) {
-					field.validateInterfield(ctx, errors, null);
-				}
-			}
-			if (errors.size() > 0) {
-				Tracer.trace(" We got " + errors.size()
-						+ " validaiton errors during this record input");
-				ctx.addMessages(errors);
-			}
+			this.extractFields(json, ctx);
 			return;
 		}
+
+		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
+		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
 		/*
 		 * use record for validating input
 		 */
-		String arrName = this.sheetName;
-		if (this.parentSheetName != null) {
-			arrName = this.parentSheetName;
-		}
 		JSONArray data = null;
-		if (this.sheetName != null) {
-			data = json.optJSONArray(arrName);
+		DataSheet sheet = null;
+		if (this.parentSheetName == null) {
+			/*
+			 * simple sheet
+			 */
+			data = json.optJSONArray(this.sheetName);
+			if (data == null) {
+				/*
+				 * data sheet not recd. We try fields
+				 */
+				if (this.minRows <= 1) {
+					this.extractFields(json, ctx);
+					return;
+				}
+			} else {
+				sheet = JsonUtil.getSheet(data, this.fields, errors,
+						allFieldsAreOptional, null, null);
+			}
+		} else {
+			/*
+			 * this is a child sheet. parent may or may not be a sheet
+			 */
+			data = json.optJSONArray(this.parentSheetName);
+			if (data == null) {
+				/*
+				 * case 1: parent record is not in a sheet, but a single row
+				 * sent as attributes.
+				 */
+				Value parentValue = ctx.getValue(this.linkColumnInParentSheet);
+				data = json.optJSONArray(this.sheetName);
+				sheet = JsonUtil.getSheet(data, this.fields, errors,
+						allFieldsAreOptional, this.linkColumnInThisSheet,
+						parentValue);
+			} else {
+				/*
+				 * case 2: parent is a sheet. Rows for this sheet are child rows
+				 * for each row in parent sheet
+				 */
+				data = json.optJSONArray(this.parentSheetName);
+				if (data != null) {
+					sheet = JsonUtil.getChildSheet(data, this.sheetName,
+							this.fields, errors, allFieldsAreOptional);
+				}
+			}
 		}
 		/*
-		 * we extract fields if sheet is not specified, or the specified sheet
-		 * is not found
+		 * got trouble?
 		 */
-		if (data == null) {
+		if (errors.isEmpty() == false) {
+			ctx.addMessages(errors);
+			return;
+		}
+		/*
+		 * sheet is null if no data is found
+		 */
+		if (sheet == null || sheet.length() == 0) {
 			if (this.minRows > 1) {
 				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, ""
 						+ this.minRows, "" + this.maxRows);
@@ -213,29 +240,6 @@ public class InputRecord {
 			return;
 		}
 
-		/*
-		 * we are now dealing with a data sheet
-		 */
-		DataSheet sheet = null;
-		if (this.parentSheetName != null) {
-			sheet = JsonUtil.getChildSheet(data, this.sheetName, this.fields,
-					errors, allFieldsAreOptional);
-		} else {
-			sheet = JsonUtil.getSheet(data, this.fields, errors,
-					allFieldsAreOptional);
-		}
-		if (errors.isEmpty() == false) {
-			ctx.addMessages(errors);
-			return;
-		}
-		// sheet is always non-null
-		if (sheet == null) {
-			if (this.minRows > 0) {
-				ctx.addMessage(Messages.VALUE_REQUIRED, this.sheetName
-						+ " requires a min of " + this.minRows);
-			}
-			return;
-		}
 		int nbrRows = sheet.length();
 		if (nbrRows < this.minRows
 				|| (this.maxRows != 0 && nbrRows > this.maxRows)) {
@@ -328,5 +332,32 @@ public class InputRecord {
 			count++;
 		}
 		return count;
+	}
+
+	private void extractFields(JSONObject json, ServiceContext ctx) {
+		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
+		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
+		int nbr = 0;
+		if (this.purpose == DataPurpose.FILTER) {
+			nbr = JsonUtil.extractFilterFields(json, this.fields, ctx, errors);
+
+		} else {
+			nbr = JsonUtil.extractFields(json, this.fields, ctx, errors,
+					allFieldsAreOptional);
+		}
+		Tracer.trace("Input Record extracted " + nbr + " fields into ctx");
+
+		if (errors.size() == 0 && this.hasInterFieldValidations
+				&& allFieldsAreOptional == false && nbr > 1) {
+			for (Field field : this.fields) {
+				field.validateInterfield(ctx, errors, null);
+			}
+		}
+		if (errors.size() > 0) {
+			Tracer.trace(" We got " + errors.size()
+					+ " validaiton errors during this record input");
+			ctx.addMessages(errors);
+		}
+		return;
 	}
 }

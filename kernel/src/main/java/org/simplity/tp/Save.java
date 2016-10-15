@@ -22,7 +22,6 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -125,8 +124,7 @@ public class Save extends DbAction {
 			nbrRowsAffected = actions.length;
 		}
 		if (this.childRecords != null) {
-			throw new ApplicationError(
-					"Child records are valid only when parent is for a sigle row.");
+			Tracer.trace("Child records are valid only when parent is for a sigle row. Data if any, ignored.");
 		}
 		return nbrRowsAffected;
 	}

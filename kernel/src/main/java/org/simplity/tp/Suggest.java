@@ -55,11 +55,6 @@ public class Suggest extends DbAction {
 	 */
 	String fieldToMatch;
 	/**
-	 * should the matching criterion be fixed at design time or do we allow
-	 * request-time input?
-	 */
-	SuggestMatchType matchType = SuggestMatchType.CONTAINS;
-	/**
 	 * name of the output data sheet
 	 */
 	String outputSheetName;
@@ -91,19 +86,15 @@ public class Suggest extends DbAction {
 			return 0;
 		}
 		boolean matchStarting = false;
-		if (this.matchType == SuggestMatchType.STARTING) {
-			matchStarting = true;
-		} else if (this.matchType == SuggestMatchType.USER_SPECIFIED) {
-			Value v = ctx.getValue(ServiceProtocol.SUGGEST_STARTING);
-			try {
-				if (v != null && v.toBoolean()) {
-					matchStarting = true;
-				}
-			} catch (InvalidValueException e) {
-				Tracer.trace("we expected boolean value in "
-						+ ServiceProtocol.SUGGEST_STARTING
-						+ " but encountered " + v + ". Assumed false value.");
+		Value v = ctx.getValue(ServiceProtocol.SUGGEST_STARTING);
+		try {
+			if (v != null && v.toBoolean()) {
+				matchStarting = true;
 			}
+		} catch (InvalidValueException e) {
+			Tracer.trace("we expected boolean value in "
+					+ ServiceProtocol.SUGGEST_STARTING + " but encountered "
+					+ v + ". Assumed false value.");
 		}
 		DataSheet sheet = record.suggest(value.toString(), matchStarting,
 				driver, ctx.getUserId());
