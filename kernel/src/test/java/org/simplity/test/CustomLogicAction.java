@@ -24,12 +24,15 @@ public class CustomLogicAction implements LogicInterface {
 		ctx.setValue("adversaries", Value.newTextValue(ctx.getValue("adversary1") + "," + ctx.getValue("adversary2")));
 
 		DataSheet sheet = null;
+		DataSheet sheet1 = null;
 		try {
 			sheet = TestUtils.loadDS("weekendBoxOffice");
+			sheet1 = TestUtils.loadDS("emptySheet");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		ctx.putDataSheet("weekendBoxOffice", sheet);
+		ctx.putDataSheet("emptySheet", sheet1);
 
 		return Value.newTextValue(" from CustomLogicAction");
 	}

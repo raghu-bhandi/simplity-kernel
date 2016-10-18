@@ -144,7 +144,7 @@ public class ActionsTest extends Mockito {
 	private ServiceData serviceAgentSetup(String servicename) {
 		ServiceData outData = new ServiceData();
 		ServiceData inData = new ServiceData();
-		inData.setPayLoad(null);
+		inData.setPayLoad("");
 		inData.setServiceName(servicename);
 		inData.setUserId(Value.newTextValue("100"));
 		outData = ServiceAgent.getAgent().executeService(inData);
