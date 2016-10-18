@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.simplity.json.JSONObject;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.util.JsonUtil;
@@ -79,6 +80,53 @@ public class ServiceData {
 	 * getting the service etc..
 	 */
 	private int executionTime;
+
+	/**
+	 * output data is cachable for this comma separated list of input field
+	 * values. Null implies that this can not be cached. empty string means it
+	 * can be used for all users irrespective of input data. If this is userId
+	 * specific, then _userId would be the first field.
+	 */
+	private String cacheForInput;
+
+	/**
+	 * default constructor, but you are better off using the one with userId and
+	 * serviceName
+	 */
+	public ServiceData() {
+		// default
+	}
+
+	/**
+	 *
+	 * @param userId
+	 * @param serviceName
+	 */
+	public ServiceData(Value userId, String serviceName) {
+		this.userId = userId;
+		this.serviceName = serviceName;
+	}
+
+	/**
+	 * @param cacheForInput
+	 *            the cacheForInput to set. Null implies that this can not be
+	 *            cached. empty string means it can be used for all users
+	 *            irrespective of input data. If this is userId specific, then
+	 *            _userId would be the first field.
+	 */
+	public void setCacheForInput(String cacheForInput) {
+		this.cacheForInput = cacheForInput;
+	}
+
+	/**
+	 * @return the cacheForInput. Null implies that this can not be cached.
+	 *         empty string means it can be used for all users irrespective of
+	 *         input data. If this is userId specific, then _userId would be the
+	 *         first field.
+	 */
+	public String getCacheForInput() {
+		return this.cacheForInput;
+	}
 
 	/**
 	 * @return the trace
@@ -211,7 +259,7 @@ public class ServiceData {
 	public ServiceContext createContext() {
 		ServiceContext ctx = new ServiceContext(this.serviceName, this.userId);
 		if (this.payLoad != null) {
-			JsonUtil.extractAll(this.payLoad, ctx);
+			JsonUtil.extractAll(new JSONObject(this.payLoad), ctx);
 		}
 		/*
 		 * session variables

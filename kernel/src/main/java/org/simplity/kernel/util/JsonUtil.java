@@ -175,7 +175,7 @@ public class JsonUtil {
 		/*
 		 * arr corresponds to following json. We are to accumulate child rows
 		 * across all main rows
-		 * 
+		 *
 		 * [...,"attName"=[{},{}....],..],[....,"attName"=[{},{}.... ],..]....
 		 */
 		Field[] inputFields = fields;
@@ -348,8 +348,8 @@ public class JsonUtil {
 				if (value == null) {
 					errors.add(new FormattedMessage(Messages.INVALID_VALUE,
 							null, field.getName(), null, 0, '\''
-									+ val.toString() + "' is not a valid "
-									+ field.getValueType()));
+							+ val.toString() + "' is not a valid "
+							+ field.getValueType()));
 					continue;
 				}
 			}
@@ -481,11 +481,10 @@ public class JsonUtil {
 	 * extract a simple json object (with fields and tables) into service
 	 * context
 	 *
-	 * @param jsonText
+	 * @param json
 	 * @param ctx
 	 */
-	public static void extractAll(String jsonText, ServiceContext ctx) {
-		JSONObject json = new JSONObject(jsonText);
+	public static void extractAll(JSONObject json, ServiceContext ctx) {
 		for (String key : json.keySet()) {
 			JSONArray arr = json.optJSONArray(key);
 			if (arr != null) {

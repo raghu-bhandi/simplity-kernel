@@ -24,9 +24,11 @@ package org.simplity.tp;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.simplity.json.JSONObject;
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
@@ -36,10 +38,12 @@ import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataPurpose;
+import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dt.DataType;
+import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -144,6 +148,16 @@ public class Service implements ServiceInterface {
 	 */
 	boolean executeInBackground;
 	/**
+	 * can the response from this service be cached? If so what are the input
+	 * fields that this response depends on? provide comma separated list of
+	 * field names. Null (default) implies that this service can not be cashed.
+	 * Empty string implies that the response does not depend on the input at
+	 * all. If it is dependent on userId, then "_userId" must be the first field
+	 * name. A cache manager can keep the response from this service and re-use
+	 * it so long as the input values for these fields are same.
+	 */
+	String canBeCachedByFields;
+	/**
 	 * action names indexed to respond to navigation requests
 	 */
 	private final HashMap<String, Integer> indexedActions = new HashMap<String, Integer>();
@@ -152,6 +166,14 @@ public class Service implements ServiceInterface {
 	 * flag to avoid repeated getReady() calls
 	 */
 	private boolean gotReady;
+	/*
+	 * two directives that we would love to re-factor... we are worried that
+	 * programmers would love this because of less work, and create
+	 * vulnerabilities. hence these two flags are still private and used only
+	 * internally
+	 */
+	private boolean justInputEveryThing;
+	private boolean justOutputEveryThing;
 
 	@Override
 	public DbAccessType getDataAccessType() {
@@ -184,27 +206,8 @@ public class Service implements ServiceInterface {
 	@Override
 	public ServiceData respond(ServiceData inData) {
 		ServiceContext ctx = new ServiceContext(this.name, inData.getUserId());
-		String requestText = inData.getPayLoad();
+		this.extractInput(ctx, inData.getPayLoad());
 
-		if (this.requestTextFieldName != null) {
-			ctx.setObject(this.requestTextFieldName, requestText);
-			Tracer.trace("Request text is not parsed but set as object value of "
-					+ this.requestTextFieldName);
-		} else {
-			if (this.inputData != null) {
-				try {
-					if (requestText == null || requestText.length() == 0) {
-						Tracer.trace("No input received from client, but we are expecting some input. Simulating an empty input.");
-						requestText = "{}";
-					}
-					JSONObject json = new JSONObject(requestText);
-					this.inputData.extractFromJson(json, ctx);
-				} catch (Exception e) {
-					ctx.addMessage(Messages.INVALID_DATA,
-							"Invalid input data format. " + e.getMessage());
-				}
-			}
-		}
 		/*
 		 * let us proceed if all OK
 		 */
@@ -246,8 +249,8 @@ public class Service implements ServiceInterface {
 				ctx.addInternalMessage(MessageType.ERROR, e.getMessage());
 			}
 		}
-		ServiceData response = new ServiceData();
-		response.setUserId(ctx.getUserId());
+		ServiceData response = new ServiceData(ctx.getUserId(),
+				this.getQualifiedName());
 		for (FormattedMessage msg : ctx.getMessages()) {
 			response.addMessage(msg);
 		}
@@ -255,30 +258,103 @@ public class Service implements ServiceInterface {
 		 * create output pay load, but only if service succeeded
 		 */
 		if (ctx.isInError() == false) {
-			if (this.responseTextFieldName != null) {
-				/*
-				 * service is supposed to have kept response ready for us
-				 */
-				Object obj = ctx.getObject(this.responseTextFieldName);
-				if (obj == null) {
-					obj = ctx.getValue(this.responseTextFieldName);
-				}
-				if (obj == null) {
-					Tracer.trace("Service " + this.name
-							+ " failed to set field "
-							+ this.responseTextFieldName
-							+ " to a response text. We will send no response");
-				} else {
-					response.setPayLoad(obj.toString());
-				}
-			} else if (this.outputData != null) {
-				this.outputData.setResponse(ctx, response);
+			if (this.justOutputEveryThing) {
+				this.setPayload(ctx, response, inData);
 			} else {
-				Tracer.trace("Service " + this.name
-						+ " is designed to send no response.");
+				this.setPayload(ctx, response);
+			}
+			if (this.canBeCachedByFields != null) {
+				response.setCacheForInput(this.canBeCachedByFields);
 			}
 		}
 		return response;
+	}
+
+	private void extractInput(ServiceContext ctx, String requestText) {
+		if (this.requestTextFieldName != null) {
+			ctx.setObject(this.requestTextFieldName, requestText);
+			Tracer.trace("Request text is not parsed but set as object value of "
+					+ this.requestTextFieldName);
+			return;
+		}
+		String jsonText = requestText.trim();
+		if (jsonText == null || jsonText.length() == 0) {
+			jsonText = "{}";
+		}
+		JSONObject json = new JSONObject(jsonText);
+		if (this.justInputEveryThing) {
+			JsonUtil.extractAll(json, ctx);
+			return;
+		}
+
+		if (this.inputData == null) {
+			return;
+		}
+
+		try {
+			this.inputData.extractFromJson(json, ctx);
+		} catch (Exception e) {
+			ctx.addMessage(Messages.INVALID_DATA, "Invalid input data format. "
+					+ e.getMessage());
+		}
+	}
+
+	private void setPayload(ServiceContext ctx, ServiceData response) {
+		if (this.responseTextFieldName != null) {
+			/*
+			 * service is supposed to have kept response ready for us
+			 */
+			Object obj = ctx.getObject(this.responseTextFieldName);
+			if (obj == null) {
+				obj = ctx.getValue(this.responseTextFieldName);
+			}
+			if (obj == null) {
+				Tracer.trace("Service " + this.name + " failed to set field "
+						+ this.responseTextFieldName
+						+ " to a response text. We will send no response");
+			} else {
+				response.setPayLoad(obj.toString());
+			}
+			return;
+		}
+
+		if (this.outputData != null) {
+			this.outputData.setResponse(ctx, response);
+			return;
+		}
+
+		Tracer.trace("Service " + this.name
+				+ " is designed to send no response.");
+
+	}
+
+	/**
+	 * output all fields, and sheets, except sesison fields
+	 *
+	 * @param ctx
+	 * @param response
+	 * @param inData
+	 */
+	private void setPayload(ServiceContext ctx, ServiceData response,
+			ServiceData inData) {
+		JSONWriter writer = new JSONWriter();
+		writer.object();
+		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
+			String fieldName = entry.getKey();
+			/*
+			 * write this, but only if it didn't come as session field
+			 */
+			if (inData.get(fieldName) == null) {
+				writer.key(fieldName);
+				writer.value(entry.getValue().toObject());
+			}
+		}
+		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
+			writer.key(entry.getKey());
+			JsonUtil.sheetToJson(writer, entry.getValue(), null);
+		}
+		writer.endObject();
+		response.setPayLoad(writer.toString());
 	}
 
 	@Override
@@ -542,16 +618,21 @@ public class Service implements ServiceInterface {
 		service.dbAccessType = DbAccessType.READ_ONLY;
 		service.setName(serviceName);
 		service.schemaName = record.getSchemaName();
+		if (record.getOkToCache()) {
+			String keyName = record.getValueListKeyName();
+			if (keyName == null) {
+				keyName = "";
+			}
+			service.canBeCachedByFields = keyName;
+		}
 
 		/*
-		 * do we need any input?
+		 * do we need any input? we are flexible
 		 */
 
 		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY,
 				DataType.DEFAULT_TEXT, false, null);
-		InputField f2 = new InputField(record.getValueListKeyName(),
-				DataType.DEFAULT_TEXT, false, null);
-		InputField[] inFields = { f1, f2 };
+		InputField[] inFields = { f1 };
 		InputData inData = new InputData();
 		inData.inputFields = inFields;
 		service.inputData = inData;
@@ -869,5 +950,60 @@ public class Service implements ServiceInterface {
 				+ operation);
 		return null;
 
+	}
+
+	/**
+	 * generate a service based on the java class
+	 *
+	 * @param serviceName
+	 * @param className
+	 *            Could be a ServiceInterface, LogicInterface or
+	 *            COmplexLogicInterface
+	 * @return service if this is a valid class, or null if it is not a valid
+	 *         class, or some error with that
+	 */
+	public static ServiceInterface getLogicService(String serviceName,
+			String className) {
+		Action action = null;
+		DbAccessType accessType = DbAccessType.NONE;
+		try {
+			Class<?> cls = Class.forName(className);
+			if (cls.isAssignableFrom(ServiceInterface.class)) {
+				return (ServiceInterface) cls.newInstance();
+			}
+			if (cls.isAssignableFrom(LogicInterface.class)) {
+				Logic act = new Logic();
+				act.className = className;
+			} else if (cls.isAssignableFrom(ComplexLogicInterface.class)) {
+				ComplexLogic act = new ComplexLogic();
+				act.className = className;
+				accessType = DbAccessType.READ_WRITE;
+			} else {
+				Tracer.trace(className
+						+ " is a valid class name, but it is not a ServiceInterafce, or a LogicInterface, or a ComplexLogicInterface. A service can not be constructed for this class.");
+				return null;
+			}
+		} catch (ClassNotFoundException e) {
+			Tracer.trace(className + " is designated as a class for service "
+					+ serviceName + " but the class can not be located.");
+			return null;
+		} catch (Exception e) {
+			Tracer.trace("Error while getting class for " + className + " "
+					+ e.getMessage());
+			return null;
+		}
+		Service service = new Service();
+		service.dbAccessType = accessType;
+		service.setName(serviceName);
+		/*
+		 * we have no idea what this service wants as input. May be we shoudl
+		 * add that to the interface, so that any service has to tell what input
+		 * it expects. Till such time, here is a dirty short-cut
+		 */
+		service.justInputEveryThing = true;
+		service.justOutputEveryThing = true;
+		Action[] act = { action };
+		service.actions = act;
+		return service;
 	}
 }

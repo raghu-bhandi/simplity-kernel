@@ -49,7 +49,14 @@
 								type="Ctype" />
 							<xs:element
 								name="timestampDataType"
-								type="Ctype"><xs:annotation><xs:documentation>There is a predefined type called timestamp. Use that. There is no point defining another one</xs:documentation></xs:annotation></xs:element>
+								type="Ctype"
+							>
+								<xs:annotation>
+									<xs:documentation>There is a predefined type called timestamp.
+										Use that. There is no point defining another one
+									</xs:documentation>
+								</xs:annotation>
+							</xs:element>
 						</xs:choice>
 					</xs:complexType>
 				</xs:element>
@@ -649,14 +656,12 @@
 				type="xs:boolean"
 				use="optional" />
 			<xs:attribute
-				name="keyValueExpression"
+				name="sequenceName"
 				type="xs:string"
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>Ignored for non-oracle db. If you use a seqence named seq1,
-						then set this to seq1.nextval.
-						Defaults to tableName_seq.nextval, as per default standard used in oracle
+					<xs:documentation>Ignored for non-oracle db. Defaults to tableName_seq is omitted. 
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -698,11 +703,30 @@
 			<xs:attribute
 				name="listFieldName"
 				type="xs:NCName"
-				use="optional"><xs:annotation><xs:documentation>If this record is to be used for listing key-value pairs, specify the field name to be used for value. Note that key field is always the primary key.</xs:documentation></xs:annotation></xs:attribute>
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>If this record is to be used for listing
+						key-value pairs, specify the field name to be used for value. Note
+						that key field is always the primary key.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 			<xs:attribute
 				name="listGroupKeyName"
 				type="xs:NCName"
-				use="optional"><xs:annotation><xs:documentation>If this record is to be used for listing key-value pairs, and the table contains list of values across groups, like states for all coutries, then you need to specify the field name to be used based on which rows are to be subset. For example it would be coutry-code to get list of states for a given coutry</xs:documentation></xs:annotation></xs:attribute>
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>If this record is to be used for listing
+						key-value pairs, and the table contains list of values across
+						groups, like states for all coutries, then you need to specify the
+						field name to be used based on which rows are to be subset. For
+						example it would be coutry-code to get list of states for a given
+						coutry
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 			<xs:attribute
 				name="suggestionKeyName"
 				type="xs:NCName"
@@ -743,21 +767,6 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="logicalPrimaryKeyFields">
-				<xs:annotation>
-					<xs:documentation>
-						We allow only a single field to be marked as
-						primary key.
-						Most of the times, this is a generated key. In that
-						case, you may have
-						th elogical key.
-						This may be one or more columns.
-						Specify teh columsn here.
-						We assume that the db has a constraint to
-						enforce this.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
 			<xs:attribute
 				name="schemaName"
 				type="xs:string"
@@ -769,6 +778,33 @@
 						this record to use the right schema. Note that this attriute is
 						not used for regular service. You have to use schemaName attriute
 						at the service level there
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="useTimestampForConcurrency"
+				type="booleanType"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>should we insist that the client returns the last
+						time stamp during an update that we match with the current row
+						before updating it? This technique allows us to detect whether the
+						row was updated after it was sent to client.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="okToCacheList"
+				type="booleanType"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>if this table is (almost) static, and the
+						vauleList that is delivered ona list request can be cached by the
+						agent. Valid only if valueListFieldis set (list_ auto service is
+						enabled) if valueListKey is specified, the result will be cached
+						by that field. For example, by country-code.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -1224,6 +1260,23 @@
 					<xs:documentation>Optional. Valid if allowServiceSpecificSchema is
 						set to true in application.xml. default schema for the conneciton
 						is set to this before executing the service.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="canBeCachedByFields"
+				type="xs:NCName"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>can the response from this service be cached? If
+						so what are the inputfields that this response depends on? provide
+						comma separated list offield names. Null (default) implies that
+						this service can not be cashed.Empty string implies that the
+						response does not depend on the input atall. If it is dependent on
+						userId, then "_userId" must be the first fieldname. A cache
+						manager can keep the response from this service and re-useit so
+						long as the input values for these fields are same.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2560,19 +2613,37 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="cacheManagerClassName"
+				name="httpCacheManager"
 				type="xs:string"
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>cache manager can also be used as a fake server
-						that just streams responses from files. refer to
-						org.simplity.service.CacheManager class
+					<xs:documentation>Responses can be cached at http(web tier) as well
+						as at service (app tier). specify the qualified calss name for the
+						http cache manager that implements HttpCacheManager interface.
+						Services shoudl indicate cacheability in response service data
+						(refer to service.xml attributes)
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="accessControllerClassName"
+				name="serviceCacheManager"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>Responses can be cached at http(web tier) as well
+						as at service (app tier). specify the qualified calss name for the
+						service cache manager that implements ServiceCacheManager
+						interface.
+						Services shoudl indicate cacheability in response
+						service data
+						(refer to service.xml attributes)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="accessController"
 				type="xs:string"
 				use="optional"
 			>
@@ -2583,7 +2654,7 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="exceptionListenerClassName"
+				name="exceptionListener"
 				type="xs:string"
 				use="optional"
 			>
@@ -2630,7 +2701,7 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="attachmentAssistantClass"
+				name="attachmentAssistant"
 				type="xs:string"
 				use="optional"
 			>

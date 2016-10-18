@@ -108,6 +108,11 @@ public class HttpAgent {
 	private static Value autoLoginUserId;
 
 	/**
+	 * cache service responses
+	 */
+	private static HttpCacheManager httpCacheManager;
+
+	/**
 	 * serve this service. Main entrance to the server from an http client.
 	 *
 	 * @param req
@@ -182,13 +187,22 @@ public class HttpAgent {
 				}
 				inData.setPayLoad(payLoad);
 				inData.setServiceName(serviceName);
+				if (httpCacheManager != null) {
+					outData = httpCacheManager.respond(inData, session);
+					if (outData != null) {
+						break;
+					}
+				}
 				outData = ServiceAgent.getAgent().executeService(inData);
 				/*
-				 * by our convention, server may send data in inData to be set
+				 * by our convention, server may send data in outData to be set
 				 * to session
 				 */
 				if (outData.hasErrors() == false) {
 					setSessionData(session, outData);
+					if (httpCacheManager != null) {
+						httpCacheManager.cache(inData, outData, session);
+					}
 				}
 			} catch (Exception e) {
 				Tracer.trace(e, "Internal error");
@@ -378,9 +392,12 @@ public class HttpAgent {
 	 * @param autoUserId
 	 *            in case login is disabled and a default loginId is to be used
 	 *            for all services
+	 * @param cacher
+	 *            http cache manager
 	 */
-	public static void setUp(Value autoUserId) {
+	public static void setUp(Value autoUserId, HttpCacheManager cacher) {
 		autoLoginUserId = autoUserId;
+		httpCacheManager = cacher;
 
 	}
 
@@ -393,26 +410,31 @@ public class HttpAgent {
 	 */
 	private static ServiceData createServiceData(HttpSession session) {
 		Value userId = (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
-		@SuppressWarnings("unchecked")
-		Map<String, Object> sessionData = (Map<String, Object>) session
-				.getAttribute(SESSION_NAME_FOR_MAP);
 		if (userId == null) {
 			Tracer.trace("Request by non-logged-in session detected.");
 			if (autoLoginUserId == null) {
 				Tracer.trace("Login is required.");
 				return null;
 			}
-			userId = autoLoginUserId;
+			login(autoLoginUserId.toString(), null, session);
+			userId = (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
+			if (userId == null) {
+				Tracer.trace("autoLoginUserId is set to "
+						+ autoLoginUserId
+						+ " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in applicaiton.xml and esnure that your service clears this dummy userId with no credentials");
+				return null;
+			}
 			Tracer.trace("User " + userId + " auto logged-in");
-			sessionData = newSession(session, userId);
 		}
 
+		@SuppressWarnings("unchecked")
+		Map<String, Object> sessionData = (Map<String, Object>) session
+		.getAttribute(SESSION_NAME_FOR_MAP);
 		if (sessionData == null) {
 			throw new ApplicationError(
 					"Unexpected situation. UserId is located in session, but not map");
 		}
-		ServiceData data = new ServiceData();
-		data.setUserId(userId);
+		ServiceData data = new ServiceData(userId, null);
 		for (Map.Entry<String, Object> entry : sessionData.entrySet()) {
 			data.put(entry.getKey(), entry.getValue());
 		}
@@ -445,7 +467,7 @@ public class HttpAgent {
 	private static void setSessionData(HttpSession session, ServiceData data) {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-				.getAttribute(SESSION_NAME_FOR_MAP);
+		.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
 			Tracer.trace("Unexpected situation. setSession invoked with no active session. Action ignored");
@@ -479,12 +501,24 @@ public class HttpAgent {
 
 	/**
 	 * get the userId that has logged into this session.
-	 * 
+	 *
 	 * @param session
 	 *            can not be null
 	 * @return userId, or null if no login so far in this session
 	 */
 	public static Value getLoggedInUser(HttpSession session) {
 		return (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
+	}
+
+	/**
+	 * invalidate any cached response for this service
+	 *
+	 * @param serviceName
+	 * @param session
+	 */
+	public static void invalidateCache(String serviceName, HttpSession session) {
+		if (httpCacheManager != null) {
+			httpCacheManager.invalidate(serviceName, session);
+		}
 	}
 }

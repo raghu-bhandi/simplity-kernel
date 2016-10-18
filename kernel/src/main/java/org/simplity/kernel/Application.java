@@ -24,6 +24,7 @@ package org.simplity.kernel;
 import java.io.File;
 
 import org.simplity.http.HttpAgent;
+import org.simplity.http.HttpCacheManager;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -38,9 +39,9 @@ import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.AccessController;
-import org.simplity.service.CacheManager;
 import org.simplity.service.ExceptionListener;
 import org.simplity.service.ServiceAgent;
+import org.simplity.service.ServiceCacheManager;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
 
@@ -140,20 +141,30 @@ public class Application {
 	String autoLoginUserId;
 
 	/**
-	 * Response for certain services can be cached. Also, during development, we
-	 * may want to fake some services with a pre-determined response. Use a
-	 * class that implements org.simplity.service.CacheManager interface
+	 * Response to service request can be cached at two levels : at the Web tier
+	 * or at the service level. specify fully qualified class name you want use
+	 * as cache manager at we tier. This class must implement HttpCacheManager
+	 * interface. You may start with the a simple one called
+	 * org.siplity.http.SimpleCacheManager that caches services based on service
+	 * definition inside http sessions.
 	 */
-	String cacheManagerClassName;
+	String httpCacheManager;
 
+	/**
+	 * Response to service request can be cached at two levels : at the Web tier
+	 * or at the service level. Specify fully qualified class name you want use
+	 * at the service layer. This class should implement
+	 * org.simplity.service.ServiceCacheManager
+	 */
+	String serviceCacheManager;
 	/**
 	 * class that decides whether a userId be served a given service
 	 */
-	String accessControllerClassName;
+	String accessController;
 	/**
 	 * way to wire exception to corporate utility
 	 */
-	String exceptionListenerClassName;
+	String exceptionListener;
 
 	/**
 	 * should the sqls that are executed be added to trace?? Required during
@@ -192,7 +203,7 @@ public class Application {
 	 * you want to use, provide the class name that implements
 	 * AttachmentAssistant. A single instance of this class is re-used
 	 */
-	String attachmentAssistantClass;
+	String attachmentAssistant;
 
 	/**
 	 * configure application based on the settings. This MUST be triggered
@@ -210,39 +221,42 @@ public class Application {
 		/*
 		 * set up ServiceAgenet
 		 */
-		CacheManager casher = null;
-		AccessController gard = null;
-		ExceptionListener listener = null;
-		if (this.cacheManagerClassName != null) {
+		ServiceCacheManager casher = null;
+		if (this.serviceCacheManager != null) {
 			try {
-				casher = (CacheManager) Class.forName(
-						this.cacheManagerClassName).newInstance();
+				casher = (ServiceCacheManager) Class.forName(
+						this.serviceCacheManager).newInstance();
 
 			} catch (Exception e) {
-				Tracer.trace(this.cacheManagerClassName
+				Tracer.trace(this.serviceCacheManager
 						+ " could not be used to instantiate a cahce manager. "
-						+ e.getMessage() + " We ill work with no cache manager");
+						+ e.getMessage()
+						+ " We will work with no cache manager");
 			}
 		}
-		if (this.accessControllerClassName != null) {
+
+		AccessController gard = null;
+		if (this.accessController != null) {
 			try {
 				gard = (AccessController) Class.forName(
-						this.accessControllerClassName).newInstance();
+						this.accessController).newInstance();
 
 			} catch (Exception e) {
-				Tracer.trace(this.accessControllerClassName
+				Tracer.trace(this.accessController
 						+ " could not be used to instantiate access controller. "
 						+ e.getMessage()
 						+ " We will work with no cache manager");
 			}
 		}
-		if (this.exceptionListenerClassName != null) {
+
+		ExceptionListener listener = null;
+		if (this.exceptionListener != null) {
 			try {
 				listener = (ExceptionListener) Class.forName(
-						this.exceptionListenerClassName).newInstance();
+						this.exceptionListener).newInstance();
 
 			} catch (Exception e) {
-				Tracer.trace(this.exceptionListenerClassName
+				Tracer.trace(this.exceptionListener
 						+ " could not be used to instantiate an exception listener. "
 						+ e.getMessage() + " We will work with no listener");
 			}
@@ -259,8 +273,21 @@ public class Application {
 		if (this.cacheComponents) {
 			ComponentType.startCaching();
 		}
+		Value uid = null;
+		HttpCacheManager cacheManager = null;
+		if (this.httpCacheManager != null) {
+			try {
+				cacheManager = (HttpCacheManager) Class.forName(
+						this.httpCacheManager).newInstance();
+
+			} catch (Exception e) {
+				Tracer.trace(this.httpCacheManager
+						+ " could not be used to instantiate a cache manager. "
+						+ e.getMessage()
+						+ " We will work with no http cache manager");
+			}
+		}
 		if (this.autoLoginUserId != null) {
-			Value uid = null;
 			if (this.userIdIsNumber) {
 				try {
 					uid = Value.newIntegerValue(Integer
@@ -273,8 +300,8 @@ public class Application {
 			} else {
 				uid = Value.newTextValue(this.autoLoginUserId);
 			}
-			if (uid != null) {
-				HttpAgent.setUp(uid);
+			if (uid != null || cacheManager != null) {
+				HttpAgent.setUp(uid, cacheManager);
 			}
 		}
 		/*
@@ -283,14 +310,14 @@ public class Application {
 		AttachmentAssistant ast = null;
 		if (this.attachmentsFolderPath != null) {
 			ast = new FileBasedAssistant(this.attachmentsFolderPath);
-		} else if (this.attachmentAssistantClass != null) {
+		} else if (this.attachmentAssistant != null) {
 			try {
 				ast = (AttachmentAssistant) Class.forName(
-						this.attachmentAssistantClass).newInstance();
+						this.attachmentAssistant).newInstance();
 			} catch (Exception e) {
 				Tracer.trace(e,
 						"Error while setting storage asstistant based on class "
-								+ this.attachmentAssistantClass);
+								+ this.attachmentAssistant);
 			}
 		}
 		if (ast != null) {
@@ -313,16 +340,20 @@ public class Application {
 		}
 
 		if (this.classInError(AccessController.class,
-				this.accessControllerClassName, "accessControllerClassName",
+				this.accessController, "accessControllerClassName",
 				ctx)) {
 			count++;
 		}
-		if (this.classInError(CacheManager.class, this.cacheManagerClassName,
-				"cacheManagerClassName", ctx)) {
+		if (this.classInError(HttpCacheManager.class, this.httpCacheManager,
+				"httpCacheManager", ctx)) {
+			count++;
+		}
+		if (this.classInError(ServiceCacheManager.class,
+				this.serviceCacheManager, "serviceCacheManager", ctx)) {
 			count++;
 		}
 		if (this.classInError(ExceptionListener.class,
-				this.exceptionListenerClassName, "exceptionListenerClassName",
+				this.exceptionListener, "exceptionListenerClassName",
 				ctx)) {
 			count++;
 		}
@@ -344,12 +375,12 @@ public class Application {
 						+ " but it is not a valid folder path.");
 				count++;
 			}
-			if (this.attachmentAssistantClass != null) {
+			if (this.attachmentAssistant != null) {
 				ctx.addError("Choose either built-in attachment manager with attachmntsFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
 			}
 		}
 		if (this.classInError(AttachmentAssistant.class,
-				this.attachmentAssistantClass, "attachmentAssistantClass", ctx)) {
+				this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
 			count++;
 		}
 		if (this.serviceInError(this.loginServiceName, ctx)) {
@@ -478,9 +509,8 @@ public class Application {
 		System.out.println("service:" + serviceName);
 		System.out.println("request:" + json);
 
-		ServiceData inData = new ServiceData();
-		inData.setServiceName(serviceName);
-		inData.setUserId(Value.newTextValue(user));
+		ServiceData inData = new ServiceData(Value.newTextValue(user),
+				serviceName);
 		inData.setPayLoad(json);
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		System.out.println("response :" + outData.getPayLoad());

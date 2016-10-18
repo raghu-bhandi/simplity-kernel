@@ -61,7 +61,7 @@ public class ServiceAgent {
 	 * @param listener
 	 */
 	public static void setUp(boolean userIdIsNumber, String login,
-			String logout, boolean inProduction, CacheManager cacher,
+			String logout, boolean inProduction, ServiceCacheManager cacher,
 			AccessController guard, ExceptionListener listener) {
 		instance = new ServiceAgent(userIdIsNumber, login, logout,
 				inProduction, cacher, guard, listener);
@@ -97,7 +97,7 @@ public class ServiceAgent {
 	 * service response may be cached. This may also be used to have fake
 	 * responses during development
 	 */
-	private final CacheManager cacheManager;
+	private final ServiceCacheManager cacheManager;
 	/**
 	 * any exception thrown by service may need to be reported to a central
 	 * system.
@@ -118,8 +118,8 @@ public class ServiceAgent {
 	 * We create an immutable instance fully equipped with all plug-ins
 	 */
 	private ServiceAgent(boolean userIdIsNumber, String login, String logout,
-			boolean inProduction, CacheManager cacher, AccessController guard,
-			ExceptionListener listener) {
+			boolean inProduction, ServiceCacheManager cacher,
+			AccessController guard, ExceptionListener listener) {
 		this.numericUserId = userIdIsNumber;
 		this.loginService = login;
 		this.logoutService = logout;
@@ -251,13 +251,8 @@ public class ServiceAgent {
 			 * is it cached?
 			 */
 			if (this.cacheManager != null) {
-				String payLoad = this.cacheManager.respond(serviceName,
-						inputData);
-				if (payLoad != null) {
-					Tracer.trace("Service " + serviceName
-							+ " rendered by Cache Manager");
-					response = new ServiceData();
-					response.setPayLoad(payLoad);
+				response = this.cacheManager.respond(inputData);
+				if (response != null) {
 					break;
 				}
 			}
@@ -267,7 +262,12 @@ public class ServiceAgent {
 			try {
 				Tracer.trace("Invoking service " + serviceName);
 				response = service.respond(inputData);
-				Tracer.trace(serviceName + " returned normally.");
+				boolean hasErrors = response != null && response.hasErrors();
+				Tracer.trace(serviceName + " returned with "
+						+ (hasErrors ? "" : "NO") + " errors");
+				if (this.cacheManager != null && hasErrors == false) {
+					this.cacheManager.cache(inputData, response);
+				}
 			} catch (Exception e) {
 				if (this.exceptionListener != null) {
 					this.exceptionListener.listen(inputData, e);
@@ -285,5 +285,16 @@ public class ServiceAgent {
 			response.setExecutionTime((int) diffTime);
 		}
 		return response;
+	}
+
+	/**
+	 * invalidate any cached response for this service
+	 * 
+	 * @param serviceName
+	 */
+	public static void invalidateCache(String serviceName) {
+		if (instance.cacheManager != null) {
+			instance.cacheManager.invalidate(serviceName);
+		}
 	}
 }

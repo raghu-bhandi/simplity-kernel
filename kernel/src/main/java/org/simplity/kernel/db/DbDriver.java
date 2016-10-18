@@ -702,7 +702,8 @@ public class DbDriver {
 	 * @param generatedKeys
 	 *            if you are calling me to insert rows, and you are expecting
 	 *            generated keys, supply me the array for me to put hem in.
-	 *            Leave it null if this is not applicable to your call.
+	 *            Leave it null if this is not applicable to your call. And, If
+	 *            I am unable to get it from RDBMS, I would leave it as 0
 	 * @param treatSqlErrorAsNoAction
 	 *            if true, sql error is treated as if rows affected is zero.
 	 *            This is helpful when constraints are added in the db, and we
@@ -723,11 +724,8 @@ public class DbDriver {
 		try {
 			stmt = this.connection.prepareStatement(sql);
 			this.setParams(stmt, values);
-			if (generatedKeys == null) {
-				return stmt.executeUpdate();
-			}
 			result = stmt.executeUpdate();
-			if (result > 0) {
+			if (generatedKeys != null && result > 0) {
 				this.getGeneratedKeys(stmt, generatedKeys);
 			}
 		} catch (SQLException e) {
@@ -759,6 +757,13 @@ public class DbDriver {
 	 */
 	private void getGeneratedKeys(Statement stmt, long[] generatedKeys)
 			throws SQLException {
+		/*
+		 * oracle can not return generated keys
+		 */
+		if (dbVendor == DbVendor.ORACLE) {
+			return;
+		}
+
 		ResultSet rs = stmt.getGeneratedKeys();
 		for (int i = 0; i < generatedKeys.length && rs.next(); i++) {
 			generatedKeys[i] = rs.getLong(1);
@@ -804,7 +809,9 @@ public class DbDriver {
 	 * @param generatedKeys
 	 *            if you are calling me to insert rows, and you are expecting
 	 *            generated keys, supply me the array for me to put hem in.
-	 *            Leave it null if this is not applicable to your call.
+	 *            Leave it null if this is not applicable to your call. And,
+	 *            would leave them as 0 in case I am unable to get hem from the
+	 *            RDBMS
 	 * @param treatSqlErrorAsNoAction
 	 *            if true, sql error is treated as if rows affected is zero.
 	 *            This is helpful when constraints are added in the db, and we

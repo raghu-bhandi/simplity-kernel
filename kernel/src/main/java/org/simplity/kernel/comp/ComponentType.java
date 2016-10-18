@@ -78,22 +78,7 @@ public enum ComponentType {
 			 */
 			String className = (String) serviceClasses.get(compName);
 			if (className != null) {
-				try {
-					Object obj = Class.forName(className).newInstance();
-					if (obj instanceof ServiceInterface) {
-						return (ServiceInterface) obj;
-					}
-					Tracer.trace(className
-							+ " is a valid class name, but it is not a ServiceInterafce.");
-				} catch (ClassNotFoundException e) {
-					Tracer.trace(className
-							+ " is designated as a class for service "
-							+ compName + " but the class can not be located.");
-				} catch (Exception e) {
-					Tracer.trace("Error while getting an instance of class "
-							+ className + " " + e.getMessage());
-				}
-				return null;
+				return Service.getLogicService(compName, className);
 			}
 			/*
 			 * try on-the-fly service generation

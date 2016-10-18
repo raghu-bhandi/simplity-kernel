@@ -123,7 +123,7 @@ public class Record implements Component {
 	 * flexibility to have any expression, including functions that you may have
 	 * written.
 	 */
-	String keyValueExpression;
+	String sequenceName;
 	/**
 	 * if this table is expected to have large number of rows, we would like to
 	 * protect against a select with no where conditions. Of course one can
@@ -202,6 +202,14 @@ public class Record implements Component {
 	 * sent to client.
 	 */
 	boolean useTimestampForConcurrency = false;
+
+	/**
+	 * if this table is (almost) static, and the vauleList that is delivered on
+	 * a list request can be cached by the agent. Valid only if valueListField
+	 * is set (list_ auto service is enabled) if valueListKey is specified, the
+	 * result will be cached by that field. For example, by country-code.
+	 */
+	boolean okToCacheList;
 	/*
 	 * following fields are assigned for caching/performance
 	 */
@@ -270,7 +278,7 @@ public class Record implements Component {
 	private ValueType valueListKeyType;
 	private String suggestSql;
 	/**
-	 * sequence ofr oracle if requried
+	 * sequence of oracle if required
 	 */
 	private String sequence;
 
@@ -771,6 +779,7 @@ public class Record implements Component {
 		Value parentKey = parentRow.getValue(this.parentKeyField.referredField);
 		if (parentKey == null) {
 			Tracer.trace("Parent key value is null, and hence no save with parent operation");
+			return;
 		}
 		/*
 		 * for security/safety, we copy parent key into data
@@ -940,7 +949,7 @@ public class Record implements Component {
 		long[] generatedKeys = new long[nbrRows];
 		int result = this.executeWorker(driver, this.insertSql, allValues,
 				generatedKeys, treatSqlErrorAsNoResult);
-		if (result > 0) {
+		if (result > 0 && generatedKeys[0] != 0) {
 			this.addKeyColumn(inSheet, generatedKeys);
 		}
 		return result;
@@ -972,8 +981,14 @@ public class Record implements Component {
 		int result = this.executeWorker(driver, this.insertSql, allValues,
 				generatedKeys, treatSqlErrorAsNoResult);
 		if (result > 0) {
-			inData.setValue(this.primaryKeyField.name,
-					Value.newIntegerValue(generatedKeys[0]));
+			/*
+			 * generated key feature may not be available with some rdb vendor
+			 */
+			long key = generatedKeys[0];
+			if (key > 0) {
+				inData.setValue(this.primaryKeyField.name,
+						Value.newIntegerValue(key));
+			}
 		}
 		return result;
 	}
@@ -1001,7 +1016,8 @@ public class Record implements Component {
 		}
 		Value parentKey = parentRow.getValue(this.parentKeyField.referredField);
 		if (parentKey == null) {
-			Tracer.trace("Parent key value is null, and hence no insert with parent operation");
+			Tracer.trace("Parent key is not available, and hence no insert with parent operation");
+			return 0;
 		}
 		/*
 		 * for security/safety, we copy parent key into data
@@ -1021,7 +1037,9 @@ public class Record implements Component {
 		long[] keys = new long[nbrRows];
 		int result = this.executeWorker(driver, this.insertSql, allValues,
 				keys, false);
-		this.addKeyColumn(inSheet, keys);
+		if (keys[0] != 0) {
+			this.addKeyColumn(inSheet, keys);
+		}
 		return result;
 	}
 
@@ -1053,7 +1071,7 @@ public class Record implements Component {
 		String fieldName = this.parentKeyField.name;
 		String parentKeyName = this.parentKeyField.referredField;
 		Value parentKey = inData.getValue(parentKeyName);
-		if (parentKey == null) {
+		if (Value.isNull(parentKey)) {
 			Tracer.trace("No value found for parent key field "
 					+ this.parentKeyField.referredField
 					+ " and hence no column is going to be added to child table");
@@ -1223,7 +1241,7 @@ public class Record implements Component {
 		}
 		String parentName = this.parentKeyField.referredField;
 		Value value = parentRow.getValue(parentName);
-		if (value == null) {
+		if (Value.isNull(value)) {
 			Tracer.trace("Delete with parent has nothing to delete as parent key is null");
 			return 0;
 		}
@@ -1602,13 +1620,13 @@ public class Record implements Component {
 
 		if (this.keyToBeGenerated) {
 			if (DbDriver.generatorNameRequired()) {
-				if (this.keyValueExpression == null) {
+				if (this.sequenceName == null) {
 					this.sequence = this.tableName + DEFAULT_SEQ_SUFFIX;
 					Tracer.trace("sequence not specified for table "
 							+ this.tableName + ". default sequence name  "
 							+ this.sequence + " is assumed.");
 				} else {
-					this.sequence = this.keyValueExpression;
+					this.sequence = this.sequenceName + ".NEXT_VAL";
 				}
 			}
 		}
@@ -2505,5 +2523,13 @@ public class Record implements Component {
 	 */
 	public String getSchemaName() {
 		return this.schemaName;
+	}
+
+	/**
+	 *
+	 * @return is it okay to cache the list generated from this record?
+	 */
+	public boolean getOkToCache() {
+		return this.listFieldName != null && this.okToCacheList;
 	}
 }
