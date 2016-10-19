@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<application
+	xmlns="http://www.simplity.org/schema"
+	applicationId="simplityTutorial" 
+	dbVendor="h2"
+	dbDriverClassName="org.h2.Driver"
+	connectionString="jdbc:h2:file:D:/temp/AFE2016/db/nomination;user=sa;" 
+	sendTraceToClient="true"
+	logSqls="true"	
+	attachmentsFolderPath="D:/temp/AFE2016/files"
+>
+</application>	

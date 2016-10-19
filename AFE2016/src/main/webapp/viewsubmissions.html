@@ -1,0 +1,32 @@
+<h3>Submissions</h3>
+<table  class="table">
+	<tr class="row">
+		<th class="col-xs-1"></th>
+		<th class="col-xs-2">Category</th>
+		<th class="col-xs-1">Level</th>
+		<th class="col-xs-2">Title</th>
+		<th class="col-xs-1">Sponsor</th>
+		<th class="col-xs-1">Document File</th>
+		<th class="col-xs-1">Status</th>
+		<th class="col-xs-1">Action</th>				
+		<th class="col-xs-1"></th>
+	</tr>
+	<tr ng-repeat="x in nominations" class="row" ng-click="viewsubmission(x)" style="cursor: pointer;">
+		<td class="col-xs-1">{{$index+1}}</td>
+		<td class="col-xs-2">{{x.selectedCategory}}</td>
+		<td class="col-xs-1">{{x.selectedLevel}}</td>
+		<td class="col-xs-2">{{x.nomination}}</td>
+		<td class="col-xs-2">{{x.sponsormailid}}</td>
+		<td class="col-xs-1"><a href="a._f?download={{x.filekey}}&filename={{x.filename}}" type="application/x-zip-compressed"> download</a></td>
+		<td class="col-xs-1">{{x.status}}</td>
+		<td class="col-xs-1" ng-if="x.status=='Saved'">
+		<button ng-click="updatenomination('Submitted')">Submit</button>
+		</td>
+		<td class="col-xs-1" ng-if="x.status=='Submitted'">
+		<button>Recall</button>
+		</td>
+		<td class="col-xs-1"><span
+			class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="removenomination($index)"></span></td>
+
+	</tr>
+</table>

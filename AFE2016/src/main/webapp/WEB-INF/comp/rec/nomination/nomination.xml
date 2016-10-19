@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record xmlns="http://www.simplity.org/schema" 
+	name="nomination"
+	moduleName="nomination" 
+	recordType="storage"
+	okToSelectAll="true"
+	tableName="nomination"
+	keyToBeGenerated="true"
+	childrenToBeRead="nomination.members"	
+	>
+	<fields>
+		<field name="nominationId" dataType="id" fieldType="primaryKey" />
+		<field name="submitterId" dataType="_text" />
+		<field name="status" dataType="_text" />
+		<field name="selectedCategory" dataType="_text" />
+		<field name="selectedLevel" dataType="_text" />
+		<field name="nomination" dataType="_text" />
+		<field name="sponsormailid" dataType="_text" />
+		<field name="sponsorname" dataType="_text" />
+		<field name="sponsornumber" dataType="_text"/>
+		<field name="filekey" dataType="_text"/>
+		<field name="filename" dataType="_text"/>
+		<field name="filetype" dataType="_text"/>
+		<field name="filesize" dataType="_text"/>
+	</fields>
+</record>

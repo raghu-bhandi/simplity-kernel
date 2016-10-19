@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataTypes name="simplity" xmlns="http://www.simplity.org/schema">
+	<components>
+		<numericDataType name="id" description="Autoincremented Primary Key"
+			maxValue="99999999999999" />
+	</components>
+</dataTypes>

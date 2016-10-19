@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service
+	dbAccessType="readOnly"
+	description=""
+	executeInBackground="true"
+	moduleName="submission"
+	name="getnomsponsor"
+	xmlns="http://www.simplity.org/schema">
+	
+	<actions>
+		<setValue fieldName="userId" fieldValue="sponsor"/>
+		<createSheet sheetName="filtersheet" data="sponsormailid,status,statusOperator;$userId,saved,!="/>
+		<log names="userId,filtersheet"/>
+		<filter
+			inputSheetName="filtersheet"
+			filterRecordName="nomination.nomination"
+			outputSheetName="sponsors"> 
+			<childRecords>
+				<relatedRecord sheetName="members" recordName="nomination.members"/>
+			</childRecords>
+		</filter>
+		<log names="sponsors,members"/>
+	</actions>
+	<outputData attachmentColumns="sponsors.filekey">	
+		<outputRecords>
+			<outputRecord sheetName="sponsors"/>
+			<outputRecord sheetName="members" parentSheetName="sponsors" linkColumnInParentSheet="nominationId" linkColumnInThisSheet="nominationId"/>
+		</outputRecords>
+	</outputData>
+</service>
