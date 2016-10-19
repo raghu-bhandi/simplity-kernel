@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql name="Employees.xml" sqlType="singleSelect" xmlns="http://www.simplity.org/schema"
+	preparedStatement="Select fileCode,file,'jpg' From StoreFiles where fileCode = "
+	moduleName="example">
+	<inputParameters>
+		<sqlParameter dataType="id" name="fileCode"
+			defaultValue="1" />
+	</inputParameters>
+	<outputParameters>
+		<sqlParameter dataType="text" name="file" />
+	</outputParameters>
+</sql>

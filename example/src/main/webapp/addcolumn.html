@@ -1,0 +1,29 @@
+<div id="addcolumnexample" ng-controller="addcolumnCtrl">
+	<h2 id="addcolumntag">addColumn</h2>
+	<p>Add a column to a data sheet</p>
+	<div>
+		<div class="leftcontainer">
+			<div id="addcolumntabs">
+				<ul class="tab">
+					<li ng-repeat="tab in addcolumntabs"
+						ng-class="{active:isActiveTab(tab.url)}"
+						ng-click="onClickTab(tab)">{{tab.title}}</li>
+				</ul>
+				<div class="tabcontent">
+					<p ng-bind-html="addcolumncurrentTab" class="binding"></p>
+				</div>
+			</div>
+		</div>
+		<div class="rightcontainer">
+			<ul class="tab">
+				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+				<li class="runbutton"
+					ng-click="common.runSimplity('tutorial.addColumn','#addcolumnexample')"><a
+					href="JavaScript:void(0)" class="tablinks">Run</a></li>
+			</ul>
+			<div id="OUTPUT" class="output" style="display: block">
+				<div id="testValue"></div>
+			</div>
+		</div>
+	</div>
+</div>

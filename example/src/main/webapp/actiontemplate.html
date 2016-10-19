@@ -1,0 +1,40 @@
+<div style="width:100%">
+	<!-- {{action.name}} example -->
+	<h2 id="{{action.nametag}}tag">{{action.name}}</h2>
+
+	<p>{{action.desc}}</p>
+	<div id="{{action.nametag}}example">
+		<div>
+			<div style="width: 60%; float: left; padding: 0 10 0 10;">
+				<h3 id="code">Code</h3>
+			</div>
+			<div style="width: 33%; float: left; padding: 0 10 0 10;">
+				<button class="buttonstyle"
+					ng-click="common.runSimplity('{{action.service}}','#{{action.nametag}}example')">Run</button>
+			</div>
+		</div>
+		<div>
+			<div class="leftcontainer">
+				<div>
+					<ul class="tab">
+						<li ng-repeat='tab in action.nametagtabs'
+							ng-class='{active:isActiveTab(tab.nametag,tab.url,tab.nametagcurrentTab)}'
+							ng-click='onClickTab(tab.nametag,tab,tab.nametagcurrentTab)'>{{tab.title}}
+						</li>
+					</ul>
+					<div class="tabcontent">
+						<p ng-bind-html='currentTab' class="binding"></p>
+					</div>
+				</div>
+			</div>
+			<div class="rightcontainer">
+				<ul class="tab">
+					<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+				</ul>
+				<div class="output" style="display: block">
+					<p ng-bind-html="action.output" class="binding"></p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

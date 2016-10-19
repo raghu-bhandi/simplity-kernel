@@ -1,0 +1,41 @@
+<div id="uploadexample" ng-controller="uploadCtrl">
+	<div>
+		<div class="leftcontainer">
+			<div>
+				<ul class="tab">
+					<li ng-repeat="tab in uploadtabs"
+						ng-class="{active:isActiveTab(tab.url)}"
+						ng-click="onClickTab(tab)">{{tab.title}}</li>
+				</ul>
+				<div class="tabcontent">
+					<p ng-bind-html="uploadcurrentTab" class="binding"></p>
+				</div>
+			</div>
+		</div>
+		<div class="rightcontainer">
+			<ul class="tab">
+				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+			</ul>
+			<div id="OUTPUT" class="output" style="display: block">
+				<div id="fileSelectionArea">
+					<input type="file" id="file" style="display: none;"
+						onchange="angular.element(this).scope().fileChanged(this)" /> <a href="JavaScript:void(0)"><label
+						style="cursor: pointer;" for="file">Click here to choose
+							your file</label></a>
+					<table>
+						<tbody>
+							<tr id="__files__" style="display: none;">
+								<td>__name__</td>
+								<td>__mime__</td>
+								<td>__key__</td>
+								<td><a href="a._f?download=__key__">download</a></td>
+								<td><a href="a._f?__key__" target="_new">open in new
+										window</a></td>
+
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>

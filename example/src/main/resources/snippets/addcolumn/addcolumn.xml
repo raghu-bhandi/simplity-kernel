@@ -1,0 +1,17 @@
+<!-- File name: renamesheet.xml under comp/services/tp/tutorial -->
+<service xmlns="http://www.simplity.org/schema" name="addColumn"
+	moduleName="tutorial" dbAccessType="none"
+	description="Test actions add columns">
+
+	<outputData fieldNames="testValue">
+		<outputRecords>
+			<outputRecord sheetName="weekendBoxOffice" />
+		</outputRecords>
+	</outputData>
+	<actions>
+		<logic actionName="1" className="org.simplity.tutorial.CustomLogicAction" />
+		<addColumn sheetName="weekendBoxOffice" columnName="testcolumn" columnValueType="text" 
+			columnValue="testValue" actionName="addColumnsAction"/>
+<setValue fieldName="testValue" fieldValue="$addColumnsActionResult" executeOnCondition="addColumnsActionResult"></setValue>
+	</actions>
+</service>

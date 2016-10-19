@@ -1,0 +1,1 @@
+Simplity.getResponse("tutorial.saveDataDelete");

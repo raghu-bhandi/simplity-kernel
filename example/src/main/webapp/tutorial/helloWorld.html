@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<link type='text/css' rel='stylesheet' href='../css/default.css' />
+<meta charset="ISO-8859-1">
+<title>Hello World</title>
+<link type="style" s/>
+<script type="text/javascript" src="../js/simplity.js"></script>
+<script type="text/javascript" src="../js/homepage.js"></script>
+</head>
+<body onload="Simplity.getResponse('tutorial.helloWorld').then(Simplity.pushDataToPage);">
+	<h1 id="hello"></h1>
+	
+<ul class="tab">
+  <li><a href="#" class="tablinks" onclick="openCity(event, 'London')">London</a></li>
+  <li><a href="#" class="tablinks" onclick="openCity(event, 'Paris')">Paris</a></li>
+  <li><a href="#" class="tablinks" onclick="openCity(event, 'Tokyo')">Tokyo</a></li>
+</ul>
+
+<div id="London" class="tabcontent">
+  <h3>London</h3>
+  <p>London is the capital city of England.</p>
+</div>
+
+<div id="Paris" class="tabcontent">
+  <h3>Paris</h3>
+  <p>Paris is the capital of France.</p> 
+</div>
+
+<div id="Tokyo" class="tabcontent">
+  <h3>Tokyo</h3>
+  <p>Tokyo is the capital of Japan.</p>
+</div>
+	
+</body>
+</html>

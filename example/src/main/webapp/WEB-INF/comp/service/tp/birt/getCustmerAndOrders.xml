@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="getCustomerAndOrders"
+	moduleName="birt"
+	dbAccessType="readOnly"
+	description="Example service that reads a row from a table based 
+		on primary key, as well as rows from a child-table for the selected row from parent"
+>
+<inputData>
+	<inputRecords>
+	<inputRecord recordName="birt.customer" purpose="read"/>
+	</inputRecords>
+</inputData>
+
+<actions>
+<!-- read action read all fields from the specified record with matching primary key. -->
+	<read recordName="birt.customer">
+	<!-- after reading a row from parent table, you can optionally read matching rows from one or more child-tables 
+		It is important to specify this relationship in the child record. refer to rec.orders.xml to see how a parent-child relationship is declared
+		This facility is available for read/filter/save actions
+		-->
+		<childRecords>
+			<relatedRecord sheetName="orders" recordName="birt.orders"/>
+		</childRecords>
+	</read>
+</actions>
+
+<!--  remember, reading is different from output. Only fields/sheets specified in output are sent to client -->
+<outputData fieldNames="txt">
+	<outputRecords>
+	<!--  all fields form the record are sent back -->
+		<outputRecord recordName="birt.customer"/>
+		<outputRecord sheetName="orders"/>
+	</outputRecords>
+</outputData>
+</service>

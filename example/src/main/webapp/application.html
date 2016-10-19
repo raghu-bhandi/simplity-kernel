@@ -1,0 +1,171 @@
+<div class="container content">
+	<div class="home">
+		<h2>Application</h2>
+		<p>Helps in Configuring the application</p>
+		<p>
+			<b>Example</b>
+		</p>
+		<table>
+			<tr>
+				<td>&lt;?xml version="1.0" encoding="UTF-8"
+					standalone="no"?&gt;<br> &lt;application
+					xmlns="http://www.simplity.org/schema"
+					applicationId="simplityTutorial" dbVendor="h2"
+					dbDriverClassName="org.h2.Driver"
+					connectionString="jdbc:h2:file:/db/classicmodels;user=sa;"
+					sendTraceToClient="true" logSqls="true" &gt;<br>
+					&lt;/application&gt;
+				</td>
+			</tr>
+		</table>
+		<p>
+			<b>Attributes</b>
+		</p>
+		<table>
+			<tr>
+				<th>Attribute</th>
+				<th>Required?</th>
+				<th>Description</th>
+			</tr>
+			<tr>
+				<td>applicationId</td>
+				<td>yes</td>
+				<td>Unique name of this application within a corporate. This
+					may be used as identity while trying to communicate with other
+					applications within the corporate cluster</td>
+			</tr>
+			<tr>
+				<td>sendTraceToClient</td>
+				<td>no</td>
+				<td>Should we send server trace to client?</td>
+			</tr>
+			<tr>
+				<td>dbVendor</td>
+				<td>no</td>
+				<td><table>
+						<tr>
+							<td>The database vendor we are using</td>
+						</tr>
+						<tr>
+							<td>DBVendor: mysql, postgre, oracle, mssql, s2</td>
+						</tr>
+					</table></td>
+			</tr>
+			<tr>
+				<td>cacheComponents</td>
+				<td>no</td>
+				<td>Do we cache components as they are loaded</td>
+			</tr>
+			<tr>
+				<td>connectionString</td>
+				<td>no</td>
+				<td>For connecting to data base, we either use connection
+					string with driver class name, or use dataSource. Connection string
+					overrides.</td>
+			</tr>
+			<tr>
+				<td>dbDriverClassName</td>
+				<td>no</td>
+				<td>The database driver to use</td>
+			</tr>
+			<tr>
+				<td>dataSourceName</td>
+				<td>no</td>
+				<td>Data source name to be used to look-up in JNDI for
+					dataSource</td>
+			</tr>
+			<tr>
+				<td>loginServiceName</td>
+				<td>no</td>
+				<td>The service identifier used to perform login. If this is
+					null, we simulate a dummy login where loginId is accepted as userId</td>
+			</tr>
+			<tr>
+				<td>logoutServiceName</td>
+				<td>no</td>
+				<td>The service identifier used to perform logout action. No
+					action is taken if this is left as null</td>
+			</tr>
+			<tr>
+				<td>userIdIsNumber</td>
+				<td>no</td>
+				<td>Does this project use an integer as user id? (default is
+					string)</td>
+			</tr>
+			<tr>
+				<td>sessionHelperClassName</td>
+				<td>no</td>
+				<td>Session helper is a class that implements
+					org.simplity.http.WebSessionHelper interface. Simplity uses an
+					instance of this class to manage session variables. Session
+					management is also associated with login requirements. Simplity
+					provides three default classes. HelperForNoLogin during development
+					if session variables are not used, DefaultHelper that uses a simple
+					session management, and PassiveHelper when this application uses
+					Simplity only as a module, and session is not managed by Simplity.
+					You may write your session manager based on the application design</td>
+			</tr>
+			<tr>
+				<td>cacheManagerClassName</td>
+				<td>no</td>
+				<td>Response for certain services can be cached. Also, during
+					development, we may want to fake some services with a
+					pre-determined response. Use a class that implements
+					org.simplity.service.CacheManager interface</td>
+			</tr>
+			<tr>
+				<td>accessControllerClassName</td>
+				<td>no</td>
+				<td>Class that decides whether a userId be served a given
+					service</td>
+			</tr>
+			<tr>
+				<td>exceptionListenerClassName</td>
+				<td>no</td>
+				<td>Way to wire exception to corporate utility</td>
+			</tr>
+			<tr>
+				<td>logSqls</td>
+				<td>no</td>
+				<td>Should the sqls that are executed be added to trace??
+					Required during development. Some corporates have security policy
+					that requires you not log sqls</td>
+			</tr>
+			<tr>
+				<td>sessionParams</td>
+				<td>no</td>
+				<td>Session parameters</td>
+			</tr>
+			<tr>
+				<td>userIdNameInSession</td>
+				<td>no</td>
+				<td>Name of the session parameter that has the value for userId</td>
+			</tr>
+			<tr>
+				<td>schemaDetails</td>
+				<td>no</td>
+				<td>Some projects use multiple schema. In such a case, it is
+					possible that a given service may use a schema other than the
+					default. We have optimized the design for a frequently used default
+					schema that is set for the user, and a few services use their own
+					schema. Provide such schema with dataSource/connection</td>
+			</tr>
+			<tr>
+				<td>mediaStorageFolderPath</td>
+				<td>no</td>
+				<td>Simplity provides a rudimentary, folder-based system that
+					can be used for Storing and retrieving attachments/media/files. If
+					you want to use that, provide the folder that is available for the
+					server instance</td>
+			</tr>
+			<tr>
+				<td>mediStorageAssistantClass</td>
+				<td>no</td>
+				<td>If you have an infrastructure for storing and retrieving
+					attachments/media/files that you want to use, provide the class
+					name that implements MediaStorageAssistant. A single instance of
+					this class is re-used</td>
+			</tr>
+		</table>
+	</div>
+</div>
