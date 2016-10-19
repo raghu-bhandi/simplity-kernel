@@ -1,7 +1,7 @@
 # Simplity
 
-Github  - [![Build Status](https://travis-ci.org/simplity/simplity.svg?branch=master)](https://travis-ci.org/simplity/simplity)
-InfyGit - [![Build Status](http://infygit/encore/Simplity/badges/master/build.svg)](http://infygit/encore/Simplity/pipelines)
+* Github  - [![Build Status](https://travis-ci.org/simplity/simplity.svg?branch=master)](https://travis-ci.org/simplity/simplity)
+* InfyGit - [![Build Status](http://infygit/encore/Simplity/badges/master/build.svg)](http://infygit/encore/Simplity/pipelines)
 
 ``` Ridiculously simple set of APIs/framework for typical transaction processing systems.```
 
