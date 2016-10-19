@@ -22,6 +22,7 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -124,6 +125,7 @@ public class Save extends DbAction {
 			nbrRowsAffected = actions.length;
 		}
 		if (this.childRecords != null) {
+			throw new ApplicationError(
 			Tracer.trace("Child records are valid only when parent is for a sigle row. Data if any, ignored.");
 		}
 		return nbrRowsAffected;
@@ -138,30 +140,13 @@ public class Save extends DbAction {
 	 * @return
 	 */
 	private int saveFromFields(ServiceContext ctx, DbDriver driver) {
-		Record record = ComponentManager.getRecord(this.recordName);
+		Record record;
 		int nbrRowsAffected = 0;
 		Value userId = ctx.getUserId();
 		/*
 		 * if action is 'save' it will be set to either add or modify later
 		 */
 		SaveActionType action = this.saveAction;
-		if (this.saveAction == SaveActionType.MODIFY) {
-			nbrRowsAffected = record.update(ctx, driver, userId,
-					this.treatSqlErrorAsNoResult);
-		} else if (this.saveAction == SaveActionType.ADD) {
-			nbrRowsAffected = record.insert(ctx, driver, userId,
-					this.treatSqlErrorAsNoResult);
-		} else if (this.saveAction == SaveActionType.DELETE) {
-			nbrRowsAffected = record.delete(ctx, driver,
-					this.treatSqlErrorAsNoResult);
-		} else {
-			action = record.saveOne(ctx, driver, userId,
-					this.treatSqlErrorAsNoResult);
-			nbrRowsAffected = action == null ? 0 : 1;
-		}
-		if (nbrRowsAffected < 1 || this.childRecords == null) {
-			return nbrRowsAffected;
-		}
 
 		for (RelatedRecord rr : this.childRecords) {
 			record = ComponentManager.getRecord(rr.recordName);
@@ -196,6 +181,25 @@ public class Save extends DbAction {
 						userId);
 			}
 
+		}		
+		
+		record = ComponentManager.getRecord(this.recordName);
+		if (this.saveAction == SaveActionType.MODIFY) {
+			nbrRowsAffected = record.update(ctx, driver, userId,
+					this.treatSqlErrorAsNoResult);
+		} else if (this.saveAction == SaveActionType.ADD) {
+			nbrRowsAffected = record.insert(ctx, driver, userId,
+					this.treatSqlErrorAsNoResult);
+		} else if (this.saveAction == SaveActionType.DELETE) {
+			nbrRowsAffected = record.delete(ctx, driver,
+					this.treatSqlErrorAsNoResult);
+		} else {
+			action = record.saveOne(ctx, driver, userId,
+					this.treatSqlErrorAsNoResult);
+			nbrRowsAffected = action == null ? 0 : 1;
+		}
+		if (nbrRowsAffected < 1 || this.childRecords == null) {
+			return nbrRowsAffected;
 		}
 		return nbrRowsAffected;
 
