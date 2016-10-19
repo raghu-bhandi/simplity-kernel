@@ -146,54 +146,49 @@ public class Save extends DbAction {
 		 */
 		SaveActionType action = this.saveAction;
 
-		for (RelatedRecord rr : this.childRecords) {
-			record = ComponentManager.getRecord(rr.recordName);
-			DataSheet relatedSheet = ctx.getDataSheet(rr.sheetName);
-			if (relatedSheet == null || relatedSheet.length() == 0) {
-				Tracer.trace("Related record " + rr.recordName
-						+ " not saved as there is no data in sheet "
-						+ rr.sheetName);
-				continue;
-			}
-			Tracer.trace("Starting operation for child record " + rr.recordName
-					+ " started with sheet " + rr.sheetName + " having "
-					+ relatedSheet.length());
-			if (rr.replaceRows) {
-				record.deleteWithParent(ctx, driver, userId);
-				record.insertWithParent(relatedSheet, ctx, driver, userId);
-				continue;
-			}
+		if (this.childRecords != null) {
+			for (RelatedRecord rr : this.childRecords) {
+				record = ComponentManager.getRecord(rr.recordName);
+				DataSheet relatedSheet = ctx.getDataSheet(rr.sheetName);
+				if (relatedSheet == null || relatedSheet.length() == 0) {
+					Tracer.trace("Related record " + rr.recordName + " not saved as there is no data in sheet "
+							+ rr.sheetName);
+					continue;
+				}
+				Tracer.trace("Starting operation for child record " + rr.recordName + " started with sheet "
+						+ rr.sheetName + " having " + relatedSheet.length());
+				if (rr.replaceRows) {
+					record.deleteWithParent(ctx, driver, userId);
+					record.insertWithParent(relatedSheet, ctx, driver, userId);
+					continue;
+				}
 
-			Tracer.trace("Saving children is a noble cause!! Going to save child record "
-					+ rr.recordName + " for action = " + action);
-			if (action == SaveActionType.ADD) {
-				record.insertWithParent(relatedSheet, ctx, driver, userId);
-			} else if (action == SaveActionType.DELETE) {
-				record.deleteWithParent(relatedSheet, driver, userId);
-			} else if (rr.replaceRows) {
-				record.deleteWithParent(ctx, driver, userId);
-				record.insertWithParent(relatedSheet, ctx, driver, userId);
-			} else {
-				SaveActionType[] actions = { action };
-				record.saveWithParent(relatedSheet, ctx, actions, driver,
-						userId);
-			}
+				Tracer.trace("Saving children is a noble cause!! Going to save child record " + rr.recordName
+						+ " for action = " + action);
+				if (action == SaveActionType.ADD) {
+					record.insertWithParent(relatedSheet, ctx, driver, userId);
+				} else if (action == SaveActionType.DELETE) {
+					record.deleteWithParent(relatedSheet, driver, userId);
+				} else if (rr.replaceRows) {
+					record.deleteWithParent(ctx, driver, userId);
+					record.insertWithParent(relatedSheet, ctx, driver, userId);
+				} else {
+					SaveActionType[] actions = { action };
+					record.saveWithParent(relatedSheet, ctx, actions, driver, userId);
+				}
 
-		}		
-		
+			}
+		}
+
 		record = ComponentManager.getRecord(this.recordName);
 		if (this.saveAction == SaveActionType.MODIFY) {
-			nbrRowsAffected = record.update(ctx, driver, userId,
-					this.treatSqlErrorAsNoResult);
+			nbrRowsAffected = record.update(ctx, driver, userId, this.treatSqlErrorAsNoResult);
 		} else if (this.saveAction == SaveActionType.ADD) {
-			nbrRowsAffected = record.insert(ctx, driver, userId,
-					this.treatSqlErrorAsNoResult);
+			nbrRowsAffected = record.insert(ctx, driver, userId, this.treatSqlErrorAsNoResult);
 		} else if (this.saveAction == SaveActionType.DELETE) {
-			nbrRowsAffected = record.delete(ctx, driver,
-					this.treatSqlErrorAsNoResult);
+			nbrRowsAffected = record.delete(ctx, driver, this.treatSqlErrorAsNoResult);
 		} else {
-			action = record.saveOne(ctx, driver, userId,
-					this.treatSqlErrorAsNoResult);
+			action = record.saveOne(ctx, driver, userId, this.treatSqlErrorAsNoResult);
 			nbrRowsAffected = action == null ? 0 : 1;
 		}
 		if (nbrRowsAffected < 1 || this.childRecords == null) {
