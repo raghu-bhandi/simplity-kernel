@@ -1,0 +1,52 @@
+<div id="numericdata" ng-controller="numericdataCtrl">
+	<p>
+		<b>Example</b>
+	</p>
+	<table>
+		<tr>
+			<td>&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;<br>
+				&lt;dataTypes name="myTypes"
+				xmlns="http://www.simplity.org/schema"&gt;<br>
+				&lt;components&gt; <br>
+			<!-- we recommend that you use numberN where N is number of digits for 
+			generic. Use meaningful name of types with specific restrictions other than 
+			max value --> &lt;numericDataType name="id" description="Internally
+				generated number by the system as primary key for table"
+				maxValue="99999999999999" messageName="invalidId" minValue="0" /&gt;<br>
+				&lt;numericDataType name="number" minValue="0"
+				description="Non-negative whole number with a max of 14 digits is
+				accepted." maxValue="99999999999999" messageName="invalidNumber"
+				nbrFractionDigits="0" /&gt;<br> &lt;/components&gt;<br>
+				&lt;/dataTypes&gt;
+			</td>
+		</tr>
+	</table>
+	<p>
+		<b>Attributes</b>
+	</p>
+
+	<table>
+		<tr>
+			<th>Attribute name</th>
+			<th>Required?</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>minValue</td>
+			<td>no</td>
+			<td>minimum integer value, ignoring fractions</td>
+		</tr>
+		<tr>
+			<td>maxValue</td>
+			<td>no</td>
+			<td>maximum integral value ignoring fractions</td>
+		</tr>
+		<tr>
+			<td>nbrFractionDigits</td>
+			<td>no</td>
+			<td>0 means this is integral. Number of decimal places to
+				maintain. For example if you want to have amount with cents/paisa
+				like 12.34, you would set this to 2.</td>
+		</tr>
+	</table>
+</div>

@@ -1,0 +1,54 @@
+<div id="textdata" ng-controller="textdataCtrl">
+	<p>
+		<b>Example</b>
+	</p>
+	<table>
+		<tr>
+			<td>&lt;?xml version="1.0" encoding="UTF-8" standalone="no"?&gt;<br>
+				&lt;dataTypes name="myTypes"
+				xmlns="http://www.simplity.org/schema"&gt;<br>
+				&lt;components&gt;<br> <!-- for ease of maintenance, please ensure that the data types are in 
+			the sorted order --> &lt;textDataType name="text1" maxLength="1"
+				/&gt;<br> &lt;textDataType name="empNo" maxLength="6"
+				minLength="4" /&gt;<br> &lt;textDataType name="text25"
+				maxLength="25" /&gt;<br> &lt;textDataType name="text30"
+				maxLength="30" /&gt;<br> &lt;textDataType name="text50"
+				maxLength="50" /&gt;<br> &lt;textDataType name="text100"
+				maxLength="100" /&gt;<br> &lt;textDataType name="text150"
+				maxLength="150" /&gt;<br> &lt;textDataType name="text255"
+				maxLength="255" /&gt;<br> &lt;textDataType name="text500"
+				maxLength="500" /&gt;<br> &lt;textDataType name="text1000"
+				maxLength="1000" /&gt;<br> &lt;textDataType name="text5000"
+				maxLength="5000" /&gt;<br> &lt;textDataType name="email"
+				maxLength="100" /&gt;<br> &lt;textDataType name="password"
+				minLength="8" maxLength="15" /&gt;<br> &lt;/components&gt;<br>
+				&lt;/dataTypes &gt;
+			</td>
+		</tr>
+	</table>
+	<p>
+		<b>Attributes</b>
+	</p>
+	<table>
+		<tr>
+			<th>Attribute name</th>
+			<th>Required?</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>minLength</td>
+			<td>no</td>
+			<td>minimum number of characters</td>
+		</tr>
+		<tr>
+			<td>maxLength</td>
+			<td>no</td>
+			<td>maximum number of characters</td>
+		</tr>
+		<tr>
+			<td>regex</td>
+			<td>no</td>
+			<td>pattern as per java syntax</td>
+		</tr>
+	</table>
+</div>

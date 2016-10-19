@@ -1,0 +1,31 @@
+<div id="savedataaddexample" ng-controller="savedataaddCtrl">
+	<h2 id="savedataaddtag">save/add</h2>
+	<p>Save (add/modify/delete) a row from a record, and possibly save
+		relevant rows from related records</p>
+	<div>
+		<div class="leftcontainer">
+			<div>
+				<ul class="tab">
+					<li ng-repeat="tab in savedataaddtabs"
+						ng-class="{active:isActiveTab(tab.url)}"
+						ng-click="onClickTab(tab)">{{tab.title}}</li>
+				</ul>
+				<div class="tabcontent">
+					<p ng-bind-html="savedataaddcurrentTab" class="binding"></p>
+				</div>
+			</div>
+		</div>
+		<div class="rightcontainer">
+			<ul class="tab">
+				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+				<li class="runbutton"
+					ng-click="common.runSimplity('tutorial.saveDataAdd','#savedataaddexample')"><a
+					href="JavaScript:void(0)">Run</a></li>
+			</ul>
+			<div id="OUTPUT" class="output" style="display: block">
+				No. of rows added:
+				<div id="testValue"></div>
+			</div>
+		</div>
+	</div>
+</div>

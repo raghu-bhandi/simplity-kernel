@@ -1,0 +1,23 @@
+<!-- File name: saveDataModify.xml under comp/services/tp/tutorial -->
+<service xmlns="http://www.simplity.org/schema" name="saveDataModify"
+	moduleName="tutorial" dbAccessType="readWrite" description="Test save action type Modify" >
+		
+	
+	<actions>
+	<setValue actionName="1" fieldName="employeeNumber" fieldValue="1704" description="Where did they live?"></setValue>
+	<setValue actionName="2" fieldName="lastName" fieldValue="lastNameModified5" description="Where did they live?"></setValue>
+	<setValue actionName="3" fieldName="firstName" fieldValue="firstNameModified5" description="Where did they live?"></setValue>
+	<setValue actionName="4" fieldName="extension" fieldValue="extension5" description="Where did they live?"></setValue>
+	<setValue actionName="5" fieldName="email" fieldValue="email5@gmail.com" description="Where did they live?"></setValue>
+	<setValue actionName="6" fieldName="officeCode" fieldValue="6" description="Where did they live?"></setValue>
+	<setValue actionName="7" fieldName="reportsTo" fieldValue="12345" description="Where did they live?"></setValue>
+	<setValue actionName="8" fieldName="jobTitle" fieldValue="jobTitle6" description="Where did they live?"></setValue>
+	<save saveAction="modify" recordName="birt.Employees" actionName="modifyAction"></save>
+	
+	<setValue fieldName="testValue" fieldValue="$modifyActionResult" ></setValue>
+	</actions>
+	<outputData fieldNames="testValue"/>
+	
+	
+	
+</service>

@@ -1,0 +1,31 @@
+<div id="savedatadeleteexample" ng-controller="savedatadeleteCtrl">
+	<h2 id="savedatadeletetag">save/delete</h2>
+	<p>Save (add/modify/delete) a row from a record, and possibly save
+		relevant rows from related records</p>
+	<div>
+		<div class="leftcontainer">
+			<div>
+				<ul class="tab">
+					<li ng-repeat="tab in savedatadeletetabs"
+						ng-class="{active:isActiveTab(tab.url)}"
+						ng-click="onClickTab(tab)">{{tab.title}}</li>
+				</ul>
+				<div class="tabcontent">
+					<p ng-bind-html="savedatadeletecurrentTab" class="binding"></p>
+				</div>
+			</div>
+		</div>
+		<div class="rightcontainer">
+			<ul class="tab">
+				<li><a href="JavaScript:void(0)" class="tablinks">Output</a></li>
+				<li class="runbutton"
+					ng-click="common.runSimplity('tutorial.saveDataDelete','#savedatadeleteexample')"><a
+					href="JavaScript:void(0)">Run</a></li>
+			</ul>
+			<div id="OUTPUT" class="output" style="display: block">
+				No. of rows deleted:
+				<div id="testValue"></div>
+			</div>
+		</div>
+	</div>
+</div>

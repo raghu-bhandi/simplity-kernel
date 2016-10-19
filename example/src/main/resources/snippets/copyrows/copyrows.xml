@@ -1,0 +1,16 @@
+<!-- File name: copyRows.xml under comp/services/tp/tutorial -->
+<service xmlns="http://www.simplity.org/schema" name="copyRows"
+	moduleName="tutorial" dbAccessType="none"
+	description="Test actions copy rows">
+	<outputData fieldNames="testValue">
+		<outputRecords>
+			<outputRecord sheetName="copiedweekendBoxOffice" />
+		</outputRecords>
+	</outputData>
+	<actions>
+		<logic actionName="1" className="org.simplity.tutorial.CustomLogicAction" />
+		<copyRows fromSheetName="weekendBoxOffice" toSheetName="copiedweekendBoxOffice"
+			actionName="copyRowsAction" />
+<setValue fieldName="testValue" fieldValue="$copyRowsActionResult" ></setValue>
+	</actions>
+</service>
