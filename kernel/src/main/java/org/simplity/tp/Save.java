@@ -22,6 +22,7 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -138,64 +139,105 @@ public class Save extends DbAction {
 	 * @return
 	 */
 	private int saveFromFields(ServiceContext ctx, DbDriver driver) {
-		Record record;
+		Record record = ComponentManager.getRecord(this.recordName);
 		int nbrRowsAffected = 0;
 		Value userId = ctx.getUserId();
 		/*
 		 * if action is 'save' it will be set to either add or modify later
 		 */
 		SaveActionType action = this.saveAction;
-
-		if (this.childRecords != null) {
-			for (RelatedRecord rr : this.childRecords) {
-				record = ComponentManager.getRecord(rr.recordName);
-				DataSheet relatedSheet = ctx.getDataSheet(rr.sheetName);
-				if (relatedSheet == null || relatedSheet.length() == 0) {
-					Tracer.trace("Related record " + rr.recordName + " not saved as there is no data in sheet "
-							+ rr.sheetName);
-					continue;
-				}
-				Tracer.trace("Starting operation for child record " + rr.recordName + " started with sheet "
-						+ rr.sheetName + " having " + relatedSheet.length());
-				if (rr.replaceRows) {
-					record.deleteWithParent(ctx, driver, userId);
-					record.insertWithParent(relatedSheet, ctx, driver, userId);
-					continue;
-				}
-
-				Tracer.trace("Saving children is a noble cause!! Going to save child record " + rr.recordName
-						+ " for action = " + action);
-				if (action == SaveActionType.ADD) {
-					record.insertWithParent(relatedSheet, ctx, driver, userId);
-				} else if (action == SaveActionType.DELETE) {
-					record.deleteWithParent(relatedSheet, driver, userId);
-				} else if (rr.replaceRows) {
-					record.deleteWithParent(ctx, driver, userId);
-					record.insertWithParent(relatedSheet, ctx, driver, userId);
-				} else {
-					SaveActionType[] actions = { action };
-					record.saveWithParent(relatedSheet, ctx, actions, driver, userId);
-				}
-
+		if (this.saveAction == SaveActionType.DELETE) {
+			if (this.childRecords == null) {
+				return record.delete(ctx, driver, this.treatSqlErrorAsNoResult);
 			}
+			/*
+			 * it is quite likely that the rdbms designer would have put
+			 * constraints on child rows. So let us check with child rows before
+			 * deleting this row
+			 */
+			int nbrChildrenSaved = this.saveChildRows(ctx, driver, userId,
+					action);
+			nbrRowsAffected = record.delete(ctx, driver,
+					this.treatSqlErrorAsNoResult);
+			if (nbrRowsAffected == 0 && nbrChildrenSaved > 0) {
+				/*
+				 * ooops. we deleted child rows, but parent is not deleted, may
+				 * be because of time-stamp..
+				 */
+				throw new ApplicationError(
+						"Data was changed by some one else while you were editing it. Please cancel this oepration and redo it with latest data.");
+			}
+			return nbrRowsAffected + nbrChildrenSaved;
 		}
-
-		record = ComponentManager.getRecord(this.recordName);
+		/*
+		 * it is either update or insert, implicitly or explicitly
+		 */
 		if (this.saveAction == SaveActionType.MODIFY) {
-			nbrRowsAffected = record.update(ctx, driver, userId, this.treatSqlErrorAsNoResult);
+			nbrRowsAffected = record.update(ctx, driver, userId,
+					this.treatSqlErrorAsNoResult);
 		} else if (this.saveAction == SaveActionType.ADD) {
-			nbrRowsAffected = record.insert(ctx, driver, userId, this.treatSqlErrorAsNoResult);
-		} else if (this.saveAction == SaveActionType.DELETE) {
-			nbrRowsAffected = record.delete(ctx, driver, this.treatSqlErrorAsNoResult);
+			nbrRowsAffected = record.insert(ctx, driver, userId,
+					this.treatSqlErrorAsNoResult);
 		} else {
-			action = record.saveOne(ctx, driver, userId, this.treatSqlErrorAsNoResult);
+			action = record.saveOne(ctx, driver, userId,
+					this.treatSqlErrorAsNoResult);
 			nbrRowsAffected = action == null ? 0 : 1;
 		}
-		if (nbrRowsAffected < 1 || this.childRecords == null) {
-			return nbrRowsAffected;
+		if (nbrRowsAffected > 0 && this.childRecords != null) {
+			nbrRowsAffected += this.saveChildRows(ctx, driver, userId, action);
 		}
 		return nbrRowsAffected;
+	}
 
+	/**
+	 * process child rows when a parent is affected
+	 *
+	 * @param ctx
+	 * @param driver
+	 * @param userId
+	 * @param action
+	 * @return
+	 */
+	private int saveChildRows(ServiceContext ctx, DbDriver driver,
+			Value userId, SaveActionType action) {
+		int nbr = 0;
+		for (RelatedRecord rr : this.childRecords) {
+			Record record = ComponentManager.getRecord(rr.recordName);
+			DataSheet relatedSheet = ctx.getDataSheet(rr.sheetName);
+			if (relatedSheet == null || relatedSheet.length() == 0) {
+				Tracer.trace("Related record " + rr.recordName
+						+ " not saved as there is no data in sheet "
+						+ rr.sheetName);
+				continue;
+			}
+			if (rr.replaceRows) {
+				nbr += record.deleteWithParent(ctx, driver, userId);
+				nbr += record.insertWithParent(relatedSheet, ctx, driver,
+						userId);
+				Tracer.trace("Rows in record " + rr.recordName
+						+ " replced based on " + relatedSheet.length()
+						+ " rows of data in sheet " + rr.sheetName);
+				continue;
+			}
+
+			Tracer.trace("Saving children is a noble cause!! Going to save child record "
+					+ rr.recordName + " for action = " + action);
+			if (action == SaveActionType.ADD) {
+				nbr += record.insertWithParent(relatedSheet, ctx, driver,
+						userId);
+			} else if (action == SaveActionType.DELETE) {
+				nbr += record.deleteWithParent(relatedSheet, driver, userId);
+			} else if (rr.replaceRows) {
+				nbr += record.deleteWithParent(ctx, driver, userId);
+				nbr += record.insertWithParent(relatedSheet, ctx, driver,
+						userId);
+			} else {
+				SaveActionType[] actions = { action };
+				nbr += record.saveWithParent(relatedSheet, ctx, actions,
+						driver, userId);
+			}
+		}
+		return nbr;
 	}
 
 	@Override

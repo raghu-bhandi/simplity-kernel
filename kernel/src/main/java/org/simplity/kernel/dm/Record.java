@@ -767,8 +767,9 @@ public class Record implements Component {
 	 *            that are already done using parent sheet
 	 * @param driver
 	 * @param userId
+	 * @return number of rows affected
 	 */
-	public void saveWithParent(DataSheet inSheet, FieldsInterface parentRow,
+	public int saveWithParent(DataSheet inSheet, FieldsInterface parentRow,
 			SaveActionType[] actions, DbDriver driver, Value userId) {
 		if (this.readOnly) {
 			this.notWritable();
@@ -779,7 +780,7 @@ public class Record implements Component {
 		Value parentKey = parentRow.getValue(this.parentKeyField.referredField);
 		if (parentKey == null) {
 			Tracer.trace("Parent key value is null, and hence no save with parent operation");
-			return;
+			return 0;
 		}
 		/*
 		 * for security/safety, we copy parent key into data
@@ -788,6 +789,7 @@ public class Record implements Component {
 		for (FieldsInterface row : inSheet) {
 			this.saveOne(row, driver, userId, false);
 		}
+		return inSheet.length();
 	}
 
 	/**
