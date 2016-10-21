@@ -42,8 +42,8 @@ public class TestUtils {
 
 	public static DataSheet loadDS(String dsname) throws IOException {
 		DataSheet ds = null;
-		File dsfile = new File(TestUtils.class.getClassLoader().getResource(dsname).getFile());
-		BufferedReader bf = new BufferedReader(new FileReader(dsfile));
+		File dsFile = new File(TestUtils.class.getClassLoader().getResource(dsname).getFile());
+		BufferedReader bf = new BufferedReader(new FileReader(dsFile));
 		String dataRow = "";
 
 		int i = 0;

@@ -5,16 +5,13 @@
 <web-app>
 	<display-name>Archetype Created Web Application</display-name>
 	<servlet>
+		<servlet-name>start</servlet-name>
+		<servlet-class>org.simplity.http.Startup</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
 		<servlet-name>s</servlet-name>
 		<servlet-class>org.simplity.http.Serve</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>i</servlet-name>
-		<servlet-class>org.simplity.http.DefaultLogin</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>o</servlet-name>
-		<servlet-class>org.simplity.http.DefaultLogout</servlet-class>
 	</servlet>
 	<servlet>
 		<servlet-name>f</servlet-name>
@@ -23,14 +20,6 @@
 	<servlet-mapping>
 		<servlet-name>s</servlet-name>
 		<url-pattern>*._s</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>i</servlet-name>
-		<url-pattern>*._i</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>o</servlet-name>
-		<url-pattern>*._o</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>f</servlet-name>

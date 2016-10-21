@@ -325,7 +325,7 @@ public class ActionsTest extends Mockito {
 	 * Test for saveDataAdd action
 	 */
 	@Test
-	public void saveDataAddTest() {
+	public void saveDataAddTest() {		
 		ServiceData outData = serviceAgentSetup("tutorial.saveDataAdd");
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
