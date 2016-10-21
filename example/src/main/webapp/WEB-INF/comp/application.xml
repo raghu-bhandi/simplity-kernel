@@ -4,9 +4,9 @@
 	applicationId="simplityTutorial"
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
-	connectionString="jdbc:h2:file:C:\\Users\\shalinireddy_b/simplity/db/classicmodels;user=sa;" 
+	connectionString="jdbc:h2:file:C:\\Users\\chetana_shanbhag/simplity/db/classicmodels;user=sa;" 
 	sendTraceToClient="true"
 	logSqls="true"
-	attachmentsFolderPath="C:\\Users\\shalinireddy_b/simplity/files"
+	attachmentsFolderPath="C:\\Users\\chetana_shanbhag/simplity/files"
 	>
 </application>
