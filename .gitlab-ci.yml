@@ -2,12 +2,11 @@ installjob:
   stage: build	
   script: 
     - mvn install
-  after_script:		
-    - copy example\target\example.war D:\Server\apache-tomcat-8.0.37\webapps
 
-runAFE:
+hostApp:
   stage: deploy
   script:
     - runAFE.bat
   after_script:	
     - copy D:\Projects\simplity\AFE2016\target\AFE2016.war D:\Server\apache-tomcat-8.0.37\webapps	
+	- copy D:\Projects\simplity\example\target\example.war D:\Server\apache-tomcat-8.0.37\webapps	
