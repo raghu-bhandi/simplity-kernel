@@ -21,7 +21,7 @@
 
 package com.infosys.example;
 
-import com.opensymphony.xwork2.ActionSupport;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,8 +31,8 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 
-import org.apache.struts2.StrutsTestCase;
 import org.junit.BeforeClass;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -40,12 +40,14 @@ import org.simplity.kernel.Application;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlParseException;
 import org.simplity.kernel.util.XmlUtil;
+import org.simplity.kernel.value.Value;
+import org.simplity.service.ServiceAgent;
+import org.simplity.service.ServiceData;
 
-public class HelloWorldTest extends StrutsTestCase {
-
+public class SimplityTest{
 	final static String COMP_PATH = "src/main/webapp/WEB-INF/";	
 	static Mockito mockito = new Mockito();
-	
+	@BeforeClass
 	public static void setup(){
 		ServletContext context = Mockito.mock(ServletContext.class);
 		FileManager.setContext(context);
@@ -92,16 +94,15 @@ public class HelloWorldTest extends StrutsTestCase {
 		}
 		app.configure();
 	}
-
+	
+	@Test
     public void testHelloWorld() throws Exception {
-    	HelloWorldTest.setup();
-    	
-        HelloWorld hello_world = new HelloWorld();
-        String result = hello_world.execute();
-        assertTrue("Expected a success result!",
-                ActionSupport.SUCCESS.equals(result));
-        System.out.println(hello_world.getMessage());
-        assertTrue("Expected the default message!",
-                hello_world.getText(HelloWorld.MESSAGE).equals(hello_world.getMessage()));
+		ServiceData outData = new ServiceData();
+		ServiceData inData = new ServiceData();
+		inData.setPayLoad("");
+		inData.setServiceName("test.test");
+		inData.setUserId(Value.newTextValue("100"));
+		outData = ServiceAgent.getAgent().executeService(inData);				
+        assertEquals("{\"abc\":\"abc\",\"_messages\":[]}",outData.getPayLoad().toString());
     }
 }

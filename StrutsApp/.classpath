@@ -37,7 +37,7 @@
 	<classpathentry kind="var" path="M2_REPO/asm/asm-commons/3.3/asm-commons-3.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/asm/asm-tree/3.3/asm-tree-3.3.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/apache/struts/struts2-config-browser-plugin/2.5.2/struts2-config-browser-plugin-2.5.2.jar"/>
-	<classpathentry kind="var" path="M2_REPO/org/apache/struts/struts2-junit-plugin/2.5.2/struts2-junit-plugin-2.5.2.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/struts/struts2-junit-plugin/2.5.2/struts2-junit-plugin-2.5.2.jar" sourcepath="/M2_REPO/org/apache/struts/struts2-junit-plugin/2.5.2/struts2-junit-plugin-2.5.2-sources.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-test/4.1.6.RELEASE/spring-test-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/4.1.6.RELEASE/spring-core-4.1.6.RELEASE.jar"/>
 	<classpathentry kind="var" path="M2_REPO/commons-logging/commons-logging/1.2/commons-logging-1.2.jar"/>

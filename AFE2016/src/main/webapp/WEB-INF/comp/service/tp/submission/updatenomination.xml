@@ -5,7 +5,7 @@
 	executeInBackground="true"
 	moduleName="submission"
 	name="updatenomination"
-	xmlns="http://www.simplity.org/schema"
+	xmlns="http://www.simplity.org/schema" 
 >
 <inputData attachmentFields="filekey">
 <inputFields>	
