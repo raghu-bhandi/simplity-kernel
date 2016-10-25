@@ -12,10 +12,15 @@
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	<servlet>
-		<servlet-name>Startup</servlet-name>
-		<servlet-class>org.simplity.http.Startup</servlet-class>
+		<servlet-name>AppStartup</servlet-name>
+		<servlet-class>com.infosys.submission.servlet.Startup</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	<servlet>
+		<servlet-name>SimplityStartup</servlet-name>
+		<servlet-class>org.simplity.http.Startup</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>				
 	<servlet>
 		<servlet-name>s</servlet-name>
 		<servlet-class>org.simplity.http.Serve</servlet-class>
