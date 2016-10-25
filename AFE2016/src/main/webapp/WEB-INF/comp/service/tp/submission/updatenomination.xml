@@ -34,7 +34,6 @@
 				<relatedRecord sheetName="members" recordName="nomination.members"/>
 			</childRecords>
 		</save>
-		<setValue fieldName="email" fieldValue="true"></setValue>
 		<logic className="com.infosys.submission.util.Mail" executeOnCondition="email"/>
 	</actions>
 	

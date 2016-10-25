@@ -165,10 +165,10 @@
 	</div>
 	<hr>
 	<button type="submit" class="btn btn-primary">
-	<span ng-if="state=='new' || state=='sponsor'" ng-click="submit($event)">Save</span>
+	<span ng-if="state=='new' || state=='sponsor'" ng-click="submit('Saved')">Save</span>
 	<span ng-if="state=='view'" ng-click="updatenomination('Saved')">Update</span>
 	</button>
-	<button type="submit" class="btn btn-primary" ng-click="submit($event)">Submit</button>
+	<button type="submit" class="btn btn-primary" ng-click="submit('Submitted')">Submit</button>
 	</fieldset>
 </form>
 <script type="text/ng-template" id="displaymembers">

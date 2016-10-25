@@ -8,7 +8,8 @@
 	xmlns="http://www.simplity.org/schema">
 	
 	<actions>
-		<setValue fieldName="userId" fieldValue="sponsor"/>
+		<copyUserId fieldName="UserIDCopy" actionName="copyUserIdAction" description="Copy user id from context"/>	
+		<setValue fieldName="userId" fieldValue="$copyUserIdActionResult" ></setValue>
 		<createSheet sheetName="filtersheet" data="sponsormailid,status,statusOperator;$userId,saved,!="/>
 		<log names="userId,filtersheet"/>
 		<filter

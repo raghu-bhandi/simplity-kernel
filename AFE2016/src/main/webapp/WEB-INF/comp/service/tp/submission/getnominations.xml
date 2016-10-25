@@ -6,13 +6,10 @@
 	moduleName="submission"
 	name="getnominations"
 	xmlns="http://www.simplity.org/schema">
-	<inputData>
-		<inputFields>
-			<inputField dataType="_text" name="_userId"/>
-		</inputFields>
-	</inputData>	
-	<actions>
-		<createSheet sheetName="filtersheet" data="submitterId;$_userId"/>
+		<actions>
+		<copyUserId fieldName="UserIDCopy" actionName="copyUserIdAction" description="Copy user id from context"/>	
+		<setValue fieldName="userId" fieldValue="$copyUserIdActionResult" ></setValue>	
+		<createSheet sheetName="filtersheet" data="submitterId;$userId"/>
 		<log names="userId,filtersheet"/>
 		<filter
 			inputSheetName="filtersheet"

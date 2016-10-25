@@ -46,11 +46,13 @@ app.controller('formCtrl', function ($scope) {
         "sponsorname":"",
         "sponsornumber":"",
         "members":[],
-        "filekey":''
+        "filekey":'',
+        "email":false
     };
     
     $scope.nominations = [];
-
+    $scope.sponsors = [];
+    $scope.initnomination={};
     $scope.initmember = {
         employeeEmailID: '',
         eNo: '',
@@ -61,9 +63,12 @@ app.controller('formCtrl', function ($scope) {
     $scope.chosen;
     $scope.addmember = {};
     $scope.addrow = function () {
+    	console.log($scope.nomination);
         var data = {};
         angular.copy($scope.addmember, data);
         angular.copy($scope.initmember, $scope.addmember);
+        if($scope.nomination.members == undefined)
+        	$scope.nomination.members=[];
         $scope.nomination.members.push(data);
     };
     $scope.removerow = function (index) {
@@ -76,8 +81,8 @@ app.controller('formCtrl', function ($scope) {
         $scope.chosen = '';
     };
     $scope.removenomination = function (index) {
-    	//$scope.nominations.splice(index, 1);
-    	Simplity.getResponse('submission.deletenomination',JSON.stringify($scope.nominations[index]));        
+    	Simplity.getResponse('submission.deletenomination',JSON.stringify($scope.nominations[index]),function(json){
+    	});        
     };
     $scope.getTemplate = function (index) {
         if (index === $scope.chosen) return 'editmembers';
@@ -86,7 +91,7 @@ app.controller('formCtrl', function ($scope) {
     $scope.fileupload = function(file){
         $scope.nomination.uploadfile = file.files[0];
     };
-    $scope.submit=function(event){
+    $scope.submit=function(status){
 		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
 			var data = {
 				"filekey":key,
@@ -100,55 +105,61 @@ app.controller('formCtrl', function ($scope) {
 		        "sponsorname":$scope.nomination.sponsorname,
 		        "sponsornumber":$scope.nomination.sponsornumber,
 		        "members":$scope.nomination.members,
+		        "status":status
 		 	}
-			if(event.srcElement.id == "save"){
-				data.status="Saved";
-			}
-			else{
-				data.status="Submitted";
-			}
-			Simplity.getResponse('submission.newnomination',JSON.stringify(data))
-		}, function(progress) {
+			if(data.status == "Saved")
+				data.email=false;
+			else
+				data.email=true;
+			Simplity.getResponse('submission.newnomination',JSON.stringify(data));
+			}, function(progress) {
 			console.log("progress: "+progress);
 		});		
 	 };
 	 
 	 $scope.init=function(){
-		 Simplity.getResponse("submission.getnominations",null,function(json){
-			 $scope.nominations = json.nominations;
-			 $scope.$apply();
-		 });
-
+			 angular.copy($scope.nomination,$scope.initnomination);
 	 };
 	 $scope.newnominationhtml=function(){
 		 $scope.state="new";
+		 angular.copy($scope.initnomination,$scope.nomination);
+		 $scope.disableform=false;
 	 };
 	 $scope.viewsubmissionhtml=function(){		 
 		 $scope.state="view";	 
 		 Simplity.getResponse("submission.getnominations",null,function(json){
-			 $scope.nominations = json.nominations;
-			 angular.copy($scope.nominations[0],$scope.nomination );
-			 $scope.changeformstatus($scope.nominations[0]);
-			 $scope.$apply();
+			 if(json.nominations != null){
+				 $scope.nominations = json.nominations;
+				 angular.copy($scope.nominations[0],$scope.nomination );
+				 $scope.changeformstatus($scope.nominations[0]);
+				 $scope.$apply();
+			 }
 		 });
 
 	 };
 	 $scope.viewsponsorhtml=function(){		 
 		 $scope.state="sponsor";	 
 		 Simplity.getResponse("submission.getnomsponsor",null,function(json){
-			 $scope.sponsors = json.sponsors;
-			 angular.copy($scope.sponsors[0],$scope.nomination );
-			 $scope.changeformstatus($scope.sponsors[0]);
-			 $scope.$apply();
+			 if(json.sponsors != null){
+				 $scope.sponsors = json.sponsors;
+				 angular.copy($scope.sponsors[0],$scope.nomination );
+				 $scope.changeformstatus($scope.sponsors[0]);
+				 $scope.$apply();
+			 }
 		 });
 
-	 };	 
+	 };	
+	 
 	 $scope.viewsubmission=function(nomination){
 		 angular.copy(nomination,$scope.nomination);
 		 $scope.changeformstatus(nomination);
 	 };
 
 	 $scope.updatenomination=function(status){
+		 if(status != "Saved")
+			 $scope.nomination.email=true;
+		 else
+			 $scope.nomination.email=false;
 		 $scope.nomination.status=status;
 		 Simplity.getResponse('submission.updatenomination',JSON.stringify($scope.nomination)); 
 	 };

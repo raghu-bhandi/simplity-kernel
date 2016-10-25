@@ -23,7 +23,10 @@
 		<button ng-click="updatenomination('Submitted')">Submit</button>
 		</td>
 		<td class="col-xs-1" ng-if="x.status=='Submitted'">
-		<button>Recall</button>
+		<button disabled="disabled">Recall</button>
+		</td>
+		<td class="col-xs-1" ng-if="x.status=='Approved' || x.status=='Rejected'">
+		<button disabled="disabled">No Action</button>
 		</td>
 		<td class="col-xs-1"><span
 			class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="removenomination($index)"></span></td>
