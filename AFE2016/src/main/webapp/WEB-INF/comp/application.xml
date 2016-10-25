@@ -4,8 +4,13 @@
 	applicationId="simplityTutorial" 
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
-	connectionString="jdbc:h2:file:D:/temp/AFE2016/db/nomination;user=sa;" 
+	connectionString="jdbc:h2:file:D:/temp/AFE2016/db/nomination;user=sa;"
+	loginServiceName="app.login" 
 	sendTraceToClient="true"
 	logSqls="true"	
-	attachmentsFolderPath="D:/temp/AFE2016/files">
+	attachmentsFolderPath="D:/temp/AFE2016/files"
+	accessController="com.infosys.submission.security">
+	<sessionParams>
+		<parameter name="_userId" valueType="text"/>
+	</sessionParams>
 </application>	

@@ -38,6 +38,7 @@ import org.simplity.kernel.file.FileBasedAssistant;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
 import org.simplity.service.AccessController;
 import org.simplity.service.ExceptionListener;
 import org.simplity.service.ServiceAgent;
@@ -74,10 +75,8 @@ public class Application {
 		Application app = new Application();
 		XmlUtil.xmlToObject(componentFolder + CONFIG_FILE_NAME, app);
 		if (app.applicationId == null) {
-			throw new Exception("Unable to load the configuration component "
-					+ CONFIG_FILE_NAME
-					+ ". This file is expected to be inside folder "
-					+ componentFolder);
+			throw new Exception("Unable to load the configuration component " + CONFIG_FILE_NAME
+					+ ". This file is expected to be inside folder " + componentFolder);
 		}
 		app.configure();
 	}
@@ -204,6 +203,18 @@ public class Application {
 	 * AttachmentAssistant. A single instance of this class is re-used
 	 */
 	String attachmentAssistant;
+	/**
+	 * session helper is a class that implements
+	 * org.simplity.http.WebSessionHelper interface. Simplity uses an instance
+	 * of this class to manage session variables. Session management is also
+	 * associated with login requirements.Simplity provides three default
+	 * classes. HelperForNoLogin during development if session variables are not
+	 * used, DefaultHelper that uses a simple session management, and
+	 * PassiveHelper when this application uses Simplity only as a module, and
+	 * session is not managed by Simplity. You may write your session manager
+	 * based on the application design
+	 */
+	String sessionHelperClassName;
 
 	/**
 	 * configure application based on the settings. This MUST be triggered
@@ -214,9 +225,8 @@ public class Application {
 		/*
 		 * Set up db driver.
 		 */
-		DbDriver.initialSetup(this.dbVendor, this.dataSourceName,
-				this.dbDriverClassName, this.connectionString, this.logSqls,
-				this.schemaDetails);
+		DbDriver.initialSetup(this.dbVendor, this.dataSourceName, this.dbDriverClassName, this.connectionString,
+				this.logSqls, this.schemaDetails);
 
 		/*
 		 * set up ServiceAgenet
@@ -224,46 +234,37 @@ public class Application {
 		ServiceCacheManager casher = null;
 		if (this.serviceCacheManager != null) {
 			try {
-				casher = (ServiceCacheManager) Class.forName(
-						this.serviceCacheManager).newInstance();
+				casher = (ServiceCacheManager) Class.forName(this.serviceCacheManager).newInstance();
 
 			} catch (Exception e) {
-				Tracer.trace(this.serviceCacheManager
-						+ " could not be used to instantiate a cahce manager. "
-						+ e.getMessage()
-						+ " We will work with no cache manager");
+				Tracer.trace(this.serviceCacheManager + " could not be used to instantiate a cahce manager. "
+						+ e.getMessage() + " We will work with no cache manager");
 			}
 		}
 
 		AccessController gard = null;
 		if (this.accessController != null) {
 			try {
-				gard = (AccessController) Class.forName(
-						this.accessController).newInstance();
+				gard = (AccessController) Class.forName(this.accessController).newInstance();
 
 			} catch (Exception e) {
-				Tracer.trace(this.accessController
-						+ " could not be used to instantiate access controller. "
-						+ e.getMessage()
-						+ " We will work with no cache manager");
+				Tracer.trace(this.accessController + " could not be used to instantiate access controller. "
+						+ e.getMessage() + " We will work with no cache manager");
 			}
 		}
 
 		ExceptionListener listener = null;
 		if (this.exceptionListener != null) {
 			try {
-				listener = (ExceptionListener) Class.forName(
-						this.exceptionListener).newInstance();
+				listener = (ExceptionListener) Class.forName(this.exceptionListener).newInstance();
 
 			} catch (Exception e) {
-				Tracer.trace(this.exceptionListener
-						+ " could not be used to instantiate an exception listener. "
+				Tracer.trace(this.exceptionListener + " could not be used to instantiate an exception listener. "
 						+ e.getMessage() + " We will work with no listener");
 			}
 		}
-		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName,
-				this.logoutServiceName, this.sendTraceToClient, casher, gard,
-				listener);
+		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, this.sendTraceToClient,
+				casher, gard, listener);
 
 		/*
 		 * Some components like data-type are to be pre-loaded for the app to
@@ -277,33 +278,28 @@ public class Application {
 		HttpCacheManager cacheManager = null;
 		if (this.httpCacheManager != null) {
 			try {
-				cacheManager = (HttpCacheManager) Class.forName(
-						this.httpCacheManager).newInstance();
+				cacheManager = (HttpCacheManager) Class.forName(this.httpCacheManager).newInstance();
 
 			} catch (Exception e) {
-				Tracer.trace(this.httpCacheManager
-						+ " could not be used to instantiate a cache manager. "
-						+ e.getMessage()
-						+ " We will work with no http cache manager");
+				Tracer.trace(this.httpCacheManager + " could not be used to instantiate a cache manager. "
+						+ e.getMessage() + " We will work with no http cache manager");
 			}
 		}
 		if (this.autoLoginUserId != null) {
 			if (this.userIdIsNumber) {
 				try {
-					uid = Value.newIntegerValue(Integer
-							.parseInt(this.autoLoginUserId));
+					uid = Value.newIntegerValue(Integer.parseInt(this.autoLoginUserId));
 				} catch (Exception e) {
-					Tracer.trace("autoLoginUserId is set to "
-							+ this.autoLoginUserId
+					Tracer.trace("autoLoginUserId is set to " + this.autoLoginUserId
 							+ " but it has to be a number because userIdIsNumber is set to true. Autologin is not enabled.");
 				}
 			} else {
 				uid = Value.newTextValue(this.autoLoginUserId);
 			}
-			if (uid != null || cacheManager != null) {
-				HttpAgent.setUp(uid, cacheManager);
-			}
 		}
+
+		HttpAgent.setUp(uid, cacheManager, sessionParams);
+
 		/*
 		 * what about file/media/attachment storage assistant?
 		 */
@@ -312,12 +308,9 @@ public class Application {
 			ast = new FileBasedAssistant(this.attachmentsFolderPath);
 		} else if (this.attachmentAssistant != null) {
 			try {
-				ast = (AttachmentAssistant) Class.forName(
-						this.attachmentAssistant).newInstance();
+				ast = (AttachmentAssistant) Class.forName(this.attachmentAssistant).newInstance();
 			} catch (Exception e) {
-				Tracer.trace(e,
-						"Error while setting storage asstistant based on class "
-								+ this.attachmentAssistant);
+				Tracer.trace(e, "Error while setting storage asstistant based on class " + this.attachmentAssistant);
 			}
 		}
 		if (ast != null) {
@@ -335,34 +328,28 @@ public class Application {
 	public int validate(ValidationContext ctx) {
 		int count = 0;
 		if (this.applicationId == null) {
-			ctx.addError("applicationId must be specified as a unique id for your applicaiton on your corporate network. This id can be used for inter-application communication.");
+			ctx.addError(
+					"applicationId must be specified as a unique id for your applicaiton on your corporate network. This id can be used for inter-application communication.");
 			count++;
 		}
 
-		if (this.classInError(AccessController.class,
-				this.accessController, "accessControllerClassName",
-				ctx)) {
+		if (this.classInError(AccessController.class, this.accessController, "accessControllerClassName", ctx)) {
 			count++;
 		}
-		if (this.classInError(HttpCacheManager.class, this.httpCacheManager,
-				"httpCacheManager", ctx)) {
+		if (this.classInError(HttpCacheManager.class, this.httpCacheManager, "httpCacheManager", ctx)) {
 			count++;
 		}
-		if (this.classInError(ServiceCacheManager.class,
-				this.serviceCacheManager, "serviceCacheManager", ctx)) {
+		if (this.classInError(ServiceCacheManager.class, this.serviceCacheManager, "serviceCacheManager", ctx)) {
 			count++;
 		}
-		if (this.classInError(ExceptionListener.class,
-				this.exceptionListener, "exceptionListenerClassName",
-				ctx)) {
+		if (this.classInError(ExceptionListener.class, this.exceptionListener, "exceptionListenerClassName", ctx)) {
 			count++;
 		}
 		if (this.autoLoginUserId != null && this.userIdIsNumber) {
 			try {
 				Integer.parseInt(this.autoLoginUserId);
 			} catch (Exception e) {
-				ctx.addError("autoLoginUserId is set to "
-						+ this.autoLoginUserId
+				ctx.addError("autoLoginUserId is set to " + this.autoLoginUserId
 						+ " but it is to be numeric because userIdIsNumber is set to true");
 				count++;
 			}
@@ -370,17 +357,16 @@ public class Application {
 		if (this.attachmentsFolderPath != null) {
 			File file = new File(this.attachmentsFolderPath);
 			if (file.exists() == false) {
-				ctx.addError("attachmentsFolderPath is set to "
-						+ this.attachmentsFolderPath
+				ctx.addError("attachmentsFolderPath is set to " + this.attachmentsFolderPath
 						+ " but it is not a valid folder path.");
 				count++;
 			}
 			if (this.attachmentAssistant != null) {
-				ctx.addError("Choose either built-in attachment manager with attachmntsFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
+				ctx.addError(
+						"Choose either built-in attachment manager with attachmntsFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
 			}
 		}
-		if (this.classInError(AttachmentAssistant.class,
-				this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
+		if (this.classInError(AttachmentAssistant.class, this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
 			count++;
 		}
 		if (this.serviceInError(this.loginServiceName, ctx)) {
@@ -396,8 +382,7 @@ public class Application {
 		if (serviceName == null) {
 			return false;
 		}
-		ServiceInterface service = ComponentManager
-				.getServiceOrNull(serviceName);
+		ServiceInterface service = ComponentManager.getServiceOrNull(serviceName);
 		if (service == null) {
 			ctx.addError(serviceName + " is not a vaid service name.");
 			return true;
@@ -414,8 +399,7 @@ public class Application {
 	 * @param ctx
 	 * @return
 	 */
-	private boolean classInError(Class<?> klass, String className,
-			String attName, ValidationContext ctx) {
+	private boolean classInError(Class<?> klass, String className, String attName, ValidationContext ctx) {
 		if (className == null) {
 			return false;
 		}
@@ -425,18 +409,13 @@ public class Application {
 			if (klass.isInstance(obj)) {
 				return false;
 			}
-			ctx.addError(attName
-					+ " should be set to a class that implements/extends "
-					+ klass.getName() + ". " + className
-					+ " is valid class but it is not a suitable sub-class");
+			ctx.addError(attName + " should be set to a class that implements/extends " + klass.getName() + ". "
+					+ className + " is valid class but it is not a suitable sub-class");
 			return true;
 
 		} catch (Exception e) {
-			ctx.addError(attName
-					+ " is set to "
-					+ className
-					+ ". Error while using this class to instantiate an object. "
-					+ e.getMessage());
+			ctx.addError(attName + " is set to " + className
+					+ ". Error while using this class to instantiate an object. " + e.getMessage());
 			return true;
 		}
 	}
@@ -452,8 +431,7 @@ public class Application {
 	 *            comFolderName serviceName param1=value1 param2=value2 .....
 	 */
 	public static void main(String[] args) {
-		String[] parms = { "e:/repos/simplity/WebContent/WEB-INF/comp/",
-				"tutorial.createSheet" };
+		String[] parms = { "e:/repos/simplity/WebContent/WEB-INF/comp/", "tutorial.createSheet" };
 		myTest(parms);
 		// myTest(args);
 	}
@@ -468,17 +446,15 @@ public class Application {
 		String compPath = args[0];
 		File file = new File(compPath);
 		if (file.exists() == false) {
-			System.out
-					.println(compPath
-							+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
+			System.out.println(compPath
+					+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
 			System.exit(-1);
 		}
 
 		try {
 			bootStrap(compPath);
 		} catch (Exception e) {
-			System.err.println("error while bootstrapping with compFolder="
-					+ compPath);
+			System.err.println("error while bootstrapping with compFolder=" + compPath);
 			e.printStackTrace(System.err);
 			System.exit(-2);
 		}
@@ -509,21 +485,19 @@ public class Application {
 		System.out.println("service:" + serviceName);
 		System.out.println("request:" + json);
 
-		ServiceData inData = new ServiceData(Value.newTextValue(user),
-				serviceName);
+		ServiceData inData = new ServiceData(Value.newTextValue(user), serviceName);
 		inData.setPayLoad(json);
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		System.out.println("response :" + outData.getPayLoad());
-		System.out
-				.println("message :" + JsonUtil.toJson(outData.getMessages()));
+		System.out.println("message :" + JsonUtil.toJson(outData.getMessages()));
 		System.out.println("trace :" + outData.getTrace());
 
 	}
 
 	private static void printUsage() {
-		System.out
-				.println("Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
-		System.out
-				.println("example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
+		System.out.println(
+				"Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
+		System.out.println(
+				"example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
 	}
 }

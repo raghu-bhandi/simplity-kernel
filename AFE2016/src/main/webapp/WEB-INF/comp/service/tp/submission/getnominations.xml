@@ -6,10 +6,13 @@
 	moduleName="submission"
 	name="getnominations"
 	xmlns="http://www.simplity.org/schema">
-	
+	<inputData>
+		<inputFields>
+			<inputField dataType="_text" name="_userId"/>
+		</inputFields>
+	</inputData>	
 	<actions>
-		<setValue fieldName="userId" fieldValue="encore"/>
-		<createSheet sheetName="filtersheet" data="submitterId;$userId"/>
+		<createSheet sheetName="filtersheet" data="submitterId;$_userId"/>
 		<log names="userId,filtersheet"/>
 		<filter
 			inputSheetName="filtersheet"
