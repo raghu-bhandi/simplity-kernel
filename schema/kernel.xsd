@@ -661,7 +661,8 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>Ignored for non-oracle db. Defaults to tableName_seq is omitted. 
+					<xs:documentation>Ignored for non-oracle db. Defaults to
+						tableName_seq if omitted.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -1153,6 +1154,20 @@
 							<xs:annotation>
 								<xs:documentation>Refer to attachmentFields. This is for columns
 									in sheet. use sheetName.columnName to qualify.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+
+						<xs:attribute
+							name="sessionFields"
+							type="xs:string"
+							use="optional"
+						>
+							<xs:annotation>
+								<xs:documentation>Any session fields that you want to set or
+									reset. Comma separated list of names. If you are writing your
+									login service, this atribute is a MUST to set at least _userId
+									to signal that the login process is successful.
 								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
@@ -2562,10 +2577,13 @@
 			>
 				<xs:annotation>
 					<xs:documentation>login service will be called with loginId and
-						securityToken. If you use SSO, securityToek would be the
+						securityToken. If you use SSO, security token would be the
 						authenticated ssoId, otherwise it would be the password entered by
-						user. All data returned by this service will be used as global
-						data, and will be made available to all services.
+						user. This service MUST set _userId as sessionField using
+						sessionFields="" attriubute of outputData tag. All these fields
+						will be used as global
+						data, and will be made available to all
+						services.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2662,17 +2680,6 @@
 					<xs:documentation>refer to org.simplity.service.ExceptionListener
 						class. This feature allows you to wire exceptions to any corporate
 						infrastructure to deal with exceptions
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="userIdNameInSession"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>If PassiveHelper is used as session helper, then
-						it needs to get user id from session.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
