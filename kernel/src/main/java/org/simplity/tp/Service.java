@@ -261,7 +261,7 @@ public class Service implements ServiceInterface {
 			if (this.justOutputEveryThing) {
 				this.setPayload(ctx, response, inData);
 			} else {
-				this.setPayload(ctx, response);
+				this.prepareResponse(ctx, response);
 			}
 			if (this.canBeCachedByFields != null) {
 				response.setCacheForInput(this.canBeCachedByFields);
@@ -270,14 +270,17 @@ public class Service implements ServiceInterface {
 		return response;
 	}
 
-	private void extractInput(ServiceContext ctx, String requestText) {
+	protected void extractInput(ServiceContext ctx, String requestText) {
 		if (this.requestTextFieldName != null) {
 			ctx.setObject(this.requestTextFieldName, requestText);
 			Tracer.trace("Request text is not parsed but set as object value of "
 					+ this.requestTextFieldName);
 			return;
 		}
-		String jsonText = requestText.trim();
+		String jsonText = null;
+		if (requestText != null) {
+			jsonText = requestText.trim();
+		}
 		if (jsonText == null || jsonText.length() == 0) {
 			jsonText = "{}";
 		}
@@ -299,7 +302,7 @@ public class Service implements ServiceInterface {
 		}
 	}
 
-	private void setPayload(ServiceContext ctx, ServiceData response) {
+	protected void prepareResponse(ServiceContext ctx, ServiceData response) {
 		if (this.responseTextFieldName != null) {
 			/*
 			 * service is supposed to have kept response ready for us
@@ -335,7 +338,7 @@ public class Service implements ServiceInterface {
 	 * @param response
 	 * @param inData
 	 */
-	private void setPayload(ServiceContext ctx, ServiceData response,
+	protected void setPayload(ServiceContext ctx, ServiceData response,
 			ServiceData inData) {
 		JSONWriter writer = new JSONWriter();
 		writer.object();
@@ -717,7 +720,7 @@ public class Service implements ServiceInterface {
 	/*
 	 * check for name and module name based on the requested name
 	 */
-	private void setName(String possiblyQualifiedName) {
+	protected void setName(String possiblyQualifiedName) {
 		int idx = possiblyQualifiedName.lastIndexOf('.');
 		if (idx == -1) {
 			this.name = possiblyQualifiedName;
@@ -730,7 +733,7 @@ public class Service implements ServiceInterface {
 				+ this.moduleName);
 	}
 
-	private static RelatedRecord[] getChildRecords(Record record,
+	protected static RelatedRecord[] getChildRecords(Record record,
 			boolean forRead) {
 		String[] children;
 		if (forRead) {
@@ -753,7 +756,7 @@ public class Service implements ServiceInterface {
 		return recs;
 	}
 
-	private static OutputRecord[] getOutputRecords(Record record) {
+	protected static OutputRecord[] getOutputRecords(Record record) {
 		String[] children = record.getChildrenToOutput();
 		int nrecs = 1;
 		if (children != null) {
@@ -789,7 +792,7 @@ public class Service implements ServiceInterface {
 	 * @param record
 	 * @return
 	 */
-	private static InputRecord[] getInputRecords(Record record) {
+	protected static InputRecord[] getInputRecords(Record record) {
 		String recordName = record.getQualifiedName();
 		String[] children = record.getChildrenToInput();
 		int nrecs = 1;
@@ -968,7 +971,7 @@ public class Service implements ServiceInterface {
 		DbAccessType accessType = DbAccessType.NONE;
 		try {
 			Class<?> cls = Class.forName(className);
-			if (cls.isAssignableFrom(ServiceInterface.class)) {
+			if (ServiceInterface.class.isAssignableFrom(cls)) {
 				return (ServiceInterface) cls.newInstance();
 			}
 			if (cls.isAssignableFrom(LogicInterface.class)) {
