@@ -112,4 +112,24 @@ public class XmlUtilTest {
 		assertEquals(StoredProcedure.class, object.getClass());
 		
 	}
+	/**
+	 * Test method for {@link org.simplity.kernel.util.XmlUtil#xmlToObject(java.io.InputStream, java.lang.Object)}.
+	 */
+	@Test
+	public final void recordProcXmlToObject() {
+		Object object = new Record();
+		try {
+			File fs = new File("src/test/java/resources/xml/record.xml");
+			InputStream fis = new FileInputStream(fs);
+
+			
+			 XmlUtil.xmlToObject(fis, object);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		assertNotNull(object);
+		assertEquals(Record.class, object.getClass());
+		
+	}
 }

@@ -125,7 +125,7 @@ public class CreateSheet extends Action {
 					throw new ApplicationError(
 							"Field "
 									+ fldName
-									+ " not found in fields collection. This is expected as a value for a cell for createSheet action.");
+									+ " not fund in fields colleciton. This is expected as a value for a cell for createSheet action.");
 				}
 			}
 			values[idx] = value;

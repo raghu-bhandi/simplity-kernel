@@ -24,10 +24,8 @@ package org.simplity.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -37,12 +35,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Parameter;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
@@ -79,13 +75,20 @@ public class HttpAgent {
 	private static final String TRACE = "trace";
 
 	private static final Logger myLogger = Logger.getLogger(TRACE);
-	private static final FormattedMessage INTERNAL_ERROR = new FormattedMessage("internalError", MessageType.ERROR,
+	private static final FormattedMessage INTERNAL_ERROR = new FormattedMessage(
+			"internalError",
+			MessageType.ERROR,
 			"We are sorry. There was an internal error on server. Support team has been notified.");
-	private static final FormattedMessage NO_LOGIN = new FormattedMessage("notLoggedIn", MessageType.ERROR,
+	private static final FormattedMessage NO_LOGIN = new FormattedMessage(
+			"notLoggedIn",
+			MessageType.ERROR,
 			"You are not logged into the server, or server may have logged-you out as a safety measure after a period of no activity.");
-	private static final FormattedMessage DATA_ERROR = new FormattedMessage("invalidDataFormat", MessageType.ERROR,
+	private static final FormattedMessage DATA_ERROR = new FormattedMessage(
+			"invalidDataFormat",
+			MessageType.ERROR,
 			"Data text sent from client is not formatted properly. Unable to extract data from the text.");
-	private static final FormattedMessage NO_SERVICE = new FormattedMessage("noService", MessageType.ERROR,
+	private static final FormattedMessage NO_SERVICE = new FormattedMessage(
+			"noService", MessageType.ERROR,
 			"No service name was specified for this request.");
 
 	/**
@@ -110,11 +113,6 @@ public class HttpAgent {
 	private static HttpCacheManager httpCacheManager;
 
 	/**
-	 * session parameters
-	 */
-	private static Parameter[] sessionParams;
-
-	/**
 	 * serve this service. Main entrance to the server from an http client.
 	 *
 	 * @param req
@@ -127,7 +125,8 @@ public class HttpAgent {
 	 *             IO exception
 	 *
 	 */
-	public static void serve(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	public static void serve(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
 
 		/*
 		 * serviceName and CSRF headers are expected in header in AJAX mode with
@@ -218,7 +217,8 @@ public class HttpAgent {
 			/*
 			 * we got error
 			 */
-			Tracer.trace("Error on web teir : " + (message == null ? "Unknow error" : message.text));
+			Tracer.trace("Error on web teir : "
+					+ (message == null ? "Unknow error" : message.text));
 			FormattedMessage[] messages = { message };
 			response = JsonUtil.toJson(messages);
 			resp.setStatus(errorStatus);
@@ -234,7 +234,8 @@ public class HttpAgent {
 				resp.setStatus(ServiceProtocol.STATUS_OK);
 				response = outData.getPayLoad();
 				Tracer.trace("Service has no errors and has "
-						+ (response == null ? "no " : (response.length()) + " chars ") + " payload");
+						+ (response == null ? "no " : (response.length())
+								+ " chars ") + " payload");
 			}
 		}
 		if (response != null) {
@@ -243,8 +244,8 @@ public class HttpAgent {
 			out.close();
 		}
 		String trace = Tracer.stopAccumulation();
-		String log = TAG + startedAt + ELAPSED + elapsed + SERVICE + serviceName + USER + userId + CLOSE + trace
-				+ TAG_CLOSE;
+		String log = TAG + startedAt + ELAPSED + elapsed + SERVICE
+				+ serviceName + USER + userId + CLOSE + trace + TAG_CLOSE;
 		myLogger.info(log);
 	}
 
@@ -273,14 +274,16 @@ public class HttpAgent {
 	 * @return token for this session that needs to be supplied for any service
 	 *         under this sessions. null implies that we could not login.
 	 */
-	public static String login(String loginId, String securityToken, HttpSession session) {
+	public static String login(String loginId, String securityToken,
+			HttpSession session) {
 		/*
 		 * ask serviceAgent to login.
 		 */
 		ServiceData inData = new ServiceData();
 		inData.put(ServiceProtocol.USER_ID, Value.newTextValue(loginId));
 		if (securityToken != null) {
-			inData.put(ServiceProtocol.USER_TOKEN, Value.newTextValue(securityToken));
+			inData.put(ServiceProtocol.USER_TOKEN,
+					Value.newTextValue(securityToken));
 		}
 		ServiceData outData = ServiceAgent.getAgent().login(inData);
 		if (outData == null) {
@@ -289,12 +292,12 @@ public class HttpAgent {
 		Value userId = outData.getUserId();
 		if (userId == null) {
 			/*
-			 * possible that loginService is a custom one.
+			 * possible that loginService is a custom one. Let us try to fish in
+			 * the Map
 			 */
-			Object uid = new JSONObject(outData.getPayLoad()).get(ServiceProtocol.USER_ID);
+			Object uid = outData.get(ServiceProtocol.USER_ID);
 			if (uid == null) {
-				Tracer.trace(
-						"Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
+				Tracer.trace("Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
 				return null;
 			}
 			if (uid instanceof Value) {
@@ -308,7 +311,6 @@ public class HttpAgent {
 		 * create and save new session data
 		 */
 		newSession(session, userId);
-		setSessionData(session, outData);
 		Tracer.trace("Login succeeded for loginId " + loginId);
 		String result = outData.getPayLoad();
 		if (result == null || result.length() == 0) {
@@ -393,13 +395,9 @@ public class HttpAgent {
 	 * @param cacher
 	 *            http cache manager
 	 */
-	public static void setUp(Value autoUserId, HttpCacheManager cacher, Parameter[] sessionPar) {
-		if (autoUserId != null)
-			autoLoginUserId = autoUserId;
-		if (cacher != null)
-			httpCacheManager = cacher;
-		if (sessionPar != null)
-			sessionParams = sessionPar;
+	public static void setUp(Value autoUserId, HttpCacheManager cacher) {
+		autoLoginUserId = autoUserId;
+		httpCacheManager = cacher;
 
 	}
 
@@ -421,7 +419,8 @@ public class HttpAgent {
 			login(autoLoginUserId.toString(), null, session);
 			userId = (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
 			if (userId == null) {
-				Tracer.trace("autoLoginUserId is set to " + autoLoginUserId
+				Tracer.trace("autoLoginUserId is set to "
+						+ autoLoginUserId
 						+ " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in applicaiton.xml and esnure that your service clears this dummy userId with no credentials");
 				return null;
 			}
@@ -429,9 +428,11 @@ public class HttpAgent {
 		}
 
 		@SuppressWarnings("unchecked")
-		Map<String, Object> sessionData = (Map<String, Object>) session.getAttribute(SESSION_NAME_FOR_MAP);
+		Map<String, Object> sessionData = (Map<String, Object>) session
+		.getAttribute(SESSION_NAME_FOR_MAP);
 		if (sessionData == null) {
-			throw new ApplicationError("Unexpected situation. UserId is located in session, but not map");
+			throw new ApplicationError(
+					"Unexpected situation. UserId is located in session, but not map");
 		}
 		ServiceData data = new ServiceData(userId, null);
 		for (Map.Entry<String, Object> entry : sessionData.entrySet()) {
@@ -464,40 +465,17 @@ public class HttpAgent {
 	 * @param data
 	 */
 	private static void setSessionData(HttpSession session, ServiceData data) {
-
 		@SuppressWarnings("unchecked")
-		Map<String, Object> sessionData = (Map<String, Object>) session.getAttribute(SESSION_NAME_FOR_MAP);
+		Map<String, Object> sessionData = (Map<String, Object>) session
+		.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
 			Tracer.trace("Unexpected situation. setSession invoked with no active session. Action ignored");
 		} else {
-			if (data.getPayLoad() != null) {
-				Iterator<String> keys = new JSONObject(data.getPayLoad()).keys();
-
-				while (keys.hasNext()) {
-					String key = keys.next();
-					if (keyinSessionParams(key)) {
-						sessionData.put(key, Value.newTextValue(new JSONObject(data.getPayLoad()).get(key).toString()));
-					}
-				}
+			for (String key : data.getFieldNames()) {
+				sessionData.put(key, data.get(key));
 			}
 		}
-	}
-
-	/**
-	 * Check to see if the key exists in the session params
-	 * 
-	 * @param key
-	 * @return
-	 */
-	private static boolean keyinSessionParams(String key) {
-		if (sessionParams != null) {
-			for (Parameter sessionParam : sessionParams) {
-				if (sessionParam.getName().equals(key))
-					return true;
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -511,7 +489,8 @@ public class HttpAgent {
 	 * @return map of global fields that is maintained by Simplity. Any
 	 *         parameter in this map is made available to every service request
 	 */
-	public static Map<String, Object> newSession(HttpSession session, Value userId) {
+	public static Map<String, Object> newSession(HttpSession session,
+			Value userId) {
 
 		Map<String, Object> sessionData = new HashMap<String, Object>();
 		session.setAttribute(SESSION_NAME_FOR_USER_ID, userId);
