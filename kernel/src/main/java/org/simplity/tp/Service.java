@@ -271,6 +271,9 @@ public class Service implements ServiceInterface {
 	}
 
 	private void extractInput(ServiceContext ctx, String requestText) {
+		if(requestText.equals("undefined")){
+			return;
+		}
 		if (this.requestTextFieldName != null) {
 			ctx.setObject(this.requestTextFieldName, requestText);
 			Tracer.trace("Request text is not parsed but set as object value of "
