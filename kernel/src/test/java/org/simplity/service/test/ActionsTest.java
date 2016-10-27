@@ -1,7 +1,6 @@
 package org.simplity.service.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -37,7 +36,6 @@ import org.simplity.kernel.Application;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.db.DbDriver;
-import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
@@ -302,14 +300,14 @@ public class ActionsTest extends Mockito {
 	
 	/**
 	 * Test for suggest action
-	 
+	 */
 	@Test
 	public void suggestTest() {
 		ServiceData outData = serviceAgentSetup("tutorial.suggest");
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("firstName"), "Mary");
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(1)).get("firstName"), "Martin");
-	}*/
+	}
 	
 	/**
 	 * Test for saveDataDelete action
@@ -325,7 +323,7 @@ public class ActionsTest extends Mockito {
 	 * Test for saveDataAdd action
 	 */
 	@Test
-	public void saveDataAddTest() {		
+	public void saveDataAddTest() {
 		ServiceData outData = serviceAgentSetup("tutorial.saveDataAdd");
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
@@ -368,25 +366,4 @@ public class ActionsTest extends Mockito {
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Students")).get(0)).get("name"), "Sham");
 	}
-	
-	/**
-	 * Test method for {@link org.simplity.kernel.util.XmlUtil#xmlToObject(java.io.InputStream, java.lang.Object)}.
-	 */
-	@Test
-	public final void recordProcXmlToObject() {
-		Object object = new Record();
-		try {
-			File fs = new File("src/test/java/resources/xml/record.xml");
-			InputStream fis = new FileInputStream(fs);
-
-			
-			 XmlUtil.xmlToObject(fis, object);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		assertNotNull(object);
-		assertEquals(Record.class, object.getClass());
-		
-	}	
 }
