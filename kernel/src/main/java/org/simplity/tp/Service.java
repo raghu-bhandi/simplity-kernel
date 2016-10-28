@@ -206,7 +206,6 @@ public class Service implements ServiceInterface {
 	@Override
 	public ServiceData respond(ServiceData inData) {
 		ServiceContext ctx = new ServiceContext(this.name, inData.getUserId());
-		
 		this.extractInput(ctx, inData.getPayLoad());
 
 		/*
@@ -272,7 +271,7 @@ public class Service implements ServiceInterface {
 	}
 
 	private void extractInput(ServiceContext ctx, String requestText) {
-		if(requestText==null){
+		if(requestText.equals("undefined")){
 			return;
 		}
 		if (this.requestTextFieldName != null) {
@@ -1000,7 +999,7 @@ public class Service implements ServiceInterface {
 		service.dbAccessType = accessType;
 		service.setName(serviceName);
 		/*
-		 * we have no idea what this service wants as input. May be we should
+		 * we have no idea what this service wants as input. May be we shoudl
 		 * add that to the interface, so that any service has to tell what input
 		 * it expects. Till such time, here is a dirty short-cut
 		 */

@@ -661,7 +661,8 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>Ignored for non-oracle db. Defaults to tableName_seq is omitted. 
+					<xs:documentation>Ignored for non-oracle db. Defaults to
+						tableName_seq if omitted.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -1153,6 +1154,20 @@
 							<xs:annotation>
 								<xs:documentation>Refer to attachmentFields. This is for columns
 									in sheet. use sheetName.columnName to qualify.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+
+						<xs:attribute
+							name="sessionFields"
+							type="xs:string"
+							use="optional"
+						>
+							<xs:annotation>
+								<xs:documentation>Any session fields that you want to set or
+									reset. Comma separated list of names. If you are writing your
+									login service, this atribute is a MUST to set at least _userId
+									to signal that the login process is successful.
 								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
@@ -2417,86 +2432,104 @@
 	<xs:element name="application">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="sessionParams" minOccurs="0"
-					maxOccurs="1">
+				<xs:element
+					name="sessionParams"
+					minOccurs="0"
+					maxOccurs="1"
+				>
 					<xs:annotation>
-						<xs:documentation>
-							If session is managed by a different module,
-							and you have set PassiveHelper as session
-							helper, please specify the fields that are
-							to be extracted from session
+						<xs:documentation>If session is managed by a different module, and
+							you have set PassiveHelper as session helper, please specify the
+							fields that are to be extracted from session
 						</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence minOccurs="1">
-							<xs:element ref="parameter" minOccurs="1"
+							<xs:element
+								ref="parameter"
+								minOccurs="1"
 								maxOccurs="unbounded" />
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="schemaDetails" minOccurs="0"
-					maxOccurs="1">
+				<xs:element
+					name="schemaDetails"
+					minOccurs="0"
+					maxOccurs="1"
+				>
 					<xs:annotation>
-						<xs:documentation>
-							If your application used more than one
-							schemas, then you need to provide details
-							for non-default schema
+						<xs:documentation>If your application used more than one schemas,
+							then you need to provide details for non-default schema
 						</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence minOccurs="1">
-							<xs:element name="schemaDetail"
-								minOccurs="1" maxOccurs="unbounded">
+							<xs:element
+								name="schemaDetail"
+								minOccurs="1"
+								maxOccurs="unbounded"
+							>
 								<xs:complexType>
-									<xs:attribute name="schemaName"
-										type="xs:string" use="required" />
-									<xs:attribute name="dataSourceName"
-										type="xs:string" use="optional" />
 									<xs:attribute
-										name="connectionString" type="xs:string" use="optional" />
+										name="schemaName"
+										type="xs:string"
+										use="required" />
+									<xs:attribute
+										name="dataSourceName"
+										type="xs:string"
+										use="optional" />
+									<xs:attribute
+										name="connectionString"
+										type="xs:string"
+										use="optional" />
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>
-			<xs:attribute name="applicationId" type="xs:NCName"
-				use="required">
+			<xs:attribute
+				name="applicationId"
+				type="xs:NCName"
+				use="required"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						This must be UNIQUE within a corporate, so that
-						we can use it as identity for inter-application
-						communication
+					<xs:documentation>This must be UNIQUE within a corporate, so that
+						we can use it as identity for inter-application communication
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="cacheComponents" type="booleanType"
-				use="optional">
+			<xs:attribute
+				name="cacheComponents"
+				type="booleanType"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						During development, we prefer not to cache
-						components, so that any change to them is
-						immediately reflected in the application. This
-						reduces the build requirements.
+					<xs:documentation>During development, we prefer not to cache
+						components, so that any change to them is immediately reflected in
+						the application. This reduces the build requirements.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="sendTraceToClient" type="booleanType"
-				use="optional">
+			<xs:attribute
+				name="sendTraceToClient"
+				type="booleanType"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						Should the trace be sent to client? True during
+					<xs:documentation>Should the trace be sent to client? True during
 						development to help in debugging.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="dbVendor" use="optional">
+			<xs:attribute
+				name="dbVendor"
+				use="optional"
+			>
 				<xs:simpleType>
 					<xs:annotation>
-						<xs:documentation>
-							vendor specific specific syntax used ONLy
-							when ansi syntax is not available for the
-							specified vendor
+						<xs:documentation>vendor specific specific syntax used ONLy when
+							ansi syntax is not available for the specified vendor
 						</xs:documentation>
 					</xs:annotation>
 					<xs:restriction base="xs:string">
@@ -2508,173 +2541,185 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
-			<xs:attribute name="connectionString" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="connectionString"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						complete string including credentials
+					<xs:documentation>complete string including credentials
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="dbDriverClassName" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="dbDriverClassName"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
 					<xs:documentation></xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="dataSourceName" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="dataSourceName"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						Preferred way to establish connection.
+					<xs:documentation>Preferred way to establish connection.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="loginServiceName" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="loginServiceName"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						login service will be called with loginId and
-						securityToken. If you use SSO, securityToek
-						would be the authenticated ssoId, otherwise it
-						would be the password entered by user. All data
-						returned by this service will be used as global
+					<xs:documentation>login service will be called with loginId and
+						securityToken. If you use SSO, security token would be the
+						authenticated ssoId, otherwise it would be the password entered by
+						user. This service MUST set _userId as sessionField using
+						sessionFields="" attriubute of outputData tag. All these fields
+						will be used as global
 						data, and will be made available to all
 						services.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="logoutServiceName" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="logoutServiceName"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						If your application needs to do anything when
-						user logs-out/times-out do you need to do
-						anything? Specify the service name that is going
-						to be called. userId as well all global fields
-						are going to be available to your service. Also
-						a boolean is supplied that indicates whether the
-						user logged-out explicitly, or got timed-out
+					<xs:documentation>If your application needs to do anything when
+						user logs-out/times-out do you need to do anything? Specify the
+						service name that is going to be called. userId as well all global
+						fields are going to be available to your service. Also a boolean
+						is supplied that indicates whether the user logged-out explicitly,
+						or got timed-out
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="userIdIsNumber" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="userIdIsNumber"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						Simplity need to know the data type of userId
-						(identify of the logged-in user that is
-						generally saved in tables as modified-by-user).
-						Default is text, which you can change to
-						integral. Of course, we do not allow you to
-						design it as any other type
+					<xs:documentation>Simplity need to know the data type of userId
+						(identify of the logged-in user that is generally saved in tables
+						as modified-by-user). Default is text, which you can change to
+						integral. Of course, we do not allow you to design it as any other
+						type
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="autoLoginUserId" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="autoLoginUserId"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						During development/demo, login woudl be a
-						nuisance. You may disable that, and use a
-						default userId for all services. Esnure that
-						this is a number in case your project uses
-						numeric value as userId, as set in
-						userIdIsNumber attribute.
+					<xs:documentation>During development/demo, login woudl be a
+						nuisance. You may disable that, and use a default userId for all
+						services. Esnure that this is a number in case your project uses
+						numeric value as userId, as set in userIdIsNumber
+						attribute.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="httpCacheManager" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="httpCacheManager"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						Responses can be cached at http(web tier) as
-						well as at service (app tier). specify the
-						qualified calss name for the http cache manager
-						that implements HttpCacheManager interface.
-						Services shoudl indicate cacheability in
-						response service data (refer to service.xml
-						attributes)
+					<xs:documentation>Responses can be cached at http(web tier) as well
+						as at service (app tier). specify the qualified calss name for the
+						http cache manager that implements HttpCacheManager interface.
+						Services shoudl indicate cacheability in response service data
+						(refer to service.xml attributes)
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="serviceCacheManager" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="serviceCacheManager"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						Responses can be cached at http(web tier) as
-						well as at service (app tier). specify the
-						qualified calss name for the service cache
-						manager that implements ServiceCacheManager
-						interface. Services shoudl indicate cacheability
-						in response service data (refer to service.xml
-						attributes)
+					<xs:documentation>Responses can be cached at http(web tier) as well
+						as at service (app tier). specify the qualified calss name for the
+						service cache manager that implements ServiceCacheManager
+						interface.
+						Services shoudl indicate cacheability in response
+						service data
+						(refer to service.xml attributes)
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="accessController" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="accessController"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						refer to org.simplity.service.AccessController
+					<xs:documentation>refer to org.simplity.service.AccessController
 						class.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="exceptionListener" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="exceptionListener"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						refer to org.simplity.service.ExceptionListener
-						class. This feature allows you to wire
-						exceptions to any corporate infrastructure to
-						deal with exceptions
+					<xs:documentation>refer to org.simplity.service.ExceptionListener
+						class. This feature allows you to wire exceptions to any corporate
+						infrastructure to deal with exceptions
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="userIdNameInSession" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="logSqls"
+				type="booleanType"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						If PassiveHelper is used as session helper, then
-						it needs to get user id from session.
+					<xs:documentation>Should the server log the sqs that are being
+						executed? This woudl be off in production for security reasons,
+						but woudl be quite helpful during development
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="logSqls" type="booleanType"
-				use="optional">
+			<xs:attribute
+				name="attachmentsFolderPath"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						Should the server log the sqs that are being
-						executed? This woudl be off in production for
-						security reasons, but woudl be quite helpful
-						during development
+					<xs:documentation>Simplity povides a simple way to store
+						attachments in folder that is accessible to web tier as well as
+						App tier. Use this attribute to set the folder.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="attachmentsFolderPath" type="xs:string"
-				use="optional">
+			<xs:attribute
+				name="attachmentAssistant"
+				type="xs:string"
+				use="optional"
+			>
 				<xs:annotation>
-					<xs:documentation>
-						Simplity povides a simple way to store
-						attachments in folder that is accessible to web
-						tier as well as App tier. Use this attribute to
-						set the folder.
+					<xs:documentation>Way to interface with your own attachment
+						management infrastructure. This plug-in handles storage and
+						retrieval for all your services. Refer to
+						org.simplity.AttachmentManager class
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
-			<xs:attribute name="attachmentAssistant" type="xs:string"
-				use="optional">
-				<xs:annotation>
-					<xs:documentation>
-						Way to interface with your own attachment
-						management infrastructure. This plug-in handles
-						storage and retrieval for all your services.
-						Refer to org.simplity.AttachmentManager class
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute name="sessionHelperClassName" type="xs:string"></xs:attribute>
 		</xs:complexType>
 	</xs:element>
 </xs:schema>

@@ -302,14 +302,14 @@ public class ActionsTest extends Mockito {
 	
 	/**
 	 * Test for suggest action
-	 
+	 */
 	@Test
 	public void suggestTest() {
 		ServiceData outData = serviceAgentSetup("tutorial.suggest");
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("firstName"), "Mary");
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(1)).get("firstName"), "Martin");
-	}*/
+	}
 	
 	/**
 	 * Test for saveDataDelete action
@@ -325,7 +325,7 @@ public class ActionsTest extends Mockito {
 	 * Test for saveDataAdd action
 	 */
 	@Test
-	public void saveDataAddTest() {		
+	public void saveDataAddTest() {
 		ServiceData outData = serviceAgentSetup("tutorial.saveDataAdd");
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
@@ -388,5 +388,6 @@ public class ActionsTest extends Mockito {
 		assertNotNull(object);
 		assertEquals(Record.class, object.getClass());
 		
-	}	
+	}
+
 }
