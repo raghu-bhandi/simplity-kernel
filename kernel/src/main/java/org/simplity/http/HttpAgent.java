@@ -285,6 +285,7 @@ public class HttpAgent {
 			inData.put(ServiceProtocol.USER_TOKEN,
 					Value.newTextValue(securityToken));
 		}
+		inData.setPayLoad("{}");
 		ServiceData outData = ServiceAgent.getAgent().login(inData);
 		if (outData == null) {
 			return null;
@@ -311,6 +312,7 @@ public class HttpAgent {
 		 * create and save new session data
 		 */
 		newSession(session, userId);
+		setSessionData(session, outData);
 		Tracer.trace("Login succeeded for loginId " + loginId);
 		String result = outData.getPayLoad();
 		if (result == null || result.length() == 0) {

@@ -606,7 +606,7 @@ public class Record implements Component {
 				if (otherValue == null || otherValue.isUnknown()) {
 					throw new ApplicationError(
 							"To value not supplied for fied " + this.name
-							+ " for filtering");
+									+ " for filtering");
 				}
 				sql.append(" AND ?");
 				filterValues.add(otherValue);
@@ -1313,17 +1313,17 @@ public class Record implements Component {
 					update.append(Record.COMMA);
 				}
 				update.append(field.columnName).append(Record.EQUAL)
-				.append(Record.PARAM);
+						.append(Record.PARAM);
 				values[valueIdx++] = value;
 			}
 		}
 		update.append(" WHERE ").append(this.primaryKeyField.columnName)
-		.append(Record.EQUAL).append(Record.PARAM);
+				.append(Record.EQUAL).append(Record.PARAM);
 		values[valueIdx++] = inData.getValue(this.primaryKeyField.name);
 
 		if (this.modifiedStampField != null) {
 			update.append(" AND ").append(this.modifiedStampField.columnName)
-			.append(Record.EQUAL).append(Record.PARAM);
+					.append(Record.EQUAL).append(Record.PARAM);
 			values[valueIdx++] = inData.getValue(this.modifiedStampField.name);
 		}
 		/*
@@ -1394,11 +1394,11 @@ public class Record implements Component {
 		Tracer.trace("There are " + n + " rows in parent sheet. column "
 				+ keyName + " has " + values.length
 				+ " values with first value=" + values[0]
-						+ ". We are going to read child rows for them using record "
-						+ this.name);
+				+ ". We are going to read child rows for them using record "
+				+ this.name);
 		/*
 		 * for single key we use where key = ?
-		 *
+		 * 
 		 * for multiple, we use where key in (?,?,....)
 		 */
 		if (n == 1) {
@@ -1443,30 +1443,30 @@ public class Record implements Component {
 	 * we will track this during getReady() invocation. getReady() will ask for
 	 * a referred record. That record will execute getReady() before returning.
 	 * It may ask for another record, so an and so forth.
-	 *
+	 * 
 	 * There are two ways to solve this problem.
-	 *
+	 * 
 	 * One way is to differentiate between normal-request and reference-request
 	 * for a record. Pass history during reference request so that we can detect
 	 * circular reference. Issue with this is that getRequest() is a generic
 	 * method and hence we can not customize it.
-	 *
+	 * 
 	 * Other approach is to use thread-local that is initiated by getReady().
-	 *
+	 * 
 	 * our algorithm is :
-	 *
+	 * 
 	 * 1. we initiate refHistory before getReady() and current record to
 	 * pendingOnes.
-	 *
+	 * 
 	 * 2. A referred field may invoke parent.getRefrecord() Referred record is
 	 * requested from ComponentManager.getRecord();
-	 *
+	 * 
 	 * 3. that call will trigger getReady() on the referred record. This chain
 	 * will go-on..
-	 *
+	 * 
 	 * 4. before adding to pending list we check if it already exists. That
 	 * would be a circular reference.
-	 *
+	 * 
 	 * 5. Once we complete getReady(), we remove this record from pendingOnes.
 	 * And if there no more pending ones, we remove it. and that completes the
 	 * check.
@@ -1517,15 +1517,15 @@ public class Record implements Component {
 			StringBuilder sbf = new StringBuilder();
 			if (recordName.equals(this.getQualifiedName())) {
 				sbf.append("Record ")
-				.append(recordName)
-				.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
+						.append(recordName)
+						.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
 			} else {
 				sbf.append("There is a circular reference of records amongst the following records. Please review and fix.\n{\n");
 				int nbr = history.pendingOnes.size();
 				for (int i = 0; i < nbr; i++) {
 
 					sbf.append(i).append(": ")
-					.append(history.pendingOnes.get(i)).append('\n');
+							.append(history.pendingOnes.get(i)).append('\n');
 				}
 				sbf.append(nbr).append(": ").append(recordName).append('\n');
 				sbf.append('}');
@@ -1560,15 +1560,15 @@ public class Record implements Component {
 		StringBuilder sbf = new StringBuilder();
 		if (history.pendingOnes.size() == 1) {
 			sbf.append("Record ")
-			.append(recName)
-			.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
+					.append(recName)
+					.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
 		} else {
 			sbf.append("There is a circular reference of records amongst the following records. Please review and fix.\n{\n");
 			int nbr = history.pendingOnes.size();
 			for (int i = 0; i < nbr; i++) {
 
 				sbf.append(i).append(". ").append(history.pendingOnes.get(i))
-				.append('\n');
+						.append('\n');
 			}
 			sbf.append(nbr).append(". ").append(recName).append('\n');
 			sbf.append('}');
@@ -1610,6 +1610,10 @@ public class Record implements Component {
 
 	@Override
 	public void getReady() {
+		if (this.fields == null) {
+			throw new ApplicationError("Record " + this.getQualifiedName()
+					+ " has no fields.");
+		}
 		if (this.tableName == null) {
 			this.tableName = this.name;
 		}
@@ -1801,12 +1805,12 @@ public class Record implements Component {
 		if (this.primaryKeyField != null) {
 			StringBuilder where = new StringBuilder(" WHERE ");
 			where.append(this.primaryKeyField.columnName).append(Record.EQUAL)
-			.append(Record.PARAM);
+					.append(Record.PARAM);
 
 			if (this.useTimestampForConcurrency) {
 				where.append(" AND ")
-				.append(this.modifiedStampField.columnName)
-				.append("=?");
+						.append(this.modifiedStampField.columnName)
+						.append("=?");
 			}
 			this.deleteSql = "DELETE FROM " + this.tableName + where;
 			this.updateSql = update.append(where).toString();
@@ -1828,7 +1832,7 @@ public class Record implements Component {
 				select.append(Record.COMMA);
 			}
 			select.append(field.columnName).append(" \"").append(field.name)
-			.append('"');
+					.append('"');
 		}
 		select.append(" FROM ").append(this.tableName).append(" WHERE ");
 		this.filterSql = select.toString();
@@ -1856,7 +1860,7 @@ public class Record implements Component {
 			this.valueListTypes[0] = field.getValueType();
 		}
 		sbf.append(field.columnName).append(" value from ")
-		.append(this.tableName);
+				.append(this.tableName);
 		if (this.listGroupKeyName != null) {
 			field = this.getField(this.listGroupKeyName);
 			if (field == null) {
@@ -1894,7 +1898,7 @@ public class Record implements Component {
 		}
 		sbf.setLength(sbf.length() - 1);
 		sbf.append(" from ").append(this.tableName).append(" WHERE ")
-		.append(field.columnName).append(" LIKE ?");
+				.append(field.columnName).append(" LIKE ?");
 		this.suggestSql = sbf.toString();
 	}
 
@@ -2311,7 +2315,7 @@ public class Record implements Component {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
 	 * ValidationContext)

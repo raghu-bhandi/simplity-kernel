@@ -134,7 +134,7 @@ public class OutputRecord {
 	 */
 	public void toJson(JSONWriter writer, ServiceContext ctx) {
 		if (this.sheetName == null) {
-			this.fieldsToJason(writer, this.fields, ctx);
+			this.fieldsToJson(writer, this.fields, ctx);
 			return;
 		}
 		/*
@@ -149,7 +149,7 @@ public class OutputRecord {
 		this.sheetToJson(writer, ctx);
 	}
 
-	private void fieldsToJason(JSONWriter writer, Field[] fieldsToOutput,
+	private void fieldsToJson(JSONWriter writer, Field[] fieldsToOutput,
 			ServiceContext ctx) {
 		for (Field field : fieldsToOutput) {
 			String fieldName = field.getName();
@@ -171,7 +171,9 @@ public class OutputRecord {
 		if (sheet == null) {
 			Tracer.trace("Service context has no sheet with name "
 					+ this.sheetName + " for output. We try and output fields.");
-			this.fieldsToJason(writer, this.fields, ctx);
+			if (this.fields != null) {
+				this.fieldsToJson(writer, this.fields, ctx);
+			}
 			if (this.childRecords != null) {
 				for (OutputRecord child : this.childRecords) {
 					child.sheetToJson(writer, ctx);
@@ -266,6 +268,12 @@ public class OutputRecord {
 		} else {
 			Record record = ComponentManager.getRecord(this.recordName);
 			this.fields = record.getFields();
+			if (this.fields == null) {
+				Tracer.trace("Record " + this.recordName + " yielded no fields");
+			} else {
+				Tracer.trace(this.recordName + " is added with "
+						+ this.fields.length + " fields");
+			}
 		}
 	}
 

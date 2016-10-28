@@ -1528,6 +1528,11 @@
 				minOccurs="0"
 				maxOccurs="unbounded" />
 			<xs:element
+				name="keyValueList"
+				type="keyValueList"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
 				name="log"
 				type="log"
 				minOccurs="0"
@@ -1545,6 +1550,11 @@
 			<xs:element
 				name="read"
 				type="read"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="readChildren"
+				type="readChildren"
 				minOccurs="0"
 				maxOccurs="unbounded" />
 			<xs:element
@@ -1686,14 +1696,150 @@
 		</xs:attribute>
 	</xs:attributeGroup>
 
-
-	<xs:complexType name="logic">
+	<xs:complexType name="addColumn">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
-			name="className"
+			name="sheetName"
 			type="xs:string"
-			use="required" />
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Sheet to which a column needs to be added
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="columnName"
+			type="xs:NCName"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Name of column to be added</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="columnValueType"
+			type="valueType"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>What type of value is this column going to
+					contain.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="columnValue"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>
+					if the value is going to be the same for all rows,
+					use this feature. Just specify the value if it is constant. In case
+					it is a field in the icntext, specify $fieldName.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="columnValueExpression"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Expression that is evaluated for each row to
+					assign value of the colun for that row. Optional if you are going
+					to assign value later.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
+
+	<xs:complexType name="copyRows">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="fromSheetName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Sheet from which rows are copied. If this sheet is
+					not found, or has zero rows, no error is generated, but 0 is the
+					result
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="toSheetName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Sheet to which rows are copied to. If this is not
+					found, we copy entire fromSheet as toSheet, failing which we set 0
+					as result, but no error.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="copyUserId">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="fieldName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Field to which userId is to be copied to
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="createSheet">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="sheetName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Name by which sheet is to be added to
+					serviceContext. Once added, this sheet is available for subsequent
+					actions, as well as for output
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="data"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>
+					Of the form
+					header1,header2...;val11,val12,val13...;val21,val22,val23....
+					rows
+					are separated by semicolumn(;)and cells are separated by comma(,)
+					forst row is header. refer to fieldValue attrivute of setValue for
+					syntax of cells. Each cell can be either a field name ($fieldNAme)
+					or constant.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="fieldValue"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>
+					use either a constant, or a $fieldName as value
+					ofthe field. If you use this, you should not specify expression.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
 
 	<xs:complexType name="executeSp">
 		<xs:attributeGroup ref="dbActionAttributes" />
@@ -1799,6 +1945,23 @@
 			type="xs:string"
 			use="optional" />
 	</xs:complexType>
+
+	<xs:complexType name="jumpTo">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="toAction"
+			type="xs:string"
+			use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="logic">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="className"
+			type="xs:string"
+			use="required" />
+	</xs:complexType>
+
 	<xs:complexType name="loop">
 		<xs:sequence
 			minOccurs="1"
@@ -1813,14 +1976,6 @@
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
 			name="dataSheetName"
-			type="xs:string"
-			use="required" />
-	</xs:complexType>
-
-	<xs:complexType name="jumpTo">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="toAction"
 			type="xs:string"
 			use="required" />
 	</xs:complexType>
@@ -1982,64 +2137,6 @@
 		</xs:attribute>
 	</xs:complexType>
 
-	<xs:complexType name="createSheet">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="sheetName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Name by which sheet is to be added to
-					serviceContext. Once added, this sheet is available for subsequent
-					actions, as well as for output
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="data"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>
-					Of the form
-					header1,header2...;val11,val12,val13...;val21,val22,val23....
-					rows
-					are separated by semicolumn(;)and cells are separated by comma(,)
-					forst row is header. refer to fieldValue attrivute of setValue for
-					syntax of cells. Each cell can be either a field name ($fieldNAme)
-					or constant.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="fieldValue"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>
-					use either a constant, or a $fieldName as value
-					ofthe field. If you use this, you should not specify expression.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="copyUserId">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="fieldName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Field to which userId is to be copied to
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
 
 	<xs:complexType name="rowExists">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -2088,17 +2185,6 @@
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
-			name="matchType"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>Specify if it fixed at design time. Leave it if it
-					to be decided at run time.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
 			name="outputSheetName"
 			type="xs:string"
 			use="optional"
@@ -2123,95 +2209,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
-	<xs:complexType name="addColumn">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="sheetName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Sheet to which a column needs to be added
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="columnName"
-			type="xs:NCName"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Name of column to be added</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="columnValueType"
-			type="valueType"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>What type of value is this column going to
-					contain.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="columnValue"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>
-					if the value is going to be the same for all rows,
-					use this feature. Just specify the value if it is constant. In case
-					it is a field in the icntext, specify $fieldName.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="columnValueExpression"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>Expression that is evaluated for each row to
-					assign value of the colun for that row. Optional if you are going
-					to assign value later.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-
-	<xs:complexType name="copyRows">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="fromSheetName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Sheet from which rows are copied. If this sheet is
-					not found, or has zero rows, no error is generated, but 0 is the
-					result
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="toSheetName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Sheet to which rows are copied to. If this is not
-					found, we copy entire fromSheet as toSheet, failing which we set 0
-					as result, but no error.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
 	<xs:complexType name="log">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2226,6 +2223,36 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+	
+	<xs:complexType name="readChildren">
+		<xs:attributeGroup ref="dbActionAttributes" />
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="outputSheetName"
+			type="xs:NCName"
+			use="optional" />
+		<xs:attribute
+			name="parentKeyFieldName"
+			type="xs:NCName"
+			use="optional" />
+	</xs:complexType>
+
+	
+	<xs:complexType name="keyValueList">
+		<xs:attributeGroup ref="dbActionAttributes" />
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="outputSheetName"
+			type="xs:NCName"
+			use="optional" />
+	</xs:complexType>
+
 
 	<xs:complexType name="addMessage">
 		<xs:attributeGroup ref="actionAttributes" />
