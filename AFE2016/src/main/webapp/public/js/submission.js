@@ -1,26 +1,26 @@
 var app = angular.module('submissionApp', []);
-app.controller('formCtrl', function ($scope) {
+app.controller('formCtrl', function ($scope,$window) {
 	$scope.state = "new";
 	$scope.user = "new";
 	$scope.disableform = false;
     $scope.categories= [
-        "Account Management-Small/Mid",
-        "Account Management-Large",
-        "Development Center (DC) Management-Large",
-        "Development Center (DC) Management-Small",
-        "Infosys Champions-Technology Champion",
-        "Infosys Champions-Domain Champion",
-        "Innovation-IP, Products, Platforms and Solutions",
-        "Innovation-Culture",
-        "Internal Customer Delight",
-        "People Development",
-        "Complex/Business Transformation Program",
-        "Large Business Operation Program",
-        "Sales and Marketing - Brand Management",
-        "Sales and Marketing - Sales Management",
-        "Systems and Processes",
-        "Value Champions",
-        "Sustainability/Social Consciousness"
+        {"category":"Account Management-Small/Mid","noOfMembers":3},
+        {"category":"Account Management-Large","noOfMembers":5},
+        {"category":"Development Center (DC) Management-Large","noOfMembers":4},
+        {"category":"Development Center (DC) Management-Small","noOfMembers":6},
+        {"category":"Infosys Champions-Technology Champion","noOfMembers":2},
+        {"category":"Infosys Champions-Domain Champion","noOfMembers":7},
+        {"category":"Innovation-IP, Products, Platforms and Solutions","noOfMembers":5},
+        {"category":"Innovation-Culture","noOfMembers":4},
+        {"category":"Internal Customer Delight","noOfMembers":8},
+        {"category":"People Development","noOfMembers":6},
+        {"category":"Complex/Business Transformation Program","noOfMembers":9},
+        {"category":"Large Business Operation Program","noOfMembers":7},
+        {"category":"Sales and Marketing - Brand Management","noOfMembers":2},
+        {"category": "Sales and Marketing - Sales Management","noOfMembers":4},
+        {"category":"Systems and Processes","noOfMembers":5},
+        {"category":"Value Champions","noOfMembers":9},
+        {"category":"Sustainability/Social Consciousness","noOfMembers":10}
     ];
     $scope.levels=[
         "Bangalore",
@@ -63,12 +63,22 @@ app.controller('formCtrl', function ($scope) {
     $scope.chosen;
     $scope.addmember = {};
     $scope.addrow = function () {
-    	console.log($scope.nomination);
+    	var membersallowed=0;
+    	for(var i=0;i<$scope.categories.length;i++){
+    		if($scope.nomination.selectedCategory == $scope.categories[i].category){
+    			membersallowed=$scope.categories[i].noOfMembers;
+    			break;
+    		}    			
+    	}
         var data = {};
         angular.copy($scope.addmember, data);
         angular.copy($scope.initmember, $scope.addmember);
         if($scope.nomination.members == undefined)
         	$scope.nomination.members=[];
+        if($scope.nomination.members.length == membersallowed){
+        	alert("Can't nominate more than "+membersallowed+" members for the selected category");
+        	return;
+        }
         $scope.nomination.members.push(data);
     };
     $scope.removerow = function (index) {
@@ -81,8 +91,8 @@ app.controller('formCtrl', function ($scope) {
         $scope.chosen = '';
     };
     $scope.removenomination = function (index) {
-    	Simplity.getResponse('submission.deletenomination',JSON.stringify($scope.nominations[index]),function(json){
-    	});        
+    	Simplity.getResponse('submission.deletenomination',JSON.stringify($scope.nominations[index]));   
+    	$scope.nominations.splice(index, 1);
     };
     $scope.getTemplate = function (index) {
         if (index === $scope.chosen) return 'editmembers';
@@ -92,13 +102,8 @@ app.controller('formCtrl', function ($scope) {
         $scope.nomination.uploadfile = file.files[0];
     };
     $scope.submit=function(status){
-		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
-			var data = {
-				"filekey":key,
-				"filename":$scope.nomination.uploadfile.name,
-				"filetype":$scope.nomination.uploadfile.type,
-				"filesize":$scope.nomination.uploadfile.size,
-		        "selectedCategory":$scope.nomination.selectedCategory,
+    	var data = {
+				"selectedCategory":$scope.nomination.selectedCategory,
 		        "selectedLevel":$scope.nomination.selectedLevel,
 		        "nomination":$scope.nomination.nomination,
 		        "sponsormailid":$scope.nomination.sponsormailid,
@@ -107,14 +112,23 @@ app.controller('formCtrl', function ($scope) {
 		        "members":$scope.nomination.members,
 		        "status":status
 		 	}
-			if(data.status == "Saved")
+    	console.log($scope.nomination.uploadfile);
+    	if($scope.nomination.uploadfile != undefined){
+    		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
+    			data.filekey=key;
+				data.filename=$scope.nomination.uploadfile.name;
+				data.filetype=$scope.nomination.uploadfile.type;
+				data.filesize=$scope.nomination.uploadfile.size;		     
+    		});
+    	}
+			
+			if(status == "Saved")
 				data.email=false;
 			else
 				data.email=true;
 			Simplity.getResponse('submission.newnomination',JSON.stringify(data));
-			}, function(progress) {
-			console.log("progress: "+progress);
-		});		
+			angular.copy($scope.initnomination,$scope.nomination);
+				
 	 };
 	 
 	 $scope.init=function(){
@@ -125,7 +139,7 @@ app.controller('formCtrl', function ($scope) {
 		 angular.copy($scope.initnomination,$scope.nomination);
 		 $scope.disableform=false;
 	 };
-	 $scope.viewsubmissionhtml=function(){		 
+	 $scope.viewsubmissionhtml=function(){	
 		 $scope.state="view";	 
 		 Simplity.getResponse("submission.getnominations",null,function(json){
 			 if(json.nominations != null){
@@ -153,23 +167,24 @@ app.controller('formCtrl', function ($scope) {
 	 $scope.viewsubmission=function(nomination){
 		 angular.copy(nomination,$scope.nomination);
 		 $scope.changeformstatus(nomination);
-	 };
+	};
 
-	 $scope.updatenomination=function(status){
-		 if(status != "Saved")
-			 $scope.nomination.email=true;
-		 else
-			 $scope.nomination.email=false;
-		 $scope.nomination.status=status;
-		 Simplity.getResponse('submission.updatenomination',JSON.stringify($scope.nomination)); 
+	 $scope.updatenomination=function(selectednomination,status){
+		if(status == "Saved")
+			selectednomination.email=false;
+		else
+			 selectednomination.email=true;
+		selectednomination.status=status;
+		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination)); 
+		angular.copy($scope.initnomination,$scope.nomination);
 	 };
 	 
 	 $scope.changeformstatus=function(selectednomination){
-		 if(selectednomination.status == "Approved" || selectednomination.status == "Rejected"){
-			 $scope.disableform=true;
+		 if(selectednomination.status == "Saved"){
+			 $scope.disableform=false;
 		 }
 		 else{
-			 $scope.disableform=false;
+			 $scope.disableform=true;
 		 }
 	 }
 });
