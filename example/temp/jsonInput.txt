@@ -1,0 +1,4 @@
+{
+"filters":[{colName: "salesOrderID", colValue: [{filterData: "102277461"}, {filterData: "102342375"}]},
+{colName: "reasonCodes", colValue: [{filterData: "01 - DGI-Avail/Uncommitted;"}]}]
+} 

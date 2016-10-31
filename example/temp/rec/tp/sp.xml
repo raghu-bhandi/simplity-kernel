@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="sp"
+	moduleName="test"
+	dbAccessType="readOnly"
+>
+	<inputData>
+		<inputRecords>
+			<!-- sheetName should match the name="" attribute of procedureParameter -->
+			<inputRecord
+				recordName="test.allFilters"
+				sheetName="filters"
+				minRows="1" />
+		</inputRecords>
+	</inputData>
+	<actions>
+		<executeSp procedureName="test.sp" />
+	</actions>
+	<outputData fieldNames="txt">
+	</outputData>
+</service>

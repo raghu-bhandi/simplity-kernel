@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	name="filter"
+	moduleName="test"
+	recordType="structure"
+	sqlStructName="RC_FILTER_DATA_OBJ"
+>
+	<!-- important to specify recordType="structure" and sqlStructureName MUST 
+		match object type name in oracle -->
+	<fields>
+		<field
+			name="filterData"
+			dataType="text"
+			fieldType="data"
+			isRequired="true" />
+	</fields>
+</record>

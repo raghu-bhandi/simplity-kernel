@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	name="allFilters"
+	moduleName="test"
+	recordType="structure"
+	sqlStructName="RC_NEW_FILTER_OBJ" 
+>
+<!-- recordType and  sqlStructName are important -->
+	<fields>
+		<field
+			name="colName"
+			dataType="name"
+			fieldType="data"
+			isRequired="true" />
+		
+		<field
+			name="colValue"
+			fieldType="recordArray"
+			sqlTypeName="RC_FILTER_DATA_OBJ_LIST"
+			referredRecord="test.filter"
+			isRequired="true" />
+	</fields>
+</record>
