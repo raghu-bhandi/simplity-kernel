@@ -22,6 +22,7 @@
  */
 package org.simplity.kernel.db;
 
+import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -31,6 +32,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Struct;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +40,11 @@ import java.util.Map;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+
+import oracle.sql.ARRAY;
+import oracle.sql.ArrayDescriptor;
+import oracle.sql.STRUCT;
+import oracle.sql.StructDescriptor;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -80,7 +87,7 @@ public class DbDriver {
 	private static final Map<Integer, ValueType> SQL_TYPES = new HashMap<Integer, ValueType>();
 
 	/**
-	 * characetr used in like operator to match any characters
+	 * character used in like operator to match any characters
 	 */
 	public static final char LIKE_ANY = '%';
 	/*
@@ -1583,5 +1590,105 @@ public class DbDriver {
 			return true;
 		}
 		return false;
+	}
+
+	/*
+	 * methods related to data structure/object in db,
+	 */
+
+	/**
+	 * delegated back to DBDriver to take care of driver related issues between
+	 * Oracle and standard SQL
+	 *
+	 * @param con
+	 * @param values
+	 * @param dbArrayType
+	 *            as defined in the RDBMS
+	 * @return object that is suitable to be assigned to an array parameter
+	 * @throws SQLException
+	 */
+	public static Array createArray(Connection con, Value[] values,
+			String dbArrayType) throws SQLException {
+		Object[] data = new Object[values.length];
+		for (int i = 0; i < values.length; i++) {
+			Value val = values[i];
+			if (val != null) {
+				data[i] = val.toObject();
+			}
+		}
+		if (dbVendor == DbVendor.ORACLE) {
+			ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType,
+					con);
+			return new ARRAY(ad, con, data);
+		}
+		return con.createArrayOf(dbArrayType, data);
+	}
+
+	/**
+	 * This is delegated back to DbDriver because oracle driver does not support
+	 * standard SQL way of doing this. Let DbDriver class be the repository of
+	 * all Driver related issues
+	 *
+	 * @param con
+	 * @param data
+	 * @param dbObjectType
+	 *            as defined in RDBMS
+	 * @return object that can be assigned to a struct parameter
+	 * @throws SQLException
+	 */
+	public static Struct createStruct(Connection con, Object[] data,
+			String dbObjectType) throws SQLException {
+		if (dbVendor == DbVendor.ORACLE) {
+			StructDescriptor sd = StructDescriptor.createDescriptor(
+					dbObjectType, con);
+			return new STRUCT(sd, con, data);
+		}
+		return con.createStruct(dbObjectType, data);
+	}
+
+	/**
+	 * This is delegated back to DbDriver because oracle driver does not support
+	 * standard SQL way of doing this. Let DbDriver class be the repository of
+	 * all Driver related issues
+	 *
+	 * @param con
+	 * @param values
+	 * @param dbObjectType
+	 *            as defined in RDBMS
+	 * @return object that can be assigned to a struct parameter
+	 * @throws SQLException
+	 */
+	public static Struct createStruct(Connection con, Value[] values,
+			String dbObjectType) throws SQLException {
+		Object[] data = new Object[values.length];
+		for (int i = 0; i < values.length; i++) {
+			Value value = values[i];
+			if (value != null) {
+				data[i] = value.toObject();
+			}
+		}
+		return createStruct(con, data, dbObjectType);
+	}
+
+	/**
+	 * Create a struct array that can be assigned to procedure parameter. This
+	 * is delegated to DBDriver because of issues with Oracle driver
+	 *
+	 * @param con
+	 * @param structs
+	 * @param dbArrayType
+	 *            as defined in the rdbms
+	 * @return object that is suitable to be assigned to stored procedure
+	 *         parameter
+	 * @throws SQLException
+	 */
+	public static Array createStructArray(Connection con, Struct[] structs,
+			String dbArrayType) throws SQLException {
+		if (dbVendor == DbVendor.ORACLE) {
+			ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType,
+					con);
+			return new ARRAY(ad, con, structs);
+		}
+		return con.createArrayOf(dbArrayType, structs);
 	}
 }

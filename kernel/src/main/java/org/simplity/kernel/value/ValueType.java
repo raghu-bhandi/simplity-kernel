@@ -112,7 +112,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 */
 		@Override
@@ -169,7 +169,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 */
 		@Override
@@ -239,7 +239,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 */
 		@Override
@@ -307,7 +307,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 */
 		@Override
@@ -348,7 +348,7 @@ public enum ValueType {
 		 * (non-Javadoc) a field of this data type actually contains a text
 		 * value that is key to the CLOB value stored elsewhere. Hence it is
 		 * same as text
-		 * 
+		 *
 		 * @see org.simplity.kernel.value.ValueType#toJson(java.lang.String,
 		 * java.lang.StringBuilder)
 		 */
@@ -360,7 +360,7 @@ public enum ValueType {
 		/*
 		 * (non-Javadoc) We extract the content and save it to a temp file. We
 		 * return the key to this storage as value
-		 * 
+		 *
 		 * @see
 		 * org.simplity.kernel.value.ValueType#extractFromRs(java.sql.ResultSet,
 		 * int)
@@ -504,7 +504,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 * )
 		 */
@@ -632,7 +632,9 @@ public enum ValueType {
 	 */
 	public Value parseObject(Object dbObject) {
 		if (dbObject == null) {
-			Tracer.trace("Parse Object received null for type " + this.name());
+			Tracer.trace("Parse Object received null for type "
+					+ this.name()
+					+ ". Client may receive null or empty string depending on the setting.");
 			return Value.newUnknownValue(this);
 		}
 		return this.fromObject(dbObject);

@@ -21,6 +21,10 @@
  */
 package org.simplity.kernel.dm;
 
+import java.sql.Array;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.simplity.json.JSONArray;
+import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
@@ -44,9 +50,11 @@ import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.data.SingleRowSheet;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dt.DataType;
+import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.IntegerValue;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
 import org.simplity.tp.InputRecord;
 import org.simplity.tp.OutputRecord;
@@ -190,7 +198,7 @@ public class Record implements Component {
 	/**
 	 * if this application uses multiple schemas, and the underlying table of
 	 * this record belongs to a schema other than the default, then specify it
-	 * here, so that the on-the-fly services based on this record can use teh
+	 * here, so that the on-the-fly services based on this record can use the
 	 * right schema.
 	 */
 	String schemaName;
@@ -210,6 +218,15 @@ public class Record implements Component {
 	 * result will be cached by that field. For example, by country-code.
 	 */
 	boolean okToCacheList;
+
+	/**
+	 * If this record represents a data structure corresponding to an object
+	 * defined in the RDBMS, what is the Object name in the sql. This is used
+	 * while handling stored procedure parameters that pass objects and array of
+	 * objects
+	 */
+	String sqlStructName;
+
 	/*
 	 * following fields are assigned for caching/performance
 	 */
@@ -281,6 +298,12 @@ public class Record implements Component {
 	 * sequence of oracle if required
 	 */
 	private String sequence;
+
+	/**
+	 * This record is a dataObject if any of its field is non-primitive (array
+	 * or child-record
+	 */
+	private boolean isComplexStruct;
 
 	/*
 	 * methods for ComponentInterface
@@ -1669,6 +1692,9 @@ public class Record implements Component {
 			} else if (ft == FieldType.CREATED_BY_USER) {
 				this.checkDuplicateError(this.createdUserField);
 				this.createdUserField = field;
+			} else if (ft == FieldType.RECORD || ft == FieldType.RECORD_ARRAY
+					|| ft == FieldType.VALUE_ARRAY) {
+				this.isComplexStruct = true;
 			}
 
 		}
@@ -2537,5 +2563,156 @@ public class Record implements Component {
 	 */
 	public boolean getOkToCache() {
 		return this.listFieldName != null && this.okToCacheList;
+	}
+
+	/**
+	 *
+	 * @return this record is data object if any of its field is non-primitive
+	 */
+	public boolean isComplexStruct() {
+		return this.isComplexStruct;
+	}
+
+	/**
+	 * Create an array of struct from json that is suitable to be used as a
+	 * stored procedure parameter
+	 *
+	 * @param array
+	 * @param con
+	 * @param ctx
+	 * @param sqlTypeName
+	 * @return Array object suitable to be assigned to the callable statement
+	 * @throws SQLException
+	 */
+	public Array createStructArrayForSp(JSONArray array, Connection con,
+			ServiceContext ctx, String sqlTypeName) throws SQLException {
+		int nbr = array.length();
+		Struct[] structs = new Struct[nbr];
+		for (int i = 0; i < structs.length; i++) {
+			Object childObject = array.get(i);
+			if (childObject == null) {
+				continue;
+			}
+			if (childObject instanceof JSONObject == false) {
+				ctx.addMessage(
+						Messages.INVALID_VALUE,
+						"Invalid input data structure. we were expecting an object inside the array but got "
+								+ childObject.getClass().getSimpleName());
+				return null;
+			}
+			structs[i] = this.createStructForSp((JSONObject) childObject, con,
+					ctx, null);
+
+		}
+		return DbDriver.createStructArray(con, structs, sqlTypeName);
+	}
+
+	/**
+	 * extract data as per data structure from json
+	 *
+	 * @param json
+	 * @param ctx
+	 * @param con
+	 * @param sqlTypeName
+	 * @return a struct that can be set as parameter to a stored procedure
+	 *         parameter
+	 * @throws SQLException
+	 */
+	public Struct createStructForSp(JSONObject json, Connection con,
+			ServiceContext ctx, String sqlTypeName) throws SQLException {
+		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
+		int nbrFields = this.fields.length;
+		Object[] data = new Object[nbrFields];
+		for (int i = 0; i < this.fields.length; i++) {
+			Field field = this.fields[i];
+			Object obj = json.opt(field.name);
+			if (obj == null) {
+				Tracer.trace("No value for attriute " + field.name);
+				continue;
+			}
+			/*
+			 * array of values
+			 */
+			if (field.fieldType == FieldType.VALUE_ARRAY) {
+				if (obj instanceof JSONArray == false) {
+					errors.add(new FormattedMessage(Messages.INVALID_DATA,
+							"Input value for parameter. " + field.name
+									+ " is expected to be an array of values."));
+					continue;
+				}
+				Value[] arr = field.parseArray(
+						JsonUtil.toObjectArray((JSONArray) obj), errors,
+						this.name);
+				data[i] = DbDriver.createArray(con, arr, field.sqlTypeName);
+				continue;
+			}
+
+			/*
+			 * struct (record or object)
+			 */
+			if (field.fieldType == FieldType.RECORD) {
+				if (obj instanceof JSONObject == false) {
+					errors.add(new FormattedMessage(Messages.INVALID_DATA,
+							"Input value for parameter. " + field.name
+									+ " is expected to be an objects."));
+					continue;
+				}
+				Record childRecord = ComponentManager
+						.getRecord(field.referredRecord);
+				data[i] = childRecord.createStructForSp((JSONObject) obj, con,
+						ctx, field.sqlTypeName);
+				continue;
+			}
+
+			/*
+			 * array of struct
+			 */
+			if (field.fieldType == FieldType.RECORD_ARRAY) {
+				if (obj instanceof JSONArray == false) {
+					errors.add(new FormattedMessage(Messages.INVALID_DATA,
+							"Input value for parameter. " + field.name
+									+ " is expected to be an array of objects."));
+					continue;
+				}
+				Record childRecord = ComponentManager
+						.getRecord(field.referredRecord);
+				data[i] = childRecord.createStructArrayForSp((JSONArray) obj,
+						con, ctx, field.sqlTypeName);
+				continue;
+			}
+			/*
+			 * simple value
+			 */
+			Value value = field.parseObject(obj, errors, false, this.name);
+			if (value != null) {
+				data[i] = value.toObject();
+			}
+		}
+		/*
+		 * did we get into trouble?
+		 */
+		if (errors.size() > 0) {
+			ctx.addMessages(errors);
+			return null;
+		}
+		String nameToUse = sqlTypeName;
+		if (nameToUse == null) {
+			nameToUse = this.sqlStructName;
+		}
+		return DbDriver.createStruct(con, data, nameToUse);
+	}
+
+	/**
+	 * @param ctx
+	 * @return an array of values for al fields in this record extracted from
+	 *         ctx
+	 */
+	public Value[] getData(ServiceContext ctx) {
+		Value[] result = new Value[this.fields.length];
+		for (int i = 0; i < this.fields.length; i++) {
+			Field field = this.fields[i];
+			result[i] = ctx.getValue(field.name);
+		}
+		return result;
 	}
 }

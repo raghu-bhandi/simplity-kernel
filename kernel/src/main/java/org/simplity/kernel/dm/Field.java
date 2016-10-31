@@ -154,16 +154,19 @@ public class Field {
 	 * label to be used for rendering this field
 	 */
 	String label;
-	/**
-	 * function to be used while rendering this field. Defaults from data type
-	 */
-	String formatter;
 
 	/**
 	 * description is used as help text or validation text
 	 */
 	String description;
 
+	/**
+	 * if this field maps to a non-primitive type, then we need to know the name
+	 * by which this is defined in the rdbms for us to use this as a parameter
+	 * for stored procedure. If this field is an array of struct, then set this
+	 * to the name used by rdbms for the array of struct.
+	 */
+	String sqlTypeName;
 	// Map<String, String> pageFieldAttributes = new HashMap<String, String>();
 	/*
 	 * fields that are cached for performance
@@ -400,6 +403,46 @@ public class Field {
 	}
 
 	/**
+	 * parse object as input for this field.
+	 *
+	 * @param values
+	 *
+	 * @param errors
+	 * @param recordName
+	 * @return parsed and validated value. Null if there is no value. Any
+	 *         validation error is added to errors
+	 */
+	public Value[] parseArray(Object[] values, List<FormattedMessage> errors,
+			String recordName) {
+
+		if (values == null || values.length == 0) {
+			if (this.isRequired) {
+				errors.add(new FormattedMessage(Messages.VALUE_REQUIRED,
+						recordName, this.name, null, 0));
+			}
+			return null;
+		}
+		Value[] result = new Value[values.length];
+		for (int i = 0; i < values.length; i++) {
+			Object val = values[i];
+			if (val == null) {
+				continue;
+			}
+			Value value = Value.parseObject(val);
+			if (value != null) {
+				value = this.dataTypeObject.validateValue(value);
+				if (value == null) {
+					errors.add(new FormattedMessage(Messages.INVALID_VALUE,
+							recordName, this.name, null, 0, val.toString()));
+					continue;
+				}
+				result[i] = value;
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * carry out inter-field validations for this field
 	 *
 	 * @param fields
@@ -513,34 +556,44 @@ public class Field {
 		 * referred field. Note that both referredField and referredRecord are
 		 * optional, and we have to use default values
 		 */
-		Record ref = defRecord;
-		if (this.referredRecord != null) {
-			ref = parentRecord.getRefRecord(this.referredRecord);
-		}
-		if (ref != null && this.fieldType != FieldType.TEMP) {
-			if (this.referredRecord == null) {
-				this.referredRecord = ref.getQualifiedName();
+		if (this.fieldType != FieldType.RECORD
+				&& this.fieldType != FieldType.RECORD_ARRAY) {
+			Record ref = defRecord;
+			if (this.referredRecord != null) {
+				ref = parentRecord.getRefRecord(this.referredRecord);
 			}
-			if (this.referredField == null) {
-				this.referredField = this.name;
+			if (ref != null && this.fieldType != FieldType.TEMP) {
+				if (this.referredRecord == null) {
+					this.referredRecord = ref.getQualifiedName();
+				}
+				if (this.referredField == null) {
+					this.referredField = this.name;
+				}
+				this.referredFieldCached = ref.getField(this.referredField);
+				if (this.referredFieldCached == null) {
+					throw new ApplicationError(
+							"Field "
+									+ this.name
+									+ " in record "
+									+ parentRecord.getQualifiedName()
+									+ " refers to field "
+									+ this.referredField
+									+ " of record "
+									+ this.referredRecord
+									+ ". Refferred field is not found in the referred record.");
+				}
+				this.copyFromRefField();
 			}
-			this.referredFieldCached = ref.getField(this.referredField);
-			if (this.referredFieldCached == null) {
-				throw new ApplicationError(
-						"Field "
-								+ this.name
-								+ " in record "
-								+ parentRecord.getQualifiedName()
-								+ " refers to field "
-								+ this.referredField
-								+ " of record "
-								+ this.referredRecord
-								+ ". Refferred field is not found in the referred record.");
-			}
-			this.copyFromRefField();
 		}
 		if (this.columnName == null) {
 			this.columnName = this.name;
+		}
+
+		if (this.requiresDataType() == false) {
+			/*
+			 * for safety, we keep a text data type
+			 */
+			this.dataType = DataType.DEFAULT_TEXT;
 		}
 		if (this.dataType == null) {
 			throw new ApplicationError(
@@ -548,8 +601,8 @@ public class Field {
 							+ this.name
 							+ " is not associated with any data type. Please specify dataType attribute, or associate this panel with the right record.");
 		}
-
 		this.dataTypeObject = ComponentManager.getDataType(this.dataType);
+
 		this.hasInterFieldValidations = this.fromField != null
 				|| this.toField != null || this.otherField != null
 				|| this.basedOnField != null;
@@ -564,9 +617,6 @@ public class Field {
 						+ " has an invalid default value of "
 						+ this.defaultValue);
 			}
-		}
-		if (this.formatter == null) {
-			this.formatter = this.dataTypeObject.getFormatter();
 		}
 		/*
 		 * parse value list
@@ -612,22 +662,6 @@ public class Field {
 				|| this.fieldType == FieldType.CREATED_BY_USER;
 
 		/*
-		 * display attributes disabled for the time being
-		 */
-		// String disp = this.pageFieldAttributes.get(DISPLAY_TYPE);
-		// if (disp != null) {
-		// this.displayType = FieldDisplayType.valueOf(disp.toUpperCase());
-		// } else {
-		// /*
-		// * golden rule. generated keys and standard fields
-		// */
-		// if (this.doNotShow) {
-		// this.displayType = FieldDisplayType.HIDDEN;
-		// } else {
-		// this.displayType = FieldDisplayType.INPUT;
-		// }
-		// }
-		/*
 		 * some standard fields are optional
 		 */
 		if (this.isRequired) {
@@ -637,44 +671,6 @@ public class Field {
 				this.isRequired = false;
 			}
 		}
-
-		/*
-		 * one very convenient intelligent setting for list service
-		 */
-		// if (this.fieldType == FieldType.FOREIGN_KEY &&
-		// this.pageFieldAttributes.containsKey(LIST_SERVICE_ID) == false) {
-		// Record fr = parentRecord.getRefRecord(this.referredRecord);
-		// if (fr.valueListFieldName != null) {
-		// /*
-		// * it is set for an auto-list service. Watch-out. This will fail
-		// * if key is also required
-		// */
-		// if (fr.valueListKeyName == null) {
-		// this.pageFieldAttributes.put(LIST_SERVICE_ID, "list_" +
-		// this.referredRecord);
-		// this.pageFieldAttributes.put("sameListForAllRows", "true");
-		// } else {
-		// Field keyField = parentRecord.getField(fr.valueListKeyName);
-		// if (keyField != null) {
-		// /*
-		// * we are stuck with panel name being unknown. we will
-		// * refine our design in the future to make this possible
-		// */
-		// // this.pageFieldAttributes.put(LIST_SERVICE_ID, "list_"
-		// // + this.referredRecord);
-		// // this.pageFieldAttributes.put("noAutoLoad", "true");
-		// // this.pageFieldAttributes.put("keyFieldName",
-		// // "$panelName." + fr.valueListKeyName);
-		// // keyField.pageFieldAttributes.put("dependentSelectionField",
-		// // "$panelName." + this.name);
-		//
-		// }
-		// }
-		// } else if (fr.suggestionKeyName != null) {
-		// this.pageFieldAttributes.put("suggestionServiceId", "suggest_" +
-		// this.referredRecord);
-		// }
-		// }
 	}
 
 	/**
@@ -705,27 +701,6 @@ public class Field {
 	public FieldDisplayType getDisplayType() {
 		return this.displayType;
 	}
-
-	/**
-	 *
-	 * @param pageField
-	 */
-	/*
-	 * page utility is de-linked
-	 */
-	// public void setDisplayAttributes(PageField pageField) {
-	// if (this.valueList != null) {
-	// ReflectUtil.setAttribute(pageField, "valueList", this.valueList, true);
-	// }
-	// if (this.pageFieldAttributes == null) {
-	// return;
-	// }
-	// for (Map.Entry<String, String> entry :
-	// this.pageFieldAttributes.entrySet()) {
-	// ReflectUtil.setAttribute(pageField, entry.getKey(), entry.getValue(),
-	// true);
-	// }
-	// }
 
 	/**
 	 * @return
@@ -837,22 +812,9 @@ public class Field {
 		if (this.referredRecord != null) {
 			ctx.addReference(ComponentType.REC, this.referredRecord);
 		}
-		if (this.dataType != null) {
-			ctx.addReference(ComponentType.DT, this.dataType);
-		}
 		if (this.name == null) {
 			ctx.addError("Field name is required");
 			count++;
-		}
-		try {
-			DataType dt = ComponentManager.getDataTypeOrNull(this.dataType);
-			if (dt == null) {
-				ctx.addError("field " + this.name
-						+ " has an invalid data type of " + this.dataType);
-				count++;
-			}
-		} catch (Exception e) {
-			// means that the dt exists but it has errors while getting ready()
 		}
 		/*
 		 * add referred fields
@@ -869,6 +831,64 @@ public class Field {
 		if (this.basedOnField != null) {
 			referredFields.add(this.fromField);
 		}
+
+		if (this.requiresDataType()) {
+			if (this.dataType != null) {
+				ctx.addReference(ComponentType.DT, this.dataType);
+			}
+			try {
+				DataType dt = ComponentManager.getDataTypeOrNull(this.dataType);
+				if (dt == null) {
+					ctx.addError("field " + this.name
+							+ " has an invalid data type of " + this.dataType);
+					count++;
+				}
+			} catch (Exception e) {
+				// means that the dt exists but it has errors while getting
+				// ready()
+			}
+			if (this.fieldType == FieldType.VALUE_ARRAY
+					&& this.sqlTypeName == null) {
+				ctx.addError("field "
+						+ this.name
+						+ " is an array of values. sqlTypeName is mandatory for this field");
+				count++;
+			}
+			return count;
+		}
+		/*
+		 * this field refers to a child-record
+		 */
+		if (this.sqlTypeName == null) {
+			ctx.addError("field "
+					+ this.name
+					+ " represents a child-record and hence sqlTypeName is mandatory for this field");
+			count++;
+		}
+		if (this.referredRecord == null) {
+			ctx.addError("field "
+					+ this.name
+					+ " represents a child-record, but referred record is not specified.");
+			count++;
+		}
+		/*
+		 * also, this record has to be a data structure
+		 */
+		if (record.recordType != RecordUsageType.STRUCTURE) {
+			ctx.addError("field "
+					+ this.name
+					+ " represents a child-record, but this record is not a data structure. child-record is valid only for data structures.");
+			count++;
+		}
+		if (this.fieldType == FieldType.RECORD_ARRAY
+				&& record.sqlStructName == null) {
+			ctx.addError("field "
+					+ this.name
+					+ " represents an array of child record "
+					+ this.referredRecord
+					+ ". But that child record has not defined a value for sqlStructName.");
+			count++;
+		}
 		return count;
 	}
 
@@ -881,5 +901,15 @@ public class Field {
 			return this.columnName;
 		}
 		return this.name;
+	}
+
+	/**
+	 * some field types may not require a data type. Like child-record.
+	 *
+	 * @return true if data type is mandatory for this field, false otherwise
+	 */
+	public boolean requiresDataType() {
+		return this.fieldType != FieldType.RECORD
+				&& this.fieldType != FieldType.RECORD_ARRAY;
 	}
 }

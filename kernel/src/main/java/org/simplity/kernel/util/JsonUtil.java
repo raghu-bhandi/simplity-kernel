@@ -175,7 +175,7 @@ public class JsonUtil {
 		/*
 		 * arr corresponds to following json. We are to accumulate child rows
 		 * across all main rows
-		 *
+		 * 
 		 * [...,"attName"=[{},{}....],..],[....,"attName"=[{},{}.... ],..]....
 		 */
 		Field[] inputFields = fields;
@@ -348,8 +348,8 @@ public class JsonUtil {
 				if (value == null) {
 					errors.add(new FormattedMessage(Messages.INVALID_VALUE,
 							null, field.getName(), null, 0, '\''
-							+ val.toString() + "' is not a valid "
-							+ field.getValueType()));
+									+ val.toString() + "' is not a valid "
+									+ field.getValueType()));
 					continue;
 				}
 			}
@@ -718,6 +718,31 @@ public class JsonUtil {
 			lastChar = c;
 		}
 		json.append('"');
+	}
 
+	/**
+	 * convert a JSON array to array of primitive objects.
+	 *
+	 * @param array
+	 *            json Array
+	 * @return array of primitives, or null in case any of the array element is
+	 *         not primitive
+	 */
+	public static Object[] toObjectArray(JSONArray array) {
+		Object[] result = new Object[array.length()];
+		for (int i = 0; i < result.length; i++) {
+			Object obj = array.get(i);
+			if (obj == null) {
+				continue;
+			}
+			if (obj instanceof JSONObject || obj instanceof JSONArray) {
+				Tracer.trace("Element no (zero based) "
+						+ i
+						+ " is not a primitive, and hence unable to convert the JSONArray into an array of primtitives");
+				return null;
+			}
+			result[i] = obj;
+		}
+		return result;
 	}
 }
