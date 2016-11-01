@@ -276,242 +276,6 @@
 						>
 							<xs:element name="field">
 								<xs:complexType>
-									<xs:sequence
-										minOccurs="0"
-										maxOccurs="1"
-									>
-										<xs:element
-											name="pageFieldAttributes"
-											minOccurs="0"
-											maxOccurs="1"
-										>
-											<xs:complexType>
-												<xs:attribute
-													name="displayType"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation>How do you want to display this field on
-															a page
-														</xs:documentation>
-													</xs:annotation>
-													<xs:simpleType>
-														<xs:restriction base="xs:NCName">
-															<xs:enumeration value="hidden" />
-															<xs:enumeration value="input" />
-															<xs:enumeration value="output" />
-														</xs:restriction>
-													</xs:simpleType>
-												</xs:attribute>
-												<xs:attribute
-													name="listServiceId"
-													type="xs:NCName"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation>list service if this a drop-down
-														</xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="listServiceFields"
-													type="xs:string"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation>field values to be sent along with list
-															service request
-														</xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="nbrCharsToShowSuggestions"
-													type="xs:int"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation>If suggestions are to be shown for this
-															fields, specify the number of characters user has to type
-															before fetching suggestions from server. Note that 0 does
-															not make sense, because, in that case, you should be able
-															to make it a listService
-														</xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="descriptionServiceName"
-													type="xs:NCName"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation>description service name to be triggered
-															on this field
-														</xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="descriptionServiceFields"
-													type="xs:string"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation>field values to be sent along with
-															description service request
-														</xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="formatter"
-													type="xs:NCName"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation>name of formatter to be used when this
-															field value is to be output on a page/report. Like
-															amt,usd,inr2 etc.. that you woudl have defined in your
-															project
-														</xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="blankOption"
-													type="xs:string"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="basedOnFieldValue"
-													type="xs:string"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="codePickerSrc"
-													type="xs:string"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="doNotValidate"
-													type="booleanType"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="isUniqueField"
-													type="booleanType"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="keyValue"
-													type="xs:string"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="onChangeActionName"
-													type="xs:NCName"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="onFocusActionName"
-													type="xs:NCName"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="onBlurActionName"
-													type="xs:NCName"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="noAutoLoad"
-													type="booleanType"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="selectFirstOption"
-													type="booleanType"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="toBeSentToServer"
-													type="booleanType"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="matchStartingChars"
-													type="booleanType"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="validateOnlyOnUserChange"
-													type="booleanType"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:attribute
-													name="supressDescOnLoad"
-													type="booleanType"
-													use="optional"
-												>
-													<xs:annotation>
-														<xs:documentation></xs:documentation>
-													</xs:annotation>
-												</xs:attribute>
-												<xs:anyAttribute processContents="lax" />
-											</xs:complexType>
-										</xs:element>
-									</xs:sequence>
 									<xs:attribute
 										name="name"
 										type="xs:NCName"
@@ -541,6 +305,9 @@
 												<xs:enumeration value="modifiedByUser" />
 												<xs:enumeration value="view" />
 												<xs:enumeration value="temp" />
+												<xs:enumeration value="valueArray" />
+												<xs:enumeration value="record" />
+												<xs:enumeration value="recordArray" />
 											</xs:restriction>
 										</xs:simpleType>
 									</xs:attribute>
@@ -612,6 +379,20 @@
 										name="description"
 										type="xs:string"
 										use="optional" />
+									<xs:attribute
+										name="sqlTypeName"
+										type="xs:string"
+										use="optional"
+									>
+										<xs:annotation>
+											<xs:documentation>Mandatory if fieldType is one of
+												valueArray, record or recordArray. This is the name of the
+												data structure defined in the rdbms that this field
+												corresponds to
+											</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
+
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
@@ -648,14 +429,6 @@
 				type="xs:boolean"
 				use="optional" />
 			<xs:attribute
-				name="okToSelectAll"
-				type="xs:boolean"
-				use="optional" />
-			<xs:attribute
-				name="readOnly"
-				type="xs:boolean"
-				use="optional" />
-			<xs:attribute
 				name="sequenceName"
 				type="xs:string"
 				use="optional"
@@ -666,6 +439,14 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="okToSelectAll"
+				type="xs:boolean"
+				use="optional" />
+			<xs:attribute
+				name="readOnly"
+				type="xs:boolean"
+				use="optional" />
 			<xs:attribute
 				name="childrenToBeSaved"
 				type="xs:string"
@@ -809,6 +590,18 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="sqlStructName"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>Name used by the rdbms to define a structure that
+						this record corresponds to. Mandatory if this record is used as
+						child-record by another field in a complex data structure.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 
@@ -856,13 +649,18 @@
 	<!-- Stored procedure -->
 	<xs:element name="storedProcedure">
 		<xs:complexType>
-			<xs:choice>
+			<xs:sequence minOccurs="0" maxOccurs="1">
 				<xs:element
 					name="parameters"
-					type="procedureParameters"
 					minOccurs="0"
-					maxOccurs="1" />
-			</xs:choice>
+					maxOccurs="1" >
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="procedureParameter" type="procedureParameter" minOccurs="1" maxOccurs="unbounded" />
+						</xs:sequence>
+					</xs:complexType>
+					</xs:element>
+			</xs:sequence>
 			<xs:attribute
 				name="name"
 				type="xs:NCName"
@@ -962,16 +760,6 @@
 			use="optional" />
 	</xs:complexType>
 
-	<xs:complexType name="procedureParameters">
-		<xs:sequence
-			minOccurs="1"
-			maxOccurs="unbounded"
-		>
-			<xs:element
-				name="procedureParameter"
-				type="procedureParameter" />
-		</xs:sequence>
-	</xs:complexType>
 	<xs:complexType name="procedureParameter">
 		<xs:attribute
 			name="name"
@@ -1755,6 +1543,45 @@
 		</xs:attribute>
 	</xs:complexType>
 
+	<xs:complexType name="addMessage">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="messageName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>qualified message name from defined messages.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="parameters"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>comma separated list of values, if message is
+					parameterised. value starting with $, like $customerName implies
+					that the value is to be picked up at run time from that field.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="stopIfMessageTypeIsError"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>if the message type of the message is ERROR,
+					should we stop/end this service. Normally you end the service, but
+					in case you are accumulating validaiton errors, you may want to
+					continue.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
 	<xs:complexType name="copyRows">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1782,6 +1609,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:complexType name="copyUserId">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1795,6 +1623,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:complexType name="createSheet">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1839,7 +1668,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 
 	<xs:complexType name="executeSp">
 		<xs:attributeGroup ref="dbActionAttributes" />
@@ -1954,6 +1782,33 @@
 			use="required" />
 	</xs:complexType>
 
+	<xs:complexType name="log">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="names"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Comma separated list of names of fields and sheets
+					whose values are to be logged at this stage.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="keyValueList">
+		<xs:attributeGroup ref="dbActionAttributes" />
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="outputSheetName"
+			type="xs:NCName"
+			use="optional" />
+	</xs:complexType>
+
 	<xs:complexType name="logic">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2003,6 +1858,22 @@
 			use="optional" />
 	</xs:complexType>
 
+	<xs:complexType name="readChildren">
+		<xs:attributeGroup ref="dbActionAttributes" />
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="outputSheetName"
+			type="xs:NCName"
+			use="optional" />
+		<xs:attribute
+			name="parentKeyFieldName"
+			type="xs:NCName"
+			use="optional" />
+	</xs:complexType>
+
 	<xs:complexType name="readWithSql">
 		<xs:sequence>
 			<xs:element
@@ -2023,7 +1894,7 @@
 		<xs:attribute
 			name="outputSheetName"
 			type="xs:NCName"
-			use="required" />
+			use="optional" />
 	</xs:complexType>
 
 	<xs:complexType name="renameSheet">
@@ -2036,6 +1907,30 @@
 			name="newSheetName"
 			type="xs:string"
 			use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="rowExists">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="fieldName"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>if you wnat to use a key field name different from
+					the one defined in the record.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>record to check the row</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="save">
@@ -2130,34 +2025,21 @@
 			<xs:annotation>
 				<xs:documentation>
 					use either a constant, or a $fieldName as value of
-					the field. I fyou
-					use this, you should not specify expression.
+					the field. I fyou use this, you should not specify expression.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
 
-
-	<xs:complexType name="rowExists">
+	<xs:complexType name="subService">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
-			name="fieldName"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>if you wnat to use a key field name different from
-					the one defined in the record.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="recordName"
+			name="serviceName"
 			type="xs:string"
 			use="required"
 		>
 			<xs:annotation>
-				<xs:documentation>record to check the row</xs:documentation>
+				<xs:documentation>Fully qualified service name</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
@@ -2179,8 +2061,10 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>Fied to filter on. defaults to what is secified in
-					record.
+				<xs:documentation>Field to filter on. defaults to what is specified
+					in record. default is to match anywhere. If you want to match
+					starting only, then a special field named _matchStarting can be set
+					to true.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2192,102 +2076,6 @@
 			<xs:annotation>
 				<xs:documentation>Name of the output data sheet. If not specified,
 					it defaults to the name as specified in record.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="subService">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="serviceName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Fully qualified service name</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-	<xs:complexType name="log">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="names"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Comma separated list of names of fields and sheets
-					whose values are to be logged at this stage.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-	
-	<xs:complexType name="readChildren">
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="outputSheetName"
-			type="xs:NCName"
-			use="optional" />
-		<xs:attribute
-			name="parentKeyFieldName"
-			type="xs:NCName"
-			use="optional" />
-	</xs:complexType>
-
-	
-	<xs:complexType name="keyValueList">
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="outputSheetName"
-			type="xs:NCName"
-			use="optional" />
-	</xs:complexType>
-
-
-	<xs:complexType name="addMessage">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="messageName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>qualified message name from defined messages.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="parameters"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>comma separated list of values, if message is
-					parameterised. value starting with $, like $customerName implies
-					that the value is to be picked up at run time from that field.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="stopIfMessageTypeIsError"
-			type="booleanType"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>if the message type of the message is ERROR,
-					should we stop/end this service. Normally you end the service, but
-					in case you are accumulating validaiton errors, you may want to
-					continue.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
