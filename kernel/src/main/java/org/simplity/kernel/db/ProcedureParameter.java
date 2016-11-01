@@ -121,6 +121,10 @@ public class ProcedureParameter {
 	 * @param posn
 	 */
 	void getReady(int posn) {
+		if (this.name == null) {
+			throw new ApplicationError(
+					"Procedure parameter has an identity crisis. No name is given to it!!");
+		}
 		this.myPosn = posn;
 		if (this.recordName == null) {
 			if (this.dataType == null) {
@@ -408,17 +412,29 @@ public class ProcedureParameter {
 			return;
 		}
 		Object object = stmt.getObject(this.myPosn);
-		DataSheet ds;
-		if (this.isArray) {
-			if (this.recordName == null) {
-				ds = this.arrayToDs(object);
-			} else {
-				ds = this.structsToDs(object);
-			}
-		} else {
-			ds = this.StructToDs(object);
+		/*
+		 * array of primitives
+		 */
+		if (this.recordName == null) {
+			ctx.putDataSheet(this.name, this.arrayToDs(object));
+			return;
 		}
-		ctx.putDataSheet(this.name, ds);
+
+		Record record = ComponentManager.getRecord(this.recordName);
+
+		if (record.isComplexStruct()) {
+			/*
+			 * our current design is to put this object in ctx. outputRecord
+			 * will take care of that
+			 */
+			ctx.setObject(this.name, object);
+			return;
+		}
+		if (this.isArray) {
+			ctx.putDataSheet(this.name, this.structsToDs(object));
+			return;
+		}
+		ctx.putDataSheet(this.name, this.structToDs(object));
 	}
 
 	/**
@@ -428,7 +444,7 @@ public class ProcedureParameter {
 	 * @return
 	 * @throws SQLException
 	 */
-	private DataSheet StructToDs(Object dbObject) throws SQLException {
+	private DataSheet structToDs(Object dbObject) throws SQLException {
 		/*
 		 * struct is extracted into a data sheet with just one row
 		 */
@@ -438,6 +454,28 @@ public class ProcedureParameter {
 		Struct struct = (Struct) dbObject;
 		Value[] row = this.getRowFromStruct(struct.getAttributes(), types);
 		ds.addRow(row);
+		return ds;
+	}
+
+	/**
+	 * create a data sheet out of an array of structs
+	 *
+	 * @param objectData
+	 *            that is received from db converted into array of array of
+	 *            objects
+	 * @return data sheet into which data from the db object is extracted
+	 * @throws SQLException
+	 */
+	private DataSheet structsToDs(Object dbObject) throws SQLException {
+		DataSheet ds = ComponentManager.getRecord(this.recordName).createSheet(
+				false, false);
+		ValueType[] types = ds.getValueTypes();
+		Object[] arr = (Object[]) ((Array) dbObject).getArray();
+		for (Object struct : arr) {
+			Object[] rowData = ((Struct) struct).getAttributes();
+			Value[] row = this.getRowFromStruct(rowData, types);
+			ds.addRow(row);
+		}
 		return ds;
 	}
 
@@ -475,28 +513,6 @@ public class ProcedureParameter {
 		String[] columnNames = { this.name };
 		Value[][] columnValues = { values };
 		return new MultiRowsSheet(columnNames, columnValues);
-	}
-
-	/**
-	 * create a data sheet out of an array of structs
-	 *
-	 * @param objectData
-	 *            that is received from db converted into array of array of
-	 *            objects
-	 * @return data sheet into which data from the db object is extracted
-	 * @throws SQLException
-	 */
-	private DataSheet structsToDs(Object dbObject) throws SQLException {
-		DataSheet ds = ComponentManager.getRecord(this.recordName).createSheet(
-				false, false);
-		ValueType[] types = ds.getValueTypes();
-		Object[] arr = (Object[]) ((Array) dbObject).getArray();
-		for (Object struct : arr) {
-			Object[] rowData = ((Struct) struct).getAttributes();
-			Value[] row = this.getRowFromStruct(rowData, types);
-			ds.addRow(row);
-		}
-		return ds;
 	}
 
 	/**

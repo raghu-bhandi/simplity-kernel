@@ -33,7 +33,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.simplity.json.JSONArray;
+import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
@@ -629,7 +631,7 @@ public class Record implements Component {
 				if (otherValue == null || otherValue.isUnknown()) {
 					throw new ApplicationError(
 							"To value not supplied for fied " + this.name
-									+ " for filtering");
+							+ " for filtering");
 				}
 				sql.append(" AND ?");
 				filterValues.add(otherValue);
@@ -1336,17 +1338,17 @@ public class Record implements Component {
 					update.append(Record.COMMA);
 				}
 				update.append(field.columnName).append(Record.EQUAL)
-						.append(Record.PARAM);
+				.append(Record.PARAM);
 				values[valueIdx++] = value;
 			}
 		}
 		update.append(" WHERE ").append(this.primaryKeyField.columnName)
-				.append(Record.EQUAL).append(Record.PARAM);
+		.append(Record.EQUAL).append(Record.PARAM);
 		values[valueIdx++] = inData.getValue(this.primaryKeyField.name);
 
 		if (this.modifiedStampField != null) {
 			update.append(" AND ").append(this.modifiedStampField.columnName)
-					.append(Record.EQUAL).append(Record.PARAM);
+			.append(Record.EQUAL).append(Record.PARAM);
 			values[valueIdx++] = inData.getValue(this.modifiedStampField.name);
 		}
 		/*
@@ -1417,11 +1419,11 @@ public class Record implements Component {
 		Tracer.trace("There are " + n + " rows in parent sheet. column "
 				+ keyName + " has " + values.length
 				+ " values with first value=" + values[0]
-				+ ". We are going to read child rows for them using record "
-				+ this.name);
+						+ ". We are going to read child rows for them using record "
+						+ this.name);
 		/*
 		 * for single key we use where key = ?
-		 * 
+		 *
 		 * for multiple, we use where key in (?,?,....)
 		 */
 		if (n == 1) {
@@ -1466,30 +1468,30 @@ public class Record implements Component {
 	 * we will track this during getReady() invocation. getReady() will ask for
 	 * a referred record. That record will execute getReady() before returning.
 	 * It may ask for another record, so an and so forth.
-	 * 
+	 *
 	 * There are two ways to solve this problem.
-	 * 
+	 *
 	 * One way is to differentiate between normal-request and reference-request
 	 * for a record. Pass history during reference request so that we can detect
 	 * circular reference. Issue with this is that getRequest() is a generic
 	 * method and hence we can not customize it.
-	 * 
+	 *
 	 * Other approach is to use thread-local that is initiated by getReady().
-	 * 
+	 *
 	 * our algorithm is :
-	 * 
+	 *
 	 * 1. we initiate refHistory before getReady() and current record to
 	 * pendingOnes.
-	 * 
+	 *
 	 * 2. A referred field may invoke parent.getRefrecord() Referred record is
 	 * requested from ComponentManager.getRecord();
-	 * 
+	 *
 	 * 3. that call will trigger getReady() on the referred record. This chain
 	 * will go-on..
-	 * 
+	 *
 	 * 4. before adding to pending list we check if it already exists. That
 	 * would be a circular reference.
-	 * 
+	 *
 	 * 5. Once we complete getReady(), we remove this record from pendingOnes.
 	 * And if there no more pending ones, we remove it. and that completes the
 	 * check.
@@ -1540,15 +1542,15 @@ public class Record implements Component {
 			StringBuilder sbf = new StringBuilder();
 			if (recordName.equals(this.getQualifiedName())) {
 				sbf.append("Record ")
-						.append(recordName)
-						.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
+				.append(recordName)
+				.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
 			} else {
 				sbf.append("There is a circular reference of records amongst the following records. Please review and fix.\n{\n");
 				int nbr = history.pendingOnes.size();
 				for (int i = 0; i < nbr; i++) {
 
 					sbf.append(i).append(": ")
-							.append(history.pendingOnes.get(i)).append('\n');
+					.append(history.pendingOnes.get(i)).append('\n');
 				}
 				sbf.append(nbr).append(": ").append(recordName).append('\n');
 				sbf.append('}');
@@ -1583,15 +1585,15 @@ public class Record implements Component {
 		StringBuilder sbf = new StringBuilder();
 		if (history.pendingOnes.size() == 1) {
 			sbf.append("Record ")
-					.append(recName)
-					.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
+			.append(recName)
+			.append(" has at least one field that refers to another field in this record itself. Sorry, you can't do that.");
 		} else {
 			sbf.append("There is a circular reference of records amongst the following records. Please review and fix.\n{\n");
 			int nbr = history.pendingOnes.size();
 			for (int i = 0; i < nbr; i++) {
 
 				sbf.append(i).append(". ").append(history.pendingOnes.get(i))
-						.append('\n');
+				.append('\n');
 			}
 			sbf.append(nbr).append(". ").append(recName).append('\n');
 			sbf.append('}');
@@ -1831,12 +1833,12 @@ public class Record implements Component {
 		if (this.primaryKeyField != null) {
 			StringBuilder where = new StringBuilder(" WHERE ");
 			where.append(this.primaryKeyField.columnName).append(Record.EQUAL)
-					.append(Record.PARAM);
+			.append(Record.PARAM);
 
 			if (this.useTimestampForConcurrency) {
 				where.append(" AND ")
-						.append(this.modifiedStampField.columnName)
-						.append("=?");
+				.append(this.modifiedStampField.columnName)
+				.append("=?");
 			}
 			this.deleteSql = "DELETE FROM " + this.tableName + where;
 			this.updateSql = update.append(where).toString();
@@ -1858,7 +1860,7 @@ public class Record implements Component {
 				select.append(Record.COMMA);
 			}
 			select.append(field.columnName).append(" \"").append(field.name)
-					.append('"');
+			.append('"');
 		}
 		select.append(" FROM ").append(this.tableName).append(" WHERE ");
 		this.filterSql = select.toString();
@@ -1886,7 +1888,7 @@ public class Record implements Component {
 			this.valueListTypes[0] = field.getValueType();
 		}
 		sbf.append(field.columnName).append(" value from ")
-				.append(this.tableName);
+		.append(this.tableName);
 		if (this.listGroupKeyName != null) {
 			field = this.getField(this.listGroupKeyName);
 			if (field == null) {
@@ -1924,7 +1926,7 @@ public class Record implements Component {
 		}
 		sbf.setLength(sbf.length() - 1);
 		sbf.append(" from ").append(this.tableName).append(" WHERE ")
-				.append(field.columnName).append(" LIKE ?");
+		.append(field.columnName).append(" LIKE ?");
 		this.suggestSql = sbf.toString();
 	}
 
@@ -2341,7 +2343,7 @@ public class Record implements Component {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
 	 * ValidationContext)
@@ -2627,7 +2629,7 @@ public class Record implements Component {
 			Field field = this.fields[i];
 			Object obj = json.opt(field.name);
 			if (obj == null) {
-				Tracer.trace("No value for attriute " + field.name);
+				Tracer.trace("No value for attribute " + field.name);
 				continue;
 			}
 			/*
@@ -2637,7 +2639,7 @@ public class Record implements Component {
 				if (obj instanceof JSONArray == false) {
 					errors.add(new FormattedMessage(Messages.INVALID_DATA,
 							"Input value for parameter. " + field.name
-									+ " is expected to be an array of values."));
+							+ " is expected to be an array of values."));
 					continue;
 				}
 				Value[] arr = field.parseArray(
@@ -2654,7 +2656,7 @@ public class Record implements Component {
 				if (obj instanceof JSONObject == false) {
 					errors.add(new FormattedMessage(Messages.INVALID_DATA,
 							"Input value for parameter. " + field.name
-									+ " is expected to be an objects."));
+							+ " is expected to be an objects."));
 					continue;
 				}
 				Record childRecord = ComponentManager
@@ -2671,7 +2673,7 @@ public class Record implements Component {
 				if (obj instanceof JSONArray == false) {
 					errors.add(new FormattedMessage(Messages.INVALID_DATA,
 							"Input value for parameter. " + field.name
-									+ " is expected to be an array of objects."));
+							+ " is expected to be an array of objects."));
 					continue;
 				}
 				Record childRecord = ComponentManager
@@ -2700,6 +2702,237 @@ public class Record implements Component {
 			nameToUse = this.sqlStructName;
 		}
 		return DbDriver.createStruct(con, data, nameToUse);
+	}
+
+	/**
+	 * Create a json array from an object returned from an RDBMS
+	 *
+	 * @param data
+	 *            as returned from jdbc driver
+	 * @return JSON array
+	 */
+	public JSONArray createJsonArrayFromStruct(Object data) {
+		if (data instanceof Object[][] == false) {
+			throw new ApplicationError(
+					"Input data from procedure is expected to be Object[][] but we got "
+							+ data.getClass().getName());
+		}
+		return this.toJsonArray((Object[][]) data);
+	}
+
+	/**
+	 * Create a json Object from an object returned from an RDBMS
+	 *
+	 * @param data
+	 *            as returned from jdbc driver
+	 * @return JSON Object
+	 */
+	public JSONObject createJsonObjectFromStruct(Object data) {
+		if (data instanceof Object[] == false) {
+			throw new ApplicationError(
+					"Input data from procedure is expected to be Object[] but we got "
+							+ data.getClass().getName());
+		}
+		return this.toJsonObject((Object[]) data);
+	}
+
+	private JSONArray toJsonArray(Object[][] data) {
+		JSONArray array = new JSONArray();
+		for (Object[] struct : data) {
+			array.put(this.toJsonObject(struct));
+		}
+		return array;
+	}
+
+	private JSONObject toJsonObject(Object[] data) {
+		int nbrFields = this.fields.length;
+		if (data.length != nbrFields) {
+			throw this.getAppError(data.length, null, null, data);
+		}
+
+		JSONObject json = new JSONObject();
+		for (int i = 0; i < data.length; i++) {
+			Field field = this.fields[i];
+			Object obj = data[i];
+			if (obj == null) {
+				json.put(field.name, (Object) null);
+				continue;
+			}
+			/*
+			 * array of values
+			 */
+			if (field.fieldType == FieldType.VALUE_ARRAY) {
+				if (obj instanceof Object[] == false) {
+					throw this.getAppError(-1, field,
+							" is an array of primitives ", obj);
+				}
+				json.put(field.name, obj);
+				continue;
+			}
+
+			/*
+			 * struct (record or object)
+			 */
+			if (field.fieldType == FieldType.RECORD) {
+				if (obj instanceof Object[] == false) {
+					throw this.getAppError(-1, field,
+							" is a record that expects an array of objects ",
+							obj);
+				}
+				Record childRecord = ComponentManager
+						.getRecord(field.referredRecord);
+				json.put(field.name, childRecord.toJsonObject((Object[]) obj));
+				continue;
+			}
+
+			/*
+			 * array of struct
+			 */
+			if (field.fieldType == FieldType.RECORD_ARRAY) {
+				if (obj instanceof Object[][] == false) {
+					throw this
+					.getAppError(
+							-1,
+							field,
+							" is an array record that expects an array of array of objects ",
+							obj);
+				}
+				Record childRecord = ComponentManager
+						.getRecord(field.referredRecord);
+				json.put(field.name, childRecord.toJsonArray((Object[][]) obj));
+				continue;
+			}
+			/*
+			 * simple value
+			 */
+			json.put(field.name, obj);
+		}
+		return json;
+	}
+
+	private ApplicationError getAppError(int nbr, Field field, String txt,
+			Object value) {
+		StringBuilder sbf = new StringBuilder();
+		sbf.append(
+				"Error while creating JSON from output of stored procedure using record ")
+				.append(this.getQualifiedName()).append(". ");
+		if (txt == null) {
+			sbf.append("We expect an array of objects with "
+					+ this.fields.length + " elements but we got ");
+			if (nbr != -1) {
+				sbf.append(nbr).append(" elements.");
+			} else {
+				sbf.append(" an instanceof " + value.getClass().getName());
+			}
+		} else {
+			sbf.append("Field ").append(field.name).append(txt)
+			.append(" but we got an instance of")
+			.append(value.getClass().getName());
+		}
+		return new ApplicationError(sbf.toString());
+	}
+
+	/**
+	 * Write an object to writer that represents a JOSONObject for this record
+	 *
+	 * @param data
+	 *
+	 * @param writer
+	 * @throws SQLException
+	 * @throws JSONException
+	 */
+	public void toJsonArrayFromStruct(Array data, JSONWriter writer)
+			throws JSONException, SQLException {
+		if (data == null) {
+			writer.value(null);
+			return;
+		}
+		writer.array();
+		for (Object struct : (Object[]) data.getArray()) {
+			this.toJsonObjectFromStruct((Struct) struct, writer);
+		}
+		writer.endArray();
+	}
+
+	/**
+	 * Write an object to writer that represents a JOSONObject for this record
+	 *
+	 * @param struct
+	 *
+	 * @param writer
+	 * @throws SQLException
+	 * @throws JSONException
+	 */
+	public void toJsonObjectFromStruct(Struct struct, JSONWriter writer)
+			throws JSONException, SQLException {
+		Object[] data = struct.getAttributes();
+		int nbrFields = this.fields.length;
+		if (data.length != nbrFields) {
+			throw this.getAppError(data.length, null, null, data);
+		}
+
+		writer.object();
+		for (int i = 0; i < data.length; i++) {
+			Field field = this.fields[i];
+			Object obj = data[i];
+			writer.key(field.name);
+			if (obj == null) {
+				writer.value(null);
+				continue;
+			}
+			/*
+			 * array of values
+			 */
+			if (field.fieldType == FieldType.VALUE_ARRAY) {
+				if (obj instanceof Array == false) {
+					throw this.getAppError(-1, field,
+							" is an array of primitives ", obj);
+				}
+				writer.array();
+				for (Object val : (Object[]) ((Array) obj).getArray()) {
+					writer.value(val);
+				}
+				writer.endArray();
+				continue;
+			}
+
+			/*
+			 * struct (record or object)
+			 */
+			if (field.fieldType == FieldType.RECORD) {
+				if (obj instanceof Struct == false) {
+					throw this.getAppError(-1, field,
+							" is an array of records ", obj);
+				}
+				Record childRecord = ComponentManager
+						.getRecord(field.referredRecord);
+				childRecord.toJsonObjectFromStruct((Struct) obj, writer);
+				continue;
+			}
+
+			/*
+			 * array of struct
+			 */
+			if (field.fieldType == FieldType.RECORD_ARRAY) {
+				if (obj instanceof Array == false) {
+					throw new ApplicationError(
+							"Error while creating JSON from output of stored procedure. Field "
+									+ field.name
+									+ " is an of record for which we expect an array of object arrays. But we got "
+									+ obj.getClass().getName());
+				}
+				Record childRecord = ComponentManager
+						.getRecord(field.referredRecord);
+				childRecord.toJsonArrayFromStruct((Array) obj, writer);
+				continue;
+			}
+			/*
+			 * simple value
+			 */
+			writer.value(obj);
+		}
+		writer.endObject();
+		return;
 	}
 
 	/**

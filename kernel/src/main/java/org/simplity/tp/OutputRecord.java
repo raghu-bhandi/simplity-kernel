@@ -21,6 +21,8 @@
  */
 package org.simplity.tp;
 
+import java.sql.Array;
+import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +77,10 @@ public class OutputRecord {
 	private OutputRecord[] childRecords;
 
 	private Field[] fields;
+	/**
+	 * is the associated record a complex struct?
+	 */
+	private boolean isComplexStruct;
 
 	/**
 	 * default constructor
@@ -133,6 +139,37 @@ public class OutputRecord {
 	 * @param ctx
 	 */
 	public void toJson(JSONWriter writer, ServiceContext ctx) {
+		if (this.isComplexStruct) {
+			Object obj = ctx.getObject(this.sheetName);
+			writer.key(this.sheetName);
+			if (obj == null) {
+				writer.value(null);
+				Tracer.trace("No Object found for complex structure "
+						+ this.sheetName + ". Null sent to client");
+				return;
+			}
+			try {
+				Record record = ComponentManager.getRecord(this.recordName);
+				if (obj instanceof Array) {
+					record.toJsonArrayFromStruct((Array) obj, writer);
+					return;
+				}
+				if (obj instanceof Struct) {
+					record.toJsonObjectFromStruct((Struct) obj, writer);
+					return;
+				}
+			} catch (Exception e) {
+				throw new ApplicationError(e,
+						"Error while converting data structure to JSON");
+			}
+			Tracer.trace("Json for "
+					+ this.sheetName
+					+ " coud not be copied because it is "
+					+ obj.getClass().getName()
+					+ " while we would have been happy with java.sql.Array or java.sql.Struct ");
+			writer.value(null);
+			return;
+		}
 		if (this.sheetName == null) {
 			this.fieldsToJson(writer, this.fields, ctx);
 			return;
@@ -267,12 +304,14 @@ public class OutputRecord {
 			}
 		} else {
 			Record record = ComponentManager.getRecord(this.recordName);
-			this.fields = record.getFields();
-			if (this.fields == null) {
-				Tracer.trace("Record " + this.recordName + " yielded no fields");
+			if (record.isComplexStruct()) {
+				this.isComplexStruct = true;
 			} else {
-				Tracer.trace(this.recordName + " is added with "
-						+ this.fields.length + " fields");
+				this.fields = record.getFields();
+				if (this.fields == null) {
+					Tracer.trace("Record " + this.recordName
+							+ " yielded no fields");
+				}
 			}
 		}
 	}
