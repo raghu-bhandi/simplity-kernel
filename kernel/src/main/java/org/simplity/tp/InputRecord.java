@@ -110,6 +110,11 @@ public class InputRecord {
 	private boolean hasInterFieldValidations = false;
 
 	/**
+	 * if this is a data structure/object structure
+	 */
+	private boolean isComplexStructure;
+
+	/**
 	 * default constructor
 	 */
 	public InputRecord() {
@@ -158,6 +163,26 @@ public class InputRecord {
 	 *            into which data is extracted
 	 */
 	public void extractInput(JSONObject json, ServiceContext ctx) {
+		if (this.isComplexStructure) {
+			/*
+			 * current design is to keep the json as it is and validate it at
+			 * the time of its use
+			 */
+			Object obj = json.opt(this.sheetName);
+			if (obj != null) {
+				ctx.setObject(this.sheetName, obj);
+				Tracer.trace("Data input for " + this.sheetName + " saved as "
+						+ obj.getClass().getName() + " for later use.");
+				return;
+			}
+			if (this.minRows > 1) {
+				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, ""
+						+ this.minRows, "" + this.maxRows);
+			} else {
+				Tracer.trace("No data for sheet " + this.sheetName);
+			}
+			return;
+		}
 		if (this.fields == null) {
 			JsonUtil.extractWithNoValidation(json, ctx, this.sheetName,
 					this.parentSheetName);
@@ -270,6 +295,10 @@ public class InputRecord {
 	 * called once on loading the component
 	 */
 	public void getReady() {
+		if (this.parentSheetName != null && this.sheetName == null) {
+			throw new ApplicationError(
+					"Can not have a parent sheet name without a sheet name for this record");
+		}
 		if (this.recordName == null) {
 			if (this.sheetName == null) {
 				throw new ApplicationError(
@@ -282,16 +311,16 @@ public class InputRecord {
 			Tracer.trace("WARNING : Input in sheet "
 					+ this.sheetName
 					+ " will be accepted as it is with no validation whatsoever.");
-		} else {
-			Record record = ComponentManager.getRecord(this.recordName);
-			this.fields = record.getFieldsToBeExtracted(this.fieldNames,
-					this.purpose, this.saveActionExpected);
-			this.hasInterFieldValidations = record.hasInterFieldValidations();
+			return;
 		}
-		if (this.parentSheetName != null && this.sheetName == null) {
-			throw new ApplicationError(
-					"Can not have a parent sheet name without a sheet name for this record");
+		Record record = ComponentManager.getRecord(this.recordName);
+		if (record.isComplexStruct()) {
+			this.isComplexStructure = true;
+			return;
 		}
+		this.fields = record.getFieldsToBeExtracted(this.fieldNames,
+				this.purpose, this.saveActionExpected);
+		this.hasInterFieldValidations = record.hasInterFieldValidations();
 
 	}
 
@@ -345,7 +374,8 @@ public class InputRecord {
 			nbr = JsonUtil.extractFields(json, this.fields, ctx, errors,
 					allFieldsAreOptional);
 		}
-		Tracer.trace("Input Record extracted " + nbr + " fields into ctx");
+		Tracer.trace(nbr + " fields into ctx based on record "
+				+ this.recordName);
 
 		if (errors.size() == 0 && this.hasInterFieldValidations
 				&& allFieldsAreOptional == false && nbr > 1) {

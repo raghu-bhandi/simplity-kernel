@@ -22,6 +22,8 @@
  */
 package org.simplity.kernel.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
@@ -519,10 +521,12 @@ public class XmlUtil {
 		Class<?> currentType = type;
 		while (!currentType.equals(Object.class)) {
 			for (Field field : currentType.getDeclaredFields()) {
+				int mod = field.getModifiers();
 				/*
 				 * by convention, our fields should not have any modifier
 				 */
-				if (field.getModifiers() == 0) {
+				if (mod == 0 || Modifier.isProtected(mod)
+						&& !Modifier.isStatic(mod)) {
 					fields.put(field.getName(), field);
 				}
 			}
@@ -937,7 +941,8 @@ public class XmlUtil {
 			Element defaultEle) throws IllegalArgumentException,
 			IllegalAccessException {
 		Class<?> objectType = object.getClass();
-
+		Tracer.trace("Gong to create an element for a "
+				+ objectType.getSimpleName());
 		/*
 		 * create element if required
 		 */
@@ -956,12 +961,15 @@ public class XmlUtil {
 			Object value = field.get(object);
 
 			if (value == null) {
+				Tracer.trace("Field " + field.getName() + " has no value.");
 				continue;
 			}
 
 			String fieldName = field.getName();
-			Class<?> type = value.getClass();
+			Class<?> type = field.getType();
 			if (ReflectUtil.isValueType(type)) {
+				Tracer.trace("Field " + fieldName
+						+ " has a primitive value of " + value);
 				String stringValue = primitiveValue(value);
 				if (stringValue.length() > 0) {
 					ele.setAttribute(fieldName, stringValue);
@@ -971,6 +979,8 @@ public class XmlUtil {
 
 			if (type.isArray()) {
 				Object[] objects = (Object[]) value;
+				Tracer.trace("Field " + fieldName
+						+ " is an array with a length = " + objects.length);
 				if (objects.length == 0) {
 					continue;
 				}
@@ -993,6 +1003,8 @@ public class XmlUtil {
 				 */
 				Element objectEle = doc.createElement(fieldName);
 				ele.appendChild(objectEle);
+				Tracer.trace("field " + fieldName
+						+ " is added as an element and not as an attribute");
 				for (Object obj : objects) {
 					objectEle.appendChild(objectToEle(obj, doc, null));
 				}
@@ -1004,6 +1016,8 @@ public class XmlUtil {
 			 */
 			if (value instanceof Map) {
 				Map<?, ?> objects = (Map<?, ?>) value;
+				Tracer.trace("Field " + fieldName + " is a MAP with size = "
+						+ objects.size());
 				if (objects.size() == 0) {
 					continue;
 				}
@@ -1019,8 +1033,9 @@ public class XmlUtil {
 			 * with one child element for this object
 			 */
 			Element objectEle = doc.createElement(fieldName);
-			ele.appendChild(objectEle);
-			objectEle.appendChild(objectToEle(value, doc, null));
+			Tracer.trace("Field " + fieldName
+					+ " is an object. An element is added for that.");
+			ele.appendChild(objectToEle(value, doc, objectEle));
 		}
 		return ele;
 	}
@@ -1062,5 +1077,21 @@ public class XmlUtil {
 					.toString();
 		}
 		return value.toString();
+	}
+
+	/**
+	 *
+	 * @param object
+	 * @return xml text for the object's data-state
+	 */
+	public static String objectToXmlString(Object object) {
+		OutputStream out = new ByteArrayOutputStream();
+		objectToXml(out, object);
+		try {
+			out.close();
+		} catch (IOException ignore) {
+			//
+		}
+		return out.toString();
 	}
 }

@@ -21,6 +21,8 @@
  */
 package org.simplity.tp;
 
+import java.sql.Array;
+import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +77,10 @@ public class OutputRecord {
 	private OutputRecord[] childRecords;
 
 	private Field[] fields;
+	/**
+	 * is the associated record a complex struct?
+	 */
+	private boolean isComplexStruct;
 
 	/**
 	 * default constructor
@@ -133,8 +139,39 @@ public class OutputRecord {
 	 * @param ctx
 	 */
 	public void toJson(JSONWriter writer, ServiceContext ctx) {
+		if (this.isComplexStruct) {
+			Object obj = ctx.getObject(this.sheetName);
+			writer.key(this.sheetName);
+			if (obj == null) {
+				writer.value(null);
+				Tracer.trace("No Object found for complex structure "
+						+ this.sheetName + ". Null sent to client");
+				return;
+			}
+			try {
+				Record record = ComponentManager.getRecord(this.recordName);
+				if (obj instanceof Array) {
+					record.toJsonArrayFromStruct((Array) obj, writer);
+					return;
+				}
+				if (obj instanceof Struct) {
+					record.toJsonObjectFromStruct((Struct) obj, writer);
+					return;
+				}
+			} catch (Exception e) {
+				throw new ApplicationError(e,
+						"Error while converting data structure to JSON");
+			}
+			Tracer.trace("Json for "
+					+ this.sheetName
+					+ " coud not be copied because it is "
+					+ obj.getClass().getName()
+					+ " while we would have been happy with java.sql.Array or java.sql.Struct ");
+			writer.value(null);
+			return;
+		}
 		if (this.sheetName == null) {
-			this.fieldsToJason(writer, this.fields, ctx);
+			this.fieldsToJson(writer, this.fields, ctx);
 			return;
 		}
 		/*
@@ -149,7 +186,7 @@ public class OutputRecord {
 		this.sheetToJson(writer, ctx);
 	}
 
-	private void fieldsToJason(JSONWriter writer, Field[] fieldsToOutput,
+	private void fieldsToJson(JSONWriter writer, Field[] fieldsToOutput,
 			ServiceContext ctx) {
 		for (Field field : fieldsToOutput) {
 			String fieldName = field.getName();
@@ -171,7 +208,9 @@ public class OutputRecord {
 		if (sheet == null) {
 			Tracer.trace("Service context has no sheet with name "
 					+ this.sheetName + " for output. We try and output fields.");
-			this.fieldsToJason(writer, this.fields, ctx);
+			if (this.fields != null) {
+				this.fieldsToJson(writer, this.fields, ctx);
+			}
 			if (this.childRecords != null) {
 				for (OutputRecord child : this.childRecords) {
 					child.sheetToJson(writer, ctx);
@@ -265,7 +304,15 @@ public class OutputRecord {
 			}
 		} else {
 			Record record = ComponentManager.getRecord(this.recordName);
-			this.fields = record.getFields();
+			if (record.isComplexStruct()) {
+				this.isComplexStruct = true;
+			} else {
+				this.fields = record.getFields();
+				if (this.fields == null) {
+					Tracer.trace("Record " + this.recordName
+							+ " yielded no fields");
+				}
+			}
 		}
 	}
 

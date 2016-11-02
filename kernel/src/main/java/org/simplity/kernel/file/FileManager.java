@@ -128,7 +128,7 @@ public class FileManager {
 		try {
 			in = getResourceStream(fileName);
 			if (in == null) {
-				throw new Exception("File " + fileName
+				throw new ApplicationError("File " + fileName
 						+ " could not be opened for reading in a "
 						+ (myContext == null ? "non-" : "")
 						+ "web environmment");
@@ -137,7 +137,7 @@ public class FileManager {
 			StringBuilder sbf = new StringBuilder();
 			int ch;
 			while ((ch = reader.read()) != -1) {
-				sbf.append(ch);
+				sbf.append((char) ch);
 			}
 			return sbf.toString();
 		} finally {
