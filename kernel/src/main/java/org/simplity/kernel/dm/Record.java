@@ -604,12 +604,44 @@ public class Record implements Component {
 						+ " with an empty value in filtering.");
 				continue;
 			}
+			if (firstTime) {
+				firstTime = false;
+			} else {
+				sql.append(" AND ");
+			}
+
 			FilterCondition condition = FilterCondition.Equal;
 			Value otherValue = inData.getValue(fieldName
 					+ ServiceProtocol.COMPARATOR_SUFFIX);
 			if (otherValue != null && otherValue.isUnknown() == false) {
 				condition = FilterCondition.parse(otherValue.toText());
 			}
+
+			/**
+			 * handle the special case of in-list
+			 */
+			if (condition == FilterCondition.In) {
+				Value[] values = Value.parse(value.toString().split(","),
+						field.getValueType());
+				/*
+				 * we are supposed to have validated this at the input gate...
+				 * but playing it safe
+				 */
+				if (values == null) {
+					throw new ApplicationError(value
+							+ " is not a valid comma separated list for field "
+							+ field.name);
+				}
+				sql.append(field.columnName).append(" in (?");
+				filterValues.add(values[0]);
+				for (int i = 1; i < values.length; i++) {
+					sql.append(",?");
+					filterValues.add(values[i]);
+				}
+				sql.append(") ");
+				continue;
+			}
+
 			if (condition == FilterCondition.Like) {
 				value = Value.newTextValue(Record.PERCENT
 						+ DbDriver.escapeForLike(value.toString())
@@ -618,13 +650,10 @@ public class Record implements Component {
 				value = Value.newTextValue(DbDriver.escapeForLike(value
 						.toString()) + Record.PERCENT);
 			}
-			if (firstTime) {
-				firstTime = false;
-			} else {
-				sql.append(" AND ");
-			}
+
 			sql.append(field.columnName).append(condition.getSql()).append("?");
 			filterValues.add(value);
+
 			if (condition == FilterCondition.Between) {
 				otherValue = inData.getValue(fieldName
 						+ ServiceProtocol.TO_FIELD_SUFFIX);
