@@ -176,7 +176,7 @@ public class ProcedureParameter {
 	 */
 	public boolean setParameter(CallableStatement stmt,
 			FieldsInterface inputFields, ServiceContext ctx)
-			throws SQLException {
+					throws SQLException {
 		/*
 		 * register this param if it is out or in-out
 		 */
@@ -321,6 +321,7 @@ public class ProcedureParameter {
 		if (this.recordName != null) {
 			stmt.registerOutParameter(this.myPosn, Types.STRUCT,
 					this.sqlObjectType);
+			return;
 		}
 		/*
 		 * primitive value
@@ -401,7 +402,7 @@ public class ProcedureParameter {
 	 */
 	public void extractOutput(CallableStatement stmt,
 			FieldsInterface outputFields, ServiceContext ctx)
-			throws SQLException {
+					throws SQLException {
 		if (this.inOutType == InOutType.INPUT) {
 			return;
 		}
@@ -528,12 +529,12 @@ public class ProcedureParameter {
 	public void reportError(Exception e) {
 		StringBuilder msg = new StringBuilder("Procedure parameter ");
 		msg.append(this.name).append(" at number ").append(this.myPosn)
-				.append(" has caused an exception.");
+		.append(" has caused an exception.");
 		if (this.isArray) {
 			msg.append(
 					"Verify that this array paramater is defined as type "
 							+ this.sqlArrayType)
-					.append("which is an array of ");
+							.append("which is an array of ");
 			if (this.recordName != null) {
 				msg.append(this.sqlObjectType);
 			} else {
@@ -545,9 +546,9 @@ public class ProcedureParameter {
 		}
 		if (this.recordName != null) {
 			msg.append("Verify that the fields in record ")
-					.append(this.recordName)
-					.append(" are of the right type/sequence as compared to the type ")
-					.append(this.sqlObjectType).append(" in db.");
+			.append(this.recordName)
+			.append(" are of the right type/sequence as compared to the type ")
+			.append(this.sqlObjectType).append(" in db.");
 		}
 		throw new ApplicationError(e, msg.toString());
 	}
