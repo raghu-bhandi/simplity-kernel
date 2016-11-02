@@ -47,7 +47,11 @@ app.controller('formCtrl', function ($scope,$window) {
         "sponsornumber":"",
         "members":[],
         "filekey":'',
-        "email":false
+        "email":false,
+        "uploadfile":{},
+        "filename":"",
+        "filetype":"",
+		"filesize":""
     };
     
     $scope.nominations = [];
@@ -100,6 +104,7 @@ app.controller('formCtrl', function ($scope,$window) {
     };
     $scope.fileupload = function(file){
         $scope.nomination.uploadfile = file.files[0];
+        console.log($scope.nomination.uploadfile);
     };
     $scope.submit=function(status){
     	var data = {
@@ -110,11 +115,16 @@ app.controller('formCtrl', function ($scope,$window) {
 		        "sponsorname":$scope.nomination.sponsorname,
 		        "sponsornumber":$scope.nomination.sponsornumber,
 		        "members":$scope.nomination.members,
-		        "status":status
+		        "status":status,
+		        "filekey":$scope.nomination.filekey,
+		        "filename":$scope.nomination.filename,
+		        "filetype":$scope.nomination.filetype,
+				"filesize":$scope.nomination.filesize		        
 		 	}
     	console.log($scope.nomination.uploadfile);
-    	if($scope.nomination.uploadfile != undefined){
+    	if(!angular.equals($scope.nomination.uploadfile, {})){
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
+    			console.log($scope.nomination.uploadfile);
     			data.filekey=key;
 				data.filename=$scope.nomination.uploadfile.name;
 				data.filetype=$scope.nomination.uploadfile.type;

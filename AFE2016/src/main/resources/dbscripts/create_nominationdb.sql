@@ -3,8 +3,8 @@ SET SCHEMA nomination; */
 
 CREATE TABLE IF NOT EXISTS nomination (
   nominationId INTEGER auto_increment NOT NULL,
-  submitterId  VARCHAR(100) NOT NULL,
-  status  VARCHAR(100) NOT NULL,
+  submitterId  VARCHAR(100),
+  status  VARCHAR(100),
   selectedCategory  VARCHAR(100),
   selectedLevel  VARCHAR(100),
   nomination  VARCHAR(100) NOT NULL,

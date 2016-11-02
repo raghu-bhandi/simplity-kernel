@@ -271,7 +271,7 @@ public class Service implements ServiceInterface {
 	}
 
 	private void extractInput(ServiceContext ctx, String requestText) {
-		if(requestText.equals("undefined")){
+		if(requestText==null || requestText.equals("undefined")){
 			return;
 		}
 		if (this.requestTextFieldName != null) {
