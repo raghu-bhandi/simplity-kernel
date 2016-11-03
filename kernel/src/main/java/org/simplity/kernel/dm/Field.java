@@ -285,23 +285,51 @@ public class Field {
 			return 0;
 		}
 		/*
+		 * what is the comparator
+		 */
+		String otherName = this.name + ServiceProtocol.COMPARATOR_SUFFIX;
+		String otherValue = inputValues.get(otherName);
+		FilterCondition f = FilterCondition.parse(otherValue);
+
+		Value value = null;
+		ValueType vt = this.getValueType();
+		/*
+		 * handle the special case of in list
+		 */
+		if (FilterCondition.In == f) {
+			if (vt != ValueType.TEXT && vt != ValueType.INTEGER
+					&& vt != ValueType.DECIMAL) {
+				validationErrors
+				.add(new FormattedMessage(Messages.INVALID_VALUE,
+						recordName, this.name, null, 0,
+						" inList contition is valid for numeric and text fields only "));
+				return 0;
+			}
+			Value[] vals = Value.parse(textValue.split(","), vt);
+			if (vals == null) {
+				validationErrors
+				.add(new FormattedMessage(Messages.INVALID_VALUE,
+						recordName, this.name, null, 0));
+				return 0;
+			}
+			extratedFields.setValue(this.name, Value.newTextValue(textValue));
+			extratedFields.setValue(otherName, Value.newTextValue(otherValue));
+			return 1;
+		}
+		/*
 		 * filter field need not conform to data-type but it should be of the
 		 * same value type
+		 *
+		 * Special case of in list. We validate it here, but except if it is
+		 * IN_LIST operator
 		 */
-		ValueType valueType = this.getValueType();
-		Value value = Value.parseValue(textValue, valueType);
+		value = Value.parseValue(textValue, vt);
 		if (value == null) {
 			validationErrors.add(new FormattedMessage(Messages.INVALID_VALUE,
 					recordName, this.name, null, 0));
 		} else {
 			extratedFields.setValue(this.name, value);
 		}
-		/*
-		 * what is the comparator
-		 */
-		String otherName = this.name + ServiceProtocol.COMPARATOR_SUFFIX;
-		String otherValue = inputValues.get(otherName);
-		FilterCondition f = FilterCondition.parse(otherValue);
 		if (f == null) {
 			extratedFields.setValue(otherName,
 					Value.newTextValue(ServiceProtocol.EQUAL));
@@ -315,7 +343,7 @@ public class Field {
 		textValue = inputValues.get(otherName);
 		value = null;
 		if (textValue != null) {
-			value = Value.parseValue(textValue, valueType);
+			value = Value.parseValue(textValue, vt);
 		}
 		if (value == null) {
 			validationErrors.add(new FormattedMessage(Messages.INVALID_VALUE,

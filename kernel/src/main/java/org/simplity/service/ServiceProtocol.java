@@ -164,6 +164,10 @@ public abstract class ServiceProtocol {
 	public static final String BETWEEN = "><";
 
 	/**
+	 * one of the entries in a list
+	 */
+	public static final String IN_LIST = "@";
+	/**
 	 * suffix for the to-Field If field is "age" then to-field would be "ageTo"
 	 */
 	public static final String TO_FIELD_SUFFIX = "To";
@@ -286,4 +290,5 @@ public abstract class ServiceProtocol {
 	 */
 
 	public static final String SERVICE_DELETE_FILE = "_discard";
+
 }

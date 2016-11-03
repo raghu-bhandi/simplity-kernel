@@ -175,7 +175,7 @@ public class JsonUtil {
 		/*
 		 * arr corresponds to following json. We are to accumulate child rows
 		 * across all main rows
-		 * 
+		 *
 		 * [...,"attName"=[{},{}....],..],[....,"attName"=[{},{}.... ],..]....
 		 */
 		Field[] inputFields = fields;
@@ -348,8 +348,8 @@ public class JsonUtil {
 				if (value == null) {
 					errors.add(new FormattedMessage(Messages.INVALID_VALUE,
 							null, field.getName(), null, 0, '\''
-									+ val.toString() + "' is not a valid "
-									+ field.getValueType()));
+							+ val.toString() + "' is not a valid "
+							+ field.getValueType()));
 					continue;
 				}
 			}
@@ -433,10 +433,17 @@ public class JsonUtil {
 			return 0;
 		}
 		/*
-		 * filter field need not conform to data-type but it should be of the
-		 * same value type
+		 * what is the comparator
 		 */
-		Value value = valueType.parseObject(obj);
+		String otherName = fieldName + ServiceProtocol.COMPARATOR_SUFFIX;
+		String otherValue = json.optString(otherName, null);
+		FilterCondition f = FilterCondition.parse(otherValue);
+		/*
+		 * filter field need not conform to data-type but it should be of the
+		 * same value type, except that IN_LIST is alwasy text
+		 */
+		Value value = FilterCondition.In == f ? ValueType.TEXT.parseObject(obj)
+				: valueType.parseObject(obj);
 		if (value == null) {
 			if (validationErrors != null) {
 				validationErrors.add(new FormattedMessage(
@@ -445,12 +452,6 @@ public class JsonUtil {
 		} else {
 			extratedFields.setValue(fieldName, value);
 		}
-		/*
-		 * what is the comparator
-		 */
-		String otherName = fieldName + ServiceProtocol.COMPARATOR_SUFFIX;
-		String otherValue = json.optString(otherName, null);
-		FilterCondition f = FilterCondition.parse(otherValue);
 		if (f == null) {
 			extratedFields.setValue(otherName,
 					Value.newTextValue(ServiceProtocol.EQUAL));
