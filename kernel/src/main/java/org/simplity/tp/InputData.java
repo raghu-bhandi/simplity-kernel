@@ -168,7 +168,7 @@ public class InputData {
 			boolean toStor) {
 		for (String af : fields) {
 			String key = ctx.getTextValue(af);
-			if (key == null) {
+			if (key == null || key.isEmpty()) {
 				Tracer.trace("Attachment field " + af
 						+ " is not specified. Skipping it.");
 				continue;
