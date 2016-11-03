@@ -1618,7 +1618,7 @@ public class DbDriver {
 			}
 		}
 		if (dbVendor == DbVendor.ORACLE) {
-			OracleConnection ocon = con.unwrap(OracleConnection.class);
+			OracleConnection ocon = toOracleConnection(con);
 			ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType,
 					ocon);
 			return new ARRAY(ad, ocon, data);
@@ -1641,7 +1641,7 @@ public class DbDriver {
 	public static Struct createStruct(Connection con, Object[] data,
 			String dbObjectType) throws SQLException {
 		if (dbVendor == DbVendor.ORACLE) {
-			OracleConnection ocon = con.unwrap(OracleConnection.class);
+			OracleConnection ocon = toOracleConnection(con);
 			StructDescriptor sd = StructDescriptor.createDescriptor(
 					dbObjectType, ocon);
 			return new STRUCT(sd, ocon, data);
@@ -1688,11 +1688,24 @@ public class DbDriver {
 	public static Array createStructArray(Connection con, Struct[] structs,
 			String dbArrayType) throws SQLException {
 		if (dbVendor == DbVendor.ORACLE) {
-			OracleConnection ocon = con.unwrap(OracleConnection.class);
+			OracleConnection ocon = toOracleConnection(con);
 			ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType,
 					ocon);
 			return new ARRAY(ad, ocon, structs);
 		}
 		return con.createArrayOf(dbArrayType, structs);
+	}
+
+	private static OracleConnection toOracleConnection(Connection con) {
+		if (con instanceof OracleConnection) {
+			return (OracleConnection) con;
+		}
+		try {
+			return con.unwrap(OracleConnection.class);
+		} catch (Exception e) {
+			throw new ApplicationError(
+					"Error while unwrapping to Oracle connection "
+							+ e.getMessage());
+		}
 	}
 }
