@@ -7,7 +7,7 @@
 			<label for="categories">Categories</label> <select
 				class="form-control" id="categories"
 				ng-model="nomination.selectedCategory"
-				ng-options="x for x in categories">
+				ng-options="x.category as x.category for x in categories">
 			</select>
 		</div>
 		<div class="form-group  col-xs-6">
@@ -57,7 +57,9 @@
 	</div>
 
 	<h3>Details of Members</h3>
-	<span>The maximum number of members you can nominate is : 10</span>
+	<div ng-repeat="c in categories">
+	<span ng-if="c.category == nomination.selectedCategory">The maximum number of members you can nominate is : {{c.noOfMembers}}</span>
+	</div>
 	<div class="form-group">
 		<table id="members" class="table">
 			<tr class="row">
@@ -166,7 +168,7 @@
 	<hr>
 	<button type="submit" class="btn btn-primary">
 	<span ng-if="state=='new' || state=='sponsor'" ng-click="submit('Saved')">Save</span>
-	<span ng-if="state=='view'" ng-click="updatenomination('Saved')">Update</span>
+	<span ng-if="state=='view'" ng-click="updatenomination(nomination,'Saved')">Update</span>
 	</button>
 	<button type="submit" class="btn btn-primary" ng-click="submit('Submitted')">Submit</button>
 	</fieldset>

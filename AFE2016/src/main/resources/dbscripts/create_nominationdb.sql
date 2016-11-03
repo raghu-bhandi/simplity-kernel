@@ -3,18 +3,18 @@ SET SCHEMA nomination; */
 
 CREATE TABLE IF NOT EXISTS nomination (
   nominationId INTEGER auto_increment NOT NULL,
-  submitterId  VARCHAR(100) NOT NULL,
-  status  VARCHAR(100) NOT NULL,
-  selectedCategory  VARCHAR(100) NOT NULL,
-  selectedLevel  VARCHAR(100) NOT NULL,
+  submitterId  VARCHAR(100),
+  status  VARCHAR(100),
+  selectedCategory  VARCHAR(100),
+  selectedLevel  VARCHAR(100),
   nomination  VARCHAR(100) NOT NULL,
-  sponsormailid VARCHAR(100) NOT NULL,
-  sponsorname VARCHAR(100) NOT NULL,
-  sponsornumber VARCHAR(100) NOT NULL,
-  filekey VARCHAR(100) NOT NULL,
-  filename VARCHAR(100) NOT NULL,
-  filetype VARCHAR(100) NOT NULL,
-  filesize VARCHAR(100) NOT NULL,
+  sponsormailid VARCHAR(100),
+  sponsorname VARCHAR(100),
+  sponsornumber VARCHAR(100),
+  filekey VARCHAR(100),
+  filename VARCHAR(100),
+  filetype VARCHAR(100),
+  filesize VARCHAR(100),
   PRIMARY KEY (nominationId)
 );
 
