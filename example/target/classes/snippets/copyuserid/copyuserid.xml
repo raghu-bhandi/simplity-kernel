@@ -1,0 +1,13 @@
+<!-- File name: copyUserid.xml under comp/services/tp/tutorial -->
+<service 	xmlns="http://www.simplity.org/schema"
+	name="copyUserId"
+	moduleName="tutorial"
+	dbAccessType="none"
+	description="This is the customary example that every one is used to..">
+	<outputData fieldNames="testValue">
+	</outputData>
+	<actions>
+	<copyUserId fieldName="UserIDCopy" actionName="copyUserIdAction" description="Copy user id from context"/>	
+	<setValue fieldName="testValue" fieldValue="$copyUserIdActionResult" ></setValue>	
+	</actions>
+</service>
