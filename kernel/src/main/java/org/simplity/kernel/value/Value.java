@@ -524,6 +524,29 @@ public abstract class Value implements Serializable {
 	}
 
 	/**
+	 * parse an array of text values into an array of given value type
+	 *
+	 * @param textList
+	 *            of the form a,b,c
+	 * @param valueType
+	 * @return array of values of given type, or null in case of any error whiel
+	 *         parsing
+	 */
+	public static Value[] parse(String[] textList, ValueType valueType) {
+		Value[] result = new Value[textList.length];
+
+		for (int i = 0; i < textList.length; i++) {
+			String val = textList[i].trim();
+			Value value = Value.parseValue(val, valueType);
+			if (value == null) {
+				return null;
+			}
+			result[i] = value;
+		}
+		return result;
+	}
+
+	/**
 	 * @param value
 	 * @return true if either value is null, or has a null value
 	 */

@@ -185,6 +185,14 @@ public class HttpAgent {
 						break;
 					}
 				}
+				/*
+				 * we are forced to check payload for the time being for some
+				 * safety
+				 */
+				if (payLoad == null || payLoad.equals("undefined")
+						|| payLoad.equals("null")) {
+					payLoad = "{}";
+				}
 				inData.setPayLoad(payLoad);
 				inData.setServiceName(serviceName);
 				if (httpCacheManager != null) {
@@ -285,6 +293,7 @@ public class HttpAgent {
 			inData.put(ServiceProtocol.USER_TOKEN,
 					Value.newTextValue(securityToken));
 		}
+		inData.setPayLoad("{}");
 		ServiceData outData = ServiceAgent.getAgent().login(inData);
 		if (outData == null) {
 			return null;
@@ -311,6 +320,7 @@ public class HttpAgent {
 		 * create and save new session data
 		 */
 		newSession(session, userId);
+		setSessionData(session, outData);
 		Tracer.trace("Login succeeded for loginId " + loginId);
 		String result = outData.getPayLoad();
 		if (result == null || result.length() == 0) {
@@ -429,7 +439,7 @@ public class HttpAgent {
 
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-		.getAttribute(SESSION_NAME_FOR_MAP);
+				.getAttribute(SESSION_NAME_FOR_MAP);
 		if (sessionData == null) {
 			throw new ApplicationError(
 					"Unexpected situation. UserId is located in session, but not map");
@@ -467,7 +477,7 @@ public class HttpAgent {
 	private static void setSessionData(HttpSession session, ServiceData data) {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-		.getAttribute(SESSION_NAME_FOR_MAP);
+				.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
 			Tracer.trace("Unexpected situation. setSession invoked with no active session. Action ignored");

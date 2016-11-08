@@ -433,10 +433,17 @@ public class JsonUtil {
 			return 0;
 		}
 		/*
-		 * filter field need not conform to data-type but it should be of the
-		 * same value type
+		 * what is the comparator
 		 */
-		Value value = valueType.parseObject(obj);
+		String otherName = fieldName + ServiceProtocol.COMPARATOR_SUFFIX;
+		String otherValue = json.optString(otherName, null);
+		FilterCondition f = FilterCondition.parse(otherValue);
+		/*
+		 * filter field need not conform to data-type but it should be of the
+		 * same value type, except that IN_LIST is alwasy text
+		 */
+		Value value = FilterCondition.In == f ? ValueType.TEXT.parseObject(obj)
+				: valueType.parseObject(obj);
 		if (value == null) {
 			if (validationErrors != null) {
 				validationErrors.add(new FormattedMessage(
@@ -445,12 +452,6 @@ public class JsonUtil {
 		} else {
 			extratedFields.setValue(fieldName, value);
 		}
-		/*
-		 * what is the comparator
-		 */
-		String otherName = fieldName + ServiceProtocol.COMPARATOR_SUFFIX;
-		String otherValue = json.optString(otherName, null);
-		FilterCondition f = FilterCondition.parse(otherValue);
 		if (f == null) {
 			extratedFields.setValue(otherName,
 					Value.newTextValue(ServiceProtocol.EQUAL));
@@ -718,6 +719,31 @@ public class JsonUtil {
 			lastChar = c;
 		}
 		json.append('"');
+	}
 
+	/**
+	 * convert a JSON array to array of primitive objects.
+	 *
+	 * @param array
+	 *            json Array
+	 * @return array of primitives, or null in case any of the array element is
+	 *         not primitive
+	 */
+	public static Object[] toObjectArray(JSONArray array) {
+		Object[] result = new Object[array.length()];
+		for (int i = 0; i < result.length; i++) {
+			Object obj = array.get(i);
+			if (obj == null) {
+				continue;
+			}
+			if (obj instanceof JSONObject || obj instanceof JSONArray) {
+				Tracer.trace("Element no (zero based) "
+						+ i
+						+ " is not a primitive, and hence unable to convert the JSONArray into an array of primtitives");
+				return null;
+			}
+			result[i] = obj;
+		}
+		return result;
 	}
 }

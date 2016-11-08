@@ -232,6 +232,10 @@ public class Save extends DbAction {
 				nbr += record.insertWithParent(relatedSheet, ctx, driver,
 						userId);
 			} else {
+				/*
+				 * when the parent is modified, child rows could be update as
+				 * well as insert/delete!!
+				 */
 				SaveActionType[] actions = { action };
 				nbr += record.saveWithParent(relatedSheet, ctx, actions,
 						driver, userId);

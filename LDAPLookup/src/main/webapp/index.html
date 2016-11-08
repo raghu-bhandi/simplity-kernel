@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Simplity Test</title>
+<script type="text/javascript" src="test.js"></script>
+<script type="text/javascript" src="../js/simplity.js"></script>
+</head>
+<body onload="login()">
+	<h1 id="Simplity Test"></h1>
+	Service name to invoke : &nbsp;
+	<input id="service" width="25" onchange="serviceChanged(this)" />
+	<br />
+	<br /> Json Data :
+	<textarea id="json" cols="50" rows="10"> </textarea>
+	<br />
+	<br />
+
+	<input type="button" value="Go... Get Response" onclick="test()" />
+	<br />
+	<br />
+	<h4>Response</h4>
+	<br />
+	<div id="response"></div>
+</body>
+</html>

@@ -65,7 +65,12 @@ public enum FilterCondition {
 	/**
 	 * between
 	 */
-	Between(ServiceProtocol.BETWEEN, FilterCondition.BETWEEN);
+	Between(ServiceProtocol.BETWEEN, FilterCondition.BETWEEN),
+	/**
+	 * one in the list
+	 */
+	In(ServiceProtocol.IN_LIST, FilterCondition.IN);
+	private static final String IN = " IN ";
 	private static final String LIKE = " LIKE ";
 	private static final String BETWEEN = " BETWEEN ";
 	private String textValue;

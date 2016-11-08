@@ -174,16 +174,6 @@ public class Application {
 	boolean logSqls;
 
 	/**
-	 * session parameters
-	 */
-	Parameter[] sessionParams;
-
-	/**
-	 * name of the session parameter that has the value for userId
-	 */
-	String userIdNameInSession;
-
-	/**
 	 * Some projects use multiple schema. In such a case, it is possible that a
 	 * given service may use a schema other than the default. We have optimized
 	 * the design for a frequently used default schema that is set for the user,
@@ -238,8 +228,8 @@ public class Application {
 		AccessController gard = null;
 		if (this.accessController != null) {
 			try {
-				gard = (AccessController) Class.forName(
-						this.accessController).newInstance();
+				gard = (AccessController) Class.forName(this.accessController)
+						.newInstance();
 
 			} catch (Exception e) {
 				Tracer.trace(this.accessController
@@ -339,9 +329,8 @@ public class Application {
 			count++;
 		}
 
-		if (this.classInError(AccessController.class,
-				this.accessController, "accessControllerClassName",
-				ctx)) {
+		if (this.classInError(AccessController.class, this.accessController,
+				"accessControllerClassName", ctx)) {
 			count++;
 		}
 		if (this.classInError(HttpCacheManager.class, this.httpCacheManager,
@@ -352,9 +341,8 @@ public class Application {
 				this.serviceCacheManager, "serviceCacheManager", ctx)) {
 			count++;
 		}
-		if (this.classInError(ExceptionListener.class,
-				this.exceptionListener, "exceptionListenerClassName",
-				ctx)) {
+		if (this.classInError(ExceptionListener.class, this.exceptionListener,
+				"exceptionListenerClassName", ctx)) {
 			count++;
 		}
 		if (this.autoLoginUserId != null && this.userIdIsNumber) {

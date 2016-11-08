@@ -28,12 +28,8 @@ import java.sql.SQLException;
 import java.sql.Struct;
 import java.sql.Types;
 
-import oracle.jdbc.driver.OracleConnection;
-import oracle.sql.ARRAY;
-import oracle.sql.ArrayDescriptor;
-import oracle.sql.STRUCT;
-import oracle.sql.StructDescriptor;
-
+import org.simplity.json.JSONArray;
+import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
@@ -42,6 +38,7 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.MultiRowsSheet;
+import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
@@ -98,6 +95,13 @@ public class ProcedureParameter {
 	boolean isRequired;
 
 	/**
+	 * special case where this is a complex parameter - data structure that
+	 * contains another data structure (arbitrary structure). Note that the
+	 * inputRecord for this should also specify this keyword so that data from
+	 * client is extracted into objectData.
+	 */
+	boolean useObjectDataForInput;
+	/**
 	 * cached for performance
 	 */
 	private DataType dataTypeObject;
@@ -117,6 +121,10 @@ public class ProcedureParameter {
 	 * @param posn
 	 */
 	void getReady(int posn) {
+		if (this.name == null) {
+			throw new ApplicationError(
+					"Procedure parameter has an identity crisis. No name is given to it!!");
+		}
 		this.myPosn = posn;
 		if (this.recordName == null) {
 			if (this.dataType == null) {
@@ -168,33 +176,18 @@ public class ProcedureParameter {
 	 */
 	public boolean setParameter(CallableStatement stmt,
 			FieldsInterface inputFields, ServiceContext ctx)
-			throws SQLException {
+					throws SQLException {
 		/*
 		 * register this param if it is out or in-out
 		 */
 		if (this.inOutType != InOutType.INPUT) {
-			if (this.isArray) {
-				stmt.registerOutParameter(this.myPosn, Types.ARRAY,
-						this.sqlArrayType);
-			} else {
-				if (this.recordName != null) {
-					stmt.registerOutParameter(this.myPosn, Types.STRUCT,
-							this.sqlObjectType);
-				} else {
-					int scale = this.dataTypeObject.getScale();
-					if (scale == 0) {
-						stmt.registerOutParameter(this.myPosn, this
-								.getValueType().getSqlType());
-					} else {
-						stmt.registerOutParameter(this.myPosn, this
-								.getValueType().getSqlType(), scale);
-					}
-
-				}
-			}
+			this.registerForOutput(stmt);
 		}
 
 		if (this.inOutType == InOutType.OUTPUT) {
+			/*
+			 * not an input. we are done.
+			 */
 			return true;
 		}
 
@@ -218,260 +211,183 @@ public class ProcedureParameter {
 			value.setToStatement(stmt, this.myPosn);
 			return true;
 		}
+
 		/*
-		 * non-primitive value is found in ctx as a data sheet
+		 * non-primitive value is generally found in ctx as a data sheet
 		 */
 		DataSheet ds = ctx.getDataSheet(this.name);
-		if (ds == null || ds.length() == 0) {
-			if (this.isRequired) {
-				ctx.addMessage(Messages.VALUE_REQUIRED, this.name);
-				return false;
+		Connection con = stmt.getConnection();
+
+		if (this.recordName == null) {
+			/*
+			 * array of primitives
+			 */
+			Value[] vals = null;
+			if (ds == null) {
+				/*
+				 * we do not give-up that easily. Is this a field with comma
+				 * separated values?
+				 */
+				String txt = ctx.getTextValue(this.name);
+				if (txt != null) {
+					vals = Value.parse(txt.split(","), this.getValueType());
+				}
+			} else if (ds.length() > 0) {
+				vals = ds.getColumnValues(this.name);
+				if (vals == null && ds.width() == 1) {
+					/*
+					 * Told you, we do not give-up that easily. This is a ds
+					 * with only one column. Why bother about matching the
+					 * column name
+					 */
+					vals = ds.getColumnValues(ds.getColumnNames()[0]);
+				}
 			}
-			if (this.isArray) {
-				stmt.setNull(this.myPosn, Types.ARRAY, this.sqlArrayType);
-			} else {
-				// stmt.setNull(this.myPosn, Types.STRUCT);
-				stmt.setNull(this.myPosn, Types.STRUCT, this.sqlObjectType);
+			if (vals == null) {
+				this.setNullParam(stmt, ctx);
+				return true;
 			}
+
+			Array data = DbDriver.createArray(con, vals, this.sqlArrayType);
+			stmt.setArray(this.myPosn, data);
+			return true;
+		}
+
+		/*
+		 * this involves a data structure
+		 */
+		Record record = ComponentManager.getRecord(this.recordName);
+
+		if (record.isComplexStruct()) {
+			return this.setComplexStruct(record, stmt, ctx);
+		}
+
+		/*
+		 * Simple data structure
+		 */
+		if (this.isArray == false) {
+			Value[] values = null;
+			if (ds == null) {
+				values = record.getData(ctx);
+			} else if (ds.length() > 0) {
+				values = ds.getRow(0);
+			}
+
+			if (values == null) {
+				return this.setNullParam(stmt, ctx);
+			}
+			Struct struct = DbDriver.createStruct(con, values,
+					this.sqlObjectType);
+			stmt.setObject(this.myPosn, struct, Types.STRUCT);
 			return true;
 		}
 		/*
-		 * as of ojdbc6, oracle does not support standard way of creating array
-		 * and struct. we have this oracle specific code for that.
+		 * finally, we have reached an array of struct
 		 */
-		if (DbDriver.getDbVendor() == DbVendor.ORACLE) {
-			return this.setOracleParam(ds, stmt);
+		if (ds == null || ds.length() == 0) {
+			return this.setNullParam(stmt, ctx);
 		}
-
-		return this.setGenericParam(ds, stmt);
+		int nbrRows = ds.length();
+		Struct[] structs = new Struct[nbrRows];
+		for (int i = 0; i < nbrRows; i++) {
+			structs[i] = DbDriver.createStruct(con, ds.getRow(i),
+					this.sqlObjectType);
+		}
+		Array array = DbDriver.createStructArray(con, structs,
+				this.sqlArrayType);
+		stmt.setArray(this.myPosn, array);
+		return true;
 	}
 
 	/**
-	 * set parameters as per standard jdbc interface
+	 * register this parameter for output
 	 *
-	 * @param ds
 	 * @param stmt
+	 * @throws SQLException
+	 */
+	private void registerForOutput(CallableStatement stmt) throws SQLException {
+
+		/*
+		 * array
+		 */
+		if (this.isArray) {
+			stmt.registerOutParameter(this.myPosn, Types.ARRAY,
+					this.sqlArrayType);
+			return;
+		}
+		/*
+		 * struct
+		 */
+		if (this.recordName != null) {
+			stmt.registerOutParameter(this.myPosn, Types.STRUCT,
+					this.sqlObjectType);
+			return;
+		}
+		/*
+		 * primitive value
+		 */
+		int scale = this.dataTypeObject.getScale();
+		if (scale == 0) {
+			stmt.registerOutParameter(this.myPosn, this.getValueType()
+					.getSqlType());
+			return;
+		}
+
+		stmt.registerOutParameter(this.myPosn,
+				this.getValueType().getSqlType(), scale);
+		return;
+	}
+
+	private boolean setNullParam(CallableStatement stmt, ServiceContext ctx)
+			throws SQLException {
+		if (this.isRequired) {
+			ctx.addMessage(Messages.VALUE_REQUIRED, this.name);
+			return false;
+		}
+		if (this.isArray) {
+			stmt.setNull(this.myPosn, Types.ARRAY, this.sqlArrayType);
+		} else {
+			stmt.setNull(this.myPosn, Types.STRUCT, this.sqlObjectType);
+		}
+		return true;
+	}
+
+	/**
 	 * @return
 	 * @throws SQLException
 	 */
-	private boolean setGenericParam(DataSheet ds, CallableStatement stmt)
-			throws SQLException {
-		Connection con = stmt.getConnection();
-		Object[] data;
+	private boolean setComplexStruct(Record record, CallableStatement stmt,
+			ServiceContext ctx) throws SQLException {
+		Object obj = ctx.getObject(this.name);
+		if (obj == null) {
+			return this.setNullParam(stmt, ctx);
+		}
 		if (this.isArray) {
-			if (this.recordName == null) {
-				data = this.getSimpleArray(ds);
-			} else {
-				data = this.getStructArray(ds, con);
+			if (obj instanceof JSONArray == false) {
+				Tracer.trace("Servie Context has an object as source for stored procedure "
+						+ this.name
+						+ " but while we expected it to be an instance of JSONArray (array of objects) it turned out to be "
+						+ obj.getClass().getName()
+						+ ". Assumed no value for this parameter");
+				return this.setNullParam(stmt, ctx);
 			}
-			Array array = con.createArrayOf(this.sqlArrayType, data);
+			Array array = record.createStructArrayForSp((JSONArray) obj,
+					stmt.getConnection(), ctx, this.sqlArrayType);
 			stmt.setArray(this.myPosn, array);
 			return true;
 		}
-		/*
-		 * so, it is a struct
-		 */
-		data = this.getStruct(ds);
-		Struct struct = con.createStruct(this.sqlObjectType, data);
+		if (obj instanceof JSONObject == false) {
+			Tracer.trace("Servie Context has an object as source for stored procedure "
+					+ this.name
+					+ " but while we expected it to be an instance of JSONObject it turned out to be "
+					+ obj.getClass().getName()
+					+ ". Assumed no value for this parameter");
+			return this.setNullParam(stmt, ctx);
+		}
+		Struct struct = record.createStructForSp((JSONObject) obj,
+				stmt.getConnection(), ctx, this.sqlObjectType);
 		stmt.setObject(this.myPosn, struct, Types.STRUCT);
 		return true;
-	}
-
-	/**
-	 * get an array of values
-	 *
-	 * @param ds
-	 */
-	private Object[] getSimpleArray(DataSheet ds) {
-		Value[] values = ds.getColumnValues(this.name);
-		if (values == null) {
-			/*
-			 * possible that the designer has not bothered to name the column.
-			 * We will go ahead with the first column. But caller has ensured
-			 * that there is data
-			 */
-			values = ds.getColumnValues(ds.getColumnNames()[0]);
-		}
-
-		Object[] result = new Object[values.length];
-		int i = 0;
-		for (Value val : values) {
-			if (val != null) {
-				result[i] = val.getObject();
-			}
-			i++;
-		}
-		return result;
-	}
-
-	/**
-	 * get data as array of arrays of objects
-	 *
-	 * @param ds
-	 * @param stmt
-	 * @throws SQLException
-	 */
-	private Object[] getStructArray(DataSheet ds, Connection con)
-			throws SQLException {
-		int nbrRows = ds.length();
-		Object[] result = new Object[nbrRows];
-		ValueType[] types = ds.getValueTypes();
-		int nbrCols = types.length;
-		for (int row = 0; row < nbrRows; row++) {
-			Object[] rowData = new Object[nbrCols];
-			Value[] rowValues = ds.getRow(row);
-			int col = 0;
-			for (Value val : rowValues) {
-				if (val != null) {
-					rowData[col] = val.getObject();
-				}
-				col++;
-			}
-			result[row] = con.createStruct(this.sqlObjectType, rowData);
-		}
-		return result;
-	}
-
-	/**
-	 * get an array of objects for this structure
-	 *
-	 * @param ds
-	 */
-	private Object[] getStruct(DataSheet ds) {
-		ValueType[] types = ds.getValueTypes();
-		Object[] result = new Object[types.length];
-		Value[] rowValues = ds.getRow(0);
-		int col = 0;
-		for (Value val : rowValues) {
-			if (val != null) {
-				result[col] = val.getObject();
-			}
-			col++;
-		}
-		return result;
-	}
-
-	/**
-	 * set array and struct for oracle driver
-	 *
-	 * @param ds
-	 * @param stmt
-	 * @return
-	 * @throws SQLException
-	 */
-	private boolean setOracleParam(DataSheet ds, CallableStatement stmt)
-			throws SQLException {
-		Connection connection = stmt.getConnection();
-		OracleConnection con;
-		if (connection instanceof OracleConnection) {
-			con = (OracleConnection) connection;
-		} else {
-			con = connection.unwrap(OracleConnection.class);
-		}
-		if (this.isArray) {
-			ARRAY arr = null;
-			if (this.recordName == null) {
-				arr = this.getOracleArray(ds, con);
-			} else {
-				arr = this.getOracleStructArray(ds, con);
-			}
-			stmt.setArray(this.myPosn, arr);
-			Tracer.trace(arr.length() + " rows added to procedure parameter "
-					+ this.name);
-			return true;
-		}
-		/*
-		 * so, it is a struct
-		 */
-		STRUCT struct = this.getOracleStruct(ds, con);
-		stmt.setObject(this.myPosn, struct, Types.STRUCT);
-		Tracer.trace("parameter " + this.name + " set to a structure");
-		return true;
-	}
-
-	/**
-	 * get an array of values
-	 *
-	 * @param ds
-	 * @throws SQLException
-	 */
-	private ARRAY getOracleArray(DataSheet ds, OracleConnection con)
-			throws SQLException {
-		Value[] values = ds.getColumnValues(this.name);
-		if (values == null) {
-			/*
-			 * possible that the designer has not bothered to name the column.
-			 * We will go ahead with the first column. But caller has ensured
-			 * that there is data
-			 */
-			values = ds.getColumnValues(ds.getColumnNames()[0]);
-		}
-
-		Object[] result = new Object[values.length];
-		int i = 0;
-		for (Value val : values) {
-			if (val != null) {
-				result[i] = val.getObject();
-			}
-			i++;
-		}
-		ArrayDescriptor ad = ArrayDescriptor.createDescriptor(
-				this.sqlArrayType, con);
-		return new ARRAY(ad, con, result);
-	}
-
-	/**
-	 * get data as array of arrays of objects
-	 *
-	 * @param ds
-	 * @param stmt
-	 * @throws SQLException
-	 */
-	private ARRAY getOracleStructArray(DataSheet ds, OracleConnection con)
-			throws SQLException {
-		int nbrRows = ds.length();
-		STRUCT[] result = new STRUCT[nbrRows];
-		ValueType[] types = ds.getValueTypes();
-		int nbrCols = types.length;
-		StructDescriptor sd = new StructDescriptor(this.sqlObjectType, con);
-		for (int row = 0; row < nbrRows; row++) {
-			Object[] rowData = new Object[nbrCols];
-			Value[] rowValues = ds.getRow(row);
-			int col = 0;
-			for (Value val : rowValues) {
-				if (val != null) {
-					rowData[col] = val.getObject();
-				}
-				col++;
-			}
-			result[row] = new STRUCT(sd, con, rowData);
-		}
-		ArrayDescriptor ad = ArrayDescriptor.createDescriptor(
-				this.sqlArrayType, con);
-		return new ARRAY(ad, con, result);
-	}
-
-	/**
-	 * get an array of objects for this structure
-	 *
-	 * @param ds
-	 * @throws SQLException
-	 */
-	private STRUCT getOracleStruct(DataSheet ds, OracleConnection con)
-			throws SQLException {
-		ValueType[] types = ds.getValueTypes();
-		Object[] result = new Object[types.length];
-		Value[] rowValues = ds.getRow(0);
-		int col = 0;
-		for (Value val : rowValues) {
-			if (val != null) {
-				result[col] = val.getObject();
-			}
-			col++;
-		}
-		StructDescriptor sd = StructDescriptor.createDescriptor(
-				this.sqlObjectType, con);
-		return new STRUCT(sd, con, result);
 	}
 
 	/**
@@ -497,17 +413,29 @@ public class ProcedureParameter {
 			return;
 		}
 		Object object = stmt.getObject(this.myPosn);
-		DataSheet ds;
-		if (this.isArray) {
-			if (this.recordName == null) {
-				ds = this.arrayToDs(object);
-			} else {
-				ds = this.structsToDs(object);
-			}
-		} else {
-			ds = this.StructToDs(object);
+		/*
+		 * array of primitives
+		 */
+		if (this.recordName == null) {
+			ctx.putDataSheet(this.name, this.arrayToDs(object));
+			return;
 		}
-		ctx.putDataSheet(this.name, ds);
+
+		Record record = ComponentManager.getRecord(this.recordName);
+
+		if (record.isComplexStruct()) {
+			/*
+			 * our current design is to put this object in ctx. outputRecord
+			 * will take care of that
+			 */
+			ctx.setObject(this.name, object);
+			return;
+		}
+		if (this.isArray) {
+			ctx.putDataSheet(this.name, this.structsToDs(object));
+			return;
+		}
+		ctx.putDataSheet(this.name, this.structToDs(object));
 	}
 
 	/**
@@ -517,7 +445,7 @@ public class ProcedureParameter {
 	 * @return
 	 * @throws SQLException
 	 */
-	private DataSheet StructToDs(Object dbObject) throws SQLException {
+	private DataSheet structToDs(Object dbObject) throws SQLException {
 		/*
 		 * struct is extracted into a data sheet with just one row
 		 */
@@ -527,6 +455,28 @@ public class ProcedureParameter {
 		Struct struct = (Struct) dbObject;
 		Value[] row = this.getRowFromStruct(struct.getAttributes(), types);
 		ds.addRow(row);
+		return ds;
+	}
+
+	/**
+	 * create a data sheet out of an array of structs
+	 *
+	 * @param objectData
+	 *            that is received from db converted into array of array of
+	 *            objects
+	 * @return data sheet into which data from the db object is extracted
+	 * @throws SQLException
+	 */
+	private DataSheet structsToDs(Object dbObject) throws SQLException {
+		DataSheet ds = ComponentManager.getRecord(this.recordName).createSheet(
+				false, false);
+		ValueType[] types = ds.getValueTypes();
+		Object[] arr = (Object[]) ((Array) dbObject).getArray();
+		for (Object struct : arr) {
+			Object[] rowData = ((Struct) struct).getAttributes();
+			Value[] row = this.getRowFromStruct(rowData, types);
+			ds.addRow(row);
+		}
 		return ds;
 	}
 
@@ -564,28 +514,6 @@ public class ProcedureParameter {
 		String[] columnNames = { this.name };
 		Value[][] columnValues = { values };
 		return new MultiRowsSheet(columnNames, columnValues);
-	}
-
-	/**
-	 * create a data sheet out of an array of structs
-	 *
-	 * @param objectData
-	 *            that is received from db converted into array of array of
-	 *            objects
-	 * @return data sheet into which data from the db object is extracted
-	 * @throws SQLException
-	 */
-	private DataSheet structsToDs(Object dbObject) throws SQLException {
-		DataSheet ds = ComponentManager.getRecord(this.recordName).createSheet(
-				false, false);
-		ValueType[] types = ds.getValueTypes();
-		Object[] arr = (Object[]) ((Array) dbObject).getArray();
-		for (Object struct : arr) {
-			Object[] rowData = ((Struct) struct).getAttributes();
-			Value[] row = this.getRowFromStruct(rowData, types);
-			ds.addRow(row);
-		}
-		return ds;
 	}
 
 	/**
