@@ -3,8 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <title>AFE-2016</title>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
 <script src="public/js/angular.min.js"></script>
 <link rel="stylesheet" href="public/css/bootstrap.min.css">
+<script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.13.0.min.js"></script>
+<script type="text/javascript">
+/* $('.table .td #typeahead').typeahead({
+	  hint: true,
+	  highlight: true,
+	  minLength: 3
+	}); */
+</script>
 </head>
 <body>
 	<div ng-app="submissionApp" ng-controller="formCtrl" ng-init="init()"
@@ -12,7 +22,7 @@
 		<div class="row">
 			<button class="btn-lg" ng-click="newnominationhtml()">New Nomination</button>
 			<button class="btn-lg" ng-click="viewsubmissionhtml()">View	Nominations</button>
-			<button class="btn-lg" ng-click="viewsponsorhtml()">Sponsor View</button>				
+			<button class="btn-lg" ng-click="viewsponsorhtml()">Sponsor View</button>
 		</div>
 		<hr>
 		<div ng-if="state=='sponsor' && sponsors.length > 0 " class="row">
@@ -28,10 +38,6 @@
 		</div>
 	</div>
 	<script type="text/javascript" src="public/js/simplity.js"></script>
-	<!-- script type="text/javascript">
-var WinNetwork = new ActiveXObject("WScript.Network");
-Simplity.login(WinNetwork.UserName);
-</script-->
 	<script type="text/javascript" src="public/js/submission.js"></script>
 </body>
 </html>

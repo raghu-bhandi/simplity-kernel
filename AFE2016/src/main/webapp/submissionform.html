@@ -1,4 +1,4 @@
-<form novalidate class="well" >
+<form name="forms.submissionForm" novalidate class="well">
 <fieldset ng-disabled="disableform">
 	<h3>Nomination form</h3>
 	<hr>
@@ -22,35 +22,40 @@
 		<label for="nomination" class="col-xs-2 col-form-label">Nomination
 			Title</label>
 		<div class="col-xs-10">
-			<input class="form-control" type="text"
+			<input class="form-control" type="text" name="title" maxlength="45"
 				placeholder="Nomination Title" ng-model="nomination.nomination"
-				aria-describedby="nominationHelp"> <small
-				id="nominationHelp">Please DO NOT mention any
+				aria-describedby="nominationHelp" required> 
+ <span style="color:red" ng-show="forms.submissionForm.$submitted && forms.submissionForm.title.$error.required">Nomination Title is required.</span>
+			<br><small	id="nominationHelp" required>Please DO NOT mention any
 				client/customer name in the title – Incase client/customer name
 				appears request you to kindly get the client/customer approval for
 				the same. Please limit your nomination title to 5 words (45
-				characters)</small>
+				characters)
+			</small> 
 		</div>
 
 	</div>
 	<h3>Sponsor</h3>
 	<div class="row">
 		<div class="form-group col-xs-4">
-			<label for="sponsormailid">Email ID</label> <input type="email"
+			<label for="sponsormailid">Email ID</label> <input type="text"
 				class="form-control" ng-model="nomination.sponsormailid"
-				placeholder="Enter email" aria-describedby="emailHelp">
+				placeholder="Enter email" aria-describedby="emailHelp" 
+				ng-change="getmailsuggestion(nomination.sponsormailid)" typeahead="employee.mail for employee in employees" 
+				typeahead-on-select="fetchdata(nomination.sponsormailid)">
 		</div>
 		<div class="form-group col-xs-4">
 			<label for="sponsorname">Name</label> <input class="form-control"
 				type="text" placeholder="Sponsor Name"
-				ng-model="nomination.sponsorname">
+				ng-model="nomination.sponsorname" disabled>
 		</div>
 		<div class="form-group col-xs-4">
 			<label for="sponsornumber">Employee Number</label> <input
 				class="form-control" type="text"
 				placeholder="Sponsor Employee Number"
-				ng-model="nomination.sponsornumber">
+				ng-model="nomination.sponsornumber" disabled>
 		</div>
+		<span style="color:red" ng-show="showSponsorError">Sponsor Details are required.</span>
 		<small id="emailHelp" class="form-text text-muted">Enter valid
 			Email ID without appending ITLINFOSYS or @infosys.com /
 			@edgeverve.com</small>
@@ -72,16 +77,18 @@
 				<th class="col-xs-1"></th>
 			</tr>
 			<tr class="row">
-				<td class="col-xs-1"><span class="glyphicon glyphicon-plus"
-					aria-hidden="true" ng-click="addrow()"></span></td>
-				<td class="col-xs-2"><input class="form-control"
-					ng-model="addmember.employeeEmailID" placeholder="Email Id"></td>
+				<td class="col-xs-1" ng-if="enableplus"><span class="glyphicon glyphicon-plus"
+					aria-hidden="true" ng-click="addrow()" ></span></td>
+				<td ng-if="!enableplus"></td>
+				<td class="col-xs-2"><input class="form-control" id="typeahead"
+					ng-model="addmember.employeeEmailID" placeholder="Email Id" ng-change="getmailsuggestion(addmember.employeeEmailID)" 
+					typeahead="employee.mail for employee in employees" typeahead-on-select="fetchdata(addmember.employeeEmailID)"></td>
 				<td class="col-xs-1"><input class="form-control"
-					ng-model="addmember.eNo" placeholder="Emp No"></td>
+					ng-model="addmember.eNo" placeholder="Emp No" disabled></td>
 				<td class="col-xs-2"><input class="form-control"
-					ng-model="addmember.Name" placeholder="Name"></td>
+					ng-model="addmember.Name" placeholder="Name" disabled></td>
 				<td class="col-xs-2"><input class="form-control"
-					ng-model="addmember.Unit" placeholder="Unit"></td>
+					ng-model="addmember.Unit" placeholder="Unit" disabled></td>
 				<td class="col-xs-3"><input class="form-control"
 					ng-model="addmember.contribution"
 					placeholder="Individual Contribution"></td>
@@ -92,6 +99,7 @@
 			</tr>
 		</table>
 	</div>
+	<span style="color:red" ng-show="showMemberError">Nominate atleast 1 member for the selected category</span>
 	<span>**Please limit the number of members to the maximum
 		allowed under the category </span>
 	<hr>
@@ -167,10 +175,10 @@
 	</div>
 	<hr>
 	<button type="submit" class="btn btn-primary">
-	<span ng-if="state=='new' || state=='sponsor'" ng-click="submit('Saved')">Save</span>
+	<span ng-if="state=='new' || state=='sponsor'" ng-click="forms.submissionForm.$invalid || submit('Saved')">Save</span>
 	<span ng-if="state=='view'" ng-click="updatenomination(nomination,'Saved')">Update</span>
 	</button>
-	<button type="submit" class="btn btn-primary" ng-click="submit('Submitted')">Submit</button>
+	<button type="submit" class="btn btn-primary" ng-click="forms.submissionForm.$invalid || submit('Submitted')">Submit</button>
 	</fieldset>
 </form>
 <script type="text/ng-template" id="displaymembers">
