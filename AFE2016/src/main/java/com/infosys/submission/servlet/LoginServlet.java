@@ -2,6 +2,7 @@ package com.infosys.submission.servlet;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.time.chrono.IsoEra;
 import java.util.Base64;
 
 import javax.servlet.ServletException;
@@ -17,6 +18,12 @@ public class LoginServlet extends DefaultLogin {
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		final String userPrincipal = ((HttpServletRequest) req).getHeader("userPrincipal");
+		if(userPrincipal!=null){
+			HttpAgent.login(userPrincipal, "", req.getSession(true));
+			return;
+		}
+		
 		final String authorization = ((HttpServletRequest) req).getHeader("Authorization");
 		String[] values = null;
 		if (authorization != null && authorization.startsWith("Basic")) {
