@@ -3,12 +3,84 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 <web-app>
 	<display-name>Archetype Created Web Application</display-name>
+
+
+	<!-- SPNEGA filter -->
 	<filter>
-		<filter-name>authenticate</filter-name>
-		<filter-class>com.infosys.submission.filter.LoginFilter</filter-class>
+		<filter-name>SpnegoHttpFilter</filter-name>
+		<filter-class>net.sourceforge.spnego.SpnegoHttpFilter</filter-class>
+
+		<init-param>
+			<param-name>spnego.allow.basic</param-name>
+			<param-value>true</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.allow.localhost</param-name>
+			<param-value>true</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.allow.unsecure.basic</param-name>
+			<param-value>true</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.login.client.module</param-name>
+			<param-value>spnego-client</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.krb5.conf</param-name>
+			<param-value>krb5.conf</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.login.conf</param-name>
+			<param-value>login.conf</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.preauth.username</param-name>
+			<param-value>encore</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.preauth.password</param-name>
+			<param-value>Renew@2020</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.login.server.module</param-name>
+			<param-value>spnego-server</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.prompt.ntlm</param-name>
+			<param-value>true</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>spnego.logger.level</param-name>
+			<param-value>1</param-value>
+		</init-param>
 	</filter>
+
+	<filter>
+		<filter-name>UserAuthFilter</filter-name>
+		<filter-class>com.infosys.submission.filter.LoginFilter</filter-class>
+		<init-param>
+			<param-name>avoid-urls</param-name>
+			<param-value>/public</param-value>
+		</init-param>
+	</filter>
+	
 	<filter-mapping>
-		<filter-name>authenticate</filter-name>
+		<filter-name>SpnegoHttpFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>UserAuthFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	<servlet>
@@ -20,7 +92,7 @@
 		<servlet-name>SimplityStartup</servlet-name>
 		<servlet-class>org.simplity.http.Startup</servlet-class>
 		<load-on-startup>2</load-on-startup>
-	</servlet>				
+	</servlet>
 	<servlet>
 		<servlet-name>s</servlet-name>
 		<servlet-class>org.simplity.http.Serve</servlet-class>
@@ -29,10 +101,8 @@
 		<servlet-name>i</servlet-name>
 		<servlet-class>com.infosys.submission.servlet.LoginServlet</servlet-class>
 	</servlet>
-	<!-- servlet>
-		<servlet-name>i</servlet-name>
-		<servlet-class>org.simplity.http.DefaultLogin</servlet-class>
-	</servlet-->	
+	<!-- servlet> <servlet-name>i</servlet-name> <servlet-class>org.simplity.http.DefaultLogin</servlet-class> 
+		</servlet -->
 	<servlet>
 		<servlet-name>o</servlet-name>
 		<servlet-class>org.simplity.http.DefaultLogout</servlet-class>

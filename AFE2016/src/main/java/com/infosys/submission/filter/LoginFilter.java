@@ -3,7 +3,9 @@ package com.infosys.submission.filter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.StringTokenizer;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -19,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import org.simplity.service.ServiceProtocol;
 
 public class LoginFilter implements Filter {
+	private ArrayList urlList;
 
 	public void destroy() {
 		// TODO Auto-generated method stub
@@ -30,27 +33,35 @@ public class LoginFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) res;
 
-		if(request.getServletPath().startsWith("/public")){
-			chain.doFilter(req, res);// sends request to next resource
-			return;
+		String url = request.getServletPath();
+		boolean allowedRequest = false;
+		String strURL = "";
+
+		// To check if the url can be excluded or not
+		for (int i = 0; i < urlList.size(); i++) {
+			strURL = urlList.get(i).toString();
+			if (url.startsWith(strURL)) {
+				allowedRequest = true;
+			}
 		}
-		
-		HttpSession session = request.getSession(false);
-		String loginURI = request.getContextPath() + "/login.html";
 
-		boolean loggedIn = session != null && session.getAttribute("_userIdInSession") != null;
-		boolean loginRequest = request.getRequestURI().equals(loginURI);
-		boolean loginURL = request.getRequestURI().endsWith("._i");
+		if (!allowedRequest) {
+			HttpSession session = request.getSession(false);
+			if (session == null || session.getAttribute("_userIdInSession") == null) {
+				request.getRequestDispatcher("/login.jsp").forward(request, response);
+			}
+		}
+		chain.doFilter(req, res);
+	}
 
-		if (loggedIn || loginRequest || loginURL) {
-			chain.doFilter(request, response);
-		} else {
-			response.sendRedirect(loginURI);
+	public void init(FilterConfig config) throws ServletException {
+		// Read the URLs to be avoided for authentication check (From web.xml)
+		String urls = config.getInitParameter("avoid-urls");
+		StringTokenizer token = new StringTokenizer(urls, ",");
+		urlList = new ArrayList();
+		while (token.hasMoreTokens()) {
+			urlList.add(token.nextToken());
 		}
 	}
 
-	public void init(FilterConfig arg0) throws ServletException {
-		// TODO Auto-generated method stub
-		
-	}
 }
