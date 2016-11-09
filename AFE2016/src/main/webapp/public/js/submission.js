@@ -1,8 +1,12 @@
-var app = angular.module('submissionApp', []);
+var app = angular.module('submissionApp', ['ui.bootstrap']);
 app.controller('formCtrl', function ($scope,$window) {
 	$scope.state = "new";
 	$scope.user = "new";
 	$scope.disableform = false;
+	$scope.enableplus = true;
+	$scope.showSponsorError = false;
+	$scope.showMemberError = false;
+	$scope.forms = {};
     $scope.categories= [
         {"category":"Account Management-Small/Mid","noOfMembers":3},
         {"category":"Account Management-Large","noOfMembers":5},
@@ -54,8 +58,15 @@ app.controller('formCtrl', function ($scope,$window) {
 		"filesize":""
     };
     
+    angular.element('#typeahead').typeahead({
+	  hint: true,
+	  highlight: true,
+	  minLength: 3
+	});
+    
     $scope.nominations = [];
     $scope.sponsors = [];
+    $scope.employees = [];
     $scope.initnomination={};
     $scope.initmember = {
         employeeEmailID: '',
@@ -67,6 +78,10 @@ app.controller('formCtrl', function ($scope,$window) {
     $scope.chosen;
     $scope.addmember = {};
     $scope.addrow = function () {
+    	if($scope.addmember.contribution == ""){
+    			alert("Please fill individual contribution");
+    			return;
+    	}
     	var membersallowed=0;
     	for(var i=0;i<$scope.categories.length;i++){
     		if($scope.nomination.selectedCategory == $scope.categories[i].category){
@@ -78,12 +93,11 @@ app.controller('formCtrl', function ($scope,$window) {
         angular.copy($scope.addmember, data);
         angular.copy($scope.initmember, $scope.addmember);
         if($scope.nomination.members == undefined)
-        	$scope.nomination.members=[];
-        if($scope.nomination.members.length == membersallowed){
-        	alert("Can't nominate more than "+membersallowed+" members for the selected category");
-        	return;
-        }
+        	$scope.nomination.members=[];        
         $scope.nomination.members.push(data);
+        if($scope.nomination.members.length == membersallowed){
+        	$scope.enableplus = false;
+        }
     };
     $scope.removerow = function (index) {
         $scope.nomination.members.splice(index, 1);
@@ -103,11 +117,25 @@ app.controller('formCtrl', function ($scope,$window) {
         else return 'displaymembers';
     };
     $scope.fileupload = function(file){
-        $scope.nomination.uploadfile = file.files[0];
-        console.log($scope.nomination.uploadfile);
+    	$scope.nomination.uploadfile = file.files[0];
+      if($scope.nomination.uploadfile.size > 5242880){
+        	alert("File is too large to upload. Please limit it to 5MB only");
+      }
     };
     $scope.submit=function(status){
-    	var data = {
+    	$scope.showSponsorError = false;
+    	$scope.showMemberError = false;
+    	if(status == "Submitted"){
+    			if($scope.nomination.sponsormailid == ""){
+    				$scope.showSponsorError = true;
+    			}
+    			if($scope.nomination.members.length == 0){
+    				$scope.showMemberError = true;
+    			}
+    	}
+    	if($scope.showSponsorError == true || $scope.showMemberError == true)
+    		return;
+     	var data = {
 				"selectedCategory":$scope.nomination.selectedCategory,
 		        "selectedLevel":$scope.nomination.selectedLevel,
 		        "nomination":$scope.nomination.nomination,
@@ -121,28 +149,29 @@ app.controller('formCtrl', function ($scope,$window) {
 		        "filetype":$scope.nomination.filetype,
 				"filesize":$scope.nomination.filesize		        
 		 	}
-    	console.log($scope.nomination.uploadfile);
+		if(status == "Saved")
+			data.email=false;
+		else
+			data.email=true;
+    	
     	if(!angular.equals($scope.nomination.uploadfile, {})){
+    		var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
-    			console.log($scope.nomination.uploadfile);
     			data.filekey=key;
-				data.filename=$scope.nomination.uploadfile.name;
-				data.filetype=$scope.nomination.uploadfile.type;
-				data.filesize=$scope.nomination.uploadfile.size;		     
+				data.filename=fileDetails.name;
+				data.filetype=fileDetails.type;
+				data.filesize=fileDetails.size;
+				Simplity.getResponse('submission.newnomination',JSON.stringify(data));
     		});
-    	}
-			
-			if(status == "Saved")
-				data.email=false;
-			else
-				data.email=true;
+    	}else{			
 			Simplity.getResponse('submission.newnomination',JSON.stringify(data));
-			angular.copy($scope.initnomination,$scope.nomination);
-				
-	 };
+    	}
+    	
+ 	 };
 	 
 	 $scope.init=function(){
 			 angular.copy($scope.nomination,$scope.initnomination);
+			 angular.copy($scope.initmember,$scope.addmember);
 	 };
 	 $scope.newnominationhtml=function(){
 		 $scope.state="new";
@@ -197,4 +226,31 @@ app.controller('formCtrl', function ($scope,$window) {
 			 $scope.disableform=true;
 		 }
 	 }
+	 
+	 $scope.getmailsuggestion=function(mailId){
+		 if(mailId.length >= 3){		 
+		 var data={"employeeEmailID":mailId};
+		 Simplity.getResponse('submission.ldap',JSON.stringify(data),function(json){
+			 $scope.employees = json.employees;
+			 $scope.$apply();
+		 });
+		 }
+	 }
+	 $scope.fetchdata=function(selectedmail){	
+		 var data={"employeeEmailID":selectedmail};
+		 Simplity.getResponse('submission.ldap',JSON.stringify(data),function(json){
+			 if($scope.nomination.sponsormailid == selectedmail){
+				 $scope.nomination.sponsorname = json.employees[0].Name;
+				 $scope.nomination.sponsornumber = json.employees[0].eNo;
+			 }
+			 else{
+			 $scope.addmember.eNo = json.employees[0].eNo;
+			 $scope.addmember.Name = json.employees[0].Name;
+			 $scope.addmember.Unit = json.employees[0].Unit;
+			 }	
+			 $scope.employees = [];
+			 $scope.$apply();
+		 });
+	}
+	 
 });

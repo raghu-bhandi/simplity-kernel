@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service
+	dbAccessType="readWrite"
+	description=""
+	executeInBackground="true"
+	moduleName="submission"
+	name="ldap"
+	xmlns="http://www.simplity.org/schema" 
+>
+<inputData>
+<inputFields>	
+	<inputField dataType="_text" name="employeeEmailID"/>	
+</inputFields>
+</inputData>	
+<actions>	
+	<logic className="com.infosys.submission.util.LDAPUserSearch"/>
+</actions>
+<outputData>
+	<outputRecords >
+		<outputRecord sheetName="employees"/>
+	</outputRecords>
+</outputData>
+</service>
