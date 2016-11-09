@@ -30,10 +30,13 @@ public class Mail  implements LogicInterface{
 			switch(parameters.get("status").toString()){
 			case "Submitted":
 				template = cfg.getTemplate ("submit.ftlh");
+				break;
 			case "Approved":
 				template = cfg.getTemplate ("approve.ftlh");
+				break;
 			case "Rejected":
 				template = cfg.getTemplate ("reject.ftlh");
+				break;
 			}
 			template.process (parameters,textValue );
 		} catch (IOException e) {

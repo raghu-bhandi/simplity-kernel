@@ -7,7 +7,7 @@
 	connectionString="jdbc:h2:file:D:/temp/AFE2016/db/nomination;user=sa;"
 	loginServiceName="app.login" 
 	sendTraceToClient="true"
-	logSqls="true"	
+	logSqls="true"		
 	attachmentsFolderPath="D:/temp/AFE2016/files"
 	accessController="com.infosys.submission.security">
 	<sessionParams>

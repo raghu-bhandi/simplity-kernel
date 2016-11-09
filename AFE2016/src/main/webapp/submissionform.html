@@ -178,7 +178,10 @@
 	<span ng-if="state=='new' || state=='sponsor'" ng-click="forms.submissionForm.$invalid || submit('Saved')">Save</span>
 	<span ng-if="state=='view'" ng-click="updatenomination(nomination,'Saved')">Update</span>
 	</button>
-	<button type="submit" class="btn btn-primary" ng-click="forms.submissionForm.$invalid || submit('Submitted')">Submit</button>
+	<button type="submit" class="btn btn-primary"> 
+	<span ng-if="state=='new'" ng-click="forms.submissionForm.$invalid || submit('Submitted')">Submit</span>
+	<span ng-if="state=='view'" ng-click="forms.submissionForm.$invalid || updatenomination(nomination,'Submitted')">Submit</span>
+	</button>
 	</fieldset>
 </form>
 <script type="text/ng-template" id="displaymembers">

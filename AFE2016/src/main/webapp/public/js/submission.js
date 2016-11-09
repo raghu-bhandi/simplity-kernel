@@ -166,7 +166,7 @@ app.controller('formCtrl', function ($scope,$window) {
     	}else{			
 			Simplity.getResponse('submission.newnomination',JSON.stringify(data));
     	}
-    	
+    	$scope.nomination.uploadfile = {};
  	 };
 	 
 	 $scope.init=function(){
@@ -214,8 +214,19 @@ app.controller('formCtrl', function ($scope,$window) {
 		else
 			 selectednomination.email=true;
 		selectednomination.status=status;
-		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination)); 
-		angular.copy($scope.initnomination,$scope.nomination);
+		console.log(selectednomination);
+		if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
+    		var fileDetails = $scope.nomination.uploadfile;
+    		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
+    			selectednomination.filekey=key;
+    			selectednomination.filename=fileDetails.name;
+    			selectednomination.filetype=fileDetails.type;
+    			selectednomination.filesize=fileDetails.size;
+				Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination));
+    		});
+    	}else{			
+    		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination));
+    	}
 	 };
 	 
 	 $scope.changeformstatus=function(selectednomination){
