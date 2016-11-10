@@ -35,12 +35,12 @@
 			<version>2.3.20</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/net.java.spnego/spnego -->
+		<!-- https://mvnrepository.com/artifact/net.sourceforge.spnego/spnego
 		<dependency>
-			<groupId>net.java.spnego</groupId>
+			<groupId>net.sourceforge.spnego</groupId>
 			<artifactId>spnego</artifactId>
-			<version>1.1</version>
-		</dependency>
+			<version>7.0</version>
+		</dependency-->
 
 		<!-- https://mvnrepository.com/artifact/junit/junit -->
 		<dependency>
