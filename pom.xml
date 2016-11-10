@@ -9,5 +9,6 @@
   <modules>
     <module>kernel</module>
     <module>js</module>
+    <module>LDAPLookup</module>
   </modules>
 </project>

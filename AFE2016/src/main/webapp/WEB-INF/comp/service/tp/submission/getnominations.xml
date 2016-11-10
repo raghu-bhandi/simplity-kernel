@@ -6,6 +6,9 @@
 	moduleName="submission"
 	name="getnominations"
 	xmlns="http://www.simplity.org/schema">
+	<inputData>
+	 <inputFields><inputField dataType="_text" name="test"/></inputFields>
+	</inputData>
 		<actions>
 		<copyUserId fieldName="UserIDCopy" actionName="copyUserIdAction" description="Copy user id from context"/>	
 		<setValue fieldName="userId" fieldValue="$copyUserIdActionResult" ></setValue>	
