@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>AFE-2016</title>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
-<script src="public/js/angular.min.js"></script>
 <link rel="stylesheet" href="public/css/bootstrap.min.css">
-<script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.13.0.min.js"></script>
+<script type="text/javascript" src="public/js/jquery.min.js"></script>
+<script type="text/javascript" src="public/js/bootstrap3-typeahead.min.js"></script>
+<script type="text/javascript" src="public/js/angular.min.js"></script>
+<script type="text/javascript" src="public/js/ui-bootstrap-tpls-0.13.0.min.js"></script>
 <script type="text/javascript">
 /* $('.table .td #typeahead').typeahead({
 	  hint: true,

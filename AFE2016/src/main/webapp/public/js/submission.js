@@ -190,6 +190,9 @@ app.controller('formCtrl', function ($scope,$window) {
 		 });
 
 	 };
+	 $scope.downloadfile=function(filekey,filename,filetype){
+		 Simplity.downloadFile(filekey,filename,filetype);
+	 };
 	 $scope.viewsponsorhtml=function(){		 
 		 $scope.state="sponsor";	 
 		 Simplity.getResponse("submission.getnomsponsor",null,function(json){

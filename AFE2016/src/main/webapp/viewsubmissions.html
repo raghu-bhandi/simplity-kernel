@@ -18,7 +18,7 @@
 		<td class="col-xs-1">{{x.selectedLevel}}</td>
 		<td class="col-xs-2">{{x.nomination}}</td>
 		<td class="col-xs-2">{{x.sponsormailid}}</td>
-		<td class="col-xs-1" ng-if="x.filekey != ''"><a ng-href="a._f?download={{x.filekey}}&filename={{x.filename}}" type="application/x-zip-compressed"> download</a></td>
+		<td class="col-xs-1" ng-if="x.filekey != ''"><a type="application/x-zip-compressed" href="javascript:void(0);" ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
 		<td class="col-xs-1" ng-if="x.filekey == ''"></td>
 		<td class="col-xs-1">{{x.status}}</td>
 		<td class="col-xs-1" ng-if="x.status=='Saved'">

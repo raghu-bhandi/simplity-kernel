@@ -1,6 +1,7 @@
 var app = angular.module("loginApp", []);
 	
 app.controller("loginCtrl", function($scope, $http,$log) {	
+	var targetURL = "index.jsp";
     var init = function () {
 		if(userPrincipal!==null){
 			$http({
@@ -12,7 +13,7 @@ app.controller("loginCtrl", function($scope, $http,$log) {
 						'Accept': 'application/json'
 					}
 				}).then(function successCallback(response) {
-					location.href = "index.html"
+					location.href = targetURL;
 				  }, function errorCallback(response) {
 					  console.log("error");
 				  });
@@ -30,7 +31,7 @@ app.controller("loginCtrl", function($scope, $http,$log) {
 					'Accept': 'application/json'
 				}
 			}).then(function successCallback(response) {
-				location.href = "index.html"
+				location.href = targetURL;
 			  }, function errorCallback(response) {
 				  console.log("error");
 			  });

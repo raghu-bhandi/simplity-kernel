@@ -1094,7 +1094,8 @@ var Simplity = (function() {
 	 *            call back function is called with content of ths file. called
 	 *            back with null in case of any issue.
 	 */
-	var downloadFile = function(key, callbackFn, progressFn) {
+	var downloadFile = function(key, filename, filetype, callbackFn, progressFn) {
+		callbackFn = callbackFn || saveasfile;
 		if (!key) {
 			error("No file token specified for download request");
 			return;
@@ -1116,7 +1117,7 @@ var Simplity = (function() {
 				resp = xhr.response;
 			}
 			if (callbackFn) {
-				callbackFn(resp);
+				callbackFn(resp,filename,filetype);
 			} else {
 				Simplity.message('We successfully downloaded file for key '
 						+ key + ' with content-type='
@@ -1152,7 +1153,31 @@ var Simplity = (function() {
 					+ ". error :" + e);
 		}
 	};
+	
+	/**
+	 * 
+	 * prompt the user to download the file with file name
+	 * 
+	 */
+	var saveasfile = function(contents,name, mime_type) {
+        mime_type = mime_type || "text/plain";
 
+        var blob = new Blob([contents], {type: mime_type});
+
+        var dlink = document.createElement('a');
+        dlink.download = name;
+        dlink.href = window.URL.createObjectURL(blob);
+        dlink.onclick = function(e) {
+            // revokeObjectURL needs a delay to work properly
+            var that = this;
+            setTimeout(function() {
+                window.URL.revokeObjectURL(that.href);
+            }, 1500);
+        };
+
+        dlink.click();
+        dlink.remove();
+	};
 	/**
 	 * register a call-back function to be called whenever client detects that a
 	 * login is required

@@ -10,7 +10,6 @@
 		<copyUserId fieldName="UserIDCopy" actionName="copyUserIdAction" description="Copy user id from context"/>	
 		<setValue fieldName="userId" fieldValue="$copyUserIdActionResult" ></setValue>	
 		<createSheet sheetName="filtersheet" data="submitterId;$userId"/>
-		<log names="userId,filtersheet"/>
 		<filter
 			inputSheetName="filtersheet"
 			filterRecordName="nomination.nomination"
