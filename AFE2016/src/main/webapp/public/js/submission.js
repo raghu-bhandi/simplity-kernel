@@ -1,5 +1,5 @@
 var app = angular.module('submissionApp', ['ui.bootstrap']);
-app.controller('formCtrl', function ($scope,$window) {
+app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.state = "new";
 	$scope.user = "new";
 	$scope.disableform = false;
@@ -67,6 +67,7 @@ app.controller('formCtrl', function ($scope,$window) {
     $scope.nominations = [];
     $scope.sponsors = [];
     $scope.employees = [];
+    $scope.chosenemployee = {};
     $scope.initnomination={};
     $scope.initmember = {
         employeeEmailID: '',
@@ -95,6 +96,7 @@ app.controller('formCtrl', function ($scope,$window) {
         if($scope.nomination.members == undefined)
         	$scope.nomination.members=[];        
         $scope.nomination.members.push(data);
+        $scope.nomination.membertypeahead = null;
         if($scope.nomination.members.length == membersallowed){
         	$scope.enableplus = false;
         }
@@ -230,30 +232,26 @@ app.controller('formCtrl', function ($scope,$window) {
 		 }
 	 }
 	 
-	 $scope.getmailsuggestion=function(mailId){
-		 if(mailId.length >= 3){		 
-		 var data={"employeeEmailID":mailId};
-		 Simplity.getResponse('submission.ldap',JSON.stringify(data),function(json){
-			 $scope.employees = json.employees;
-			 $scope.$apply();
+	 $scope.getmailsuggestion=function(mailidpart){
+		 $http({
+			 method:'GET',
+			 url   :'http://localhost:8080/LDAPLookup/a._s?_serviceName=lookup.ldaplookup&mailidpart='+mailidpart
+		 }).then(function successCallback(response) {
+			 $scope.employees = response.data.employees;
+		 },function errorCallback(response){
+			 console.log(response);
 		 });
-		 }
 	 }
-	 $scope.fetchdata=function(selectedmail){	
-		 var data={"employeeEmailID":selectedmail};
-		 Simplity.getResponse('submission.ldap',JSON.stringify(data),function(json){
-			 if($scope.nomination.sponsormailid == selectedmail){
-				 $scope.nomination.sponsorname = json.employees[0].Name;
-				 $scope.nomination.sponsornumber = json.employees[0].eNo;
-			 }
-			 else{
-			 $scope.addmember.eNo = json.employees[0].eNo;
-			 $scope.addmember.Name = json.employees[0].Name;
-			 $scope.addmember.Unit = json.employees[0].Unit;
-			 }	
-			 $scope.employees = [];
-			 $scope.$apply();
-		 });
-	}
+	 $scope.populatesponsordata=function(chosen){	
+		 	$scope.nomination.sponsormailid = chosen.mail;
+		    $scope.nomination.sponsorname   = chosen.Name; 
+		    $scope.nomination.sponsornumber = chosen.eNo;
+	 };
+	 $scope.populatememberdata=function(chosen){	
+		 	$scope.addmember.employeeEmailID = chosen.mail;
+		    $scope.addmember.Name            = chosen.Name; 
+		    $scope.addmember.eNo             = chosen.eNo;
+		    $scope.addmember.Unit            = chosen.Unit ;
+	 };
 	 
 });

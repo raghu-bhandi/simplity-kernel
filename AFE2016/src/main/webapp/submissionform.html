@@ -1,184 +1,197 @@
 <form name="forms.submissionForm" novalidate class="well">
-<fieldset ng-disabled="disableform">
-	<h3>Nomination form</h3>
-	<hr>
-	<div class="row">
-		<div class="form-group col-xs-6">
-			<label for="categories">Categories</label> <select
-				class="form-control" id="categories"
-				ng-model="nomination.selectedCategory"
-				ng-options="x.category as x.category for x in categories">
-			</select>
-		</div>
-		<div class="form-group  col-xs-6">
-			<label for="level">DC/Regional Level</label> <select
-				class="form-control" id="levels" ng-model="nomination.selectedLevel"
-				ng-options="x for x in levels">
-			</select>
-		</div>
-	</div>
-	<hr>
-	<div class="form-group row">
-		<label for="nomination" class="col-xs-2 col-form-label">Nomination
-			Title</label>
-		<div class="col-xs-10">
-			<input class="form-control" type="text" name="title" maxlength="45"
-				placeholder="Nomination Title" ng-model="nomination.nomination"
-				aria-describedby="nominationHelp" required> 
- <span style="color:red" ng-show="forms.submissionForm.$submitted && forms.submissionForm.title.$error.required">Nomination Title is required.</span>
-			<br><small	id="nominationHelp" required>Please DO NOT mention any
-				client/customer name in the title – Incase client/customer name
-				appears request you to kindly get the client/customer approval for
-				the same. Please limit your nomination title to 5 words (45
-				characters)
-			</small> 
-		</div>
-
-	</div>
-	<h3>Sponsor</h3>
-	<div class="row">
-		<div class="form-group col-xs-4">
-			<label for="sponsormailid">Email ID</label> <input type="text"
-				class="form-control" ng-model="nomination.sponsormailid"
-				placeholder="Enter email" aria-describedby="emailHelp" 
-				ng-change="getmailsuggestion(nomination.sponsormailid)" typeahead="employee.mail for employee in employees" 
-				typeahead-on-select="fetchdata(nomination.sponsormailid)">
-		</div>
-		<div class="form-group col-xs-4">
-			<label for="sponsorname">Name</label> <input class="form-control"
-				type="text" placeholder="Sponsor Name"
-				ng-model="nomination.sponsorname" disabled>
-		</div>
-		<div class="form-group col-xs-4">
-			<label for="sponsornumber">Employee Number</label> <input
-				class="form-control" type="text"
-				placeholder="Sponsor Employee Number"
-				ng-model="nomination.sponsornumber" disabled>
-		</div>
-		<span style="color:red" ng-show="showSponsorError">Sponsor Details are required.</span>
-		<small id="emailHelp" class="form-text text-muted">Enter valid
-			Email ID without appending ITLINFOSYS or @infosys.com /
-			@edgeverve.com</small>
-	</div>
-
-	<h3>Details of Members</h3>
-	<div ng-repeat="c in categories">
-	<span ng-if="c.category == nomination.selectedCategory">The maximum number of members you can nominate is : {{c.noOfMembers}}</span>
-	</div>
-	<div class="form-group">
-		<table id="members" class="table">
-			<tr class="row">
-				<th class="col-xs-1"></th>
-				<th class="col-xs-2">Email ID</th>
-				<th class="col-xs-1">Emp.No</th>
-				<th class="col-xs-2">Name</th>
-				<th class="col-xs-2">Unit/Dept</th>
-				<th class="col-xs-3">Details of Individual Contribution</th>
-				<th class="col-xs-1"></th>
-			</tr>
-			<tr class="row">
-				<td class="col-xs-1" ng-if="enableplus"><span class="glyphicon glyphicon-plus"
-					aria-hidden="true" ng-click="addrow()" ></span></td>
-				<td ng-if="!enableplus"></td>
-				<td class="col-xs-2"><input class="form-control" id="typeahead"
-					ng-model="addmember.employeeEmailID" placeholder="Email Id" ng-change="getmailsuggestion(addmember.employeeEmailID)" 
-					typeahead="employee.mail for employee in employees" typeahead-on-select="fetchdata(addmember.employeeEmailID)"></td>
-				<td class="col-xs-1"><input class="form-control"
-					ng-model="addmember.eNo" placeholder="Emp No" disabled></td>
-				<td class="col-xs-2"><input class="form-control"
-					ng-model="addmember.Name" placeholder="Name" disabled></td>
-				<td class="col-xs-2"><input class="form-control"
-					ng-model="addmember.Unit" placeholder="Unit" disabled></td>
-				<td class="col-xs-3"><input class="form-control"
-					ng-model="addmember.contribution"
-					placeholder="Individual Contribution"></td>
-				<td class="col-xs-1"></td>
-			</tr>
-			<tr ng-repeat="x in nomination.members" class="row"
-				ng-include="getTemplate($index)">
-			</tr>
-		</table>
-	</div>
-	<span style="color:red" ng-show="showMemberError">Nominate atleast 1 member for the selected category</span>
-	<span>**Please limit the number of members to the maximum
-		allowed under the category </span>
-	<hr>
-	<span>Important Guidelines</span>
-	<ul>
-		<li>Please note that only one nomination per account / project /
-			program will be allowed and accepted. Units/ BEFs should decide the
-			best category suitable for the nomination and nominate accordingly</li>
-		<li>Upload the Files in .zip format</li>
-		<li>Please limit the file name of your .zip file to less than ten
-			characters</li>
-		<li>If there are various programs under an account, each program
-			is eligible to be nominated once</li>
-		<li>Nomination Upload not supported by Google Chrome, Please use
-			Internet Explorer instead.</li>
-	</ul>
-
-	<hr>
-	<div class="container-fluid" ng-if="state=='new'">
+	<fieldset ng-disabled="disableform">
+		<h3>Nomination form</h3>
+		<hr>
 		<div class="row">
-			<div class="form-check col-xs-6">
-				<label class="form-check-label"> <input type="checkbox"
-					class="form-check-input"> Whether the entry criteria if
-					applicable has been complied with or not?
-				</label>
+			<div class="form-group col-xs-6">
+				<label for="categories">Categories</label> <select
+					class="form-control" id="categories"
+					ng-model="nomination.selectedCategory"
+					ng-options="x.category as x.category for x in categories">
+				</select>
 			</div>
-			<div class="form-check col-xs-6">
-				<label class="form-check-label"> <input type="checkbox"
-					class="form-check-input"> Whether the nomination has been
-					restricted to 5 pages or not?
-				</label>
-			</div>
-		</div>
-		<div class="row">
-			<div class="form-check col-xs-6">
-				<label class="form-check-label"> <input type="checkbox"
-					class="form-check-input"> Whether the details of team
-					members have been correctly provided or not?
-				</label>
-			</div>
-			<div class="form-check col-xs-6">
-				<label class="form-check-label"> <input type="checkbox"
-					class="form-check-input"> Whether the number of team member
-					restricted as per the details provided?
-				</label>
+			<div class="form-group  col-xs-6">
+				<label for="level">DC/Regional Level</label> <select
+					class="form-control" id="levels"
+					ng-model="nomination.selectedLevel" ng-options="x for x in levels">
+				</select>
 			</div>
 		</div>
-		<div class="row">
-			<div class="form-check col-xs-6">
-				<label class="form-check-label"> <input type="checkbox"
-					class="form-check-input"> Whether the individual
-					contribution of the team members provided or not?
-				</label>
+		<hr>
+		<div class="form-group row">
+			<label for="nomination" class="col-xs-2 col-form-label">Nomination Title</label>
+			<div class="col-xs-10">
+				<input class="form-control" type="text" name="title" maxlength="45"
+					placeholder="Nomination Title" ng-model="nomination.nomination"
+					aria-describedby="nominationHelp" required> <span
+					style="color: red"
+					ng-show="forms.submissionForm.$submitted && forms.submissionForm.title.$error.required">Nomination
+					Title is required.</span> <br>
+				<small id="nominationHelp" required>Please DO NOT mention
+					any client/customer name in the title – Incase client/customer name
+					appears request you to kindly get the client/customer approval for
+					the same. Please limit your nomination title to 5 words (45
+					characters) </small>
 			</div>
-			<div class="form-check col-xs-6">
-				<label class="form-check-label"> <input type="checkbox"
-					class="form-check-input"> Whether the individual
-					contribution of the team members provided or not?
-				</label>
-			</div>
-		</div>
-	</div>
 
-	<hr>
-	<div class="form-group">
-		<label for="uploadNomination">Upload Nomination</label> <input
-			type="file" ng-model-instant class="form-control-file"
-			id="uploadNomination" aria-describedby="fileHelp"
-			onchange="angular.element(this).scope().fileupload(this)"> <small
-			id="fileHelp" class="form-text text-muted">
-			<span ng-if="state=='new'">Please upload a zip file and limit the size of the file to 5MB only</span>
-			<span ng-if="state=='view'">Please note that the uploaded file will replace the existing file</span></small>
-	</div>
-	<hr>
-	<button type="submit" class="btn btn-primary">
-	<span ng-if="state=='new' || state=='sponsor'" ng-click="forms.submissionForm.$invalid || submit('Saved')">Save</span>
-	<span ng-if="state=='view'" ng-click="updatenomination(nomination,'Saved')">Update</span>
-	</button>
-	<button type="submit" class="btn btn-primary" ng-click="forms.submissionForm.$invalid || submit('Submitted')">Submit</button>
+		</div>
+		<h3>Sponsor</h3>
+		<div class="row">
+			<div class="form-group col-xs-4">
+				<label for="sponsormailid">Email ID</label> 
+				<input type="text"
+					class="form-control" ng-model="sponsortypeahead.value"
+					placeholder="Enter email" aria-describedby="emailHelp"
+					ng-change="getmailsuggestion(sponsortypeahead.value)"
+					typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith""
+					typeahead-on-select="populatesponsordata($item)">
+			</div>
+			<div class="form-group col-xs-4">
+				<label for="sponsorname">Name</label> <input class="form-control"
+					type="text" placeholder="Sponsor Name"
+					ng-model="nomination.sponsorname" disabled>
+			</div>
+			<div class="form-group col-xs-4">
+				<label for="sponsornumber">Employee Number</label> <input
+					class="form-control" type="text"
+					placeholder="Sponsor Employee Number"
+					ng-model="nomination.sponsornumber" disabled>
+			</div>
+			<span style="color: red" ng-show="showSponsorError">Sponsor
+				Details are required.</span> <small id="emailHelp"
+				class="form-text text-muted">Enter valid Email ID without
+				appending ITLINFOSYS or @infosys.com / @edgeverve.com</small>
+		</div>
+
+		<h3>Details of Members</h3>
+		<div ng-repeat="c in categories">
+			<span ng-if="c.category == nomination.selectedCategory">The
+				maximum number of members you can nominate is : {{c.noOfMembers}}</span>
+		</div>
+		<div class="form-group">
+			<table id="members" class="table">
+				<tr class="row">
+					<th class="col-xs-1"></th>
+					<th class="col-xs-2">Email ID</th>
+					<th class="col-xs-1">Emp.No</th>
+					<th class="col-xs-2">Name</th>
+					<th class="col-xs-2">Unit/Dept</th>
+					<th class="col-xs-3">Details of Individual Contribution</th>
+					<th class="col-xs-1"></th>
+				</tr>
+				<tr class="row">
+					<td class="col-xs-1" ng-if="enableplus"><span
+						class="glyphicon glyphicon-plus" aria-hidden="true"
+						ng-click="addrow()"></span></td>
+					<td ng-if="!enableplus"></td>
+					<td class="col-xs-2">
+					<input class="form-control"
+						id="typeahead" ng-model="nomination.membertypeahead"
+						placeholder="Email Id"
+						ng-change="getmailsuggestion(nomination.membertypeahead)"
+						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith""
+						typeahead-on-select="populatememberdata($item)"></td>
+					<td class="col-xs-1"><input class="form-control"
+						ng-model="addmember.eNo" placeholder="Emp No" disabled></td>
+					<td class="col-xs-2"><input class="form-control"
+						ng-model="addmember.Name" placeholder="Name" disabled></td>
+					<td class="col-xs-2"><input class="form-control"
+						ng-model="addmember.Unit" placeholder="Unit" disabled></td>
+					<td class="col-xs-3"><input class="form-control"
+						ng-model="addmember.contribution"
+						placeholder="Individual Contribution"></td>
+					<td class="col-xs-1"></td>
+				</tr>
+				<tr ng-repeat="x in nomination.members" class="row"
+					ng-include="getTemplate($index)">
+				</tr>
+			</table>
+		</div>
+		<span style="color: red" ng-show="showMemberError">Nominate
+			atleast 1 member for the selected category</span> <span>**Please
+			limit the number of members to the maximum allowed under the category
+		</span>
+		<hr>
+		<span>Important Guidelines</span>
+		<ul>
+			<li>Please note that only one nomination per account / project /
+				program will be allowed and accepted. Units/ BEFs should decide the
+				best category suitable for the nomination and nominate accordingly</li>
+			<li>Upload the Files in .zip format</li>
+			<li>Please limit the file name of your .zip file to less than
+				ten characters</li>
+			<li>If there are various programs under an account, each program
+				is eligible to be nominated once</li>
+			<li>Nomination Upload not supported by Google Chrome, Please use
+				Internet Explorer instead.</li>
+		</ul>
+
+		<hr>
+		<div class="container-fluid" ng-if="state=='new'">
+			<div class="row">
+				<div class="form-check col-xs-6">
+					<label class="form-check-label"> <input type="checkbox"
+						class="form-check-input"> Whether the entry criteria if
+						applicable has been complied with or not?
+					</label>
+				</div>
+				<div class="form-check col-xs-6">
+					<label class="form-check-label"> <input type="checkbox"
+						class="form-check-input"> Whether the nomination has been
+						restricted to 5 pages or not?
+					</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-check col-xs-6">
+					<label class="form-check-label"> <input type="checkbox"
+						class="form-check-input"> Whether the details of team
+						members have been correctly provided or not?
+					</label>
+				</div>
+				<div class="form-check col-xs-6">
+					<label class="form-check-label"> <input type="checkbox"
+						class="form-check-input"> Whether the number of team
+						member restricted as per the details provided?
+					</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="form-check col-xs-6">
+					<label class="form-check-label"> <input type="checkbox"
+						class="form-check-input"> Whether the individual
+						contribution of the team members provided or not?
+					</label>
+				</div>
+				<div class="form-check col-xs-6">
+					<label class="form-check-label"> <input type="checkbox"
+						class="form-check-input"> Whether the individual
+						contribution of the team members provided or not?
+					</label>
+				</div>
+			</div>
+		</div>
+
+		<hr>
+		<div class="form-group">
+			<label for="uploadNomination">Upload Nomination</label> <input
+				type="file" ng-model-instant class="form-control-file"
+				id="uploadNomination" aria-describedby="fileHelp"
+				onchange="angular.element(this).scope().fileupload(this)"> <small
+				id="fileHelp" class="form-text text-muted"> <span
+				ng-if="state=='new'">Please upload a zip file and limit the
+					size of the file to 5MB only</span> <span ng-if="state=='view'">Please
+					note that the uploaded file will replace the existing file</span></small>
+		</div>
+		<hr>
+		<button type="submit" class="btn btn-primary">
+			<span ng-if="state=='new' || state=='sponsor'"
+				ng-click="forms.submissionForm.$invalid || submit('Saved')">Save</span>
+			<span ng-if="state=='view'"
+				ng-click="updatenomination(nomination,'Saved')">Update</span>
+		</button>
+		<button type="submit" class="btn btn-primary"
+			ng-click="forms.submissionForm.$invalid || submit('Submitted')">Submit</button>
 	</fieldset>
 </form>
 <script type="text/ng-template" id="displaymembers">

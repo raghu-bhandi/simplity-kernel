@@ -1,7 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.infosys</groupId>
+	<parent>
+		<groupId>org.simplity</groupId>
+		<artifactId>simplity</artifactId>
+		<version>1.1.2</version>
+	</parent>
+	<groupId>com.infosys.qreuse</groupId>
 	<artifactId>LDAPLookup</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
@@ -15,33 +22,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-      <groupId>org.simplity</groupId>
-      <artifactId>kernel</artifactId>
-      <version>1.1.0</version>
-    </dependency>
+			<groupId>org.simplity</groupId>
+			<artifactId>kernel</artifactId>
+			<version>1.1.2</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<finalName>LDAPLookup</finalName>
-		<plugins>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.8</version>
-        <executions>
-          <execution>
-            <id>ant-execute</id>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <ant>
-                  <target />
-                </ant>
-              </target>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
 	</build>
 </project>
