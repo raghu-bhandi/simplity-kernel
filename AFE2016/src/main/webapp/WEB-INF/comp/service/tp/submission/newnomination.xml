@@ -19,7 +19,6 @@
 	<inputField dataType="_text" name="sponsormailid"/>
 	<inputField dataType="_text" name="sponsorname"/>
 	<inputField dataType="_text" name="sponsornumber"/>
-	<inputField dataType="_text" name="submitterId" defaultValue="encore"/>
 	<inputField dataType="_text" name="status"/>
 	<inputField dataType="_boolean" name="email"/>
 </inputFields>
@@ -28,6 +27,7 @@
 </inputRecords>
 </inputData>	
 	<actions>	
+		<copyUserId fieldName="submitterId"/>
 		<save saveAction="save" recordName="nomination.nomination">
 			<childRecords>
 				<relatedRecord sheetName="members" recordName="nomination.members"/>

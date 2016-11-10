@@ -20,7 +20,6 @@
 	<inputField dataType="_text" name="sponsormailid"/>
 	<inputField dataType="_text" name="sponsorname"/>
 	<inputField dataType="_text" name="sponsornumber"/>
-	<inputField dataType="_text" name="submitterId" defaultValue="encore"/>
 	<inputField dataType="_text" name="status"/>
 </inputFields>
 <inputRecords>
@@ -28,6 +27,7 @@
 </inputRecords>
 </inputData>	
 	<actions>	
+		<copyUserId fieldName="submitterId"/>
 		<save saveAction="delete" recordName="nomination.nomination" actionName="deleteAction" >
 			<childRecords>
 				<relatedRecord sheetName="members" recordName="nomination.members"/>
