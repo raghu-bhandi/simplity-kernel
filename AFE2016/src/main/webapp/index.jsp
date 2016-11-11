@@ -15,6 +15,13 @@
 	  minLength: 3
 	}); */
 </script>
+<style>
+.selected {
+    background-color:blue;
+    color:white;
+    font-weight:bold;
+}
+</style>
 </head>
 <body>
 	<div ng-app="submissionApp" ng-controller="formCtrl" ng-init="init()"

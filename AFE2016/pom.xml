@@ -35,12 +35,9 @@
 			<version>2.3.20</version>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/net.sourceforge.spnego/spnego
-		<dependency>
-			<groupId>net.sourceforge.spnego</groupId>
-			<artifactId>spnego</artifactId>
-			<version>7.0</version>
-		</dependency-->
+		<!-- https://mvnrepository.com/artifact/net.sourceforge.spnego/spnego <dependency> 
+			<groupId>net.sourceforge.spnego</groupId> <artifactId>spnego</artifactId> 
+			<version>7.0</version> </dependency -->
 
 		<!-- https://mvnrepository.com/artifact/junit/junit -->
 		<dependency>

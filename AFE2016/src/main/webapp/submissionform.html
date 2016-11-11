@@ -82,14 +82,14 @@
 				<tr class="row">
 					<td class="col-xs-1" ng-if="enableplus"><span
 						class="glyphicon glyphicon-plus" aria-hidden="true"
-						ng-click="addrow()"></span></td>
+						ng-click="disableform || addrow()"></span></td>
 					<td ng-if="!enableplus"></td>
 					<td class="col-xs-2">
 					<input class="form-control"
 						id="typeahead" ng-model="nomination.membertypeahead"
 						placeholder="Email Id"
 						ng-change="getmailsuggestion(nomination.membertypeahead)"
-						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith""
+						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 						typeahead-on-select="populatememberdata($item)"></td>
 					<td class="col-xs-1"><input class="form-control"
 						ng-model="addmember.eNo" placeholder="Emp No" disabled></td>
@@ -173,20 +173,8 @@
 		</div>
 
 		<hr>
-		<div class="form-group">
-			<label for="uploadNomination">Upload Nomination</label> <input
-				type="file" ng-model-instant class="form-control-file"
-				id="uploadNomination" aria-describedby="fileHelp"
-				onchange="angular.element(this).scope().fileupload(this)"> <small
-				id="fileHelp" class="form-text text-muted"> <span
-				ng-if="state=='new'">Please upload a zip file and limit the
-					size of the file to 5MB only</span> <span ng-if="state=='view'">Please
-					note that the uploaded file will replace the existing file</span></small>
-		</div>
-	</div>
-
-	<hr>
-	<div class="form-group">
+		
+<div class="form-group">
 		<label for="uploadNomination">Upload Nomination</label> <input
 			type="file" ng-model-instant class="form-control-file"
 			id="uploadNomination" aria-describedby="fileHelp"
@@ -197,22 +185,13 @@
 	</div>
 	<hr>
 	<button type="submit" class="btn btn-primary">
-	<span ng-if="state=='new' || state=='sponsor'" ng-click="forms.submissionForm.$invalid || submit('Saved')">Save</span>
-	<span ng-if="state=='view'" ng-click="updatenomination(nomination,'Saved')">Update</span>
+	<span ng-if="state=='new'"  ng-click="forms.submissionForm.$invalid || submit('Saved')">Save</span>
+	<span ng-if="state=='view' || state=='sponsor'" ng-click="disableform || updatenomination(nomination,'Saved')">Update</span>
 	</button>
 	<button type="submit" class="btn btn-primary"> 
 	<span ng-if="state=='new'" ng-click="forms.submissionForm.$invalid || submit('Submitted')">Submit</span>
-	<span ng-if="state=='view'" ng-click="forms.submissionForm.$invalid || updatenomination(nomination,'Submitted')">Submit</span>
+	<span ng-if="state=='view' || state=='sponsor'" ng-click="disableform || forms.submissionForm.$invalid || updatenomination(nomination,'Submitted')">Submit</span>
 	</button>
-		<hr>
-		<button type="submit" class="btn btn-primary">
-			<span ng-if="state=='new' || state=='sponsor'"
-				ng-click="forms.submissionForm.$invalid || submit('Saved')">Save</span>
-			<span ng-if="state=='view'"
-				ng-click="updatenomination(nomination,'Saved')">Update</span>
-		</button>
-		<button type="submit" class="btn btn-primary"
-			ng-click="forms.submissionForm.$invalid || submit('Submitted')">Submit</button>
 	</fieldset>
 </form>
 <script type="text/ng-template" id="displaymembers">
@@ -222,7 +201,7 @@
         <td class="col-xs-2">{{x.Name}}</td>
         <td class="col-xs-2">{{x.Unit}}</td>
         <td class="col-xs-3">{{x.contribution}}</td>
-        <td class="col-xs-1"><span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="editmember($index)">&nbsp;</span><span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="removerow($index)"></span></td>
+        <td class="col-xs-1"><span class="glyphicon glyphicon-pencil" aria-hidden="true" ng-click="disableform || editmember($index)">&nbsp;</span><span class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="disableform || removerow($index)"></span></td>
     </script>
 <script type="text/ng-template" id="editmembers">
         <td class="col-xs-1">{{$index+1}}</td>
@@ -231,5 +210,5 @@
         <td class="col-xs-2"><input class="form-control" type="text" ng-model="x.Name"></td>
         <td class="col-xs-2"><input class="form-control" type="text" ng-model="x.Unit"></td>
         <td class="col-xs-3"><input class="form-control" type="text" ng-model="x.contribution"></td>
-        <td class="col-xs-1"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true" ng-click="savemember($index)"></span></td>
+        <td class="col-xs-1"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true" ng-click="disableform || savemember($index)"></span></td>
     </script>
