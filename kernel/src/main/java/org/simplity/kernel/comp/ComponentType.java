@@ -38,6 +38,7 @@ import org.simplity.kernel.fn.Concat;
 import org.simplity.kernel.fn.Function;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.service.ServiceInterface;
+import org.simplity.test.ServiceTest;
 import org.simplity.tp.Service;
 
 /**
@@ -67,7 +68,7 @@ public enum ComponentType {
 
 		/*
 		 * (non-Javadoc)
-		 *
+		 * 
 		 * @see
 		 * org.simplity.kernel.comp.ComponentType#generateComp(java.lang.String)
 		 */
@@ -132,7 +133,7 @@ public enum ComponentType {
 				Tracer.trace(
 						e,
 						this
-						+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
+								+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
 			}
 			for (Function fn : BUILT_IN_FUNCTIONS) {
 				String fname = fn.getSimpleName();
@@ -144,7 +145,12 @@ public enum ComponentType {
 			}
 		}
 
-	};
+	},
+
+	/**
+	 * test cases for service
+	 */
+	SERVICE_TEST(7, ServiceTest.class, "service/tp/", false);
 
 	/*
 	 * constants
@@ -213,7 +219,7 @@ public enum ComponentType {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see java.lang.Enum#toString()
 	 */
 	@Override
@@ -435,7 +441,7 @@ public enum ComponentType {
 			Tracer.trace(
 					e,
 					this
-					+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
+							+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
 		}
 	}
 
@@ -541,5 +547,16 @@ public enum ComponentType {
 			componentFolder += FOLDER_CHAR;
 		}
 		Tracer.trace("component folder set to " + componentFolder);
+	}
+
+	/**
+	 *
+	 *
+	 * @return return the component folder. This is absolute folder in case of
+	 *         non-web environment, and relative to web-root in case of web
+	 *         environment. FileManager has the web-context if required.
+	 */
+	public static String getComponentFolder() {
+		return componentFolder;
 	}
 }

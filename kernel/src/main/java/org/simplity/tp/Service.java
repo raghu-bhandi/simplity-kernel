@@ -97,6 +97,13 @@ public class Service implements ServiceInterface {
 	 * module name.simpleName would be fully qualified name.
 	 */
 	String moduleName;
+
+	/**
+	 * if this is implemented as a java code. If this is specified, no attribute
+	 * (other than name and module name) are relevant
+	 */
+	String className;
+
 	/**
 	 * database access type
 	 */
@@ -175,6 +182,11 @@ public class Service implements ServiceInterface {
 	private boolean justInputEveryThing;
 	private boolean justOutputEveryThing;
 
+	/*
+	 * instance of className to be used as body of tis service
+	 */
+	private ServiceInterface serviceInstance;
+
 	@Override
 	public DbAccessType getDataAccessType() {
 		return this.dbAccessType;
@@ -205,6 +217,10 @@ public class Service implements ServiceInterface {
 
 	@Override
 	public ServiceData respond(ServiceData inData) {
+		if (this.serviceInstance != null) {
+			return this.serviceInstance.respond(inData);
+		}
+
 		ServiceContext ctx = new ServiceContext(this.name, inData.getUserId());
 		this.extractInput(ctx, inData.getPayLoad());
 
@@ -271,7 +287,8 @@ public class Service implements ServiceInterface {
 	}
 
 	protected void extractInput(ServiceContext ctx, String requestText) {
-		if(requestText==null || requestText.equals("undefined")){
+		if (requestText == null || requestText.length() == 0) {
+			Tracer.trace("No input received from client");
 			return;
 		}
 		if (this.requestTextFieldName != null) {
@@ -280,11 +297,8 @@ public class Service implements ServiceInterface {
 					+ this.requestTextFieldName);
 			return;
 		}
-		String jsonText = null;
-		if (requestText != null) {
-			jsonText = requestText.trim();
-		}
-		if (jsonText == null || jsonText.length() == 0) {
+		String jsonText = requestText.trim();
+		if (jsonText.isEmpty()) {
 			jsonText = "{}";
 		}
 		JSONObject json = new JSONObject(jsonText);
@@ -383,7 +397,16 @@ public class Service implements ServiceInterface {
 			return;
 		}
 		this.gotReady = true;
-
+		if (this.className != null) {
+			try {
+				this.serviceInstance = (ServiceInterface) Class.forName(
+						this.className).newInstance();
+			} catch (Exception e) {
+				throw new ApplicationError(e,
+						"Unable to get an instance of service using class name "
+								+ this.className);
+			}
+		}
 		if (this.actions == null) {
 			throw new ApplicationError("Service " + this.getQualifiedName()
 					+ " has no actions.");
@@ -827,21 +850,49 @@ public class Service implements ServiceInterface {
 
 	@Override
 	public int validate(ValidationContext ctx) {
+		ctx.beginValidation(MY_TYPE, this.getQualifiedName());
 		int count = 0;
-		if (this.actions == null) {
-			ctx.addError("No actions.");
-		}
-		Set<String> addedSoFar = new HashSet<String>();
-		int i = 1;
-		for (Action action : this.actions) {
-			if (addedSoFar.add(action.actionName) == false) {
-				ctx.addError("Duplicate action name " + action.actionName
-						+ " at " + i);
+		if (this.className != null) {
+			try {
+				Object obj = Class.forName(this.className).newInstance();
+				if (obj instanceof ServiceInterface == false) {
+					ctx.addError(this.className
+							+ " is set as className but it does not implement ServiceInterface");
+					count++;
+				}
+			} catch (Exception e) {
+				ctx.addError(this.className
+						+ " could not be used to instantiate an object.\n"
+						+ e.getMessage());
 				count++;
 			}
-			count += action.validate(ctx, this);
-			i++;
+			if (this.actions != null) {
+				ctx.addError(this.className
+						+ " is set as className. This java code is used as servie definition. Actions are not vaid.");
+				count++;
+			}
+			return count;
 		}
+		int i = 0;
+		if (this.actions == null) {
+			ctx.addError("No actions.");
+			count++;
+		} else {
+			Set<String> addedSoFar = new HashSet<String>();
+			i = 1;
+			for (Action action : this.actions) {
+				if (action.actionName != null) {
+					if (addedSoFar.add(action.actionName) == false) {
+						ctx.addError("Duplicate action name "
+								+ action.actionName + " at " + i);
+						count++;
+					}
+				}
+				count += action.validate(ctx, this);
+				i++;
+			}
+		}
+
 		i = 0;
 		if (this.requestTextFieldName != null) {
 			i++;
@@ -894,6 +945,7 @@ public class Service implements ServiceInterface {
 					+ this.schemaName
 					+ " but it is not defined as one of additional schema names in application.xml");
 		}
+		ctx.endValidation();
 		return count;
 	}
 

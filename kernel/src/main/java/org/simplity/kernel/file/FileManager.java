@@ -32,6 +32,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -58,6 +60,7 @@ public class FileManager {
 	 * in this application are assumed to be relative to this folder.
 	 */
 	private static final char FOLDER_CHAR = '/';
+	private static final String FOLDER_STR = "/";
 
 	private static ServletContext myContext = null;
 
@@ -85,33 +88,56 @@ public class FileManager {
 	 */
 	public static String[] getResources(String parentFolder) {
 		String[] empty = new String[0];
+		List<String> resources = new ArrayList<String>();
 		if (myContext == null) {
-			/*
-			 * non-web environment. Deal with file system
-			 */
-			File file = new File(parentFolder);
-			if (file.exists() == false) {
-				return empty;
-			}
-			String[] files = file.list();
-			if (files == null) {
-				return empty;
-			}
-			/*
-			 * files has only the simple name. Caller wants path relative to the
-			 * parent
-			 */
-			for (int i = 0; i < files.length; i++) {
-				files[i] = parentFolder + files[i];
-			}
-			return files;
+			addAllResourcesWithFs(parentFolder, resources);
+		} else {
+			addAllResourcesWithCtx(parentFolder, resources);
 		}
+		return resources.toArray(empty);
+	}
+
+	private static void addAllResourcesWithCtx(String parentFolder,
+			List<String> resources) {
 		Set<String> paths = myContext.getResourcePaths(FOLDER_CHAR
 				+ parentFolder);
 		if (paths == null) {
-			return empty;
+			return;
 		}
-		return paths.toArray(empty);
+		for (String path : paths) {
+			if (path.endsWith(FOLDER_STR)) {
+				addAllResourcesWithCtx(path, resources);
+			} else {
+				resources.add(path);
+			}
+		}
+	}
+
+	private static void addAllResourcesWithFs(String parentFolder,
+			List<String> resources) {
+		File file = new File(parentFolder);
+		if (file.exists() == false) {
+			Tracer.trace("Unusual that " + parentFolder
+					+ " is not a valid path.");
+			return;
+		}
+		String[] files = file.list();
+		if (files == null) {
+			return;
+		}
+		/*
+		 * files has only the simple name. Caller wants path relative to the
+		 * parent
+		 */
+		for (String path : files) {
+			path = parentFolder + path;
+			File childFile = new File(path);
+			if (childFile.isDirectory()) {
+				addAllResourcesWithFs(path + FOLDER_CHAR, resources);
+			} else {
+				resources.add(path);
+			}
+		}
 	}
 
 	/**
