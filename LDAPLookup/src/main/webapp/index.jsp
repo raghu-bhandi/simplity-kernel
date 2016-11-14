@@ -1,5 +1,5 @@
 <html>
 <body>
-<h2>Hello World!</h2>
+<h2>LDAP Lookup Service is up and running!</h2>
 </body>
 </html>

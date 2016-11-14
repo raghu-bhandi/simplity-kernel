@@ -246,7 +246,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	 $scope.getmailsuggestion=function(mailidpart){
 		 $http({
 			 method:'GET',
-			 url   :'http://172.21.147.150:8080/LDAPLookup/a._s?_serviceName=lookup.ldaplookup&mailidpart='+mailidpart
+			 url   :'http://10.68.122.228:8080/LDAPLookup/a._s?_serviceName=lookup.ldaplookup&mailidpart='+mailidpart
 		 }).then(function successCallback(response) {
 			 $scope.employees = response.data.employees;
 		 },function errorCallback(response){

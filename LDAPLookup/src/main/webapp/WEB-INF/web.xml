@@ -4,6 +4,14 @@
 
 <web-app>
 	<display-name>Archetype Created Web Application</display-name>
+	<filter>
+		<filter-name>CorsFilter</filter-name>
+		<filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>CorsFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 	<servlet>
 		<servlet-name>SimplityStartup</servlet-name>
 		<servlet-class>org.simplity.http.Startup</servlet-class>
@@ -17,4 +25,6 @@
 		<servlet-name>s</servlet-name>
 		<url-pattern>*._s</url-pattern>
 	</servlet-mapping>
+
+
 </web-app>
