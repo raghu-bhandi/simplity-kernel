@@ -291,4 +291,9 @@ public abstract class ServiceProtocol {
 
 	public static final String SERVICE_DELETE_FILE = "_discard";
 
+	/**
+	 * special file name that indicates logs instead of a file content
+	 */
+	public static final String FILE_NAME_FOR_LOGS = "_logs";
+
 }

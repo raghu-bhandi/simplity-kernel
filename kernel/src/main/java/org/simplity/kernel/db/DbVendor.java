@@ -39,7 +39,7 @@ public enum DbVendor {
 	/**
 	 * Microsoft Sql Server
 	 */
-	, MSSQL("CURRENT_TIMESTAMP", "select schem_name()", "use ", '%', '_', '[',
+	, MSSQL("CURRENT_TIMESTAMP", "select schema_name()", "use ", '%', '_', '[',
 			']')
 
 	/**

@@ -649,17 +649,25 @@
 	<!-- Stored procedure -->
 	<xs:element name="storedProcedure">
 		<xs:complexType>
-			<xs:sequence minOccurs="0" maxOccurs="1">
+			<xs:sequence
+				minOccurs="0"
+				maxOccurs="1"
+			>
 				<xs:element
 					name="parameters"
 					minOccurs="0"
-					maxOccurs="1" >
+					maxOccurs="1"
+				>
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="procedureParameter" type="procedureParameter" minOccurs="1" maxOccurs="unbounded" />
+							<xs:element
+								name="procedureParameter"
+								type="procedureParameter"
+								minOccurs="1"
+								maxOccurs="unbounded" />
 						</xs:sequence>
 					</xs:complexType>
-					</xs:element>
+				</xs:element>
 			</xs:sequence>
 			<xs:attribute
 				name="name"
@@ -922,6 +930,18 @@
 							</xs:annotation>
 						</xs:attribute>
 						<xs:attribute
+							name="dataSheets"
+							type="xs:string"
+							use="optional"
+						>
+							<xs:annotation>
+								<xs:documentation>Give comma separated names of data sheets to
+									be
+									sent to client.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute
 							name="attachmentFields"
 							type="xs:string"
 							use="optional"
@@ -964,9 +984,14 @@
 				</xs:element>
 				<xs:element
 					name="actions"
-					minOccurs="1"
+					minOccurs="0"
 					maxOccurs="1"
 					type="actions" />
+				<xs:element
+					name="testCases"
+					type="testCases"
+					minOccurs="0"
+					maxOccurs="1" />
 			</xs:all>
 			<xs:attribute
 				name="name"
@@ -976,6 +1001,18 @@
 				name="moduleName"
 				type="xs:string"
 				use="optional" />
+			<xs:attribute
+				name="className"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>fully qualified java class name that actually
+						implements this service. No other attribute is relevant once you
+						specify this.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 			<xs:attribute
 				name="executeInBackground"
 				type="xs:boolean"
@@ -2537,4 +2574,248 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+	<xs:element name="serviceTest">
+		<xs:complexType>
+			<xs:sequence
+				maxOccurs="1"
+				minOccurs="1"
+			>
+				<xs:element
+					name="testCases"
+					type="testCases"
+					minOccurs="1"
+					maxOccurs="1" />
+			</xs:sequence>
+			<xs:attribute
+				name="name"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>Simple name of service wihtout its module name
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="moduleName"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>module name of service</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="testCases">
+		<xs:sequence>
+			<xs:element
+				name="testCase"
+				minOccurs="1"
+				maxOccurs="unbounded"
+			>
+				<xs:complexType>
+					<xs:all>
+						<xs:element
+							minOccurs="0"
+							maxOccurs="1"
+							name="inputPayload"
+							type="xs:string"
+						>
+							<xs:annotation>
+								<xs:documentation>Use a CDATA section to specify a json. Since
+									json is full of double quotes, it is quite ugly to specify it
+									as attribute or contennt</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element
+							minOccurs="0"
+							maxOccurs="1"
+							name="inputFields"
+							type="testFieldsIn" />
+						<xs:element
+							minOccurs="0"
+							maxOccurs="1"
+							name="inputSheets"
+							type="testSheetsIn" />
+						<xs:element
+							minOccurs="0"
+							maxOccurs="1"
+							name="outputFields"
+							type="testFieldsOut" />
+						<xs:element
+							minOccurs="0"
+							maxOccurs="1"
+							name="outputSheets"
+							type="testSheetsOut" />
+						<xs:element
+							minOccurs="0"
+							maxOccurs="1"
+							name="outputPayload" 
+							type="xs:string"
+						>
+							<xs:annotation>
+								<xs:documentation>Use a CDATA section to specify a json. Since
+									json is full of double quotes, it is quite ugly to specify it
+									as attribute or contennt</xs:documentation>
+							</xs:annotation>
+							
+						</xs:element>
+					</xs:all>
+					<xs:attribute
+						name="testCaseName"
+						type="xs:string"
+						use="required"
+					>
+						<xs:annotation>
+							<xs:documentation>Unique name within a service for us to identify
+								this test case</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="description"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Unique name within a service for us to identify
+								this test case</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="nbrErrorsExpected"
+						type="xs:int"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Unique name within a service for us to identify
+								this test case</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="testFieldsIn">
+		<xs:sequence>
+			<xs:element name="Field">
+				<xs:complexType>
+					<xs:attribute
+						name="fieldName"
+						type="xs:string"
+						use="required" />
+					<xs:attribute
+						name="fieldVaue"
+						type="xs:string"
+						use="required" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="testFieldsOut">
+		<xs:sequence>
+			<xs:element name="Field">
+				<xs:complexType>
+					<xs:attribute
+						name="fieldName"
+						type="xs:string"
+						use="required" />
+					<xs:attribute
+						name="fieldVaue"
+						type="xs:string"
+						use="optional" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="testSheetsOut">
+		<xs:sequence>
+			<xs:element name="Sheet">
+				<xs:complexType>
+					<xs:attribute
+						name="sheetName"
+						type="xs:string"
+						use="required" />
+					<xs:attribute
+						name="columnNames"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>required if data is specified.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="data"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Comma separated list of values for a row. row
+								values are semicolon separated. for example a1,b1,c2;a2,b3,c2...
+								Of course value can not contain , or ;, but then you should be
+								able to design your test data that way :-) </xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="minRows"
+						type="xs:int"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>min rws expected in output. Not relevant if
+								data itself is specified.</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="maxRows"
+						type="xs:int"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>max nbr rows expected. Not relevant if actual
+								data is specified</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="testSheetsIn">
+		<xs:sequence>
+			<xs:element name="Sheet">
+				<xs:complexType>
+					<xs:attribute
+						name="sheetName"
+						type="xs:string"
+						use="required" />
+					<xs:attribute
+						name="columnNames"
+						type="xs:string"
+						use="required"
+					>
+						<xs:annotation>
+							<xs:documentation>Comma separated list of column names. Value is
+								required for input</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="data"
+						type="xs:string"
+						use="required"
+					>
+						<xs:annotation>
+							<xs:documentation>Comma separated list of values for a row. row
+								values are semicolon separated. for example a1,b1,c2;a2,b3,c2...
+								Of course value can not contain , or ;, but then you should be
+								able to design your test data that way :-) </xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 </xs:schema>

@@ -40,6 +40,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Tracer;
+import org.simplity.kernel.util.CircularLifo;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
@@ -100,6 +101,7 @@ public class HttpAgent {
 	public static final String SESSION_NAME_FOR_USER_ID = "_userIdInSession";
 
 	private static final String SESSION_NAME_FOR_MAP = "userSessionMap";
+	static final String CACHED_TRACES = "CACHED_TRACES";
 
 	/**
 	 * set at set-up time in case we are in development mode, and we use a
@@ -111,6 +113,11 @@ public class HttpAgent {
 	 * cache service responses
 	 */
 	private static HttpCacheManager httpCacheManager;
+
+	/**
+	 * accumulated traces to be streamed to client when requested.
+	 */
+	private static boolean tracesToBeCached;
 
 	/**
 	 * serve this service. Main entrance to the server from an http client.
@@ -189,7 +196,8 @@ public class HttpAgent {
 				 * we are forced to check payload for the time being for some
 				 * safety
 				 */
-				if (payLoad == null || payLoad.equals("undefined")
+				if (payLoad == null || payLoad.isEmpty()
+						|| payLoad.equals("undefined")
 						|| payLoad.equals("null")) {
 					payLoad = "{}";
 				}
@@ -252,6 +260,9 @@ public class HttpAgent {
 			out.close();
 		}
 		String trace = Tracer.stopAccumulation();
+		if (tracesToBeCached) {
+			cacheTraces(session, trace);
+		}
 		String log = TAG + startedAt + ELAPSED + elapsed + SERVICE
 				+ serviceName + USER + userId + CLOSE + trace + TAG_CLOSE;
 		myLogger.info(log);
@@ -404,10 +415,15 @@ public class HttpAgent {
 	 *            for all services
 	 * @param cacher
 	 *            http cache manager
+	 * @param cacheTraces
+	 *            if true, traces are also saved into a circular buffer tat can
+	 *            be delivered to the client
 	 */
-	public static void setUp(Value autoUserId, HttpCacheManager cacher) {
+	public static void setUp(Value autoUserId, HttpCacheManager cacher,
+			boolean cacheTraces) {
 		autoLoginUserId = autoUserId;
 		httpCacheManager = cacher;
+		tracesToBeCached = cacheTraces;
 
 	}
 
@@ -439,7 +455,7 @@ public class HttpAgent {
 
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-				.getAttribute(SESSION_NAME_FOR_MAP);
+		.getAttribute(SESSION_NAME_FOR_MAP);
 		if (sessionData == null) {
 			throw new ApplicationError(
 					"Unexpected situation. UserId is located in session, but not map");
@@ -477,7 +493,7 @@ public class HttpAgent {
 	private static void setSessionData(HttpSession session, ServiceData data) {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-				.getAttribute(SESSION_NAME_FOR_MAP);
+		.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
 			Tracer.trace("Unexpected situation. setSession invoked with no active session. Action ignored");
@@ -505,6 +521,9 @@ public class HttpAgent {
 		Map<String, Object> sessionData = new HashMap<String, Object>();
 		session.setAttribute(SESSION_NAME_FOR_USER_ID, userId);
 		session.setAttribute(SESSION_NAME_FOR_MAP, sessionData);
+		if (tracesToBeCached) {
+			session.setAttribute(CACHED_TRACES, new CircularLifo<String>());
+		}
 		Tracer.trace("New session data created for " + userId);
 		return sessionData;
 	}
@@ -530,5 +549,23 @@ public class HttpAgent {
 		if (httpCacheManager != null) {
 			httpCacheManager.invalidate(serviceName, session);
 		}
+	}
+
+	/**
+	 * push trace to the buffer in session
+	 *
+	 * @param session
+	 * @param trace
+	 */
+	private static void cacheTraces(HttpSession session, String trace) {
+		Object obj = session.getAttribute(HttpAgent.CACHED_TRACES);
+		if (obj == null) {
+			Tracer.trace("Unexpected absence of trace buffer in session. Client will not get traces.");
+			return;
+		}
+		@SuppressWarnings("unchecked")
+		CircularLifo<String> lifo = ((CircularLifo<String>) obj);
+		lifo.put(trace);
+
 	}
 }

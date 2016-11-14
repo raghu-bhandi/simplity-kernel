@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,15 +26,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Writer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.file.FileManager;
+import org.simplity.kernel.util.CircularLifo;
 import org.simplity.service.ServiceProtocol;
 
 /**
@@ -115,6 +117,15 @@ public class Stream extends HttpServlet {
 		 * syntax for asking for download is ?download=key, otherwise it is just
 		 * ?key
 		 */
+		if (token == null) {
+			Tracer.trace("No file/token specified for fiel download request");
+			resp.setStatus(404);
+			return;
+		}
+		if (token.equals(ServiceProtocol.FILE_NAME_FOR_LOGS)) {
+			this.sendLogs(req, resp);
+			return;
+		}
 		boolean toDownload = false;
 		if (token.indexOf(DOWNLOAD) == 0) {
 			Tracer.trace("Received a download request for token " + token);
@@ -183,5 +194,42 @@ public class Stream extends HttpServlet {
 				}
 			}
 		}
+	}
+
+	/**
+	 * retrieve buffered logs from session a
+	 * 
+	 * @param req
+	 * @param resp
+	 * @throws IOException
+	 */
+	private void sendLogs(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {
+		HttpSession session = req.getSession(false);
+		if (session == null) {
+			return;
+		}
+		Object obj = session.getAttribute(HttpAgent.CACHED_TRACES);
+		if (obj == null) {
+			return;
+		}
+		@SuppressWarnings("unchecked")
+		String[] traces = ((CircularLifo<String>) obj).getAll(new String[0]);
+		if (traces.length == 0) {
+			return;
+		}
+		Writer writer = resp.getWriter();
+		try {
+			for (String trace : traces) {
+				writer.write(trace);
+			}
+		} finally {
+			try {
+				writer.close();
+			} catch (Exception ignore) {
+				//
+			}
+		}
+
 	}
 }

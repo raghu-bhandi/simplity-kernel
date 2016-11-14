@@ -51,7 +51,7 @@ public class SimpleCacheManager implements HttpCacheManager {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.http.HttpCacheManager#respond(org.simplity.service.ServiceData
 	 * , javax.servlet.http.HttpSession)
@@ -59,11 +59,9 @@ public class SimpleCacheManager implements HttpCacheManager {
 	@Override
 	public ServiceData respond(ServiceData inData, HttpSession session) {
 		String serviceName = inData.getServiceName();
-		Tracer.trace("Checking for cached response for service " + serviceName);
 		CachedService cs = this.allCache.get(serviceName);
 		String payLoad = null;
 		if (cs == null) {
-			Tracer.trace("not in non-user-id list. Going to try user_id specific");
 			@SuppressWarnings("rawtypes")
 			Map map = (Map) session.getAttribute(NAME_IN_SESSION);
 			if (map != null) {
@@ -71,11 +69,10 @@ public class SimpleCacheManager implements HttpCacheManager {
 			}
 		}
 		if (cs != null) {
-			Tracer.trace("traced the cache for this service. Let us see if we have response for this input");
 			payLoad = cs.getResponse(inData);
 		}
 		if (payLoad == null) {
-			Tracer.trace("No luch with cache");
+			Tracer.trace("Service not available in cached responses.");
 			return null;
 		}
 		Tracer.trace("Responding from cache");
@@ -86,7 +83,7 @@ public class SimpleCacheManager implements HttpCacheManager {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.http.HttpCacheManager#cache(org.simplity.service.ServiceData
 	 * , org.simplity.service.ServiceData, javax.servlet.http.HttpSession)
@@ -129,7 +126,7 @@ public class SimpleCacheManager implements HttpCacheManager {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.http.HttpCacheManager#invalidate(java.lang.String)
 	 */
 	@Override

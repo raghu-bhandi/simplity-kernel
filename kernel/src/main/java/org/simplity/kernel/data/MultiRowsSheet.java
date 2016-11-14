@@ -65,17 +65,38 @@ public class MultiRowsSheet implements DataSheet {
 	private Map<String, Integer> columnIndexes = new HashMap<String, Integer>();
 
 	/**
-	 * create a blank table with no structure and no data. Use this ONLY if you
-	 * can not use other constructors.
+	 * create a data sheet from raw data with columns parsed as per types
 	 *
 	 * @param rawData
 	 *            rows of text data, with a header row for column names
 	 * @param valueTypes
+	 *            value type of columns in that order
 	 *
 	 */
 	public MultiRowsSheet(String[][] rawData, ValueType[] valueTypes) {
 		this.columnValueTypes = valueTypes;
 		this.setColumnNames(rawData[0]);
+		for (int i = 1; i < rawData.length; i++) {
+			this.data.add(this.textToRow(rawData[i]));
+		}
+	}
+
+	/**
+	 * create a data sheet with all text data using the raw data
+	 *
+	 * @param rawData
+	 *            rows of text data, with a header row for column names. All
+	 *            columns are treated as text.
+	 *
+	 */
+	public MultiRowsSheet(String[][] rawData) {
+		String[] names = rawData[0];
+		ValueType[] types = new ValueType[names.length];
+		for (int i = 0; i < types.length; i++) {
+			types[i] = ValueType.TEXT;
+		}
+		this.columnValueTypes = types;
+		this.setColumnNames(names);
 		for (int i = 1; i < rawData.length; i++) {
 			this.data.add(this.textToRow(rawData[i]));
 		}

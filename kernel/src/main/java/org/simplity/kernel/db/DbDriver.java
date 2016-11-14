@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import oracle.jdbc.driver.OracleConnection;
@@ -74,16 +73,17 @@ public class DbDriver {
 	 */
 	private static final String OUR_ESCAPE_CHAR = "!";
 	private static final String OUR_ESCAPE_STR = "!!";
+	private static final String CONTEXT_PREFIX = "java:/comp/env/";
 
 	/*
 	 * we store sql types with corresponding value types
 	 */
 	private static final int[] LONG_TYPES = { Types.BIGINT, Types.INTEGER,
-			Types.SMALLINT };
+		Types.SMALLINT };
 	private static final int[] DATE_TYPES = { Types.DATE, Types.TIME,
-			Types.TIMESTAMP };
+		Types.TIMESTAMP };
 	private static final int[] DOUBLE_TYPES = { Types.DECIMAL, Types.DOUBLE,
-			Types.FLOAT, Types.REAL };
+		Types.FLOAT, Types.REAL };
 	private static final int[] BOOLEAN_TYPES = { Types.BIT, Types.BOOLEAN };
 	private static final Map<Integer, ValueType> SQL_TYPES = new HashMap<Integer, ValueType>();
 
@@ -109,7 +109,7 @@ public class DbDriver {
 	 */
 	private static final int TABLE_IDX = 0;
 	private static final String[] TABLE_NAMES = { "schema", "tableName",
-			"tableType", "remarks" };
+		"tableType", "remarks" };
 	private static final ValueType[] TABLE_TYPES = { TXT, TXT, TXT, TXT };
 	private static final int[] TABLE_POSNS = { 2, 3, 4, 5 };
 	private static final String[] TABLE_TYPES_TO_EXTRACT = { "TABLE", "VIEW" };
@@ -118,11 +118,11 @@ public class DbDriver {
 	 */
 	private static final int COL_IDX = 1;
 	private static final String[] COL_NAMES = { "schema", "tableName",
-			"columnName", "sqlType", "sqlTypeName", "size", "nbrDecimals",
-			"remarks", "nullable", "autoIncrement" };
+		"columnName", "sqlType", "sqlTypeName", "size", "nbrDecimals",
+		"remarks", "nullable" };
 	private static final ValueType[] COL_TYPES = { TXT, TXT, TXT, INT, TXT,
-			INT, INT, TXT, BOOL, BOOL };
-	private static final int[] COL_POSNS = { 2, 3, 4, 5, 6, 7, 9, 12, 18, 23 };
+		INT, INT, TXT, BOOL };
+	private static final int[] COL_POSNS = { 2, 3, 4, 5, 6, 7, 9, 12, 18 };
 
 	/*
 	 * names, types and positions as per result set for meta.getTables()
@@ -137,7 +137,7 @@ public class DbDriver {
 	 */
 	private static final int PROC_IDX = 3;
 	private static final String[] PROC_NAMES = { "schema", "procedureName",
-			"procedureType", "remarks" };
+		"procedureType", "remarks" };
 	private static final ValueType[] PROC_TYPES = { TXT, TXT, INT, TXT };
 	private static final int[] PROC_POSNS = { 2, 3, 8, 7 };
 
@@ -146,19 +146,19 @@ public class DbDriver {
 	 */
 	private static final int PARAM_IDX = 4;
 	private static final String[] PARAM_NAMES = { "schema", "procedureName",
-			"paramName", "columnType", "sqlType", "sqlTypeName", "size",
-			"precision", "scale", "remarks", "nullable", "position" };
+		"paramName", "columnType", "sqlType", "sqlTypeName", "size",
+		"precision", "scale", "remarks", "nullable", "position" };
 	private static final ValueType[] PARAM_TYPES = { TXT, TXT, TXT, INT, INT,
-			TXT, INT, INT, INT, TXT, BOOL, INT };
+		TXT, INT, INT, INT, TXT, BOOL, INT };
 	private static final int[] PARAM_POSNS = { 2, 3, 4, 5, 6, 7, 9, 8, 10, 13,
-			19, 18 };
+		19, 18 };
 
 	/*
 	 * names, types and positions as per result set for meta.getUDTs()
 	 */
 	private static final int STRUCT_IDX = 5;
 	private static final String[] STRUCT_NAMES = { "schema", "structName",
-			"structType", "remarks" };
+		"structType", "remarks" };
 	private static final ValueType[] STRUCT_TYPES = { TXT, TXT, TXT, TXT };
 	private static final int[] STRUCT_POSNS = { 2, 3, 5, 6 };
 	private static final int[] STRUCT_TYPES_TO_EXTRACT = { Types.STRUCT };
@@ -167,21 +167,21 @@ public class DbDriver {
 	 */
 	private static final int ATTR_IDX = 6;
 	private static final String[] ATTR_NAMES = { "schema", "structName",
-			"attributeName", "sqlType", "sqlTypeName", "size", "nbrDecimals",
-			"remarks", "nullable", "position" };
+		"attributeName", "sqlType", "sqlTypeName", "size", "nbrDecimals",
+		"remarks", "nullable", "position" };
 	private static final ValueType[] ATTR_TYPES = { TXT, TXT, TXT, INT, TXT,
-			INT, INT, TXT, BOOL, INT };
+		INT, INT, TXT, BOOL, INT };
 	private static final int[] ATTR_POSNS = { 2, 3, 4, 5, 6, 7, 8, 11, 17, 16 };
 
 	/*
 	 * put them into array for modularity
 	 */
 	private static final String[][] META_COLUMNS = { TABLE_NAMES, COL_NAMES,
-			KEY_NAMES, PROC_NAMES, PARAM_NAMES, STRUCT_NAMES, ATTR_NAMES };
+		KEY_NAMES, PROC_NAMES, PARAM_NAMES, STRUCT_NAMES, ATTR_NAMES };
 	private static final ValueType[][] META_TYPES = { TABLE_TYPES, COL_TYPES,
-			KEY_TYPES, PROC_TYPES, PARAM_TYPES, STRUCT_TYPES, ATTR_TYPES };
+		KEY_TYPES, PROC_TYPES, PARAM_TYPES, STRUCT_TYPES, ATTR_TYPES };
 	private static final int[][] META_POSNS = { TABLE_POSNS, COL_POSNS,
-			KEY_POSNS, PROC_POSNS, PARAM_POSNS, STRUCT_POSNS, ATTR_POSNS };
+		KEY_POSNS, PROC_POSNS, PARAM_POSNS, STRUCT_POSNS, ATTR_POSNS };
 
 	static {
 		for (int i : LONG_TYPES) {
@@ -267,7 +267,9 @@ public class DbDriver {
 			if (driverClassName != null || conString != null) {
 				Tracer.trace("WARNING: Since dataSourceName is specified, we ignore driverClassName and connectionString attributes");
 			}
+
 			setDataSource(null, dataSourceName);
+
 			if (schemaDetails != null) {
 				otherDataSources = new HashMap<String, DataSource>();
 				for (SchemaDetail sd : schemaDetails) {
@@ -330,9 +332,34 @@ public class DbDriver {
 	/**
 	 */
 	private static void setDataSource(String schema, String dataSourceName) {
+		Object obj = null;
+		String msg = null;
 		try {
-			DataSource ds = (DataSource) new InitialContext()
-					.lookup(dataSourceName);
+			obj = new InitialContext().lookup(dataSourceName);
+		} catch (Exception e) {
+			if (dataSourceName.startsWith(CONTEXT_PREFIX)) {
+				msg = e.getMessage();
+			} else {
+				try {
+					obj = new InitialContext().lookup(CONTEXT_PREFIX
+							+ dataSourceName);
+				} catch (Exception e1) {
+					msg = e1.getMessage();
+				}
+			}
+		}
+		if (obj == null) {
+			throw new ApplicationError("Error while using data source name "
+					+ dataSourceName + "\n" + msg);
+		}
+		if (obj instanceof DataSource == false) {
+			throw new ApplicationError("We got an object instance of "
+					+ obj.getClass().getName() + " as data source for name "
+					+ dataSourceName + " while we were expecting a "
+					+ DataSource.class.getName());
+		}
+		DataSource ds = (DataSource) obj;
+		try {
 			Connection con = ds.getConnection();
 			if (schema == null) {
 				defaultSchema = extractDefaultSchema(con);
@@ -349,14 +376,8 @@ public class DbDriver {
 				Tracer.trace("DataSource added for schema " + schema);
 			}
 		} catch (SQLException e) {
-			throw new ApplicationError(
-					e,
-					"DataSource for JDBC connection is set to "
-							+ dataSourceName
-							+ ". Data source is initialized but error while opening onnection.");
-		} catch (NamingException e) {
-			throw new ApplicationError(e, "Unable to locate data source "
-					+ dataSourceName);
+			throw new ApplicationError(e,
+					"Data source is initialized but error while opening onnection.");
 		}
 	}
 
@@ -445,6 +466,8 @@ public class DbDriver {
 		try {
 			allOk = callBackObject.workWithDriver(driver);
 		} catch (Exception e) {
+			Tracer.trace(e,
+					"Callback object threw an exception while working with the driver");
 			exception = e;
 		}
 		if (con != null) {
@@ -698,27 +721,19 @@ public class DbDriver {
 	}
 
 	/**
-	 * execute a sql. If this sql is dynamically formed at run time using
-	 * parameters that are originating from a client application, then the
-	 * caller MUST take care of all possible SQL injection vulnerabilities. In
-	 * such cases, you should first explore using prepared statements.
+	 * execute a sql as a prepared statement
 	 *
 	 * @param sql
 	 *            to be executed
 	 * @param values
 	 *            in the right order for the prepared statement
-	 * @param generatedKeys
-	 *            if you are calling me to insert rows, and you are expecting
-	 *            generated keys, supply me the array for me to put hem in.
-	 *            Leave it null if this is not applicable to your call. And, If
-	 *            I am unable to get it from RDBMS, I would leave it as 0
 	 * @param treatSqlErrorAsNoAction
 	 *            if true, sql error is treated as if rows affected is zero.
 	 *            This is helpful when constraints are added in the db, and we
 	 *            would treat failure as validation issue.
 	 * @return number of affected rows
 	 */
-	public int executeSql(String sql, Value[] values, long[] generatedKeys,
+	public int executeSql(String sql, Value[] values,
 			boolean treatSqlErrorAsNoAction) {
 		PreparedStatement stmt = null;
 		if (traceSqls) {
@@ -733,7 +748,61 @@ public class DbDriver {
 			stmt = this.connection.prepareStatement(sql);
 			this.setParams(stmt, values);
 			result = stmt.executeUpdate();
-			if (generatedKeys != null && result > 0) {
+		} catch (SQLException e) {
+			if (treatSqlErrorAsNoAction) {
+				Tracer.trace("SQLException code:" + e.getErrorCode()
+						+ " message :" + e.getMessage()
+						+ " is treated as zero rows affected.");
+			} else {
+				throw new ApplicationError(e, "Sql Error while executing sql ");
+			}
+		} finally {
+			this.closeStatment(stmt);
+		}
+		if (result < 0) {
+			Tracer.trace("Number of affected rows is not reliable as we got it as "
+					+ result);
+		} else {
+			Tracer.trace(result + " rows affected.");
+		}
+		return result;
+	}
+
+	/**
+	 * execute an insert statement as a prepared statement
+	 *
+	 * @param sql
+	 *            to be executed
+	 * @param values
+	 *            in the right order for the prepared statement
+	 * @param generatedKeys
+	 *            array in which generated keys are returned
+	 * @param keyNames
+	 *            array of names of columns that have generated keys. This is
+	 *            typically just one, primary key
+	 * @param treatSqlErrorAsNoAction
+	 *            if true, sql error is treated as if rows affected is zero.
+	 *            This is helpful when constraints are added in the db, and we
+	 *            would treat failure as validation issue.
+	 * @return number of affected rows
+	 */
+	public int insertAndGetKeys(String sql, Value[] values,
+			long[] generatedKeys, String[] keyNames,
+			boolean treatSqlErrorAsNoAction) {
+		PreparedStatement stmt = null;
+		if (traceSqls) {
+			this.traceSql(sql, values);
+			if (this.connection == null) {
+				return 0;
+			}
+		}
+		this.checkWritable();
+		int result = 0;
+		try {
+			stmt = this.connection.prepareStatement(sql, keyNames);
+			this.setParams(stmt, values);
+			result = stmt.executeUpdate();
+			if (result > 0) {
 				this.getGeneratedKeys(stmt, generatedKeys);
 			}
 		} catch (SQLException e) {
@@ -765,12 +834,6 @@ public class DbDriver {
 	 */
 	private void getGeneratedKeys(Statement stmt, long[] generatedKeys)
 			throws SQLException {
-		/*
-		 * oracle can not return generated keys
-		 */
-		if (dbVendor == DbVendor.ORACLE) {
-			return;
-		}
 
 		ResultSet rs = stmt.getGeneratedKeys();
 		for (int i = 0; i < generatedKeys.length && rs.next(); i++) {
@@ -814,12 +877,6 @@ public class DbDriver {
 	 * @param values
 	 *            each row should have the same number of values, in the right
 	 *            order for the sql
-	 * @param generatedKeys
-	 *            if you are calling me to insert rows, and you are expecting
-	 *            generated keys, supply me the array for me to put hem in.
-	 *            Leave it null if this is not applicable to your call. And,
-	 *            would leave them as 0 in case I am unable to get hem from the
-	 *            RDBMS
 	 * @param treatSqlErrorAsNoAction
 	 *            if true, sql error is treated as if rows affected is zero.
 	 *            This is helpful when constraints are added in the db, and we
@@ -827,7 +884,7 @@ public class DbDriver {
 	 * @return affected rows for each set of values
 	 */
 	public int[] executeBatch(String sql, Value[][] values,
-			long[] generatedKeys, boolean treatSqlErrorAsNoAction) {
+			boolean treatSqlErrorAsNoAction) {
 		if (traceSqls) {
 			this.traceBatchSql(sql, values);
 			if (this.connection == null) {
@@ -844,9 +901,6 @@ public class DbDriver {
 				stmt.addBatch();
 			}
 			result = stmt.executeBatch();
-			if (generatedKeys != null) {
-				this.getGeneratedKeys(stmt, generatedKeys);
-			}
 		} catch (SQLException e) {
 			if (treatSqlErrorAsNoAction) {
 				Tracer.trace("SQLException code:" + e.getErrorCode()
@@ -995,8 +1049,8 @@ public class DbDriver {
 				}
 			}
 		} catch (SQLException e) {
-			throw new ApplicationError(e,
-					"Sql Error while closing database connection. ");
+			// throw new ApplicationError(e,
+			Tracer.trace(e, "Sql Error while closing database connection. ");
 		} finally {
 			try {
 				con.close();
@@ -1195,7 +1249,7 @@ public class DbDriver {
 
 	/**
 	 * method to be used when the parameters to be extracted are not in the
-	 * right order, or we are not extracting each of them, and teh caller would
+	 * right order, or we are not extracting each of them, and the caller would
 	 * like to specify the position.
 	 *
 	 * @param stmt
@@ -1263,7 +1317,7 @@ public class DbDriver {
 			sbf.append('\n').append(++i).append(" : ").append(value.toString());
 			if (i > 12) {
 				sbf.append("..like wise up to ").append(values.length)
-						.append(" : ").append(values[values.length - 1]);
+				.append(" : ").append(values[values.length - 1]);
 				break;
 			}
 		}
@@ -1497,7 +1551,7 @@ public class DbDriver {
 				return sheet;
 			}
 		} catch (Exception e) {
-			Tracer.trace(e, "Unabel to get meta data for " + metaName);
+			Tracer.trace(e, "Unable to get meta data for " + metaName);
 		} finally {
 			if (rs != null) {
 				try {
@@ -1704,7 +1758,7 @@ public class DbDriver {
 			return con.unwrap(OracleConnection.class);
 		} catch (Exception e) {
 			throw new ApplicationError(
-					"Error while unwrapping to Oracle connection "
+					"Error while unwrapping to Oracle connection. This is a set-up issue with your server. It is probably using a pooled-conneciton with a flag not to allow access to underlying connection object "
 							+ e.getMessage());
 		}
 	}

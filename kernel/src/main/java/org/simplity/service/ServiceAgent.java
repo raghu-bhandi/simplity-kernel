@@ -55,16 +55,15 @@ public class ServiceAgent {
 	 * @param userIdIsNumber
 	 * @param login
 	 * @param logout
-	 * @param inProduction
 	 * @param cacher
 	 * @param guard
 	 * @param listener
 	 */
 	public static void setUp(boolean userIdIsNumber, String login,
-			String logout, boolean inProduction, ServiceCacheManager cacher,
-			AccessController guard, ExceptionListener listener) {
-		instance = new ServiceAgent(userIdIsNumber, login, logout,
-				inProduction, cacher, guard, listener);
+			String logout, ServiceCacheManager cacher, AccessController guard,
+			ExceptionListener listener) {
+		instance = new ServiceAgent(userIdIsNumber, login, logout, cacher,
+				guard, listener);
 	}
 
 	/**
@@ -108,25 +107,18 @@ public class ServiceAgent {
 	 */
 	private final AccessController securityManager;
 
-	/**
-	 * have no meaning right now...
-	 */
-	@SuppressWarnings("unused")
-	private final boolean inProduction;
-
 	/***
 	 * We create an immutable instance fully equipped with all plug-ins
 	 */
 	private ServiceAgent(boolean userIdIsNumber, String login, String logout,
-			boolean inProduction, ServiceCacheManager cacher,
-			AccessController guard, ExceptionListener listener) {
+			ServiceCacheManager cacher, AccessController guard,
+			ExceptionListener listener) {
 		this.numericUserId = userIdIsNumber;
 		this.loginService = login;
 		this.logoutService = logout;
 		this.cacheManager = cacher;
 		this.exceptionListener = listener;
 		this.securityManager = guard;
-		this.inProduction = inProduction;
 	}
 
 	/**
@@ -289,7 +281,7 @@ public class ServiceAgent {
 
 	/**
 	 * invalidate any cached response for this service
-	 * 
+	 *
 	 * @param serviceName
 	 */
 	public static void invalidateCache(String serviceName) {

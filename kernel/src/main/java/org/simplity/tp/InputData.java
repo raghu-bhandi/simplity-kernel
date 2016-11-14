@@ -79,9 +79,8 @@ public class InputData {
 			for (InputRecord inRec : this.inputRecords) {
 				inRec.extractInput(json, ctx);
 			}
+
 		}
-		Tracer.trace("We extracted " + ctx.getAllFields().size()
-				+ " fields in all");
 
 		if (this.attachmentFields != null) {
 			storeFieldAttaches(this.attachmentFields, ctx, true);
@@ -168,7 +167,7 @@ public class InputData {
 			boolean toStor) {
 		for (String af : fields) {
 			String key = ctx.getTextValue(af);
-			if (key == null || key.isEmpty()) {
+			if (key == null) {
 				Tracer.trace("Attachment field " + af
 						+ " is not specified. Skipping it.");
 				continue;
