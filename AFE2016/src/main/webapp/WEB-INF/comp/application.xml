@@ -7,7 +7,7 @@
 	connectionString="jdbc:jtds:sqlserver://blrkecic03:63415;databaseName=NOMINATION;user=sa;password=Infy1234"
 	loginServiceName="app.login" 
 	sendTraceToClient="true"
-	logSqls="true"	
+	logSqls="true"		
 	attachmentsFolderPath="D:/temp/AFE2016/files"
 	accessController="com.infosys.submission.security">
 	<sessionParams>

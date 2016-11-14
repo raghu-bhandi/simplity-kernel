@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.http.DefaultLogin;
 import org.simplity.http.HttpAgent;
-import org.simplity.service.ServiceProtocol;
 
 public class LoginServlet extends DefaultLogin {
 	private static final long serialVersionUID = 7262315326588566300L;

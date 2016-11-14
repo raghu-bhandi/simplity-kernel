@@ -15,6 +15,13 @@
 	  minLength: 3
 	}); */
 </script>
+<style>
+.selected {
+    background-color:blue;
+    color:white;
+    font-weight:bold;
+}
+</style>
 </head>
 <body>
 	<div ng-app="submissionApp" ng-controller="formCtrl" ng-init="init()"
@@ -23,7 +30,6 @@
 			<button class="btn-lg" ng-click="newnominationhtml()">New Nomination</button>
 			<button class="btn-lg" ng-click="viewsubmissionhtml()">View	Nominations</button>
 			<button class="btn-lg" ng-click="viewsponsorhtml()">Sponsor View</button>
-			<span>Hi {{userPrincipal}}!</span>
 		</div>
 		<hr>
 		<div ng-if="state=='sponsor' && sponsors.length > 0 " class="row">
