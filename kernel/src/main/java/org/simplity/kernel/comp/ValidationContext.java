@@ -24,30 +24,80 @@ package org.simplity.kernel.comp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Message;
+import org.simplity.kernel.Tracer;
+import org.simplity.kernel.db.Sql;
+import org.simplity.kernel.db.StoredProcedure;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dt.DataType;
+import org.simplity.kernel.file.FileManager;
+import org.simplity.kernel.util.XmlParseException;
+import org.simplity.kernel.util.XmlUtil;
 import org.simplity.service.ServiceInterface;
+import org.simplity.tp.Service;
 
 /**
  * @author simplity.org
  *
  */
 public class ValidationContext {
+	private static String[] MSG_HDR = { "compType", "compName", "errorMessage" };
+	private static String[] REF_HDR = { "compType", "compName", "refType",
+			"refName" };
+	private static String[] COMP_HDR = { "compType", "compName", "nbrErrors" };
 
-	@SuppressWarnings("unchecked")
-	private Map<String, String[]>[] allMessages = (Map<String, String[]>[]) (new Object[ComponentType
-			.values().length]);
-	@SuppressWarnings("unchecked")
-	private List<ReferredComponent>[][] allRefs = (List<ReferredComponent>[][]) (new Object[ComponentType
-			.values().length][]);
-	private ComponentType currentType;
+	/**
+	 * accumulated component names.
+	 */
+	private List<String[]> allComps = new ArrayList<String[]>();
+
+	/**
+	 * accumulated messages.
+	 */
+	private List<String[]> allMessages = new ArrayList<String[]>();
+	/**
+	 * accumulated references.
+	 */
+	private List<String[]> allRefs = new ArrayList<String[]>();
+
+	/**
+	 * state : name of component that has begun validating
+	 */
 	private String currentCompName;
-	private List<String> messages = new ArrayList<String>();
-	private List<ReferredComponent>[] refs = null;
+	/**
+	 * state : componentType being validated
+	 */
+	private String currentType;
+
+	/**
+	 * references for the current component being validated. we use a set to
+	 * avoid duplicate references
+	 */
+	private Set<String> references = new HashSet<String>();
+
+	/**
+	 * number of errors for the current component
+	 */
+	private int currentErrors = 0;
+
+	/**
+	 *
+	 */
+	public ValidationContext() {
+		/*
+		 * push header rows
+		 */
+		this.allMessages.add(MSG_HDR);
+		this.allRefs.add(REF_HDR);
+		this.allComps.add(COMP_HDR);
+	}
 
 	/**
 	 * start validating a component. This is not recursive. validation is a
@@ -64,8 +114,7 @@ public class ValidationContext {
 					+ this.currentCompName);
 		}
 		this.currentCompName = compName;
-		this.currentType = compType;
-		this.refs = this.allRefs[compType.getIdx()];
+		this.currentType = compType.toString();
 	}
 
 	/**
@@ -76,17 +125,20 @@ public class ValidationContext {
 			throw new ApplicationError(
 					"endValidation() invoked on ValidationContext with no startValidation()");
 		}
-		if (this.messages.size() > 0) {
-			int idx = this.currentType.getIdx();
-			Map<String, String[]> msgs = this.allMessages[idx];
-			if (msgs == null) {
-				msgs = new HashMap<String, String[]>();
-				this.allMessages[idx] = msgs;
-			}
-			msgs.put(this.currentCompName, this.messages.toArray(new String[0]));
-			this.messages.clear();
-		}
 
+		if (this.references.size() > 0) {
+			for (String txt : this.references) {
+				String[] parts = txt.split(" ");
+				String[] row = { this.currentType, this.currentCompName,
+						parts[0], parts[1] };
+				this.allRefs.add(row);
+			}
+			this.references.clear();
+		}
+		String[] row = { this.currentType, this.currentCompName,
+				this.currentErrors + "" };
+		this.allComps.add(row);
+		this.currentErrors = 0;
 		this.currentCompName = null;
 		this.currentType = null;
 	}
@@ -102,7 +154,9 @@ public class ValidationContext {
 					"Error message being added without a call to startValidation(). "
 							+ error);
 		}
-		this.messages.add(error);
+		String[] row = { this.currentType, this.currentCompName, error };
+		this.allMessages.add(row);
+		this.currentErrors++;
 	}
 
 	/**
@@ -116,13 +170,7 @@ public class ValidationContext {
 					"Referrence being added without a call to startValidation(). "
 							+ refType + " : " + refName);
 		}
-		int idx = refType.getIdx();
-		List<ReferredComponent> refList = this.refs[idx];
-		if (refList == null) {
-			refList = new ArrayList<ReferredComponent>();
-			this.refs[idx] = refList;
-		}
-		refList.add(new ReferredComponent(refType, refName));
+		this.references.add(refType + " " + refName);
 	}
 
 	/**
@@ -216,7 +264,7 @@ public class ValidationContext {
 
 	/**
 	 * is this service in error? If so add a message and return true.
-	 * 
+	 *
 	 * @param serviceName
 	 *            name of service
 	 * @param attName
@@ -227,6 +275,7 @@ public class ValidationContext {
 		if (serviceName == null) {
 			return false;
 		}
+		this.addReference(ComponentType.SERVICE, serviceName);
 		ServiceInterface service = ComponentManager
 				.getServiceOrNull(serviceName);
 		if (service == null) {
@@ -235,6 +284,120 @@ public class ValidationContext {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 *
+	 * @return all references
+	 */
+	public String[][] getReferences() {
+		return this.allRefs.toArray(new String[0][]);
+	}
+
+	/**
+	 *
+	 * @return all messages
+	 */
+	public String[][] getMessages() {
+		return this.allMessages.toArray(new String[0][]);
+	}
+
+	/**
+	 *
+	 * @return all components that were validated
+	 */
+	public String[][] getComps() {
+		return this.allComps.toArray(new String[0][]);
+	}
+
+	/**
+	 * validate all components
+	 *
+	 * @return a data structure that has the result of validation of all
+	 *         components
+	 */
+	public ValidationResult validateAll() {
+		String compFolder = ComponentType.getComponentFolder();
+		String appFileName = compFolder + Application.CONFIG_FILE_NAME;
+		Application app = new Application();
+		try {
+			XmlUtil.xmlToObject(appFileName, app);
+		} catch (XmlParseException e) {
+			this.addError("Application parameter file " + appFileName
+					+ " has syntax errors :\n" + e.getMessage());
+		}
+		app.validate(this);
+		this.validateGroup(compFolder + "msg/", Message.class);
+		this.validateGroup(compFolder + "dt/", DataType.class);
+		/*
+		 * let us not worry about function at this time
+		 */
+		this.validateComps(compFolder + "rec/", Record.class);
+		this.validateComps(compFolder + "sql/", Sql.class);
+		this.validateComps(compFolder + "proc/", StoredProcedure.class);
+		this.validateComps(compFolder + "service/tp/", Service.class);
+
+		String[][] empty = new String[0][];
+		return new ValidationResult(this.allMessages.toArray(empty),
+				this.allComps.toArray(empty), this.allRefs.toArray(empty));
+	}
+
+	private void validateComps(String folder, Class<? extends Component> cls) {
+		for (String file : FileManager.getResources(folder)) {
+			if (file.endsWith(".xml") == false) {
+				Tracer.trace("Skipping Non-resource " + file);
+				continue;
+			}
+			Component comp;
+			try {
+				comp = cls.newInstance();
+			} catch (Exception e) {
+				this.addError("Unable to get new instance for component "
+						+ cls.getName()
+						+ ". Abandoning validaiton of components of this type");
+				return;
+			}
+			try {
+				XmlUtil.xmlToObject(file, comp);
+			} catch (Exception e) {
+				this.addError("Resource " + file + " failed to load. "
+						+ e.getMessage());
+				continue;
+			}
+			comp.validate(this);
+		}
+	}
+
+	private void validateGroup(String folder, Class<?> cls) {
+		Map<String, Object> comps = new HashMap<String, Object>();
+		for (String file : FileManager.getResources(folder)) {
+			if (file.endsWith(".xml") == false) {
+				Tracer.trace("Skipping Non-resource " + file);
+				continue;
+			}
+			Tracer.trace("Going to load components from " + file
+					+ " for validation");
+			try {
+				XmlUtil.xmlToCollection(file, comps,
+						cls.getPackage().getName() + '.');
+			} catch (Exception e) {
+				this.addError("Resource " + file + " failed to load. "
+						+ e.getMessage());
+				continue;
+			}
+		}
+		for (Map.Entry<String, Object> entry : comps.entrySet()) {
+			Object obj = entry.getValue();
+			if (obj instanceof Component) {
+				((Component) obj).validate(this);
+			} else {
+				this.addError("Component "
+						+ entry.getKey()
+						+ " turned out to be a "
+						+ obj.getClass().getName()
+						+ " that does not implement org.simplity.comp.Component");
+			}
+		}
 	}
 
 }

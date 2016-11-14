@@ -173,7 +173,7 @@ public class Sql implements Component {
 							+ " is meant for data extraciton, but it is called for update");
 		}
 		return driver.executeSql(this.preparedStatement,
-				this.getInputValues(dataRow), null, treatErrorAsNoAction);
+				this.getInputValues(dataRow), treatErrorAsNoAction);
 	}
 
 	/**
@@ -194,10 +194,10 @@ public class Sql implements Component {
 		int nbrRows = inSheet.length();
 		if (nbrRows == 0) {
 			return driver.executeSql(this.preparedStatement,
-					this.getInputValues(inSheet), null, treatErrorAsNoAction);
+					this.getInputValues(inSheet), treatErrorAsNoAction);
 		}
 		int[] result = driver.executeBatch(this.preparedStatement,
-				this.getInputRows(inSheet), null, treatErrorAsNoAction);
+				this.getInputRows(inSheet), treatErrorAsNoAction);
 		nbrRows = 0;
 		for (int i : result) {
 			if (i == -1) {

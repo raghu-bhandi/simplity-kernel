@@ -252,8 +252,7 @@ public class Application {
 			}
 		}
 		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName,
-				this.logoutServiceName, this.sendTraceToClient, casher, gard,
-				listener);
+				this.logoutServiceName, casher, gard, listener);
 
 		/*
 		 * Some components like data-type are to be pre-loaded for the app to
@@ -291,7 +290,7 @@ public class Application {
 				uid = Value.newTextValue(this.autoLoginUserId);
 			}
 			if (uid != null || cacheManager != null) {
-				HttpAgent.setUp(uid, cacheManager);
+				HttpAgent.setUp(uid, cacheManager, this.sendTraceToClient);
 			}
 		}
 		/*
@@ -324,11 +323,17 @@ public class Application {
 	 */
 	public int validate(ValidationContext ctx) {
 		int count = 0;
+		/*
+		 * name is a must. Else we will have identity crisis!!
+		 */
 		if (this.applicationId == null) {
 			ctx.addError("applicationId must be specified as a unique id for your applicaiton on your corporate network. This id can be used for inter-application communication.");
 			count++;
 		}
 
+		/*
+		 * check class references
+		 */
 		if (this.classInError(AccessController.class, this.accessController,
 				"accessControllerClassName", ctx)) {
 			count++;
@@ -345,6 +350,24 @@ public class Application {
 				"exceptionListenerClassName", ctx)) {
 			count++;
 		}
+		if (this.classInError(AttachmentAssistant.class,
+				this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
+			count++;
+		}
+
+		/*
+		 * check service references
+		 */
+		if (this.serviceInError(this.loginServiceName, ctx)) {
+			count++;
+		}
+		if (this.serviceInError(this.logoutServiceName, ctx)) {
+			count++;
+		}
+
+		/*
+		 *
+		 */
 		if (this.autoLoginUserId != null && this.userIdIsNumber) {
 			try {
 				Integer.parseInt(this.autoLoginUserId);
@@ -366,16 +389,6 @@ public class Application {
 			if (this.attachmentAssistant != null) {
 				ctx.addError("Choose either built-in attachment manager with attachmntsFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
 			}
-		}
-		if (this.classInError(AttachmentAssistant.class,
-				this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
-			count++;
-		}
-		if (this.serviceInError(this.loginServiceName, ctx)) {
-			count++;
-		}
-		if (this.serviceInError(this.logoutServiceName, ctx)) {
-			count++;
 		}
 		return count;
 	}
