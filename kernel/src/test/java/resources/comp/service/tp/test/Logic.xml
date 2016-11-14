@@ -16,6 +16,7 @@
 		</outputRecords>
 	</outputData>
 	<actions>
+		<log names="switch"/>
 		<logic actionName="1" className="org.simplity.test.CustomLogicAction" />
 
 		<setValue actionName="2" fieldName="novel" fieldValue="The Little White Bird" executeOnCondition="?leader"></setValue>			

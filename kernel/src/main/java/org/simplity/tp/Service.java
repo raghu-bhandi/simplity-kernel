@@ -287,9 +287,9 @@ public class Service implements ServiceInterface {
 	}
 
 	protected void extractInput(ServiceContext ctx, String requestText) {
-		if (requestText == null || requestText.length() == 0) {
+		if (requestText == null || requestText.equals("undefined") || requestText.length() == 0) {
 			Tracer.trace("No input received from client");
-			return;
+			requestText = "";			
 		}
 		if (this.requestTextFieldName != null) {
 			ctx.setObject(this.requestTextFieldName, requestText);
