@@ -1,6 +1,7 @@
 <div>
 <h3>Submissions</h3>
-<table  class="table">
+<div ng-if="nominations.length == 0"><p> There are no records to display </p></div>
+<table  class="table" ng-if="nominations.length > 0">
 	<tr class="row">
 		<th class="col-xs-1"></th>
 		<th class="col-xs-2">Category</th>

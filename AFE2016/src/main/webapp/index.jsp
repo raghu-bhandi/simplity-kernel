@@ -32,13 +32,13 @@
 			<button class="btn-lg" ng-click="viewsponsorhtml()">Sponsor View</button>
 		</div>
 		<hr>
-		<div ng-if="state=='sponsor' && sponsors.length > 0 " class="row">
+		<div ng-if="state=='sponsor'" class="row">
 			<div ng-include="'viewsponsor.html'"></div>
-			<div ng-include="'submissionform.html'"></div>
+			<div ng-if="sponsors.length > 0 " ng-include="'submissionform.html'"></div>
 		</div>
-		<div ng-if="state=='view' && nominations.length > 0 " class="row">
+		<div ng-if="state=='view'" class="row">
 			<div ng-include="'viewsubmissions.html'"></div>
-			<div ng-include="'submissionform.html'"></div>
+			<div ng-if="nominations.length > 0" ng-include="'submissionform.html'"></div>
 		</div>
 		<div ng-if="state=='new'" class="row">
 			<div class="container" ng-include="'submissionform.html'"></div>

@@ -25,7 +25,7 @@
 					placeholder="Nomination Title" ng-model="nomination.nomination"
 					aria-describedby="nominationHelp" required> <span
 					style="color: red"
-					ng-show="forms.submissionForm.$submitted && forms.submissionForm.title.$error.required">Nomination
+					ng-show="showTitleError">Nomination
 					Title is required.</span> <br>
 				<small id="nominationHelp" required>Please DO NOT mention
 					any client/customer name in the title – Incase client/customer name
@@ -40,9 +40,9 @@
 			<div class="form-group col-xs-4">
 				<label for="sponsormailid">Email ID</label> 
 				<input type="text"
-					class="form-control" ng-model="sponsortypeahead.value"
+					class="form-control" ng-model="nomination.sponsormailid"
 					placeholder="Enter email" aria-describedby="emailHelp"
-					ng-change="getmailsuggestion(sponsortypeahead.value)"
+					ng-change="getmailsuggestion(nomination.sponsormailid)"
 					typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith""
 					typeahead-on-select="populatesponsordata($item)">
 			</div>
@@ -65,9 +65,11 @@
 
 		<h3>Details of Members</h3>
 		<div ng-repeat="c in categories">
-			<span ng-if="c.category == nomination.selectedCategory">The
+			<span ng-if="c.category == nomination.selectedCategory" >The
 				maximum number of members you can nominate is : {{c.noOfMembers}}</span>
 		</div>
+		<div style="color: red" ng-show="showMemberError">Nominate
+			atleast 1 member for the selected category</div> 
 		<div class="form-group">
 			<table id="members" class="table">
 				<tr class="row">
@@ -76,8 +78,7 @@
 					<th class="col-xs-1">Emp.No</th>
 					<th class="col-xs-2">Name</th>
 					<th class="col-xs-2">Unit/Dept</th>
-					<th class="col-xs-3">Details of Individual Contribution</th>
-					<th class="col-xs-1"></th>
+					<th class="col-xs-6">Details of Individual Contribution</th>
 				</tr>
 				<tr class="row">
 					<td class="col-xs-1" ng-if="enableplus"><span
@@ -86,9 +87,9 @@
 					<td ng-if="!enableplus"></td>
 					<td class="col-xs-2">
 					<input class="form-control"
-						id="typeahead" ng-model="nomination.membertypeahead"
+						id="typeahead" ng-model="addmember.employeeEmailID"
 						placeholder="Email Id"
-						ng-change="getmailsuggestion(nomination.membertypeahead)"
+						ng-change="getmailsuggestion(addmember.employeeEmailID)"
 						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 						typeahead-on-select="populatememberdata($item)"></td>
 					<td class="col-xs-1"><input class="form-control"
@@ -97,18 +98,17 @@
 						ng-model="addmember.Name" placeholder="Name" disabled></td>
 					<td class="col-xs-2"><input class="form-control"
 						ng-model="addmember.Unit" placeholder="Unit" disabled></td>
-					<td class="col-xs-3"><input class="form-control"
+					<td class="col-xs-6"><textarea class="form-control" rows="3" maxlength="3000"
 						ng-model="addmember.contribution"
-						placeholder="Individual Contribution"></td>
-					<td class="col-xs-1"></td>
+						placeholder="Individual Contribution"></textarea>
+						<span style="color: red" ng-show="contributionError">Required</span></td>
 				</tr>
 				<tr ng-repeat="x in nomination.members" class="row"
 					ng-include="getTemplate($index)">
 				</tr>
 			</table>
 		</div>
-		<span style="color: red" ng-show="showMemberError">Nominate
-			atleast 1 member for the selected category</span> <span>**Please
+		<span>**Please
 			limit the number of members to the maximum allowed under the category
 		</span>
 		<hr>
@@ -127,30 +127,30 @@
 		</ul>
 
 		<hr>
-		<div class="container-fluid" ng-if="state=='new'">
+		<div class="container-fluid" ng-if="state=='new' || state=='view'">
 			<div class="row">
 				<div class="form-check col-xs-6">
-					<label class="form-check-label"> <input type="checkbox"
+					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[0]"
 						class="form-check-input"> Whether the entry criteria if
 						applicable has been complied with or not?
 					</label>
 				</div>
 				<div class="form-check col-xs-6">
-					<label class="form-check-label"> <input type="checkbox"
+					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[1]"
 						class="form-check-input"> Whether the nomination has been
 						restricted to 5 pages or not?
-					</label>
+					</label> 
 				</div>
 			</div>
 			<div class="row">
 				<div class="form-check col-xs-6">
-					<label class="form-check-label"> <input type="checkbox"
+					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[2]"
 						class="form-check-input"> Whether the details of team
 						members have been correctly provided or not?
 					</label>
 				</div>
 				<div class="form-check col-xs-6">
-					<label class="form-check-label"> <input type="checkbox"
+					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[3]"
 						class="form-check-input"> Whether the number of team
 						member restricted as per the details provided?
 					</label>
@@ -158,13 +158,13 @@
 			</div>
 			<div class="row">
 				<div class="form-check col-xs-6">
-					<label class="form-check-label"> <input type="checkbox"
+					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[4]"
 						class="form-check-input"> Whether the individual
 						contribution of the team members provided or not?
 					</label>
 				</div>
 				<div class="form-check col-xs-6">
-					<label class="form-check-label"> <input type="checkbox"
+					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[5]"
 						class="form-check-input"> Whether the individual
 						contribution of the team members provided or not?
 					</label>
@@ -185,11 +185,11 @@
 	</div>
 	<hr>
 	<button type="submit" class="btn btn-primary">
-	<span ng-if="state=='new'"  ng-click="forms.submissionForm.$invalid || submit('Saved')">Save</span>
+	<span ng-if="state=='new'"  ng-click="submit('Saved')">Save</span>
 	<span ng-if="state=='view' || state=='sponsor'" ng-click="disableform || updatenomination(nomination,'Saved')">Update</span>
 	</button>
 	<button type="submit" class="btn btn-primary"> 
-	<span ng-if="state=='new'" ng-click="forms.submissionForm.$invalid || submit('Submitted')">Submit</span>
+	<span ng-if="state=='new'" ng-click="submit('Submitted')">Submit</span>
 	<span ng-if="state=='view' || state=='sponsor'" ng-click="disableform || forms.submissionForm.$invalid || updatenomination(nomination,'Submitted')">Submit</span>
 	</button>
 	</fieldset>
