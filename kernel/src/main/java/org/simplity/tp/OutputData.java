@@ -28,7 +28,9 @@ import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceData;
@@ -43,10 +45,27 @@ import org.simplity.service.ServiceProtocol;
 
 public class OutputData {
 
+	/**
+	 * comma separated list of fields to be output.
+	 */
 	String[] fieldNames;
 
+	/**
+	 * sheets/fields to be output based on record definitions
+	 */
 	OutputRecord[] outputRecords;
 
+	/**
+	 * comma separated data sheets to be output
+	 */
+	String[] dataSheets;
+
+	/**
+	 * if this service wants to set/reset some session fields. Note that this
+	 * directive is independent of fieldNames or outputRecords. That is if a is
+	 * set as sessionFields, it is not sent to client, unless "a" is also
+	 * specified as fieldNames
+	 */
 	String[] sessionFields;
 
 	/**
@@ -91,6 +110,7 @@ public class OutputData {
 				outData.put(f, val);
 			}
 		}
+
 		/*
 		 * response
 		 */
@@ -98,6 +118,19 @@ public class OutputData {
 		writer.object();
 		if (this.fieldNames != null) {
 			JsonUtil.addAttributes(writer, this.fieldNames, ctx);
+		}
+
+		if (this.dataSheets != null) {
+			for (String sheetName : this.dataSheets) {
+				DataSheet sheet = ctx.getDataSheet(sheetName);
+				if (sheet == null) {
+					Tracer.trace("Service context has no sheet with name "
+							+ sheetName + " for output.");
+				} else {
+					writer.key(sheetName);
+					JsonUtil.sheetToJson(writer, sheet, null);
+				}
+			}
 		}
 		if (this.outputRecords != null) {
 			for (OutputRecord rec : this.outputRecords) {
@@ -122,10 +155,6 @@ public class OutputData {
 	 */
 	public void getReady() {
 		if (this.outputRecords == null) {
-			if (this.fieldNames == null) {
-				throw new ApplicationError(
-						"outputData has neither fields, nor records. If no output is required, drop this specification.");
-			}
 			return;
 		}
 
@@ -203,10 +232,6 @@ public class OutputData {
 	 */
 	int validate(ValidationContext ctx) {
 		if (this.outputRecords == null) {
-			if (this.fieldNames == null) {
-				ctx.addError("outputData has neither fields, nor records. If no output is required, drop this specification.");
-				return 1;
-			}
 			return 0;
 		}
 
