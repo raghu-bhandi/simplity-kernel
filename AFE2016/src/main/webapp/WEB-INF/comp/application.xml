@@ -2,9 +2,9 @@
 <application
 	xmlns="http://www.simplity.org/schema"	
 	applicationId="simplityTutorial" 
-	dbVendor="h2"
-	dbDriverClassName="org.h2.Driver"
-	connectionString="jdbc:h2:file:D:/temp/AFE2016/db/nomination;user=sa;"
+	dbVendor="mssql"
+	dbDriverClassName="net.sourceforge.jtds.jdbc.Driver"
+	connectionString="jdbc:jtds:sqlserver://blrkecic03:63415;databaseName=NOMINATION;user=sa;password=Infy1234"
 	loginServiceName="app.login" 
 	sendTraceToClient="true"
 	logSqls="true"	
