@@ -6,8 +6,10 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.enableplus = true;
 	$scope.showSponsorError = false;
 	$scope.showMemberError = false;
+	$scope.contributionError = false;
+	$scope.showTitleError = false;
 	$scope.forms = {};
-    $scope.categories= [
+	 $scope.categories= [
         {"category":"Account Management-Small/Mid","noOfMembers":3},
         {"category":"Account Management-Large","noOfMembers":5},
         {"category":"Development Center (DC) Management-Large","noOfMembers":4},
@@ -56,8 +58,15 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         "filename":"",
         "filetype":"",
 		"filesize":""
-    };
-    
+   };
+    $scope.nomination.checkbox = {
+			"1":false,
+			"2":false,
+			"3":false,
+			"4":false,
+			"5":false,
+			"6":false,
+	};
     angular.element('#typeahead').typeahead({
 	  hint: true,
 	  highlight: true,
@@ -80,9 +89,11 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     $scope.addmember = {};
     $scope.addrow = function () {
     	if($scope.addmember.contribution == ""){
-    			alert("Please fill individual contribution");
-    			return;
+    		$scope.contributionError = true;
+    		alert("Please fill individual contribution");    			
+    		return;
     	}
+    	$scope.contributionError = true;
     	var membersallowed=0;
     	for(var i=0;i<$scope.categories.length;i++){
     		if($scope.nomination.selectedCategory == $scope.categories[i].category){
@@ -96,10 +107,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         if($scope.nomination.members == undefined)
         	$scope.nomination.members=[];        
         $scope.nomination.members.push(data);
-        $scope.nomination.membertypeahead = null;
+        $scope.contributionError = false;
+        $scope.addmember.employeeEmailID = null;
         if($scope.nomination.members.length == membersallowed){
         	$scope.enableplus = false;
         }
+        
     };
     $scope.removerow = function (index) {
         $scope.nomination.members.splice(index, 1);
@@ -125,19 +138,10 @@ app.controller('formCtrl', function ($scope,$window,$http) {
       }
     };
     $scope.submit=function(status){
+    	$scope.showTitleError = false;
     	$scope.showSponsorError = false;
     	$scope.showMemberError = false;
-    	if(status == "Submitted"){
-    			if($scope.nomination.sponsormailid == ""){
-    				$scope.showSponsorError = true;
-    			}
-    			if($scope.nomination.members.length == 0){
-    				$scope.showMemberError = true;
-    			}
-    	}
-    	if($scope.showSponsorError == true || $scope.showMemberError == true)
-    		return;
-     	var data = {
+    	var data = {
 				"selectedCategory":$scope.nomination.selectedCategory,
 		        "selectedLevel":$scope.nomination.selectedLevel,
 		        "nomination":$scope.nomination.nomination,
@@ -155,7 +159,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			data.email=false;
 		else
 			data.email=true;
-    	
+    	if($scope.validateNomination(data)){
     	if(!angular.equals($scope.nomination.uploadfile, {})){
     		var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
@@ -163,12 +167,17 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 				data.filename=fileDetails.name;
 				data.filetype=fileDetails.type;
 				data.filesize=fileDetails.size;
-				Simplity.getResponse('submission.newnomination',JSON.stringify(data));
+				Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
+					alert("Data "+status+" successfully");
+				});
     		});
     	}else{			
-			Simplity.getResponse('submission.newnomination',JSON.stringify(data));
+			Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
+				alert("Data "+status+" successfully");
+			});
     	}
     	$scope.nomination.uploadfile = {};
+    	}
  	 };
 	 
 	 $scope.init=function(){
@@ -220,6 +229,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			 selectednomination.email=true;
 		selectednomination.status=status;
 		console.log(selectednomination);
+		if($scope.validateNomination(selectednomination)){
 		if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
     		var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
@@ -227,11 +237,16 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     			selectednomination.filename=fileDetails.name;
     			selectednomination.filetype=fileDetails.type;
     			selectednomination.filesize=fileDetails.size;
-				Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination));
+				Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
+	    			alert("Details updated successfully!!!");
+	    		});
     		});
     	}else{			
-    		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination));
+    		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
+    			alert("Details updated successfully!!!");
+    		});
     	}
+		}
 	 };
 	 
 	 $scope.changeformstatus=function(selectednomination){
@@ -265,4 +280,31 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		    $scope.addmember.Unit            = chosen.Unit ;
 	 };
 	 
+	 $scope.validateNomination=function(nomination){
+		 if(nomination.nomination == ""){
+	    	$scope.showTitleError = true;
+	    	alert("Nomination title is required");	
+	    	return false;
+	    }
+	    if(nomination.status == "Submitted"){
+	    	if(nomination.sponsormailid == ""){
+	    		$scope.showSponsorError = true;
+	    	}
+	    	if(nomination.members.length == 0){
+	    		$scope.showMemberError = true;
+	    	}    			
+	    }
+	    if($scope.showSponsorError || $scope.showMemberError){
+	    	alert("Please fill the required fields before submitting");
+	    	return false;
+	    }
+	    console.log($scope.nomination.checkbox);
+	   for(var i=0;i<Object.keys($scope.nomination.checkbox).length;i++){
+		   	if(!$scope.nomination.checkbox[i]){
+	    		alert("Please check and confirm the check-box data before proceeding");
+	    		return false;
+	    	}
+	    }
+	    return true;
+	 }
 });
