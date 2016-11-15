@@ -60,12 +60,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		"filesize":""
    };
     $scope.nomination.checkbox = {
+    		"0":false,
 			"1":false,
 			"2":false,
 			"3":false,
 			"4":false,
-			"5":false,
-			"6":false,
+			"5":false,			
 	};
     angular.element('#typeahead').typeahead({
 	  hint: true,
@@ -300,11 +300,15 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    }
 	    console.log($scope.nomination.checkbox);
 	   for(var i=0;i<Object.keys($scope.nomination.checkbox).length;i++){
-		   	if(!$scope.nomination.checkbox[i]){
+		   	if($scope.nomination.checkbox[i] == false){
 	    		alert("Please check and confirm the check-box data before proceeding");
 	    		return false;
 	    	}
 	    }
 	    return true;
 	 }
+	 $scope.selectedRow = 0;  
+	  $scope.setClickedRow = function(index){  
+	     $scope.selectedRow = index;
+	  }
 });

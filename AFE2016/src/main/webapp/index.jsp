@@ -16,10 +16,11 @@
 	}); */
 </script>
 <style>
+.container > .row > .table > tr.active {
+     background-color:red;
+}
 .selected {
-    background-color:blue;
-    color:white;
-    font-weight:bold;
+ background-color:#f5f5f5 !important; 
 }
 </style>
 </head>
