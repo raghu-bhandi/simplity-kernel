@@ -10,8 +10,8 @@
 	 <inputFields><inputField dataType="_text" name="test"/></inputFields>
 	</inputData>
 		<actions>
-		<copyUserId fieldName="UserIDCopy" actionName="copyUserIdAction" description="Copy user id from context"/>	
-		<setValue fieldName="userId" fieldValue="$copyUserIdActionResult" ></setValue>	
+		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>	
+		<setValue fieldName="userId" expression="lowercase(copyuserid)"></setValue>	
 		<createSheet sheetName="filtersheet" data="submitterId;$userId"/>
 		<filter
 			inputSheetName="filtersheet"

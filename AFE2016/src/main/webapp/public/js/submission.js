@@ -61,11 +61,19 @@ app.controller('formCtrl', function ($scope,$window,$http) {
    };
     $scope.nomination.checkbox = {
     		"0":false,
+<<<<<<< HEAD
 			"1":false,
+=======
+    		"1":false,
+>>>>>>> refs/remotes/origin/master
 			"2":false,
 			"3":false,
 			"4":false,
+<<<<<<< HEAD
 			"5":false,			
+=======
+			"5":false
+>>>>>>> refs/remotes/origin/master
 	};
     angular.element('#typeahead').typeahead({
 	  hint: true,

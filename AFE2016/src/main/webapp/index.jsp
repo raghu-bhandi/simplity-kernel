@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=9" />
 <title>AFE-2016</title>
 <link rel="stylesheet" href="public/css/bootstrap.min.css">
 <script type="text/javascript" src="public/js/jquery.min.js"></script>
