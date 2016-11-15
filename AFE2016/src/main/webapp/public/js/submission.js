@@ -1,6 +1,47 @@
-var app = angular.module('submissionApp', ['ui.bootstrap']);
+var app = angular.module('submissionApp', ['ngRoute','ui.bootstrap']);
+app.config(function($routeProvider) {
+    $routeProvider.when("/", {
+        templateUrl : "submissionform.html"
+    })
+    .when("/view", {
+        templateUrl : "viewsubmissions.html"
+    })
+    .when("/sponsor", {
+        templateUrl : "viewsponsor.html"
+    });
+});
 app.controller('formCtrl', function ($scope,$window,$http) {
-	$scope.state = "new";
+	
+	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
+		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
+			 angular.copy($scope.initnomination,$scope.nomination);
+			 $scope.disableform=false;
+			return;
+		}
+		if($currentRoute.loadedTemplateUrl==="viewsubmissions.html"){	 
+			 Simplity.getResponse("submission.getnominations",null,function(json){
+				 if(json.nominations != null){
+					 $scope.nominations = json.nominations;
+					 angular.copy($scope.nominations[0],$scope.nomination );
+					 $scope.changeformstatus($scope.nominations[0]);
+					 $scope.$apply();
+				 }
+			 });			
+			return;
+		}
+		if($currentRoute.loadedTemplateUrl==="viewsponsor.html"){ 
+			 Simplity.getResponse("submission.getnomsponsor",null,function(json){
+				 if(json.sponsors != null){
+					 $scope.sponsors = json.sponsors;
+					 angular.copy($scope.sponsors[0],$scope.nomination );
+					 $scope.changeformstatus($scope.sponsors[0]);
+					 $scope.$apply();
+				 }
+			 });			
+			return;
+		}
+	});
+	
 	$scope.user = "new";
 	$scope.disableform = false;
 	$scope.enableplus = true;
@@ -184,38 +225,10 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			 angular.copy($scope.nomination,$scope.initnomination);
 			 angular.copy($scope.initmember,$scope.addmember);
 	 };
-	 $scope.newnominationhtml=function(){
-		 $scope.state="new";
-		 angular.copy($scope.initnomination,$scope.nomination);
-		 $scope.disableform=false;
-	 };
-	 $scope.viewsubmissionhtml=function(){	
-		 $scope.state="view";	 
-		 Simplity.getResponse("submission.getnominations",null,function(json){
-			 if(json.nominations != null){
-				 $scope.nominations = json.nominations;
-				 angular.copy($scope.nominations[0],$scope.nomination );
-				 $scope.changeformstatus($scope.nominations[0]);
-				 $scope.$apply();
-			 }
-		 });
-
-	 };
 	 $scope.downloadfile=function(filekey,filename,filetype){
 		 Simplity.downloadFile(filekey,filename,filetype);
 	 };
-	 $scope.viewsponsorhtml=function(){		 
-		 $scope.state="sponsor";	 
-		 Simplity.getResponse("submission.getnomsponsor",null,function(json){
-			 if(json.sponsors != null){
-				 $scope.sponsors = json.sponsors;
-				 angular.copy($scope.sponsors[0],$scope.nomination );
-				 $scope.changeformstatus($scope.sponsors[0]);
-				 $scope.$apply();
-			 }
-		 });
-
-	 };	
+	
 	 
 	 $scope.viewsubmission=function(nomination){
 		 angular.copy(nomination,$scope.nomination);
