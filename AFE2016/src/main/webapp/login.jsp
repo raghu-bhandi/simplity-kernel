@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta http-equiv="X-UA-Compatible" content="IE=9" />
 <title>AFE 2016</title>
 <link rel="stylesheet" href="public/css/bootstrap.min.css" />
 </head>

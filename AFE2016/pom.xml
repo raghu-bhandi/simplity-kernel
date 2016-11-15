@@ -77,31 +77,7 @@
 							</execution>
 						</executions>
 					</plugin>
-					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>test</phase>
-								<goals>
-									<goal>run</goal>
-								</goals>
-								<configuration>
-									<tasks>
-										<delete
-											file="${project.build.outputDirectory}/META-INF/context.xml" />
-										<copy file="src/main/resources/env/test/context.xml"
-											tofile="${project.build.outputDirectory}/META-INF/context.xml" />
-										<delete
-											file="${project.build.outputDirectory}/WEB-INF/comp/application.xml" />
-										<copy file="src/main/resources/env/test/application.xml"
-											tofile="${project.build.outputDirectory}/WEB-INF/comp/application.xml" />
 
-									</tasks>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					
 					<plugin>
 						<artifactId>maven-compiler-plugin</artifactId>
 						<version>3.6.0</version>
@@ -110,6 +86,53 @@
 							<target>1.8</target>
 						</configuration>
 					</plugin>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.0.1</version>
+						<executions>
+							<execution>
+								<id>copy-resources1</id>
+								<!-- here the phase you need -->
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/main/webapp/WEB-INF/comp</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/main/resources/env/test</directory>
+											<includes>
+												<include>application.xml</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-resources2</id>
+								<!-- here the phase you need -->
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/main/webapp/META-INF</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/main/resources/env/test</directory>
+											<includes>
+												<include>context.xml</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
 				</plugins>
 				<pluginManagement>
 					<plugins>
@@ -144,24 +167,47 @@
 			<build>
 				<plugins>
 					<plugin>
-						<artifactId>maven-antrun-plugin</artifactId>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.0.1</version>
 						<executions>
 							<execution>
-								<phase>test</phase>
+								<id>copy-resources1</id>
+								<!-- here the phase you need -->
+								<phase>validate</phase>
 								<goals>
-									<goal>run</goal>
+									<goal>copy-resources</goal>
 								</goals>
 								<configuration>
-									<tasks>
-										<delete
-											file="${project.build.outputDirectory}/META-INF/context.xml" />
-										<copy file="src/main/resources/env/test/context.xml"
-											tofile="${project.build.outputDirectory}/META-INF/context.xml" />									
-										<delete
-											file="${project.build.outputDirectory}/WEB-INF/comp/application.xml" />
-										<copy file="src/main/resources/env/production/application.xml"
-											tofile="${project.build.outputDirectory}/WEB-INF/comp/application.xml" />
-									</tasks>
+									<outputDirectory>${basedir}/src/main/webapp/WEB-INF/comp</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/main/resources/env/production</directory>
+											<includes>
+												<include>application.xml</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+							<execution>
+								<id>copy-resources2</id>
+								<!-- here the phase you need -->
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/main/webapp/META-INF</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${basedir}/src/main/resources/env/production</directory>
+											<includes>
+												<include>context.xml</include>
+											</includes>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
 								</configuration>
 							</execution>
 						</executions>
