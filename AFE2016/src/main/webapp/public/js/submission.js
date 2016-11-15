@@ -8,6 +8,9 @@ app.config(function($routeProvider) {
     })
     .when("/sponsor", {
         templateUrl : "viewsponsor.html"
+    })
+    .when("/logout", {
+        templateUrl : "logout.html"
     });
 });
 app.controller('formCtrl', function ($scope,$window,$http) {
@@ -38,6 +41,10 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 					 $scope.$apply();
 				 }
 			 });			
+			return;
+		}
+		if($currentRoute.loadedTemplateUrl==="logout.html"){ 
+			 Simplity.logout();		
 			return;
 		}
 	});
