@@ -60,12 +60,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		"filesize":""
    };
     $scope.nomination.checkbox = {
-			"1":false,
+    		"0":false,
+    		"1":false,
 			"2":false,
 			"3":false,
 			"4":false,
-			"5":false,
-			"6":false,
+			"5":false
 	};
     angular.element('#typeahead').typeahead({
 	  hint: true,

@@ -2,7 +2,7 @@
 <application
 	xmlns="http://www.simplity.org/schema"	
 	applicationId="simplityTutorial" 
-	dbVendor="mssql"
+	dbVendor="h2"
 	dataSourceName="java:comp/env/jdbc/nomination"
 	loginServiceName="app.login" 
 	sendTraceToClient="true"
