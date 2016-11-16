@@ -8,8 +8,9 @@
 		</inputFields>
 	</inputData>	
 	<actions>
-		<logic className="com.infosys.qreuse.smtpservice.Validate"/>
-		<setValue fieldName="_userId" fieldValue="Chetana"></setValue>
+		<setValue fieldName="verifiedUser" fieldValue="Chetana"></setValue>	
+		<logic className="com.infosys.qreuse.smtpservice.Validate"/>		
 	</actions>
-	<outputData sessionFields="_userId"></outputData>
+	<outputData sessionFields="_userId" fieldNames="allowedUser">
+	</outputData>
 </service>

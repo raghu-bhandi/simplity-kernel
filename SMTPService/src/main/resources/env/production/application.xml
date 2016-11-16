@@ -2,9 +2,9 @@
 <application
 	xmlns="http://www.simplity.org/schema"	
 	applicationId="smtpservice" 
-	dbVendor="h2"
+	dbVendor="mssql"
 	dataSourceName="java:comp/env/jdbc/smtpservice"
-	loginServiceName="smtp.login" 
+	loginServiceName="app.login" 
 	sendTraceToClient="true"
 	logSqls="true">
 </application>	
