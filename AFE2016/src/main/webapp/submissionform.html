@@ -190,7 +190,7 @@
 	</button>
 	<button type="submit" class="btn btn-primary"> 
 	<span ng-if="state=='new'" ng-click="submit('Submitted')">Submit</span>
-	<span ng-if="state=='view' || state=='sponsor'" ng-click="disableform || forms.submissionForm.$invalid || updatenomination(nomination,'Submitted')">Submit</span>
+	<span ng-if="state=='view' || state=='sponsor'" ng-click="disableform || updatenomination(nomination,'Submitted')">Submit</span>
 	</button>
 	</fieldset>
 </form>
