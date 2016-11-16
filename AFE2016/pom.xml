@@ -15,7 +15,8 @@
 	<name>AFE2016 Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-		<resourcespath> ${project.build.directory}/classes</resourcespath>
+		<resourcespath>${project.build.directory}/classes</resourcespath>
+		<uploadfilespath>D:/temp/AFE2016/files</uploadfilespath>
 	</properties>
 	<dependencies>
 		<dependency>

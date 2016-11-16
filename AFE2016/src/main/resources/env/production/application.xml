@@ -7,7 +7,7 @@
 	loginServiceName="app.login" 
 	sendTraceToClient="true"
 	logSqls="true"		
-	attachmentsFolderPath="D:/temp/AFE2016/files"
+	attachmentsFolderPath="${uploadfilespath}"
 	accessController="com.infosys.submission.security.AccessController">
 	<sessionParams>
 		<parameter name="_userId" valueType="text"/>

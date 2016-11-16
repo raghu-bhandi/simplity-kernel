@@ -18,6 +18,12 @@ app.config(function($routeProvider) {
 });
 app.controller('formCtrl', function ($scope,$window,$http) {
 	
+	$http.get('public/js/data.json')
+    .then(function(res){
+    	$scope.categories = res.data.categories;                
+    	$scope.levels = res.data.levels;
+     });
+	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			$scope.state = "new";
@@ -79,6 +85,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.memberMailError = false;
 	$scope.showTitleError = false;
 	$scope.forms = {};
+<<<<<<< HEAD
 	 $scope.categories= [
         {"category":"Account Management-Small/Mid","noOfMembers":3},
         {"category":"Account Management-Large","noOfMembers":5},
@@ -122,6 +129,9 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			"4":false,
 			"5":false
 	};
+=======
+
+>>>>>>> refs/remotes/origin/master
     $scope.nomination = {
         "selectedCategory":"Account Management-Small/Mid",
         "selectedLevel":"Bangalore",

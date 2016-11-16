@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service dbAccessType="none" name="login" moduleName="smtp"
+	xmlns="http://www.simplity.org/schema">
+	<inputData>
+		<inputFields>
+			<inputField dataType="_text" name="_userId"/>
+			<inputField dataType="_text" name="_userToken"/>
+		</inputFields>
+	</inputData>	
+	<actions>
+		<logic className="com.infosys.qreuse.smtpservice.Validate"/>
+		<setValue fieldName="_userId" fieldValue="Chetana"></setValue>
+	</actions>
+	<outputData sessionFields="_userId"></outputData>
+</service>
