@@ -16,8 +16,7 @@ app.config(function($routeProvider) {
         templateUrl : "logout.html"
     });
 });
-app.controller('formCtrl', function ($scope,$window,$http) {
-	
+app.controller('formCtrl', function ($scope,$window,$http) {	
 	$http.get('public/js/data.json')
     .then(function(res){
     	$scope.categories = res.data.categories;                
@@ -85,42 +84,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.memberMailError = false;
 	$scope.showTitleError = false;
 	$scope.forms = {};
-<<<<<<< HEAD
-	 $scope.categories= [
-        {"category":"Account Management-Small/Mid","noOfMembers":3},
-        {"category":"Account Management-Large","noOfMembers":5},
-        {"category":"Development Center (DC) Management-Large","noOfMembers":4},
-        {"category":"Development Center (DC) Management-Small","noOfMembers":6},
-        {"category":"Infosys Champions-Technology Champion","noOfMembers":2},
-        {"category":"Infosys Champions-Domain Champion","noOfMembers":7},
-        {"category":"Innovation-IP, Products, Platforms and Solutions","noOfMembers":5},
-        {"category":"Innovation-Culture","noOfMembers":4},
-        {"category":"Internal Customer Delight","noOfMembers":8},
-        {"category":"People Development","noOfMembers":6},
-        {"category":"Complex/Business Transformation Program","noOfMembers":9},
-        {"category":"Large Business Operation Program","noOfMembers":7},
-        {"category":"Sales and Marketing - Brand Management","noOfMembers":2},
-        {"category": "Sales and Marketing - Sales Management","noOfMembers":4},
-        {"category":"Systems and Processes","noOfMembers":5},
-        {"category":"Value Champions","noOfMembers":9},
-        {"category":"Sustainability/Social Consciousness","noOfMembers":10}
-    ];
-    $scope.levels=[
-        "Bangalore",
-        "Bhubaneswar",
-        "Chandigarh (including New Delhi, Mohali)",
-        "Chennai (Mahindra City/ Sholinganallur)",
-        "Hyderabad",
-        "Jaipur",
-        "Mangalore",
-        "Mysore",
-        "Pune",
-        "Trivandrum",
-        "Americas",
-        "ANZ",
-        "APAC",
-        "EMEA"
-    ];
+	 
     $scope.initcheckbox = {
     		"0":false,
 			"1":false,
@@ -129,9 +93,6 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			"4":false,
 			"5":false
 	};
-=======
-
->>>>>>> refs/remotes/origin/master
     $scope.nomination = {
         "selectedCategory":"Account Management-Small/Mid",
         "selectedLevel":"Bangalore",
@@ -161,6 +122,8 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     $scope.chosenemployee = {};
     $scope.initnomination = {};
     $scope.nomination.checkbox = {};
+    $scope.minMembers = 0;
+    $scope.maxMembers = 0;
     $scope.initmember = {
         employeeEmailID: '',
         eNo: '',
@@ -170,7 +133,13 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     };
     $scope.chosen;
     $scope.addmember = {};
+    $scope.setMembers = function(noOfMembers){
+    	$scope.minMembers = noOfMembers.min;
+        $scope.maxMembers = noOfMembers.max;
+    }
     $scope.addrow = function () {
+    	$scope.contributionError = false;
+    	$scope.memberMailError = false;
     	if($scope.addmember.contribution == ""){
     		$scope.contributionError = true;
        	}
@@ -180,16 +149,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     	if($scope.contributionError == true || $scope.memberMailError == true){
     		alert("Please fill required fields");    			
     		return;
-    	}
-    	$scope.contributionError = false;
-    	$scope.memberMailError = false;
-    	var membersallowed=0;
-    	for(var i=0;i<$scope.categories.length;i++){
-    		if($scope.nomination.selectedCategory == $scope.categories[i].category){
-    			membersallowed=$scope.categories[i].noOfMembers;
-    			break;
-    		}    			
-    	}
+    	}    	
         var data = {};
         angular.copy($scope.addmember, data);
         angular.copy($scope.initmember, $scope.addmember);
@@ -198,7 +158,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         $scope.nomination.members.push(data);
         $scope.contributionError = false;
         $scope.addmember.employeeEmailID = null;
-        if($scope.nomination.members.length == membersallowed){
+        if($scope.nomination.members.length == $scope.maxMembers){
         	$scope.enableplus = false;
         }
         
@@ -354,7 +314,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    	if(nomination.sponsormailid == ""){
 	    		$scope.showSponsorError = true;
 	    	}
-	    	if(nomination.members == undefined || nomination.members.length == 0){
+	    	if(nomination.members == undefined || nomination.members.length < $scope.minMembers){
 	    		$scope.showMemberError = true;
 	    	}    			
 	    }

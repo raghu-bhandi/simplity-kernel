@@ -64,12 +64,12 @@
 
 		<h3>Details of Members</h3>
 		<div ng-repeat="c in categories">
-			<span ng-if="c.category == nomination.selectedCategory" >The
-				maximum number of members you can nominate is : {{c.noOfMembers}}</span>
+			<span ng-if="c.category == nomination.selectedCategory" ng-init="setMembers(c.noOfMembers)">The
+				maximum number of members you can nominate is : {{c.noOfMembers.max}}</span>
 		</div>
 		<div style="color: green">Please click '+' to add a member</div>
-		<div style="color: red" ng-show="showMemberError">Nominate
-			atleast 1 member for the selected category</div> 
+		<span style="color: red" ng-show="showMemberError">Nominate
+			atleast {{minMembers}} member for the selected category</span> 
 		<div class="form-group">
 			<table id="members" class="table">
 				<tr class="row">
