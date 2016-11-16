@@ -25,12 +25,8 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
-<<<<<<< HEAD
-			$scope.state = "new";
-=======
 			 $scope.state="new";
->>>>>>> refs/remotes/origin/master
-			 angular.copy($scope.initnomination,$scope.nomination);
+	 angular.copy($scope.initnomination,$scope.nomination);
 			 $scope.disableform=false;			 
 			return;
 		}
@@ -49,11 +45,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			return;
 		}
 		if($currentRoute.loadedTemplateUrl==="viewsponsor.html"){ 
-<<<<<<< HEAD
-			$scope.state = "sponsor";
-=======
 			 $scope.state="sponsor";	
->>>>>>> refs/remotes/origin/master
 			 Simplity.getResponse("submission.getnomsponsor",null,function(json){
 				 if(json.sponsors != null){
 					 $scope.sponsors = json.sponsors;
