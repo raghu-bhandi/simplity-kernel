@@ -10,17 +10,7 @@
 <script type="text/javascript" src="public/js/angular.min.js"></script>
 <script type="text/javascript" src="public/js/angular-route.min.js"></script>
 <script type="text/javascript" src="public/js/ui-bootstrap-tpls-0.13.0.min.js"></script>
-<script type="text/javascript">
-/* $('.table .td #typeahead').typeahead({
-	  hint: true,
-	  highlight: true,
-	  minLength: 3
-	}); */
-</script>
 <style>
-.container > .row > .table > tr.active {
-     background-color:red;
-}
 .selected {
  background-color:#f5f5f5 !important; 
 }

@@ -8,7 +8,7 @@
 	sendTraceToClient="true"
 	logSqls="true"		
 	attachmentsFolderPath="D:/temp/AFE2016/files"
-	accessController="com.infosys.submission.security">
+	accessController="com.infosys.submission.security.AccessController">
 	<sessionParams>
 		<parameter name="_userId" valueType="text"/>
 	</sessionParams>

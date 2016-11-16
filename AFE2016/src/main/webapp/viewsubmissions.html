@@ -13,7 +13,7 @@
 		<th class="col-xs-1">Action</th>				
 		<th class="col-xs-1"></th>
 	</tr>
-	<tr ng-repeat="x in nominations" class="row" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRow($index);viewsubmission(x)" style="cursor: pointer;">
+	<tr ng-repeat="x in nominations" class="row" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRow($index);viewsubmission(x)" ng-init="viewsubmission(nominations[0])"  style="cursor: pointer;">
 		<td class="col-xs-1">{{$index+1}}</td>
 		<td class="col-xs-2">{{x.selectedCategory}}</td>
 		<td class="col-xs-1">{{x.selectedLevel}}</td>

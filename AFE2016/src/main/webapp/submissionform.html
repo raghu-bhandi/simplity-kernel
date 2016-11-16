@@ -25,8 +25,7 @@
 					placeholder="Nomination Title" ng-model="nomination.nomination"
 					aria-describedby="nominationHelp" required> <span
 					style="color: red"
-					ng-show="showTitleError">Nomination
-					Title is required.</span> <br>
+					ng-show="showTitleError">Enter Nomination Title.</span> <br>
 				<small id="nominationHelp" required>Please DO NOT mention
 					any client/customer name in the title – Incase client/customer name
 					appears request you to kindly get the client/customer approval for
@@ -43,7 +42,7 @@
 					class="form-control" ng-model="nomination.sponsormailid"
 					placeholder="Enter email" aria-describedby="emailHelp"
 					ng-change="getmailsuggestion(nomination.sponsormailid)"
-					typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith""
+					typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 					typeahead-on-select="populatesponsordata($item)">
 			</div>
 			<div class="form-group col-xs-4">
@@ -57,8 +56,8 @@
 					placeholder="Sponsor Employee Number"
 					ng-model="nomination.sponsornumber" disabled>
 			</div>
-			<span style="color: red" ng-show="showSponsorError">Sponsor
-				Details are required.</span> <small id="emailHelp"
+			<span style="color: red" ng-show="showSponsorError">Enter Sponsor Details</span> 
+			<small id="emailHelp"
 				class="form-text text-muted">Enter valid Email ID without
 				appending ITLINFOSYS or @infosys.com / @edgeverve.com</small>
 		</div>
@@ -68,6 +67,7 @@
 			<span ng-if="c.category == nomination.selectedCategory" >The
 				maximum number of members you can nominate is : {{c.noOfMembers}}</span>
 		</div>
+		<div style="color: green">Please click '+' to add a member</div>
 		<div style="color: red" ng-show="showMemberError">Nominate
 			atleast 1 member for the selected category</div> 
 		<div class="form-group">
@@ -79,6 +79,7 @@
 					<th class="col-xs-2">Name</th>
 					<th class="col-xs-2">Unit/Dept</th>
 					<th class="col-xs-6">Details of Individual Contribution</th>
+					<th class="col-xs-1"></th>
 				</tr>
 				<tr class="row">
 					<td class="col-xs-1" ng-if="enableplus"><span
@@ -91,7 +92,9 @@
 						placeholder="Email Id"
 						ng-change="getmailsuggestion(addmember.employeeEmailID)"
 						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
-						typeahead-on-select="populatememberdata($item)"></td>
+						typeahead-on-select="populatememberdata($item)">
+						<span style="color: red" ng-show="contributionError">Enter Email ID</span>
+						</td>
 					<td class="col-xs-1"><input class="form-control"
 						ng-model="addmember.eNo" placeholder="Emp No" disabled></td>
 					<td class="col-xs-2"><input class="form-control"
@@ -101,7 +104,7 @@
 					<td class="col-xs-6"><textarea class="form-control" rows="3" maxlength="3000"
 						ng-model="addmember.contribution"
 						placeholder="Individual Contribution"></textarea>
-						<span style="color: red" ng-show="contributionError">Required</span></td>
+						<span style="color: red" ng-show="contributionError">Enter Individual contribution</span></td>
 				</tr>
 				<tr ng-repeat="x in nomination.members" class="row"
 					ng-include="getTemplate($index)">
@@ -184,14 +187,16 @@
 			<span ng-if="state=='view'">Please note that the uploaded file will replace the existing file</span></small>
 	</div>
 	<hr>
+	<div ng-if="state == 'new' || state == 'view'">
 	<button type="submit" class="btn btn-primary">
 	<span ng-if="state=='new'"  ng-click="submit('Saved')">Save</span>
-	<span ng-if="state=='view' || state=='sponsor'" ng-click="disableform || updatenomination(nomination,'Saved')">Update</span>
+	<span ng-if="state=='view'" ng-click="disableform || updatenomination(nomination,'Saved')">Update</span>
 	</button>
 	<button type="submit" class="btn btn-primary"> 
 	<span ng-if="state=='new'" ng-click="submit('Submitted')">Submit</span>
-	<span ng-if="state=='view' || state=='sponsor'" ng-click="disableform || updatenomination(nomination,'Submitted')">Submit</span>
+	<span ng-if="state=='view'" ng-click="disableform || updatenomination(nomination,'Submitted')">Submit</span>
 	</button>
+	</div>
 	</fieldset>
 </form>
 <script type="text/ng-template" id="displaymembers">

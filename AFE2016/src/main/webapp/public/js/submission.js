@@ -9,6 +9,9 @@ app.config(function($routeProvider) {
     .when("/sponsor", {
         templateUrl : "viewsponsor.html"
     })
+    .when("/admin", {
+        templateUrl : "adminview.html"
+    })
     .when("/logout", {
         templateUrl : "logout.html"
     });
@@ -17,11 +20,14 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
+			$scope.state = "new";
 			 angular.copy($scope.initnomination,$scope.nomination);
 			 $scope.disableform=false;
 			return;
 		}
-		if($currentRoute.loadedTemplateUrl==="viewsubmissions.html"){	 
+		if($currentRoute.loadedTemplateUrl==="viewsubmissions.html"){
+			$scope.state = "view";
+			$scope.selectedRow = 0;
 			 Simplity.getResponse("submission.getnominations",null,function(json){
 				 if(json.nominations != null){
 					 $scope.nominations = json.nominations;
@@ -33,11 +39,25 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			return;
 		}
 		if($currentRoute.loadedTemplateUrl==="viewsponsor.html"){ 
+			$scope.state = "sponsor";
 			 Simplity.getResponse("submission.getnomsponsor",null,function(json){
 				 if(json.sponsors != null){
 					 $scope.sponsors = json.sponsors;
 					 angular.copy($scope.sponsors[0],$scope.nomination );
 					 $scope.changeformstatus($scope.sponsors[0]);
+					 $scope.$apply();
+				 }
+			 });			
+			return;
+		}
+		if($currentRoute.loadedTemplateUrl==="adminview.html"){
+			$scope.state = "admin";
+			$scope.selectedRow = 0;
+			 Simplity.getResponse("submission.getallnominations",null,function(json){
+				 if(json.nominations != null){
+					 $scope.allnominations = json.nominations;
+					 angular.copy($scope.allnominations[0],$scope.nomination );
+					 $scope.disableform=true;
 					 $scope.$apply();
 				 }
 			 });			
@@ -50,11 +70,13 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	});
 	
 	$scope.user = "new";
+	$scope.state = "new";
 	$scope.disableform = false;
 	$scope.enableplus = true;
 	$scope.showSponsorError = false;
 	$scope.showMemberError = false;
 	$scope.contributionError = false;
+	$scope.memberMailError = false;
 	$scope.showTitleError = false;
 	$scope.forms = {};
 	 $scope.categories= [
@@ -92,6 +114,14 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         "APAC",
         "EMEA"
     ];
+    $scope.initcheckbox = {
+    		"0":false,
+			"1":false,
+			"2":false,
+			"3":false,
+			"4":false,
+			"5":false
+	};
     $scope.nomination = {
         "selectedCategory":"Account Management-Small/Mid",
         "selectedLevel":"Bangalore",
@@ -102,19 +132,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         "members":[],
         "filekey":'',
         "email":false,
+        "checkbox":$scope.initcheckbox,
         "uploadfile":{},
         "filename":"",
         "filetype":"",
 		"filesize":""
    };
-    $scope.nomination.checkbox = {
-    		"0":false,
-			"1":false,
-			"2":false,
-			"3":false,
-			"4":false,
-			"5":false
-	};
     angular.element('#typeahead').typeahead({
 	  hint: true,
 	  highlight: true,
@@ -122,10 +145,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	});
     
     $scope.nominations = [];
+    $scope.allnominations = [];
     $scope.sponsors = [];
     $scope.employees = [];
     $scope.chosenemployee = {};
-    $scope.initnomination={};
+    $scope.initnomination = {};
+    $scope.nomination.checkbox = {};
     $scope.initmember = {
         employeeEmailID: '',
         eNo: '',
@@ -138,10 +163,16 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     $scope.addrow = function () {
     	if($scope.addmember.contribution == ""){
     		$scope.contributionError = true;
-    		alert("Please fill individual contribution");    			
+       	}
+    	if($scope.addmember.employeeEmailID == ""){
+    		$scope.memberMailError = true;
+    	}
+    	if($scope.contributionError == true || $scope.memberMailError == true){
+    		alert("Please fill required fields");    			
     		return;
     	}
-    	$scope.contributionError = true;
+    	$scope.contributionError = false;
+    	$scope.memberMailError = false;
     	var membersallowed=0;
     	for(var i=0;i<$scope.categories.length;i++){
     		if($scope.nomination.selectedCategory == $scope.categories[i].category){
@@ -238,8 +269,11 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	
 	 
 	 $scope.viewsubmission=function(nomination){
+		 nomination.checkbox = $scope.initcheckbox;
 		 angular.copy(nomination,$scope.nomination);
+		 if($scope.state != "admin"){
 		 $scope.changeformstatus(nomination);
+		 }
 	};
 
 	 $scope.updatenomination=function(selectednomination,status){
@@ -248,7 +282,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		else
 			 selectednomination.email=true;
 		selectednomination.status=status;
-		console.log(selectednomination);
+		
 		if($scope.validateNomination(selectednomination)){
 		if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
     		var fileDetails = $scope.nomination.uploadfile;
@@ -310,16 +344,16 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    	if(nomination.sponsormailid == ""){
 	    		$scope.showSponsorError = true;
 	    	}
-	    	if(nomination.members.length == 0){
+	    	if(nomination.members == undefined || nomination.members.length == 0){
 	    		$scope.showMemberError = true;
 	    	}    			
 	    }
-	    if($scope.showSponsorError || $scope.showMemberError){
+	    if($scope.showSponsorError == true || $scope.showMemberError == true){
 	    	alert("Please fill the required fields before submitting");
 	    	return false;
 	    }
 	    if(nomination.status != "Saved"){
-	   for(var i=0;i<Object.keys($scope.nomination.checkbox).length;i++){
+	    for(var i=0;i<Object.keys($scope.nomination.checkbox).length;i++){
 		   	if($scope.nomination.checkbox[i] == false){
 	    		alert("Please check and confirm the check-box data before proceeding");
 	    		return false;
