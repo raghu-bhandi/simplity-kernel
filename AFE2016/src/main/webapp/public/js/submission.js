@@ -25,15 +25,20 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
+<<<<<<< HEAD
 			$scope.state = "new";
+=======
+			 $scope.state="new";
+>>>>>>> refs/remotes/origin/master
 			 angular.copy($scope.initnomination,$scope.nomination);
-			 $scope.disableform=false;
+			 $scope.disableform=false;			 
 			return;
 		}
 		if($currentRoute.loadedTemplateUrl==="viewsubmissions.html"){
 			$scope.state = "view";
 			$scope.selectedRow = 0;
 			 Simplity.getResponse("submission.getnominations",null,function(json){
+				 $scope.state="view";
 				 if(json.nominations != null){
 					 $scope.nominations = json.nominations;
 					 angular.copy($scope.nominations[0],$scope.nomination );
@@ -44,7 +49,11 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			return;
 		}
 		if($currentRoute.loadedTemplateUrl==="viewsponsor.html"){ 
+<<<<<<< HEAD
 			$scope.state = "sponsor";
+=======
+			 $scope.state="sponsor";	
+>>>>>>> refs/remotes/origin/master
 			 Simplity.getResponse("submission.getnomsponsor",null,function(json){
 				 if(json.sponsors != null){
 					 $scope.sponsors = json.sponsors;
@@ -73,7 +82,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			return;
 		}
 	});
-	
+	$scope.state = "new";
 	$scope.user = "new";
 	$scope.state = "new";
 	$scope.disableform = false;
