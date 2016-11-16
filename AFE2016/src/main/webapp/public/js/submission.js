@@ -15,6 +15,12 @@ app.config(function($routeProvider) {
 });
 app.controller('formCtrl', function ($scope,$window,$http) {
 	
+	$http.get('public/js/data.json')
+    .then(function(res){
+    	$scope.categories = res.data.categories;                
+    	$scope.levels = res.data.levels;
+     });
+	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			 angular.copy($scope.initnomination,$scope.nomination);
@@ -57,41 +63,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.contributionError = false;
 	$scope.showTitleError = false;
 	$scope.forms = {};
-	 $scope.categories= [
-        {"category":"Account Management-Small/Mid","noOfMembers":3},
-        {"category":"Account Management-Large","noOfMembers":5},
-        {"category":"Development Center (DC) Management-Large","noOfMembers":4},
-        {"category":"Development Center (DC) Management-Small","noOfMembers":6},
-        {"category":"Infosys Champions-Technology Champion","noOfMembers":2},
-        {"category":"Infosys Champions-Domain Champion","noOfMembers":7},
-        {"category":"Innovation-IP, Products, Platforms and Solutions","noOfMembers":5},
-        {"category":"Innovation-Culture","noOfMembers":4},
-        {"category":"Internal Customer Delight","noOfMembers":8},
-        {"category":"People Development","noOfMembers":6},
-        {"category":"Complex/Business Transformation Program","noOfMembers":9},
-        {"category":"Large Business Operation Program","noOfMembers":7},
-        {"category":"Sales and Marketing - Brand Management","noOfMembers":2},
-        {"category": "Sales and Marketing - Sales Management","noOfMembers":4},
-        {"category":"Systems and Processes","noOfMembers":5},
-        {"category":"Value Champions","noOfMembers":9},
-        {"category":"Sustainability/Social Consciousness","noOfMembers":10}
-    ];
-    $scope.levels=[
-        "Bangalore",
-        "Bhubaneswar",
-        "Chandigarh (including New Delhi, Mohali)",
-        "Chennai (Mahindra City/ Sholinganallur)",
-        "Hyderabad",
-        "Jaipur",
-        "Mangalore",
-        "Mysore",
-        "Pune",
-        "Trivandrum",
-        "Americas",
-        "ANZ",
-        "APAC",
-        "EMEA"
-    ];
+
     $scope.nomination = {
         "selectedCategory":"Account Management-Small/Mid",
         "selectedLevel":"Bangalore",
