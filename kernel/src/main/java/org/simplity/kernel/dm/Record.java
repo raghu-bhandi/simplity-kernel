@@ -21,6 +21,9 @@
  */
 package org.simplity.kernel.dm;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -36,6 +39,7 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
+import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
@@ -53,6 +57,8 @@ import org.simplity.kernel.data.SingleRowSheet;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.util.JsonUtil;
+import org.simplity.kernel.util.XmlUtil;
+import org.simplity.kernel.value.BooleanValue;
 import org.simplity.kernel.value.IntegerValue;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
@@ -90,8 +96,12 @@ public class Record implements Component {
 	private static final char EQUAL = '=';
 	private static final char PERCENT = '%';
 	private static final String TABLE_ACTION_FIELD_NAME = ServiceProtocol.TABLE_ACTION_FIELD_NAME;
-	private static final Field TABLE_ACTION_FIELD = Field
-			.getDefaultField(ServiceProtocol.TABLE_ACTION_FIELD_NAME);
+
+	/*
+	 * initialization deferred because it needs bootstrapping..
+	 */
+	private static Field TABLE_ACTION_FIELD = null;
+
 	private static final ComponentType MY_TYPE = ComponentType.REC;
 
 	/*
@@ -1687,6 +1697,10 @@ public class Record implements Component {
 
 	@Override
 	public void getReady() {
+		if (TABLE_ACTION_FIELD == null) {
+			TABLE_ACTION_FIELD = Field.getDefaultField(TABLE_ACTION_FIELD_NAME,
+					ValueType.TEXT);
+		}
 		if (this.fields == null) {
 			throw new ApplicationError("Record " + this.getQualifiedName()
 					+ " has no fields.");
@@ -2559,7 +2573,7 @@ public class Record implements Component {
 		DataSheet columns = DbDriver.getTableColumns(null, nam);
 		if (columns == null) {
 			ctx.addError(this.tableName
-					+ " is not a vaid table/view defined in the data base");
+					+ " is not a valid table/view defined in the data base");
 			return 1;
 		}
 		int count = 0;
@@ -3010,5 +3024,157 @@ public class Record implements Component {
 			result[i] = ctx.getValue(field.name);
 		}
 		return result;
+	}
+
+	/**
+	 * crates a default record component for a table from rdbms
+	 *
+	 * @param schemaName
+	 *            null to use default schema. non-null to use that specific
+	 *            schema that this table belongs to
+	 * @param qualifiedName
+	 *            like modulename.recordName
+	 * @param tableName
+	 *            as in rdbms
+	 * @param conversion
+	 *            how field names are to be derived from columnName
+	 * @return default record component for a table from rdbms
+	 */
+	public static Record createFromTable(String schemaName,
+			String qualifiedName, String tableName,
+			DbToJavaNameConversion conversion) {
+		DataSheet columns = DbDriver.getTableColumns(schemaName, tableName);
+		if (columns == null) {
+			String msg = "No table in db with name " + tableName;
+			if (schemaName != null) {
+				msg += " in schema " + schemaName;
+			}
+			Tracer.trace(msg);
+			return null;
+		}
+		Record record = new Record();
+		record.name = qualifiedName;
+		int idx = qualifiedName.lastIndexOf('.');
+		if (idx != -1) {
+			record.name = qualifiedName.substring(idx + 1);
+			record.moduleName = qualifiedName.substring(0, idx);
+		}
+		record.tableName = tableName;
+
+		int nbrCols = columns.length();
+		Field[] fields = new Field[nbrCols];
+		for (int i = 0; i < fields.length; i++) {
+			Value[] row = columns.getRow(i);
+			Field field = new Field();
+			fields[i] = field;
+			String nam = row[2].toText();
+			field.columnName = nam;
+			if (conversion == null) {
+				field.name = nam;
+			} else {
+				field.name = conversion.toJavaName(nam);
+			}
+			field.setDataTypeBasedOnSqlType(
+					(int) ((IntegerValue) row[3]).getLong(), row[4].toString(),
+					(int) ((IntegerValue) row[6]).getLong());
+			field.isNullable = ((BooleanValue) row[8]).getBoolean();
+			field.isRequired = !field.isNullable;
+		}
+		record.fields = fields;
+		return record;
+	}
+
+	/**
+	 * generate and save draft record.xmls for all tables and views in the rdbms
+	 *
+	 * @param folder
+	 *            where record.xmls are to be saved. Should be a valid folder.
+	 *            Created if the path is valid but folder does not exist. since
+	 *            we replace any existing file, we recommend that you call with
+	 *            a new folder, and then do file copying if required
+	 * @param conversion
+	 *            how do we form record/field names table/column
+	 * @return number of records saved
+	 */
+	public static int createAllRecords(File folder,
+			DbToJavaNameConversion conversion) {
+		if (folder.exists() == false) {
+			folder.mkdirs();
+			Tracer.trace("Folder created for path " + folder.getAbsolutePath());
+		} else if (folder.isDirectory() == false) {
+			Tracer.trace(folder.getAbsolutePath()
+					+ " is a file but not a folder. Record generation abandoned.");
+			return 0;
+		}
+		String path = folder.getAbsolutePath() + '/';
+		DataSheet tables = DbDriver.getTables(null, null);
+		if (tables == null) {
+			Tracer.trace("No tables in the db. Records not created.");
+			return 0;
+		}
+		Tracer.trace("Found " + tables.length()
+				+ " tables to for which we are going to create records.");
+		String[][] rows = tables.getRawData();
+		int nbrTables = 0;
+		/*
+		 * first row is header. Start from second row.
+		 */
+		for (int i = 1; i < rows.length; i++) {
+			String[] row = rows[i];
+			String schemaName = row[0];
+			if (schemaName != null && schemaName.isEmpty()) {
+				schemaName = null;
+			}
+			String tableName = row[1];
+			String recordName = tableName;
+			if (conversion != null) {
+				recordName = conversion.toJavaName(tableName);
+			}
+
+			Record record = Record.createFromTable(schemaName, recordName,
+					tableName, conversion);
+			if (record == null) {
+				Tracer.trace("Record " + recordName
+						+ " could not be generated from table/view "
+						+ tableName);
+				continue;
+			}
+			if (row[2].equals("VIEW")) {
+				record.recordType = RecordUsageType.VIEW;
+				record.readOnly = true;
+			}
+			File file = new File(path + recordName + ".xml");
+			OutputStream out = null;
+			try {
+				if (file.exists() == false) {
+					file.createNewFile();
+				}
+				out = new FileOutputStream(file);
+				if (XmlUtil.objectToXml(out, record)) {
+					nbrTables++;
+				}
+			} catch (Exception e) {
+				Tracer.trace(e, "Record " + recordName
+						+ " generated from table/view " + tableName
+						+ " but could not be saved. ");
+				continue;
+			} finally {
+				if (out != null) {
+					try {
+						out.close();
+					} catch (Exception ignore) {
+						//
+					}
+				}
+			}
+
+		}
+		return nbrTables;
+	}
+
+	public static void main(String[] args) throws Exception {
+		Application.bootStrap("e:/repos/simplity/WebContent/WEB-INF/comp/");
+		File folder = new File("e:/temp/");
+		Record.createAllRecords(folder, DbToJavaNameConversion.CAMEL_CASE);
 	}
 }

@@ -212,7 +212,7 @@ public class XmlUtil {
 	 */
 	public static void xmlToCollection(InputStream stream,
 			Map<String, Object> objects, String packageName)
-			throws XmlParseException {
+					throws XmlParseException {
 		Node node = getDocument(stream).getDocumentElement().getFirstChild();
 		while (node != null) {
 			if (node.getNodeName().equals(COMPONENTS) == false) {
@@ -764,7 +764,7 @@ public class XmlUtil {
 	 */
 	private static Object elementToSubclass(Element element, Field field,
 			Class<?> referenceType, Object parentObject)
-			throws XmlParseException {
+					throws XmlParseException {
 
 		Object thisObject = null;
 		String elementName = element.getTagName();
@@ -814,7 +814,7 @@ public class XmlUtil {
 	 */
 	private static List<?> elementToList(Element element, Field field,
 			Class<?> referenceType, Object parentObject)
-			throws XmlParseException {
+					throws XmlParseException {
 		List<Object> objects = new ArrayList<Object>();
 		Node child = element.getFirstChild();
 		while (child != null) {
@@ -919,8 +919,7 @@ public class XmlUtil {
 			trans.transform(source, result);
 			return true;
 		} catch (Exception e) {
-			Tracer.trace(eleName + " could not be saved as xml. "
-					+ e.getMessage());
+			Tracer.trace(e, eleName + " could not be saved as xml. ");
 			return false;
 		}
 	}
@@ -970,8 +969,8 @@ public class XmlUtil {
 			if (ReflectUtil.isValueType(type)) {
 				Tracer.trace("Field " + fieldName
 						+ " has a primitive value of " + value);
-				String stringValue = primitiveValue(value);
-				if (stringValue.length() > 0) {
+				String stringValue = nonDefaultPrimitiveValue(value);
+				if (stringValue != null) {
 					ele.setAttribute(fieldName, stringValue);
 				}
 				continue;
@@ -1006,7 +1005,12 @@ public class XmlUtil {
 				Tracer.trace("field " + fieldName
 						+ " is added as an element and not as an attribute");
 				for (Object obj : objects) {
-					objectEle.appendChild(objectToEle(obj, doc, null));
+					if (obj == null) {
+						Tracer.trace("An element of array " + fieldName
+								+ " is null. Ignored.");
+					} else {
+						objectEle.appendChild(objectToEle(obj, doc, null));
+					}
 				}
 				continue;
 			}
@@ -1024,7 +1028,12 @@ public class XmlUtil {
 				Element objectEle = doc.createElement(fieldName);
 				ele.appendChild(objectEle);
 				for (Object obj : objects.values()) {
-					objectEle.appendChild(objectToEle(obj, doc, null));
+					if (obj == null) {
+						Tracer.trace("An element of array " + fieldName
+								+ " is null. Ignored.");
+					} else {
+						objectEle.appendChild(objectToEle(obj, doc, null));
+					}
 				}
 				continue;
 			}
@@ -1075,6 +1084,46 @@ public class XmlUtil {
 			 */
 			return Value.newDecimalValue(((Double) value).doubleValue())
 					.toString();
+		}
+		return value.toString();
+	}
+
+	/**
+	 * @param value
+	 * @return text value of the primitive, if it is not the default (empty,
+	 *         false and 0)
+	 */
+	private static String nonDefaultPrimitiveValue(Object value) {
+		if (value == null) {
+			return null;
+		}
+		/*
+		 * just that we expect 80% calls where value is String.
+		 */
+		if (value instanceof String) {
+			String s = value.toString();
+			if (s.isEmpty()) {
+				return null;
+			}
+			return s;
+		}
+
+		if (value instanceof Number) {
+			long nbr = ((Number) value).longValue();
+			if (nbr == 0) {
+				return null;
+			}
+			return value.toString();
+		}
+		if (value instanceof Boolean) {
+			if (((Boolean) value).booleanValue()) {
+				return TRUE_VALUE;
+			}
+			return null;
+		}
+
+		if (value.getClass().isEnum()) {
+			return TextUtil.constantToValue(value.toString());
 		}
 		return value.toString();
 	}
