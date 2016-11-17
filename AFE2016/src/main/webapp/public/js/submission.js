@@ -242,19 +242,22 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	 $scope.viewsubmission=function(nomination){
 		 nomination.checkbox = $scope.initcheckbox;
 		 angular.copy(nomination,$scope.nomination);
+		 console.log(nomination);
 		 if($scope.state != "admin"){
 		 $scope.changeformstatus(nomination);
 		 }
 	};
 
-	 $scope.updatenomination=function(selectednomination,status){
-		if(status == "Saved")
-			selectednomination.email=false;
-		else
-			 selectednomination.email=true;
-		selectednomination.status=status;
-		
-		if($scope.validateNomination(selectednomination)){
+	 $scope.updatenomination=function(selectednomination,status){		 
+		 var nomination = {};
+		 angular.copy(selectednomination,nomination);
+		 nomination.status=status;
+		if($scope.validateNomination(nomination)){
+			if(status == "Saved")
+				selectednomination.email=false;
+			else
+				 selectednomination.email=true;
+			selectednomination.status=status;
 		if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
     		var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
@@ -306,6 +309,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	 };
 	 
 	 $scope.validateNomination=function(nomination){
+		 if(nomination.members == undefined){
+			 nomination.members = [];
+		 }
+		 $scope.showTitleError = false;
+		 $scope.showSponsorError = false;
+		 $scope.showMemberError = false;
 		 if(nomination.nomination == ""){
 	    	$scope.showTitleError = true;
 	    	alert("Nomination title is required");	
@@ -315,7 +324,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    	if(nomination.sponsormailid == ""){
 	    		$scope.showSponsorError = true;
 	    	}
-	    	if(nomination.members == undefined || nomination.members.length < $scope.minMembers){
+	    	if(nomination.members.length < $scope.minMembers){
 	    		$scope.showMemberError = true;
 	    	}    			
 	    }
