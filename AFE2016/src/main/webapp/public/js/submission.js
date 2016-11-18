@@ -76,7 +76,6 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	});
 	$scope.state = "new";
 	$scope.user = "new";
-	$scope.state = "new";
 	$scope.disableform = false;
 	$scope.enableplus = true;
 	$scope.showSponsorError = false;
@@ -141,10 +140,10 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     $scope.addrow = function () {
     	$scope.contributionError = false;
     	$scope.memberMailError = false;
-    	if($scope.addmember.contribution == ""){
+    	if($scope.addmember.contribution == "" || $scope.addmember.contribution == null){
     		$scope.contributionError = true;
        	}
-    	if($scope.addmember.employeeEmailID == ""){
+    	if($scope.addmember.employeeEmailID == "" || $scope.addmember.employeeEmailID == null){
     		$scope.memberMailError = true;
     	}
     	if($scope.contributionError == true || $scope.memberMailError == true){
@@ -188,6 +187,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
       }
     };
     $scope.submit=function(status){
+    	console.log("submit");
     	$scope.showTitleError = false;
     	$scope.showSponsorError = false;
     	$scope.showMemberError = false;
@@ -218,12 +218,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 				data.filetype=fileDetails.type;
 				data.filesize=fileDetails.size;
 				Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
-					alert("Data "+status+" successfully");
+					alert("Nomination details "+status+" successfully");
 				});
     		});
     	}else{			
 			Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
-				alert("Data "+status+" successfully");
+				alert("Nomination details "+status+" successfully");
 			});
     	}
     	$scope.nomination.uploadfile = {};
@@ -242,7 +242,6 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	 $scope.viewsubmission=function(nomination){
 		 nomination.checkbox = $scope.initcheckbox;
 		 angular.copy(nomination,$scope.nomination);
-		 console.log(nomination);
 		 if($scope.state != "admin"){
 		 $scope.changeformstatus(nomination);
 		 }
@@ -252,13 +251,19 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		 var nomination = {};
 		 angular.copy(selectednomination,nomination);
 		 nomination.status=status;
-		if($scope.validateNomination(nomination)){
+		 if(status == "Approved" || status == "Rejected"){
+			 selectednomination.email=true;
+			 selectednomination.status=status;
+			 Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination));
+			 return;
+		 }
+		 if($scope.validateNomination(nomination)){
+			 selectednomination.status=status;
 			if(status == "Saved")
 				selectednomination.email=false;
 			else
-				 selectednomination.email=true;
-			selectednomination.status=status;
-		if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
+				 selectednomination.email=true;			
+			if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
     		var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			selectednomination.filekey=key;
@@ -266,14 +271,22 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     			selectednomination.filetype=fileDetails.type;
     			selectednomination.filesize=fileDetails.size;
 				Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
-	    			alert("Details updated successfully!!!");
+					if(status != "Approved" || status != "Rejected"){
+						$scope.nominations[$scope.selectedRow] = selectednomination;
+		    			$scope.$apply();
+	    			alert("Nomination details "+ status + " successfully!!!");	    			
+					}
 	    		});
     		});
-    	}else{			
+			}else{			
     		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
-    			alert("Details updated successfully!!!");
+    			if(status != "Approved" || status != "Rejected"){
+    				$scope.nominations[$scope.selectedRow] = selectednomination;
+        			$scope.$apply();
+    			alert("Nomination details "+ status + " successfully!!!");    			
+    			}
     		});
-    	}
+			}
 		}
 	 };
 	 
@@ -315,13 +328,13 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		 $scope.showTitleError = false;
 		 $scope.showSponsorError = false;
 		 $scope.showMemberError = false;
-		 if(nomination.nomination == ""){
+		 if(nomination.nomination == "" || nomination.nomination == null){
 	    	$scope.showTitleError = true;
 	    	alert("Nomination title is required");	
 	    	return false;
 	    }
 	    if(nomination.status == "Submitted"){
-	    	if(nomination.sponsormailid == ""){
+	    	if(nomination.sponsormailid == "" || nomination.sponsormailid == null){
 	    		$scope.showSponsorError = true;
 	    	}
 	    	if(nomination.members.length < $scope.minMembers){
