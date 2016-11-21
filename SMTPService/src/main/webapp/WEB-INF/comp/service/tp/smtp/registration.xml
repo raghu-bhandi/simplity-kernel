@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service dbAccessType="readWrite"
+	     moduleName="smtp"
+         name="registration"
+	xmlns="http://www.simplity.org/schema">
+	<inputData>
+		<inputFields>
+			<inputField dataType="_text" name="domain"/>
+			<inputField dataType="_text" name="application"/>
+			<inputField dataType="_text" name="mailbox"/>
+		</inputFields>
+	</inputData>
+	<actions>
+		<copyUserId fieldName="submitterId"/>
+		<setValue fieldName="apikey" fieldValue="apikey"></setValue>
+		<save saveAction="add" recordName="smtp.registration" actionName="addregistration"></save>
+	</actions>
+	<outputData fieldNames="addregistrationResult">
+	</outputData>
+</service>
