@@ -16,7 +16,8 @@
 	<inputField dataType="_text" name="selectedCategory"/>
 	<inputField dataType="_text" name="selectedLevel"/>
 	<inputField dataType="_text" name="nomination"/>
-	<inputField dataType="_text" name="sponsormailid"/>
+	<inputField dataType="_text" name="sponsorMailNickname"/>
+	<inputField dataType="_text" name="sponsorMail"/>
 	<inputField dataType="_text" name="sponsorname"/>
 	<inputField dataType="_text" name="sponsornumber"/>
 	<inputField dataType="_text" name="status"/>
@@ -28,8 +29,8 @@
 </inputData>	
 	<actions>	
 		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>	
-		<setValue fieldName="submitterId" expression="lowercase(copyuserid)"></setValue>	
-		<setValue fieldName="sponsormailid" expression="lowercase(sponsormailid)"></setValue>
+		<setValue fieldName="submitterMailNickname" expression="lowercase(copyuserid)"></setValue>	
+		<setValue fieldName="sponsorMail" expression="lowercase(sponsorMail)"></setValue>
 		
 		<save saveAction="save" recordName="nomination.nomination">
 			<childRecords>

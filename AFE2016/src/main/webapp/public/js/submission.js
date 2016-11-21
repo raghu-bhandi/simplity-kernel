@@ -97,7 +97,8 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         "selectedCategory":"Account Management-Small/Mid",
         "selectedLevel":"Bangalore",
         "nomination":"",
-        "sponsormailid":"",
+        "sponsorMailNickname":"",
+        "sponsorMail":"",
         "sponsorname":"",
         "sponsornumber":"",
         "members":[],
@@ -125,11 +126,11 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     $scope.minMembers = 0;
     $scope.maxMembers = 0;
     $scope.initmember = {
-        employeeEmailID: '',
-        eNo: '',
-        Name: '',
-        Unit: '',
-        contribution: ''
+        "employeeMail" : '',
+        "eNo": '',
+        "Name": '',
+        "Unit": '',
+        "contribution": ''
     };
     $scope.chosen;
     $scope.addmember = {};
@@ -143,7 +144,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     	if($scope.addmember.contribution == "" || $scope.addmember.contribution == null){
     		$scope.contributionError = true;
        	}
-    	if($scope.addmember.employeeEmailID == "" || $scope.addmember.employeeEmailID == null){
+    	if($scope.addmember.employeeMail == "" || $scope.addmember.employeeMail == null){
     		$scope.memberMailError = true;
     	}
     	if($scope.contributionError == true || $scope.memberMailError == true){
@@ -157,7 +158,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         	$scope.nomination.members=[];        
         $scope.nomination.members.push(data);
         $scope.contributionError = false;
-        $scope.addmember.employeeEmailID = null;
+        $scope.addmember.employeeMail = null;
         if($scope.nomination.members.length == $scope.maxMembers){
         	$scope.enableplus = false;
         }
@@ -194,7 +195,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 				"selectedCategory":$scope.nomination.selectedCategory,
 		        "selectedLevel":$scope.nomination.selectedLevel,
 		        "nomination":$scope.nomination.nomination,
-		        "sponsormailid":$scope.nomination.sponsormailid,
+		        "sponsorMail":$scope.nomination.sponsormailid,
 		        "sponsorname":$scope.nomination.sponsorname,
 		        "sponsornumber":$scope.nomination.sponsornumber,
 		        "members":$scope.nomination.members,
@@ -333,7 +334,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    	return false;
 	    }
 	    if(nomination.status == "Submitted"){
-	    	if(nomination.sponsormailid == "" || nomination.sponsormailid == null){
+	    	if(nomination.sponsorMail == "" || nomination.sponsorMail == null){
 	    		$scope.showSponsorError = true;
 	    	}
 	    	if(nomination.members.length < $scope.minMembers){

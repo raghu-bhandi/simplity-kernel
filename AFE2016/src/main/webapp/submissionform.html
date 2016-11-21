@@ -39,9 +39,9 @@
 			<div class="form-group col-xs-4">
 				<label for="sponsormailid">Email ID</label> 
 				<input type="text"
-					class="form-control" ng-model="nomination.sponsormailid"
+					class="form-control" ng-model="nomination.sponsorMail"
 					placeholder="Enter email" aria-describedby="emailHelp"
-					ng-change="getmailsuggestion(nomination.sponsormailid)"
+					ng-change="getmailsuggestion(nomination.sponsorMail)"
 					typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 					typeahead-on-select="populatesponsordata($item)">
 			</div>
@@ -88,9 +88,9 @@
 					<td ng-if="!enableplus"></td>
 					<td class="col-xs-2">
 					<input class="form-control"
-						id="typeahead" ng-model="addmember.employeeEmailID"
+						id="typeahead" ng-model="addmember.employeeMail"
 						placeholder="Email Id"
-						ng-change="getmailsuggestion(addmember.employeeEmailID)"
+						ng-change="getmailsuggestion(addmember.employeeMail)"
 						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 						typeahead-on-select="populatememberdata($item)">
 						<span style="color: red" ng-show="contributionError">Enter Email ID</span>

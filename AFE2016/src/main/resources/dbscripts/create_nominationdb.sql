@@ -3,12 +3,14 @@ SET SCHEMA nomination; */
 
 CREATE TABLE IF NOT EXISTS nomination (
   nominationId INTEGER auto_increment NOT NULL,
-  submitterId  VARCHAR(100),
+  submitterMailNickname  VARCHAR(100),
+  submitterMail  VARCHAR(200),
   status  VARCHAR(100),
   selectedCategory  VARCHAR(100),
   selectedLevel  VARCHAR(100),
   nomination  VARCHAR(100) NOT NULL,
-  sponsormailid VARCHAR(100),
+  sponsorMailNickname VARCHAR(100),
+  sponsorMail VARCHAR(200),
   sponsorname VARCHAR(100),
   sponsornumber VARCHAR(100),
   filekey VARCHAR(100),
@@ -21,7 +23,8 @@ CREATE TABLE IF NOT EXISTS nomination (
 CREATE TABLE IF NOT EXISTS members (
 	membersId INTEGER auto_increment NOT NULL,
 	nominationId INTEGER NOT NULL, 
-	employeeEmailID VARCHAR(100) NOT NULL, 
+	employeeMailNickname VARCHAR(100) NOT NULL, 
+	employeeMail VARCHAR(200) NOT NULL,
     eNo VARCHAR(100) NOT NULL,
 	Name VARCHAR(100) NOT NULL,
 	Unit VARCHAR(100) NOT NULL,
