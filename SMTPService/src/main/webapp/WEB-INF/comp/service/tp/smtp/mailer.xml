@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service dbAccessType="readWrite" 
+		 moduleName="smtp" 
+		 name="mailer"
+		 xmlns="http://www.simplity.org/schema">
+<inputData>
+	<inputFields>
+		<inputField dataType="_text" name="toIds"/>
+		<inputField dataType="_text" name="ccIds"/>
+		<inputField dataType="_text" name="bccIds"/>
+		<inputField dataType="_text" name="subject"/>
+		<inputField dataType="_text" name="content"/>
+	</inputFields>
+</inputData>
+<actions>
+	<setValue actionName="sendmail" fieldName="abcd" fieldValue="abcd"></setValue>
+	<log names="abcd"/>
+	<!-- logic actionName="sendmail" className="com.infosys.qreuse.smtpservice.Mailer"/-->
+</actions>
+<outputData fieldNames="sendmailResult"></outputData>
+</service>

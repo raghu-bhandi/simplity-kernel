@@ -51,9 +51,14 @@
 	<script>
 		var app = angular.module('SMTPService', []);
 		app.controller('SMTPServiceCtrl', function($scope) {
-			$scope.service = {}
+			$scope.service = {};
+			$scope.init = function(){
+				Simplity.login("Chetana");
+			};
+			$scope.init();
 			$scope.submit = function() {
-				console.log(JSON.stringify($scope.service));
+				var addregistration = $scope.service;
+				Simplity.getResponse("smtp.registration", JSON.stringify(addregistration))
 			};
 		});
 	</script>
