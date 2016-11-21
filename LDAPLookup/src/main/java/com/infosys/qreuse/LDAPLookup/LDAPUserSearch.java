@@ -133,13 +133,13 @@ public class LDAPUserSearch implements LogicInterface {
 		for (Employee emp : e) {
 			Value[] empdetails = new Value[8];
 			empdetails[0] = Value.newTextValue(emp.getEmployeeId());
-			empdetails[1] = Value.newTextValue(emp.getEmployeeName());
-			empdetails[2] = Value.newTextValue(emp.getDetails());			
-			empdetails[3] = Value.newTextValue(emp.getProjectCode());
-			empdetails[4] = Value.newTextValue(emp.getExtension());
-			empdetails[5] = Value.newTextValue(emp.getMobile());
-			empdetails[6] = Value.newTextValue(emp.getMail());
-			empdetails[7] = Value.newTextValue(emp.getUnit());
+			empdetails[1] = Value.newTextValue(emp.getExtension());
+			empdetails[2] = Value.newTextValue(emp.getProjectCode());			
+			empdetails[3] = Value.newTextValue(emp.getDetails());
+			empdetails[4] = Value.newTextValue(emp.getMobile());
+			empdetails[5] = Value.newTextValue(emp.getMail());
+			empdetails[6] = Value.newTextValue(emp.getUnit());
+			empdetails[7] = Value.newTextValue(emp.getEmployeeName());
 
 			data.add(empdetails);
 		}
