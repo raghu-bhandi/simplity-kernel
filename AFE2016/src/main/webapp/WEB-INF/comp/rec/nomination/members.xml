@@ -10,8 +10,8 @@
 	<fields>
 		<field name="membersId" dataType="id" fieldType="primaryKey" />	
 		<field name="nominationId" dataType="id" fieldType="parentKey" referredField="nominationId" referredRecord="nomination.nomination"/>			
-		<field name="employeeEmailnickname" dataType="_text" />
-		<field name="employeeEmailID" dataType="_text" />
+		<field name="employeeMailNickname" dataType="_text" />
+		<field name="employeeMail" dataType="_text" />
 		<field name="eNo"  dataType="_text"/>
 		<field name="Name"  dataType="_text" />
 		<field name="Unit"  dataType="_text"/>
