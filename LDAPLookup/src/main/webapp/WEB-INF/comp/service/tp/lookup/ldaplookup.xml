@@ -7,6 +7,13 @@
 		</inputFields>
 	</inputData>
 	<actions>
+		<setValue fieldName="PROVIDER_URL" fieldValue="ldap://192.168.200.57:3268/"></setValue>
+		<setValue fieldName="SECURITY_AUTHENTICATION" fieldValue="Simple"></setValue>
+		<setValue fieldName="SECURITY_CREDENTIALS" fieldValue="Renew@2020"></setValue>
+		<setValue fieldName="SECURITY_PRINCIPAL" fieldValue="ENCORE@ITLINFOSYS"></setValue>
+		<setValue fieldName="INITIAL_CONTEXT_FACTORY" fieldValue="com.sun.jndi.ldap.LdapCtxFactory"></setValue>
+		<setValue fieldName="CONTROL_FACTORIES" fieldValue="com.sun.jndi.ldap.ControlFactory"></setValue>
+
 		<logic className="com.infosys.qreuse.LDAPLookup.LDAPUserSearch" />
 	</actions>
 	<outputData>

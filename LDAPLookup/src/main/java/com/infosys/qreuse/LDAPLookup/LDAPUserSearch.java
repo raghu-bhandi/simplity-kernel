@@ -31,16 +31,17 @@ public class LDAPUserSearch implements LogicInterface {
 	public static final String CN = "cn"; 
 	public static final String DEPARTMENT = "department"; 
 	
-	public static List<Employee> findUserDetails(String userName) {
-		List<Employee> employees = new ArrayList<Employee>();
 
+	public static List<Employee> findUserDetails(String userName, ServiceContext servicectx) {
+		List<Employee> employees = new ArrayList<Employee>();
+		
 		Hashtable<String, String> env = new Hashtable<String, String>(11);
-		env.put(Context.PROVIDER_URL, "ldap://192.168.200.57:3268/");
-		env.put(Context.SECURITY_AUTHENTICATION, "Simple");
-		env.put(Context.SECURITY_CREDENTIALS, "Renew@2020");
-		env.put(Context.SECURITY_PRINCIPAL, "ENCORE@ITLINFOSYS");
-		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(LdapContext.CONTROL_FACTORIES, "com.sun.jndi.ldap.ControlFactory");
+		env.put(Context.PROVIDER_URL, servicectx.getTextValue("PROVIDER_URL"));
+		env.put(Context.SECURITY_AUTHENTICATION, servicectx.getTextValue("SECURITY_AUTHENTICATION"));
+		env.put(Context.SECURITY_CREDENTIALS, servicectx.getTextValue("SECURITY_CREDENTIALS"));
+		env.put(Context.SECURITY_PRINCIPAL, servicectx.getTextValue("SECURITY_PRINCIPAL"));
+		env.put(Context.INITIAL_CONTEXT_FACTORY, servicectx.getTextValue("INITIAL_CONTEXT_FACTORY"));
+		env.put(LdapContext.CONTROL_FACTORIES, servicectx.getTextValue("CONTROL_FACTORIES"));
 
 		try {
 
@@ -54,7 +55,7 @@ public class LDAPUserSearch implements LogicInterface {
 			searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
 			// specify the LDAP search filter
-			String searchFilter = "(&(objectClass=user)(mail=" + userName + "*@infosys.com))";
+			String searchFilter = "(&(objectClass=user)(mailNickname=" + userName + "*))";
 
 			// Specify the Base for the search
 			String searchBase = "DC=ad,DC=infosys,DC=com";
@@ -63,7 +64,7 @@ public class LDAPUserSearch implements LogicInterface {
 			int totalResults = 0;
 
 			// Specify the attributes to return
-			String returnedAtts[] = { "mailNickname","company","department","cn"};
+			String returnedAtts[] = { COMPANY,EXTENSION,PROJECT_CODE, DETAILS, MOBILE, MAIL,CN,DEPARTMENT};
 			searchCtls.setReturningAttributes(returnedAtts);
 
 			// Search for objects using the filter
@@ -89,18 +90,13 @@ public class LDAPUserSearch implements LogicInterface {
 									employee.setEmployeeId(value);
 								} else if (attr.getID().equalsIgnoreCase(EXTENSION)) {
 									employee.setExtension(value);
-
 								} else if (attr.getID().equalsIgnoreCase(PROJECT_CODE)) {
 									employee.setProjectCode(value);
-
 								} else if (attr.getID().equalsIgnoreCase(DETAILS)) {
 									employee.setDetails(value);
-
 								} else if (attr.getID().equalsIgnoreCase(MOBILE)) {
 									employee.setMobile(value);
 								} else if (attr.getID().equalsIgnoreCase(MAIL)) {
-									employee.setDetails(value);
-								} else if (attr.getID().equalsIgnoreCase(MAILNICKNAME)) {
 									employee.setMail(value);
 								} else if (attr.getID().equalsIgnoreCase(CN)) {
 									employee.setEmployeeName(value);
@@ -131,15 +127,20 @@ public class LDAPUserSearch implements LogicInterface {
 
 	public Value execute(ServiceContext ctx) {
 		String email = ctx.getTextValue("mailidpart");
-		String[] columnNames = { "mail" , "eNo" , "Name" , "Unit"};
+		String[] columnNames = {"employeeId","extension","projectCode","details","mobile","mail","unit","employeeName"};
 		List<Value[]> data = new ArrayList<Value[]>();
-		List<Employee> e = findUserDetails(email);
+		List<Employee> e = findUserDetails(email,ctx);
 		for (Employee emp : e) {
-			Value[] empdetails = new Value[4];
-			empdetails[0] = Value.newTextValue(emp.getMail());
-			empdetails[1] = Value.newTextValue(emp.getEmployeeId());
-			empdetails[2] = Value.newTextValue(emp.getEmployeeName());
-			empdetails[3] = Value.newTextValue(emp.getUnit());
+			Value[] empdetails = new Value[8];
+			empdetails[0] = Value.newTextValue(emp.getEmployeeId());
+			empdetails[1] = Value.newTextValue(emp.getEmployeeName());
+			empdetails[2] = Value.newTextValue(emp.getDetails());			
+			empdetails[3] = Value.newTextValue(emp.getProjectCode());
+			empdetails[4] = Value.newTextValue(emp.getExtension());
+			empdetails[5] = Value.newTextValue(emp.getMobile());
+			empdetails[6] = Value.newTextValue(emp.getMail());
+			empdetails[7] = Value.newTextValue(emp.getUnit());
+
 			data.add(empdetails);
 		}
 		DataSheet sheet = new MultiRowsSheet(columnNames, data);

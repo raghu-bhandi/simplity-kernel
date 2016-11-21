@@ -15,6 +15,7 @@
 		<field name="selectedCategory" dataType="_text" />
 		<field name="selectedLevel" dataType="_text" />
 		<field name="nomination" dataType="_text" />
+		<field name="sponsormailnickname" dataType="_text" />
 		<field name="sponsormailid" dataType="_text" />
 		<field name="sponsorname" dataType="_text" />
 		<field name="sponsornumber" dataType="_text"/>
