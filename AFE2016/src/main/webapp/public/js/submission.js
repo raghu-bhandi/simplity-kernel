@@ -187,7 +187,6 @@ app.controller('formCtrl', function ($scope,$window,$http) {
       }
     };
     $scope.submit=function(status){
-    	console.log("submit");
     	$scope.showTitleError = false;
     	$scope.showSponsorError = false;
     	$scope.showMemberError = false;
