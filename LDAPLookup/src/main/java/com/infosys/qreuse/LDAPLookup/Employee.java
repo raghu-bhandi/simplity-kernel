@@ -2,10 +2,12 @@ package com.infosys.qreuse.LDAPLookup;
 
 public class Employee {
 
+
 	@Override
 	public String toString() {
-		return "Employee [employeeId=" + employeeId + ", employeeName=" + employeeName + ", unit=" + unit
-				 +", mail=" + mail + "]";
+		return "Employee [employeeId=" + employeeId + ", extension=" + extension + ", projectCode=" + projectCode
+				+ ", details=" + details + ", mobile=" + mobile + ", mail=" + mail + ", unit=" + unit
+				+ ", employeeName=" + employeeName + "]";
 	}
 
 	private String employeeId;

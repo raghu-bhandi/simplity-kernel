@@ -10,24 +10,12 @@
 <inputData>
 <inputFields>	
 	<inputField dataType="_text" name="nominationId"/>			
-	<inputField dataType="_text" name="filekey"/>
-	<inputField dataType="_text" name="filename"/>
-	<inputField dataType="_text" name="filetype"/>
-	<inputField dataType="_text" name="filesize"/>
-	<inputField dataType="_text" name="selectedCategory"/>
-	<inputField dataType="_text" name="selectedLevel"/>
-	<inputField dataType="_text" name="nomination"/>
-	<inputField dataType="_text" name="sponsormailid"/>
-	<inputField dataType="_text" name="sponsorname"/>
-	<inputField dataType="_text" name="sponsornumber"/>
-	<inputField dataType="_text" name="status"/>
 </inputFields>
 <inputRecords>
 	<inputRecord recordName="nomination.members" sheetName="members"/>
 </inputRecords>
 </inputData>	
 	<actions>	
-		<copyUserId fieldName="submitterId"/>
 		<save saveAction="delete" recordName="nomination.nomination" actionName="deleteAction" >
 			<childRecords>
 				<relatedRecord sheetName="members" recordName="nomination.members"/>
