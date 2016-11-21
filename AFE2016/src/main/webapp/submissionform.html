@@ -188,14 +188,13 @@
 	</div>
 	<hr>
 	<div ng-if="state == 'new' || state == 'view'">
-	<button type="submit" class="btn btn-primary">
-	<span ng-if="state=='new'"  ng-click="submit('Saved')">Save</span>
-	<span ng-if="state=='view'" ng-click="disableform || updatenomination(nomination,'Saved')">Update</span>
-	</button>
-	<button type="submit" class="btn btn-primary"> 
-	<span ng-if="state=='new'" ng-click="submit('Submitted')">Submit</span>
-	<span ng-if="state=='view'" ng-click="disableform || updatenomination(nomination,'Submitted')">Submit</span>
-	</button>
+	
+	<button type="submit" class="btn btn-primary" ng-if="state=='new'"  ng-click="submit('Saved')">Save</button>
+	<button type="submit" class="btn btn-primary" ng-if="state=='view'" ng-click="disableform || updatenomination(nomination,'Saved')">Update</button>
+	
+	<button type="submit" class="btn btn-primary" ng-if="state=='new'" ng-click="submit('Submitted')">Submit</button>
+	<button type="submit" class="btn btn-primary" ng-if="state=='view'" ng-click="disableform || updatenomination(nomination,'Submitted')">Submit</button>
+	
 	</div>
 	</fieldset>
 </form>
