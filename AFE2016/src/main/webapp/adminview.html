@@ -1,0 +1,28 @@
+<div>
+<h3>Admin View</h3>
+<div ng-if="allnominations.length == 0"><p> There are no records to display </p></div>
+<table  class="table" ng-if="allnominations.length > 0">
+	<tr class="row" ng-init="viewsubmission(allnominations[0])"  >
+		<th class="col-xs-1"></th>
+		<th class="col-xs-2">Category</th>
+		<th class="col-xs-1">Level</th>
+		<th class="col-xs-2">Title</th>
+		<th class="col-xs-1">Sponsor</th>
+		<th class="col-xs-1">Document File</th>
+		<th class="col-xs-1">Status</th>
+		<th class="col-xs-1"></th>
+	</tr>
+	<tr ng-repeat="x in allnominations" class="row" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRow($index);viewsubmission(x)" style="cursor: pointer;">
+		<td class="col-xs-1">{{$index+1}}</td>
+		<td class="col-xs-2">{{x.selectedCategory}}</td>
+		<td class="col-xs-1">{{x.selectedLevel}}</td>
+		<td class="col-xs-2">{{x.nomination}}</td>
+		<td class="col-xs-2">{{x.sponsormailid}}</td>
+		<td class="col-xs-1" ng-if="x.filekey != ''"><a type="application/x-zip-compressed" href="javascript:void(0);" ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
+		<td class="col-xs-1" ng-if="x.filekey == ''"></td>
+		<td class="col-xs-1">{{x.status}}</td>
+	
+	</tr>
+</table>
+</div>
+<div ng-if="allnominations.length > 0" ng-include="'submissionform.html'"></div>

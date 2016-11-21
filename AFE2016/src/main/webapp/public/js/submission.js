@@ -9,12 +9,14 @@ app.config(function($routeProvider) {
     .when("/sponsor", {
         templateUrl : "viewsponsor.html"
     })
+    .when("/admin", {
+        templateUrl : "adminview.html"
+    })
     .when("/logout", {
         templateUrl : "logout.html"
     });
 });
-app.controller('formCtrl', function ($scope,$window,$http) {
-	
+app.controller('formCtrl', function ($scope,$window,$http) {	
 	$http.get('public/js/data.json')
     .then(function(res){
     	$scope.categories = res.data.categories;                
@@ -24,11 +26,13 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			 $scope.state="new";
-			 angular.copy($scope.initnomination,$scope.nomination);
+	 angular.copy($scope.initnomination,$scope.nomination);
 			 $scope.disableform=false;			 
 			return;
 		}
-		if($currentRoute.loadedTemplateUrl==="viewsubmissions.html"){	 
+		if($currentRoute.loadedTemplateUrl==="viewsubmissions.html"){
+			$scope.state = "view";
+			$scope.selectedRow = 0;
 			 Simplity.getResponse("submission.getnominations",null,function(json){
 				 $scope.state="view";
 				 if(json.nominations != null){
@@ -52,6 +56,19 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			 });			
 			return;
 		}
+		if($currentRoute.loadedTemplateUrl==="adminview.html"){
+			$scope.state = "admin";
+			$scope.selectedRow = 0;
+			 Simplity.getResponse("submission.getallnominations",null,function(json){
+				 if(json.nominations != null){
+					 $scope.allnominations = json.nominations;
+					 angular.copy($scope.allnominations[0],$scope.nomination );
+					 $scope.disableform=true;
+					 $scope.$apply();
+				 }
+			 });			
+			return;
+		}
 		if($currentRoute.loadedTemplateUrl==="logout.html"){ 
 			 Simplity.logout();		
 			return;
@@ -64,9 +81,18 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.showSponsorError = false;
 	$scope.showMemberError = false;
 	$scope.contributionError = false;
+	$scope.memberMailError = false;
 	$scope.showTitleError = false;
 	$scope.forms = {};
-
+	 
+    $scope.initcheckbox = {
+    		"0":false,
+			"1":false,
+			"2":false,
+			"3":false,
+			"4":false,
+			"5":false
+	};
     $scope.nomination = {
         "selectedCategory":"Account Management-Small/Mid",
         "selectedLevel":"Bangalore",
@@ -77,19 +103,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         "members":[],
         "filekey":'',
         "email":false,
+        "checkbox":$scope.initcheckbox,
         "uploadfile":{},
         "filename":"",
         "filetype":"",
 		"filesize":""
    };
-    $scope.nomination.checkbox = {
-    		"0":false,
-    		"1":false,
-			"2":false,
-			"3":false,
-			"4":false,
-			"5":false
-	};
     angular.element('#typeahead').typeahead({
 	  hint: true,
 	  highlight: true,
@@ -97,10 +116,14 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	});
     
     $scope.nominations = [];
+    $scope.allnominations = [];
     $scope.sponsors = [];
     $scope.employees = [];
     $scope.chosenemployee = {};
-    $scope.initnomination={};
+    $scope.initnomination = {};
+    $scope.nomination.checkbox = {};
+    $scope.minMembers = 0;
+    $scope.maxMembers = 0;
     $scope.initmember = {
         employeeEmailID: '',
         eNo: '',
@@ -110,20 +133,23 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     };
     $scope.chosen;
     $scope.addmember = {};
+    $scope.setMembers = function(noOfMembers){
+    	$scope.minMembers = noOfMembers.min;
+        $scope.maxMembers = noOfMembers.max;
+    }
     $scope.addrow = function () {
-    	if($scope.addmember.contribution == ""){
+    	$scope.contributionError = false;
+    	$scope.memberMailError = false;
+    	if($scope.addmember.contribution == "" || $scope.addmember.contribution == null){
     		$scope.contributionError = true;
-    		alert("Please fill individual contribution");    			
+       	}
+    	if($scope.addmember.employeeEmailID == "" || $scope.addmember.employeeEmailID == null){
+    		$scope.memberMailError = true;
+    	}
+    	if($scope.contributionError == true || $scope.memberMailError == true){
+    		alert("Please fill required fields");    			
     		return;
-    	}
-    	$scope.contributionError = true;
-    	var membersallowed=0;
-    	for(var i=0;i<$scope.categories.length;i++){
-    		if($scope.nomination.selectedCategory == $scope.categories[i].category){
-    			membersallowed=$scope.categories[i].noOfMembers;
-    			break;
-    		}    			
-    	}
+    	}    	
         var data = {};
         angular.copy($scope.addmember, data);
         angular.copy($scope.initmember, $scope.addmember);
@@ -132,7 +158,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         $scope.nomination.members.push(data);
         $scope.contributionError = false;
         $scope.addmember.employeeEmailID = null;
-        if($scope.nomination.members.length == membersallowed){
+        if($scope.nomination.members.length == $scope.maxMembers){
         	$scope.enableplus = false;
         }
         
@@ -161,6 +187,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
       }
     };
     $scope.submit=function(status){
+    	console.log("submit");
     	$scope.showTitleError = false;
     	$scope.showSponsorError = false;
     	$scope.showMemberError = false;
@@ -191,12 +218,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 				data.filetype=fileDetails.type;
 				data.filesize=fileDetails.size;
 				Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
-					alert("Data "+status+" successfully");
+					alert("Nomination details "+status+" successfully");
 				});
     		});
     	}else{			
 			Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
-				alert("Data "+status+" successfully");
+				alert("Nomination details "+status+" successfully");
 			});
     	}
     	$scope.nomination.uploadfile = {};
@@ -213,19 +240,30 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	
 	 
 	 $scope.viewsubmission=function(nomination){
+		 nomination.checkbox = $scope.initcheckbox;
 		 angular.copy(nomination,$scope.nomination);
+		 if($scope.state != "admin"){
 		 $scope.changeformstatus(nomination);
+		 }
 	};
 
-	 $scope.updatenomination=function(selectednomination,status){
-		if(status == "Saved")
-			selectednomination.email=false;
-		else
+	 $scope.updatenomination=function(selectednomination,status){		 
+		 var nomination = {};
+		 angular.copy(selectednomination,nomination);
+		 nomination.status=status;
+		 if(status == "Approved" || status == "Rejected"){
 			 selectednomination.email=true;
-		selectednomination.status=status;
-		console.log(selectednomination);
-		if($scope.validateNomination(selectednomination)){
-		if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
+			 selectednomination.status=status;
+			 Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination));
+			 return;
+		 }
+		 if($scope.validateNomination(nomination)){
+			 selectednomination.status=status;
+			if(status == "Saved")
+				selectednomination.email=false;
+			else
+				 selectednomination.email=true;			
+			if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
     		var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			selectednomination.filekey=key;
@@ -233,14 +271,22 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     			selectednomination.filetype=fileDetails.type;
     			selectednomination.filesize=fileDetails.size;
 				Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
-	    			alert("Details updated successfully!!!");
+					if(status != "Approved" || status != "Rejected"){
+						$scope.nominations[$scope.selectedRow] = selectednomination;
+		    			$scope.$apply();
+	    			alert("Nomination details "+ status + " successfully!!!");	    			
+					}
 	    		});
     		});
-    	}else{			
+			}else{			
     		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
-    			alert("Details updated successfully!!!");
+    			if(status != "Approved" || status != "Rejected"){
+    				$scope.nominations[$scope.selectedRow] = selectednomination;
+        			$scope.$apply();
+    			alert("Nomination details "+ status + " successfully!!!");    			
+    			}
     		});
-    	}
+			}
 		}
 	 };
 	 
@@ -276,30 +322,41 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	 };
 	 
 	 $scope.validateNomination=function(nomination){
-		 if(nomination.nomination == ""){
+		 if(nomination.members == undefined){
+			 nomination.members = [];
+		 }
+		 $scope.showTitleError = false;
+		 $scope.showSponsorError = false;
+		 $scope.showMemberError = false;
+		 if(nomination.nomination == "" || nomination.nomination == null){
 	    	$scope.showTitleError = true;
 	    	alert("Nomination title is required");	
 	    	return false;
 	    }
 	    if(nomination.status == "Submitted"){
-	    	if(nomination.sponsormailid == ""){
+	    	if(nomination.sponsormailid == "" || nomination.sponsormailid == null){
 	    		$scope.showSponsorError = true;
 	    	}
-	    	if(nomination.members.length == 0){
+	    	if(nomination.members.length < $scope.minMembers){
 	    		$scope.showMemberError = true;
 	    	}    			
 	    }
-	    if($scope.showSponsorError || $scope.showMemberError){
+	    if($scope.showSponsorError == true || $scope.showMemberError == true){
 	    	alert("Please fill the required fields before submitting");
 	    	return false;
 	    }
-	    console.log($scope.nomination.checkbox);
-	   for(var i=0;i<Object.keys($scope.nomination.checkbox).length;i++){
-		   	if(!$scope.nomination.checkbox[i]){
+	    if(nomination.status != "Saved"){
+	    for(var i=0;i<Object.keys($scope.nomination.checkbox).length;i++){
+		   	if($scope.nomination.checkbox[i] == false){
 	    		alert("Please check and confirm the check-box data before proceeding");
 	    		return false;
 	    	}
 	    }
+	    }
 	    return true;
 	 }
+	 $scope.selectedRow = 0;  
+	  $scope.setClickedRow = function(index){  
+	     $scope.selectedRow = index;
+	  }
 });

@@ -13,7 +13,7 @@
 		<th class="col-xs-2">Action</th>
 		<!-- <th class="col-xs-1"></th> -->
 	</tr>
-	<tr ng-repeat="x in sponsors" class="row" ng-click="viewsubmission(x)" style="cursor: pointer;">
+	<tr ng-repeat="x in sponsors" class="row" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRow($index);viewsubmission(x)" ng-init="viewsubmission(sponsors[0])" style="cursor: pointer;">
 		<td class="col-xs-1">{{$index+1}}</td>
 		<td class="col-xs-2">{{x.selectedCategory}}</td>
 		<td class="col-xs-1">{{x.selectedLevel}}</td>
@@ -23,12 +23,12 @@
 		<td class="col-xs-1" ng-if="x.filekey == ''"></td>
 		<td class="col-xs-1">{{x.status}}</td>
 		<td class="col-xs-2" ng-if="x.status=='Submitted'">		
-		<button ng-click="viewsubmission(x);updatenomination(x,'Approved')">Approve</button>
-		<button ng-click="viewsubmission(x);updatenomination(x,'Rejected')">Reject</button>
+		<button type="button" class="btn btn-primary" ng-click="viewsubmission(x);updatenomination(x,'Approved')">Approve</button>
+		<button type="button" class="btn btn-primary" ng-click="viewsubmission(x);updatenomination(x,'Rejected')">Reject</button>
 		</td>
 		<td class="col-xs-2" ng-if="x.status!='Submitted'">
-		<button disabled>Approve</button>
-		<button disabled>Reject</button>
+		<button type="button" class="btn btn-primary disabled">Approve</button>
+		<button type="button" class="btn btn-primary disabled">Reject</button>
 		</td>		
 	</tr>
 </table>

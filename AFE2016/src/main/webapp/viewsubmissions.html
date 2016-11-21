@@ -1,7 +1,7 @@
 <div>
 <h3>Submissions</h3>
 <div ng-if="nominations.length == 0"><p> There are no records to display </p></div>
-<table  class="table" ng-if="nominations.length > 0">
+<table  class="table" ng-if="nominations.length > 0" ng-init="viewsubmission(nominations[0])" >
 	<tr class="row">
 		<th class="col-xs-1"></th>
 		<th class="col-xs-2">Category</th>
@@ -13,7 +13,7 @@
 		<th class="col-xs-1">Action</th>				
 		<th class="col-xs-1"></th>
 	</tr>
-	<tr ng-repeat="x in nominations" class="row" ng-click="viewsubmission(x)" style="cursor: pointer;">
+	<tr ng-repeat="x in nominations" class="row" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRow($index);viewsubmission(x)"  style="cursor: pointer;">
 		<td class="col-xs-1">{{$index+1}}</td>
 		<td class="col-xs-2">{{x.selectedCategory}}</td>
 		<td class="col-xs-1">{{x.selectedLevel}}</td>
@@ -23,13 +23,13 @@
 		<td class="col-xs-1" ng-if="x.filekey == ''"></td>
 		<td class="col-xs-1">{{x.status}}</td>
 		<td class="col-xs-1" ng-if="x.status=='Saved'">
-		<button ng-click="viewsubmission(x);updatenomination(x,'Submitted')">Submit</button>
+		<button type="button" class="btn btn-primary" ng-click="updatenomination(x,'Submitted')">Submit</button>
 		</td>
 		<td class="col-xs-1" ng-if="x.status=='Submitted'">
-		<button ng-click="viewsubmission(x);updatenomination(x,'Saved')">Recall</button>
+		<button type="button" class="btn btn-primary" ng-click="updatenomination(x,'Saved')">Recall</button>
 		</td>
 		<td class="col-xs-1" ng-if="x.status=='Approved' || x.status=='Rejected'">
-		<button ng-disabled="true">No Action</button>
+		<button type="button" class="btn btn-primary disabled" >No Action</button>
 		</td>
 		<td class="col-xs-1" ng-if="x.status=='Saved'"><span
 			class="glyphicon glyphicon-remove" aria-hidden="true" ng-click="removenomination($index)"></span>

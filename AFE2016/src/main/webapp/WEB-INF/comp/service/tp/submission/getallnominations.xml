@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service
+	dbAccessType="readOnly"
+	description=""
+	executeInBackground="true"
+	moduleName="submission"
+	name="getallnominations"
+	xmlns="http://www.simplity.org/schema">
+	<actions>
+		<filter 
+ 			filterRecordName="nomination.nomination"
+ 			outputSheetName="nominations"> 
+ 			<childRecords>
+ 				<relatedRecord sheetName="members" recordName="nomination.members"/>
+ 			</childRecords>
+ 		</filter>
+ 		<log names="nominations,members"/>
+	</actions>
+	<outputData>	
+		<outputRecords>
+			<outputRecord sheetName="nominations"/>
+			<outputRecord sheetName="members" parentSheetName="nominations" linkColumnInParentSheet="nominationId" linkColumnInThisSheet="nominationId"/>
+		</outputRecords>
+	</outputData>
+</service>
