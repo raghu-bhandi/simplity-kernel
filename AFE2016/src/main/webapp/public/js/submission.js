@@ -311,14 +311,14 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	 }
 	 $scope.populatesponsordata=function(chosen){	
 		 	$scope.nomination.sponsormailid = chosen.mail;
-		    $scope.nomination.sponsorname   = chosen.Name; 
-		    $scope.nomination.sponsornumber = chosen.eNo;
+		    $scope.nomination.sponsorname   = chosen.employeeName; 
+		    $scope.nomination.sponsornumber = chosen.employeeId;
 	 };
 	 $scope.populatememberdata=function(chosen){	
 		 	$scope.addmember.employeeEmailID = chosen.mail;
-		    $scope.addmember.Name            = chosen.Name; 
-		    $scope.addmember.eNo             = chosen.eNo;
-		    $scope.addmember.Unit            = chosen.Unit ;
+		    $scope.addmember.Name            = chosen.employeeName; 
+		    $scope.addmember.eNo             = chosen.employeeId;
+		    $scope.addmember.Unit            = chosen.unit ;
 	 };
 	 
 	 $scope.validateNomination=function(nomination){
