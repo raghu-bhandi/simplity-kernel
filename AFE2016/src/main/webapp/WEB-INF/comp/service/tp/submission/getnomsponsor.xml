@@ -11,7 +11,7 @@
 		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>	
 		<setValue fieldName="userId" expression="lowercase(copyuserid)"></setValue>	
 	
-		<createSheet sheetName="filtersheet" data="sponsorMail,status,statusOperator;$userId,saved,!="/>
+		<createSheet sheetName="filtersheet" data="sponsorMailNickname,status,statusOperator;$userId,saved,!="/>
 		<filter
 			inputSheetName="filtersheet"
 			filterRecordName="nomination.nomination"

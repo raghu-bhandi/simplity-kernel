@@ -29,9 +29,10 @@
 </inputData>	
 	<actions>	
 		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>	
-		<setValue fieldName="submitterMailNickname" expression="lowercase(copyuserid)"></setValue>	
+		<setValue fieldName="submitterMail" expression="lowercase(copyuserid)"></setValue>	
+		<setValue fieldName="submitterMailNickname" expression="lowercase(copyuserid)"></setValue>
 		<setValue fieldName="sponsorMail" expression="lowercase(sponsorMail)"></setValue>
-		
+		<setValue fieldName="sponsorMailNickname" expression="lowercase(sponsorMailNickname)"></setValue>
 		<save saveAction="save" recordName="nomination.nomination">
 			<childRecords>
 				<relatedRecord sheetName="members" recordName="nomination.members"/>

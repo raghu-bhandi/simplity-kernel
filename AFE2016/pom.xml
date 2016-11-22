@@ -67,7 +67,7 @@
 								</goals>
 								<configuration>
 									<srcFiles>
-										<srcFile>${resourcespath}/dbscripts/create_nominationdb.sql</srcFile>
+										<srcFile>${resourcespath}/dbscripts/create_nominationdb_h2.sql</srcFile>
 									</srcFiles>
 								</configuration>
 							</execution>
@@ -217,6 +217,7 @@
 						</configuration>
 					</plugin>
 				</plugins>
+				<finalName>AFE2016</finalName>
 			</build>
 		</profile>
 	</profiles>

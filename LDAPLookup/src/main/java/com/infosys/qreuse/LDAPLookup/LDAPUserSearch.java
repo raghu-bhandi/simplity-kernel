@@ -64,7 +64,7 @@ public class LDAPUserSearch implements LogicInterface {
 			int totalResults = 0;
 
 			// Specify the attributes to return
-			String returnedAtts[] = { COMPANY,EXTENSION,PROJECT_CODE, DETAILS, MOBILE, MAIL,CN,DEPARTMENT};
+			String returnedAtts[] = { COMPANY,EXTENSION,PROJECT_CODE, DETAILS, MOBILE, MAIL,CN,DEPARTMENT, MAILNICKNAME};
 			searchCtls.setReturningAttributes(returnedAtts);
 
 			// Search for objects using the filter
@@ -102,6 +102,8 @@ public class LDAPUserSearch implements LogicInterface {
 									employee.setEmployeeName(value);
 								} else if (attr.getID().equalsIgnoreCase(DEPARTMENT)) {
 									employee.setUnit(value);
+								} else if (attr.getID().equalsIgnoreCase(MAILNICKNAME)) {
+									employee.setMailNickname(value);
 								}
 							}
 						}
@@ -127,11 +129,11 @@ public class LDAPUserSearch implements LogicInterface {
 
 	public Value execute(ServiceContext ctx) {
 		String email = ctx.getTextValue("mailidpart");
-		String[] columnNames = {"employeeId","extension","projectCode","details","mobile","mail","unit","employeeName"};
+		String[] columnNames = {"employeeId","extension","projectCode","details","mobile","mail","unit","employeeName","mailNickname"};
 		List<Value[]> data = new ArrayList<Value[]>();
 		List<Employee> e = findUserDetails(email,ctx);
 		for (Employee emp : e) {
-			Value[] empdetails = new Value[8];
+			Value[] empdetails = new Value[9];
 			empdetails[0] = Value.newTextValue(emp.getEmployeeId());
 			empdetails[1] = Value.newTextValue(emp.getExtension());
 			empdetails[2] = Value.newTextValue(emp.getProjectCode());			
@@ -140,7 +142,7 @@ public class LDAPUserSearch implements LogicInterface {
 			empdetails[5] = Value.newTextValue(emp.getMail());
 			empdetails[6] = Value.newTextValue(emp.getUnit());
 			empdetails[7] = Value.newTextValue(emp.getEmployeeName());
-
+			empdetails[8] = Value.newTextValue(emp.getMailNickname());
 			data.add(empdetails);
 		}
 		DataSheet sheet = new MultiRowsSheet(columnNames, data);

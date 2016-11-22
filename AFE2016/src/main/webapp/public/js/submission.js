@@ -195,7 +195,8 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 				"selectedCategory":$scope.nomination.selectedCategory,
 		        "selectedLevel":$scope.nomination.selectedLevel,
 		        "nomination":$scope.nomination.nomination,
-		        "sponsorMail":$scope.nomination.sponsormailid,
+		        "sponsorMail":$scope.nomination.sponsorMail,
+		        "sponsorMailNickname":$scope.nomination.sponsorMailNickname,
 		        "sponsorname":$scope.nomination.sponsorname,
 		        "sponsornumber":$scope.nomination.sponsornumber,
 		        "members":$scope.nomination.members,
@@ -247,7 +248,8 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		 }
 	};
 
-	 $scope.updatenomination=function(selectednomination,status){		 
+	 $scope.updatenomination=function(selectednomination,status){	
+		 console.log($scope.nomination);
 		 var nomination = {};
 		 angular.copy(selectednomination,nomination);
 		 nomination.status=status;
@@ -264,7 +266,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			else
 				 selectednomination.email=true;			
 			if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
-    		var fileDetails = $scope.nomination.uploadfile;
+			var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			selectednomination.filekey=key;
     			selectednomination.filename=fileDetails.name;
@@ -310,15 +312,17 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		 });
 	 }
 	 $scope.populatesponsordata=function(chosen){	
-		 	$scope.nomination.sponsormailid = chosen.mail;
+		 	$scope.nomination.sponsorMail   = chosen.mail;
+		 	$scope.nomination.sponsorMailNickname = chosen.mailNickname;
 		    $scope.nomination.sponsorname   = chosen.employeeName; 
 		    $scope.nomination.sponsornumber = chosen.employeeId;
 	 };
 	 $scope.populatememberdata=function(chosen){	
-		 	$scope.addmember.employeeEmailID = chosen.mail;
-		    $scope.addmember.Name            = chosen.employeeName; 
-		    $scope.addmember.eNo             = chosen.employeeId;
-		    $scope.addmember.Unit            = chosen.unit ;
+		 	$scope.addmember.employeeMail   = chosen.mail;
+		 	$scope.addmember.employeeMailNickname = chosen.mailNickname;
+		    $scope.addmember.Name           = chosen.employeeName; 
+		    $scope.addmember.eNo            = chosen.employeeId;
+		    $scope.addmember.Unit           = chosen.unit ;
 	 };
 	 
 	 $scope.validateNomination=function(nomination){
