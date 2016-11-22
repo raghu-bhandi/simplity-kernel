@@ -217,6 +217,7 @@
 						</configuration>
 					</plugin>
 				</plugins>
+				<finalName>AFE2016</finalName>				
 			</build>
 		</profile>
 	</profiles>
