@@ -217,11 +217,7 @@
 						</configuration>
 					</plugin>
 				</plugins>
-<<<<<<< HEAD
 				<finalName>AFE2016</finalName>
-=======
-				<finalName>AFE2016</finalName>				
->>>>>>> refs/remotes/origin/master
 			</build>
 		</profile>
 	</profiles>
