@@ -25,7 +25,7 @@ mainApp.factory('CommonService', ['$cacheFactory',function($cacheFactory) {
 		
 		root.runSimplity = function(service,selector,data){
 			Simplity.getResponse(service,data,function(json){
-				Simplity.pushDataToPage(json,document.querySelector(selector));
+				Simplity.pushDataToPage(json);
 			});
 		};	
 		
