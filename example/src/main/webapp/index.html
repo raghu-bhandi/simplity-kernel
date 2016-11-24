@@ -22,26 +22,26 @@
 
 		<nav id="sidebar-nav">
 			<a  id="sidebar-example" class="sidebar-nav-item" href="#example">Actions</a> 
-			<a  class="sidebar-example sidebar-nav-subitem"	href="#example#setvaluetag">setvalue</a> 
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#logictag">logic</a> 
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#createsheettag">createSheet</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#renamesheettag">renameSheet</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#jumptotag">jumpTo</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#rowexiststag">rowExists</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#addcolumntag">addColumn</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#copyrowstag">copyRows</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#addmessagetag">addMessage</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#copyuseridtag">copyUserId</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#readdatatag">readData</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#suggesttag">suggest</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#filtertag">filter</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#savedataaddtag">savedataadd</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#savedatamodifytag">savedatamodify</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#savedatadeletetag">savedatadelete</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#readwithsqltag">readwithsql</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#executesqltag">executesql</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#downloadtag">download</a>
-			<a  class="sidebar-example sidebar-nav-subitem" href="#example#uploadtag">upload</a>
+			<a  class="sidebar-example sidebar-nav-subitem"	href="#example/setvalue">setvalue</a> 
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/logic">logic</a> 
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/createsheet">createSheet</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/renamesheet">renameSheet</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/jumpto">jumpTo</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/rowexists">rowExists</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/addcolumn">addColumn</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/copyrows">copyRows</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/addmessage">addMessage</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/copyuserid">copyUserId</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/readdata">readData</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/suggest">suggest</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/filter">filter</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/savedataadd">savedataadd</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/savedatamodify">savedatamodify</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/savedatadelete">savedatadelete</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/readwithsql">readwithsql</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/executesql">executesql</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/download">download</a>
+			<a  class="sidebar-example sidebar-nav-subitem" href="#example/upload">upload</a>
 			<a id="sidebar-datatype" class="sidebar-nav-item" href="#datatype">DataTypes</a>
 			<a class="sidebar-datatype sidebar-nav-subitem"	href="#datatype#textdatatag">TextData</a>
 			<a class="sidebar-datatype sidebar-nav-subitem"	href="#datatype#numericdatatag">NumericData</a>
@@ -69,203 +69,6 @@
 			</div>
 			<div ng-view></div>
 		</div>
-		<script type="text/ng-template" id="landing">
-			<div ng-include = "'content.html'" style="width:100%;"></div>
-         </script>
-
-		<script type="text/ng-template" id="messages">
-			<div ng-include = "'messages.html'" style="width:100%;"></div>
-         </script>
-
-		<script type="text/ng-template" id="record">
-			<div ng-include = "'record.html'" style="width:100%;"></div>
-         </script>
-         
-         <script type="text/ng-template" id="application">
-			<div ng-include = "'application.html'" style="width:100%;"></div>
-         </script>
-
-		<script type="text/ng-template" id="example">
-	<div class="container content">
-		<div class="post">
-			<!-- Set value example -->
-		
-            <div ng-include = "'setvalue.html'" class="includepage"></div>
-
-			<!-- /Set value example -->
-			<hr>
-			<!-- Logic example --> 
-			<div ng-include = "'logic.html'" class="includepage"></div>
-			<!-- /Logic example -->
-			<hr>
-			<!-- Create Sheet example -->
-
-			<div ng-include = "'createsheet.html'" class="includepage"></div>
-
-			<!-- Create Sheet example example -->
-
-			<hr>
-			<!-- Rename Sheet example -->
-			<div ng-include = "'renamesheet.html'" class="includepage"></div>
-
-			<!-- Rename Sheet example  -->
-
-			<hr>
-			<!-- Jump To example -->
-
-			<div ng-include = "'jumpto.html'" class="includepage"></div>
-
-			<!-- Jump To example -->
-
-			<hr>
-			<!-- Row Exists example -->
-			<div ng-include = "'rowexists.html'" class="includepage"></div>
-			<!-- Row Exists example -->
-
-			<hr>
-			<!-- Add Column example -->
-
-			<div ng-include = "'addcolumn.html'" class="includepage"></div>
-
-			<!-- Add Column example -->
-
-			<hr>
-			<!-- Copy Rows example -->
-
-			<div ng-include = "'copyrows.html'" class="includepage"></div>
-
-			<!-- Copy Rows example -->
-
-			<hr>
-			<!-- Add Message example -->
-
-			<div ng-include = "'addmessage.html'" class="includepage"></div>
-
-			<!-- Add Message example -->
-
-			<hr>
-			<!-- Copy Userid example -->
-
-			<div ng-include = "'copyuserid.html'" class="includepage"></div>
-
-			<!-- Copy Userid example -->
-
-			<hr>
-			<!-- Read Data example -->
-			<div ng-include = "'readdata.html'" class="includepage"></div>
-
-			<!-- Read Data example -->
-
-			<hr>
-			<!-- Suggest example -->
-			<h2 id="suggesttag">Suggest</h2>
-
-			<p>Get suggestions from the table associated with a record based on the inputs</p>
-			<div ng-include = "'suggest.html'" class="includepage"></div>
-
-			<!-- Suggest example -->
-
-			<hr>
-			<!-- Filter example -->
-
-			<div ng-include = "'filter.html'" class="includepage"></div>
-
-			<!-- Filter example -->
-
-			<hr>
-			<!-- SaveDataAdd example -->
-			<div ng-include = "'savedataadd.html'" class="includepage"></div>
-			<!-- SaveDataAdd example -->
-
-			<hr>
-			<!-- SaveDataModify example -->
-			<div ng-include = "'savedatamodify.html'" class="includepage"></div>
-
-			<!-- SaveDataModify example -->
-
-			<hr>
-			<!-- SaveDataDelete example -->
-			<div ng-include = "'savedatadelete.html'" class="includepage"></div>
-
-			<!-- SaveDataDelete example -->
-
-			<hr>
-			<!-- ReadwithSql example -->
-			<div ng-include = "'readwithsql.html'" class="includepage"></div>
-
-			<!-- ReadwithSql example -->
-
-			<hr>
-			<!-- ExecuteSql example -->
-
-			<div ng-include = "'executesql.html'" class="includepage"></div>
-
-			<!-- ExecuteSql example -->
-
-			<hr>
-			<!-- download example -->
-
-			<div ng-include = "'download.html'" class="includepage"></div>
-
-			<!-- download example -->
-
-			<hr>
-
-			<!-- Upload example -->
-			<h2 id="uploadtag">Upload</h2>
-
-			<p>upload a file from temp storage to permanent storage and change the file key/token.</p>
-			<div ng-include = "'upload.html'" class="includepage"></div>
-
-			<!-- Upload example -->
-		</div>
-	</div>
-         </script>
-         
-         
-		<script type="text/ng-template" id="datatype">
-	<div class="container content">
-		<div class="post">
-			<!-- Text Data example -->
-			<h2 id="textdatatag">TextData</h2>
-
-			<p>Text Data</p>
-			<div ng-include = "'textdata.html'" style="width:100%;height:600px;"></div>
-
-			<!--  Text Data example -->
-
-			<hr>
-			<!-- Numeric Data example -->
-			<h2 id="numericdatatag">NumericData</h2>
-
-			<p>Numeric with or without decimals</p>
-			<div ng-include = "'numericdata.html'" style="width:100%;height:600px;"></div>
-
-			<!--  Numeric Data example -->
-
-
-			<hr>
-			<!-- Date Data example -->
-			<h2 id="datedatatag">DateData</h2>
-
-			<p>Date</p>
-			<div ng-include = "'datedata.html'" style="width:100%;height:600px;"></div>
-
-			<!--  Date Data example -->
-
-
-			<hr>
-			<!-- Boolean Data example -->
-			<h2 id="booleandatatag">BooleanData</h2>
-
-			<p>Boolean</p>
-			<div ng-include = "'booleandata.html'" style="width:100%;height:600px;"></div>
-
-			<!--  Boolean Data example -->
-         </div>
-	</div>
-         </script>
-         
 	</div>
 	<script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
 	<script	src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular-route.min.js"></script>
