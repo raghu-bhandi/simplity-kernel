@@ -10,13 +10,14 @@
 	>
 	<fields>
 		<field name="nominationId" dataType="id" fieldType="primaryKey" />
-		<field name="submitterId" dataType="_text" />
+		<field name="submitterMailNickname" dataType="_text" />
+		<field name="submitterMail" dataType="_text" />
 		<field name="status" dataType="_text" />
 		<field name="selectedCategory" dataType="_text" />
 		<field name="selectedLevel" dataType="_text" />
 		<field name="nomination" dataType="_text" />
-		<field name="sponsormailnickname" dataType="_text" />
-		<field name="sponsormailid" dataType="_text" />
+		<field name="sponsorMailNickname" dataType="_text" />
+		<field name="sponsorMail" dataType="_text" />
 		<field name="sponsorname" dataType="_text" />
 		<field name="sponsornumber" dataType="_text"/>
 		<field name="filekey" dataType="_text"/>

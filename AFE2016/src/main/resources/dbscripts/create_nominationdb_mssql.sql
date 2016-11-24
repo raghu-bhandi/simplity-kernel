@@ -17,12 +17,14 @@ GO
 
 CREATE TABLE [dbo].[nomination](
 	[nominationId] [int] IDENTITY(1,1) NOT NULL,
-	[submitterId] [varchar](100) NULL,
+	[submitterMailNickname] [varchar](100) NULL,
+	[submitterMail] [varchar](200) NULL,
 	[status] [varchar](100) NULL,
 	[selectedCategory] [varchar](100) NULL,
 	[selectedLevel] [varchar](100) NULL,
 	[nomination] [varchar](100) NOT NULL,
-	[sponsormailid] [varchar](100) NULL,
+	[sponsorMailNickname] [varchar](200) NULL,
+	[sponsorMail] [varchar](200) NULL,
 	[sponsorname] [varchar](100) NULL,
 	[sponsornumber] [varchar](100) NULL,
 	[filekey] [varchar](100) NULL,
@@ -62,7 +64,8 @@ GO
 CREATE TABLE [dbo].[members](
 	[membersId] [int] IDENTITY(1,1) NOT NULL,
 	[nominationId] [int] NOT NULL,
-	[employeeEmailID] [varchar](100) NOT NULL,
+	[employeeMailNickname] [varchar](100) NOT NULL,
+	[employeeMail] [varchar](200) NOT NULL,
 	[eNo] [varchar](100) NOT NULL,
 	[Name] [varchar](100) NOT NULL,
 	[Unit] [varchar](100) NOT NULL,

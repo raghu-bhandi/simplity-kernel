@@ -16,6 +16,7 @@ public class Employee {
 	private String details;
 	private String mobile;
 	private String mail;
+	private String mailNickname;
 	private String unit;
 	private String employeeName;
 
@@ -84,6 +85,14 @@ public class Employee {
 
 	public void setEmployeeName(String employeeName) {
 		this.employeeName = employeeName;
+	}
+
+	public String getMailNickname() {
+		return mailNickname;
+	}
+
+	public void setMailNickname(String mailNickname) {
+		this.mailNickname = mailNickname;
 	}
 
 	
