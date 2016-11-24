@@ -3,19 +3,23 @@
 		 moduleName="smtp" 
 		 name="mailer"
 		 xmlns="http://www.simplity.org/schema">
-<inputData>
+<inputData attachmentFields="filekey">
 	<inputFields>
+		<inputField dataType="_text" name="fromId"/>
 		<inputField dataType="_text" name="toIds"/>
 		<inputField dataType="_text" name="ccIds"/>
 		<inputField dataType="_text" name="bccIds"/>
 		<inputField dataType="_text" name="subject"/>
 		<inputField dataType="_text" name="content"/>
+		<inputField dataType="_text" name="filekey"/>
+		<inputField dataType="_text" name="filename"/>
+		<inputField dataType="_text" name="filetype"/>
+		<inputField dataType="_text" name="filesize"/>		
 	</inputFields>
 </inputData>
+	
 <actions>
-	<setValue actionName="sendmail" fieldName="abcd" fieldValue="abcd"></setValue>
-	<log names="abcd"/>
-	<!-- logic actionName="sendmail" className="com.infosys.qreuse.smtpservice.Mailer"/-->
+	<logic actionName="sendmail" className="com.infosys.qreuse.smtpservice.Mailer"/>
 </actions>
 <outputData fieldNames="sendmailResult"></outputData>
 </service>

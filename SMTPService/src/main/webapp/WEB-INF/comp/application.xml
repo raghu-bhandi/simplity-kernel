@@ -2,9 +2,10 @@
 <application
 	xmlns="http://www.simplity.org/schema"	
 	applicationId="smtpservice" 
-	dbVendor="h2"
+	dbVendor="mssql"
 	dataSourceName="java:comp/env/jdbc/smtpservice"
-	loginServiceName="smtp.login" 
+	autoLoginUserId="100"
 	sendTraceToClient="true"
+	attachmentsFolderPath="E:/temp/SMTPService/files"
 	logSqls="true">
 </application>	

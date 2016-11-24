@@ -53,6 +53,9 @@
 	<profiles>
 		<profile>
 			<id>test</id>
+			<properties>
+				<uploadfilespath>D:/temp/AFE2016/files</uploadfilespath>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -160,6 +163,9 @@
 		</profile>
 		<profile>
 			<id>production</id>
+			<properties>
+				<uploadfilespath>E:/temp/AFE2016/files</uploadfilespath>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -217,7 +223,7 @@
 						</configuration>
 					</plugin>
 				</plugins>
-				<finalName>AFE2016</finalName>				
+				<finalName>AFE2016</finalName>
 			</build>
 		</profile>
 	</profiles>

@@ -27,17 +27,17 @@
 	<inputRecord recordName="nomination.members" sheetName="members"/>
 </inputRecords>
 </inputData>	
-	<actions>	
+	<actions>			
 		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>	
 		<setValue fieldName="submitterMailNickname" expression="lowercase(copyuserid)"></setValue>	
 		<setValue fieldName="sponsorMail" expression="lowercase(sponsorMail)"></setValue>
-		
+		<log names="sponsorMail,submitterMailNickname"/>
 		<save saveAction="save" recordName="nomination.nomination">
 			<childRecords>
 				<relatedRecord sheetName="members" recordName="nomination.members"/>
 			</childRecords>
 		</save>
-		<logic className="com.infosys.submission.util.Mail" executeOnCondition="email"/>
+		<subService serviceName="submission.mailer" executeOnCondition="email"/>
 	</actions>
 	
 </service>

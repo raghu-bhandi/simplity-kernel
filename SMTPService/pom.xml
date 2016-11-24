@@ -15,7 +15,6 @@
 	<url>http://maven.apache.org</url>
 	<properties>
 		<resourcespath>${project.build.directory}/classes</resourcespath>
-		<dbpath>D:/temp/SMTPService/db/smtpservice</dbpath>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -43,6 +42,10 @@
 	<profiles>
 		<profile>
 			<id>test</id>
+			<properties>
+				<dbpath>D:/temp/SMTPService/db/smtpservice</dbpath>
+				<uploadfilespath>D:/temp/SMTPService/files</uploadfilespath>				
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -149,6 +152,9 @@
 		</profile>
 		<profile>
 			<id>production</id>
+			<properties>
+					<uploadfilespath>E:/temp/SMTPService/files</uploadfilespath>			
+			</properties>
 			<build>
 				<plugins>
 					<plugin>

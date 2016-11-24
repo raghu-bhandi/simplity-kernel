@@ -1,4 +1,4 @@
-package com.infosys.qreuse.smtpservicetest;
+package com.infosys.submission.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,8 +9,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.simplity.json.JSONException;
+import org.simplity.json.JSONObject;
+
 
 public class NetClientGet {
 

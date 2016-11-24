@@ -183,9 +183,9 @@ public class InputData {
 				ctx.addValidationMessage(Messages.INVALID_ATTACHMENT_KEY, af,
 						null, null, 0, newKey);
 			} else {
-				Tracer.trace("Attachment key " + key + " repalced with "
+				Tracer.trace("Attachment key " + key + " replaced with "
 						+ newKey
-						+ " after swapping the contnts from/to temp area");
+						+ " after swapping the contents from/to temp area");
 				ctx.setTextValue(af, newKey);
 			}
 		}

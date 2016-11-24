@@ -11,8 +11,7 @@
 		<field name="domain" dataType="_text" columnName="domain" isNullable="true"/>
 		<field name="application" dataType="_text" columnName="application" isNullable="true"/>
 		<field name="mailid" dataType="_text" columnName="mailid" isNullable="true"/>
-		<field name="apikey" dataType="_text" columnName="apikey" isNullable="true" />
-		
+		<field name="apikey" dataType="_text" columnName="apikey" isNullable="true" />		
 	</fields>
 	
 </record>

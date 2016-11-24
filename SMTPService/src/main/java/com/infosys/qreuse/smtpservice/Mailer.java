@@ -19,30 +19,39 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.simplity.kernel.file.AttachmentManager;
+import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.tp.LogicInterface;
 
+import com.infosys.qreuse.smtpservice.model.Mail;
+import com.infosys.qreuse.smtpservice.model.MailAttachement;
+
 public class Mailer implements LogicInterface {
 	Properties props = new Properties();
 
-	private void sendEmail(Session session, String fromId, String toIds, String ccIds, String bccIds, String subject,
-			String content, String attachment) throws MessagingException, UnsupportedEncodingException {
+	private void sendEmail(Session session,Mail mail) throws MessagingException, UnsupportedEncodingException {
 		MimeMessage msg = new MimeMessage(session);
 		msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
 		msg.addHeader("format", "flowed");
 		msg.addHeader("Content-Transfer-Encoding", "8bit");
-		msg.setFrom(new InternetAddress(fromId, "NoReply-JD"));
-		msg.setReplyTo(InternetAddress.parse(fromId, false));
-		msg.setSubject(subject, "UTF-8");
+		msg.setFrom(new InternetAddress(mail.fromId, "NoReply-JD"));
+		msg.setReplyTo(InternetAddress.parse(mail.fromId, false));
+		msg.setSubject(mail.subject, "UTF-8");
 		msg.setSentDate(new Date());
-		msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toIds, false));
-		setContent(msg, content, attachment);
-
+		msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
+		setContent(msg, mail.content, mail.attachment);
+		
+		try {
+			msg.writeTo(System.out);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		Transport.send(msg);
 	}
 
-	private void setContent(MimeMessage msg, String content, String attachment) throws MessagingException {
+	private void setContent(MimeMessage msg, String content, MailAttachement attachment) throws MessagingException {
 		if (attachment.isEmpty()) {
 			msg.setText(content, "UTF-8");
 			return;
@@ -54,10 +63,15 @@ public class Mailer implements LogicInterface {
 
 		Multipart multipart = new MimeMultipart();
 		multipart.addBodyPart(messageBodyPart);
-		messageBodyPart = new MimeBodyPart();
-		DataSource source = new FileDataSource(attachment);
+		messageBodyPart = new MimeBodyPart();	
+		String tempkey = AttachmentManager.moveFromStorage(attachment.filekey);
+		DataSource source = new FileDataSource(FileManager.getTempFile(tempkey).getAbsolutePath());
+		
+		//cleanup
+		AttachmentManager.removeFromStorage(attachment.filekey);
+		
 		messageBodyPart.setDataHandler(new DataHandler(source));
-		messageBodyPart.setFileName(attachment);
+		messageBodyPart.setFileName(attachment.filename);
 		multipart.addBodyPart(messageBodyPart);
 		msg.setContent(multipart);
 	}
@@ -65,21 +79,26 @@ public class Mailer implements LogicInterface {
 	@Override
 	public Value execute(ServiceContext ctx) {
 		try {
-			props.load(this.getClass().getResourceAsStream("config.properties"));
+			props.load(this.getClass().getClassLoader().getResourceAsStream("config.properties"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		String fromId = ctx.getTextValue("fromId");
-		String toIds = ctx.getTextValue("toIds");
-		String ccIds = ctx.getTextValue("ccIds");
-		String bccIds = ctx.getTextValue("bccIds");
-		String subject = ctx.getTextValue("subject");
-		String content = ctx.getTextValue("content");
-		String attachment = ctx.getTextValue("filekey");
+		
+		Mail mail = new Mail();
+		mail.fromId = (String)ctx.getObject("fromId");
+		mail.toIds = ctx.getTextValue("toIds");
+		mail.ccIds = ctx.getTextValue("ccIds");
+		mail.bccIds = ctx.getTextValue("bccIds");
+		mail.subject = ctx.getTextValue("subject");
+		mail.content = ctx.getTextValue("content");
+		
+		mail.attachment = new MailAttachement();
+		mail.attachment.filekey = ctx.getTextValue("filekey");
+		mail.attachment.filename = ctx.getTextValue("filename");
 
 		Session session = Session.getInstance(props, null);
 		try {
-			sendEmail(session, fromId, toIds, ccIds, bccIds, subject, content, attachment);
+			sendEmail(session, mail);
 		} catch (UnsupportedEncodingException | MessagingException e) {
 			e.printStackTrace();
 		}
