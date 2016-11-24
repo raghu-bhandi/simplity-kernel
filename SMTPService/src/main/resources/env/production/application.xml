@@ -4,7 +4,8 @@
 	applicationId="smtpservice" 
 	dbVendor="mssql"
 	dataSourceName="java:comp/env/jdbc/smtpservice"
-	loginServiceName="app.login" 
+	autoLoginUserId="100"
 	sendTraceToClient="true"
+	attachmentsFolderPath="${uploadfilespath}"
 	logSqls="true">
 </application>	

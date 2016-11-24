@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<functions xmlns="http://www.simplity.org/schema">
+	<components>
+		<entry className="com.infosys.qreuse.smtpservice.fn.Apikeygen" name="apikeygen" />
+	</components>
+</functions>
