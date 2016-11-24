@@ -24,6 +24,10 @@ app.controller('formCtrl', function ($scope,$window,$http) {
      });
 	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
+	     $scope.showTitleError = false;
+		 $scope.showSponsorError = false;
+		 $scope.showMemberError = false;
+		 $scope.selectedRow = 0;
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			 $scope.state="new";
 	 angular.copy($scope.initnomination,$scope.nomination);
@@ -84,7 +88,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.memberMailError = false;
 	$scope.showTitleError = false;
 	$scope.forms = {};
-	 
+	$scope.selectedRow = 0;
     $scope.initcheckbox = {
     		"0":false,
 			"1":false,
@@ -284,8 +288,9 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
     			if(status != "Approved" || status != "Rejected"){
     				$scope.nominations[$scope.selectedRow] = selectednomination;
+    				$scope.changeformstatus(selectednomination);
         			$scope.$apply();
-    			alert("Nomination details "+ status + " successfully!!!");    			
+        			alert("Nomination details "+ status + " successfully!!!");    			
     			}
     		});
 			}
@@ -359,7 +364,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    }
 	    return true;
 	 }
-	 $scope.selectedRow = 0;  
+	   
 	  $scope.setClickedRow = function(index){  
 	     $scope.selectedRow = index;
 	  }

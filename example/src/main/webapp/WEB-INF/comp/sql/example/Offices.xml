@@ -2,7 +2,7 @@
 <sql name="Offices" sqlType="update" xmlns="http://www.simplity.org/schema"
 	moduleName="example" preparedStatement="update offices set city = 'Hyd' where officeCode= ? " >
 	<inputParameters>
-		<sqlParameter dataType="id" name="officeCode"
+		<sqlParameter dataType="_number" name="officeCode"
 			defaultValue="2" />
 	</inputParameters>
 	

@@ -2,20 +2,20 @@
 <record xmlns="http://www.simplity.org/schema" keyToBeGenerated="false" 
 	name="Employees" tableName="EMPLOYEES" moduleName="birt" okToSelectAll="true" suggestionKeyName="firstName" suggestionOutputNames="firstName" >
 	<fields>
-		<field name="employeeNumber" dataType="id" fieldType="primaryKey"
+		<field name="employeeNumber" dataType="_number" fieldType="primaryKey"
 			columnName="employeeNumber" label="Id" />
-		<field name="lastName" dataType="text" columnName="lastName"
+		<field name="lastName" dataType="_text" columnName="lastName"
 			label="lastName" />
-		<field name="firstName" dataType="text" columnName="firstName"
+		<field name="firstName" dataType="_text" columnName="firstName"
 			label="firstName" />
-		<field name="extension" dataType="text" columnName="extension"
+		<field name="extension" dataType="_text" columnName="extension"
 			label="extension" />
-		<field name="email" dataType="text" columnName="email" label="email" />
-		<field name="officeCode" dataType="text" columnName="officeCode"
+		<field name="email" dataType="_text" columnName="email" label="email" />
+		<field name="officeCode" dataType="_text" columnName="officeCode"
 			label="officeCode" />
-		<field name="reportsTo" dataType="id" columnName="reportsTo"
+		<field name="reportsTo" dataType="_number" columnName="reportsTo"
 			label="reportsTo" />
-		<field name="jobTitle" dataType="text" columnName="jobTitle"
+		<field name="jobTitle" dataType="_text" columnName="jobTitle"
 			label="jobTitle" />
 	</fields>
 </record>

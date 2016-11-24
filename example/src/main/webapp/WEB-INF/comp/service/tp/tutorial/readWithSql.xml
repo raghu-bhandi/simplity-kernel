@@ -2,12 +2,12 @@
 <service xmlns="http://www.simplity.org/schema" name="readWithSql"
 	moduleName="tutorial" dbAccessType="readOnly" description="Test Read with sql">
 <inputData>
-	<inputRecords>
-		<inputRecord sheetName="inputsheet"/>
-	</inputRecords>
+	<inputFields>
+		<inputField dataType="_number" name="employeeNumber"/>
+	</inputFields>
 </inputData>
 	<actions>
-		<readWithSql sqlName="example.Employees" inputSheetName="inputsheet" outputSheetName="Employees"></readWithSql>
+		<readWithSql sqlName="example.Employees"  outputSheetName="Employees"></readWithSql>
 	</actions>
 	<outputData fieldNames="txt">
 		<outputRecords>

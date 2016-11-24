@@ -7,18 +7,18 @@
 	keyToBeGenerated="true"
 	>
 	<fields>
-		<field name="customerNumber" dataType="id" fieldType="primaryKey" />
-		<field name="customerName" dataType="text" />
-		<field name="contactLastName" dataType="text" />
-		<field name="contactFirstName" dataType="text" />
-		<field name="phone" dataType="text" />
-		<field name="addressLine1" dataType="text" />
-		<field name="addressLine2" dataType="text"  isNullable="true" />
-		<field name="city" dataType="text" />
-		<field name="state" dataType="text"  isNullable="true" />
-		<field name="postalCode" dataType="text"  isNullable="true" />
-		<field name="country" dataType="text" />
-		<field name="salesRepEmployeeNumber" dataType="id"  isNullable="true"/>
-		<field name="creditLimit" dataType="decimal" isNullable="true"/>
+		<field name="customerNumber" dataType="_number" fieldType="primaryKey" />
+		<field name="customerName" dataType="_text" />
+		<field name="contactLastName" dataType="_text" />
+		<field name="contactFirstName" dataType="_text" />
+		<field name="phone" dataType="_text" />
+		<field name="addressLine1" dataType="_text" />
+		<field name="addressLine2" dataType="_text"  isNullable="true" />
+		<field name="city" dataType="_text" />
+		<field name="state" dataType="_text"  isNullable="true" />
+		<field name="postalCode" dataType="_text"  isNullable="true" />
+		<field name="country" dataType="_text" />
+		<field name="salesRepEmployeeNumber" dataType="_number"  isNullable="true"/>
+		<field name="creditLimit" dataType="_decimal" isNullable="true"/>
 	</fields>
 </record>
