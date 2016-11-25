@@ -24,8 +24,13 @@ mainApp.factory('CommonService', ['$cacheFactory',function($cacheFactory) {
 		};
 		
 		root.runSimplity = function(service,selector,data){
+<<<<<<< HEAD
 			Simplity.getResponse(service,JSON.stringify(data),function(json){
 				Simplity.pushDataToPage(json,document.querySelector(selector));
+=======
+			Simplity.getResponse(service,data,function(json){
+				Simplity.pushDataToPage(json);
+>>>>>>> refs/remotes/origin/master
 			});
 		};	
 		
@@ -55,30 +60,29 @@ mainApp.factory('CommonService', ['$cacheFactory',function($cacheFactory) {
 
 mainApp.config([ '$routeProvider', function($routeProvider) {
 	$routeProvider.
-
 	when('/landing', {
-		templateUrl : 'landing',
+		templateUrl : "content.html",
 		controller : 'LandingController'
 	}).
 	when('/messages', {
-		templateUrl : 'messages',
+		templateUrl : 'messages.html',
 		controller : 'MessagesController'
 	}).
 	when('/record', {
-		templateUrl : 'record',
+		templateUrl : 'record.html',
 		controller : 'RecordController'
 	}).
 	when('/application', {
-		templateUrl : 'application',
+		templateUrl : 'application.html',
 		controller : 'ApplicationController'
 	}).
-	when('/example', {
-		templateUrl : 'example',
+	when('/example/:tab', {
+		templateUrl : 'example.html',
 		controller : 'ExampleController'
 	}).
 
 	when('/datatype', {
-		templateUrl : 'datatype',
+		templateUrl : 'datatype.html',
 		controller : 'DataTypeController'
 	}).
 	
@@ -90,7 +94,8 @@ mainApp.config([ '$routeProvider', function($routeProvider) {
 mainApp.controller('LandingController', function($scope) {
 });
 
-mainApp.controller('ExampleController', function($scope) {
+mainApp.controller('ExampleController', function($scope,$routeParams) {
+	$scope.params =  $routeParams;
 });
 
 mainApp.controller('DataTypeController', function($scope) {

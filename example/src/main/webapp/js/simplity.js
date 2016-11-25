@@ -322,10 +322,9 @@ var Simplity = (function() {
 				t.push(msg.messageType.toUpperCase());
 				t.push('\n');
 			}
-			if (msg.fieldName) {
-				t.push('Field : ');
-				t.push(msg.fieldName);
-				t.push(' - ');
+			if (msg.name) {
+				t.push(msg.name);
+				t.push(' : ');
 			}
 			t.push(msg.text);
 			t.push('\n\n');
@@ -402,7 +401,7 @@ var Simplity = (function() {
 				/*
 				 * array can be source for a dom element with id="__att__"
 				 */
-				ele = doc.querySelector("#"+ROW_PART_DELIM + att + ROW_PART_DELIM);
+				ele = doc.getElementById(ROW_PART_DELIM + att + ROW_PART_DELIM);
 				if (ele) {
 					setTableToEle(ele, val, att);
 					continue;
@@ -419,7 +418,7 @@ var Simplity = (function() {
 			 * it could be a primitive, or an object. In any case, we need an
 			 * element
 			 */
-			var ele = doc.querySelector("#"+att);
+			var ele = doc.getElementById(att);
 			if (ele) {
 				setValueToEle(ele, att, val);
 				continue;
@@ -427,8 +426,8 @@ var Simplity = (function() {
 			/*
 			 * we try show-hide element for this
 			 */
-			var ele1 = doc.querySelector("#"+att + '-true');
-			var ele2 = doc.querySelector("#"+att + '-false');
+			var ele1 = doc.getElementById(att + '-true');
+			var ele2 = doc.getElementById(att + '-false');
 			if (ele1 || ele2) {
 				showOrHideEle(ele1, ele2, val);
 				continue;
@@ -849,7 +848,7 @@ var Simplity = (function() {
 			if (userToken) {
 				text += ' ' + userToken;
 			}
-			xhr.setRequestHeader(POCOL.USER_TOKEN, text);
+			xhr.setRequestHeader(POCOL.USER_TOKEN, btoa(text));
 			xhr.send('');
 		} catch (e) {
 			showMessages([ {
@@ -1095,7 +1094,8 @@ var Simplity = (function() {
 	 *            call back function is called with content of ths file. called
 	 *            back with null in case of any issue.
 	 */
-	var downloadFile = function(key, callbackFn, progressFn) {
+	var downloadFile = function(key, filename, filetype, callbackFn, progressFn) {
+		callbackFn = callbackFn || saveasfile;
 		if (!key) {
 			error("No file token specified for download request");
 			return;
@@ -1117,7 +1117,7 @@ var Simplity = (function() {
 				resp = xhr.response;
 			}
 			if (callbackFn) {
-				callbackFn(resp);
+				callbackFn(resp,filename,filetype);
 			} else {
 				Simplity.message('We successfully downloaded file for key '
 						+ key + ' with content-type='
@@ -1153,7 +1153,31 @@ var Simplity = (function() {
 					+ ". error :" + e);
 		}
 	};
+	
+	/**
+	 * 
+	 * prompt the user to download the file with file name
+	 * 
+	 */
+	var saveasfile = function(contents,name, mime_type) {
+        mime_type = mime_type || "text/plain";
 
+        var blob = new Blob([contents], {type: mime_type});
+
+        var dlink = document.createElement('a');
+        dlink.download = name;
+        dlink.href = window.URL.createObjectURL(blob);
+        dlink.onclick = function(e) {
+            // revokeObjectURL needs a delay to work properly
+            var that = this;
+            setTimeout(function() {
+                window.URL.revokeObjectURL(that.href);
+            }, 1500);
+        };
+
+        dlink.click();
+        dlink.remove();
+	};
 	/**
 	 * register a call-back function to be called whenever client detects that a
 	 * login is required

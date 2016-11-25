@@ -19,12 +19,15 @@ public class NetClientGet {
 
 		try {
 
-			URL url = new URL("http://BLRKECIC03:8080/SMTPService/a._s");
+			URL url = new URL("http://sparsh-ic:8080/SMTPService/a._s");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("POST");
-			conn.setRequestProperty("Content-Type", "application/json");
 			conn.setRequestProperty("application", "AFE2016");
+<<<<<<< HEAD
 			conn.setRequestProperty("apikey", "76d15092-19eb-4072-ac15-7fca5e8b25c1");
+=======
+			conn.setRequestProperty("apikey", "91f6523c-9c90-43f2-ba9f-b344f06d028e");
+>>>>>>> refs/remotes/origin/master
 			conn.setRequestProperty("_serviceName", "smtp.mailer");
 			conn.setDoOutput(true);
 
@@ -42,7 +45,7 @@ public class NetClientGet {
 			wr.write(json.toString().getBytes("UTF-8"));
 			wr.close();
 			if (conn.getResponseCode() != 200) {
-				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode() +" ,message: "+ conn.getResponseMessage());
 			}
 
 			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));

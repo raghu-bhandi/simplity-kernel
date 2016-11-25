@@ -9,8 +9,5 @@
   <modules>
     <module>kernel</module>
     <module>js</module>
-    <module>LDAPLookup</module>
-    <module>SMTPService</module>
-    <module>SMTPServiceTest</module>
   </modules>
 </project>

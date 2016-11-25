@@ -54,13 +54,13 @@ public class Mailer implements LogicInterface {
 
 	private void setContent(MimeMessage msg, String content, MailAttachement attachment) throws MessagingException {
 		if (attachment.isEmpty()) {
-			msg.setText(content, "UTF-8");
+			msg.setContent(content, "text/html");
 			return;
 		}
 
 		// Create the message body part
 		BodyPart messageBodyPart = new MimeBodyPart();
-		messageBodyPart.setText(content);
+		messageBodyPart.setContent(content, "text/html");
 
 		Multipart multipart = new MimeMultipart();
 		multipart.addBodyPart(messageBodyPart);
