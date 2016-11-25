@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -22,68 +22,68 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
-public class Mail  implements LogicInterface{
+public class Mail implements LogicInterface {
 
-	public static Configuration cfg;  
+	public static Configuration cfg;
+
 	public Value execute(ServiceContext ctx) {
-		
-		String urlstring = ctx.getTextValue("urlstring");
+
+		String urlstring = ctx.getTextValue("urlString");
 		String application = ctx.getTextValue("application");
 		String apikey = ctx.getTextValue("apikey");
-		String submitterId = ctx.getTextValue("submitterId");
-		String sponsormailid =  ctx.getTextValue("sponsormailid");
-		String nomination =  ctx.getTextValue("nomination");
+		String submitterId = ctx.getTextValue("submitterMail");
+		String sponsormailid = ctx.getTextValue("sponsorMail");
+		String nomination = ctx.getTextValue("nomination");
 		String status = ctx.getTextValue("status");
 
-		
 		String toIds = null;
 		String ccIds = null;
 		String bccIds = null;
 		String subject = null;
 		String content = null;
 
-		Map<String, String>parameters = new HashMap<String, String>();
-		parameters.put ("submitter", submitterId);
-		parameters.put ("sponsor", sponsormailid);
-		parameters.put ("title", nomination);
-		parameters.put ("status", status);
-		
-		
-		Writer textValue = new OutputStreamWriter(System.out);
+		Map<String, String> parameters = new HashMap<String, String>();
+		parameters.put("submitter", submitterId);
+		parameters.put("sponsor", sponsormailid);
+		parameters.put("title", nomination);
+		parameters.put("status", status);
+
 		Template template = null;
+		Writer outputStringWriter = new StringWriter();
 		try {
-			switch(parameters.get("status").toString()){
+			switch (parameters.get("status").toString()) {
 			case "Submitted":
-				template = cfg.getTemplate ("submit.ftlh");				
+				template = cfg.getTemplate("submit.ftlh");
 				toIds = sponsormailid;
-				ccIds = submitterId;		
+				ccIds = submitterId;
 				break;
 			case "Approved":
-				template = cfg.getTemplate ("approve.ftlh");
+				template = cfg.getTemplate("approve.ftlh");
 				toIds = submitterId;
 				ccIds = sponsormailid;
 				break;
 			case "Rejected":
-				template = cfg.getTemplate ("reject.ftlh");
+				template = cfg.getTemplate("reject.ftlh");
 				toIds = submitterId;
 				ccIds = sponsormailid;
 				break;
 			}
-			template.process (parameters,textValue );
+			template.process(parameters, outputStringWriter);
+			subject = "AFE application is " + status;
+			content = outputStringWriter.toString();
+			outputStringWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (TemplateException e) {
 			e.printStackTrace();
 		}
-		  subject = "AFE application is " + status;
-		  content = textValue.toString();
-		  
+
 		sendMail(urlstring, application, apikey, toIds, ccIds, bccIds, subject, content);
 		return Value.newBooleanValue(true);
 	}
 
-	private void sendMail(String urlstring, String application,String apikey,String toIds,String ccIds,String bccIds,
-			String subject,String content){
+	private void sendMail(String urlstring, String application, String apikey, String toIds, String ccIds,
+			String bccIds, String subject, String content) {
 		try {
 			URL url = new URL(urlstring);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -96,11 +96,11 @@ public class Mail  implements LogicInterface{
 
 			JSONObject json = new JSONObject();
 			try {
-				json.put("toIds",toIds);
-				json.put("ccIds",ccIds);
-				json.put("bccIds",bccIds);
-				json.put("subject",subject);
-				json.put("content",content);
+				json.put("toIds", toIds);
+				json.put("ccIds", ccIds);
+				json.put("bccIds", bccIds);
+				json.put("subject", subject);
+				json.put("content", content);
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -130,7 +130,7 @@ public class Mail  implements LogicInterface{
 			e.printStackTrace();
 
 		}
-	
+
 	}
-	
+
 }

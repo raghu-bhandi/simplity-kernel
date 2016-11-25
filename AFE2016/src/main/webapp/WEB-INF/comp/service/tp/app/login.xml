@@ -10,5 +10,6 @@
 	<actions>
 		<setValue fieldName="test" fieldValue="$_userId"></setValue>
 	</actions>	
-	<outputData sessionFields="_userId" fieldNames="test"></outputData>
-</service>
+	<outputData sessionFields="_userId" fieldNames="test">
+	</outputData>
+	</service>

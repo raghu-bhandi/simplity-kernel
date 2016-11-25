@@ -24,17 +24,17 @@ public class NetClientGet {
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("Content-Type", "application/json");
 			conn.setRequestProperty("application", "AFE2016");
-			conn.setRequestProperty("apikey", "2516e5da-a85e-4324-babe-bab354142764");
+			conn.setRequestProperty("apikey", "76d15092-19eb-4072-ac15-7fca5e8b25c1");
 			conn.setRequestProperty("_serviceName", "smtp.mailer");
 			conn.setDoOutput(true);
 
 			JSONObject json = new JSONObject();
 			try {
-				json.put("toIds","chetana_shanbhag@infosys.com");
+				json.put("toIds","Shalinireddy_B@infosys.com");
 				json.put("ccIds","");
 				json.put("bccIds","");
 				json.put("subject","Hello World");
-				json.put("content","<span> Hello Again Hello World from applicaiton</span>");
+				json.put("content","<html><body><div><p>Dear ${submitter},</p><p>&nbsp;</p><p>Your nomination titled  for the AFE 2016 is approved by ${sponsor}.</p><p>&nbsp;</p><p>Regards,</p><p>AFE Team</p></div></body></html>");
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
