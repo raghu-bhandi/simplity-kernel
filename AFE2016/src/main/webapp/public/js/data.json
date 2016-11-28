@@ -14,19 +14,5 @@
         {"category": "Sales and Marketing - Sales Management","noOfMembers":{"min":1,"max":4}},
         {"category":"Systems and Processes","noOfMembers":{"min":1,"max":5}},
         {"category":"Value Champions","noOfMembers":{"min":1,"max":9}},
-        {"category":"Sustainability/Social Consciousness","noOfMembers":{"min":1,"max":10}}],
-"levels":["Bangalore",
-        "Bhubaneswar",
-        "Chandigarh (including New Delhi, Mohali)",
-        "Chennai (Mahindra City/ Sholinganallur)",
-        "Hyderabad",
-        "Jaipur",
-        "Mangalore",
-        "Mysore",
-        "Pune",
-        "Trivandrum",
-        "Americas",
-        "ANZ",
-        "APAC",
-        "EMEA"]
+        {"category":"Sustainability/Social Consciousness","noOfMembers":{"min":1,"max":10}}]
 }

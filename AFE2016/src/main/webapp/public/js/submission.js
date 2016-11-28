@@ -108,8 +108,8 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			"5":false
 	};
     $scope.nomination = {
-        "selectedCategory":"Account Management-Small/Mid",
-        "selectedLevel":"Bangalore",
+        "selectedCategory":"",
+        "summary":"",
         "nomination":"",
         "sponsorMailNickname":"",
         "sponsorMail":"",
@@ -209,7 +209,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     	$scope.showMemberError = false;
     	var data = {
 				"selectedCategory":$scope.nomination.selectedCategory,
-		        "selectedLevel":$scope.nomination.selectedLevel,
+		        "summary":$scope.nomination.summary,
 		        "nomination":$scope.nomination.nomination,
 		        "sponsorMail":$scope.nomination.sponsorMail,
 		        "sponsorMailNickname":$scope.nomination.sponsorMailNickname,
