@@ -28,8 +28,13 @@
 </inputRecords>
 </inputData>	
 	<actions>			
-		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>	
-		<setValue fieldName="submitterMail" expression="lowercase(copyuserid)"></setValue>	
+		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>
+		
+		<setValue fieldName="lookupurl" fieldValue="http://sparsh-ic:8080/LDAPLookup/a._s?_serviceName=lookup.ldaplookup&amp;mailidpart="></setValue>
+		<setValue fieldName="param" fieldValue="mail"></setValue>	
+		
+		<setValue fieldName="submitterMail" expression="ldap(lookupurl,copyuserid,param)"></setValue>	
+		<setValue fieldName="submitterMail" expression="lowercase(submitterMail)"></setValue>	
 		<setValue fieldName="submitterMailNickname" expression="lowercase(copyuserid)"></setValue>
 		<setValue fieldName="sponsorMail" expression="lowercase(sponsorMail)"></setValue>
 		<setValue fieldName="sponsorMailNickname" expression="lowercase(sponsorMailNickname)"></setValue>

@@ -216,7 +216,7 @@ public class ComponentManager {
 		Component comp = ComponentType.FUNCTION
 				.getComponentOrNull(functionName);
 		if (comp == null) {
-			throw new ApplicationError(functionName + " is not a vaid message.");
+			throw new ApplicationError(functionName + " is not a valid message.");
 		}
 		return (Function) comp;
 	}
