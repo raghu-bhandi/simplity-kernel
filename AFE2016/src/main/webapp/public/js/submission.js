@@ -23,10 +23,24 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     	$scope.levels = res.data.levels;
      });
 	
+	$http({
+		 method:'GET',
+		 url   :'http://sparsh-ic:8080/LDAPLookup/a._s?_serviceName=lookup.ldaplookup&mailidpart='+$window.userPrincipal
+	 }).then(function successCallback(response) {
+		 $scope.submitterMail = response.data.employees[0].mail;
+		 $scope.submitterMailNickname = $window.userPrincipal;
+	 },function errorCallback(response){
+		 console.log(response);
+	 });
+	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
+	     $scope.showTitleError = false;
+		 $scope.showSponsorError = false;
+		 $scope.showMemberError = false;
+		 $scope.selectedRow = 0;
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			 $scope.state="new";
-	 angular.copy($scope.initnomination,$scope.nomination);
+			 angular.copy($scope.initnomination,$scope.nomination);
 			 $scope.disableform=false;			 
 			return;
 		}
@@ -84,7 +98,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.memberMailError = false;
 	$scope.showTitleError = false;
 	$scope.forms = {};
-	 
+	$scope.selectedRow = 0;
     $scope.initcheckbox = {
     		"0":false,
 			"1":false,
@@ -99,10 +113,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         "nomination":"",
         "sponsorMailNickname":"",
         "sponsorMail":"",
+        "submitterMailNickname":$scope.submitterMailNickname,
+        "submitterMail":$scope.submitterMail,
         "sponsorname":"",
         "sponsornumber":"",
         "members":[],
-        "filekey":'',
+        "filekey":"",
         "email":false,
         "checkbox":$scope.initcheckbox,
         "uploadfile":{},
@@ -197,6 +213,8 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		        "nomination":$scope.nomination.nomination,
 		        "sponsorMail":$scope.nomination.sponsorMail,
 		        "sponsorMailNickname":$scope.nomination.sponsorMailNickname,
+		        "submitterMail":$scope.nomination.submitterMail,
+		        "submitterMailNickname":$scope.nomination.submitterMailNickname,
 		        "sponsorname":$scope.nomination.sponsorname,
 		        "sponsornumber":$scope.nomination.sponsornumber,
 		        "members":$scope.nomination.members,
@@ -249,7 +267,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	};
 
 	 $scope.updatenomination=function(selectednomination,status){	
-		 console.log($scope.nomination);
+		 console.log(selectednomination);
 		 var nomination = {};
 		 angular.copy(selectednomination,nomination);
 		 nomination.status=status;
@@ -284,8 +302,9 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
     			if(status != "Approved" || status != "Rejected"){
     				$scope.nominations[$scope.selectedRow] = selectednomination;
+    				$scope.changeformstatus(selectednomination);
         			$scope.$apply();
-    			alert("Nomination details "+ status + " successfully!!!");    			
+        			alert("Nomination details "+ status + " successfully!!!");    			
     			}
     		});
 			}
@@ -359,7 +378,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    }
 	    return true;
 	 }
-	 $scope.selectedRow = 0;  
+	   
 	  $scope.setClickedRow = function(index){  
 	     $scope.selectedRow = index;
 	  }

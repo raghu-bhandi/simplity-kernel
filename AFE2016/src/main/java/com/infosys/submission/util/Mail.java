@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
@@ -29,11 +28,11 @@ public class Mail implements LogicInterface {
 
 	public Value execute(ServiceContext ctx) {
 
-		String urlstring = ctx.getTextValue("urlstring");
+		String urlstring = ctx.getTextValue("urlString");
 		String application = ctx.getTextValue("application");
 		String apikey = ctx.getTextValue("apikey");
-		String submitterId = ctx.getTextValue("submitterId");
-		String sponsormailid = ctx.getTextValue("sponsormailid");
+		String submitterId = ctx.getTextValue("submitterMail");
+		String sponsormailid = ctx.getTextValue("sponsorMail");
 		String nomination = ctx.getTextValue("nomination");
 		String status = ctx.getTextValue("status");
 
@@ -51,6 +50,7 @@ public class Mail implements LogicInterface {
 
 		Writer outputStringwriter = new StringWriter();
 		Template template = null;
+		Writer outputStringWriter = new StringWriter();
 		try {
 			switch (parameters.get("status").toString()) {
 			case "Submitted":
@@ -69,10 +69,10 @@ public class Mail implements LogicInterface {
 				ccIds = sponsormailid;
 				break;
 			}
-			template.process(parameters, outputStringwriter);
+			template.process(parameters, outputStringWriter);
 			subject = "AFE application is " + status;
-			content = outputStringwriter.toString();
-			outputStringwriter.flush();
+			content = outputStringWriter.toString();
+			outputStringWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (TemplateException e) {

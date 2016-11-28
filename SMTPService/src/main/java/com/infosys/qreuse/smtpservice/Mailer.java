@@ -41,6 +41,7 @@ public class Mailer implements LogicInterface {
 		msg.setSubject(mail.subject, "UTF-8");
 		msg.setSentDate(new Date());
 		msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
+		msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(mail.ccIds, false));
 		setContent(msg, mail.content, mail.attachment);
 		
 		try {

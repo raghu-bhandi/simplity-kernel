@@ -9,7 +9,7 @@
 	<actions>
 		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>	
 		<setValue fieldName="userId" expression="lowercase(copyuserid)"></setValue>	
-		<createSheet sheetName="filtersheet" data="submitterMail;$userId"/>
+		<createSheet sheetName="filtersheet" data="submitterMailNickname;$userId"/>
 		<filter
 			inputSheetName="filtersheet"
 			filterRecordName="nomination.nomination"

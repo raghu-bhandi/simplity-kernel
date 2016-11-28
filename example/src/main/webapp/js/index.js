@@ -24,8 +24,13 @@ mainApp.factory('CommonService', ['$cacheFactory',function($cacheFactory) {
 		};
 		
 		root.runSimplity = function(service,selector,data){
+<<<<<<< HEAD
+			Simplity.getResponse(service,JSON.stringify(data),function(json){
+				Simplity.pushDataToPage(json,document.querySelector(selector));
+=======
 			Simplity.getResponse(service,data,function(json){
 				Simplity.pushDataToPage(json);
+>>>>>>> refs/remotes/origin/master
 			});
 		};	
 		
