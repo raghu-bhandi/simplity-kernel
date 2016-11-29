@@ -21,7 +21,7 @@ CREATE TABLE [dbo].[nomination](
 	[submitterMail] [varchar](200) NULL,
 	[status] [varchar](100) NULL,
 	[selectedCategory] [varchar](100) NULL,
-	[selectedLevel] [varchar](100) NULL,
+	[summary] [varchar](100) NULL,
 	[nomination] [varchar](100) NOT NULL,
 	[sponsorMailNickname] [varchar](200) NULL,
 	[sponsorMail] [varchar](200) NULL,

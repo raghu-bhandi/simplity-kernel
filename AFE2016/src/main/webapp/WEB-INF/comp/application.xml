@@ -2,12 +2,12 @@
 <application
 	xmlns="http://www.simplity.org/schema"	
 	applicationId="simplityTutorial" 
-	dbVendor="h2"
+	dbVendor="mssql"
 	dataSourceName="java:comp/env/jdbc/nomination"
 	loginServiceName="app.login" 
 	sendTraceToClient="true"
 	logSqls="true"		
-	attachmentsFolderPath="D:/temp/AFE2016/files"
+	attachmentsFolderPath="E:/temp/AFE2016/files"
 	accessController="com.infosys.submission.security.AccessController">
 	<sessionParams>
 		<parameter name="_userId" valueType="text"/>
