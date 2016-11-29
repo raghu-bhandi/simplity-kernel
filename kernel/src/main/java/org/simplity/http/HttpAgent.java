@@ -75,7 +75,7 @@ public class HttpAgent {
 	private static final String CLOSE = "\" >\n<![CDATA[\n";
 	private static final String TRACE = "trace";
 
-	private static final Logger logger = Logger.getLogger(TRACE);
+	private static final Logger myLogger = Logger.getLogger(TRACE);
 	private static final FormattedMessage INTERNAL_ERROR = new FormattedMessage(
 			"internalError",
 			MessageType.ERROR,
@@ -265,7 +265,7 @@ public class HttpAgent {
 		}
 		String log = TAG + startedAt + ELAPSED + elapsed + SERVICE
 				+ serviceName + USER + userId + CLOSE + trace + TAG_CLOSE;
-		logger.info(log);
+		myLogger.info(log);
 	}
 
 	/**

@@ -50,7 +50,7 @@ public class TestCase {
 	 * ready string that is to be provided as request pay-load to the service.
 	 * If this is specified, fields ad sheets are not relevant and are ignored
 	 */
-	String inputPayload;
+	String inputDataAsString;
 	/**
 	 * input fields with which the service is to be requested
 	 */
@@ -69,7 +69,7 @@ public class TestCase {
 	 * pay-load format(josn). We compare the josn elements, and not just a
 	 * string comparison to take care of white-space issues
 	 */
-	String outputPayload;
+	String outputDataAsString;
 
 	/**
 	 * number of errors expected. non-zero implies that we expect this request
@@ -129,8 +129,8 @@ public class TestCase {
 		 * are we expecting a specific json?
 		 */
 		JSONObject json = new JSONObject(output);
-		if (this.outputPayload != null) {
-			JSONObject expected = new JSONObject(this.outputPayload);
+		if (this.outputDataAsString != null) {
+			JSONObject expected = new JSONObject(this.outputDataAsString);
 			if (json.similar(expected)) {
 				return null;
 			}
@@ -195,8 +195,8 @@ public class TestCase {
 	 * @return json(payload)
 	 */
 	String getInput() {
-		if (this.inputPayload != null) {
-			return this.inputPayload;
+		if (this.inputDataAsString != null) {
+			return this.inputDataAsString;
 		}
 		JSONWriter writer = new JSONWriter();
 		writer.object();
@@ -223,17 +223,17 @@ public class TestCase {
 	@SuppressWarnings("unused")
 	public int validate(ValidationContext vtx) {
 		int nbr = 0;
-		if (this.inputPayload != null) {
+		if (this.inputDataAsString != null) {
 			try {
-				new JSONObject(this.inputPayload);
+				new JSONObject(this.inputDataAsString);
 			} catch (Exception e) {
 				vtx.addError("inputPayload is not a valid json\n"
-						+ this.inputPayload);
+						+ this.inputDataAsString);
 				nbr++;
 			}
 		}
 		if (this.inputFields != null) {
-			if (this.inputPayload != null) {
+			if (this.inputDataAsString != null) {
 				vtx.addError("inputPayload is specified, and hence inputFields is not relavant");
 				nbr++;
 			}
@@ -242,7 +242,7 @@ public class TestCase {
 			}
 		}
 		if (this.inputSheets != null) {
-			if (this.inputPayload != null) {
+			if (this.inputDataAsString != null) {
 				vtx.addError("inputPayload is specified, and hence inpuSheets is not relavant");
 				nbr++;
 			}
@@ -251,23 +251,23 @@ public class TestCase {
 			}
 
 		}
-		if (this.outputPayload != null) {
+		if (this.outputDataAsString != null) {
 			try {
-				new JSONObject(this.outputPayload);
+				new JSONObject(this.outputDataAsString);
 			} catch (Exception e) {
 				vtx.addError("inputPayload is not a valid json\n"
-						+ this.inputPayload);
+						+ this.inputDataAsString);
 				nbr++;
 			}
 		}
 		if (this.nbrErrorsExpected > 0) {
-			if (this.outputPayload != null) {
+			if (this.outputDataAsString != null) {
 				vtx.addError("inputPayload is not relevant once nbrErrorExpected is specified");
 				nbr++;
 			}
 		}
 		if (this.outputFields != null) {
-			if (this.outputPayload != null) {
+			if (this.outputDataAsString != null) {
 				vtx.addError("outputFields is not relevant once nbrErrorExpected is specified");
 				nbr++;
 			}
@@ -276,7 +276,7 @@ public class TestCase {
 			}
 		}
 		if (this.outputSheets != null) {
-			if (this.outputPayload != null) {
+			if (this.outputDataAsString != null) {
 				vtx.addError("outputSheets is not relevant once nbrErrorExpected is specified");
 				nbr++;
 			}

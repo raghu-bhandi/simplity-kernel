@@ -11,11 +11,11 @@
 			label="flgActive" />
 		<field name="txtCreatedBy" dataType="text" columnName="txtCreatedBy"
 			label="txtCreatedBy" />
-		<field name="dtCreatedOn" dataType="_timestamp" columnName="dtCreatedOn"
+		<field name="dtCreatedOn" dataType="timeStamp" columnName="dtCreatedOn"
 			label="dtCreatedOn" />
 		<field name="txtModifiedBy" dataType="text" columnName="txtModifiedBy"
 			label="txtModifiedBy" />
-		<field name="dtModifiedOn" dataType="_timestamp" columnName="dtModifiedOn"
+		<field name="dtModifiedOn" dataType="timeStamp" columnName="dtModifiedOn"
 			label="dtModifiedOn" />
 	</fields>
 </record>
