@@ -49,7 +49,7 @@ public class Mailer implements LogicInterface {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Transport.send(msg);
+		//Transport.send(msg);
 	}
 
 	private void setContent(MimeMessage msg, String content, MailAttachement attachment) throws MessagingException {

@@ -10,3 +10,13 @@ CREATE TABLE IF NOT EXISTS registration (
   apikey  VARCHAR(100),
   PRIMARY KEY (registrationId)
 );
+
+CREATE TABLE IF NOT EXISTS audittrail (
+  auditId INTEGER auto_increment NOT NULL,
+  fromId  VARCHAR(100),
+  toId  VARCHAR(100),
+  subject  VARCHAR(100),
+  mail  BLOB,
+  mailsentTime  TIMESTAMP,
+  PRIMARY KEY (auditId)
+);

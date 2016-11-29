@@ -26,6 +26,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 		 $scope.showSponsorError = false;
 		 $scope.showMemberError = false;
 		 $scope.fileError = false;
+		 $scope.showCategoryError = false;
 		 $scope.selectedRow = 0;
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			 $scope.state="new";
@@ -87,6 +88,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.memberMailError = false;
 	$scope.showTitleError = false;
 	$scope.fileError = false;
+	$scope.showCategoryError = false;
 	$scope.forms = {};
 	$scope.selectedRow = 0;
 	$scope.categories = [];
@@ -365,6 +367,9 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    	return false;
 	    }
 	    if(nomination.status == "Submitted"){
+	    	if(nomination.selectedCategory == "" || nomination.selectedCategory == null){
+	    		$scope.showCategoryError = true;
+	    	}
 	    	if(nomination.sponsorMail == "" || nomination.sponsorMail == null){
 	    		$scope.showSponsorError = true;
 	    	}
@@ -372,7 +377,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    		$scope.showMemberError = true;
 	    	}    			
 	    }
-	    if($scope.showSponsorError == true || $scope.showMemberError == true){
+	    if($scope.showSponsorError == true || $scope.showMemberError == true || $scope.showCategoryError == true){
 	    	alert("Please fill the required fields before submitting");
 	    	return false;
 	    }

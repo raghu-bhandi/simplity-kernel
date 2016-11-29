@@ -5,7 +5,6 @@
 	<tr class="row">
 		<th class="col-xs-1"></th>
 		<th class="col-xs-2">Category</th>
-		<th class="col-xs-1">Summary</th>
 		<th class="col-xs-2">Title</th>
 		<th class="col-xs-1">Sponsor</th>
 		<th class="col-xs-1">Document</th>
@@ -16,7 +15,6 @@
 	<tr ng-repeat="x in sponsors" class="row" ng-class="{'selected':$index == selectedRow}" ng-click="setClickedRow($index);viewsubmission(x)" ng-init="viewsubmission(sponsors[0])" style="cursor: pointer;">
 		<td class="col-xs-1">{{$index+1}}</td>
 		<td class="col-xs-2">{{x.selectedCategory}}</td>
-		<td class="col-xs-1">{{x.summary}}</td>
 		<td class="col-xs-2">{{x.nomination}}</td>
 		<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
 		<td class="col-xs-1" ng-if="x.filekey != ''"><a type="application/x-zip-compressed" href="javascript:void(0);" ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
