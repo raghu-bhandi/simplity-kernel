@@ -1372,7 +1372,7 @@ public class DbDriver {
 	 * @return sheet with one row per column. Null if no columns.
 	 */
 	public static DataSheet getTableColumns(String schemaName, String tableName) {
-		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
+			Connection con = getConnection(DbAccessType.READ_ONLY, null);
 		try {
 			return getMetaSheet(con, schemaName, tableName, COL_IDX);
 		} finally {
@@ -1515,13 +1515,14 @@ public class DbDriver {
 			DatabaseMetaData meta = con.getMetaData();
 			switch (metaIdx) {
 			case TABLE_IDX:
-//				rs = meta.getTables(null, schemaName, metaName,
-//						TABLE_TYPES_TO_EXTRACT);
-				rs = meta.getTables(schemaName, null, metaName,
-						TABLE_TYPES_TO_EXTRACT);				
+				rs = meta.getTables(null, schemaName, metaName,
+						TABLE_TYPES_TO_EXTRACT);
+				if(rs.next()==false)
+					rs = meta.getTables(null, null,null,
+							TABLE_TYPES_TO_EXTRACT);
 				break;
 			case COL_IDX:
-				rs = meta.getColumns( schemaName,null, metaName, null);
+				rs = meta.getColumns(null, schemaName, metaName, null);
 				break;
 			case KEY_IDX:
 				rs = meta.getPrimaryKeys(null, schemaName, metaName);

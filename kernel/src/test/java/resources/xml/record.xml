@@ -2,11 +2,11 @@
 <record xmlns="http://www.simplity.org/schema" childrenToBeRead=""
 	childrenToBeSaved="testRecord" defaultRefRecord="defalutRec"
 	defaultSheetName="defalutsheet" description="testingrecord"
-	expectedNbrRows="testrow" keyGeneratorName="testkeygen"
-	keyToBeGenerated="true" logicalPrimaryKeyFields="primaryfield"
+	expectedNbrRows="testrow"
+	keyToBeGenerated="true" 
 	moduleName="testmodule" name="NCName" okToSelectAll="true" readOnly="true"
 	recordType="storage" suggestionKeyName="NCName" suggestionOutputNames="testoutput"
-	tableName="testtable" valueListFieldName="NCName" valueListKeyName="NCName">
+	tableName="testtable">
 	<fields>
 		<field basedOnField="NCName" columnName="NCName" dataType=" _text"
 			defaultValue="defalutvalue" description="testdesc" fieldType="data"
