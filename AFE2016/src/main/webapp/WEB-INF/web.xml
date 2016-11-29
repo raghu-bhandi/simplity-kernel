@@ -3,86 +3,39 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 <web-app>
 	<display-name>Archetype Created Web Application</display-name>
-
-
-	<!-- SPNEGA filter -->
 	<filter>
-		<filter-name>SpnegoHttpFilter</filter-name>
-		<filter-class>net.sourceforge.spnego.SpnegoHttpFilter</filter-class>
-
+		<filter-name>CorsFilter</filter-name>
+		<filter-class>org.apache.catalina.filters.CorsFilter</filter-class>
 		<init-param>
-			<param-name>spnego.allow.basic</param-name>
+			<param-name>cors.allowed.origins</param-name>
+			<param-value>http://sparsh-ic,https://sparsh-ic</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cors.allowed.methods</param-name>
+			<param-value>GET,POST,HEAD,OPTIONS,PUT</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cors.allowed.headers</param-name>
+			<param-value>Content-Type,X-Requested-With,accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cors.exposed.headers</param-name>
+			<param-value>Access-Control-Allow-Origin,Access-Control-Allow-Credentials</param-value>
+		</init-param>
+		<init-param>
+			<param-name>cors.support.credentials</param-name>
 			<param-value>true</param-value>
 		</init-param>
-
 		<init-param>
-			<param-name>spnego.allow.localhost</param-name>
-			<param-value>true</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>spnego.allow.unsecure.basic</param-name>
-			<param-value>true</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>spnego.login.client.module</param-name>
-			<param-value>spnego-client</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>spnego.krb5.conf</param-name>
-			<param-value>krb5.conf</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>spnego.login.conf</param-name>
-			<param-value>login.conf</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>spnego.preauth.username</param-name>
-			<param-value>encore</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>spnego.preauth.password</param-name>
-			<param-value>Renew@2020</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>spnego.login.server.module</param-name>
-			<param-value>spnego-server</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>spnego.prompt.ntlm</param-name>
-			<param-value>true</param-value>
-		</init-param>
-
-		<init-param>
-			<param-name>spnego.logger.level</param-name>
-			<param-value>1</param-value>
+			<param-name>cors.preflight.maxage</param-name>
+			<param-value>10</param-value>
 		</init-param>
 	</filter>
+	<filter-mapping>
+		<filter-name>CorsFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
-	<filter>
-		<filter-name>UserAuthFilter</filter-name>
-		<filter-class>com.infosys.submission.filter.LoginFilter</filter-class>
-		<init-param>
-			<param-name>avoid-urls</param-name>
-			<param-value>/public</param-value>
-		</init-param>
-	</filter>
-	
-	<filter-mapping>
-		<filter-name>SpnegoHttpFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-	<filter-mapping>
-		<filter-name>UserAuthFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
 	<servlet>
 		<servlet-name>AppStartup</servlet-name>
 		<servlet-class>com.infosys.submission.servlet.Startup</servlet-class>
@@ -99,10 +52,8 @@
 	</servlet>
 	<servlet>
 		<servlet-name>i</servlet-name>
-		<servlet-class>com.infosys.submission.servlet.LoginServlet</servlet-class>
+		<servlet-class>org.simplity.http.DefaultLogin</servlet-class>
 	</servlet>
-	<!-- servlet> <servlet-name>i</servlet-name> <servlet-class>org.simplity.http.DefaultLogin</servlet-class> 
-		</servlet -->
 	<servlet>
 		<servlet-name>o</servlet-name>
 		<servlet-class>org.simplity.http.DefaultLogout</servlet-class>

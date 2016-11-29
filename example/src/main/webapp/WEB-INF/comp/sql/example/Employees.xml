@@ -3,12 +3,8 @@
 	preparedStatement="Select lastName From Employees where employeeNumber = ?"
 	moduleName="example">
 	<inputParameters>
-<<<<<<< HEAD
-		<sqlParameter dataType="_number" name="employeeNumber"/>
-=======
 		<sqlParameter dataType="id" name="employeeNumber"
 			defaultValue="1056" />
->>>>>>> refs/remotes/origin/master
 	</inputParameters>
 	<outputParameters>
 		<sqlParameter dataType="_text" name="lastName" />

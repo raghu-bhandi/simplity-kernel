@@ -14,7 +14,7 @@
 	<inputField dataType="_text" name="filetype"/>
 	<inputField dataType="_text" name="filesize"/>
 	<inputField dataType="_text" name="selectedCategory"/>
-	<inputField dataType="_text" name="selectedLevel"/>
+	<inputField dataType="_text" name="summary"/>
 	<inputField dataType="_text" name="nomination"/>
 	<inputField dataType="_text" name="sponsorMailNickname"/>
 	<inputField dataType="_text" name="sponsorMail"/>

@@ -23,11 +23,7 @@ public class NetClientGet {
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("application", "AFE2016");
-<<<<<<< HEAD
 			conn.setRequestProperty("apikey", "76d15092-19eb-4072-ac15-7fca5e8b25c1");
-=======
-			conn.setRequestProperty("apikey", "91f6523c-9c90-43f2-ba9f-b344f06d028e");
->>>>>>> refs/remotes/origin/master
 			conn.setRequestProperty("_serviceName", "smtp.mailer");
 			conn.setDoOutput(true);
 
