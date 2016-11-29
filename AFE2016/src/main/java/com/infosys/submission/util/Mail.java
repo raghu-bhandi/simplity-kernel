@@ -48,6 +48,7 @@ public class Mail implements LogicInterface {
 		parameters.put("title", nomination);
 		parameters.put("status", status);
 
+		Writer outputStringwriter = new StringWriter();
 		Template template = null;
 		Writer outputStringWriter = new StringWriter();
 		try {

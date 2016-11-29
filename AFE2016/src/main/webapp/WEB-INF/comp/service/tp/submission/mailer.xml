@@ -6,7 +6,7 @@
     <actions>
     	<setValue fieldName="urlString" fieldValue="http://BLRKECIC03:8080/SMTPService/a._s"></setValue>
     	<setValue fieldName="application" fieldValue="AFE2016"></setValue>
-    	<setValue fieldName="apikey" fieldValue="76d15092-19eb-4072-ac15-7fca5e8b25c1"></setValue>
+    	<setValue fieldName="apikey" fieldValue="a934d394-9cab-4c3a-848c-11586f942877"></setValue>
     	<logic className="com.infosys.submission.util.Mail"/>
     </actions>
 </service>

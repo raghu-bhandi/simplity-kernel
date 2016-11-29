@@ -18,8 +18,6 @@
 	<inputField dataType="_text" name="nomination"/>
 	<inputField dataType="_text" name="sponsorMailNickname"/>
 	<inputField dataType="_text" name="sponsorMail"/>
-	<inputField dataType="_text" name="submitterMailNickname"/>
-	<inputField dataType="_text" name="submitterMail"/>
 	<inputField dataType="_text" name="sponsorname"/>
 	<inputField dataType="_text" name="sponsornumber"/>
 	<inputField dataType="_text" name="status"/>
@@ -30,8 +28,15 @@
 </inputRecords>
 </inputData>	
 	<actions>			
+		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>
+		
+		<setValue fieldName="lookupurl" fieldValue="http://sparsh-ic:8080/LDAPLookup/a._s?_serviceName=lookup.ldaplookup&amp;mailidpart="></setValue>
+		<setValue fieldName="param" fieldValue="mail"></setValue>	
+		
+		<setValue fieldName="submitterMail" expression="ldap(lookupurl,copyuserid,param)"></setValue>	
 		<setValue fieldName="submitterMail" expression="lowercase(submitterMail)"></setValue>	
-		<setValue fieldName="submitterMailNickname" expression="lowercase(submitterMailNickname)"></setValue>
+		<setValue fieldName="submitterMailNickname" expression="lowercase(copyuserid)"></setValue>
+
 		<setValue fieldName="sponsorMail" expression="lowercase(sponsorMail)"></setValue>
 		<setValue fieldName="sponsorMailNickname" expression="lowercase(sponsorMailNickname)"></setValue>
 		<save saveAction="save" recordName="nomination.nomination">

@@ -21,15 +21,6 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     .then(function(res){
     	$scope.categories = res.data;                
      });	
-	/*$http({
-		 method:'GET',
-		 url   :'http://sparsh-ic:8080/LDAPLookup/a._s?_serviceName=lookup.ldaplookup&mailidpart='+$window.userPrincipal
-	 }).then(function successCallback(response) {
-		 $scope.submitterMail = response.data.employees[0].mail;
-		 $scope.submitterMailNickname = $window.userPrincipal;
-	 },function errorCallback(response){
-		 console.log(response);
-	 });*/	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 	     $scope.showTitleError = false;
 		 $scope.showSponsorError = false;

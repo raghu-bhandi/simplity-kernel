@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [
 	{"category":"Account Management-Small/Mid","group":"Account Management","noOfMembers":{"min":1,"max":3}},
     {"category":"Account Management-Large","group":"Account Management","noOfMembers":{"min":1,"max":5}},
@@ -19,3 +20,23 @@
     {"category":"Individual","group":"Collaboration","noOfMembers":{"min":1,"max":4}},
     {"category":"Team","group":"Collaboration","noOfMembers":{"min":1,"max":9}}
 ]
+=======
+{"categories":[{"category":"Account Management-Small/Mid","noOfMembers":{"min":1,"max":3}},
+        {"category":"Account Management-Large","noOfMembers":{"min":1,"max":5}},
+        {"category":"Development Center (DC) Management-Large","noOfMembers":{"min":1,"max":4}},
+        {"category":"Development Center (DC) Management-Small","noOfMembers":{"min":1,"max":6}},
+        {"category":"Infosys Champions-Technology Champion","noOfMembers":{"min":1,"max":2}},
+        {"category":"Infosys Champions-Domain Champion","noOfMembers":{"min":1,"max":7}},
+        {"category":"Innovation-IP, Products, Platforms and Solutions","noOfMembers":{"min":1,"max":5}},
+        {"category":"Innovation-Culture","noOfMembers":{"min":1,"max":4}},
+        {"category":"Internal Customer Delight","noOfMembers":{"min":1,"max":8}},
+        {"category":"People Development","noOfMembers":{"min":1,"max":6}},
+        {"category":"Complex/Business Transformation Program","noOfMembers":{"min":1,"max":9}},
+        {"category":"Large Business Operation Program","noOfMembers":{"min":1,"max":7}},
+        {"category":"Sales and Marketing - Brand Management","noOfMembers":{"min":1,"max":2}},
+        {"category": "Sales and Marketing - Sales Management","noOfMembers":{"min":1,"max":4}},
+        {"category":"Systems and Processes","noOfMembers":{"min":1,"max":5}},
+        {"category":"Value Champions","noOfMembers":{"min":1,"max":9}},
+        {"category":"Sustainability/Social Consciousness","noOfMembers":{"min":1,"max":10}}]
+}
+>>>>>>> refs/remotes/origin/master

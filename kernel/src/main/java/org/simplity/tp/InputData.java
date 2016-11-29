@@ -132,7 +132,7 @@ public class InputData {
 			}
 			for (int i = 0; i < nbr; i++) {
 				Value key = sheet.getColumnValue(colName, i);
-				if (Value.isNull(key) || key.equals("")) {
+				if (Value.isNull(key) || key.toText().isEmpty()) {
 					continue;
 				}
 				String newKey = null;
