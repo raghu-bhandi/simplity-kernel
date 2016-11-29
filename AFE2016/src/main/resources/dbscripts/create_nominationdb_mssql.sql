@@ -21,11 +21,7 @@ CREATE TABLE [dbo].[nomination](
 	[submitterMail] [varchar](200) NULL,
 	[status] [varchar](100) NULL,
 	[selectedCategory] [varchar](100) NULL,
-<<<<<<< HEAD
 	[summary] [varchar](1000) NULL,
-=======
-	[summary] [varchar](100) NULL,
->>>>>>> refs/remotes/origin/master
 	[nomination] [varchar](100) NOT NULL,
 	[sponsorMailNickname] [varchar](200) NULL,
 	[sponsorMail] [varchar](200) NULL,

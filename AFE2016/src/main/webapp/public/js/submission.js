@@ -25,6 +25,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	     $scope.showTitleError = false;
 		 $scope.showSponsorError = false;
 		 $scope.showMemberError = false;
+		 $scope.fileError = false;
 		 $scope.selectedRow = 0;
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			 $scope.state="new";
@@ -85,11 +86,10 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.contributionError = false;
 	$scope.memberMailError = false;
 	$scope.showTitleError = false;
+	$scope.fileError = false;
 	$scope.forms = {};
 	$scope.selectedRow = 0;
 	$scope.categories = [];
-	$scope.submitterMail = "shalinireddy_b@infosys.com";
-	 $scope.submitterMailNickname = "shalinireddy_b";
     $scope.initcheckbox = {
     		"0":false,
 			"1":false,
@@ -104,8 +104,8 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         "nomination":"",
         "sponsorMailNickname":"",
         "sponsorMail":"",
-        "submitterMailNickname":$scope.submitterMailNickname,
-        "submitterMail":$scope.submitterMail,
+        "submitterMailNickname":"",
+        "submitterMail":"",
         "sponsorname":"",
         "sponsornumber":"",
         "members":[],
@@ -191,10 +191,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     $scope.fileupload = function(file){
     	$scope.nomination.uploadfile = file.files[0];
     	var index = $scope.nomination.uploadfile.name.lastIndexOf(".");
-		if($scope.nomination.uploadfile.name.substring(index+1) != "zip" ){
+		if($scope.nomination.uploadfile.name.substring(index+1) != "zip" ){			
 			alert("Please upload zip files only");
+			$scope.fileError = true;
 			$scope.nomination.uploadfile = null;
 			$scope.nomination.filename = null;
+			$scope.$apply();
 			return false;
 		}
       if($scope.nomination.uploadfile.size > 5242880){
@@ -285,7 +287,6 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
 			var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
-    			var index = fileDetails.name.lastIndexOf(".");
     			selectednomination.filekey=key;
     			selectednomination.filename=fileDetails.name;
     			selectednomination.filetype=fileDetails.type;

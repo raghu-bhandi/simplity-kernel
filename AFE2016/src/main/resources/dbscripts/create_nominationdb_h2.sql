@@ -7,11 +7,7 @@ CREATE TABLE IF NOT EXISTS nomination (
   submitterMail  VARCHAR(200),
   status  VARCHAR(100),
   selectedCategory  VARCHAR(100),
-<<<<<<< HEAD
   summary  VARCHAR(1000),
-=======
-  summary  VARCHAR(100),
->>>>>>> refs/remotes/origin/master
   nomination  VARCHAR(100) NOT NULL,
   sponsorMailNickname VARCHAR(100),
   sponsorMail VARCHAR(200),
