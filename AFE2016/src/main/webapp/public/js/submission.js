@@ -19,14 +19,13 @@ app.config(function($routeProvider) {
 app.controller('formCtrl', function ($scope,$window,$http) {	
 	$http.get('public/js/data.json')
     .then(function(res){
-    	$scope.categories = res.data.categories;                
-    	$scope.levels = res.data.levels;
-     });
-	
+    	$scope.categories = res.data;                
+     });	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 	     $scope.showTitleError = false;
 		 $scope.showSponsorError = false;
 		 $scope.showMemberError = false;
+		 $scope.fileError = false;
 		 $scope.selectedRow = 0;
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			 $scope.state="new";
@@ -87,8 +86,10 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.contributionError = false;
 	$scope.memberMailError = false;
 	$scope.showTitleError = false;
+	$scope.fileError = false;
 	$scope.forms = {};
 	$scope.selectedRow = 0;
+	$scope.categories = [];
     $scope.initcheckbox = {
     		"0":false,
 			"1":false,
@@ -97,14 +98,14 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			"4":false,
 			"5":false
 	};
-    $scope.nomination = {
+   $scope.nomination = {
         "selectedCategory":"",
         "summary":"",
         "nomination":"",
         "sponsorMailNickname":"",
         "sponsorMail":"",
-        "submitterMailNickname":$scope.submitterMailNickname,
-        "submitterMail":$scope.submitterMail,
+        "submitterMailNickname":"",
+        "submitterMail":"",
         "sponsorname":"",
         "sponsornumber":"",
         "members":[],
@@ -189,8 +190,19 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     };
     $scope.fileupload = function(file){
     	$scope.nomination.uploadfile = file.files[0];
+    	var index = $scope.nomination.uploadfile.name.lastIndexOf(".");
+		if($scope.nomination.uploadfile.name.substring(index+1) != "zip" ){			
+			alert("Please upload zip files only");
+			$scope.fileError = true;
+			$scope.nomination.uploadfile = null;
+			$scope.nomination.filename = null;
+			$scope.$apply();
+			return false;
+		}
       if($scope.nomination.uploadfile.size > 5242880){
         	alert("File is too large to upload. Please limit it to 5MB only");
+        	$scope.nomination.uploadfile = null;
+        	return false;
       }
     };
     $scope.submit=function(status){
@@ -257,7 +269,6 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	};
 
 	 $scope.updatenomination=function(selectednomination,status){	
-		 console.log(selectednomination);
 		 var nomination = {};
 		 angular.copy(selectednomination,nomination);
 		 nomination.status=status;
@@ -282,20 +293,27 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     			selectednomination.filesize=fileDetails.size;
 				Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
 					if(status != "Approved" || status != "Rejected"){
+						$scope.nomination.status = selectednomination.status;
+						if($scope.nomination == selectednomination)						
+							alert("Nomination details "+ status + " successfully!!!");
 						$scope.nominations[$scope.selectedRow] = selectednomination;
+						$scope.changeformstatus(selectednomination);
 		    			$scope.$apply();
-	    			alert("Nomination details "+ status + " successfully!!!");	    			
 					}
 	    		});
     		});
 			}else{			
     		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
     			if(status != "Approved" || status != "Rejected"){
+    				console.log($scope.nomination);
+					console.log(selectednomination);
+					$scope.nomination.status = selectednomination.status;
+					if($scope.nomination == selectednomination)						
+						alert("Nomination details "+ status + " successfully!!!");
     				$scope.nominations[$scope.selectedRow] = selectednomination;
     				$scope.changeformstatus(selectednomination);
         			$scope.$apply();
-        			alert("Nomination details "+ status + " successfully!!!");    			
-    			}
+        		}
     		});
 			}
 		}
@@ -359,6 +377,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	    	return false;
 	    }
 	    if(nomination.status != "Saved"){
+	    	if($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {})){
+	    		if(nomination.filekey == "" || nomination.filekey == undefined){
+	    		alert("Please upload the file");
+	    		return false;
+	    		}
+	    	}
 	    for(var i=0;i<Object.keys($scope.nomination.checkbox).length;i++){
 		   	if($scope.nomination.checkbox[i] == false){
 	    		alert("Please check and confirm the check-box data before proceeding");

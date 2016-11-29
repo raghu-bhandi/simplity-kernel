@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="X-UA-Compatible" content="IE=9" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <title>AFE-2016</title>
 <link rel="stylesheet" href="public/css/bootstrap.min.css">
 <script type="text/javascript" src="public/js/jquery.min.js"></script>
@@ -12,7 +12,6 @@
 <script type="text/javascript" src="public/js/ui-bootstrap-tpls-0.13.0.min.js"></script>
 <script>
 var userPrincipal = "<%=request.getRemoteUser()%>";
-console.log(userPrincipal);
 </script>
 <style>
 .selected {
