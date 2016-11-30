@@ -4,8 +4,7 @@
 		 name="mailer"
 		 xmlns="http://www.simplity.org/schema">
 <inputData attachmentFields="filekey">
-	<inputFields>
-		<inputField dataType="_text" name="fromId"/>
+	<inputFields>	
 		<inputField dataType="_text" name="toIds"/>
 		<inputField dataType="_text" name="ccIds"/>
 		<inputField dataType="_text" name="bccIds"/>
@@ -20,6 +19,6 @@
 	
 <actions>
 	<logic actionName="sendmail" className="com.infosys.qreuse.smtpservice.Mailer"/>
+	<logic actionName="audittrail" className="com.infosys.qreuse.smtpservice.AuditTrail"/>
 </actions>
-<outputData fieldNames="sendmailResult"></outputData>
 </service>

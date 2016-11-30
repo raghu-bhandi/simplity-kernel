@@ -31,16 +31,15 @@
 </inputRecords>
 </inputData>	
 	<actions>	
-		<setValue fieldName="submitterMailNickname" expression="lowercase(submitterMailNickname)"></setValue>
-		<setValue fieldName="submitterMail" expression="lowercase(submitterMail)"></setValue>	
 		<setValue fieldName="sponsorMail" expression="lowercase(sponsorMail)"></setValue>
-		<setValue fieldName="sponsorMailNickname" expression="lowercase(sponsorMailNickname)"></setValue>		
+		<setValue fieldName="sponsorMailNickname" expression="lowercase(sponsorMailNickname)"></setValue>
+		<executeSql sqlName="submission.categorycount" actionName="countAction"/>	
+		<setValue fieldName="alias" fieldValue="countActionResult"></setValue>	
 		<save saveAction="modify" recordName="nomination.nomination" actionName="modifyAction" >
 			<childRecords>
 				<relatedRecord sheetName="members" recordName="nomination.members"/>
 			</childRecords>
 		</save>
 		<subService serviceName="submission.mailer" executeOnCondition="email"/>
-	</actions>
-	
+	</actions>	
 </service>

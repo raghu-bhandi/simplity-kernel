@@ -6,7 +6,8 @@
 	dataSourceName="java:comp/env/jdbc/nomination"
 	loginServiceName="app.login" 
 	sendTraceToClient="true"
-	logSqls="true"		
+	logSqls="true"	
+	autoLoginUserId="shalinireddy_b"	
 	attachmentsFolderPath="D:/temp/AFE2016/files"
 	accessController="com.infosys.submission.security.AccessController">
 	<sessionParams>

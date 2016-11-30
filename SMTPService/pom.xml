@@ -148,7 +148,7 @@
 		<profile>
 			<id>production</id>
 			<properties>
-					<uploadfilespath>E:/temp/SMTPService/files</uploadfilespath>			
+					<uploadfilespath>D:/temp/SMTPService/files</uploadfilespath>			
 			</properties>
 			<build>
 				<plugins>

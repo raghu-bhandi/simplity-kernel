@@ -19,7 +19,7 @@ public class NetClientGet {
 
 		try {
 
-			URL url = new URL("http://sparsh-ic:8080/SMTPService/a._s");
+			URL url = new URL("http://localhost:8080/SMTPService/a._s");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("POST");
 			conn.setRequestProperty("application", "AFE2016");
@@ -47,7 +47,7 @@ public class NetClientGet {
 			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
 
 			String output;
-			System.out.println("Output from Server .... \n");
+			//System.out.println("Output from Server .... \n");
 			while ((output = br.readLine()) != null) {
 				System.out.println(output);
 			}

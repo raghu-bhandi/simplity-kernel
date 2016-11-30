@@ -1,8 +1,10 @@
 package com.infosys.qreuse.smtpservice.model;
 
-import javax.mail.Session;
+import java.io.Serializable;
 
-public class Mail {
+public class Mail implements Serializable{
+	private static final long serialVersionUID = -4314888435710523295L;
+	
 	public String fromId;
 	public 	String toIds;
 	public String ccIds;

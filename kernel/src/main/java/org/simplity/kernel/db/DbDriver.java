@@ -487,7 +487,7 @@ public class DbDriver {
 	 * @param schema
 	 * @return connection
 	 */
-	static Connection getConnection(DbAccessType acType, String schema) {
+	public static Connection getConnection(DbAccessType acType, String schema) {
 		/*
 		 * set sch to an upper-cased schema, but only if it is non-null and
 		 * different from default schema
@@ -1036,7 +1036,7 @@ public class DbDriver {
 	 *            if we are managing transaction, true implies commit, and false
 	 *            implies roll-back
 	 */
-	static void closeConnection(Connection con, DbAccessType accType,
+	public static void closeConnection(Connection con, DbAccessType accType,
 			boolean allOk) {
 		try {
 			Tracer.trace("Going to close a connection of type " + accType
