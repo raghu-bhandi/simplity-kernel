@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.http.HttpAgent;
 
+import com.infosys.submission.util.AES;
+
 public class LoginUser implements Filter {
 
 	@Override
@@ -29,7 +31,12 @@ public class LoginUser implements Filter {
 		
 		String token = httpreq.getParameter("token");
 		if (httpreq.getSession().getAttribute("_userIdInSession")==null && token!=null && !token.isEmpty()) {
-			HttpAgent.login(token, null, httpreq.getSession(false));
+			try {
+				String loggedinUser = AES.decryptAES(token, "mcAX65PTadrrsKQ3");
+				HttpAgent.login(loggedinUser, null, httpreq.getSession(false));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		chain.doFilter(request, response);
 	}
