@@ -21,8 +21,8 @@
 		<td class="col-xs-1" ng-if="x.filekey == ''"></td>
 		<td class="col-xs-1">{{x.status}}</td>
 		<td class="col-xs-2" ng-if="x.status=='Submitted'">		
-		<button type="button" class="btn btn-primary" ng-click="viewsubmission(x);updatenomination(x,'Approved')">Approve</button>
-		<button type="button" class="btn btn-primary" ng-click="viewsubmission(x);updatenomination(x,'Rejected')">Reject</button>
+		<button type="button" class="btn btn-primary" ng-click="setClickedRow($index);updatenomination(x,'Approved')">Approve</button>
+		<button type="button" class="btn btn-primary" ng-click="setClickedRow($index);updatenomination(x,'Rejected')">Reject</button>
 		</td>
 		<td class="col-xs-2" ng-if="x.status!='Submitted'">
 		<button type="button" class="btn btn-primary disabled">Approve</button>

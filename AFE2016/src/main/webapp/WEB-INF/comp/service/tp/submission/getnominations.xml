@@ -8,7 +8,7 @@
 	xmlns="http://www.simplity.org/schema">
 	<actions>
 		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>	
-		<setValue fieldName="userId" expression="lowercase('shalinireddy_b')"></setValue>	
+		<setValue fieldName="userId" expression="lowercase(copyuserid)"></setValue>	
 		<createSheet sheetName="filtersheet" data="submitterMailNickname;$userId"/>
 		<log names="copyuserid"/>
 		<filter

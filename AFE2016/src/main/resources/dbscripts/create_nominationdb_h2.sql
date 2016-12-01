@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS nomination (
   filename VARCHAR(100),
   filetype VARCHAR(100),
   filesize VARCHAR(100),
+  alias VARCHAR(100),
   PRIMARY KEY (nominationId)
 );
 
@@ -33,3 +34,15 @@ CREATE TABLE IF NOT EXISTS members (
 	FOREIGN KEY (nominationId)
   	REFERENCES nomination(nominationId)
 );
+
+CREATE TABLE IF NOT EXISTS audittrail (
+	auditId INTEGER auto_increment NOT NULL,
+	fromId VARCHAR(100) NULL, 
+	toId VARCHAR(100) NULL, 
+	subject VARCHAR(200)NULL,
+    mail VARCHAR(1000) NULL,
+	mailsenttime TIMESTAMP,
+	PRIMARY KEY (auditId)
+);
+
+ALTER TABLE audittrail ALTER COLUMN mailsenttime SET DEFAULT CURRENT_TIMESTAMP;

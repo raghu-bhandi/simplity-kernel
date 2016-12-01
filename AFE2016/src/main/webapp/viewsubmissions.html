@@ -21,10 +21,10 @@
 		<td class="col-xs-1" ng-if="x.filekey == ''"></td>
 		<td class="col-xs-1">{{x.status}}</td>
 		<td class="col-xs-1" ng-if="x.status=='Saved'">
-		<button type="button" class="btn btn-primary" ng-click="updatenomination(x,'Submitted')">Submit</button>
+		<button type="button" class="btn btn-primary" ng-click="setClickedRow($index);updatenomination(x,'Submitted')">Submit</button>
 		</td>
 		<td class="col-xs-1" ng-if="x.status=='Submitted'">
-		<button type="button" class="btn btn-primary" ng-click="updatenomination(x,'Saved')">Recall</button>
+		<button type="button" class="btn btn-primary" ng-click="setClickedRow($index);updatenomination(x,'Saved')">Recall</button>
 		</td>
 		<td class="col-xs-1" ng-if="x.status=='Approved' || x.status=='Rejected'">
 		<button type="button" class="btn btn-primary disabled" >No Action</button>

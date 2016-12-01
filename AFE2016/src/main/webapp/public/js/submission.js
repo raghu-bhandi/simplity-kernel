@@ -16,7 +16,7 @@ app.config(function($routeProvider) {
         templateUrl : "logout.html"
     });
 });
-app.controller('formCtrl', function ($scope,$window,$http) {	
+app.controller('formCtrl', function ($scope,$window,$http,$timeout) {	
 	$http.get('public/js/data.json')
     .then(function(res){
     	$scope.categories = res.data;                
@@ -91,6 +91,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	$scope.showCategoryError = false;
 	$scope.forms = {};
 	$scope.selectedRow = 0;
+	$scope.categoryNickname = "";
 	$scope.categories = [];
     $scope.initcheckbox = {
     		"0":false,
@@ -102,6 +103,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	};
    $scope.nomination = {
         "selectedCategory":"",
+        "categoryNickname":$scope.categoryNickname,
         "summary":"",
         "nomination":"",
         "sponsorMailNickname":"",
@@ -143,12 +145,19 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     };
     $scope.chosen;
     $scope.addmember = {};
-    $scope.setMembers = function(noOfMembers){
-    	$scope.minMembers = noOfMembers.min;
-        $scope.maxMembers = noOfMembers.max;
+    $scope.setMembers = function(category){
+    	$scope.minMembers = category.noOfMembers.min;
+        $scope.maxMembers = category.noOfMembers.max;
+        $scope.categoryNickname = category.categoryNickname;
     }
     $scope.addrow = function () {
-    	$scope.contributionError = false;
+    	$scope.showCategoryError = false;
+    	if($scope.nomination.selectedCategory == "" || $scope.nomination.selectedCategory == null){
+    		alert("Please select the category");
+    		$scope.showCategoryError = true;
+    		return;
+    	}
+ 		$scope.contributionError = false;
     	$scope.memberMailError = false;
     	if($scope.addmember.contribution == "" || $scope.addmember.contribution == null){
     		$scope.contributionError = true;
@@ -183,8 +192,13 @@ app.controller('formCtrl', function ($scope,$window,$http) {
         $scope.chosen = '';
     };
     $scope.removenomination = function (index) {
+    	console.log(index);
     	Simplity.getResponse('submission.deletenomination',JSON.stringify($scope.nominations[index]));   
     	$scope.nominations.splice(index, 1);
+    	if($scope.nominations.length != 0){
+    		$scope.selectedRow = 0;
+    		$scope.viewsubmission($scope.nominations[0]);
+    	}
     };
     $scope.getTemplate = function (index) {
         if (index === $scope.chosen) return 'editmembers';
@@ -271,10 +285,12 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 	};
 
 	 $scope.updatenomination=function(selectednomination,status){	
-		 var nomination = {};
+		 $scope.viewsubmission(selectednomination);
+		 $timeout( function(){var nomination = {};
 		 angular.copy(selectednomination,nomination);
 		 nomination.status=status;
 		 if(status == "Approved" || status == "Rejected"){
+			 selectednomination.categoryNickname = $scope.categoryNickname;
 			 selectednomination.email=true;
 			 selectednomination.status=status;
 			 Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination));
@@ -307,9 +323,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
 			}else{			
     		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
     			if(status != "Approved" || status != "Rejected"){
-    				console.log($scope.nomination);
-					console.log(selectednomination);
-					$scope.nomination.status = selectednomination.status;
+    				$scope.nomination.status = selectednomination.status;
 					if($scope.nomination == selectednomination)						
 						alert("Nomination details "+ status + " successfully!!!");
     				$scope.nominations[$scope.selectedRow] = selectednomination;
@@ -319,6 +333,7 @@ app.controller('formCtrl', function ($scope,$window,$http) {
     		});
 			}
 		}
+		 }, 100);
 	 };
 	 
 	 $scope.changeformstatus=function(selectednomination){

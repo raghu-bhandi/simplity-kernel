@@ -31,6 +31,7 @@ CREATE TABLE [dbo].[nomination](
 	[filename] [varchar](100) NULL,
 	[filetype] [varchar](100) NULL,
 	[filesize] [varchar](100) NULL,
+	[alias] [varchar] (100) NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[nominationId] ASC
