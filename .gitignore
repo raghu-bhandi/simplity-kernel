@@ -10,3 +10,4 @@ run.bat
 /.openshift/
 deploy_key
 .docx
+/BlobTest/

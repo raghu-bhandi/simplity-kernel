@@ -1147,6 +1147,7 @@ var Simplity = (function() {
 		}
 		try {
 			xhr.open('GET', FILE_URL + '?' + key, true);
+			xhr.responseType = "blob";
 			xhr.send();
 		} catch (e) {
 			error("error during xhr for downloading token : " + key
@@ -1162,11 +1163,9 @@ var Simplity = (function() {
 	var saveasfile = function(contents,name, mime_type) {
         mime_type = mime_type || "text/plain";
 
-        var blob = new Blob([contents], {type: mime_type});
-
         var dlink = document.createElement('a');
         dlink.download = name;
-        dlink.href = window.URL.createObjectURL(blob);
+        dlink.href = window.URL.createObjectURL(contents);
         dlink.onclick = function(e) {
             // revokeObjectURL needs a delay to work properly
             var that = this;
