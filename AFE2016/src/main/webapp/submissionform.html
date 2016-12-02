@@ -4,13 +4,14 @@
 		<hr>
 		<div class="row">
 			<div class="form-group col-xs-12">
-				<label for="categories">Categories</label> <select ng-init="nomination.selectedCategory='Select'"
-					class="form-control" id="categories"
+				<label for="categories">Categories</label> 
+				<select	class="form-control" id="categories"
 					ng-model="nomination.selectedCategory"
-					ng-options="x.category as x.category group by x.group for x in categories | orderBy:'category' ">
+					ng-options="x.category as x.category group by x.group for x in categories | orderBy:'category'">
 				</select>
 			</div>
 		</div>
+		<span style="color: red" ng-show="showCategoryError">Select Category</span>
 		<hr>
 		<div class="form-group row">
 			<label for="nomination" class="col-xs-2 col-form-label">Nomination Title</label>
@@ -64,8 +65,8 @@
 
 		<h3>Details of Members</h3>
 		<div ng-repeat="c in categories">
-			<span ng-if="c.category == nomination.selectedCategory" ng-init="setMembers(c.noOfMembers)">The
-				maximum number of members you can nominate is : {{c.noOfMembers.max}}</span>
+			<span ng-if="c.category == nomination.selectedCategory" ng-init="setMembers(c)">The
+				maximum number of members you can nominate is : {{maxMembers}}</span>
 		</div>
 		<div style="color: green">Please click '+' to add a member</div>
 		<span style="color: red" ng-show="showMemberError">Nominate
@@ -93,7 +94,7 @@
 						ng-change="getmailsuggestion(addmember.employeeMail)"
 						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 						typeahead-on-select="populatememberdata($item)">
-						<span style="color: red" ng-show="contributionError">Enter Email ID</span>
+						<span style="color: red" ng-show="memberMailError">Enter Email ID</span>
 						</td>
 					<td class="col-xs-1"><input class="form-control"
 						ng-model="addmember.eNo" placeholder="Emp No" disabled></td>
@@ -178,12 +179,11 @@
 		<hr>
 		
 <div class="form-group">
-		<label for="uploadNomination">Upload Nomination</label><br>
-			<span style="color: red" ng-show="fileError">Upload zip files only</span> 
-		<input type="file" ng-model-instant class="form-control-file" accept=".zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
+		<label for="uploadNomination">Upload Nomination</label> <input
+			type="file" ng-model-instant class="form-control-file" accept=".zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
 			id="uploadNomination" aria-describedby="fileHelp"
-			onchange="angular.element(this).scope().fileupload(this)"> 
-			<small id="fileHelp" class="form-text text-muted">
+			onchange="angular.element(this).scope().fileupload(this)"> <small
+			id="fileHelp" class="form-text text-muted">
 			<span ng-if="state=='new'">Please upload a zip file and limit the size of the file to 5MB only</span>
 			<span ng-if="state=='view'">Please note that the uploaded file will replace the existing file</span></small>
 	</div>

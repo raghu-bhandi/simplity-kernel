@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql name="categorycount" 
+moduleName="submission"
+	 sqlType="singleSelect" 
+	 xmlns="http://www.simplity.org/schema"
+	 preparedStatement="SELECT COUNT(alias) FROM nomination WHERE selectedCategory=? AND status=?">
+	 <inputParameters>
+	 	<sqlParameter dataType="_text" name="selectedCategory"/>
+	 	<sqlParameter dataType="_text" name="status"/>
+	 </inputParameters>
+	 <outputParameters>
+	 	<sqlParameter dataType="_number" name="count"/>
+	 </outputParameters>
+</sql>

@@ -1,6 +1,11 @@
 package com.infosys.qreuse.smtpservice.model;
 
-public class MailAttachement {
+import java.io.Serializable;
+
+public class MailAttachement implements Serializable{
+	
+	private static final long serialVersionUID = 8189730674999834850L;
+	
 	public String filekey;
 	public String filename;
 

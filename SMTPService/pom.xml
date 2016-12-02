@@ -21,7 +21,7 @@
 		<dependency>
 			<groupId>org.simplity</groupId>
 			<artifactId>kernel</artifactId>
-			<version>1.1.2</version>
+			<version>1.1.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -148,7 +148,7 @@
 		<profile>
 			<id>production</id>
 			<properties>
-					<uploadfilespath>E:/temp/SMTPService/files</uploadfilespath>			
+					<uploadfilespath>D:/temp/SMTPService/files</uploadfilespath>			
 			</properties>
 			<build>
 				<plugins>

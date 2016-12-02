@@ -3173,8 +3173,8 @@ public class Record implements Component {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Application.bootStrap("D:/workspace/simplity/example/src/main/webapp/WEB-INF/comp/");
-		File folder = new File("D:/temp/outptu");
+		Application.bootStrap("C:/Users/shalinireddy_b/git/simplity/SMTPService/src/main/webapp/WEB-INF/comp/");
+		File folder = new File("D:/temp/output");
 		Record.createAllRecords(folder, DbToJavaNameConversion.CAMEL_CASE);
 	}
 }

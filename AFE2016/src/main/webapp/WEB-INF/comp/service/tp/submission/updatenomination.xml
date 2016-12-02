@@ -25,22 +25,26 @@
 	<inputField dataType="_text" name="sponsornumber"/>
 	<inputField dataType="_text" name="status"/>
 	<inputField dataType="_boolean" name="email"/>
+	<inputField dataType="_text" name="categoryNickname"/>
 </inputFields>
 <inputRecords>
 	<inputRecord recordName="nomination.members" sheetName="members"/>
 </inputRecords>
 </inputData>	
 	<actions>	
-		<setValue fieldName="submitterMailNickname" expression="lowercase(submitterMailNickname)"></setValue>
-		<setValue fieldName="submitterMail" expression="lowercase(submitterMail)"></setValue>	
 		<setValue fieldName="sponsorMail" expression="lowercase(sponsorMail)"></setValue>
-		<setValue fieldName="sponsorMailNickname" expression="lowercase(sponsorMailNickname)"></setValue>		
+		<setValue fieldName="sponsorMailNickname" expression="lowercase(sponsorMailNickname)"></setValue>
+		<setValue fieldName="alias" fieldValue="null"></setValue>
+		<setValue fieldName="aliasRequired" expression="statuscheck(status)"></setValue>
+		<readWithSql sqlName="submission.categorycount" actionName="countAction" executeOnCondition="aliasRequired"/>
+		<log names="aliasRequired,count" actionName="logAction"/>	
+		<setValue fieldName="alias" expression="aliasname(categoryNickname,count)" executeOnCondition="aliasRequired"/>
+		<setValue fieldName="filename" fieldValue="$alias" executeOnCondition="aliasRequired"/>	
 		<save saveAction="modify" recordName="nomination.nomination" actionName="modifyAction" >
 			<childRecords>
 				<relatedRecord sheetName="members" recordName="nomination.members"/>
 			</childRecords>
 		</save>
 		<subService serviceName="submission.mailer" executeOnCondition="email"/>
-	</actions>
-	
+	</actions>	
 </service>

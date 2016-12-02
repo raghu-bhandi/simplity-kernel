@@ -10,7 +10,6 @@
 		</inputFields>
 	</inputData>
 	<actions>
-
 		<createSheet actionName="createSheetforfetch" sheetName="inregistrationrecs"
 			data="domain,application,mailid;$domain,$application,$mailid" />
 		<filter actionName="fetchrecords" filterRecordName="smtp.registration"
