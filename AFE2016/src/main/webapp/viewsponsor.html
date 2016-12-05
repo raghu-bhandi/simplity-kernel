@@ -1,10 +1,11 @@
 <div style="overflow: scroll; height: 400px;">
 	<div class="row">
 		<h3 class="col-xs-3">Sponsorship requests</h3>
-		<input class="col-xs-7 ng-pristine ng-untouched ng-valid" type="text"
-			ng-if="sponsors.length > 0" ng-model="filterrow"
-			style="margin-top: 20px; margin-bottom: 10px;"
-			placeholder="Search filter">
+		<div class="col-xs-8 ng-pristine ng-untouched ng-valid">
+			<input type="text" ng-model="filterrow"
+				style="margin-top: 20px; margin-bottom: 10px;width:100%"
+				placeholder="Search filter">
+		</div>
 	</div>
 
 	<div ng-if="sponsors.length == 0">
@@ -21,7 +22,7 @@
 			<th class="col-xs-2">Action</th>
 			<!-- <th class="col-xs-1"></th> -->
 		</tr>
-		<tr ng-repeat="x in sponsors : filter:filterrow" class="row"
+		<tr ng-repeat="x in sponsors | filter:filterrow" class="row"
 			ng-class="{'selected':$index == selectedRow}"
 			ng-click="setClickedRow($index);viewsubmission(x)"
 			ng-init="viewsubmission(sponsors[0])" style="cursor: pointer;">

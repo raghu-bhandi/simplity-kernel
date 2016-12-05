@@ -128,7 +128,6 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 	  highlight: true,
 	  minLength: 3
 	});
-    
     $scope.nominations = [];
     $scope.allnominations = [];
     $scope.sponsors = [];
