@@ -1,7 +1,7 @@
-<div>
+<div style="overflow:scroll;height:400px;">
 <h3>Submissions</h3>
 <div ng-if="nominations.length == 0"><p> There are no records to display </p></div>
-<table  class="table" ng-if="nominations.length > 0" ng-init="viewsubmission(nominations[0])" >
+<table  class="table" ng-if="nominations.length > 0" ng-init="viewsubmission(nominations[0])">
 	<tr class="row">
 		<th class="col-xs-1"></th>
 		<th class="col-xs-2">Category</th>
@@ -17,7 +17,7 @@
 		<td class="col-xs-2">{{x.selectedCategory}}</td>
 		<td class="col-xs-2">{{x.nomination}}</td>
 		<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
-		<td class="col-xs-1" ng-if="x.filekey != ''"><a type="application/x-zip-compressed" href="javascript:void(0);" ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
+		<td class="col-xs-1" ng-if="x.filekey != ''"><a href="javascript:void(0);" ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
 		<td class="col-xs-1" ng-if="x.filekey == ''"></td>
 		<td class="col-xs-1">{{x.status}}</td>
 		<td class="col-xs-1" ng-if="x.status=='Saved'">

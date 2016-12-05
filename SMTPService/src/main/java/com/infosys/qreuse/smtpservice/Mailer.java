@@ -50,11 +50,11 @@ public class Mailer implements LogicInterface {
 		setContent(msg, mail.content, mail.attachment);
 
 		try {
-			msg.writeTo(System.out);
+			msg.writeTo(System.out); 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		// Transport.send(msg);
+	   Transport.send(msg);
 	}
 
 	private void setContent(MimeMessage msg, String content, MailAttachement attachment) throws MessagingException {

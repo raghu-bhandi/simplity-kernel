@@ -47,5 +47,5 @@
 		</save>
 		<subService serviceName="submission.mailer" executeOnCondition="email"/>
 	</actions>
-	
+	<outputData fieldNames="nominationId"></outputData>
 </service>

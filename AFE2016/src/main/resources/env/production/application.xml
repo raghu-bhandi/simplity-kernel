@@ -6,7 +6,7 @@
 	dataSourceName="java:comp/env/jdbc/nomination"
 	loginServiceName="app.login" 
 	sendTraceToClient="true"
-	logSqls="true"		
+	logSqls="true"	
 	attachmentsFolderPath="${uploadfilespath}"
 	accessController="com.infosys.submission.security.AccessController">
 	<sessionParams>

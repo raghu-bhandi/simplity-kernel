@@ -31,9 +31,9 @@
 		<div class="form-group row">			
 			<label for="summary" class="col-xs-4 col-form-label">Executive Summary</label>
 			<div class="col-xs-10">
-			<input class="form-control" type="text" name="summary" maxlength=""
+			<textarea class="form-control" rows="3" maxlength="1500" name="summary"
 					placeholder="Executive Summary" ng-model="nomination.summary"
-					aria-describedby="nominationHelp" required><span
+					aria-describedby="nominationHelp" required></textarea><span
 					style="color: red"
 					ng-show="showSummaryError">Enter Executive Summary.</span> 
 			</div>
@@ -62,12 +62,10 @@
 			</div>
 			<span style="color: red" ng-show="showSponsorError">Enter Sponsor Details</span> 
 		</div>
-
+		<div ng-repeat="c in categories" ng-if="c.category == nomination.selectedCategory" ng-init="setMembers(c)">
+		<div ng-if="maxMembers >0">
 		<h3>Details of Members</h3>
-		<div ng-repeat="c in categories">
-			<span ng-if="c.category == nomination.selectedCategory" ng-init="setMembers(c)">The
-				maximum number of members you can nominate is : {{maxMembers}}</span>
-		</div>
+		<span>The maximum number of members you can nominate is : {{maxMembers}}</span>		
 		<div style="color: green">Please click '+' to add a member</div>
 		<span style="color: red" ng-show="showMemberError">Nominate
 			atleast {{minMembers}} member for the selected category</span> 
@@ -115,6 +113,8 @@
 		<span>**Please
 			limit the number of members to the maximum allowed under the category
 		</span>
+		</div>
+		</div>
 		<hr>
 		<span>Important Guidelines</span>
 		<ul>
@@ -129,7 +129,6 @@
 			<li>Nomination Upload not supported by Google Chrome, Please use
 				Internet Explorer instead.</li>
 		</ul>
-
 		<hr>
 		<div class="container-fluid" ng-if="state=='new' || state=='view'">
 			<div class="row">
@@ -141,36 +140,31 @@
 				</div>
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[1]"
-						class="form-check-input"> Whether the nomination has been
-						restricted to 5 pages or not?
+						class="form-check-input"> Whether the nomination has been restricted to 5 pages or not?
 					</label> 
 				</div>
 			</div>
 			<div class="row">
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[2]"
-						class="form-check-input"> Whether the details of team
-						members have been correctly provided or not?
+						class="form-check-input"> Whether the details of team members have been correctly provided or not?
 					</label>
 				</div>
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[3]"
-						class="form-check-input"> Whether the number of team
-						member restricted as per the details provided?
+						class="form-check-input"> Whether the number of team member is restricted as per the nomination criteria or not?
 					</label>
 				</div>
 			</div>
 			<div class="row">
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[4]"
-						class="form-check-input"> Whether the individual
-						contribution of the team members provided or not?
+						class="form-check-input"> Whether the individual contribution of the team members is provided or not?
 					</label>
 				</div>
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[5]"
-						class="form-check-input"> Whether the individual
-						contribution of the team members provided or not?
+						class="form-check-input"> Whether all necessary data validation has been completed or not?
 					</label>
 				</div>
 			</div>

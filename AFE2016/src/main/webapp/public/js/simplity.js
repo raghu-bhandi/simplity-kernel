@@ -1175,7 +1175,7 @@ var Simplity = (function() {
         };
 
         dlink.click();
-        dlink.remove();
+        
 	};
 	/**
 	 * register a call-back function to be called whenever client detects that a

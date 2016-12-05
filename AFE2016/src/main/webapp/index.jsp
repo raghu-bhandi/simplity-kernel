@@ -10,9 +10,6 @@
 <script type="text/javascript" src="public/js/angular.min.js"></script>
 <script type="text/javascript" src="public/js/angular-route.min.js"></script>
 <script type="text/javascript" src="public/js/ui-bootstrap-tpls-0.13.0.min.js"></script>
-<script>
-var userPrincipal = "<%=request.getRemoteUser()%>";
-</script>
 <style>
 .selected {
  background-color:#f5f5f5 !important; 

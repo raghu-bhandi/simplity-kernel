@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service
+	dbAccessType="readOnly"
+	description=""
+	executeInBackground="true"
+	moduleName="submission"
+	name="getOnenomination"
+	xmlns="http://www.simplity.org/schema">
+	<inputData>
+		<inputFields>
+			<inputField dataType="_number" name="nominationId"/>
+		</inputFields>
+	</inputData>
+	<actions>
+		<copyUserId fieldName="copyuserid" actionName="copyUserIdAction" description="Copy user id from context"/>	
+		<setValue fieldName="userId" expression="lowercase(copyuserid)"></setValue>
+		<read recordName="nomination.nomination" outputSheetName="nominations"></read>	
+		<log names="nominations,members"/>
+	</actions>
+	<outputData attachmentColumns="nominations.filekey">	
+		<outputRecords>
+			<outputRecord sheetName="nominations"/>
+		</outputRecords>
+	</outputData>
+</service>
