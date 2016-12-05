@@ -1163,9 +1163,16 @@ var Simplity = (function() {
 	var saveasfile = function(contents,name, mime_type) {
         mime_type = mime_type || "text/plain";
 
+
         var dlink = document.createElement('a');
-        dlink.download = name;
-        dlink.href = window.URL.createObjectURL(contents);
+        var isIE = /*@cc_on!@*/false || !!document.documentMode
+        if(isIE){
+        	window.navigator.msSaveBlob(contents, name); 
+        }else{
+            dlink.download = name;
+            dlink.href = window.URL.createObjectURL(contents);
+        }
+
         dlink.onclick = function(e) {
             // revokeObjectURL needs a delay to work properly
             var that = this;
@@ -1175,6 +1182,11 @@ var Simplity = (function() {
         };
 
         dlink.click();
+        if(isIE){
+        	dlink.removeNode();
+        }else{
+        	dlink.remove();
+        }
         
 	};
 	/**
