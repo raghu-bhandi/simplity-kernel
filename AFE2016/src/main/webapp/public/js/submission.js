@@ -385,7 +385,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 		 }).then(function successCallback(response) {
 			 $scope.employees = response.data.employees;
 		 },function errorCallback(response){
-			 console.log(response);
+			 console.log("please enter valid data");
 		 });
 	 }
 	 $scope.populatesponsordata=function(chosen){	
