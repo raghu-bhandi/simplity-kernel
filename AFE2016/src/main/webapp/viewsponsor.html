@@ -2,7 +2,7 @@
 	<div class="row">
 		<h3 class="col-xs-3">Sponsorship requests</h3>
 		<input class="col-xs-7 ng-pristine ng-untouched ng-valid" type="text"
-			ng-if="sponsors.length > 0" ng-model="filterrow"
+			ng-model="filterrow"
 			style="margin-top: 20px; margin-bottom: 10px;"
 			placeholder="Search filter">
 	</div>
@@ -10,7 +10,7 @@
 	<div ng-if="sponsors.length == 0">
 		<h4>There are no records to display</h4>
 	</div>
-	<table class="table" ng-if="sponsors.length > 0">
+	<table class="table" ng-if="sponsors.length > 0" ng-init="viewsubmission(sponsors[0])">
 		<tr class="row">
 			<th class="col-xs-1"></th>
 			<th class="col-xs-2">Category</th>
@@ -21,10 +21,10 @@
 			<th class="col-xs-2">Action</th>
 			<!-- <th class="col-xs-1"></th> -->
 		</tr>
-		<tr ng-repeat="x in sponsors : filter:filterrow" class="row"
+		<tr ng-repeat="x in sponsors | filter:filterrow" class="row"
 			ng-class="{'selected':$index == selectedRow}"
 			ng-click="setClickedRow($index);viewsubmission(x)"
-			ng-init="viewsubmission(sponsors[0])" style="cursor: pointer;">
+			 style="cursor: pointer;">
 			<td class="col-xs-1">{{$index+1}}</td>
 			<td class="col-xs-2">{{x.selectedCategory}}</td>
 			<td class="col-xs-2">{{x.nomination}}</td>

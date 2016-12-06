@@ -172,7 +172,7 @@
 		<profile>
 			<id>production</id>
 			<properties>
-				<uploadfilespath>D:/temp/AFE2016/files</uploadfilespath>
+				<uploadfilespath>E:/temp/AFE2016/files</uploadfilespath>
 			</properties>
 			<build>
 				<plugins>

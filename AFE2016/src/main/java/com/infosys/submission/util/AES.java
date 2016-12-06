@@ -10,7 +10,7 @@ public class AES {
 
 	private static String encoding = "UTF-8";
 	
-	public String encryptAES(String valueToEncrypt, String password) throws Exception {
+	public static String encryptAES(String valueToEncrypt, String password) throws Exception {
 		byte[] preSharedKey = password.getBytes();
 		byte[] iv = password.getBytes();
 		byte[] data = valueToEncrypt.getBytes(AES.encoding);
@@ -43,9 +43,12 @@ public class AES {
 	}
 
 	public static void main(String[] args) {
-		String enc = "BFFAFBB11A2DFCA7BB2BDB7E552D766FCE3E507C7BFB369A8C6D05C0FF2C6977";
-		String strEncryptionPassword="mcAX65PTadrrsKQ3";
 		try {
+		String strEncryptionPassword="mcAX65PTadrrsKQ3";
+		String enc = AES.encryptAES("ShaliniReddy_B",strEncryptionPassword);
+//		String enc = "BFFAFBB11A2DFCA7BB2BDB7E552D766FCE3E507C7BFB369A8C6D05C0FF2C6977";
+	
+			System.out.println(enc);
 			System.out.println(AES.decryptAES(enc,strEncryptionPassword));
 		} catch (Exception e) {
 			e.printStackTrace();

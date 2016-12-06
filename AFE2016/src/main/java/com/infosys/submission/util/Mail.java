@@ -33,11 +33,13 @@ public class Mail implements LogicInterface {
 		String apikey = ctx.getTextValue("apikey");
 		String submitterId = ctx.getTextValue("submitterMail");
 		String sponsormailid = ctx.getTextValue("sponsorMail");
+		String submitterNickname = ctx.getTextValue("submitterMailNickname");
+		String sponsorNickname = ctx.getTextValue("sponsorMailNickname");
 		String nomination = ctx.getTextValue("nomination");
 		String status = ctx.getTextValue("status");
 
 		String toIds = null;
-		String ccIds = null;
+		String ccIds = "";
 		String bccIds = null;
 		String subject = null;
 		String content = null;
@@ -45,31 +47,21 @@ public class Mail implements LogicInterface {
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("submitter", submitterId);
 		parameters.put("sponsor", sponsormailid);
+		parameters.put("submitterNickname", submitterNickname);
+		parameters.put("sponsorNickname", sponsorNickname);
 		parameters.put("title", nomination);
 		parameters.put("status", status);
 
-		Writer outputStringwriter = new StringWriter();
-		Template template = null;
+		Writer outputStringwriter1 = new StringWriter();
+		Writer outputStringwriter2 = new StringWriter();
+		Template subtemplate = null;
+		Template spontemplate = null;
 		Writer outputStringWriter = new StringWriter();
 		try {
-			switch (parameters.get("status").toString()) {
-			case "Submitted":
-				template = cfg.getTemplate("submit.ftlh");
-				toIds = sponsormailid;
-				ccIds = submitterId;
-				break;
-			case "Approved":
-				template = cfg.getTemplate("approve.ftlh");
-				toIds = submitterId;
-				ccIds = sponsormailid;
-				break;
-			case "Rejected":
-				template = cfg.getTemplate("reject.ftlh");
-				toIds = submitterId;
-				ccIds = sponsormailid;
-				break;
-			}
-			template.process(parameters, outputStringWriter);
+			subtemplate = cfg.getTemplate("submitter.ftlh");
+			spontemplate = cfg.getTemplate("sponsor.ftlh");
+			subtemplate.process(parameters, outputStringwriter1);
+			spontemplate.process(parameters, outputStringwriter2);
 			subject = "AFE application is " + status;
 			content = outputStringWriter.toString();
 			outputStringWriter.close();
@@ -78,8 +70,13 @@ public class Mail implements LogicInterface {
 		} catch (TemplateException e) {
 			e.printStackTrace();
 		}
-
-		sendMail(urlstring, application, apikey, toIds, ccIds, bccIds, subject, content);
+		if(status.equalsIgnoreCase("Submitted")){
+			sendMail(urlstring, application, apikey, submitterId, ccIds, bccIds, subject, outputStringwriter1.toString());
+			sendMail(urlstring, application, apikey, sponsormailid, ccIds, bccIds, subject, outputStringwriter2.toString());
+		}
+		else{
+			sendMail(urlstring, application, apikey, submitterId, ccIds, bccIds, subject,  outputStringwriter1.toString());
+		}
 		return Value.newBooleanValue(true);
 	}
 

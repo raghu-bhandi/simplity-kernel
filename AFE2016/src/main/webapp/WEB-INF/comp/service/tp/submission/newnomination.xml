@@ -46,6 +46,7 @@
 			</childRecords>
 		</save>
 		<subService serviceName="submission.mailer" executeOnCondition="email"/>
+		<read recordName="nomination.nomination" outputSheetName="nominations"></read>
 	</actions>
-	<outputData fieldNames="nominationId"></outputData>
+	<outputData fieldNames="nominationId,submitterMail,submitterMailNickname"></outputData>
 </service>

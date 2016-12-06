@@ -15,7 +15,7 @@ public class AccessController implements org.simplity.service.AccessController{
 			return true;
 		Properties properties = new Properties();
 		try {
-			properties.load(this.getClass().getResourceAsStream("admin.properties"));
+			properties.load(this.getClass().getClassLoader().getResourceAsStream("admin.properties"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
