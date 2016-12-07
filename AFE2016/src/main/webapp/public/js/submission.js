@@ -23,11 +23,15 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
      });	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 	     $scope.showTitleError = false;
-		 $scope.showSponsorError = false;
+		 $scope.sponsorError = "";
+		 $scope.memberMailError = "";
 		 $scope.showMemberError = false;
 		 $scope.fileError = false;
 		 $scope.showCategoryError = false;
 		 $scope.selectedRow = 0;
+		 $scope.minMembers = 0;
+		 $scope.maxMembers = 0;
+		 $scope.categoryNickname = "";
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			 $scope.state="new";
 			 angular.copy($scope.initnomination,$scope.nomination);
@@ -67,7 +71,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 				 if(json.nominations != null){
 					 $scope.allnominations = json.nominations;
 					 angular.copy($scope.allnominations[0],$scope.nomination );
-					 $scope.disableform=true;
+					 $scope.disableform=false;
 					 $scope.$apply();
 				 }
 			 });			
@@ -86,7 +90,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 	$scope.showSponsorError = false;
 	$scope.showMemberError = false;
 	$scope.contributionError = false;
-	$scope.memberMailError = false;
+	$scope.memberMailError = "";
 	$scope.showTitleError = false;
 	$scope.fileError = false;
 	$scope.showCategoryError = false;
@@ -158,21 +162,27 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
         }
     }
     $scope.addrow = function () {
+    	var error = false;
     	$scope.showCategoryError = false;
+    	$scope.contributionError = false;
+    	$scope.memberMailError = "";
     	if($scope.nomination.selectedCategory == "" || $scope.nomination.selectedCategory == null){
     		alert("Please select the category");
     		$scope.showCategoryError = true;
     		return;
-    	}
- 		$scope.contributionError = false;
-    	$scope.memberMailError = false;
+    	} 		
     	if($scope.addmember.contribution == "" || $scope.addmember.contribution == null){
     		$scope.contributionError = true;
        	}
     	if($scope.addmember.employeeMail == "" || $scope.addmember.employeeMail == null){
-    		$scope.memberMailError = true;
+    		$scope.memberMailError = "Enter mailID";
+    		error = true;
     	}
-    	if($scope.contributionError == true || $scope.memberMailError == true){
+    	if($scope.addmember.Name == ""){
+    		$scope.memberMailError = "Enter valid mailID";
+    		error = true;
+    	}
+    	if($scope.contributionError == true || error == true){
     		alert("Please fill required fields");    			
     		return;
     	}    	
@@ -199,7 +209,6 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
         $scope.chosen = '';
     };
     $scope.removenomination = function (index) {
-    	console.log(index);
     	Simplity.getResponse('submission.deletenomination',JSON.stringify($scope.nominations[index]));   
     	$scope.nominations.splice(index, 1);
     	if($scope.nominations.length != 0){
@@ -268,6 +277,12 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
     			$scope.$apply();
     			return false;
     		}
+    		if(status == "Submitted"){
+    		  var result = $scope.getConfirmation('Are you sure you want to submit your nomination to the sponsor?');
+    		  if(!result){
+    			  return false;
+    		  }
+    		}
     		var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			data.filekey=key;
@@ -286,8 +301,14 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 					}
 				});
     		});
-    	}else{			
-			Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
+    	}else{	
+    		if(status == "Submitted"){
+      		  var result = $scope.getConfirmation('Are you sure you want to submit your nomination to the sponsor?');
+      		  if(!result){
+      			  return false;
+      		  }
+      		}
+    		Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
 				alert("Nomination details "+status+" successfully");
 				if(status == "Submitted"){
 					window.location.href="#/view";
@@ -298,9 +319,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 					$scope.nomination.submitterMailNickname = json.submitterMailNickname;
 				}
 			});
+    		}
     	}
-     	}
- 	 };
+    };
 	 
 	 $scope.init=function(){
 			 angular.copy($scope.nomination,$scope.initnomination);
@@ -342,7 +363,22 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 			else
 				 selectednomination.email=true;			
 			if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
+				var index = $scope.nomination.uploadfile.name.lastIndexOf(".");
+	    		if($scope.nomination.uploadfile.name.substring(index+1) != "zip" ){			
+	    			alert("Please upload zip files only");
+	    			$scope.fileError = true;
+	    			$scope.nomination.uploadfile = null;
+	    			$scope.nomination.filename = null;
+	    			$scope.$apply();
+	    			return false;
+	    		}
 			var fileDetails = $scope.nomination.uploadfile;
+			if(status == "Submitted"){
+	      		  var result = $scope.getConfirmation('Are you sure you want to submit your nomination to the sponsor?');
+	      		  if(!result){
+	      			  return false;
+	      		  }
+	      		}
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			selectednomination.filekey=key;
     			selectednomination.filename=fileDetails.name;
@@ -353,6 +389,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 					if($scope.nomination == selectednomination)						
 						alert("Nomination details "+ status + " successfully!!!");
 					$scope.nominations[$scope.selectedRow] = json.nominations[0];
+					$scope.allnominations[$scope.selectedRow] = json.nominations[0];
 					$scope.nomination = json.nominations[0];
 					$scope.changeformstatus($scope.nomination);
 		    		$scope.$apply();
@@ -361,12 +398,19 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 					}
 	    		});
     		});
-			}else{			
-    		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
+			}else{	
+				if(status == "Submitted"){
+		      		  var result = $scope.getConfirmation('Are you sure you want to submit your nomination to the sponsor?');
+		      		  if(!result){
+		      			  return false;
+		      		  }
+		      		}
+					Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
     				$scope.nomination.status = selectednomination.status;
 					if($scope.nomination == selectednomination)						
 						alert("Nomination details "+ status + " successfully!!!");
     				$scope.nominations[$scope.selectedRow] = json.nominations[0];
+    				$scope.allnominations[$scope.selectedRow] = json.nominations[0];
     				$scope.nomination = json.nominations[0];
     				$scope.changeformstatus($scope.nomination);
         			$scope.$apply();
@@ -374,8 +418,8 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
     					window.location.href="#/view";
     				}
         	});
+				}
 			}
-		}
 		 }, 100);
 	 };
 	 
@@ -413,12 +457,14 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 	 };
 	 
 	 $scope.validateNomination=function(nomination){
+		 var error = false;
 		 if(nomination.members == undefined){
 			 nomination.members = [];
 		 }
 		 $scope.showTitleError = false;
-		 $scope.showSponsorError = false;
+		 $scope.sponsorError = "";
 		 $scope.showMemberError = false;
+		 $scope.showCategoryError = false;
 		 if(nomination.nomination == "" || nomination.nomination == null){
 	    	$scope.showTitleError = true;
 	    	alert("Nomination title is required");	
@@ -429,13 +475,18 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 	    		$scope.showCategoryError = true;
 	    	}
 	    	if(nomination.sponsorMail == "" || nomination.sponsorMail == null){
-	    		$scope.showSponsorError = true;
+	    		$scope.sponsorError = "Enter Sponsor MailID";
+	    		error = true;
+	    	}
+	    	if(nomination.sponsorname == "" && error == false){
+	    		$scope.sponsorError = "Enter valid Sponsor MailID";
+	    		error = true;
 	    	}
 	    	if(nomination.members.length < $scope.minMembers){
 	    		$scope.showMemberError = true;
 	    	}    			
 	    }
-	    if($scope.showSponsorError == true || $scope.showMemberError == true || $scope.showCategoryError == true){
+	    if(error == true || $scope.showMemberError == true || $scope.showCategoryError == true){
 	    	alert("Please fill the required fields before submitting");
 	    	return false;
 	    }
@@ -459,8 +510,17 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 	    }
 	    return true;
 	 }
+	 
+	 $scope.getConfirmation = function(msg){
+		var result = confirm(msg);
+		return result;		 
+	 }
 	   
 	  $scope.setClickedRow = function(index){  
 	     $scope.selectedRow = index;
+	  }
+	  
+	  $scope.reset = function(){
+		  angular.copy($scope.initnomination,$scope.nomination); 
 	  }
 });

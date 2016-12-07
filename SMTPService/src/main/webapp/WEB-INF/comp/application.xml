@@ -6,6 +6,6 @@
 	dataSourceName="java:comp/env/jdbc/smtpservice"
 	autoLoginUserId="100"
 	sendTraceToClient="true"
-	attachmentsFolderPath="D:/temp/SMTPService/files"
+	attachmentsFolderPath="E:/temp/SMTPService/files"
 	logSqls="true">
 </application>	

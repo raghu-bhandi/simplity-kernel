@@ -6,7 +6,7 @@
     <actions>
     	<setValue fieldName="urlString" fieldValue="http://sparsh-ic:8080/SMTPService/a._s"></setValue>
     	<setValue fieldName="application" fieldValue="AFE2016"></setValue>
-    	<setValue fieldName="apikey" fieldValue="fbd5d3de-5606-46b8-ae43-7bca02b32c4e"></setValue>
+    	<setValue fieldName="apikey" fieldValue="76d15092-19eb-4072-ac15-7fca5e8b25c1"></setValue>
     	<logic className="com.infosys.submission.util.Mail" actionName="mailAction"/>
     </actions>
 </service>

@@ -61,7 +61,7 @@
 					placeholder="Sponsor Employee Number"
 					ng-model="nomination.sponsornumber" disabled>
 			</div>
-			<span style="color: red" ng-show="showSponsorError">Enter Sponsor Details</span> 
+			<span style="color: red">{{ sponsorError }}</span> 
 		</div>
 		<div ng-repeat="c in categories" ng-if="c.category == nomination.selectedCategory" ng-init="setMembers(c)"></div>
 		<div ng-show="showMembers">
@@ -93,7 +93,7 @@
 						ng-change="getmailsuggestion(addmember.employeeMail)"
 						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 						typeahead-on-select="populatememberdata($item)">
-						<span style="color: red" ng-show="memberMailError">Enter Email ID</span>
+						<span style="color: red">{{ memberMailError }}</span>
 						</td>
 					<td class="col-xs-1"><input class="form-control"
 						ng-model="addmember.eNo" placeholder="Emp No" disabled></td>
@@ -189,10 +189,10 @@
 	
 	<button type="submit" class="btn btn-primary" ng-if="state=='new'" ng-click="submit('Submitted')">Submit</button>
 	<button type="submit" class="btn btn-primary" ng-if="state=='view'" ng-click="disableform || updatenomination(nomination,'Submitted')">Submit</button>
-	
+	<button type="submit" class="btn btn-primary" ng-if="state=='new'" ng-click="reset()">Reset</button>
 	</div>
 	<div ng-if="state == 'admin'">
-	<button type="submit" class="btn btn-primary" ng-click="submit('Saved')">Save</button>
+	<button type="submit" class="btn btn-primary" ng-click="updatenomination(nomination,nomination.status)">Update</button>
 	</div>
 	</fieldset>
 </form>

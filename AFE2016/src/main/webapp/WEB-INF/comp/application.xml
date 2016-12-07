@@ -7,7 +7,6 @@
 	loginServiceName="app.login" 
 	sendTraceToClient="true"
 	logSqls="true"	
-	autoLoginUserId="shalinireddy_b"
 	attachmentsFolderPath="E:/temp/AFE2016/files"
 	accessController="com.infosys.submission.security.AccessController">
 	<sessionParams>
