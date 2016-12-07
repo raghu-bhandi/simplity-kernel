@@ -16,10 +16,14 @@ app.config(function($routeProvider) {
         templateUrl : "logout.html"
     });
 });
-app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {	
+app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$filter) {	
 	$http.get('public/js/data.json')
     .then(function(res){
     	$scope.categories = res.data;                
+     });
+	$http.get('public/js/roles.json')
+    .then(function(res){
+    	$scope.sponsorroles = res.data;                
      });	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 	     $scope.showTitleError = false;
@@ -94,6 +98,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 	$scope.selectedRow = 0;
 	$scope.categoryNickname = "";
 	$scope.categories = [];
+	$scope.sponsorroles = [];
 	$scope.showMembers = true;
     $scope.initcheckbox = {
     		"0":false,
@@ -397,6 +402,25 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 			 console.log("please enter valid data");
 		 });
 	 }
+	 $scope.getsponsormailsuggestion=function(mailidpart){
+		 $http({
+			 method:'GET',
+			 url   :'http://sparsh-ic:8080/LDAPLookup/a._s?_serviceName=lookup.ldaplookup&mailidpart='+mailidpart
+		 }).then(function successCallback(response) {
+			 $scope.employees = $filter('filter')(response.data.employees, 
+				function(value){
+				 	if(value.designation===null){
+				 		return false;
+				 	}
+				 	if($scope.sponsorroles.indexOf(value.designation.replace(/\s/g,''))!=-1 ){
+			 			return true;
+			 		 }
+			 		return false;
+				});
+		 },function errorCallback(response){
+			 console.log("please enter valid data");
+		 });
+	 }	 
 	 $scope.populatesponsordata=function(chosen){	
 		 	$scope.nomination.sponsorMail   = chosen.mail;
 		 	$scope.nomination.sponsorMailNickname = chosen.mailNickname;

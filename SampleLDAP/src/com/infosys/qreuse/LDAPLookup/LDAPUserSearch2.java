@@ -150,7 +150,7 @@ public class LDAPUserSearch2 {
 //			e.printStackTrace();
 //		}
 
-		 String designation = "16681";
+		 String designation = "45589";
 		 System.out.println(LDAPUserSearch2.findDesignation(designation));
 	}
 
