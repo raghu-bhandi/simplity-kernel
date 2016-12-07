@@ -46,7 +46,7 @@
 				<input type="text"
 					class="form-control" ng-model="nomination.sponsorMail"
 					placeholder="Enter email" aria-describedby="emailHelp"
-					ng-change="getmailsuggestion(nomination.sponsorMail)"
+					ng-change="getsponsormailsuggestion(nomination.sponsorMail)"
 					typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 					typeahead-on-select="populatesponsordata($item)">
 			</div>
