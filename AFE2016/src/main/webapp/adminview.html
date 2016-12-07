@@ -1,4 +1,4 @@
-<div style="overflow: auto; height: 264px;">
+<div>
 	<div style="width: 98%">
 		<h3>Admin View</h3>
 		<div class="row">
@@ -12,31 +12,36 @@
 		<div ng-if="allnominations.length == 0">
 			<p>There are no records to display</p>
 		</div>
-		<table class="table" ng-if="allnominations.length > 0">
-			<tr class="row" ng-init="viewsubmission(allnominations[0])">
-				<th class="col-xs-1"></th>
-				<th class="col-xs-2">Category</th>
-				<th class="col-xs-2">Title</th>
-				<th class="col-xs-1">Sponsor</th>
-				<th class="col-xs-1">Document File</th>
-				<th class="col-xs-1">Status</th>
-				<th class="col-xs-1"></th>
-			</tr>
-			<tr ng-repeat="x in allnominations | filter:filterrow" class="row"
-				ng-class="{'selected':$index == selectedRow}"
-				ng-click="setClickedRow($index);viewsubmission(x)"
-				style="cursor: pointer;">
-				<td class="col-xs-1">{{$index+1}}</td>
-				<td class="col-xs-2">{{x.selectedCategory}}</td>
-				<td class="col-xs-2">{{x.nomination}}</td>
-				<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
-				<td class="col-xs-1" ng-if="x.filekey != ''"><a
-					type="application/x-zip-compressed" href="javascript:void(0);"
-					ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
-				<td class="col-xs-1" ng-if="x.filekey == ''"></td>
-				<td class="col-xs-1">{{x.status}}</td>
+		<table class="table  table-fixed" ng-if="allnominations.length > 0">
+			<thead>
+				<tr class="row" ng-init="viewsubmission(allnominations[0])"
+					style="margin-right: 0; margin-left: 0">
+					<th class="col-xs-1"></th>
+					<th class="col-xs-2">Category</th>
+					<th class="col-xs-2">Title</th>
+					<th class="col-xs-1">Sponsor</th>
+					<th class="col-xs-1">Document File</th>
+					<th class="col-xs-1">Status</th>
+					<th class="col-xs-1"></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="x in allnominations | filter:filterrow" class="row"
+					ng-class="{'selected':$index == selectedRow}"
+					ng-click="setClickedRow($index);viewsubmission(x)"
+					style="cursor: pointer;">
+					<td class="col-xs-1">{{$index+1}}</td>
+					<td class="col-xs-2">{{x.selectedCategory}}</td>
+					<td class="col-xs-2">{{x.nomination}}</td>
+					<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
+					<td class="col-xs-1" ng-if="x.filekey != ''"><a
+						type="application/x-zip-compressed" href="javascript:void(0);"
+						ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
+					<td class="col-xs-1" ng-if="x.filekey == ''"></td>
+					<td class="col-xs-1">{{x.status}}</td>
 
-			</tr>
+				</tr>
+			</tbody>
 		</table>
 	</div>
 </div>

@@ -1,4 +1,4 @@
-<div style="overflow: auto; height: 264px;">
+<div>
 	<div style="width: 98%">
 		<div class="row">
 			<h3 class="col-xs-3">Sponsorship requests</h3>
@@ -12,42 +12,46 @@
 		<div ng-if="sponsors.length == 0">
 			<h4>There are no records to display</h4>
 		</div>
-		<table class="table" ng-if="sponsors.length > 0"
+		<table class="table table-fixed" ng-if="sponsors.length > 0"
 			ng-init="viewsubmission(sponsors[0])">
-			<tr class="row">
-				<th class="col-xs-1"></th>
-				<th class="col-xs-2">Category</th>
-				<th class="col-xs-2">Title</th>
-				<th class="col-xs-1">Sponsor</th>
-				<th class="col-xs-1">Document</th>
-				<th class="col-xs-1">Status</th>
-				<th class="col-xs-2">Action</th>
-				<!-- <th class="col-xs-1"></th> -->
-			</tr>
-			<tr ng-repeat="x in sponsors | filter:filterrow" class="row"
-				ng-class="{'selected':$index == selectedRow}"
-				ng-click="setClickedRow($index);viewsubmission(x)"
-				style="cursor: pointer;">
-				<td class="col-xs-1">{{$index+1}}</td>
-				<td class="col-xs-2">{{x.selectedCategory}}</td>
-				<td class="col-xs-2">{{x.nomination}}</td>
-				<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
-				<td class="col-xs-1" ng-if="x.filekey != ''"><a
-					type="application/x-zip-compressed" href="javascript:void(0);"
-					ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
-				<td class="col-xs-1" ng-if="x.filekey == ''"></td>
-				<td class="col-xs-1">{{x.status}}</td>
-				<td class="col-xs-2" ng-if="x.status=='Submitted'">
-					<button type="button" class="btn btn-primary"
-						ng-click="setClickedRow($index);updatenomination(x,'Approved')">Approve</button>
-					<button type="button" class="btn btn-primary"
-						ng-click="setClickedRow($index);updatenomination(x,'Rejected')">Reject</button>
-				</td>
-				<td class="col-xs-2" ng-if="x.status!='Submitted'">
-					<button type="button" class="btn btn-primary disabled">Approve</button>
-					<button type="button" class="btn btn-primary disabled">Reject</button>
-				</td>
-			</tr>
+			<thead>
+				<tr class="row" style="margin-right: 0; margin-left: 0">
+					<th class="col-xs-1"></th>
+					<th class="col-xs-2">Category</th>
+					<th class="col-xs-2">Title</th>
+					<th class="col-xs-1">Sponsor</th>
+					<th class="col-xs-1">Document</th>
+					<th class="col-xs-1">Status</th>
+					<th class="col-xs-2">Action</th>
+					<!-- <th class="col-xs-1"></th> -->
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="x in sponsors | filter:filterrow" class="row"
+					ng-class="{'selected':$index == selectedRow}"
+					ng-click="setClickedRow($index);viewsubmission(x)"
+					style="cursor: pointer;">
+					<td class="col-xs-1">{{$index+1}}</td>
+					<td class="col-xs-2">{{x.selectedCategory}}</td>
+					<td class="col-xs-2">{{x.nomination}}</td>
+					<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
+					<td class="col-xs-1" ng-if="x.filekey != ''"><a
+						type="application/x-zip-compressed" href="javascript:void(0);"
+						ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
+					<td class="col-xs-1" ng-if="x.filekey == ''"></td>
+					<td class="col-xs-1">{{x.status}}</td>
+					<td class="col-xs-2" ng-if="x.status=='Submitted'">
+						<button type="button" class="btn btn-primary"
+							ng-click="setClickedRow($index);updatenomination(x,'Approved')">Approve</button>
+						<button type="button" class="btn btn-primary"
+							ng-click="setClickedRow($index);updatenomination(x,'Rejected')">Reject</button>
+					</td>
+					<td class="col-xs-2" ng-if="x.status!='Submitted'">
+						<button type="button" class="btn btn-primary disabled">Approve</button>
+						<button type="button" class="btn btn-primary disabled">Reject</button>
+					</td>
+				</tr>
+			</tbody>
 		</table>
 	</div>
 </div>
