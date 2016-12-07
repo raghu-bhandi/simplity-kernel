@@ -94,6 +94,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 	$scope.selectedRow = 0;
 	$scope.categoryNickname = "";
 	$scope.categories = [];
+	$scope.showMembers = true;
     $scope.initcheckbox = {
     		"0":false,
 			"1":false,
@@ -147,9 +148,13 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
     $scope.chosen;
     $scope.addmember = {};
     $scope.setMembers = function(category){
+    	$scope.showMembers = true;
     	$scope.minMembers = category.noOfMembers.min;
         $scope.maxMembers = category.noOfMembers.max;
         $scope.categoryNickname = category.categoryNickname;
+        if($scope.maxMembers <= 0){
+        	$scope.showMembers = false;
+        }
     }
     $scope.addrow = function () {
     	$scope.showCategoryError = false;
@@ -253,6 +258,15 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 			data.email=true;
     	if($scope.validateNomination(data)){
     	if(!angular.equals($scope.nomination.uploadfile, {})){
+    		var index = $scope.nomination.uploadfile.name.lastIndexOf(".");
+    		if($scope.nomination.uploadfile.name.substring(index+1) != "zip" ){			
+    			alert("Please upload zip files only");
+    			$scope.fileError = true;
+    			$scope.nomination.uploadfile = null;
+    			$scope.nomination.filename = null;
+    			$scope.$apply();
+    			return false;
+    		}
     		var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			data.filekey=key;
@@ -266,6 +280,8 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 					}
 					else{
 						$scope.nomination.nominationId = json.nominationId;
+						$scope.nomination.submitterMail = json.submitterMail;
+						$scope.nomination.submitterMailNickname = json.submitterMailNickname;
 					}
 				});
     		});
@@ -277,6 +293,8 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 				}
 				else{
 					$scope.nomination.nominationId = json.nominationId;
+					$scope.nomination.submitterMail = json.submitterMail;
+					$scope.nomination.submitterMailNickname = json.submitterMailNickname;
 				}
 			});
     	}
@@ -310,11 +328,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 			 selectednomination.categoryNickname = $scope.categoryNickname;
 			 selectednomination.email=true;
 			 selectednomination.status=status;
-			 Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination));
-			 var pdata = {"nominationId":selectednomination.nominationId};
-			 Simplity.getResponse('submission.getOnenomination',JSON.stringify(pdata),function(resp){
-				 $scope.nominations[$scope.selectedRow] = resp.nominations[0]; 
-				 $scope.$apply();
+			 Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
+				 $scope.nominations[$scope.selectedRow] = json.nominations[0];
+				 $scope.nomination = json.nominations[0];
 			 });
 			 return;
 		 }
@@ -332,37 +348,31 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
     			selectednomination.filetype=fileDetails.type;
     			selectednomination.filesize=fileDetails.size;
 				Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
-					if(status != "Approved" || status != "Rejected"){
-						$scope.nomination.status = selectednomination.status;
-						if($scope.nomination == selectednomination)						
-							alert("Nomination details "+ status + " successfully!!!");
-						$scope.nominations[$scope.selectedRow] = selectednomination;
-						$scope.changeformstatus(selectednomination);
-		    			$scope.$apply();
+					$scope.nomination.status = selectednomination.status;
+					if($scope.nomination == selectednomination)						
+						alert("Nomination details "+ status + " successfully!!!");
+					$scope.nominations[$scope.selectedRow] = json.nominations[0];
+					$scope.nomination = json.nominations[0];
+					$scope.changeformstatus($scope.nomination);
+		    		$scope.$apply();
+		    		if(status == "Submitted"){
+						window.location.href="#/view";
 					}
 	    		});
     		});
-			 var pdata = {"nominationId":selectednomination.nominationId};
-			 Simplity.getResponse('submission.getOnenomination',JSON.stringify(pdata),function(resp){
-				 $scope.nominations[$scope.selectedRow] = resp.nominations[0]; 
-				 $scope.$apply();
-			 });
 			}else{			
     		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
-    			if(status != "Approved" || status != "Rejected"){
     				$scope.nomination.status = selectednomination.status;
 					if($scope.nomination == selectednomination)						
 						alert("Nomination details "+ status + " successfully!!!");
-    				$scope.nominations[$scope.selectedRow] = selectednomination;
-    				$scope.changeformstatus(selectednomination);
+    				$scope.nominations[$scope.selectedRow] = json.nominations[0];
+    				$scope.nomination = json.nominations[0];
+    				$scope.changeformstatus($scope.nomination);
         			$scope.$apply();
-        		}
-    		});
-			 var pdata = {"nominationId":selectednomination.nominationId};
-			 Simplity.getResponse('submission.getOnenomination',JSON.stringify(pdata),function(resp){
-				 $scope.nominations[$scope.selectedRow] = resp.nominations[0]; 				 
-				 $scope.$apply();
-			 });
+        			if(status == "Submitted"){
+    					window.location.href="#/view";
+    				}
+        	});
 			}
 		}
 		 }, 100);
@@ -384,7 +394,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location) {
 		 }).then(function successCallback(response) {
 			 $scope.employees = response.data.employees;
 		 },function errorCallback(response){
-			 console.log(response);
+			 console.log("please enter valid data");
 		 });
 	 }
 	 $scope.populatesponsordata=function(chosen){	

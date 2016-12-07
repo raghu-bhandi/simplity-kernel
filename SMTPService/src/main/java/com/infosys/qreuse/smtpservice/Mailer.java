@@ -3,10 +3,8 @@ package com.infosys.qreuse.smtpservice;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
-import java.sql.Clob;
 import java.util.Date;
 import java.util.Properties;
 
@@ -46,7 +44,6 @@ public class Mailer implements LogicInterface {
 		msg.setSubject(mail.subject, "UTF-8");
 		msg.setSentDate(new Date());
 		msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
-		msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(mail.ccIds, false));
 		setContent(msg, mail.content, mail.attachment);
 
 		try {

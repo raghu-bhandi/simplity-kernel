@@ -17,8 +17,7 @@
 </style>
 </head>
 <body>
-	<div ng-app="submissionApp" ng-controller="formCtrl" ng-init="init()"
-		class="container">
+	<div ng-app="submissionApp" ng-controller="formCtrl" ng-init="init()" class="container">
 		<div ng-view></div>
 	</div>
 	<script type="text/javascript" src="public/js/simplity.js"></script>
