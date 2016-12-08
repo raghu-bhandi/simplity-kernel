@@ -1,6 +1,7 @@
 <div>
-	<div style="width: 100%;padding:10px 10px 10px 10px;">
-		<h3 style="display:inline;">Submissions</h3>&nbsp;&nbsp;&nbsp;<i>(Select the row to view or edit)</i>
+	<div style="width: 100%; padding: 10px 10px 10px 10px;">
+		<h3 style="display: inline;">Submissions</h3>
+		&nbsp;&nbsp;&nbsp;<i>(Select the row to view or edit)</i>
 		<hr>
 		<div ng-if="nominations.length == 0">
 			<p>There are no records to display</p>
@@ -55,7 +56,8 @@
 						<td class="col-xs-1" ng-if="x.status!='Saved'"></td>
 					<tr>
 						<td colspan="9" class="hiddenRow" style="border-top: 0px;">
-							<div class="accordion-body collapse hidden{{x.nominationId}}" id="hidden{{x.nominationId}}">
+							<div class="accordion-body collapse hidden{{x.nominationId}}"
+								id="hidden{{x.nominationId}}">
 								<div ng-include="'submissionform.html'"></div>
 							</div>
 						</td>

@@ -8,24 +8,23 @@
 					placeholder="Search filter">
 			</div>
 		</div>
-		<div ng-if="allnominations.length == 0">
+		<div ng-if="nominations.length == 0">
 			<p>There are no records to display</p>
 		</div>
-		<table class="table  table-fixed" ng-if="allnominations.length > 0">
+		<table class="table  table-fixed" ng-if="nominations.length > 0">
 			<thead>
 				<tr class="row" style="margin-right: 0; margin-left: 0"
-					ng-init="viewsubmission(allnominations[0])">
+					ng-init="viewsubmission(nominations[0])">
 					<th class="col-xs-1"></th>
 					<th class="col-xs-2">Category</th>
 					<th class="col-xs-3">Title</th>
 					<th class="col-xs-2">Sponsor</th>
 					<th class="col-xs-2">File</th>
 					<th class="col-xs-2">Status</th>
-
 				</tr>
 			</thead>
 			<tbody>
-				<tr ng-repeat="x in allnominations | filter:filterrow" class="row"
+				<tr ng-repeat="x in nominations | filter:filterrow" class="row"
 					ng-class="{'selected':$index == selectedRow}"
 					ng-click="setClickedRow($index);viewsubmission(x)"
 					style="cursor: pointer; margin-right: 0; margin-left: 0">
@@ -33,16 +32,15 @@
 					<td class="col-xs-2">{{x.selectedCategory}}</td>
 					<td class="col-xs-3">{{x.nomination}}</td>
 					<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
-					<td class="col-xs-2" ng-if="x.filekey != ''"><a
-						type="application/x-zip-compressed" href="javascript:void(0);"
+					<td class="col-xs-2" ng-if="x.filekey != ''">
+						<a href="javascript:void(0);"
 						ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
 					<td class="col-xs-2" ng-if="x.filekey == ''"></td>
 					<td class="col-xs-2">{{x.status}}</td>
-
 				</tr>
 			</tbody>
 		</table>
 	</div>
 </div>
-<div ng-if="allnominations.length > 0"
+<div ng-if="nominations.length > 0"
 	ng-include="'submissionform.html'"></div>

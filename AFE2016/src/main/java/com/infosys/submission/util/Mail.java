@@ -37,45 +37,58 @@ public class Mail implements LogicInterface {
 		String sponsorNickname = ctx.getTextValue("sponsorMailNickname");
 		String nomination = ctx.getTextValue("nomination");
 		String status = ctx.getTextValue("status");
+		String categoryname = ctx.getTextValue("selectedCategory");
 
 		String toIds = null;
 		String ccIds = "";
 		String bccIds = null;
 		String subject = null;
+		String sponsubject = null;
 		String content = null;
 
 		Map<String, String> parameters = new HashMap<String, String>();
 		parameters.put("submitter", submitterId);
 		parameters.put("sponsor", sponsormailid);
-		parameters.put("submitterNickname", submitterNickname);
-		parameters.put("sponsorNickname", sponsorNickname);
+		parameters.put("submitterNickname", submitterNickname.substring(0, 1).toUpperCase() + submitterNickname.substring(1));
+		parameters.put("sponsorNickname", sponsorNickname.substring(0, 1).toUpperCase() + sponsorNickname.substring(1));
 		parameters.put("title", nomination);
 		parameters.put("status", status);
+		parameters.put("categoryname", categoryname);
 
 		Writer outputStringwriter1 = new StringWriter();
 		Writer outputStringwriter2 = new StringWriter();
 		Template subtemplate = null;
 		Template spontemplate = null;
-		Writer outputStringWriter = new StringWriter();
 		try {
-			subtemplate = cfg.getTemplate("submitter.ftlh");
-			spontemplate = cfg.getTemplate("sponsor.ftlh");
+			switch (parameters.get("status").toString()) {
+ 			case "Submitted":
+ 				subtemplate = cfg.getTemplate("submit.ftlh");
+ 				spontemplate = cfg.getTemplate("sponsor.ftlh");
+ 				subject = "Your nomination for AFE 2016-17 has been submitted";
+ 				sponsubject = "AFE nomination: Your action required";
+ 				break;
+ 			case "Approved":
+ 				subtemplate = cfg.getTemplate("approve.ftlh");
+ 				subject = "Status of your AFE nomination";
+ 				break;
+ 			case "Rejected":
+ 				subtemplate = cfg.getTemplate("reject.ftlh");
+ 				subject = "Status of your AFE nomination";
+ 				break;
+ 			}
 			subtemplate.process(parameters, outputStringwriter1);
 			spontemplate.process(parameters, outputStringwriter2);
-			subject = "AFE application is " + status;
-			content = outputStringWriter.toString();
-			outputStringWriter.close();
+			content = outputStringwriter1.toString();
+			sendMail(urlstring, application, apikey, submitterId, ccIds, bccIds, subject, content);
+			if(spontemplate != null){
+				sendMail(urlstring, application, apikey, sponsormailid, ccIds, bccIds, sponsubject, outputStringwriter2.toString());
+			}
+			outputStringwriter1.close();		
+			outputStringwriter2.close();	
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (TemplateException e) {
 			e.printStackTrace();
-		}
-		if(status.equalsIgnoreCase("Submitted")){
-			sendMail(urlstring, application, apikey, submitterId, ccIds, bccIds, subject, outputStringwriter1.toString());
-			sendMail(urlstring, application, apikey, sponsormailid, ccIds, bccIds, subject, outputStringwriter2.toString());
-		}
-		else{
-			sendMail(urlstring, application, apikey, submitterId, ccIds, bccIds, subject,  outputStringwriter1.toString());
 		}
 		return Value.newBooleanValue(true);
 	}

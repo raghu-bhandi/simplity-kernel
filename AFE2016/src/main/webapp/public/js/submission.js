@@ -27,11 +27,17 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
      });	
 	$scope.$on("$routeChangeSuccess", function($previousRoute, $currentRoute) {
 	     $scope.showTitleError = false;
-		 $scope.showSponsorError = false;
+		 $scope.sponsorError = "";
+		 $scope.memberMailError = "";
 		 $scope.showMemberError = false;
 		 $scope.fileError = false;
 		 $scope.showCategoryError = false;
+		 $scope.showSummaryError = false;
+		 $scope.fileError = "";
 		 $scope.selectedRow = 0;
+		 $scope.minMembers = 0;
+		 $scope.maxMembers = 0;
+		 $scope.categoryNickname = "";
 		if($currentRoute.loadedTemplateUrl==="submissionform.html"){
 			 $scope.state="new";
 			 angular.copy($scope.initnomination,$scope.nomination);
@@ -69,9 +75,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 			$scope.selectedRow = 0;
 			 Simplity.getResponse("submission.getallnominations",null,function(json){
 				 if(json.nominations != null){
-					 $scope.allnominations = json.nominations;
-					 angular.copy($scope.allnominations[0],$scope.nomination );
-					 $scope.disableform=true;
+					 $scope.nominations = json.nominations;
+					 angular.copy($scope.nominations[0],$scope.nomination );
+					 $scope.disableform=false;
 					 $scope.$apply();
 				 }
 			 });			
@@ -90,7 +96,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	$scope.showSponsorError = false;
 	$scope.showMemberError = false;
 	$scope.contributionError = false;
-	$scope.memberMailError = false;
+	$scope.showSummaryError = false;
+	$scope.memberMailError = "";
+	$scope.fileError = "";
 	$scope.showTitleError = false;
 	$scope.fileError = false;
 	$scope.showCategoryError = false;
@@ -135,7 +143,6 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	  minLength: 3
 	});
     $scope.nominations = [];
-    $scope.allnominations = [];
     $scope.sponsors = [];
     $scope.employees = [];
     $scope.chosenemployee = {};
@@ -162,22 +169,27 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
         }
     }
     $scope.addrow = function () {
+    	var error = false;
     	$scope.showCategoryError = false;
+    	$scope.contributionError = false;
+    	$scope.memberMailError = "";
     	if($scope.nomination.selectedCategory == "" || $scope.nomination.selectedCategory == null){
     		alert("Please select the category");
     		$scope.showCategoryError = true;
     		return;
-    	}
- 		$scope.contributionError = false;
-    	$scope.memberMailError = false;
+    	} 		
     	if($scope.addmember.contribution == "" || $scope.addmember.contribution == null){
     		$scope.contributionError = true;
        	}
     	if($scope.addmember.employeeMail == "" || $scope.addmember.employeeMail == null){
-    		$scope.memberMailError = true;
+    		$scope.memberMailError = "Enter mail ID";
+    		error = true;
     	}
-    	if($scope.contributionError == true || $scope.memberMailError == true){
-    		alert("Please fill required fields");    			
+    	if($scope.addmember.Name == ""){
+    		$scope.memberMailError = "Enter valid mail ID";
+    		error = true;
+    	}
+    	if($scope.contributionError == true || error == true){
     		return;
     	}    	
         var data = {};
@@ -203,7 +215,6 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
         $scope.chosen = '';
     };
     $scope.removenomination = function (index) {
-    	console.log(index);
     	Simplity.getResponse('submission.deletenomination',JSON.stringify($scope.nominations[index]));   
     	$scope.nominations.splice(index, 1);
     	if($scope.nominations.length != 0){
@@ -272,6 +283,12 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     			$scope.$apply();
     			return false;
     		}
+    		if(status == "Submitted"){
+    		  var result = $scope.getConfirmation('Are you sure you want to submit your nomination to the sponsor?');
+    		  if(!result){
+    			  return false;
+    		  }
+    		}
     		var fileDetails = $scope.nomination.uploadfile;
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			data.filekey=key;
@@ -290,8 +307,14 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 					}
 				});
     		});
-    	}else{			
-			Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
+    	}else{	
+    		if(status == "Submitted"){
+      		  var result = $scope.getConfirmation('Are you sure you want to submit your nomination to the sponsor?');
+      		  if(!result){
+      			  return false;
+      		  }
+      		}
+    		Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
 				alert("Nomination details "+status+" successfully");
 				if(status == "Submitted"){
 					window.location.href="#/view";
@@ -302,9 +325,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 					$scope.nomination.submitterMailNickname = json.submitterMailNickname;
 				}
 			});
+    		}
     	}
-     	}
- 	 };
+    };
 	 
 	 $scope.init=function(){
 			 angular.copy($scope.nomination,$scope.initnomination);
@@ -346,7 +369,22 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 			else
 				 selectednomination.email=true;			
 			if(!($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {}))){
+				var index = $scope.nomination.uploadfile.name.lastIndexOf(".");
+	    		if($scope.nomination.uploadfile.name.substring(index+1) != "zip" ){			
+	    			alert("Please upload zip files only");
+	    			$scope.fileError = "Upload zip files only";
+	    			$scope.nomination.uploadfile = null;
+	    			$scope.nomination.filename = null;
+	    			$scope.$apply();
+	    			return false;
+	    		}
 			var fileDetails = $scope.nomination.uploadfile;
+			if(status == "Submitted"){
+	      		  var result = $scope.getConfirmation('Are you sure you want to submit your nomination to the sponsor?');
+	      		  if(!result){
+	      			  return false;
+	      		  }
+	      		}
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			selectednomination.filekey=key;
     			selectednomination.filename=fileDetails.name;
@@ -365,8 +403,14 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 					}
 	    		});
     		});
-			}else{			
-    		Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
+			}else{	
+				if(status == "Submitted"){
+		      		  var result = $scope.getConfirmation('Are you sure you want to submit your nomination to the sponsor?');
+		      		  if(!result){
+		      			  return false;
+		      		  }
+		      		}
+					Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
     				$scope.nomination.status = selectednomination.status;
 					if($scope.nomination == selectednomination)						
 						alert("Nomination details "+ status + " successfully!!!");
@@ -378,8 +422,8 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     					window.location.href="#/view";
     				}
         	});
+				}
 			}
-		}
 		 }, 100);
 	 };
 	 
@@ -412,7 +456,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 				 	if(value.designation===null){
 				 		return false;
 				 	}
-				 	if($scope.sponsorroles.indexOf(value.designation.replace(/\s/g,''))!=-1 ){
+				 	if($scope.sponsorroles.indexOf(value = value.designation.replace(/[^\w]/gi,''))!=-1 ){
 			 			return true;
 			 		 }
 			 		return false;
@@ -436,12 +480,16 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	 };
 	 
 	 $scope.validateNomination=function(nomination){
+		 var error = false;
 		 if(nomination.members == undefined){
 			 nomination.members = [];
 		 }
 		 $scope.showTitleError = false;
-		 $scope.showSponsorError = false;
+		 $scope.sponsorError = "";
 		 $scope.showMemberError = false;
+		 $scope.showCategoryError = false;
+		 $scope.showSummaryError = false;
+		 $scope.fileError = "";
 		 if(nomination.nomination == "" || nomination.nomination == null){
 	    	$scope.showTitleError = true;
 	    	alert("Nomination title is required");	
@@ -451,20 +499,29 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	    	if(nomination.selectedCategory == "" || nomination.selectedCategory == null){
 	    		$scope.showCategoryError = true;
 	    	}
+	    	if(nomination.summary == "" || nomination.summary == null){
+	    		$scope.showSummaryError = true;
+	    	}	    	
 	    	if(nomination.sponsorMail == "" || nomination.sponsorMail == null){
-	    		$scope.showSponsorError = true;
+	    		$scope.sponsorError = "Enter Sponsor MailID";
+	    		error = true;
+	    	}
+	    	if(nomination.sponsorname == "" && error == false){
+	    		$scope.sponsorError = "Enter valid Sponsor MailID";
+	    		error = true;
 	    	}
 	    	if(nomination.members.length < $scope.minMembers){
 	    		$scope.showMemberError = true;
 	    	}    			
 	    }
-	    if($scope.showSponsorError == true || $scope.showMemberError == true || $scope.showCategoryError == true){
+	    if(error == true || $scope.showMemberError == true || $scope.showCategoryError == true || $scope.showSummaryError == true){
 	    	alert("Please fill the required fields before submitting");
 	    	return false;
 	    }
 	    if(nomination.status != "Saved"){
 	    	if($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {})){
 	    		if(nomination.filekey == "" || nomination.filekey == undefined){
+	    		$scope.fileError = "Please upload file";
 	    		alert("Please upload the file");
 	    		return false;
 	    		}
@@ -482,12 +539,22 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	    }
 	    return true;
 	 }
+	 
+	 $scope.getConfirmation = function(msg){
+		var result = confirm(msg);
+		return result;		 
+	 }
 	   
 	  $scope.setClickedRow = function(index){  
 	     $scope.selectedRow = index;
 	  }
+
 	  $scope.hideothers = function(){		  
 		  angular.element('.collapse.in').collapse('hide');
 		  $window.scrollTo(0, 0);
+	  }
+	  
+	  $scope.reset = function(){
+		  angular.copy($scope.initnomination,$scope.nomination); 
 	  }
 });

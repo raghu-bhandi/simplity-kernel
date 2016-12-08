@@ -15,7 +15,7 @@
  			</childRecords>
  		</filter>
 	</actions>
-	<outputData>	
+	<outputData attachmentColumns="nominations.filekey">	
 		<outputRecords>
 			<outputRecord sheetName="nominations"/>
 			<outputRecord sheetName="members" parentSheetName="nominations" linkColumnInParentSheet="nominationId" linkColumnInThisSheet="nominationId"/>
