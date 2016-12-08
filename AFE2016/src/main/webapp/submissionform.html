@@ -134,37 +134,36 @@
 			<div class="row">
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[0]"
-						class="form-check-input"> Whether the entry criteria if
-						applicable has been complied with or not?
+						class="form-check-input"> I have uploaded my nomination under the right category 
 					</label>
 				</div>
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[1]"
-						class="form-check-input"> Whether the nomination has been restricted to 5 pages or not?
+						class="form-check-input"> The nomination has been restricted to 5 pages 
 					</label> 
 				</div>
 			</div>
 			<div class="row">
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[2]"
-						class="form-check-input"> Whether the details of team members have been correctly provided or not?
+						class="form-check-input"> The details of team members have been correctly provided
 					</label>
 				</div>
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[3]"
-						class="form-check-input"> Whether the number of team member is restricted as per the nomination criteria or not?
+						class="form-check-input"> The number of team members is restricted as per the nomination criteria 
 					</label>
 				</div>
 			</div>
 			<div class="row">
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[4]"
-						class="form-check-input"> Whether the individual contribution of the team members is provided or not?
+						class="form-check-input"> The individual contribution of the team members is provided 
 					</label>
 				</div>
 				<div class="form-check col-xs-6">
 					<label class="form-check-label"> <input type="checkbox" ng-model="nomination.checkbox[5]"
-						class="form-check-input"> Whether all necessary data validation has been completed or not?
+						class="form-check-input"> All necessary data validation has been completed 
 					</label>
 				</div>
 			</div>
@@ -173,7 +172,9 @@
 		<hr>
 		
 <div class="form-group">
-		<label for="uploadNomination">Upload Nomination</label> <input
+		<label for="uploadNomination">Upload Nomination</label>
+		<span style="color: red">{{ fileError }}</span>
+		 <input
 			type="file" ng-model-instant class="form-control-file" accept=".zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
 			id="uploadNomination" aria-describedby="fileHelp"
 			onchange="angular.element(this).scope().fileupload(this)"> <small

@@ -18,7 +18,7 @@
 }
 
 .table-fixed thead {
-	width: 97%;
+	width: 100%;
 }
 
 .table-fixed tbody {

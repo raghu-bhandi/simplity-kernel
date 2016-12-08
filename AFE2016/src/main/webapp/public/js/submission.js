@@ -32,6 +32,8 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 		 $scope.showMemberError = false;
 		 $scope.fileError = false;
 		 $scope.showCategoryError = false;
+		 $scope.showSummaryError = false;
+		 $scope.fileError = "";
 		 $scope.selectedRow = 0;
 		 $scope.minMembers = 0;
 		 $scope.maxMembers = 0;
@@ -94,7 +96,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	$scope.showSponsorError = false;
 	$scope.showMemberError = false;
 	$scope.contributionError = false;
+	$scope.showSummaryError = false;
 	$scope.memberMailError = "";
+	$scope.fileError = "";
 	$scope.showTitleError = false;
 	$scope.fileError = false;
 	$scope.showCategoryError = false;
@@ -370,7 +374,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 				var index = $scope.nomination.uploadfile.name.lastIndexOf(".");
 	    		if($scope.nomination.uploadfile.name.substring(index+1) != "zip" ){			
 	    			alert("Please upload zip files only");
-	    			$scope.fileError = true;
+	    			$scope.fileError = "Upload zip files only";
 	    			$scope.nomination.uploadfile = null;
 	    			$scope.nomination.filename = null;
 	    			$scope.$apply();
@@ -488,6 +492,8 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 		 $scope.sponsorError = "";
 		 $scope.showMemberError = false;
 		 $scope.showCategoryError = false;
+		 $scope.showSummaryError = false;
+		 $scope.fileError = "";
 		 if(nomination.nomination == "" || nomination.nomination == null){
 	    	$scope.showTitleError = true;
 	    	alert("Nomination title is required");	
@@ -497,6 +503,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	    	if(nomination.selectedCategory == "" || nomination.selectedCategory == null){
 	    		$scope.showCategoryError = true;
 	    	}
+	    	if(nomination.summary == "" || nomination.summary == null){
+	    		$scope.showSummaryError = true;
+	    	}	    	
 	    	if(nomination.sponsorMail == "" || nomination.sponsorMail == null){
 	    		$scope.sponsorError = "Enter Sponsor MailID";
 	    		error = true;
@@ -509,13 +518,14 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	    		$scope.showMemberError = true;
 	    	}    			
 	    }
-	    if(error == true || $scope.showMemberError == true || $scope.showCategoryError == true){
+	    if(error == true || $scope.showMemberError == true || $scope.showCategoryError == true || $scope.showSummaryError == true){
 	    	alert("Please fill the required fields before submitting");
 	    	return false;
 	    }
 	    if(nomination.status != "Saved"){
 	    	if($scope.nomination.uploadfile == undefined || angular.equals($scope.nomination.uploadfile, {})){
 	    		if(nomination.filekey == "" || nomination.filekey == undefined){
+	    		$scope.fileError = "Please upload file";
 	    		alert("Please upload the file");
 	    		return false;
 	    		}
