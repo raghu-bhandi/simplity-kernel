@@ -1,10 +1,10 @@
 <html>
 <body>
 <div>
-<p>Hi,</p>
+<p>Hi ${submitterNickname},</p>
 <p>&nbsp;</p>
 
-<p>This mail is to confirm your submission of a nomination under for the Awards for Excellence 206-17. Your nomination was successfully uploaded.</p>
+<p>This mail is to confirm your submission of a nomination under the category "${categoryname}" for the Awards for Excellence 206-17. Your nomination was successfully uploaded.</p>
 <p>Thank you and all the best!.</p>
 <p>&nbsp;</p>
 

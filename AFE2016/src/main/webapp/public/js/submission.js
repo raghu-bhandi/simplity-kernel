@@ -183,15 +183,14 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     		$scope.contributionError = true;
        	}
     	if($scope.addmember.employeeMail == "" || $scope.addmember.employeeMail == null){
-    		$scope.memberMailError = "Enter mailID";
+    		$scope.memberMailError = "Enter mail ID";
     		error = true;
     	}
     	if($scope.addmember.Name == ""){
-    		$scope.memberMailError = "Enter valid mailID";
+    		$scope.memberMailError = "Enter valid mail ID";
     		error = true;
     	}
     	if($scope.contributionError == true || error == true){
-    		alert("Please fill required fields");    			
     		return;
     	}    	
         var data = {};
@@ -460,7 +459,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 				 	if(value.designation===null){
 				 		return false;
 				 	}
-				 	if($scope.sponsorroles.indexOf(value.designation.replace(/\s/g,''))!=-1 ){
+				 	if($scope.sponsorroles.indexOf(value = value.designation.replace(/[^\w]/gi,''))!=-1 ){
 			 			return true;
 			 		 }
 			 		return false;

@@ -1,10 +1,10 @@
 <html>
 <body>
 <div>
-<p>Hi,</p>
+<p>Hi ${submitterNickname},</p>
 <p>&nbsp;</p>
 
-<p>Your nomination titled "${title}" for the AFE 2016 is ${status} ${prep} ${sponsorNickname}.</p>
+<p>We are happy to inform you that your nomination under the category "${categoryname}" for the Awards for Excellence 2016-17 has been approved by the Sponsor.</p>
 <p>&nbsp;</p>
 
 <p>Regards,</p>

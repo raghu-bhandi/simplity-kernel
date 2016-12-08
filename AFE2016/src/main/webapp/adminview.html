@@ -32,12 +32,11 @@
 					<td class="col-xs-2">{{x.selectedCategory}}</td>
 					<td class="col-xs-3">{{x.nomination}}</td>
 					<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
-					<td class="col-xs-2" ng-if="x.filekey != ''"><a
-						type="application/x-zip-compressed" href="javascript:void(0);"
+					<td class="col-xs-2" ng-if="x.filekey != ''">
+						<a href="javascript:void(0);"
 						ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
 					<td class="col-xs-2" ng-if="x.filekey == ''"></td>
 					<td class="col-xs-2">{{x.status}}</td>
-
 				</tr>
 			</tbody>
 		</table>
