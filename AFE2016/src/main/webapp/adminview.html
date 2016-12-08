@@ -1,17 +1,15 @@
-<div>
-	<div style="width: 98%">
-		<div class="row">
-			<h3 class="col-xs-3">Admin View</h3>
-			<div class="col-xs-8 ng-pristine ng-untouched ng-valid">
-				<input type="text" ng-model="filterrow"
-					style="margin-top: 20px; margin-bottom: 10px; width: 100%"
-					placeholder="Search filter">
-			</div>
-		</div>
-		<div ng-if="nominations.length == 0">
-			<p>There are no records to display</p>
-		</div>
-		<table class="table  table-fixed" ng-if="nominations.length > 0">
+<div style="width: 100%; padding: 10px 10px 10px 10px;">
+	<h3 style="display: inline;">Admin View</h3>
+	&nbsp;&nbsp;&nbsp;<i>(Select the row to view or edit)</i>
+	<input type="text" ng-model="filterrow"
+			style="margin-top: 20px;margin-left: 10px; margin-bottom: 10px; width: 50%"
+			placeholder="Search filter"/>
+	<hr>
+	<div ng-if="nominations.length == 0">
+		<p>There are no records to display</p>
+	</div>
+	<div id="parenttable">
+		<table class="table" ng-if="nominations.length > 0">
 			<thead>
 				<tr class="row" style="margin-right: 0; margin-left: 0"
 					ng-init="viewsubmission(nominations[0])">
@@ -23,24 +21,32 @@
 					<th class="col-xs-2">Status</th>
 				</tr>
 			</thead>
-			<tbody>
-				<tr ng-repeat="x in nominations | filter:filterrow" class="row"
+			<tbody ng-repeat="x in nominations | filter:filterrow">
+				<tr class="row accordion-toggle" data-toggle="collapse"
+					data-parent="#parenttable" href="#hidden{{x.nominationId}}"
+					aria-expanded="false" aria-controls="hidden{{x.nominationId}}"
 					ng-class="{'selected':$index == selectedRow}"
-					ng-click="setClickedRow($index);viewsubmission(x)"
+					ng-click="setClickedRow($index);viewsubmission(x);hideothers()"
 					style="cursor: pointer; margin-right: 0; margin-left: 0">
 					<td class="col-xs-1">{{$index+1}}</td>
 					<td class="col-xs-2">{{x.selectedCategory}}</td>
 					<td class="col-xs-3">{{x.nomination}}</td>
 					<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
-					<td class="col-xs-2" ng-if="x.filekey != ''">
-						<a href="javascript:void(0);"
+					<td class="col-xs-2" ng-if="x.filekey != ''"><a
+						href="javascript:void(0);"
 						ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
 					<td class="col-xs-2" ng-if="x.filekey == ''"></td>
 					<td class="col-xs-2">{{x.status}}</td>
+				</tr>
+				<tr>
+					<td colspan="9" class="hiddenRow" style="border-top: 0px;">
+						<div class="accordion-body collapse hidden{{x.nominationId}}"
+							id="hidden{{x.nominationId}}">
+							<div ng-include="'submissionform.html'"></div>
+						</div>
+					</td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
 </div>
-<div ng-if="nominations.length > 0"
-	ng-include="'submissionform.html'"></div>

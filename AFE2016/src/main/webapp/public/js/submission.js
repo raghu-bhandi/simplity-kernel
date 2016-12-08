@@ -343,7 +343,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 		 if(!angular.equals(nomination,$scope.nomination)){
 		 angular.copy(nomination,$scope.nomination);
 		 }
-		 if($scope.state != "admin"){
+		 if($scope.state == "view" || $scope.state == "sponsor"){
 		 $scope.changeformstatus(nomination);
 		 }
 	};
@@ -401,6 +401,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 		    		$scope.$apply();
 		    		if(status == "Submitted"){
 						window.location.href="#/view";
+						$window.scrollTo(0, 0);
 					}
 	    		});
     		});
@@ -421,6 +422,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
         			$scope.$apply();
         			if(status == "Submitted"){
     					window.location.href="#/view";
+    					$window.scrollTo(0, 0);
     				}
         	});
 				}
