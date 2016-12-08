@@ -207,10 +207,10 @@
     </script>
 <script type="text/ng-template" id="editmembers">
         <td class="col-xs-1">{{$index+1}}</td>
-        <td class="col-xs-2"><input class="form-control" type="text" ng-model="x.employeeMail"></td>
-        <td class="col-xs-1"><input class="form-control" type="text" ng-model="x.eNo"></td>
-        <td class="col-xs-2"><input class="form-control" type="text" ng-model="x.Name"></td>
-        <td class="col-xs-2"><input class="form-control" type="text" ng-model="x.Unit"></td>
+        <td class="col-xs-2">{{x.employeeMail}}</td>
+        <td class="col-xs-1">{{x.eNo}}</td>
+        <td class="col-xs-2">{{x.Name}}</td>
+        <td class="col-xs-2">{{x.Unit}}</td>
         <td class="col-xs-3"><input class="form-control" type="text" ng-model="x.contribution"></td>
         <td class="col-xs-1"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true" ng-click="disableform || savemember($index)"></span></td>
     </script>

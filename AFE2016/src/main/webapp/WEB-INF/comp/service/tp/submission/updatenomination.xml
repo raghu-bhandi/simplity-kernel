@@ -41,16 +41,17 @@
 		<save saveAction="modify" recordName="nomination.nomination"
 			actionName="modifyAction">
 			<childRecords>
-				<relatedRecord sheetName="members" recordName="nomination.members" />
+				<relatedRecord sheetName="members" recordName="nomination.members" replaceRows="true"/>
 			</childRecords>
 		</save>
-		<subService serviceName="submission.mailer"
-			executeOnCondition="email" />
+
 		<read recordName="nomination.nomination" outputSheetName="nominations">
 			<childRecords>
 				<relatedRecord sheetName="members" recordName="nomination.members"/>
 			</childRecords>
 		</read>
+		<!-- subService serviceName="submission.mailer"	executeOnCondition="email" /-->
+		
 	</actions>
 	<outputData attachmentColumns="nominations.filekey">
 		<outputRecords>
