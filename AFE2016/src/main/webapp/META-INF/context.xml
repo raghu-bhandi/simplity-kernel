@@ -1,13 +1,12 @@
 <Context>
  <Resource auth="Container"
-              driverClassName="com.microsoft.sqlserver.jdbc.SQLServerDriver"
+              driverClassName="org.h2.Driver"
               maxActive="300" 
               maxIdle="30"
               maxWait="10000"
               name="jdbc/nomination"
               type="javax.sql.DataSource" 
               username="sa" 
-              password="Infy1234"                  
-              url="jdbc:sqlserver://blrkecic03:63415;databaseName=NOMINATION"/>   
+              url="jdbc:h2:file:D:/temp/AFE2016/db/nomination;"/>   
  
 </Context>

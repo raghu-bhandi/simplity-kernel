@@ -11,6 +11,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.h2.engine.Session;
 import org.simplity.http.HttpAgent;
 
 import com.infosys.submission.util.AES;
@@ -34,6 +35,7 @@ public class LoginUser implements Filter {
 			try {
 				String loggedinUser = AES.decryptAES(token, "mcAX65PTadrrsKQ3");
 				HttpAgent.login(loggedinUser, null, httpreq.getSession(false));
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

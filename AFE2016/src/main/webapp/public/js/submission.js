@@ -16,7 +16,7 @@ app.config(function($routeProvider) {
         templateUrl : "logout.html"
     });
 });
-app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$filter) {	
+app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$filter) {
 	$http.get('public/js/data.json')
     .then(function(res){
     	$scope.categories = res.data;                
@@ -334,7 +334,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 			 selectednomination.email=true;
 			 selectednomination.status=status;
 			 Simplity.getResponse('submission.updatenomination',JSON.stringify(selectednomination),function(json){
-				 $scope.nominations[$scope.selectedRow] = json.nominations[0];
+				 angular.copy(json.nominations[0],$scope.nominations[$scope.selectedRow]);
 				 $scope.nomination = json.nominations[0];
 			 });
 			 return;
@@ -356,7 +356,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 					$scope.nomination.status = selectednomination.status;
 					if($scope.nomination == selectednomination)						
 						alert("Nomination details "+ status + " successfully!!!");
-					$scope.nominations[$scope.selectedRow] = json.nominations[0];
+					angular.copy(json.nominations[0],$scope.nominations[$scope.selectedRow]);
 					$scope.nomination = json.nominations[0];
 					$scope.changeformstatus($scope.nomination);
 		    		$scope.$apply();
@@ -370,7 +370,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     				$scope.nomination.status = selectednomination.status;
 					if($scope.nomination == selectednomination)						
 						alert("Nomination details "+ status + " successfully!!!");
-    				$scope.nominations[$scope.selectedRow] = json.nominations[0];
+					angular.copy(json.nominations[0],$scope.nominations[$scope.selectedRow]);
     				$scope.nomination = json.nominations[0];
     				$scope.changeformstatus($scope.nomination);
         			$scope.$apply();
@@ -485,5 +485,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	   
 	  $scope.setClickedRow = function(index){  
 	     $scope.selectedRow = index;
+	  }
+	  $scope.hideothers = function(){		  
+		  angular.element('.collapse.in').collapse('hide');
+		  $window.scrollTo(0, 0);
 	  }
 });
