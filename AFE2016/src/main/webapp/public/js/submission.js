@@ -164,10 +164,19 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     	$scope.minMembers = category.noOfMembers.min;
         $scope.maxMembers = category.noOfMembers.max;
         $scope.categoryNickname = category.categoryNickname;
-        $scope.nomination.members = $scope.nomination.members.slice(0,$scope.maxMembers); 
+        if($scope.nomination.members != undefined)
+        	$scope.nomination.members = $scope.nomination.members.slice(0,$scope.maxMembers); 
         if($scope.maxMembers <= 0){
         	$scope.showMembers = false;
         }
+        else{
+        	$scope.showMembers = true;
+        }
+        if($scope.nomination.members.length < $scope.maxMembers){
+        	$scope.enableplus = true;
+        }
+        else
+        	$scope.enableplus = false;
     }
     $scope.addrow = function () {
     	var error = false;
@@ -208,6 +217,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     };
     $scope.removerow = function (index) {
         $scope.nomination.members.splice(index, 1);
+        $scope.enableplus = true;
     };
     $scope.editmember = function (index) {
         $scope.chosen = index;
@@ -298,6 +308,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 				data.filesize=fileDetails.size;
 				Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
 					alert("Nomination details "+status+" successfully");
+					angular.copy($scope.initmember, $scope.addmember);
 					if(status == "Submitted"){
 						window.location.href="#/view";
 					}
@@ -317,6 +328,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
       		}
     		Simplity.getResponse('submission.newnomination',JSON.stringify(data),function(json){
 				alert("Nomination details "+status+" successfully");
+				angular.copy($scope.initmember, $scope.addmember);
 				if(status == "Submitted"){
 					window.location.href="#/view";
 				}
@@ -398,6 +410,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 					angular.copy(json.nominations[0],$scope.nominations[$scope.selectedRow]);
 					$scope.nomination = json.nominations[0];
 					$scope.changeformstatus($scope.nomination);
+					angular.copy($scope.initmember, $scope.addmember);
 		    		$scope.$apply();
 		    		if(status == "Submitted"){
 						window.location.href="#/view";
@@ -419,6 +432,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 					angular.copy(json.nominations[0],$scope.nominations[$scope.selectedRow]);
     				$scope.nomination = json.nominations[0];
     				$scope.changeformstatus($scope.nomination);
+    				angular.copy($scope.initmember, $scope.addmember);
         			$scope.$apply();
         			if(status == "Submitted"){
     					window.location.href="#/view";
@@ -559,5 +573,7 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	  
 	  $scope.reset = function(){
 		  angular.copy($scope.initnomination,$scope.nomination); 
+		  angular.copy($scope.initmember, $scope.addmember);
+		  angular.element("#uploadNomination").val('');
 	  }
 });

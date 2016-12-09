@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messages name="simplity" xmlns="http://www.simplity.org/schema">
+	<components>
+		<message messageType="error" name="simplity.executiveSummary" text="Executive Summary should be less than 1500 characters" />
+		<message messageType="error" name="simplity.nominationTitle" text="Nomination Title should be less than 45 characters" />
+		<message messageType="error" name="simplity.filename" text="File Name should be less than 10 characters" />
+	</components>
+</messages>

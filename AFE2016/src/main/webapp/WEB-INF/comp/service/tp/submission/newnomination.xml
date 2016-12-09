@@ -10,12 +10,12 @@
 <inputData attachmentFields="filekey">
 <inputFields>				
 	<inputField dataType="_text" name="filekey"/>
-	<inputField dataType="_text" name="filename"/>
+	<inputField dataType="fileName" name="filename"/>
 	<inputField dataType="_text" name="filetype"/>
 	<inputField dataType="_text" name="filesize"/>
 	<inputField dataType="_text" name="selectedCategory"/>
-	<inputField dataType="_text" name="summary"/>
-	<inputField dataType="_text" name="nomination"/>
+	<inputField dataType="executiveSummary" name="summary"/>
+	<inputField dataType="nominationTitle" name="nomination"/>
 	<inputField dataType="_text" name="sponsorMailNickname"/>
 	<inputField dataType="_text" name="sponsorMail"/>
 	<inputField dataType="_text" name="sponsorname"/>
