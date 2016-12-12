@@ -32,8 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.util.JsonUtil;
-import org.simplity.service.ServiceProtocol;
 
 /**
  * this is an example servlet to demonstrate how a project can use HttpAgent to
@@ -114,11 +112,10 @@ public class Serve extends HttpServlet {
 	private void reportError(HttpServletResponse resp, String msg)
 			throws IOException {
 		Tracer.trace(msg);
-		resp.setStatus(ServiceProtocol.STATUS_FAILED);
 		FormattedMessage message = new FormattedMessage("internalerror",
 				MessageType.ERROR, msg);
 		FormattedMessage[] messages = { message };
-		String response = JsonUtil.toJson(messages);
+		String response = HttpAgent.getResponseForError(messages);
 		resp.getWriter().write(response);
 	}
 }

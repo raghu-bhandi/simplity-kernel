@@ -63,6 +63,11 @@ public class FormattedMessage implements Jsonable {
 	public int rowNumber;
 
 	/**
+	 * run-time values that may have to be inserted into the message
+	 */
+	public String[] values;
+
+	/**
 	 * we require these three fields that can not be changed afterwards. Other
 	 * attributes can be optionally set
 	 *
@@ -108,6 +113,7 @@ public class FormattedMessage implements Jsonable {
 			this.name = msg.getQualifiedName();
 			this.messageType = msg.getMessageType();
 			this.text = msg.toString(params);
+			this.values = params;
 		}
 	}
 
@@ -151,6 +157,14 @@ public class FormattedMessage implements Jsonable {
 		}
 		if (this.rowNumber != 0) {
 			writer.key("rowNumber").value(this.rowNumber);
+		}
+		if (this.values != null) {
+			writer.key("values");
+			writer.array();
+			for (String val : this.values) {
+				writer.value(val);
+			}
+			writer.endArray();
 		}
 		writer.endObject();
 	}

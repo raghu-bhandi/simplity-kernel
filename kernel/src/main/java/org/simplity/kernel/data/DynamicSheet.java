@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -35,15 +35,16 @@ import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
 /**
- * represents a fields collection internally, but implements all methods of a data sheet.
- * This is to be used when you are likely to add/remove fields, and if used as a row of data, the order of the columns is not important.
+ * represents a fields collection internally, but implements all methods of a
+ * data sheet. This is to be used when you are likely to add/remove fields, and
+ * if used as a row of data, the order of the columns is not important.
  *
  * @author simplity.org
  *
  */
 public class DynamicSheet implements DataSheet {
 	private final Map<String, Value> fieldValues = new HashMap<String, Value>();
-	
+
 	@Override
 	public String[][] getRawData() {
 		int n = this.fieldValues.size();
@@ -117,7 +118,8 @@ public class DynamicSheet implements DataSheet {
 	}
 
 	@Override
-	public void setColumnValue(String columnName, int zeroBasedRowNumber, Value value) {
+	public void setColumnValue(String columnName, int zeroBasedRowNumber,
+			Value value) {
 		if (zeroBasedRowNumber != 0) {
 			return;
 		}
@@ -159,7 +161,8 @@ public class DynamicSheet implements DataSheet {
 
 	@Override
 	public void addRow(Value[] row) {
-		throw new ApplicationError("addRow() should not be called for SingleRowSheet");
+		throw new ApplicationError(
+				"addRow() should not be called for SingleRowSheet");
 
 	}
 
@@ -171,7 +174,8 @@ public class DynamicSheet implements DataSheet {
 	}
 
 	@Override
-	public void addColumn(String columnName, ValueType valueType, Value[] columnValues) {
+	public void addColumn(String columnName, ValueType valueType,
+			Value[] columnValues) {
 		if (columnValues != null) {
 			this.fieldValues.put(columnName, columnValues[0]);
 		}
@@ -189,7 +193,7 @@ public class DynamicSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.simplity.kernel.data.DataSheet#trace()
 	 */
 	@Override
@@ -202,7 +206,7 @@ public class DynamicSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.simplity.kernel.data.DataSheet#appendRows(org.simplity.kernel.data.
 	 * DataSheet)
@@ -215,7 +219,7 @@ public class DynamicSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.data.DataSheet#addColumn(java.lang.String,
 	 * org.simplity.kernel.value.Value)
 	 */
@@ -227,12 +231,14 @@ public class DynamicSheet implements DataSheet {
 	@Override
 	public int getColIdx(String columnName) {
 		int i = 0;
-		for(String colName : this.getColumnNames()){
-			if(colName.equals(columnName)){
+		for (String colName : this.getColumnNames()) {
+			if (colName.equals(columnName)) {
 				return i;
 			}
+			i++;
 		}
-		Tracer.trace("We did not find column " + columnName + " in this dynamic sheet");
+		Tracer.trace("We did not find column " + columnName
+				+ " in this dynamic sheet");
 		return -1;
 	}
 }

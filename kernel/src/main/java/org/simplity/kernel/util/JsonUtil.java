@@ -34,6 +34,7 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.json.Jsonable;
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
@@ -273,7 +274,9 @@ public class JsonUtil {
 
 			if (childSheets != null) {
 				for (HierarchicalSheet childSheet : childSheets) {
-					childSheet.toJson(writer, row);
+					if (childSheet != null) {
+						childSheet.toJson(writer, row);
+					}
 				}
 			}
 			writer.endObject();
@@ -745,5 +748,187 @@ public class JsonUtil {
 			result[i] = obj;
 		}
 		return result;
+	}
+
+	/**
+	 * get value of a qualified field name down the json object structure.
+	 *
+	 * @param fieldSelector
+	 *            can be of the form a.b.c.. where each part can be int (for
+	 *            array index) or name (for attribute).
+	 * @param json
+	 *            Should be either JSONObject or JSONArray
+	 * @return attribute value as per the tree. null if not found.
+	 * @throws ApplicationError
+	 *             in case the fieldName pattern and the JSONObject structure
+	 *             are not in synch.
+	 *
+	 */
+	public static Object getValue(String fieldSelector, Object json) {
+		return getValueWorker(fieldSelector, json, 0);
+	}
+
+	/**
+	 * common worker method to go down the object as per selector
+	 *
+	 * @param fieldSelector
+	 * @param json
+	 * @param option
+	 *            <pre>
+	 * 0 means do not create/add anything. return null if anything is not found
+	 * 1 means create, add and return a JSON object at the end if it is missing
+	 * 2 means create, add and return a JSON array at the end if it is missing
+	 * </pre>
+	 * @return
+	 */
+	private static Object getValueWorker(String fieldSelector, Object json,
+			int option) {
+		String[] parts = fieldSelector.split("\\.");
+		Object result = json;
+		int lastPartIdx = parts.length - 1;
+		try {
+			for (int i = 0; i < parts.length; i++) {
+				String part = parts[i];
+				part = part.trim();
+				if (part.isEmpty()) {
+					throw new ApplicationError(fieldSelector
+							+ " is malformed for a qualified json field name.");
+				}
+				int idx = parseIdx(part);
+				Object child = null;
+				if (idx == -1) {
+					child = ((JSONObject) result).opt(part);
+				} else {
+					child = ((JSONArray) result).opt(idx);
+				}
+				if (child != null) {
+					result = child;
+					continue;
+				}
+				if (option == 0) {
+					/*
+					 * no provisioning. get out of here.
+					 */
+					return null;
+				}
+				/*
+				 * we create an array or an object and add it to the object.
+				 */
+				boolean goForObject = option == 1;
+				if (i < lastPartIdx) {
+					/*
+					 * If next part is attribute, then we create an object, else
+					 * an array
+					 */
+					goForObject = parseIdx(parts[i + 1]) == -1;
+				}
+				if (goForObject) {
+					child = new JSONObject();
+				} else {
+					child = new JSONArray();
+				}
+				if (idx == -1) {
+					((JSONArray) json).put(idx, child);
+				} else {
+					((JSONObject) result).put(part, child);
+				}
+				result = child;
+			}
+			return result;
+		} catch (NumberFormatException e) {
+			throw new ApplicationError(fieldSelector
+					+ " is malformed for a qualified json field name.");
+		} catch (ClassCastException e) {
+			throw new ApplicationError(
+					fieldSelector
+					+ " is used as an output field name for a test case, but the output json does not have the right structure for this pattern of names and indexes");
+		} catch (ApplicationError e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ApplicationError(e,
+					"Error while getting value for field " + fieldSelector);
+		}
+	}
+
+	/**
+	 * set value to json as per selector, creating object/array on the path if
+	 * required. This is like creating a file with full path.
+	 *
+	 * @param fieldSelector
+	 * @param json
+	 * @param value
+	 */
+	public static void setValueWorker(String fieldSelector, Object json,
+			Object value) {
+		String attName = fieldSelector;
+		Object leafObject = json;
+		/*
+		 * assume that the value is to be added as an attribute, not an element
+		 * of array.
+		 */
+		int objIdx = -1;
+
+		int idx = fieldSelector.lastIndexOf('.');
+		if (idx != -1) {
+			attName = fieldSelector.substring(idx + 1);
+			String selector = fieldSelector.substring(0, idx);
+			objIdx = parseIdx(attName);
+			int option = objIdx == -1 ? 1 : 2;
+			leafObject = getValueWorker(selector, json, option);
+		}
+		if (objIdx == -1) {
+			((JSONObject) leafObject).put(attName, value);
+		} else {
+			((JSONArray) leafObject).put(objIdx, value);
+		}
+		return;
+	}
+
+	/**
+	 * parse string into int, or return -1;
+	 *
+	 * @param str
+	 * @return
+	 */
+	private static int parseIdx(String str) {
+		char c = str.charAt(0);
+		if (c >= '0' && c <= '9') {
+			return Integer.parseInt(str);
+		}
+		return -1;
+	}
+
+	/**
+	 * test
+	 *
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		String fieldName = "2.0 ";
+		JSONObject json = new JSONObject("{\"a\":[12,23,[\"12\"]]}");
+		Object obj = getValue(fieldName, json.get("a"));
+		System.out.println(obj);
+	}
+
+	/**
+	 * @param itemSelector
+	 * @param json
+	 * @return object as per selector. A new JSON Object is added and returned
+	 *         if the json does not have a value as per selector, adding as many
+	 *         object/array on the path if required
+	 */
+	public static Object getObjectValue(String itemSelector, JSONObject json) {
+		return getValueWorker(itemSelector, json, 1);
+	}
+
+	/**
+	 * @param itemSelector
+	 * @param json
+	 * @return object as per selector. A new JSON array is added and returned if
+	 *         the json does not have a value as per selector, adding as many
+	 *         object/array on the path if required
+	 */
+	public static Object getArrayValue(String itemSelector, JSONObject json) {
+		return getValueWorker(itemSelector, json, 2);
 	}
 }

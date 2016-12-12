@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,36 +19,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.kernel;
+
+package org.simplity.test;
+
+import org.simplity.json.JSONObject;
+import org.simplity.kernel.Tracer;
+import org.simplity.kernel.util.JsonUtil;
 
 /**
- * we believe these are better than the generic severity
- *
- * @author simplity.org
+ * Specification for a filed from out put of a service test to be added to teh
+ * test context
  *
  */
-public enum MessageType {
+public class ContextField {
 	/**
-	 * like order is created, records modified
+	 * source of this field in the output JSON e.g. customerName or
+	 * orders.lines[2].price
 	 */
-	SUCCESS,
+	String fieldSelector;
+	/**
+	 * name under which this is to be added to the context. This is the name
+	 * that the next service uses to retrieve this value. defaults to
+	 * fieldSelector
+	 */
+	String nameInContext;
 
 	/**
-	 * for information, nothing to celebrate, and nothing to worry
+	 * save/add this field value into context
+	 * 
+	 * @param json
+	 * @param ctx
 	 */
-	INFO,
-
-	/**
-	 * for attention, but there is no error
-	 */
-	WARNING,
-
-	/**
-	 * something is not right
-	 */
-	ERROR;
-	@Override
-	public String toString() {
-		return this.name().toLowerCase();
+	public void addToContext(JSONObject json, TestContext ctx) {
+		Object value = JsonUtil.getValue(this.fieldSelector, json);
+		if (value == null) {
+			Tracer.trace("Value for " + this.fieldSelector
+					+ " is null and hence is not added to the cntext");
+			return;
+		}
+		if (this.nameInContext == null) {
+			ctx.setValue(this.fieldSelector, value);
+		} else {
+			ctx.setValue(this.nameInContext, value);
+		}
 	}
 }

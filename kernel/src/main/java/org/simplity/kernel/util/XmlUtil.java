@@ -212,7 +212,7 @@ public class XmlUtil {
 	 */
 	public static void xmlToCollection(InputStream stream,
 			Map<String, Object> objects, String packageName)
-					throws XmlParseException {
+			throws XmlParseException {
 		Node node = getDocument(stream).getDocumentElement().getFirstChild();
 		while (node != null) {
 			if (node.getNodeName().equals(COMPONENTS) == false) {
@@ -764,7 +764,7 @@ public class XmlUtil {
 	 */
 	private static Object elementToSubclass(Element element, Field field,
 			Class<?> referenceType, Object parentObject)
-					throws XmlParseException {
+			throws XmlParseException {
 
 		Object thisObject = null;
 		String elementName = element.getTagName();
@@ -814,7 +814,7 @@ public class XmlUtil {
 	 */
 	private static List<?> elementToList(Element element, Field field,
 			Class<?> referenceType, Object parentObject)
-					throws XmlParseException {
+			throws XmlParseException {
 		List<Object> objects = new ArrayList<Object>();
 		Node child = element.getFirstChild();
 		while (child != null) {
@@ -907,8 +907,8 @@ public class XmlUtil {
 		try {
 			Document doc = DocumentBuilderFactory.newInstance()
 					.newDocumentBuilder().newDocument();
-			Element ele = doc.createElementNS("http://www.simplity.org/schema/"
-					+ eleName, eleName);
+			Element ele = doc.createElementNS("http://www.simplity.org/schema",
+					eleName);
 			objectToEle(object, doc, ele);
 			doc.appendChild(ele);
 			DOMSource source = new DOMSource(doc);

@@ -204,14 +204,14 @@ public class Save extends DbAction {
 		for (RelatedRecord rr : this.childRecords) {
 			Record record = ComponentManager.getRecord(rr.recordName);
 			DataSheet relatedSheet = ctx.getDataSheet(rr.sheetName);
-			if (relatedSheet == null || relatedSheet.length() == 0) {
-				Tracer.trace("Related record " + rr.recordName
-						+ " not saved as there is no data in sheet "
-						+ rr.sheetName);
-				continue;
-			}
 			if (rr.replaceRows) {
 				nbr += record.deleteWithParent(ctx, driver, userId);
+				if (relatedSheet == null || relatedSheet.length() == 0) {
+					Tracer.trace("Rows in record "
+							+ rr.recordName
+							+ " deleted, as there were no rows to replace them.");
+					continue;
+				}
 				nbr += record.insertWithParent(relatedSheet, ctx, driver,
 						userId);
 				Tracer.trace("Rows in record " + rr.recordName
@@ -220,6 +220,12 @@ public class Save extends DbAction {
 				continue;
 			}
 
+			if (relatedSheet == null || relatedSheet.length() == 0) {
+				Tracer.trace("Related record " + rr.recordName
+						+ " not saved as there is no data in sheet "
+						+ rr.sheetName);
+				continue;
+			}
 			Tracer.trace("Saving children is a noble cause!! Going to save child record "
 					+ rr.recordName + " for action = " + action);
 			if (action == SaveActionType.ADD) {

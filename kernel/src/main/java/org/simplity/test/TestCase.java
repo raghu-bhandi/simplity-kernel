@@ -24,8 +24,10 @@ package org.simplity.test;
 
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
-import org.simplity.json.JSONWriter;
+import org.simplity.kernel.comp.Component;
+import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.service.ServiceProtocol;
 
 /**
  * Represents one test case for a service with one specific input and expected
@@ -34,11 +36,21 @@ import org.simplity.kernel.comp.ValidationContext;
  * @author simplity.org
  *
  */
-public class TestCase {
+public class TestCase implements Component {
 	/**
 	 * unique name given to this test case.
 	 */
 	String testCaseName;
+
+	/**
+	 * unique name given to this test case.
+	 */
+	String moduleName;
+
+	/**
+	 * service to be tested
+	 */
+	String serviceName;
 
 	/**
 	 * description for documentation
@@ -50,16 +62,18 @@ public class TestCase {
 	 * ready string that is to be provided as request pay-load to the service.
 	 * If this is specified, fields ad sheets are not relevant and are ignored
 	 */
-	String inputDataAsString;
+	String inputJson;
 	/**
-	 * input fields with which the service is to be requested
+	 * you can override elements of the JSON or add to it using fields at any
+	 * level
 	 */
-	Field[] inputFields;
-	/**
-	 * input data sheets
-	 */
-	Sheet[] inputSheets;
+	InputField[] inputFields;
 
+	/**
+	 * Specify a qualified attribute to be used to identify a specific item in
+	 * the JSON. Fields inside this item are relative to this item
+	 */
+	InputItem[] inputItems;
 	/*
 	 * output meant for assertions
 	 */
@@ -67,25 +81,30 @@ public class TestCase {
 	/**
 	 * if you want to specify exactly the fields/sheets expected as in the
 	 * pay-load format(josn). We compare the josn elements, and not just a
-	 * string comparison to take care of white-space issues
+	 * string comparison to take care of white-space and sequence/order issues
 	 */
-	String outputDataAsString;
+	String outputJson;
 
 	/**
 	 * number of errors expected. non-zero implies that we expect this request
-	 * to fail, and hence output data expectations are irrelevant. Also, in case
-	 * expectedMessageNames are specified, ensure that this number does not
-	 * contradict them.
+	 * to fail, and hence output data expectations are irrelevant.
 	 */
-	int nbrErrorsExpected;
+	boolean testForFailure;
 	/**
-	 * expected output fields that need assertions
+	 * assertion on fields (with primitive values)
 	 */
-	Field[] outputFields;
+	OutputField[] outputFields;
 	/**
-	 * expected output sheets that need assertions
+	 * assertions on arrays/lists
 	 */
-	Sheet[] outputSheets;
+	OutputList[] outputLists;
+
+	/**
+	 * assertions on items/objects (which in turn contain fields/lists)
+	 */
+	OutputItem[] outputItems;
+
+	ContextField[] fieldsToBeAddedToContext;
 
 	/**
 	 * @param output
@@ -93,44 +112,40 @@ public class TestCase {
 	 *            messages or a response json
 	 * @return null if it compares well. Error message in case of any trouble
 	 */
-	String compareOutput(String output) {
-		int nbrErrors = 0;
-		if (output.charAt(0) == '[') {
-			JSONArray arr = new JSONArray(output);
-			nbrErrors = arr.length();
+	String processOutput(String output, TestContext ctx) {
+		JSONObject json = new JSONObject(output);
+		if (this.fieldsToBeAddedToContext != null) {
+			for (ContextField field : this.fieldsToBeAddedToContext) {
+				field.addToContext(json, ctx);
+			}
 		}
+
+		int nbrErrors = this.countErrors(json);
 		if (nbrErrors > 0) {
 			/*
 			 * service failed
 			 */
-			if (this.nbrErrorsExpected == nbrErrors) {
+			if (this.testForFailure) {
 				/*
 				 * test succeeded
 				 */
 				return null;
 			}
-			if (this.nbrErrorsExpected == 0) {
-				return nbrErrors
-						+ " errors found while a successfull request is expected";
-			}
-			return nbrErrors + " errors found while expecting "
-					+ this.nbrErrorsExpected + " errors.";
+			return nbrErrors
+					+ " errors found while a successfull request is expected";
 		}
 		/*
 		 * service succeeded.
 		 */
-
-		if (this.nbrErrorsExpected > 0) {
-			return "No errors found while expecting " + this.nbrErrorsExpected
-					+ " errors.";
+		if (this.testForFailure) {
+			return "Service succeeded while we expected it to fail.";
 		}
 
 		/*
 		 * are we expecting a specific json?
 		 */
-		JSONObject json = new JSONObject(output);
-		if (this.outputDataAsString != null) {
-			JSONObject expected = new JSONObject(this.outputDataAsString);
+		if (this.outputJson != null) {
+			JSONObject expected = new JSONObject(this.outputJson);
 			if (json.similar(expected)) {
 				return null;
 			}
@@ -141,77 +156,54 @@ public class TestCase {
 		 * what fields are we expecting?
 		 */
 		if (this.outputFields != null) {
-			for (Field field : this.outputFields) {
-				Object val = json.opt(field.fieldName);
-				if (val == null) {
-					return "Response did not contain an expected field named "
-							+ field.fieldName;
-				}
-				if (val.toString().equals(field.fieldValue) == false) {
-					return "Expected a value of " + field.fieldValue
-							+ " for field " + field.fieldName + " but we got "
-							+ val;
+			for (OutputField field : this.outputFields) {
+				String resp = field.match(json, ctx);
+				if (resp != null) {
+					return resp;
 				}
 			}
 		}
 
 		/*
-		 * sheets
+		 * items
 		 */
-		if (this.outputSheets != null) {
-			return this.matchSheets(json);
-		}
-
-		return null;
-	}
-
-	private String matchSheets(JSONObject json) {
-		for (Sheet sheet : this.outputSheets) {
-			Object val = json.opt(sheet.sheetName);
-			if (val == null) {
-				return "Response did not contain an expected data sheet named "
-						+ sheet.sheetName;
-			}
-			JSONArray arr = null;
-			if (val instanceof JSONArray) {
-				arr = (JSONArray) val;
-			} else {
-				if (val instanceof JSONObject == false) {
-					return "Expected a data sheet named " + sheet.sheetName
-							+ " but we found a non-object non-array of " + val;
+		if (this.outputItems != null) {
+			for (OutputItem item : this.outputItems) {
+				String resp = item.match(json, ctx);
+				if (resp != null) {
+					return resp;
 				}
-				arr = new JSONArray();
-				arr.put(val);
-			}
-			String msg = sheet.match(arr);
-			if (msg != null) {
-				return msg;
 			}
 		}
+
+		if (this.outputLists != null) {
+			for (OutputList list : this.outputLists) {
+				String resp = list.match(json, ctx);
+				if (resp != null) {
+					return resp;
+				}
+			}
+		}
+
 		return null;
 	}
 
 	/**
-	 * @return json(payload)
+	 * @param json
+	 * @return
 	 */
-	String getInput() {
-		if (this.inputDataAsString != null) {
-			return this.inputDataAsString;
-		}
-		JSONWriter writer = new JSONWriter();
-		writer.object();
-		if (this.inputFields != null) {
-			for (Field field : this.inputFields) {
-				field.toJson(writer);
+	private int countErrors(JSONObject json) {
+		Object obj = json.opt(ServiceProtocol.MESSAGES);
+		JSONArray msgs = (JSONArray) obj;
+		int nbrMsgs = msgs.length();
+		int nbrErrors = 0;
+		for (int i = 0; i < nbrMsgs; i++) {
+			if (msgs.getJSONObject(i).optString("messageType").toUpperCase()
+					.equals("error")) {
+				nbrErrors++;
 			}
 		}
-		if (this.inputSheets != null) {
-			for (Sheet sheet : this.inputSheets) {
-				sheet.writeToJson(writer);
-			}
-		}
-		writer.endObject();
-		return writer.toString();
+		return nbrErrors;
 	}
 
 	/**
@@ -220,70 +212,132 @@ public class TestCase {
 	 * @param vtx
 	 * @return number of errors detected
 	 */
+	@Override
 	@SuppressWarnings("unused")
 	public int validate(ValidationContext vtx) {
 		int nbr = 0;
-		if (this.inputDataAsString != null) {
+		if (this.inputJson != null) {
 			try {
-				new JSONObject(this.inputDataAsString);
+				/*
+				 * reason for us to put suppressWarning annotation
+				 */
+				new JSONObject(this.inputJson);
 			} catch (Exception e) {
 				vtx.addError("inputPayload is not a valid json\n"
-						+ this.inputDataAsString);
+						+ this.inputJson);
 				nbr++;
+			}
+		}
+		if (this.outputJson != null) {
+			try {
+				new JSONObject(this.outputJson);
+			} catch (Exception e) {
+				vtx.addError("inputPayload is not a valid json\n"
+						+ this.outputJson);
+				nbr++;
+			}
+			if (this.outputFields != null || this.outputItems != null
+					|| this.outputLists != null || this.testForFailure) {
+				vtx.addError("outputJson is specified, and hence other assertions on output are not relevant.");
+				nbr++;
+			}
+			return nbr;
+		}
+		if (this.outputFields != null) {
+			for (OutputField field : this.outputFields) {
+				nbr += field.validate(vtx);
+			}
+		}
+		if (this.outputItems != null) {
+			for (OutputItem item : this.outputItems) {
+				nbr += item.validate(vtx);
+			}
+		}
+		if (this.outputLists != null) {
+			for (OutputList list : this.outputLists) {
+				nbr += list.validate(vtx);
 			}
 		}
 		if (this.inputFields != null) {
-			if (this.inputDataAsString != null) {
-				vtx.addError("inputPayload is specified, and hence inputFields is not relavant");
-				nbr++;
-			}
-			for (Field field : this.inputFields) {
-				nbr += field.validate(vtx, true);
+			for (InputField field : this.inputFields) {
+				nbr += field.validate(vtx);
 			}
 		}
-		if (this.inputSheets != null) {
-			if (this.inputDataAsString != null) {
-				vtx.addError("inputPayload is specified, and hence inpuSheets is not relavant");
-				nbr++;
-			}
-			for (Sheet sheet : this.inputSheets) {
-				nbr += sheet.validate(vtx);
-			}
-
-		}
-		if (this.outputDataAsString != null) {
-			try {
-				new JSONObject(this.outputDataAsString);
-			} catch (Exception e) {
-				vtx.addError("inputPayload is not a valid json\n"
-						+ this.inputDataAsString);
-				nbr++;
-			}
-		}
-		if (this.nbrErrorsExpected > 0) {
-			if (this.outputDataAsString != null) {
-				vtx.addError("inputPayload is not relevant once nbrErrorExpected is specified");
-				nbr++;
-			}
-		}
-		if (this.outputFields != null) {
-			if (this.outputDataAsString != null) {
-				vtx.addError("outputFields is not relevant once nbrErrorExpected is specified");
-				nbr++;
-			}
-			for (Field field : this.outputFields) {
-				nbr += field.validate(vtx, false);
-			}
-		}
-		if (this.outputSheets != null) {
-			if (this.outputDataAsString != null) {
-				vtx.addError("outputSheets is not relevant once nbrErrorExpected is specified");
-				nbr++;
-			}
-			for (Sheet sheet : this.outputSheets) {
-				nbr += sheet.validate(vtx);
+		if (this.inputItems != null) {
+			for (InputItem item : this.inputItems) {
+				nbr += item.validate(vtx);
 			}
 		}
 		return nbr;
+	}
+
+	/**
+	 * @return
+	 */
+	String getInput(TestContext ctx) {
+		if (this.inputFields == null && this.inputItems == null) {
+			return this.inputJson;
+		}
+		JSONObject json;
+		if (this.inputJson == null) {
+			json = new JSONObject();
+		} else {
+			json = new JSONObject(this.inputJson);
+		}
+		if (this.inputItems != null) {
+			for (InputItem item : this.inputItems) {
+				item.setInputValues(json, ctx);
+			}
+		}
+		if (this.inputFields != null) {
+			for (InputField field : this.inputFields) {
+				field.setInputValue(json, ctx);
+			}
+		}
+		return json.toString();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.simplity.kernel.comp.Component#getSimpleName()
+	 */
+	@Override
+	public String getSimpleName() {
+		return this.testCaseName;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.simplity.kernel.comp.Component#getQualifiedName()
+	 */
+	@Override
+	public String getQualifiedName() {
+		if (this.moduleName == null) {
+			return this.testCaseName;
+		}
+		return this.moduleName + '.' + this.testCaseName;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.simplity.kernel.comp.Component#getReady()
+	 */
+	@Override
+	public void getReady() {
+		// This component is not saved and re-used in memory. Hence no
+		// preparation on load.
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.simplity.kernel.comp.Component#getComponentType()
+	 */
+	@Override
+	public ComponentType getComponentType() {
+		return ComponentType.TEST_CASE;
 	}
 }

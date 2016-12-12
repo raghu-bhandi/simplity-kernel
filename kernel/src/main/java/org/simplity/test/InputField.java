@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,62 +19,62 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.tp;
 
-import org.simplity.kernel.comp.ComponentType;
+package org.simplity.test;
+
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.util.TextUtil;
+import org.simplity.kernel.util.JsonUtil;
 
 /**
- * convenient class to work with related records as part of record based action.
+ * represents a field to be provided as input to a service
  *
  * @author simplity.org
  *
  */
-public class RelatedRecord {
-
-	String recordName;
-	String sheetName;
+public class InputField {
 	/**
-	 * child rows can either be saved individually, or we can insert new rows
-	 * after deleting existing rows
+	 * field name. qualified name is relative to its parent.
 	 */
-	boolean replaceRows;
-
+	String fieldSelector;
 	/**
-	 * default constructor
+	 * field value. $variableName to get value from test context
 	 */
-	public RelatedRecord() {
-
-	}
+	String fieldValue;
 
 	/**
-	 * constructor with record name and sheet name
-	 * 
-	 * @param recordName
-	 * @param sheetName
-	 */
-	public RelatedRecord(String recordName, String sheetName) {
-		this.recordName = recordName;
-		this.sheetName = sheetName;
-	}
-
-	void getReady() {
-		if (this.sheetName == null) {
-			this.sheetName = TextUtil.getSimpleName(this.recordName);
-		}
-	}
-
-	/**
-	 * @param ctx
+	 *
+	 * @param vtx
 	 * @return number of errors added
 	 */
-	public int validate(ValidationContext ctx) {
-		if (this.recordName == null) {
-			ctx.addError("Record name is required for save action");
-			return 1;
+	int validate(ValidationContext vtx) {
+		int nbr = 0;
+		if (this.fieldSelector == null) {
+			vtx.addError("fieldSelector is a requried attribute for a test field");
+			nbr++;
 		}
-		ctx.addReference(ComponentType.REC, this.recordName);
-		return 0;
+		if (this.fieldValue == null) {
+			vtx.addError("fieldValue is required for an input field");
+			nbr++;
+		}
+		return nbr;
+	}
+
+	/**
+	 * @param json
+	 *            json array or object to which this field is to be assigned to
+	 * @param ctx
+	 */
+	public void setInputValue(Object json, TestContext ctx) {
+		if (this.fieldValue == null) {
+			Tracer.trace(this.fieldSelector
+					+ " has no value, and hence is not added to the input");
+			return;
+		}
+		Object value = this.fieldValue;
+		if (this.fieldValue.charAt(0) == '$') {
+			value = ctx.getValue(this.fieldValue.substring(1));
+		}
+		JsonUtil.setValueWorker(this.fieldSelector, json, value);
 	}
 }

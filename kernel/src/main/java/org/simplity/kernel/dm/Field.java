@@ -22,7 +22,6 @@
  */
 package org.simplity.kernel.dm;
 
-import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -301,16 +300,16 @@ public class Field {
 			if (vt != ValueType.TEXT && vt != ValueType.INTEGER
 					&& vt != ValueType.DECIMAL) {
 				validationErrors
-						.add(new FormattedMessage(Messages.INVALID_VALUE,
-								recordName, this.name, null, 0,
-								" inList contition is valid for numeric and text fields only "));
+				.add(new FormattedMessage(Messages.INVALID_VALUE,
+						recordName, this.name, null, 0,
+						" inList contition is valid for numeric and text fields only "));
 				return 0;
 			}
 			Value[] vals = Value.parse(textValue.split(","), vt);
 			if (vals == null) {
 				validationErrors
-						.add(new FormattedMessage(Messages.INVALID_VALUE,
-								recordName, this.name, null, 0));
+				.add(new FormattedMessage(Messages.INVALID_VALUE,
+						recordName, this.name, null, 0));
 				return 0;
 			}
 			extratedFields.setValue(this.name, Value.newTextValue(textValue));
@@ -320,7 +319,7 @@ public class Field {
 		/*
 		 * filter field need not conform to data-type but it should be of the
 		 * same value type
-		 * 
+		 *
 		 * Special case of in list. We validate it here, but except if it is
 		 * IN_LIST operator
 		 */
@@ -930,79 +929,4 @@ public class Field {
 		return this.fieldType != FieldType.RECORD
 				&& this.fieldType != FieldType.RECORD_ARRAY;
 	}
-
-	/**
-	 * get a default data type for the sql type
-	 *
-	 * @param sqlTypeInt
-	 * @param sqlTypeText
-	 *
-	 * @param nbrDecimals
-	 */
-	public void setDataTypeBasedOnSqlType(int sqlTypeInt, String sqlTypeText,
-			int nbrDecimals) {
-		this.sqlTypeName = sqlTypeText;
-		if (nbrDecimals > 0) {
-			this.dataType = ValueType.DECIMAL.getDefaultDataType();
-			return;
-		}
-		switch (sqlTypeInt) {
-		case Types.BIGINT:
-		case Types.INTEGER:
-			/*
-			 * numeric with nbrDecimals zero is landing here
-			 */
-		case Types.NUMERIC:
-		case Types.ROWID:
-		case Types.TINYINT:
-			this.dataType = ValueType.INTEGER.getDefaultDataType();
-			return;
-
-		case Types.DECIMAL:
-		case Types.DOUBLE:
-		case Types.FLOAT:
-		case Types.REAL:
-			this.dataType = ValueType.DECIMAL.getDefaultDataType();
-			return;
-
-		case Types.DATE:
-		case Types.TIME:
-		case Types.TIMESTAMP:
-			this.dataType = ValueType.DATE.getDefaultDataType();
-			return;
-
-		case Types.BOOLEAN:
-		case Types.BIT:
-			this.dataType = ValueType.BOOLEAN.getDefaultDataType();
-			return;
-
-		case Types.CHAR:
-		case Types.LONGNVARCHAR:
-		case Types.LONGVARCHAR:
-		case Types.NCHAR:
-		case Types.NVARCHAR:
-		case Types.VARCHAR:
-			this.dataType = ValueType.TEXT.getDefaultDataType();
-			return;
-
-		case Types.BLOB:
-			this.dataType = ValueType.BLOB.getDefaultDataType();
-			return;
-
-		case Types.CLOB:
-		case Types.NCLOB:
-			this.dataType = ValueType.CLOB.getDefaultDataType();
-			return;
-
-		default:
-			Tracer.trace("we do not support SqlType " + sqlTypeText
-					+ " for a column in a table.");
-			/*
-			 * we set the data type to te sql type so that the user gets an
-			 * error, or gets an opportunity to define it
-			 */
-			this.dataType = sqlTypeText;
-		}
-	}
-
 }

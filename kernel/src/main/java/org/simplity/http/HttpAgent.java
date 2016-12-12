@@ -76,21 +76,41 @@ public class HttpAgent {
 	private static final String TRACE = "trace";
 
 	private static final Logger myLogger = Logger.getLogger(TRACE);
-	private static final FormattedMessage INTERNAL_ERROR = new FormattedMessage(
+	/**
+	 * message to be sent to client if there is any internal error
+	 */
+	public static final FormattedMessage INTERNAL_ERROR = new FormattedMessage(
 			"internalError",
 			MessageType.ERROR,
 			"We are sorry. There was an internal error on server. Support team has been notified.");
-	private static final FormattedMessage NO_LOGIN = new FormattedMessage(
+	/**
+	 * message to be sent to client if this request requires a login and the
+	 * user has not logged in
+	 */
+	public static final FormattedMessage NO_LOGIN = new FormattedMessage(
 			"notLoggedIn",
 			MessageType.ERROR,
 			"You are not logged into the server, or server may have logged-you out as a safety measure after a period of no activity.");
-	private static final FormattedMessage DATA_ERROR = new FormattedMessage(
+	/**
+	 * message to be sent to client if data text was not in order.
+	 */
+	public static final FormattedMessage DATA_ERROR = new FormattedMessage(
 			"invalidDataFormat",
 			MessageType.ERROR,
 			"Data text sent from client is not formatted properly. Unable to extract data from the text.");
-	private static final FormattedMessage NO_SERVICE = new FormattedMessage(
+	/**
+	 * message to be used when client has not specified a service
+	 */
+	public static final FormattedMessage NO_SERVICE = new FormattedMessage(
 			"noService", MessageType.ERROR,
 			"No service name was specified for this request.");
+
+	/**
+	 * message to be used when client's request for login has failed
+	 */
+	public static final FormattedMessage LOGIN_FAILED = new FormattedMessage(
+			"loginFailed", MessageType.ERROR,
+			"Invalid Credentials. Login faied.");
 
 	/**
 	 * parameter name with which userId is to be saved in session. made this
@@ -100,7 +120,10 @@ public class HttpAgent {
 	 */
 	public static final String SESSION_NAME_FOR_USER_ID = "_userIdInSession";
 
-	private static final String SESSION_NAME_FOR_MAP = "userSessionMap";
+	/**
+	 * name with session fields for the logged-in users are saved in a Map
+	 */
+	public static final String SESSION_NAME_FOR_MAP = "_userSessionMap";
 	static final String CACHED_TRACES = "CACHED_TRACES";
 
 	/**
@@ -159,7 +182,6 @@ public class HttpAgent {
 		Tracer.startAccumulation();
 		Tracer.trace("Request received for service " + serviceName);
 		FormattedMessage message = null;
-		int errorStatus = ServiceProtocol.STATUS_FAILED;
 		/*
 		 * let us earnestly try to serve now :-) this do{} is not a loop, but a
 		 * block that helps in handling errors in an elegant way
@@ -174,7 +196,6 @@ public class HttpAgent {
 				ServiceData inData = createServiceData(session);
 				if (inData == null) {
 					message = NO_LOGIN;
-					errorStatus = ServiceProtocol.STATUS_NO_LOGIN;
 					break;
 				}
 				userId = inData.getUserId();
@@ -228,37 +249,35 @@ public class HttpAgent {
 
 		elapsed = new Date().getTime() - startedAt;
 		resp.setHeader(ServiceProtocol.SERVICE_EXECUTION_TIME, elapsed + "");
+		resp.setContentType("text/json");
 		String response = null;
+		FormattedMessage[] messages = null;
 		if (outData == null) {
+			if (message == null) {
+				message = INTERNAL_ERROR;
+			}
 			/*
 			 * we got error
 			 */
-			Tracer.trace("Error on web teir : "
-					+ (message == null ? "Unknow error" : message.text));
-			FormattedMessage[] messages = { message };
-			response = JsonUtil.toJson(messages);
-			resp.setStatus(errorStatus);
+			Tracer.trace("Error on web teir : " + message.text);
+			messages = new FormattedMessage[1];
+			messages[0] = message;
+			response = getResponseForError(messages);
+		} else if (outData.hasErrors()) {
+			Tracer.trace("Service returned with errors");
+			response = getResponseForError(outData.getMessages());
 		} else {
-			if (outData.hasErrors()) {
-				Tracer.trace("Service returned with errors");
-				resp.setStatus(ServiceProtocol.STATUS_FAILED);
-				response = JsonUtil.toJson(outData.getMessages());
-			} else {
-				/*
-				 * all OK
-				 */
-				resp.setStatus(ServiceProtocol.STATUS_OK);
-				response = outData.getPayLoad();
-				Tracer.trace("Service has no errors and has "
-						+ (response == null ? "no " : (response.length())
-								+ " chars ") + " payload");
-			}
+			/*
+			 * all OK
+			 */
+			response = outData.getPayLoad();
+			Tracer.trace("Service has no errors and has "
+					+ (response == null ? "no " : (response.length())
+							+ " chars ") + " payload");
 		}
-		if (response != null) {
-			ServletOutputStream out = resp.getOutputStream();
-			out.print(response);
-			out.close();
-		}
+		ServletOutputStream out = resp.getOutputStream();
+		out.print(response);
+		out.close();
 		String trace = Tracer.stopAccumulation();
 		if (tracesToBeCached) {
 			cacheTraces(session, trace);
@@ -266,6 +285,23 @@ public class HttpAgent {
 		String log = TAG + startedAt + ELAPSED + elapsed + SERVICE
 				+ serviceName + USER + userId + CLOSE + trace + TAG_CLOSE;
 		myLogger.info(log);
+	}
+
+	/**
+	 * get the JSON to be sent back to client in case of errors
+	 *
+	 * @param messages
+	 * @return JSON string for teh supplied errors
+	 */
+	public static String getResponseForError(FormattedMessage[] messages) {
+		JSONWriter writer = new JSONWriter();
+		writer.object();
+		writer.key(ServiceProtocol.REQUEST_STATUS);
+		writer.value(ServiceProtocol.STATUS_ERROR);
+		writer.key(ServiceProtocol.MESSAGES);
+		JsonUtil.addObject(writer, messages);
+		writer.endObject();
+		return writer.toString();
 	}
 
 	/**
@@ -455,7 +491,7 @@ public class HttpAgent {
 
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-		.getAttribute(SESSION_NAME_FOR_MAP);
+				.getAttribute(SESSION_NAME_FOR_MAP);
 		if (sessionData == null) {
 			throw new ApplicationError(
 					"Unexpected situation. UserId is located in session, but not map");
@@ -493,7 +529,7 @@ public class HttpAgent {
 	private static void setSessionData(HttpSession session, ServiceData data) {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-		.getAttribute(SESSION_NAME_FOR_MAP);
+				.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
 			Tracer.trace("Unexpected situation. setSession invoked with no active session. Action ignored");

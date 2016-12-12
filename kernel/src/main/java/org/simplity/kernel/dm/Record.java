@@ -56,6 +56,7 @@ import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.data.SingleRowSheet;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dt.DataType;
+import org.simplity.kernel.dt.DataTypeSuggester;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.BooleanValue;
@@ -90,7 +91,7 @@ public class Record implements Component {
 	/**
 	 * header row of returned sheet when there are two columns
 	 */
-	private static String[] DOUBLE_HEADER = { "id", "value" };
+	private static String[] DOUBLE_HEADER = { "key", "value" };
 	private static final char COMMA = ',';
 	private static final char PARAM = '?';
 	private static final char EQUAL = '=';
@@ -341,6 +342,9 @@ public class Record implements Component {
 	 */
 	@Override
 	public String getQualifiedName() {
+		if (this.moduleName == null) {
+			return this.name;
+		}
 		return this.moduleName + '.' + this.name;
 	}
 
@@ -1466,13 +1470,16 @@ public class Record implements Component {
 	 * @param parentData
 	 *            rows for parent
 	 * @param driver
-	 * @return sheet that contains rows from this record for the parent rows
+	 * @param sheetName
+	 * @param cascadeFilter
+	 * @param ctx
 	 */
-	public DataSheet filterForParent(DataSheet parentData, DbDriver driver) {
+	public void filterForParents(DataSheet parentData, DbDriver driver,
+			String sheetName, boolean cascadeFilter, ServiceContext ctx) {
 		DataSheet result = this.createSheet(false, false);
 		int n = parentData.length();
 		if (n == 0) {
-			return result;
+			return;
 		}
 		String keyName = this.parentKeyField.referredField;
 		StringBuilder sbf = new StringBuilder(this.filterSql);
@@ -1498,7 +1505,35 @@ public class Record implements Component {
 			sbf.append(')');
 		}
 		driver.extractFromSql(sbf.toString(), values, result, false);
-		return result;
+		String sn = sheetName;
+		if (sn == null) {
+			sn = this.getDefaultSheetName();
+		}
+		ctx.putDataSheet(sn, result);
+
+		if (result.length() > 0 && cascadeFilter) {
+			this.filterChildRecords(result, driver, ctx);
+		}
+	}
+
+	/**
+	 * if this record has child records, filter them based on this parent sheet
+	 *
+	 * @param parentSheet
+	 *            sheet that has rows for this record
+	 * @param driver
+	 * @param ctx
+	 */
+	public void filterChildRecords(DataSheet parentSheet, DbDriver driver,
+			ServiceContext ctx) {
+		if (this.childrenToBeRead == null) {
+			return;
+		}
+		for (String childName : this.childrenToBeRead) {
+			Record cr = ComponentManager.getRecord(childName);
+			cr.filterForParents(parentSheet, driver, cr.getDefaultSheetName(),
+					true, ctx);
+		}
 	}
 
 	/**
@@ -1509,7 +1544,7 @@ public class Record implements Component {
 	 * @param driver
 	 * @return sheet that contains rows from this record for the parent rows
 	 */
-	public DataSheet filterForParent(Value parentKey, DbDriver driver) {
+	public DataSheet filterForAParent(Value parentKey, DbDriver driver) {
 		DataSheet result = this.createSheet(false, false);
 		Value[] values = { parentKey };
 		StringBuilder sbf = new StringBuilder(this.filterSql);
@@ -2345,6 +2380,7 @@ public class Record implements Component {
 						+ ". Such a field is not defined for this record.");
 			}
 			result[i] = f;
+			i++;
 		}
 		return result;
 	}
@@ -2357,17 +2393,34 @@ public class Record implements Component {
 	}
 
 	/**
+	 *
+	 * @param recs
+	 *            list to which output records are to be added
 	 * @param parentSheetName
-	 *            if this sheet is to be output as a child. null if a normal
-	 *            sheet
-	 * @return output record that will copy data sheet to output
+	 * @param parentKey
 	 */
-	public OutputRecord getOutputRecord(String parentSheetName) {
+	public void addOutputRecords(List<OutputRecord> recs,
+			String parentSheetName, String parentKey) {
 		if (parentSheetName == null) {
-			return new OutputRecord(this.defaultSheetName);
+			recs.add(new OutputRecord(this));
+		} else {
+			recs.add(new OutputRecord(this.defaultSheetName, parentSheetName,
+					this.parentKeyField.getName(), parentKey));
 		}
-		return new OutputRecord(this.defaultSheetName, parentSheetName,
-				this.parentKeyField.name, this.parentKeyField.referredField);
+		if (this.childrenToBeRead == null) {
+			return;
+		}
+		if (this.primaryKeyField == null) {
+			Tracer.trace("Record " + this.getQualifiedName()
+					+ " has defined childrenToBeRead=" + this.childrenToBeRead
+					+ " but it has not defined a primary key.");
+			return;
+		}
+		for (String child : this.childrenToBeRead) {
+			Record cr = ComponentManager.getRecord(child);
+			cr.addOutputRecords(recs, this.getDefaultSheetName(),
+					this.primaryKeyField.name);
+		}
 	}
 
 	/**
@@ -3038,11 +3091,13 @@ public class Record implements Component {
 	 *            as in rdbms
 	 * @param conversion
 	 *            how field names are to be derived from columnName
+	 * @param suggester
+	 *            data type suggester
 	 * @return default record component for a table from rdbms
 	 */
 	public static Record createFromTable(String schemaName,
 			String qualifiedName, String tableName,
-			DbToJavaNameConversion conversion) {
+			DbToJavaNameConversion conversion, DataTypeSuggester suggester) {
 		DataSheet columns = DbDriver.getTableColumns(schemaName, tableName);
 		if (columns == null) {
 			String msg = "No table in db with name " + tableName;
@@ -3074,9 +3129,14 @@ public class Record implements Component {
 			} else {
 				field.name = conversion.toJavaName(nam);
 			}
-			field.setDataTypeBasedOnSqlType(
-					(int) ((IntegerValue) row[3]).getLong(), row[4].toString(),
-					(int) ((IntegerValue) row[6]).getLong());
+			String sqlTypeName = row[4].toString();
+			field.sqlTypeName = sqlTypeName;
+
+			int sqlType = (int) ((IntegerValue) row[3]).getLong();
+			int len = (int) ((IntegerValue) row[5]).getLong();
+			int nbrDecimals = (int) ((IntegerValue) row[6]).getLong();
+			field.dataType = suggester.suggest(sqlType, sqlTypeName, len,
+					nbrDecimals);
 			field.isNullable = ((BooleanValue) row[8]).getBoolean();
 			field.isRequired = !field.isNullable;
 		}
@@ -3113,7 +3173,8 @@ public class Record implements Component {
 			return 0;
 		}
 		Tracer.trace("Found " + tables.length()
-				+ " tables to for which we are going to create records.");
+				+ " tables for which we are going to create records.");
+		DataTypeSuggester suggester = new DataTypeSuggester();
 		String[][] rows = tables.getRawData();
 		int nbrTables = 0;
 		/*
@@ -3132,7 +3193,7 @@ public class Record implements Component {
 			}
 
 			Record record = Record.createFromTable(schemaName, recordName,
-					tableName, conversion);
+					tableName, conversion, suggester);
 			if (record == null) {
 				Tracer.trace("Record " + recordName
 						+ " could not be generated from table/view "
@@ -3172,6 +3233,11 @@ public class Record implements Component {
 		return nbrTables;
 	}
 
+	/**
+	 *
+	 * @param args
+	 * @throws Exception
+	 */
 	public static void main(String[] args) throws Exception {
 		Application.bootStrap("e:/repos/simplity/WebContent/WEB-INF/comp/");
 		File folder = new File("e:/temp/");

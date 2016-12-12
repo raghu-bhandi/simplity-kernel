@@ -56,9 +56,9 @@ public class ComplexLogic extends Action {
 					.newInstance();
 		} catch (Exception e) {
 			throw new ApplicationError(
+					e,
 					this.className
-							+ " is not a valid class that implements LogicInterface. \n"
-							+ e.getMessage());
+							+ " is not a valid class that implements ComplexLogicInterface.");
 		}
 	}
 

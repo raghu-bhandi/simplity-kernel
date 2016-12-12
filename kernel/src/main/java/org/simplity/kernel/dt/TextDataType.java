@@ -103,7 +103,7 @@ public class TextDataType extends DataType {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.simplity.kernel.dt.DataType#synthesiseDscription()
 	 */
 	@Override
@@ -112,7 +112,7 @@ public class TextDataType extends DataType {
 		boolean started = false;
 		if (this.minLength != 0) {
 			sbf.append("with a min of ").append(this.minLength)
-			.append(" characters ");
+					.append(" characters ");
 			started = true;
 		}
 		if (this.maxLength != Integer.MAX_VALUE) {
@@ -129,5 +129,12 @@ public class TextDataType extends DataType {
 					this.regex.toString());
 		}
 		return sbf.toString();
+	}
+
+	/**
+	 * @return regex
+	 */
+	public Object getRegex() {
+		return this.regex;
 	}
 }

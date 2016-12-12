@@ -22,51 +22,36 @@
 
 package org.simplity.test;
 
-import org.simplity.json.JSONWriter;
-import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.Application;
+import org.simplity.kernel.Tracer;
+import org.simplity.kernel.util.XmlUtil;
 
 /**
- * represents a field to be provided as input to a service
+ * Wrapper around test cases for us to load all test cases for a service. Idea
+ * is to have the xml for service to have logic as well as test cases in the
+ * same file, but classes are optimized for run-time
  *
  * @author simplity.org
  *
  */
-public class Field {
+public class ServerTest {
 	/**
-	 * field name
+	 * name
 	 */
-	String fieldName;
-	/**
-	 * field value
-	 */
-	String fieldValue;
+	String name;
 
 	/**
 	 *
-	 * @param vtx
-	 * @param forInput
-	 * @return number of errors added
+	 * @param args
+	 * @throws Exception
 	 */
-	int validate(ValidationContext vtx, boolean forInput) {
-		int nbr = 0;
-		if (this.fieldName == null) {
-			vtx.addError("fieldName is a requried attribute for an input field");
-			nbr++;
-		}
-		if (forInput && this.fieldValue == null) {
-			vtx.addError("Defining a field with null value has no meaning. You may as well drop the field.");
-			nbr++;
-		}
-		return nbr;
-	}
-
-	/**
-	 * write this as an attribute (key-value)
-	 * 
-	 * @param writer
-	 */
-	void toJson(JSONWriter writer) {
-		writer.key(this.fieldName);
-		writer.value(this.fieldValue);
+	public static void main(String[] args) throws Exception {
+		String root = "e:/repos/simplity/pet/WebContent/WEB-INF/comp/";
+		String s = "service/tp/filterOwners.xml";
+		// String s = "test/filter_owners.xml";
+		Application.bootStrap(root);
+		ServerTest st = new ServerTest();
+		XmlUtil.xmlToObject(root + s, st);
+		Tracer.trace("We are done");
 	}
 }

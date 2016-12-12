@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,36 +19,56 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.kernel;
+
+package org.simplity.test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * we believe these are better than the generic severity
- *
- * @author simplity.org
+ * Context that holds name-value pairs and test results during a test run.
  *
  */
-public enum MessageType {
-	/**
-	 * like order is created, records modified
-	 */
-	SUCCESS,
+public class TestContext {
+	private Map<String, Object> values = new HashMap<String, Object>();
+	private List<TestResult> results = new ArrayList<TestResult>();
 
 	/**
-	 * for information, nothing to celebrate, and nothing to worry
+	 * save a key-value pair
+	 *
+	 * @param key
+	 * @param value
 	 */
-	INFO,
+	public void setValue(String key, Object value) {
+		this.values.put(key, value);
+
+	}
 
 	/**
-	 * for attention, but there is no error
+	 * get a value for the key
+	 *
+	 * @param key
+	 * @return value, or null if no such key was added earlier
 	 */
-	WARNING,
+	public Object getValue(String key) {
+		return this.values.get(key);
+	}
 
 	/**
-	 * something is not right
+	 * add a test result
+	 *
+	 * @param result
 	 */
-	ERROR;
-	@Override
-	public String toString() {
-		return this.name().toLowerCase();
+	public void addResult(TestResult result) {
+		this.results.add(result);
+	}
+
+	/**
+	 * @return the results
+	 */
+	public TestResult[] getResults() {
+		return this.results.toArray(new TestResult[0]);
 	}
 }
