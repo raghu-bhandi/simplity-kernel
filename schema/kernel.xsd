@@ -987,11 +987,6 @@
 					minOccurs="0"
 					maxOccurs="1"
 					type="actions" />
-				<xs:element
-					name="testCases"
-					type="testCases"
-					minOccurs="0"
-					maxOccurs="1" />
 			</xs:all>
 			<xs:attribute
 				name="name"
@@ -1809,6 +1804,18 @@
 			name="outputSheetName"
 			type="xs:string"
 			use="optional" />
+		<xs:attribute
+			name="cascadeFilterForChildren"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>By default, only the first level children are read
+					along with the parent. Do you want that action to cascade down to
+					subsequent generations as well? That is, if teh childRecord has
+					children, read them as well, and so on.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="jumpTo">
@@ -1893,6 +1900,18 @@
 			name="outputSheetName"
 			type="xs:NCName"
 			use="optional" />
+		<xs:attribute
+			name="cascadeFilterForChildren"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>By default, only the first level children are read
+					along with the parent. Do you want that action to cascade down to
+					subsequent generations as well? That is, if teh childRecord has
+					children, read them as well, and so on.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="readChildren">
@@ -1932,6 +1951,18 @@
 			name="outputSheetName"
 			type="xs:NCName"
 			use="optional" />
+		<xs:attribute
+			name="cascadeFilterForChildren"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>By default, only the first level children are read
+					along with the parent. Do you want that action to cascade down to
+					subsequent generations as well? That is, if teh childRecord has
+					children, read them as well, and so on.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="renameSheet">
@@ -2474,7 +2505,7 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>During development/demo, login woudl be a
+					<xs:documentation>During development/demo, login would be a
 						nuisance. You may disable that, and use a default userId for all
 						services. Esnure that this is a number in case your project uses
 						numeric value as userId, as set in userIdIsNumber
@@ -2491,7 +2522,7 @@
 					<xs:documentation>Responses can be cached at http(web tier) as well
 						as at service (app tier). specify the qualified calss name for the
 						http cache manager that implements HttpCacheManager interface.
-						Services shoudl indicate cacheability in response service data
+						Services should indicate cacheability in response service data
 						(refer to service.xml attributes)
 					</xs:documentation>
 				</xs:annotation>
@@ -2506,7 +2537,7 @@
 						as at service (app tier). specify the qualified calss name for the
 						service cache manager that implements ServiceCacheManager
 						interface.
-						Services shoudl indicate cacheability in response
+						Services should indicate cacheability in response
 						service data
 						(refer to service.xml attributes)
 					</xs:documentation>
@@ -2542,8 +2573,8 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Should the server log the sqs that are being
-						executed? This woudl be off in production for security reasons,
-						but woudl be quite helpful during development
+						executed? This would be off in production for security reasons,
+						but would be quite helpful during development
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2574,25 +2605,279 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="serviceTest">
-		<xs:complexType>
-			<xs:sequence
-				maxOccurs="1"
+	<!-- Test case. we systematically develop elements bottom-up for this.. -->
+
+	<!-- testFieldAtts is common to inputField and outputField -->
+	<xs:attributeGroup name="testFieldAtts">
+		<xs:attribute
+			name="fieldSelector"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>You may use pattern like order.lines.2.name to get
+					name attribute from third element of lines-array of attribute order
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="fieldValue"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>use $ as first character to specify a variable in
+					the test context as value for this.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:attributeGroup>
+
+	<xs:complexType name="testFieldIn">
+		<xs:attributeGroup ref="testFieldAtts" />
+	</xs:complexType>
+
+	<xs:complexType name="testFieldOut">
+		<xs:attributeGroup ref="testFieldAtts" />
+		<xs:attribute
+			name="shouldBeAbsent"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>if you are asserting that this field is absent in
+					the output. fieldValue should not be specified.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="testFieldCtx">
+		<xs:attribute
+			name="fieldSelector"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>You may use pattern like order.lines.2.name to get
+					name attribute from third element of lines-array of attribute order
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="nameInContext"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>name of the context variable to set this to. This
+					is the name used by subsequent services to refer to this value.
+					Defaults to fieldselector
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="testFieldsIn">
+		<xs:sequence>
+			<xs:element
+				name="inputField"
+				type="testFieldIn"
 				minOccurs="1"
-			>
+				maxOccurs="unbounded"
+			></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="testFieldsOut">
+		<xs:sequence>
+			<xs:element
+				name="outputField"
+				type="testFieldOut"
+				minOccurs="1"
+				maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="testFieldsCtx">
+		<xs:sequence>
+			<xs:element
+				name="contextField"
+				type="testFieldCtx"
+				minOccurs="1"
+				maxOccurs="unbounded"
+			></xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="testItemIn">
+		<xs:sequence>
+			<xs:element
+				minOccurs="1"
+				maxOccurs="1"
+				name="inputFields"
+				type="testFieldsIn" />
+		</xs:sequence>
+		<xs:attribute
+			name="itemSelector"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>item selector, for example order, or order.lines.2
+					Ensure that the selector selects an item, and not a an array at run
+					time. This item is the parent for all the fields in the fields
+					collection. Their selctor would be relative to this item
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="testItemOut">
+		<xs:sequence>
+			<xs:element
+				minOccurs="1"
+				maxOccurs="1"
+				name="outputFields"
+				type="testFieldsOut" />
+		</xs:sequence>
+		<xs:attribute
+			name="itemSelector"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>item selector, for example order, or order.lines.2
+					Ensure that the selector selects an item, and not a an array at run
+					time. This item is the parent for all the fields in the fields
+					collection. Their selctor would be relative to this item
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="testListOut">
+		<xs:attribute
+			name="listSelector"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>list selector, for example order, or order.lines
+					Ensure that the selector selects an array, and not a an object at
+					run time.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="minRows"
+			type="xs:int"
+			use="optional" />
+		<xs:attribute
+			name="maxRows"
+			type="xs:int"
+			use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="testItemsIn">
+		<xs:sequence>
+			<xs:element
+				minOccurs="1"
+				maxOccurs="unbounded"
+				name="inputItem"
+				type="testItemIn" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="testItemsOut">
+		<xs:sequence>
+			<xs:element
+				minOccurs="1"
+				maxOccurs="unbounded"
+				name="outputItem"
+				type="testItemOut" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="testListsOut">
+		<xs:sequence>
+			<xs:element
+				minOccurs="1"
+				maxOccurs="unbounded"
+				name="outputList"
+				type="testListOut" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:element name="testCase">
+		<xs:complexType>
+			<xs:all>
 				<xs:element
-					name="testCases"
-					type="testCases"
-					minOccurs="1"
-					maxOccurs="1" />
-			</xs:sequence>
+					minOccurs="0"
+					maxOccurs="1"
+					name="inputJson"
+					type="xs:string"
+				>
+					<xs:annotation>
+						<xs:documentation>Use a CDATA section to specify a json. Since
+							json
+							is full of double quotes, it is quite ugly to specify it as
+							attribute or content. This is the initial JSON. Other input
+							specifications can alter or add to this
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element
+					minOccurs="0"
+					maxOccurs="1"
+					name="outputJson"
+					type="xs:string"
+				>
+					<xs:annotation>
+						<xs:documentation>Use a CDATA section to specify a json. Once this
+							is specified, no other spcifiction about output makes sense.
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element
+					minOccurs="0"
+					maxOccurs="1"
+					name="inputFields"
+					type="testFieldsIn" />
+				<xs:element
+					minOccurs="0"
+					maxOccurs="1"
+					name="inputItems"
+					type="testItemsIn" />
+				<xs:element
+					minOccurs="0"
+					maxOccurs="1"
+					name="outputFields"
+					type="testFieldsOut" />
+				<xs:element
+					minOccurs="0"
+					maxOccurs="1"
+					name="outputLists"
+					type="testListsOut" />
+				<xs:element
+					minOccurs="0"
+					maxOccurs="1"
+					name="outputItems"
+					type="testItemsOut" />
+				<xs:element
+					minOccurs="0"
+					maxOccurs="1"
+					name="fieldsToBeAddedToContext"
+					type="testFieldsCtx" />
+			</xs:all>
 			<xs:attribute
-				name="name"
-				type="xs:string"
+				name="testCaseName"
+				type="xs:NCName"
 				use="required"
 			>
 				<xs:annotation>
-					<xs:documentation>Simple name of service wihtout its module name
+					<xs:documentation>Name should match the file within which this is
+						defined.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2602,220 +2887,46 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>module name of service</xs:documentation>
+					<xs:documentation>module name, if present should patch the folder
+						structure within which this file is saved.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="description"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>Unique name within a service for us to identify
+						this test case
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="serviceName"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>Fully qualified name of service this test case is
+						meant for
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="testForFailure"
+				type="booleanType"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>if this test case is to assert failure
+					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+	<xs:complexType name="serverTest">
 
-	<xs:complexType name="testCases">
-		<xs:sequence>
-			<xs:element
-				name="testCase"
-				minOccurs="1"
-				maxOccurs="unbounded"
-			>
-				<xs:complexType>
-					<xs:all>
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="inputPayload"
-							type="xs:string"
-						>
-							<xs:annotation>
-								<xs:documentation>Use a CDATA section to specify a json. Since
-									json is full of double quotes, it is quite ugly to specify it
-									as attribute or contennt</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="inputFields"
-							type="testFieldsIn" />
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="inputSheets"
-							type="testSheetsIn" />
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="outputFields"
-							type="testFieldsOut" />
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="outputSheets"
-							type="testSheetsOut" />
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="outputPayload" 
-							type="xs:string"
-						>
-							<xs:annotation>
-								<xs:documentation>Use a CDATA section to specify a json. Since
-									json is full of double quotes, it is quite ugly to specify it
-									as attribute or contennt</xs:documentation>
-							</xs:annotation>
-							
-						</xs:element>
-					</xs:all>
-					<xs:attribute
-						name="testCaseName"
-						type="xs:string"
-						use="required"
-					>
-						<xs:annotation>
-							<xs:documentation>Unique name within a service for us to identify
-								this test case</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="description"
-						type="xs:string"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>Unique name within a service for us to identify
-								this test case</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="nbrErrorsExpected"
-						type="xs:int"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>Unique name within a service for us to identify
-								this test case</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="testFieldsIn">
-		<xs:sequence>
-			<xs:element name="Field">
-				<xs:complexType>
-					<xs:attribute
-						name="fieldName"
-						type="xs:string"
-						use="required" />
-					<xs:attribute
-						name="fieldVaue"
-						type="xs:string"
-						use="required" />
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="testFieldsOut">
-		<xs:sequence>
-			<xs:element name="Field">
-				<xs:complexType>
-					<xs:attribute
-						name="fieldName"
-						type="xs:string"
-						use="required" />
-					<xs:attribute
-						name="fieldVaue"
-						type="xs:string"
-						use="optional" />
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="testSheetsOut">
-		<xs:sequence>
-			<xs:element name="Sheet">
-				<xs:complexType>
-					<xs:attribute
-						name="sheetName"
-						type="xs:string"
-						use="required" />
-					<xs:attribute
-						name="columnNames"
-						type="xs:string"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>required if data is specified.
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="data"
-						type="xs:string"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>Comma separated list of values for a row. row
-								values are semicolon separated. for example a1,b1,c2;a2,b3,c2...
-								Of course value can not contain , or ;, but then you should be
-								able to design your test data that way :-) </xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="minRows"
-						type="xs:int"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>min rws expected in output. Not relevant if
-								data itself is specified.</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="maxRows"
-						type="xs:int"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>max nbr rows expected. Not relevant if actual
-								data is specified</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="testSheetsIn">
-		<xs:sequence>
-			<xs:element name="Sheet">
-				<xs:complexType>
-					<xs:attribute
-						name="sheetName"
-						type="xs:string"
-						use="required" />
-					<xs:attribute
-						name="columnNames"
-						type="xs:string"
-						use="required"
-					>
-						<xs:annotation>
-							<xs:documentation>Comma separated list of column names. Value is
-								required for input</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="data"
-						type="xs:string"
-						use="required"
-					>
-						<xs:annotation>
-							<xs:documentation>Comma separated list of values for a row. row
-								values are semicolon separated. for example a1,b1,c2;a2,b3,c2...
-								Of course value can not contain , or ;, but then you should be
-								able to design your test data that way :-) </xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
 	</xs:complexType>
 </xs:schema>
