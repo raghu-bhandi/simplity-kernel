@@ -41,6 +41,7 @@ var STYLES = {
 };
 
 var loaded = function() {
+	// return;
 	/*
 	 * in local mode, we have to ensure that we start with welcome page always
 	 */

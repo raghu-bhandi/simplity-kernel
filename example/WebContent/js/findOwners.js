@@ -45,20 +45,3 @@ var gotOwners = function(json) {
 		fields.message.ele.innerHTML = 'has not been found';
 	}
 };
-
-/**
- * just navigate to save owners page
- */
-var add = function() {
-	window.location.href = PAGES.editOwner;
-};
-
-/**
- * navigate to page that shows details of an owner
- * 
- * @param ownerId
- *            internal key of the owner
- */
-var showOwner = function(ownerId) {
-	window.location.href = PAGES.showOwner + '?' + encodeURI(ownerId);
-};
