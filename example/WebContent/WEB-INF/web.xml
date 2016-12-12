@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" id="WebApp_ID" version="3.0">
+  <display-name>pet</display-name>
+  <welcome-file-list>
+    <welcome-file>welcome.html</welcome-file>
+  </welcome-file-list>
+ <servlet>
+    <servlet-name>Startup</servlet-name>
+    <servlet-class>org.simplity.http.Startup</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <!-- Main service -->
+  <servlet>
+    <servlet-name>s</servlet-name>
+    <servlet-class>org.simplity.http.Serve</servlet-class>
+  </servlet>
+  
+  <!-- login service -->
+  <servlet>
+    <servlet-name>i</servlet-name>
+    <servlet-class>org.simplity.http.DefaultLogin</servlet-class>
+  </servlet>
+  <!--  logout service -->
+  <servlet>
+    <servlet-name>o</servlet-name>
+    <servlet-class>org.simplity.http.DefaultLogout</servlet-class>
+  </servlet>
+  <!-- Streaming service -->
+  <servlet>
+    <servlet-name>f</servlet-name>
+    <servlet-class>org.simplity.http.Stream</servlet-class>
+  </servlet>
+  
+  
+  <servlet-mapping>
+    <servlet-name>s</servlet-name>
+    <url-pattern>*._s</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>i</servlet-name>
+    <url-pattern>*._i</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>o</servlet-name>
+    <url-pattern>*._o</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>f</servlet-name>
+    <url-pattern>*._f</url-pattern>
+  </servlet-mapping>
+</web-app>

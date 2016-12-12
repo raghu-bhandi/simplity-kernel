@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testCase
+	xmlns="http://www.simplity.org/schema"
+	testCaseName="get1"
+	moduleName="get_owners"
+	serviceName="get_owners"
+	description="get details of id = 1"
+>
+<fieldsToBeAddedToContext>
+ <contextField fieldSelector="a" nameInContext="a"/>
+ <contextField fieldSelector="b" nameInContext="b"/>
+</fieldsToBeAddedToContext>
+<inputFields><inputField fieldSelector="abcd" fieldValue="$abcd"/></inputFields>
+	<inputJson><![CDATA[
+	{"ownerId":"1"}
+	]]></inputJson>
+	
+<outputJson> 
+<![CDATA[]]>
+</outputJson>
+	<outputFields>
+		<outputField
+			fieldSelector="ownerId"
+			fieldValue="1" />
+		<outputField
+			fieldSelector="firstName"
+			fieldValue="" />
+	</outputFields>
+</testCase>

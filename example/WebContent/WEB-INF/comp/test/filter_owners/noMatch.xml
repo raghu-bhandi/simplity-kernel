@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<testCase
+	xmlns="http://www.simplity.org/schema"
+	testCaseName="match"
+	serviceName="filter_owners"
+	moduleName="filter_owners"
+	description="expect no natches"
+>
+	<inputJson><![CDATA[
+				{"lastName":"Daviss"}
+ 			]]></inputJson>
+ 	<outputFields>
+ 		<outputField fieldSelector="owners" shouldBeAbsent="true" />
+ 	</outputFields>
+</testCase>
