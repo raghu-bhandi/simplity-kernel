@@ -50,7 +50,7 @@
 				<relatedRecord sheetName="members" recordName="nomination.members"/>
 			</childRecords>
 		</read>
-		<!-- subService serviceName="submission.mailer"	executeOnCondition="email" /-->
+		<subService serviceName="submission.mailer"	executeOnCondition="email"/>
 		
 	</actions>
 	<outputData attachmentColumns="nominations.filekey">

@@ -7,17 +7,14 @@
     {"category":"Sustainability/Social Consciousness","group":"BUSINESS EXCELLENCE","noOfMembers":{"min":1,"max":10},"categoryNickname":"SSC"},
  	{"category":"Development Center (DC) Management-Large","group":"EXECUTION EXCELLENCE","noOfMembers":{"min":0,"max":0},"categoryNickname":"DCML"},
     {"category":"Development Center (DC) Management-Small","group":"EXECUTION EXCELLENCE","noOfMembers":{"min":0,"max":0},"categoryNickname":"DCMS"},
-    {"category":"Development Center (DC) Management-Geo","group":"EXECUTION EXCELLENCE","noOfMembers":{"min":0,"max":0},"categoryNickname":"DCMG"},
-	{"category":"Large Business Operation Program","group":"EXECUTION EXCELLENCE","noOfMembers":{"min":1,"max":10},"categoryNickname":"LBOP"},
+ 	{"category":"Large Business Operation Program","group":"EXECUTION EXCELLENCE","noOfMembers":{"min":1,"max":10},"categoryNickname":"LBOP"},
     {"category":"Complex/Business Transformation Program","group":"EXECUTION EXCELLENCE","noOfMembers":{"min":1,"max":10},"categoryNickname":"CBTP"},
-	{"category":"Automation Accelerators - Development & Deployment","group":"INNOVATION & AUTOMATION","noOfMembers":{"min":1,"max":10},"categoryNickname":"AAD"},
-    {"category":"IP, Products, Platforms and Solutions","group":"INNOVATION & AUTOMATION","noOfMembers":{"min":1,"max":10},"categoryNickname":"IPPS"},
-    {"category":"Zero Distance","group":"INNOVATION & AUTOMATION","noOfMembers":{"min":1,"max":10},"categoryNickname":"ZD"},	
-    {"category":"Collaboration","group":"PEOPLE PRACTICES","noOfMembers":{"min":1,"max":10},"categoryNickname":"COLAB"},
-	{"category":"Infosys Domain Champion","group":"PEOPLE PRACTICES","noOfMembers":{"min":1,"max":1},"categoryNickname":"IDC"},
-    {"category":"Infosys Technology Champion","group":"PEOPLE PRACTICES","noOfMembers":{"min":1,"max":1},"categoryNickname":"ITC"},
-    {"category":"Internal Customer Delight","group":"PEOPLE PRACTICES","noOfMembers":{"min":1,"max":10},"categoryNickname":"ICD"},
-	{"category":"Infosys Value Champion","group":"PEOPLE PRACTICES","noOfMembers":{"min":1,"max":1},"categoryNickname":"IVC"},
-	{"category":"People Development","group":"PEOPLE PRACTICES","noOfMembers":{"min":1,"max":10},"categoryNickname":"PD"}
+	{"category":"Automation Accelerators - Development & Deployment","group":"INNOVATION & AUTOMATION EXCELLENCE","noOfMembers":{"min":1,"max":10},"categoryNickname":"AAD"},
+    {"category":"Collaboration","group":"PEOPLE/TALENT EXCELLENCE","noOfMembers":{"min":1,"max":10},"categoryNickname":"COLAB"},
+	{"category":"Infosys Domain Champion","group":"PEOPLE/TALENT EXCELLENCE","noOfMembers":{"min":1,"max":1},"categoryNickname":"IDC"},
+    {"category":"Infosys Technology Champion","group":"PEOPLE/TALENT EXCELLENCE","noOfMembers":{"min":1,"max":1},"categoryNickname":"ITC"},
+    {"category":"Internal Customer Delight","group":"PEOPLE/TALENT EXCELLENCE","noOfMembers":{"min":1,"max":10},"categoryNickname":"ICD"},
+	{"category":"Infosys Value Champion","group":"PEOPLE/TALENT EXCELLENCE","noOfMembers":{"min":1,"max":1},"categoryNickname":"IVC"},
+	{"category":"People Development","group":"PEOPLE/TALENT EXCELLENCE","noOfMembers":{"min":1,"max":10},"categoryNickname":"PD"}
 ]
 

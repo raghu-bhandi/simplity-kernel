@@ -40,7 +40,7 @@
 					</td>
 					<td class="col-xs-2" ng-if="x.status=='Submitted'">
 						<button type="button" class="btn btn-primary"
-							ng-click="setClickedRow($index);!getConfirmation('Are you sure want to recall this nomination?') || updatenomination(x,'Saved')">Recall</button>
+							ng-click="setClickedRow($index);!getConfirmation('Are you sure you want to recall this nomination?') || updatenomination(x,'Saved')">Recall</button>
 					</td>
 					<td class="col-xs-1"
 						ng-if="x.status=='Approved' || x.status=='Rejected'">
@@ -49,7 +49,7 @@
 					</td>
 					<td class="col-xs-1" ng-if="x.status=='Saved'"><span
 						class="glyphicon glyphicon-remove" aria-hidden="true"
-						ng-click="!getConfirmation('Are you sure want to delete this nomination?') || removenomination($index)"></span></td>
+						ng-click="!getConfirmation('Are you sure you want to delete this nomination?') || removenomination($index)"></span></td>
 					<td class="col-xs-1" ng-if="x.status!='Saved'"></td>
 				</tr>
 				<tr>

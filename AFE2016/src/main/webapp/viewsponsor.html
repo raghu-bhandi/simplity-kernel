@@ -38,9 +38,9 @@
 			<td class="col-xs-1">{{x.status}}</td>
 			<td class="col-xs-2" ng-if="x.status=='Submitted'">
 				<button type="button" class="btn btn-primary"
-					ng-click="setClickedRow($index);!getConfirmation('Are you sure want to Approve this nomination?') || updatenomination(x,'Approved')">Approve</button>
+					ng-click="setClickedRow($index);!getConfirmation('Are you sure you want to Approve this nomination?') || updatenomination(x,'Approved')">Approve</button>
 				<button type="button" class="btn btn-primary"
-					ng-click="setClickedRow($index);!getConfirmation('Are you sure want to Reject this nomination?') || updatenomination(x,'Rejected')">Reject</button>
+					ng-click="setClickedRow($index);!getConfirmation('Are you sure you want to Reject this nomination?') || updatenomination(x,'Rejected')">Reject</button>
 			</td>
 			<td class="col-xs-2" ng-if="x.status!='Submitted'">
 				<button type="button" class="btn btn-primary disabled">Approve</button>

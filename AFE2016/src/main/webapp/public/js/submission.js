@@ -92,7 +92,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 		}
 	});
 	$scope.onError = function(arr){
+		if(arr[0].text != null){
 		alert(arr[0].text.substring(1,arr[0].text.lastIndexOf("|")));
+		}
 		};
 	$scope.state = "new";
 	$scope.user = "new";
@@ -172,7 +174,8 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     	$scope.minMembers = category.noOfMembers.min;
         $scope.maxMembers = category.noOfMembers.max;
         $scope.categoryNickname = category.categoryNickname;
-       	$scope.nomination.members = $scope.nomination.members.slice(0,$scope.maxMembers); 
+        if($scope.nomination.members)
+        	$scope.nomination.members = $scope.nomination.members.slice(0,$scope.maxMembers); 
         if($scope.maxMembers <= 0){
         	$scope.showMembers = false;
         }
@@ -215,7 +218,12 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     	if(contrierror == true || mailerror == true){
     		return;
     	}
-    	
+    	for(var i=0;i<$scope.nomination.members.length;i++){
+    		if($scope.addmember.employeeMail == $scope.nomination.members[i].employeeMail){
+    			alert("Employee details already added.");
+    			return;
+    		}
+    	}
         var data = {};
         angular.copy($scope.addmember, data);
         angular.copy($scope.initmember, $scope.addmember);
@@ -599,5 +607,16 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 		  $scope.maxMembers = 0;
 		  angular.copy($scope.initmember, $scope.addmember);
 		  angular.element("#uploadNomination").val('');
+	  }
+	  
+	  $scope.clearSponsorfields = function(nomination){
+		  nomination.sponsorname='';
+		  nomination.sponsornumber='';
+	  }
+	  
+	  $scope.clearMemberfields = function(member){
+		  member.eNo = "";
+		  member.Name = "";
+		  member.Unit = "";
 	  }
 });

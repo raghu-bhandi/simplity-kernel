@@ -20,14 +20,14 @@
 		<div class="form-group row">
 			<label for="nomination" class="col-xs-2 col-form-label">Nomination Title</label>
 			<div class="col-xs-10">
-				<input class="form-control" type="text" name="title" 
+				<input class="form-control" type="text" name="title" maxlength="60"
 					placeholder="Nomination Title" ng-model="nomination.nomination"
 					aria-describedby="nominationHelp" required>
 					<small style="color: red" ng-show="showTitleError">Enter Nomination Title.</small> <br>
 				<small id="nominationHelp" required>Please DO NOT mention
 					any client/customer name in the title – Incase client/customer name
 					appears request you to kindly get the client/customer approval for
-					the same. Please limit your nomination title to 5 words (45
+					the same. Please limit your nomination title to 5 words (60
 					characters) </small>
 			</div>
 		</div>
@@ -35,20 +35,21 @@
 			<label for="summary" class="col-xs-2 col-form-label">Executive Summary</label>
 			<div class="col-xs-10">
 			<textarea class="form-control" rows="3" name="summary"
-					placeholder="Executive Summary" ng-model="nomination.summary"
+					placeholder="Executive Summary" ng-model="nomination.summary" maxlength="1500"
 					aria-describedby="summaryHelp" required></textarea>
 						<small style="color: red" ng-show="showSummaryError">Enter Executive Summary.</small>
 					<small id="summaryHelp" required>Please limit your summary to 1500 characters</small> 
 			</div>
 		</div>
 		<h3>Sponsor</h3>
+		<span>**The Sponsor of the nomination must be a leader.</span>
 		<div class="row">
 			<div class="form-group col-xs-4">
 				<label for="sponsormailid">Email ID</label> 
 				<input type="text"
 					class="form-control" ng-model="nomination.sponsorMail"
 					placeholder="Enter email" aria-describedby="emailHelp"
-					ng-change="getsponsormailsuggestion(nomination.sponsorMail)"
+					ng-change="clearSponsorfields(nomination);getsponsormailsuggestion(nomination.sponsorMail)"
 					typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 					typeahead-on-select="populatesponsordata($item)">
 					<small style="color: red">{{ sponsorError }}</small> 
@@ -92,7 +93,7 @@
 					<input class="form-control"
 						id="typeahead" ng-model="addmember.employeeMail"
 						placeholder="Email Id"
-						ng-change="getmailsuggestion(addmember.employeeMail)"
+						ng-change="clearMemberfields(addmember);getmailsuggestion(addmember.employeeMail)"
 						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 						typeahead-on-select="populatememberdata($item)">
 						<small style="color: red">{{ memberMailError }}</small>
@@ -104,7 +105,7 @@
 					<td class="col-xs-2"><input class="form-control"
 						ng-model="addmember.Unit" placeholder="Unit" disabled></td>
 					<td class="col-xs-6"><textarea class="form-control" rows="3" 
-						ng-model="addmember.contribution"
+						ng-model="addmember.contribution" maxlength="3000"
 						placeholder="Individual Contribution"></textarea>
 						<small style="color: red">{{ contributionError }}</small></td>
 				</tr>

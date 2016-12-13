@@ -43,6 +43,7 @@ public class AllowRegisteredMailRequest implements Filter {
 				inData.setServiceName("filter_smtp.registration");
 				inData.setUserId(Value.newTextValue((String) request.getAttribute("_userId")));
 				String domain = request.getRemoteHost();
+				System.out.println("domain: "+domain);
 				String application = ((HttpServletRequest) request).getHeader("application");
 				String apikey = ((HttpServletRequest) request).getHeader("apikey");
 				inData.setPayLoad("{" + "'domain':'" + domain + "'," + "'application':'" + application + "'," + "'apikey':'"

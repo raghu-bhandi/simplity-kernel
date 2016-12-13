@@ -27,7 +27,6 @@ public class Mail implements LogicInterface {
 	public static Configuration cfg;
 
 	public Value execute(ServiceContext ctx) {
-
 		String urlstring = ctx.getTextValue("urlString");
 		String application = ctx.getTextValue("application");
 		String apikey = ctx.getTextValue("apikey");
@@ -66,6 +65,7 @@ public class Mail implements LogicInterface {
  				spontemplate = cfg.getTemplate("sponsor.ftlh");
  				subject = "Your nomination for AFE 2016-17 has been submitted";
  				sponsubject = "AFE nomination: Your action required";
+ 				spontemplate.process(parameters, outputStringwriter2);
  				break;
  			case "Approved":
  				subtemplate = cfg.getTemplate("approve.ftlh");
@@ -76,8 +76,7 @@ public class Mail implements LogicInterface {
  				subject = "Status of your AFE nomination";
  				break;
  			}
-			subtemplate.process(parameters, outputStringwriter1);
-			spontemplate.process(parameters, outputStringwriter2);
+			subtemplate.process(parameters, outputStringwriter1);			
 			content = outputStringwriter1.toString();
 			sendMail(urlstring, application, apikey, submitterId, ccIds, bccIds, subject, content);
 			if(spontemplate != null){
