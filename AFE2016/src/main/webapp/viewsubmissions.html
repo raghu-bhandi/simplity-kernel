@@ -1,70 +1,66 @@
-<div>
-	<div style="width: 100%; padding: 10px 10px 10px 10px;">
-		<h3 style="display: inline;">Submissions</h3>
-		&nbsp;&nbsp;&nbsp;<i>(Select the row to view or edit)</i>
-		<hr>
-		<div ng-if="nominations.length == 0">
-			<p>There are no records to display</p>
-		</div>
-		<div id="parenttable">
-			<table class="table" ng-if="nominations.length > 0"
-				ng-init="viewsubmission(nominations[0])">
-				<thead>
-					<tr class="row" style="margin-right: 0; margin-left: 0">
-						<th class="col-xs-1"></th>
-						<th class="col-xs-2">Category</th>
-						<th class="col-xs-2">Title</th>
-						<th class="col-xs-2">Sponsor</th>
-						<th class="col-xs-1">File</th>
-						<th class="col-xs-1">Status</th>
-						<th class="col-xs-2">Action</th>
-						<th class="col-xs-1"></th>
-					</tr>
-				</thead>
-				<tbody ng-repeat="x in nominations | filter:filterrow">
-					<tr class="row accordion-toggle" data-toggle="collapse"
-						data-parent="#parenttable" href="#hidden{{x.nominationId}}"
-						aria-expanded="false" aria-controls="hidden{{x.nominationId}}"
-						ng-class="{'selected':$index == selectedRow}"
-						ng-click="setClickedRow($index);viewsubmission(x);hideothers()"
-						style="cursor: pointer; margin-right: 0; margin-left: 0">
-						<td class="col-xs-1">{{$index+1}}</td>
-						<td class="col-xs-2">{{x.selectedCategory}}</td>
-						<td class="col-xs-2">{{x.nomination}}</td>
-						<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
-						<td class="col-xs-1" ng-if="x.filekey != ''"><a
-							href="javascript:void(0);"
-							ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
-						<td class="col-xs-1" ng-if="x.filekey == ''"></td>
-						<td class="col-xs-1">{{x.status}}</td>
-						<td class="col-xs-2" ng-if="x.status=='Saved'">
-							<button type="button" class="btn btn-primary"
-								ng-click="setClickedRow($index);updatenomination(x,'Submitted')">Submit</button>
-						</td>
-						<td class="col-xs-2" ng-if="x.status=='Submitted'">
-							<button type="button" class="btn btn-primary"
-								ng-click="setClickedRow($index);updatenomination(x,'Saved')">Recall</button>
-						</td>
-						<td class="col-xs-1"
-							ng-if="x.status=='Approved' || x.status=='Rejected'">
-							<button type="button" class="btn btn-primary disabled">No
-								Action</button>
-						</td>
-						<td class="col-xs-1" ng-if="x.status=='Saved'"><span
-							class="glyphicon glyphicon-remove" aria-hidden="true"
-							ng-click="removenomination($index)"></span></td>
-						<td class="col-xs-1" ng-if="x.status!='Saved'"></td>
-					<tr>
-						<td colspan="9" class="hiddenRow" style="border-top: 0px;">
-							<div class="accordion-body collapse hidden{{x.nominationId}}"
-								id="hidden{{x.nominationId}}">
-								<div ng-include="'submissionform.html'"></div>
-							</div>
-						</td>
-					</tr>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+<div style="width: 100%;background-color: #ceb282; padding: 10px 10px 10px 10px;">
+	<h3 style="display: inline;">Submissions</h3>
+	&nbsp;&nbsp;&nbsp;<i>(Select the row to view or edit)</i>
+	<hr>
+	<div ng-if="nominations.length == 0">
+		<p>There are no records to display</p>
+	</div>
+	<div id="parenttable">
+		<table class="table" ng-if="nominations.length > 0"
+			ng-init="viewsubmission(nominations[0])">
+			<thead>
+				<tr class="row" style="margin-right: 0; margin-left: 0">
+					<th class="col-xs-1"></th>
+					<th class="col-xs-2">Category</th>
+					<th class="col-xs-2">Title</th>
+					<th class="col-xs-2">Sponsor</th>
+					<th class="col-xs-1">File</th>
+					<th class="col-xs-1">Status</th>
+					<th class="col-xs-2">Action</th>
+					<th class="col-xs-1"></th>
+				</tr>
+			</thead>
+			<tbody ng-repeat="x in nominations">
+				<tr class="row accordion-toggle" data-toggle="collapse"
+					data-parent="#parenttable" href="#hidden{{x.nominationId}}"
+					aria-expanded="false" aria-controls="hidden{{x.nominationId}}"
+					ng-class="{'selected':$index == selectedRow}"
+					ng-click="setClickedRow($index);viewsubmission(x);hideothers()"
+					style="cursor: pointer; margin-right: 0; margin-left: 0">
+					<td class="col-xs-1">{{$index+1}}</td>
+					<td class="col-xs-2">{{x.selectedCategory}}</td>
+					<td class="col-xs-2">{{x.nomination}}</td>
+					<td class="col-xs-2">{{x.sponsorMailNickname}}</td>
+					<td class="col-xs-1" ng-if="x.filekey != ''"><a
+						href="javascript:void(0);"
+						ng-click="downloadfile(x.filekey,x.filename,x.filetype)">{{x.filename}}</a></td>
+					<td class="col-xs-1" ng-if="x.filekey == ''"></td>
+					<td class="col-xs-1">{{x.status}}</td>
+					<td class="col-xs-2" ng-if="x.status=='Saved'">
+					</td>
+					<td class="col-xs-2" ng-if="x.status=='Submitted'">
+						<button type="button" class="btn btn-primary"
+							ng-click="setClickedRow($index);!getConfirmation('Are you sure want to recall this nomination?') || updatenomination(x,'Saved')">Recall</button>
+					</td>
+					<td class="col-xs-1"
+						ng-if="x.status=='Approved' || x.status=='Rejected'">
+						<button type="button" class="btn btn-primary disabled">No
+							Action</button>
+					</td>
+					<td class="col-xs-1" ng-if="x.status=='Saved'"><span
+						class="glyphicon glyphicon-remove" aria-hidden="true"
+						ng-click="!getConfirmation('Are you sure want to delete this nomination?') || removenomination($index)"></span></td>
+					<td class="col-xs-1" ng-if="x.status!='Saved'"></td>
+				</tr>
+				<tr>
+					<td colspan="9" class="hiddenRow" style="border-top: 0px;">
+						<div class="accordion-body collapse hidden{{x.nominationId}}"
+							id="hidden{{x.nominationId}}">
+							<div ng-include="'submissionform.html'"></div>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 </div>
