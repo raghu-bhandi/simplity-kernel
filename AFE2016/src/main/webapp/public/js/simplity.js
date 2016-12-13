@@ -1075,7 +1075,7 @@ var Simplity = (function() {
 		try {
 			xhr.open(METHOD, FILE_URL, true);
 			xhr.setRequestHeader(POCOL.FILE_TOKEN, key);
-			xhr.setRequestHeader(POCOL.SERVICE_NAME, POCOL.DISCARD);
+			xhr.setRequestHeader(POCOL.SERVICE_NAME, POCOL.DISCARD_FILE);
 			xhr.send();
 		} catch (e) {
 			error("error during xhr for discarding token : " + key

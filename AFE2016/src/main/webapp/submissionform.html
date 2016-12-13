@@ -176,7 +176,7 @@
 		 <input
 			type="file" ng-model-instant class="form-control-file" accept=".zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
 			id="uploadNomination" aria-describedby="fileHelp"
-			onchange="angular.element(this).scope().fileupload(this)"> <small
+			onchange="fileupload(this)"> <small
 			id="fileHelp" class="form-text text-muted">
 			<span ng-if="state=='new'">Please upload a zip file and limit the size of the file to 5MB only</span>
 			<span ng-if="state=='view'">Please note that the uploaded file will replace the existing file</span></small>

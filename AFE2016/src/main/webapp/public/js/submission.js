@@ -164,7 +164,8 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     	$scope.minMembers = category.noOfMembers.min;
         $scope.maxMembers = category.noOfMembers.max;
         $scope.categoryNickname = category.categoryNickname;
-        $scope.nomination.members = $scope.nomination.members.slice(0,$scope.maxMembers); 
+        if($scope.nomination.members)
+        	$scope.nomination.members = $scope.nomination.members.slice(0,$scope.maxMembers); 
         if($scope.maxMembers <= 0){
         	$scope.showMembers = false;
         }
@@ -291,6 +292,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     		  }
     		}
     		var fileDetails = $scope.nomination.uploadfile;
+    		if($scope.nomination.filekey){
+    			Simplity.discardFile($scope.nomination.filekey)
+    		}
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			data.filekey=key;
 				data.filename=fileDetails.name;
@@ -386,6 +390,9 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
 	      			  return false;
 	      		  }
 	      		}
+    		if($scope.nomination.filekey){
+    			Simplity.discardFile($scope.nomination.filekey)
+    		}
     		Simplity.uploadFile($scope.nomination.uploadfile, function(key) {
     			selectednomination.filekey=key;
     			selectednomination.filename=fileDetails.name;
