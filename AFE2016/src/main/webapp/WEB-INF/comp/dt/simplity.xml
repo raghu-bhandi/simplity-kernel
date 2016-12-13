@@ -4,7 +4,7 @@
 		<numericDataType name="id" description="Autoincremented Primary Key"
 			maxValue="99999999999999" />
 		<textDataType name="executiveSummary" maxLength="1500" messageName="simplity.executiveSummary"/>	
-		<textDataType name="nominationTitle" maxLength="45" messageName="simplity.nominationTitle"/>	
-		<textDataType name="fileName" maxLength="10" messageName="simplity.filename"/>	
+		<textDataType name="nominationTitle" maxLength="60" messageName="simplity.nominationTitle"/>	
+		<textDataType name="fileName" maxLength="60" messageName="simplity.filename"/>	
 	</components>
 </dataTypes>

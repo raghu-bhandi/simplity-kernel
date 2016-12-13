@@ -1,26 +1,29 @@
-<form name="forms.submissionForm" novalidate class="well">
+<form name="forms.submissionForm" novalidate class="well" ng-style="formstyle">
 	<fieldset ng-disabled="disableform">
 		<h3>Nomination form</h3>
 		<hr>
-		<div class="row">
-			<div class="form-group col-xs-12">
-				<label for="categories">Categories</label> 
+		<div class="form-group row">
+			<div>
+				<label for="categories" class="col-xs-2 col-form-label">Categories</label> 
+				<div class="col-xs-10"> 
 				<select	class="form-control" id="categories"
 					ng-model="nomination.selectedCategory"
 					ng-options="x.category as x.category group by x.group for x in categories | orderBy:'category'">
-				</select>
+				</select>		
+				<small style="color: red" ng-show="showCategoryError">Select Category</small>		
+				</div>
+				
 			</div>
 		</div>
-		<span style="color: red" ng-show="showCategoryError">Select Category</span>
+		
 		<hr>
 		<div class="form-group row">
 			<label for="nomination" class="col-xs-2 col-form-label">Nomination Title</label>
 			<div class="col-xs-10">
-				<input class="form-control" type="text" name="title" maxlength="45"
+				<input class="form-control" type="text" name="title" 
 					placeholder="Nomination Title" ng-model="nomination.nomination"
-					aria-describedby="nominationHelp" required><span
-					style="color: red"
-					ng-show="showTitleError">Enter Nomination Title.</span> <br>
+					aria-describedby="nominationHelp" required>
+					<small style="color: red" ng-show="showTitleError">Enter Nomination Title.</small> <br>
 				<small id="nominationHelp" required>Please DO NOT mention
 					any client/customer name in the title – Incase client/customer name
 					appears request you to kindly get the client/customer approval for
@@ -29,13 +32,12 @@
 			</div>
 		</div>
 		<div class="form-group row">			
-			<label for="summary" class="col-xs-4 col-form-label">Executive Summary</label>
+			<label for="summary" class="col-xs-2 col-form-label">Executive Summary</label>
 			<div class="col-xs-10">
-			<textarea class="form-control" rows="3" maxlength="1500" name="summary"
+			<textarea class="form-control" rows="3" name="summary"
 					placeholder="Executive Summary" ng-model="nomination.summary"
-					aria-describedby="summaryHelp" required></textarea><span
-					style="color: red"
-					ng-show="showSummaryError">Enter Executive Summary.</span>
+					aria-describedby="summaryHelp" required></textarea>
+						<small style="color: red" ng-show="showSummaryError">Enter Executive Summary.</small>
 					<small id="summaryHelp" required>Please limit your summary to 1500 characters</small> 
 			</div>
 		</div>
@@ -49,6 +51,7 @@
 					ng-change="getsponsormailsuggestion(nomination.sponsorMail)"
 					typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 					typeahead-on-select="populatesponsordata($item)">
+					<small style="color: red">{{ sponsorError }}</small> 
 			</div>
 			<div class="form-group col-xs-4">
 				<label for="sponsorname">Name</label> <input class="form-control"
@@ -60,16 +63,15 @@
 					class="form-control" type="text"
 					placeholder="Sponsor Employee Number"
 					ng-model="nomination.sponsornumber" disabled>
-			</div>
-			<span style="color: red">{{ sponsorError }}</span> 
+			</div>			
 		</div>
 		<div ng-repeat="c in categories" ng-if="c.category == nomination.selectedCategory" ng-init="setMembers(c)"></div>
 		<div ng-show="showMembers">
 		<h3>Details of Members</h3>
 		<span>The maximum number of members you can nominate is : {{maxMembers}}</span>		
 		<div style="color: green">Please click '+' to add a member</div>
-		<span style="color: red" ng-show="showMemberError">Nominate
-			atleast {{minMembers}} member for the selected category</span> 
+		<small style="color: red" ng-show="showMemberError">Nominate
+			atleast {{minMembers}} member for the selected category</small> 
 		<div class="form-group">
 			<table id="members" class="table">
 				<tr class="row">
@@ -93,7 +95,7 @@
 						ng-change="getmailsuggestion(addmember.employeeMail)"
 						typeahead="employee.mail for employee in employees | filter:$viewValue:startsWith"
 						typeahead-on-select="populatememberdata($item)">
-						<span style="color: red">{{ memberMailError }}</span>
+						<small style="color: red">{{ memberMailError }}</small>
 						</td>
 					<td class="col-xs-1"><input class="form-control"
 						ng-model="addmember.eNo" placeholder="Emp No" disabled></td>
@@ -101,10 +103,10 @@
 						ng-model="addmember.Name" placeholder="Name" disabled></td>
 					<td class="col-xs-2"><input class="form-control"
 						ng-model="addmember.Unit" placeholder="Unit" disabled></td>
-					<td class="col-xs-6"><textarea class="form-control" rows="3" maxlength="3000"
+					<td class="col-xs-6"><textarea class="form-control" rows="3" 
 						ng-model="addmember.contribution"
 						placeholder="Individual Contribution"></textarea>
-						<span style="color: red" ng-show="contributionError">Enter Individual contribution</span></td>
+						<small style="color: red">{{ contributionError }}</small></td>
 				</tr>
 				<tr ng-repeat="x in nomination.members" class="row"
 					ng-include="getTemplate($index)">
@@ -119,12 +121,12 @@
 		<span>Important Guidelines</span>
 		<ul>
 			<li>PRIMA: The nomination process, formats, closure dates, etc. are different for PRIMA awards. Please get in touch with the PRIMA team for any clarification. </li>
-			<li>The initiative/program for which you are applying should have taken place between October 2015 – November 2016.</li>
+			<li>The initiative/program for which you are applying should have taken place between October 2015 - November 2016.</li>
 			<li>Please note that only one nomination per account / project / program will be allowed and accepted.</li>
 			<li> Units/ BEFs should decide the best category suitable for the nomination and nominate accordingly</li>
 			<li>Upload the Files in .zip format</li>
 			<li>Please limit the file name of your .zip file to less than
-				ten characters</li>
+				60 characters</li>
 			<li>If there are various programs under an account, each program
 				is eligible to be nominated once</li>
 		</ul>
@@ -172,7 +174,7 @@
 		
 <div class="form-group">
 		<label for="uploadNomination">Upload Nomination</label>
-		<span style="color: red">{{ fileError }}</span>
+		<small style="color: red">{{ fileError }}</small>
 		 <input
 			type="file" ng-model-instant class="form-control-file" accept=".zip,application/octet-stream,application/zip,application/x-zip,application/x-zip-compressed"
 			id="uploadNomination" aria-describedby="fileHelp"

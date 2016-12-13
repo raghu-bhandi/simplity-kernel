@@ -19,7 +19,7 @@
 }
 </style>
 </head>
-<body>
+<body style="background-color: #000000">
 	<div ng-app="submissionApp" ng-controller="formCtrl" ng-init="init()"
 		class="container" style="width: 100%">
 		<div ng-view></div>
