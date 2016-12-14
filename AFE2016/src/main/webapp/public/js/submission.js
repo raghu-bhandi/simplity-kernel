@@ -174,17 +174,11 @@ app.controller('formCtrl', function ($scope,$window,$http,$timeout,$location,$fi
     	$scope.minMembers = category.noOfMembers.min;
         $scope.maxMembers = category.noOfMembers.max;
         $scope.categoryNickname = category.categoryNickname;
-<<<<<<< HEAD
-        if($scope.nomination.members)
-        	$scope.nomination.members = $scope.nomination.members.slice(0,$scope.maxMembers); 
-        if($scope.maxMembers <= 0){
-=======
 
         if($scope.nomination.members)
         	$scope.nomination.members = $scope.nomination.members.slice(0,$scope.maxMembers); 
 
        	if($scope.maxMembers <= 0){
->>>>>>> refs/remotes/origin/master
         	$scope.showMembers = false;
         }
         else{
