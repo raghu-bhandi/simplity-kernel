@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<messages name="NCName" xmlns="http://www.simplity.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.simplity.org/schema ../../../../../../../schema/kernel.xsd ">
-  <components>
-    <message messageType="info" name="smtp.alreadyregistered" text="Already registered"/>
-  </components>
-</messages>
