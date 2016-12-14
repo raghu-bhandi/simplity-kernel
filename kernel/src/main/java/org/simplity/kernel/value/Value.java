@@ -354,7 +354,7 @@ public abstract class Value implements Serializable {
 			return Value.UNKNOWN_TIMESTAMP_VALUE;
 		default:
 			throw new ApplicationError(
-					"Value class doe snot take care of value type " + valueType);
+					"Value class does not take care of value type " + valueType);
 		}
 	}
 

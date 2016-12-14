@@ -170,7 +170,7 @@ public class Sql implements Component {
 			throw new ApplicationError(
 					"Sql "
 							+ this.getQualifiedName()
-							+ " is meant for data extraciton, but it is called for update");
+							+ " is meant for data extraction, but it is called for update");
 		}
 		return driver.executeSql(this.preparedStatement,
 				this.getInputValues(dataRow), treatErrorAsNoAction);

@@ -69,6 +69,7 @@ public class RestClient extends Action {
 	 * The HTTP URL string
 	 */
 	String urlString;
+	String parsedUrlString;
 	/**
 	 * The HTTP expected content type
 	 */
@@ -105,6 +106,10 @@ public class RestClient extends Action {
 	@Override
 	protected Value doAct(ServiceContext ctx, DbDriver driver) {
 		try {
+			if(parsedUrlString!=null){
+				urlString = ctx.getTextValue(parsedUrlString);
+			}
+			
 			URL url = new URL(urlString);
 			HttpURLConnection conn;
 			if (proxy != null) {
@@ -174,6 +179,7 @@ public class RestClient extends Action {
 		}
 		if (this.outputFieldValue == null) {
 			throw new ApplicationError("Rest Client action requires output sheet for putting the fetched values");
-		}
+		}		
+		this.parsedUrlString = TextUtil.getFieldName(this.urlString);
 	}
 }
