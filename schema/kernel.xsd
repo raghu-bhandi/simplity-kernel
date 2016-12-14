@@ -982,11 +982,8 @@
 
 					</xs:complexType>
 				</xs:element>
-				<xs:element
-					name="actions"
-					minOccurs="0"
-					maxOccurs="1"
-					type="actions" />
+				<xs:element name="actions" minOccurs="0" maxOccurs="1"
+	type="actions" />
 				<xs:element
 					name="testCases"
 					type="testCases"
@@ -1298,124 +1295,54 @@
 	</xs:complexType>
 
 	<xs:complexType name="actions">
-		<xs:choice
-			minOccurs="1"
-			maxOccurs="unbounded"
-		>
-			<xs:element
-				name="addColumn"
-				type="addColumn"
-				minOccurs="0"
+		<xs:choice minOccurs="1" maxOccurs="unbounded">
+			<xs:element name="addColumn" type="addColumn" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="addMessage"
-				type="addMessage"
-				minOccurs="0"
+			<xs:element name="addMessage" type="addMessage"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="complexLogic" type="logic" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="complexLogic"
-				type="logic"
-				minOccurs="0"
+			<xs:element name="copyRows" type="copyRows" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="copyRows"
-				type="copyRows"
-				minOccurs="0"
+			<xs:element name="copyUserId" type="copyUserId"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="createSheet" type="createSheet"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="executeSp" type="executeSp" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="copyUserId"
-				type="copyUserId"
-				minOccurs="0"
+			<xs:element name="executeSql" type="executeSql"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="filter" type="filter" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="createSheet"
-				type="createSheet"
-				minOccurs="0"
+			<xs:element name="jumpTo" type="jumpTo" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="executeSp"
-				type="executeSp"
-				minOccurs="0"
+			<xs:element name="keyValueList" type="keyValueList"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="log" type="log" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="executeSql"
-				type="executeSql"
-				minOccurs="0"
+			<xs:element name="logic" type="logic" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="filter"
-				type="filter"
-				minOccurs="0"
+			<xs:element name="loop" type="loop" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="jumpTo"
-				type="jumpTo"
-				minOccurs="0"
+			<xs:element name="read" type="read" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="keyValueList"
-				type="keyValueList"
-				minOccurs="0"
+			<xs:element name="readChildren" type="readChildren"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="readWithSql" type="readWithSql"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="renameSheet" type="renameSheet"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="rowExists" type="rowExists" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="log"
-				type="log"
-				minOccurs="0"
+			<xs:element name="save" type="save" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="logic"
-				type="logic"
-				minOccurs="0"
+			<xs:element name="setValue" type="setValue" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="loop"
-				type="loop"
-				minOccurs="0"
+			<xs:element name="subService" type="subService"
+				minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="suggest" type="suggest" minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element
-				name="read"
-				type="read"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="readChildren"
-				type="readChildren"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="readWithSql"
-				type="readWithSql"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="renameSheet"
-				type="renameSheet"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="rowExists"
-				type="rowExists"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="save"
-				type="save"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="setValue"
-				type="setValue"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="subService"
-				type="subService"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="suggest"
-				type="suggest"
-				minOccurs="0"
+			<xs:element name="restClient" type="restClient" minOccurs="0"
 				maxOccurs="unbounded" />
 		</xs:choice>
 	</xs:complexType>
@@ -2116,6 +2043,57 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+	</xs:complexType>
+
+
+	<xs:complexType name="restClient">
+		<xs:attributeGroup ref="actionAttributes" />
+
+		<xs:attribute name="restMethod" use="required">
+			<xs:annotation>
+				<xs:documentation>
+					Field to filter on. defaults to what is specified in
+					record. default is to match anywhere. If you want to
+					match starting only, then a special field named
+					_matchStarting can be set to true.
+				</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="GET"></xs:enumeration>
+
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="urlString" type="xs:string"
+			use="required">
+		</xs:attribute>
+		<xs:attribute name="contentType" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="application/json"></xs:enumeration>
+					<xs:enumeration value="application/xml"></xs:enumeration>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="proxy" type="xs:string" use="optional"></xs:attribute>
+		<xs:attribute name="proxyport" type="xs:int"></xs:attribute>
+		<xs:attribute name="proxyUserName" type="xs:string"
+			use="optional">
+		</xs:attribute>
+		<xs:attribute name="proxyPassword" type="xs:string"
+			use="optional">
+		</xs:attribute>
+		<xs:attribute name="outputFieldName" type="xs:string"
+			use="required">
+			<xs:annotation>
+				<xs:documentation>
+					Name of the output data sheet. If not specified, it
+					defaults to the name as specified in record.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute name="outputFieldValue" type="xs:string"></xs:attribute>
 	</xs:complexType>
 
 	<xs:simpleType name="valueType">
