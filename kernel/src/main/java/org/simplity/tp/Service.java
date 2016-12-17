@@ -415,19 +415,21 @@ public class Service implements ServiceInterface {
 			}
 		}
 		if (this.actions == null) {
-			throw new ApplicationError("Service " + this.getQualifiedName()
+			Tracer.trace("Service " + this.getQualifiedName()
 					+ " has no actions.");
-		}
-		int i = 0;
-		for (Action action : this.actions) {
-			action.getReady(i);
-			if (this.indexedActions.containsKey(action.actionName)) {
-				throw new ApplicationError("Service " + this.name
-						+ " has duplicate action name " + action.actionName
-						+ " as its action nbr " + (i + 1));
+			this.actions = new Action[0];
+		} else {
+			int i = 0;
+			for (Action action : this.actions) {
+				action.getReady(i);
+				if (this.indexedActions.containsKey(action.actionName)) {
+					throw new ApplicationError("Service " + this.name
+							+ " has duplicate action name " + action.actionName
+							+ " as its action nbr " + (i + 1));
+				}
+				this.indexedActions.put(action.getName(), new Integer(i));
+				i++;
 			}
-			this.indexedActions.put(action.getName(), new Integer(i));
-			i++;
 		}
 		if (this.requestTextFieldName != null) {
 			Tracer.trace("Service "
@@ -1036,7 +1038,7 @@ public class Service implements ServiceInterface {
 		service.dbAccessType = accessType;
 		service.setName(serviceName);
 		/*
-		 * we have no idea what this service wants as input. May be we shoudl
+		 * we have no idea what this service wants as input. May be we should
 		 * add that to the interface, so that any service has to tell what input
 		 * it expects. Till such time, here is a dirty short-cut
 		 */

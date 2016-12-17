@@ -38,7 +38,7 @@ import org.simplity.kernel.fn.Concat;
 import org.simplity.kernel.fn.Function;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.service.ServiceInterface;
-import org.simplity.test.TestCase;
+import org.simplity.test.TestRun;
 import org.simplity.tp.Service;
 
 /**
@@ -150,7 +150,7 @@ public enum ComponentType {
 	/**
 	 * test cases for service
 	 */
-	TEST_CASE(7, TestCase.class, "test", false);
+	TEST_RUN(7, TestRun.class, "test/", false);
 
 	/*
 	 * constants

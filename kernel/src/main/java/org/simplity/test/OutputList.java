@@ -23,7 +23,9 @@
 package org.simplity.test;
 
 import org.simplity.json.JSONArray;
+import org.simplity.json.JSONObject;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.util.JsonUtil;
 
 /**
  * Represents a list/array of items in a json
@@ -75,7 +77,8 @@ public class OutputList {
 	 * @param arr
 	 * @return
 	 */
-	String match(Object json, TestContext ctx) {
+	String match(JSONObject parentJson, TestContext ctx) {
+		Object json = JsonUtil.getObjectValue(this.listSelector, parentJson);
 		if (json == null) {
 			if (this.minRows != 0) {
 				return "List " + this.listSelector + " should have at least "

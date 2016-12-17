@@ -27,6 +27,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.simplity.json.JSONWriter;
+import org.simplity.kernel.Application;
+import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.comp.ComponentManager;
+import org.simplity.kernel.util.JsonUtil;
+import org.simplity.service.JavaAgent;
+
 /**
  * Context that holds name-value pairs and test results during a test run.
  *
@@ -34,6 +41,53 @@ import java.util.Map;
 public class TestContext {
 	private Map<String, Object> values = new HashMap<String, Object>();
 	private List<TestResult> results = new ArrayList<TestResult>();
+	private JavaAgent serviceAgent;
+	private int nbrFailed = 0;
+
+	/**
+	 * start a context for testing. you MUST start() before firing test();
+	 *
+	 * @param userId
+	 * @param pwd
+	 */
+	public void start(String userId, String pwd) {
+		this.serviceAgent = JavaAgent.getAgent(userId, pwd);
+	}
+
+	/**
+	 * add a test result to the context
+	 *
+	 * @param result
+	 */
+	public void addResult(TestResult result) {
+		if (result.cleared() == false) {
+			this.nbrFailed++;
+		}
+		this.results.add(result);
+	}
+
+	/**
+	 *
+	 * @return number of failed test
+	 */
+	public int getNbrFailed() {
+		return this.nbrFailed;
+	}
+
+	/**
+	 * get a report of all tests run.
+	 *
+	 * @return first row is header. One row per test.
+	 */
+	public String[][] getReport() {
+		int n = this.results.size() + 1;
+		String[][] result = new String[n][];
+		result[0] = TestResult.HEADR;
+		for (int i = 1; i < result.length; i++) {
+			result[i] = this.results.get(i - 1).toRow();
+		}
+		return result;
+	}
 
 	/**
 	 * save a key-value pair
@@ -43,7 +97,6 @@ public class TestContext {
 	 */
 	public void setValue(String key, Object value) {
 		this.values.put(key, value);
-
 	}
 
 	/**
@@ -57,18 +110,47 @@ public class TestContext {
 	}
 
 	/**
-	 * add a test result
 	 *
-	 * @param result
+	 * @return a service agent who can serve services for this test run
 	 */
-	public void addResult(TestResult result) {
-		this.results.add(result);
+	public JavaAgent getServiceAgent() {
+		return this.serviceAgent;
 	}
 
 	/**
-	 * @return the results
+	 *
+	 * @param serviceName
+	 * @param input
+	 *            JSON to service
+	 * @return output JSON from service
 	 */
-	public TestResult[] getResults() {
-		return this.results.toArray(new TestResult[0]);
+
+	public String runService(String serviceName, String input) {
+		if (this.serviceAgent == null) {
+			throw new ApplicationError(
+					"TestContext has to be start()ed before run()ning");
+		}
+		return this.serviceAgent.serve(serviceName, input);
+	}
+
+	/**
+	 *
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args) throws Exception {
+		String root = "e:/repos/simplity/pet/WebContent/WEB-INF/comp/";
+		Application.bootStrap(root);
+		TestContext ctx = new TestContext();
+		ctx.start("111", "foo");
+		ctx.setValue("fieldInCtx", "ctx");
+		TestRun testRun = ComponentManager.getTestRunOrNull("pet");
+		testRun.run(ctx);
+		JSONWriter writer = new JSONWriter();
+		writer.object();
+		writer.key("report");
+		JsonUtil.addObject(writer, ctx.getReport());
+		writer.endObject();
+		System.out.println(writer.toString());
 	}
 }

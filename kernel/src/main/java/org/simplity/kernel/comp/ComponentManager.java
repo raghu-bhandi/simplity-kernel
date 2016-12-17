@@ -31,6 +31,7 @@ import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.fn.Function;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceInterface;
+import org.simplity.test.TestRun;
 
 /**
  * Utility class with specific named methods rather than dipping into
@@ -216,7 +217,8 @@ public class ComponentManager {
 		Component comp = ComponentType.FUNCTION
 				.getComponentOrNull(functionName);
 		if (comp == null) {
-			throw new ApplicationError(functionName + " is not a vaid message.");
+			throw new ApplicationError(functionName
+					+ " is not a valid message.");
 		}
 		return (Function) comp;
 	}
@@ -242,5 +244,33 @@ public class ComponentManager {
 	public static Value evaluate(String functionName, Value[] valueList,
 			FieldsInterface data) {
 		return getFunction(functionName).execute(valueList, data);
+	}
+
+	/**
+	 * get a test case
+	 *
+	 * @param caseName
+	 * @return test case. not null
+	 * @throws ApplicationError
+	 *             in case the testCase is not found.
+	 */
+	public static TestRun getTestRun(String caseName) {
+		Component comp = ComponentType.TEST_RUN.getComponentOrNull(caseName);
+		if (comp == null) {
+			throw new ApplicationError(caseName + " is not a valid test case.");
+		}
+		return (TestRun) comp;
+	}
+
+	/**
+	 * get a test case
+	 *
+	 * @param caseName
+	 * @return test case, or null.
+	 * @throws ApplicationError
+	 *             in case the testCase is not found.
+	 */
+	public static TestRun getTestRunOrNull(String caseName) {
+		return (TestRun) ComponentType.TEST_RUN.getComponentOrNull(caseName);
 	}
 }

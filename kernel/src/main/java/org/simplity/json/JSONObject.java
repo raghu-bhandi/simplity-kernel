@@ -1505,43 +1505,38 @@ public class JSONObject {
 	}
 
 	/**
-	 * Determine if two JSONObjects are similar. They must contain the same set
-	 * of names which must be associated with similar values.
+	 * Determine if this object has attributes that agrees with the attributes
+	 * of the other JSON.
 	 *
 	 * @param other
 	 *            The other JSONObject
 	 * @return true if they are equal
 	 */
-	public boolean similar(Object other) {
-		try {
-			if (!(other instanceof JSONObject)) {
-				return false;
-			}
-			Set<String> set = this.keySet();
-			if (!set.equals(((JSONObject) other).keySet())) {
-				return false;
-			}
-			Iterator<String> iterator = set.iterator();
-			while (iterator.hasNext()) {
-				String name = iterator.next();
-				Object valueThis = this.get(name);
-				Object valueOther = ((JSONObject) other).get(name);
-				if (valueThis instanceof JSONObject) {
-					if (!((JSONObject) valueThis).similar(valueOther)) {
-						return false;
-					}
-				} else if (valueThis instanceof JSONArray) {
-					if (!((JSONArray) valueThis).similar(valueOther)) {
-						return false;
-					}
-				} else if (!valueThis.equals(valueOther)) {
-					return false;
-				}
-			}
-			return true;
-		} catch (Throwable exception) {
+	public boolean agreesWith(Object other) {
+		if (other instanceof JSONObject == false) {
 			return false;
 		}
+		JSONObject otherJson = (JSONObject) other;
+		for (String key : this.keySet()) {
+			Object thisValue = this.get(key);
+			Object otherValue = otherJson.opt(key);
+			if (thisValue instanceof JSONObject) {
+				if (((JSONObject) thisValue).agreesWith(otherValue) == false) {
+					return false;
+				}
+				continue;
+			}
+			if (thisValue instanceof JSONArray) {
+				if (((JSONArray) thisValue).agreesWith(otherValue) == false) {
+					return false;
+				}
+				continue;
+			}
+			if (thisValue.equals(otherValue) == false) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -1795,12 +1790,12 @@ public class JSONObject {
 			Package objectPackage = object.getClass().getPackage();
 			String objectPackageName = objectPackage != null ? objectPackage
 					.getName() : "";
-					if (objectPackageName.startsWith("java.")
-							|| objectPackageName.startsWith("javax.")
-							|| object.getClass().getClassLoader() == null) {
-						return object.toString();
-					}
-					return new JSONObject(object);
+			if (objectPackageName.startsWith("java.")
+					|| objectPackageName.startsWith("javax.")
+					|| object.getClass().getClassLoader() == null) {
+				return object.toString();
+			}
+			return new JSONObject(object);
 		} catch (Exception exception) {
 			return null;
 		}

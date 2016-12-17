@@ -34,7 +34,8 @@ import org.simplity.kernel.util.JsonUtil;
 public class ContextField {
 	/**
 	 * source of this field in the output JSON e.g. customerName or
-	 * orders.lines[2].price
+	 * orders.lines[2].price. Special case "." (just dot ) to select the entire
+	 * JSON itself
 	 */
 	String fieldSelector;
 	/**
@@ -46,7 +47,7 @@ public class ContextField {
 
 	/**
 	 * save/add this field value into context
-	 * 
+	 *
 	 * @param json
 	 * @param ctx
 	 */

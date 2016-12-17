@@ -23,7 +23,6 @@
 package org.simplity.test;
 
 import org.simplity.json.JSONArray;
-import org.simplity.json.JSONObject;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.JsonUtil;
 
@@ -76,39 +75,42 @@ public class OutputField {
 	 */
 	String match(Object json, TestContext ctx) {
 		Object val = JsonUtil.getValue(this.fieldSelector, json);
+		if (this.fieldValue != null && this.fieldValue.isEmpty() == false) {
+			String thisValue = this.fieldValue;
+			if (this.fieldValue.charAt(0) == '$') {
+				thisValue = ctx.getValue(this.fieldValue.substring(1))
+						.toString();
+			}
+
+			if (thisValue.equals(val) == false) {
+				return "Expected a value of " + thisValue + " for field "
+						+ this.fieldSelector + " but we got " + val;
+			}
+		}
 		boolean valMissing = false;
 		if (val != null) {
 			if (val instanceof JSONArray) {
 				if (((JSONArray) val).length() == 0) {
 					valMissing = true;
 				}
-			} else if (val instanceof JSONObject) {
-				if (((JSONArray) val).length() == 0) {
-					valMissing = true;
-				}
+			} else if (val.equals(null)) {
+				valMissing = true;
 			}
 		}
-		if (val == null || valMissing) {
-			if (this.shouldBeAbsent) {
-				return null;
+		if (this.shouldBeAbsent) {
+			if (val != null && valMissing == false) {
+				return "Found a value of " + val.toString() + " for field "
+						+ this.fieldSelector
+						+ " but we are not looking for a value at all.";
 			}
+		}
+		if (this.fieldValue == null && this.shouldBeAbsent == false
+				&& (val == null || valMissing)) {
+
 			return "Response did not contain an expected field named "
-			+ this.fieldSelector;
+					+ this.fieldSelector;
 		}
 
-		if (this.shouldBeAbsent) {
-			return "Found a value of " + val.toString() + " for field "
-					+ this.fieldSelector
-					+ " but we are not looking for a value at all.";
-		}
-		String thisValue = this.fieldValue;
-		if (this.fieldValue.charAt(0) == '$') {
-			thisValue = ctx.getValue(this.fieldValue.substring(1)).toString();
-		}
-		if (thisValue.equals(val) == false) {
-			return "Expected a value of " + thisValue + " for field "
-					+ this.fieldSelector + " but we got " + val;
-		}
 		return null;
 	}
 }

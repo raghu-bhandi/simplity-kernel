@@ -1039,7 +1039,7 @@ public class JSONArray implements Iterable<Object> {
 			Object valueThis = this.get(i);
 			Object valueOther = ((JSONArray) other).get(i);
 			if (valueThis instanceof JSONObject) {
-				if (!((JSONObject) valueThis).similar(valueOther)) {
+				if (!((JSONObject) valueThis).agreesWith(valueOther)) {
 					return false;
 				}
 			} else if (valueThis instanceof JSONArray) {
@@ -1185,4 +1185,44 @@ public class JSONArray implements Iterable<Object> {
 			throw new JSONException(e);
 		}
 	}
+
+	/**
+	 * Determine if this object has attributes that agrees with the attributes
+	 * of the other JSON.
+	 *
+	 * @param other
+	 *            The other JSONObject
+	 * @return true if they are equal
+	 */
+	public boolean agreesWith(Object other) {
+		if (other instanceof JSONArray == false) {
+			return false;
+		}
+		JSONArray otherJson = (JSONArray) other;
+		int nbr = this.length();
+		if (nbr != otherJson.length()) {
+			return false;
+		}
+		for (int i = 0; i < nbr; i++) {
+			Object thisValue = this.get(i);
+			Object otherValue = otherJson.opt(i);
+			if (thisValue instanceof JSONObject) {
+				if (((JSONObject) thisValue).agreesWith(otherValue) == false) {
+					return false;
+				}
+				continue;
+			}
+			if (thisValue instanceof JSONArray) {
+				if (((JSONArray) thisValue).agreesWith(otherValue) == false) {
+					return false;
+				}
+				continue;
+			}
+			if (thisValue.equals(otherValue) == false) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 }

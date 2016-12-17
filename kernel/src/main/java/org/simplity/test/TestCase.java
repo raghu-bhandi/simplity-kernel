@@ -22,10 +22,11 @@
 
 package org.simplity.test;
 
+import java.util.Date;
+
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
-import org.simplity.kernel.comp.Component;
-import org.simplity.kernel.comp.ComponentType;
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.service.ServiceProtocol;
 
@@ -36,16 +37,11 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  *
  */
-public class TestCase implements Component {
+public class TestCase {
 	/**
 	 * unique name given to this test case.
 	 */
 	String testCaseName;
-
-	/**
-	 * unique name given to this test case.
-	 */
-	String moduleName;
 
 	/**
 	 * service to be tested
@@ -74,6 +70,12 @@ public class TestCase implements Component {
 	 * the JSON. Fields inside this item are relative to this item
 	 */
 	InputItem[] inputItems;
+
+	/**
+	 * number of errors expected. non-zero implies that we expect this request
+	 * to fail, and hence output data expectations are irrelevant.
+	 */
+	boolean testForFailure;
 	/*
 	 * output meant for assertions
 	 */
@@ -84,12 +86,6 @@ public class TestCase implements Component {
 	 * string comparison to take care of white-space and sequence/order issues
 	 */
 	String outputJson;
-
-	/**
-	 * number of errors expected. non-zero implies that we expect this request
-	 * to fail, and hence output data expectations are irrelevant.
-	 */
-	boolean testForFailure;
 	/**
 	 * assertion on fields (with primitive values)
 	 */
@@ -104,15 +100,42 @@ public class TestCase implements Component {
 	 */
 	OutputItem[] outputItems;
 
+	/**
+	 * fields that are used by subsequent test plans
+	 */
 	ContextField[] fieldsToBeAddedToContext;
 
 	/**
+	 * run this test and report result to the context
+	 *
+	 * @param ctx
+	 * @return error message in case this test fails. null if all OK.
+	 */
+	public String run(TestContext ctx) {
+		String json = this.getInput(ctx);
+		Tracer.trace("Input Json : " + json);
+		long startedAt = new Date().getTime();
+		json = ctx.runService(this.serviceName, json);
+		Tracer.trace("Output JSON : " + json);
+		int millis = (int) (new Date().getTime() - startedAt);
+		String msg = this.assertOutput(json, ctx);
+		TestResult result = new TestResult(this.serviceName, this.testCaseName,
+				millis, msg);
+		ctx.addResult(result);
+		return msg;
+
+	}
+
+	/**
+	 * we carry out all asserts in the output specification. We come out with
+	 * the first failure.
+	 *
 	 * @param output
 	 *            json that is returned from service. This is either an array of
 	 *            messages or a response json
 	 * @return null if it compares well. Error message in case of any trouble
 	 */
-	String processOutput(String output, TestContext ctx) {
+	String assertOutput(String output, TestContext ctx) {
 		JSONObject json = new JSONObject(output);
 		if (this.fieldsToBeAddedToContext != null) {
 			for (ContextField field : this.fieldsToBeAddedToContext) {
@@ -120,36 +143,33 @@ public class TestCase implements Component {
 			}
 		}
 
-		int nbrErrors = this.countErrors(json);
-		if (nbrErrors > 0) {
-			/*
-			 * service failed
-			 */
-			if (this.testForFailure) {
-				/*
-				 * test succeeded
-				 */
-				return null;
-			}
-			return nbrErrors
-					+ " errors found while a successfull request is expected";
+		boolean succeeded = this.serviceSucceeded(json);
+		if (succeeded && this.testForFailure) {
+			return "Service succeeded while we expected it to fail.";
 		}
 		/*
 		 * service succeeded.
 		 */
-		if (this.testForFailure) {
-			return "Service succeeded while we expected it to fail.";
+		if (succeeded == false && this.testForFailure == false) {
+			return "Service failed while we expected it to succeed.";
 		}
 
+		/*
+		 * we are aware that we could be reaching here even after the service
+		 * has failed. But if that is what the tester wants us to do...
+		 */
 		/*
 		 * are we expecting a specific json?
 		 */
 		if (this.outputJson != null) {
 			JSONObject expected = new JSONObject(this.outputJson);
-			if (json.similar(expected)) {
-				return null;
+			/*
+			 * we assert expected attributes, but not bother if there are
+			 * others.
+			 */
+			if (expected.agreesWith(json) == false) {
+				return "Response json did not match the expected json";
 			}
-			return "Response json did not match the expected json";
 		}
 
 		/*
@@ -192,18 +212,31 @@ public class TestCase implements Component {
 	 * @param json
 	 * @return
 	 */
-	private int countErrors(JSONObject json) {
-		Object obj = json.opt(ServiceProtocol.MESSAGES);
+	private boolean serviceSucceeded(JSONObject json) {
+		Object obj = json.opt(ServiceProtocol.REQUEST_STATUS);
+		if (obj != null) {
+			return ServiceProtocol.STATUS_OK.equals(obj);
+		}
+		/*
+		 * since there is no status indicator, we infer it based on messages
+		 */
+
+		obj = json.opt(ServiceProtocol.MESSAGES);
+		if (obj == null || obj instanceof JSONArray == false) {
+			return true;
+		}
 		JSONArray msgs = (JSONArray) obj;
 		int nbrMsgs = msgs.length();
-		int nbrErrors = 0;
 		for (int i = 0; i < nbrMsgs; i++) {
-			if (msgs.getJSONObject(i).optString("messageType").toUpperCase()
-					.equals("error")) {
-				nbrErrors++;
+			obj = msgs.opt(i);
+			if (obj instanceof JSONObject) {
+				if (((JSONObject) obj).optString("messageType").equals("error")) {
+					return false;
+				}
 			}
 		}
-		return nbrErrors;
+		return true;
+
 	}
 
 	/**
@@ -212,7 +245,6 @@ public class TestCase implements Component {
 	 * @param vtx
 	 * @return number of errors detected
 	 */
-	@Override
 	@SuppressWarnings("unused")
 	public int validate(ValidationContext vtx) {
 		int nbr = 0;
@@ -297,47 +329,10 @@ public class TestCase implements Component {
 		return json.toString();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.simplity.kernel.comp.Component#getSimpleName()
+	/**
+	 * @return service name
 	 */
-	@Override
-	public String getSimpleName() {
-		return this.testCaseName;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.simplity.kernel.comp.Component#getQualifiedName()
-	 */
-	@Override
-	public String getQualifiedName() {
-		if (this.moduleName == null) {
-			return this.testCaseName;
-		}
-		return this.moduleName + '.' + this.testCaseName;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.simplity.kernel.comp.Component#getReady()
-	 */
-	@Override
-	public void getReady() {
-		// This component is not saved and re-used in memory. Hence no
-		// preparation on load.
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.simplity.kernel.comp.Component#getComponentType()
-	 */
-	@Override
-	public ComponentType getComponentType() {
-		return ComponentType.TEST_CASE;
+	public String getServiceName() {
+		return this.serviceName;
 	}
 }

@@ -591,6 +591,10 @@ public class JsonUtil {
 	 * @param obj
 	 */
 	public static void addObject(JSONWriter writer, Object obj) {
+		if (obj == null) {
+			writer.value(null);
+			return;
+		}
 		if (obj instanceof Jsonable) {
 			((Jsonable) obj).writeJsonValue(writer);
 			return;
@@ -783,6 +787,26 @@ public class JsonUtil {
 	 */
 	private static Object getValueWorker(String fieldSelector, Object json,
 			int option) {
+		/*
+		 * be considerate for careless-callers..
+		 */
+		if (fieldSelector == null || fieldSelector.isEmpty()) {
+			Tracer.trace("Null/empty selector for get/setValue");
+			if (option == 0) {
+				return null;
+			}
+			if (option == 1) {
+				return new JSONObject();
+			}
+			return new JSONArray();
+		}
+		/*
+		 * special case that indicates root object itself
+		 */
+		if (fieldSelector.charAt(0) == '.') {
+			return json;
+		}
+
 		String[] parts = fieldSelector.split("\\.");
 		Object result = json;
 		int lastPartIdx = parts.length - 1;
@@ -796,10 +820,30 @@ public class JsonUtil {
 				}
 				int idx = parseIdx(part);
 				Object child = null;
-				if (idx == -1) {
-					child = ((JSONObject) result).opt(part);
+				JSONObject resultObj = null;
+				JSONArray resultArr = null;
+				if (result instanceof JSONObject) {
+					if (idx != -1) {
+						throw new ApplicationError(
+								fieldSelector
+								+ " is not an apprpriate selector. We encountered a non-object for attribute "
+								+ part);
+					}
+					resultObj = (JSONObject) result;
+					child = resultObj.opt(part);
+				} else if (result instanceof JSONArray) {
+					if (idx == -1) {
+						throw new ApplicationError(
+								fieldSelector
+								+ " is not an apprpriate selector. We encountered a object when we were expectng an array for index "
+								+ idx);
+					}
+					resultArr = (JSONArray) result;
+					child = resultArr.opt(idx);
 				} else {
-					child = ((JSONArray) result).opt(idx);
+					throw new ApplicationError(
+							fieldSelector
+							+ " is not an apprpriate selector as we encoutered a non-object on the path.");
 				}
 				if (child != null) {
 					result = child;
@@ -827,10 +871,11 @@ public class JsonUtil {
 				} else {
 					child = new JSONArray();
 				}
-				if (idx == -1) {
-					((JSONArray) json).put(idx, child);
-				} else {
-					((JSONObject) result).put(part, child);
+				if (resultObj != null) {
+					resultObj.put(part, child);
+				} else if (resultArr != null) {
+					// we have put else-if to calm down the lint!!
+					resultArr.put(idx, child);
 				}
 				result = child;
 			}
@@ -841,7 +886,7 @@ public class JsonUtil {
 		} catch (ClassCastException e) {
 			throw new ApplicationError(
 					fieldSelector
-					+ " is used as an output field name for a test case, but the output json does not have the right structure for this pattern of names and indexes");
+					+ " is used as an attribute-selector for a test case, but the json does not have the right structure for this pattern.");
 		} catch (ApplicationError e) {
 			throw e;
 		} catch (Exception e) {
@@ -860,6 +905,27 @@ public class JsonUtil {
 	 */
 	public static void setValueWorker(String fieldSelector, Object json,
 			Object value) {
+		/*
+		 * special case of root object itself
+		 */
+		if (fieldSelector.equals(".")) {
+			if (value instanceof JSONObject == false
+					|| json instanceof JSONObject == false) {
+				Tracer.trace("We expected a JSONObjects for source and destination, but got "
+						+ json.getClass().getName()
+						+ " as object, and  "
+						+ (value == null ? "null" : value.getClass().getName())
+						+ " as value");
+				return;
+			}
+			JSONObject objFrom = (JSONObject) value;
+			JSONObject objTo = (JSONObject) json;
+			for (String attName : objFrom.keySet()) {
+				objTo.put(attName, objFrom.opt(attName));
+			}
+			return;
+		}
+
 		String attName = fieldSelector;
 		Object leafObject = json;
 		/*
