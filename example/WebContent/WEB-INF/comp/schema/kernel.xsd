@@ -1813,7 +1813,8 @@
 				<xs:documentation>By default, only the first level children are read
 					along with the parent. Do you want that action to cascade down to
 					subsequent generations as well? That is, if teh childRecord has
-					children, read them as well, and so on.</xs:documentation>
+					children, read them as well, and so on.
+				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
@@ -1909,7 +1910,8 @@
 				<xs:documentation>By default, only the first level children are read
 					along with the parent. Do you want that action to cascade down to
 					subsequent generations as well? That is, if teh childRecord has
-					children, read them as well, and so on.</xs:documentation>
+					children, read them as well, and so on.
+				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
@@ -1960,7 +1962,8 @@
 				<xs:documentation>By default, only the first level children are read
 					along with the parent. Do you want that action to cascade down to
 					subsequent generations as well? That is, if teh childRecord has
-					children, read them as well, and so on.</xs:documentation>
+					children, read them as well, and so on.
+				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
@@ -2926,7 +2929,32 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-	<xs:complexType name="serverTest">
-
-	</xs:complexType>
+	<xs:element name="testRun">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element
+					name="testCases"
+					minOccurs="1"
+					maxOccurs="1"
+				>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element
+								ref="testCase"
+								minOccurs="1"
+								maxOccurs="unbounded" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute
+				name="testName"
+				type="xs:string"
+				use="required" />
+			<xs:attribute
+				name="moduleName"
+				type="xs:string"
+				use="optional" />
+		</xs:complexType>
+	</xs:element>
 </xs:schema>

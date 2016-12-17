@@ -5,6 +5,7 @@
 	okToSelectAll="true"
 	keyToBeGenerated="true"
 	childrenToBeRead="petDetails"
+	childrenToBeSaved="pets"
 >
 	<fields>
 		<field

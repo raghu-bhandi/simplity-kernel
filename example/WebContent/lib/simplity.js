@@ -1388,7 +1388,8 @@ var Simplity = (function() {
 		} catch (e) {
 			log('Response is not a valid JSON. Assumed to be text and returning text instead of JSON.');
 		}
-		if (response[POCOL.REQUEST_STATUS] == POCOL.STATUS_OK) {
+		var st = response[POCOL.REQUEST_STATUS];
+		if (!st || st == POCOL.STATUS_OK) {
 			/*
 			 * save json to a window variable
 			 */
@@ -2193,6 +2194,6 @@ var Simplity = (function() {
 		registerRelogin : registerRelogin,
 		getLogs : getLogs,
 		htmlEscape : htmlEscape,
-		downloadCSV : downloadCSV()
+		downloadCSV : downloadCSV
 	};
 })();
