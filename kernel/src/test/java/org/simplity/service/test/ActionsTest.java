@@ -143,10 +143,13 @@ public class ActionsTest extends Mockito {
 		
 	}
 
-	private ServiceData serviceAgentSetup(String servicename) {
+	private ServiceData serviceAgentSetup(String servicename,String payload) {
 		ServiceData outData = new ServiceData();
 		ServiceData inData = new ServiceData();
-		inData.setPayLoad("");
+		if(payload!=null)
+			inData.setPayLoad(payload);
+		else
+			inData.setPayLoad("");
 		inData.setServiceName(servicename);
 		inData.setUserId(Value.newTextValue("100"));
 		outData = ServiceAgent.getAgent().executeService(inData);
@@ -158,7 +161,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void setValueTest() {
-		ServiceData outData = serviceAgentSetup("test.SetValue");
+		ServiceData outData = serviceAgentSetup("test.SetValue",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals("Peter Pan", obj.getString("leader"));
 		assertEquals("Captain Hook,Mr.Smee", obj.getString("adversaries"));
@@ -169,7 +172,8 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void LogicTest() {
-		ServiceData outData = serviceAgentSetup("test.Logic");
+		String payLoad = "{'switch':'winner'}";
+		ServiceData outData = serviceAgentSetup("test.Logic",payLoad);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 
 		assertEquals("Peter Pan", obj.getString("leader"));
@@ -195,7 +199,7 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void addColumnTest() {
 
-		ServiceData outData = serviceAgentSetup("tutorial.addColumn");
+		ServiceData outData = serviceAgentSetup("tutorial.addColumn",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 
 		assertEquals(((JSONObject) ((JSONArray) obj.get("weekendBoxOffice")).get(0)).get("testcolumn"), "testValue");
@@ -207,7 +211,7 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void copyRowsTest() {
 
-		ServiceData outData = serviceAgentSetup("tutorial.copyRows");
+		ServiceData outData = serviceAgentSetup("tutorial.copyRows",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 
 		assertEquals(((JSONObject) ((JSONArray) obj.get("copiedweekendBoxOffice")).get(0)).get("Theaters"), "465");
@@ -219,7 +223,7 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void renameSheetTest() {
 
-		ServiceData outData = serviceAgentSetup("tutorial.renameSheet");
+		ServiceData outData = serviceAgentSetup("tutorial.renameSheet",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 
 		assertEquals(((JSONObject) ((JSONArray) obj.get("newweekendBoxOffice")).get(0)).get("Theaters"), "465");
@@ -231,7 +235,7 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void addMessageTest() {
 
-		ServiceData outData = serviceAgentSetup("tutorial.addMessage");
+		ServiceData outData = serviceAgentSetup("tutorial.addMessage",null);
 		FormattedMessage[] msgs = outData.getMessages();
 
 		assertEquals(msgs[0].text, "NeverLand Custom Message From My Messages XML File");
@@ -243,7 +247,7 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void createSheetTest() {
 
-		ServiceData outData = serviceAgentSetup("tutorial.createSheet");
+		ServiceData outData = serviceAgentSetup("tutorial.createSheet",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 
 		assertEquals(((JSONObject) ((JSONArray) obj.get("newsheet")).get(0)).get("text"),
@@ -255,7 +259,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void jumpToTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.jumpTo");
+		ServiceData outData = serviceAgentSetup("tutorial.jumpTo",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(false, obj.has("adversary1"));
 	}
@@ -265,7 +269,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void copyUserIdTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.copyUserId");
+		ServiceData outData = serviceAgentSetup("tutorial.copyUserId",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("UserIDCopy"), "100");
 	}
@@ -275,7 +279,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void filterTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.filterTest");
+		ServiceData outData = serviceAgentSetup("tutorial.filterTest",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("customers")).get(0)).get("customerName"), "Signal Gift Stores");
 	}
@@ -285,7 +289,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void rowExistsTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.rowExists");
+		ServiceData outData = serviceAgentSetup("tutorial.rowExists",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
 	}
@@ -295,7 +299,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void readDataTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.readData");
+		ServiceData outData = serviceAgentSetup("tutorial.readData",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("customerName"), "Signal Gift Stores");
 	}
@@ -305,7 +309,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void suggestTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.suggest");
+		ServiceData outData = serviceAgentSetup("tutorial.suggest",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("firstName"), "Mary");
 	}
@@ -315,7 +319,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void saveDataDeleteTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.saveDataDelete");
+		ServiceData outData = serviceAgentSetup("tutorial.saveDataDelete",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
 	}
@@ -325,7 +329,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void saveDataAddTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.saveDataAdd");
+		ServiceData outData = serviceAgentSetup("tutorial.saveDataAdd",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
 	}
@@ -335,7 +339,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void saveDataModifyTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.saveDataModify");
+		ServiceData outData = serviceAgentSetup("tutorial.saveDataModify",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
 	}
@@ -346,7 +350,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void readWithSqlTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.readWithSql");
+		ServiceData outData = serviceAgentSetup("tutorial.readWithSql",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("lastName"), "Patterson");
 	}
@@ -356,14 +360,14 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void executeSqlTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.executeSql");
+		ServiceData outData = serviceAgentSetup("tutorial.executeSql",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("updateSql"),1);
 	}
 	
 	@Test
 	public void schemaReadWithSqlTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.schemaReadWithSql");
+		ServiceData outData = serviceAgentSetup("tutorial.schemaReadWithSql",null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Students")).get(0)).get("name"), "Sham");
 	}

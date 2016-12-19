@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<application
+	xmlns="http://www.simplity.org/schema"
+	applicationId="org.simplity.pet"
+	sendTraceToClient="true"
+	logSqls="true" 
+	autoLoginUserId="111"
+	dbVendor="h2" 
+	dbDriverClassName="org.h2.Driver" 
+	connectionString="jdbc:h2:file:D:/temp/petclinic;user=sa;">
+</application>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	name="vets"
+	okToSelectAll="true"
+	keyToBeGenerated="true"
+	childrenToBeRead="vetSpecialtiesDetails"
+>
+	<fields>
+		<field
+			name="vetId"
+			columnName="id"
+			dataType="id"
+			fieldType="primaryKey"
+			isRequired="true"
+			 />
+		<field
+			name="firstName"
+			columnName="first_name"
+			dataType="name"
+			isRequired="true"
+			 />
+		<field
+			name="lastName"
+			columnName="last_name"
+			dataType="name"
+			isRequired="true"
+			/>
+	</fields>
+</record>

@@ -12,19 +12,10 @@
 	<parent>
 		<artifactId>simplity</artifactId>
 		<groupId>org.simplity</groupId>
-<<<<<<< HEAD
 		<version>1.1.2.1.1</version>
-=======
-		<version>1.1.2</version>
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
 	</parent>
 	<artifactId>js</artifactId>
 	<name>js</name>
-
-	<organization>
-		<name>akquinet A.G.</name>
-		<url>http://www.akquinet.de/en</url>
-	</organization>
 
 	<build>
 		<resources>
@@ -38,15 +29,11 @@
 			<plugin>
 				<groupId>com.github.searls</groupId>
 				<artifactId>jasmine-maven-plugin</artifactId>
-				<version>1.0.1-beta-6</version>
+				<version>2.2</version>
 				<executions>
 					<execution>
 						<goals>
-							<goal>generateManualRunner</goal>
-							<goal>resources</goal>
-							<goal>testResources</goal>
 							<goal>test</goal>
-							<goal>preparePackage</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -74,7 +61,7 @@
 			<plugin>
 				<groupId>net.alchim31.maven</groupId>
 				<artifactId>yuicompressor-maven-plugin</artifactId>
-				<version>1.1</version>
+				<version>1.5.1</version>
 				<executions>
 					<execution>
 						<id>compress-js</id>
