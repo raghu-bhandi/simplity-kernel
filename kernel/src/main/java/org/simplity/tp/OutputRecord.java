@@ -90,12 +90,14 @@ public class OutputRecord {
 	}
 
 	/**
-	 * create an output record for a data
+	 * create an output record for a record
 	 *
-	 * @param sheetName
+	 * @param record
+	 *
 	 */
-	public OutputRecord(String sheetName) {
-		this.sheetName = sheetName;
+	public OutputRecord(Record record) {
+		this.recordName = record.getQualifiedName();
+		this.sheetName = record.getDefaultSheetName();
 	}
 
 	/**
@@ -245,7 +247,7 @@ public class OutputRecord {
 			ServiceContext ctx) {
 		DataSheet mySheet = ctx.getDataSheet(this.sheetName);
 		if (mySheet == null) {
-			Tracer.trace("Sheet " + this.sheetName + " has no data to putput");
+			Tracer.trace("Sheet " + this.sheetName + " has no data to output");
 			return null;
 		}
 		/*
@@ -261,7 +263,6 @@ public class OutputRecord {
 			throw new ApplicationError(this.linkColumnInThisSheet
 					+ " is not a valid column in sheet " + this.sheetName);
 		}
-		myIdx = 1;
 		Map<String, List<Value[]>> map = new HashMap<String, List<Value[]>>();
 		for (Value[] row : mySheet.getAllRows()) {
 			String key = row[myIdx].toString();

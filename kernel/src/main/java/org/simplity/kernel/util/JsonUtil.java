@@ -34,6 +34,7 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.json.Jsonable;
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
@@ -273,7 +274,9 @@ public class JsonUtil {
 
 			if (childSheets != null) {
 				for (HierarchicalSheet childSheet : childSheets) {
-					childSheet.toJson(writer, row);
+					if (childSheet != null) {
+						childSheet.toJson(writer, row);
+					}
 				}
 			}
 			writer.endObject();
@@ -588,6 +591,10 @@ public class JsonUtil {
 	 * @param obj
 	 */
 	public static void addObject(JSONWriter writer, Object obj) {
+		if (obj == null) {
+			writer.value(null);
+			return;
+		}
 		if (obj instanceof Jsonable) {
 			((Jsonable) obj).writeJsonValue(writer);
 			return;
@@ -745,5 +752,249 @@ public class JsonUtil {
 			result[i] = obj;
 		}
 		return result;
+	}
+
+	/**
+	 * get value of a qualified field name down the json object structure.
+	 *
+	 * @param fieldSelector
+	 *            can be of the form a.b.c.. where each part can be int (for
+	 *            array index) or name (for attribute).
+	 * @param json
+	 *            Should be either JSONObject or JSONArray
+	 * @return attribute value as per the tree. null if not found.
+	 * @throws ApplicationError
+	 *             in case the fieldName pattern and the JSONObject structure
+	 *             are not in synch.
+	 *
+	 */
+	public static Object getValue(String fieldSelector, Object json) {
+		return getValueWorker(fieldSelector, json, 0);
+	}
+
+	/**
+	 * common worker method to go down the object as per selector
+	 *
+	 * @param fieldSelector
+	 * @param json
+	 * @param option
+	 *            <pre>
+	 * 0 means do not create/add anything. return null if anything is not found
+	 * 1 means create, add and return a JSON object at the end if it is missing
+	 * 2 means create, add and return a JSON array at the end if it is missing
+	 * </pre>
+	 * @return
+	 */
+	private static Object getValueWorker(String fieldSelector, Object json,
+			int option) {
+		/*
+		 * be considerate for careless-callers..
+		 */
+		if (fieldSelector == null || fieldSelector.isEmpty()) {
+			Tracer.trace("Null/empty selector for get/setValue");
+			if (option == 0) {
+				return null;
+			}
+			if (option == 1) {
+				return new JSONObject();
+			}
+			return new JSONArray();
+		}
+		/*
+		 * special case that indicates root object itself
+		 */
+		if (fieldSelector.charAt(0) == '.') {
+			return json;
+		}
+
+		String[] parts = fieldSelector.split("\\.");
+		Object result = json;
+		int lastPartIdx = parts.length - 1;
+		try {
+			for (int i = 0; i < parts.length; i++) {
+				String part = parts[i];
+				part = part.trim();
+				if (part.isEmpty()) {
+					throw new ApplicationError(fieldSelector
+							+ " is malformed for a qualified json field name.");
+				}
+				int idx = parseIdx(part);
+				Object child = null;
+				JSONObject resultObj = null;
+				JSONArray resultArr = null;
+				if (result instanceof JSONObject) {
+					if (idx != -1) {
+						throw new ApplicationError(
+								fieldSelector
+								+ " is not an apprpriate selector. We encountered a non-object for attribute "
+								+ part);
+					}
+					resultObj = (JSONObject) result;
+					child = resultObj.opt(part);
+				} else if (result instanceof JSONArray) {
+					if (idx == -1) {
+						throw new ApplicationError(
+								fieldSelector
+								+ " is not an apprpriate selector. We encountered a object when we were expectng an array for index "
+								+ idx);
+					}
+					resultArr = (JSONArray) result;
+					child = resultArr.opt(idx);
+				} else {
+					throw new ApplicationError(
+							fieldSelector
+							+ " is not an apprpriate selector as we encoutered a non-object on the path.");
+				}
+				if (child != null) {
+					result = child;
+					continue;
+				}
+				if (option == 0) {
+					/*
+					 * no provisioning. get out of here.
+					 */
+					return null;
+				}
+				/*
+				 * we create an array or an object and add it to the object.
+				 */
+				boolean goForObject = option == 1;
+				if (i < lastPartIdx) {
+					/*
+					 * If next part is attribute, then we create an object, else
+					 * an array
+					 */
+					goForObject = parseIdx(parts[i + 1]) == -1;
+				}
+				if (goForObject) {
+					child = new JSONObject();
+				} else {
+					child = new JSONArray();
+				}
+				if (resultObj != null) {
+					resultObj.put(part, child);
+				} else if (resultArr != null) {
+					// we have put else-if to calm down the lint!!
+					resultArr.put(idx, child);
+				}
+				result = child;
+			}
+			return result;
+		} catch (NumberFormatException e) {
+			throw new ApplicationError(fieldSelector
+					+ " is malformed for a qualified json field name.");
+		} catch (ClassCastException e) {
+			throw new ApplicationError(
+					fieldSelector
+					+ " is used as an attribute-selector for a test case, but the json does not have the right structure for this pattern.");
+		} catch (ApplicationError e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ApplicationError(e,
+					"Error while getting value for field " + fieldSelector);
+		}
+	}
+
+	/**
+	 * set value to json as per selector, creating object/array on the path if
+	 * required. This is like creating a file with full path.
+	 *
+	 * @param fieldSelector
+	 * @param json
+	 * @param value
+	 */
+	public static void setValueWorker(String fieldSelector, Object json,
+			Object value) {
+		/*
+		 * special case of root object itself
+		 */
+		if (fieldSelector.equals(".")) {
+			if (value instanceof JSONObject == false
+					|| json instanceof JSONObject == false) {
+				Tracer.trace("We expected a JSONObjects for source and destination, but got "
+						+ json.getClass().getName()
+						+ " as object, and  "
+						+ (value == null ? "null" : value.getClass().getName())
+						+ " as value");
+				return;
+			}
+			JSONObject objFrom = (JSONObject) value;
+			JSONObject objTo = (JSONObject) json;
+			for (String attName : objFrom.keySet()) {
+				objTo.put(attName, objFrom.opt(attName));
+			}
+			return;
+		}
+
+		String attName = fieldSelector;
+		Object leafObject = json;
+		/*
+		 * assume that the value is to be added as an attribute, not an element
+		 * of array.
+		 */
+		int objIdx = -1;
+
+		int idx = fieldSelector.lastIndexOf('.');
+		if (idx != -1) {
+			attName = fieldSelector.substring(idx + 1);
+			String selector = fieldSelector.substring(0, idx);
+			objIdx = parseIdx(attName);
+			int option = objIdx == -1 ? 1 : 2;
+			leafObject = getValueWorker(selector, json, option);
+		}
+		if (objIdx == -1) {
+			((JSONObject) leafObject).put(attName, value);
+		} else {
+			((JSONArray) leafObject).put(objIdx, value);
+		}
+		return;
+	}
+
+	/**
+	 * parse string into int, or return -1;
+	 *
+	 * @param str
+	 * @return
+	 */
+	private static int parseIdx(String str) {
+		char c = str.charAt(0);
+		if (c >= '0' && c <= '9') {
+			return Integer.parseInt(str);
+		}
+		return -1;
+	}
+
+	/**
+	 * test
+	 *
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		String fieldName = "2.0 ";
+		JSONObject json = new JSONObject("{\"a\":[12,23,[\"12\"]]}");
+		Object obj = getValue(fieldName, json.get("a"));
+		System.out.println(obj);
+	}
+
+	/**
+	 * @param itemSelector
+	 * @param json
+	 * @return object as per selector. A new JSON Object is added and returned
+	 *         if the json does not have a value as per selector, adding as many
+	 *         object/array on the path if required
+	 */
+	public static Object getObjectValue(String itemSelector, JSONObject json) {
+		return getValueWorker(itemSelector, json, 1);
+	}
+
+	/**
+	 * @param itemSelector
+	 * @param json
+	 * @return object as per selector. A new JSON array is added and returned if
+	 *         the json does not have a value as per selector, adding as many
+	 *         object/array on the path if required
+	 */
+	public static Object getArrayValue(String itemSelector, JSONObject json) {
+		return getValueWorker(itemSelector, json, 2);
 	}
 }

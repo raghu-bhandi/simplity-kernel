@@ -12,7 +12,11 @@
 	<parent>
 		<artifactId>simplity</artifactId>
 		<groupId>org.simplity</groupId>
+<<<<<<< HEAD
 		<version>1.1.2.1.1</version>
+=======
+		<version>1.1.2</version>
+>>>>>>> b500c2ff61dc848994fb41b10a26963349896213
 	</parent>
 	<artifactId>js</artifactId>
 	<name>js</name>

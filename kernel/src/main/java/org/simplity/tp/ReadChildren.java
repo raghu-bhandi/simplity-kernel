@@ -69,7 +69,7 @@ public class ReadChildren extends DbAction {
 					+ " but no value found for that field in the context. Read assumed to be normal with no result.");
 			return 0;
 		}
-		DataSheet outSheet = record.filterForParent(parentKey, driver);
+		DataSheet outSheet = record.filterForAParent(parentKey, driver);
 		ctx.putDataSheet(this.outputSheetName, outSheet);
 		return outSheet.length();
 	}
@@ -81,7 +81,7 @@ public class ReadChildren extends DbAction {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
 	 * , org.simplity.tp.Service)

@@ -60,6 +60,11 @@ public class ReadWithSql extends DbAction {
 	 */
 	RelatedRecord[] childRecords;
 
+	/**
+	 * should child records for this filter/record be filtered automatically?
+	 */
+	boolean cascadeFilterForChildren;
+
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
 		Sql sql = ComponentManager.getSql(this.sqlName);
@@ -97,9 +102,8 @@ public class ReadWithSql extends DbAction {
 		if (this.childRecords != null && nbrRows > 0) {
 			for (RelatedRecord rr : this.childRecords) {
 				Record record = ComponentManager.getRecord(rr.recordName);
-				DataSheet relatedSheet = record.filterForParent(outSheet,
-						driver);
-				ctx.putDataSheet(rr.sheetName, relatedSheet);
+				record.filterForParents(outSheet, driver, rr.sheetName,
+						this.cascadeFilterForChildren, ctx);
 			}
 		}
 		return nbrRows;

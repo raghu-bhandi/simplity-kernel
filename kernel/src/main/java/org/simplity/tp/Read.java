@@ -63,6 +63,11 @@ public class Read extends DbAction {
 	RelatedRecord[] childRecords;
 
 	/**
+	 * should child records for this filter/record be filtered automatically?
+	 */
+	boolean cascadeFilterForChildren;
+
+	/**
 	 * default constructor
 	 */
 	public Read() {
@@ -74,13 +79,11 @@ public class Read extends DbAction {
 	 *
 	 * @param record
 	 *            non-null
-	 * @param children
-	 *            optional
 	 */
-	public Read(Record record, RelatedRecord[] children) {
+	public Read(Record record) {
 		this.recordName = record.getQualifiedName();
 		this.actionName = "read_" + record.getSimpleName();
-		this.childRecords = children;
+		this.cascadeFilterForChildren = true;
 	}
 
 	@Override
@@ -112,15 +115,20 @@ public class Read extends DbAction {
 		} else {
 			ctx.copyFrom(outSheet);
 		}
-
-		if (this.childRecords != null & result > 0) {
+		if (result == 0) {
+			return 0;
+		}
+		if (this.childRecords != null) {
 			for (RelatedRecord rr : this.childRecords) {
-				record = ComponentManager.getRecord(rr.recordName);
+				Record cr = ComponentManager.getRecord(rr.recordName);
 				Tracer.trace("Going to read child rcord ");
-				DataSheet relatedSheet = record.filterForParent(outSheet,
-						driver);
-				ctx.putDataSheet(rr.sheetName, relatedSheet);
+				cr.filterForParents(outSheet, driver, rr.sheetName,
+						this.cascadeFilterForChildren, ctx);
 			}
+			return result;
+		}
+		if (this.cascadeFilterForChildren) {
+			record.filterChildRecords(outSheet, driver, ctx);
 		}
 		return result;
 	}

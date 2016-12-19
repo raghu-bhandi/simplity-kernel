@@ -42,6 +42,24 @@ public class RelatedRecord {
 	 */
 	boolean replaceRows;
 
+	/**
+	 * default constructor
+	 */
+	public RelatedRecord() {
+
+	}
+
+	/**
+	 * constructor with record name and sheet name
+	 * 
+	 * @param recordName
+	 * @param sheetName
+	 */
+	public RelatedRecord(String recordName, String sheetName) {
+		this.recordName = recordName;
+		this.sheetName = sheetName;
+	}
+
 	void getReady() {
 		if (this.sheetName == null) {
 			this.sheetName = TextUtil.getSimpleName(this.recordName);

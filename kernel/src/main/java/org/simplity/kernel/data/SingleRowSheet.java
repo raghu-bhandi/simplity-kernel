@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -63,15 +63,17 @@ public class SingleRowSheet implements DataSheet {
 		this.valueTypes = valueTypes;
 		this.setUnknownValues();
 	}
+
 	/**
-	 * @param fields to be used as columns for the data sheet
+	 * @param fields
+	 *            to be used as columns for the data sheet
 	 */
 	public SingleRowSheet(Field[] fields) {
 		int n = fields.length;
 		this.columnNames = new String[n];
 		this.valueTypes = new ValueType[n];
 		n = 0;
-		for(Field field : fields ){
+		for (Field field : fields) {
 			this.columnNames[n] = field.getName();
 			this.valueTypes[n] = field.getValueType();
 			n++;
@@ -88,7 +90,8 @@ public class SingleRowSheet implements DataSheet {
 	public SingleRowSheet(String[][] rawData, ValueType[] valueTypes) {
 		if (rawData.length != 2) {
 			throw new ApplicationError(
-					"Data sheet that is designed for one row is asked to take " + rawData.length + " rows.");
+					"Data sheet that is designed for one row is asked to take "
+							+ rawData.length + " rows.");
 		}
 		this.columnNames = rawData[0];
 		this.valueTypes = valueTypes;
@@ -150,7 +153,8 @@ public class SingleRowSheet implements DataSheet {
 		int i = 0;
 		for (String colName : this.columnNames) {
 			Value value = this.fieldValues.get(colName);
-			values[i] = value == null ? Value.newUnknownValue(this.valueTypes[i]) : value;
+			values[i] = value == null ? Value
+					.newUnknownValue(this.valueTypes[i]) : value;
 			i++;
 		}
 		return values;
@@ -172,7 +176,8 @@ public class SingleRowSheet implements DataSheet {
 	}
 
 	@Override
-	public void setColumnValue(String columnName, int zeroBasedRowNumber, Value value) {
+	public void setColumnValue(String columnName, int zeroBasedRowNumber,
+			Value value) {
 		if (zeroBasedRowNumber != 0) {
 			return;
 		}
@@ -209,7 +214,8 @@ public class SingleRowSheet implements DataSheet {
 
 	private void setUnknownValues() {
 		for (int i = 0; i < this.columnNames.length; i++) {
-			this.fieldValues.put(this.columnNames[i], Value.newUnknownValue(this.valueTypes[i]));
+			this.fieldValues.put(this.columnNames[i],
+					Value.newUnknownValue(this.valueTypes[i]));
 		}
 	}
 
@@ -244,10 +250,13 @@ public class SingleRowSheet implements DataSheet {
 			/*
 			 * is this value compatible with existing value?
 			 */
-			throw new ApplicationError(columnName + "in this sheet is of type " + this.valueTypes[colIdx]
-					+ " but an addColumn() is requested for a value type of " + valueType);
+			throw new ApplicationError(columnName + "in this sheet is of type "
+					+ this.valueTypes[colIdx]
+					+ " but an addColumn() is requested for a value type of "
+					+ valueType);
 		}
-		this.fieldValues.put(columnName, values == null || values.length == 0 ? null : values[0]);
+		this.fieldValues.put(columnName,
+				values == null || values.length == 0 ? null : values[0]);
 	}
 
 	@Override
@@ -267,7 +276,7 @@ public class SingleRowSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.simplity.kernel.data.DataSheet#trace()
 	 */
 	@Override
@@ -285,7 +294,7 @@ public class SingleRowSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.simplity.kernel.data.DataSheet#appendRows(org.simplity.kernel.data.
 	 * DataSheet)
@@ -298,7 +307,7 @@ public class SingleRowSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.simplity.kernel.data.DataSheet#addColumn(java.lang.String,
 	 * org.simplity.kernel.value.Value)
 	 */
@@ -307,18 +316,23 @@ public class SingleRowSheet implements DataSheet {
 		this.setValue(columnName, value);
 
 	}
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.simplity.kernel.data.DataSheet#getColIdx(java.lang.String)
 	 */
 	@Override
 	public int getColIdx(String columnName) {
 		int i = 0;
-		for(String colName : this.columnNames){
-			if(colName.equals(columnName)){
+		for (String colName : this.columnNames) {
+			if (colName.equals(columnName)) {
 				return i;
 			}
+			i++;
 		}
-		Tracer.trace("We did not find column " + columnName + " in this single-row sheet");
+		Tracer.trace("We did not find column " + columnName
+				+ " in this single-row sheet");
 		return -1;
 	}
 }

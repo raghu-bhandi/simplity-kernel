@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	name="pets"
+	keyToBeGenerated="true"
+>
+	<fields>
+		<field
+			name="petId"
+			columnName="id"
+			dataType="id"
+			fieldType="primaryKey"
+			isRequired="true"
+			 />
+		<field
+			name="ownerId"
+			columnName="owner_id"
+			dataType="id"
+			fieldType="parentKey"
+			referredRecord="owners"
+			isRequired="true"
+			 />
+		<field
+			name="petName"
+			columnName="name"
+			dataType="name"
+			isRequired="true"
+			/>
+		<field
+			name="petDob"
+			columnName="birth_date"
+			dataType="date"
+			isRequired="true"
+			 />
+		<field
+			name="petTypeId"
+			columnName="type_id"
+			dataType="id"
+			fieldType="foreignKey"
+			referredRecord="petTypes"
+			isRequired="true"
+			 />
+	</fields>
+</record>

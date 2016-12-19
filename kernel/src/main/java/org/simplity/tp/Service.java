@@ -22,8 +22,10 @@
  */
 package org.simplity.tp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -261,14 +263,20 @@ public class Service implements ServiceInterface {
 				ctx.addInternalMessage(MessageType.ERROR, e.getMessage());
 			}
 		}
-		ServiceData response = new ServiceData(ctx.getUserId(), this.getQualifiedName());
+		ServiceData response = new ServiceData(ctx.getUserId(),
+				this.getQualifiedName());
+		int nbrErrors = 0;
 		for (FormattedMessage msg : ctx.getMessages()) {
-			response.addMessage(msg);
+			if (msg.messageType == MessageType.ERROR) {
+				nbrErrors++;
+				response.addMessage(msg);
+			}
 		}
 		/*
-		 * create output pay load, but only if service succeeded
+		 * create output pay load, but only if service succeeded. Dirty job of
+		 * telling the bad news is left to the Client Agent :-)
 		 */
-		if (ctx.isInError() == false) {
+		if (nbrErrors == 0) {
 			if (this.justOutputEveryThing) {
 				this.setPayload(ctx, response, inData);
 			} else {
@@ -282,9 +290,10 @@ public class Service implements ServiceInterface {
 	}
 
 	protected void extractInput(ServiceContext ctx, String requestText) {
-		if (requestText == null || requestText.equals("undefined") || requestText.length() == 0) {
+
+		if (requestText == null || requestText.length() == 0) {
 			Tracer.trace("No input received from client");
-			requestText = "";
+			return;
 		}
 		if (this.requestTextFieldName != null) {
 			ctx.setObject(this.requestTextFieldName, requestText);
@@ -346,7 +355,8 @@ public class Service implements ServiceInterface {
 	 * @param response
 	 * @param inData
 	 */
-	protected void setPayload(ServiceContext ctx, ServiceData response, ServiceData inData) {
+	protected void setPayload(ServiceContext ctx, ServiceData response,
+			ServiceData inData) {
 		JSONWriter writer = new JSONWriter();
 		writer.object();
 		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
@@ -387,24 +397,31 @@ public class Service implements ServiceInterface {
 		this.gotReady = true;
 		if (this.className != null) {
 			try {
-				this.serviceInstance = (ServiceInterface) Class.forName(this.className).newInstance();
+				this.serviceInstance = (ServiceInterface) Class.forName(
+						this.className).newInstance();
 			} catch (Exception e) {
 				throw new ApplicationError(e,
-						"Unable to get an instance of service using class name " + this.className);
+						"Unable to get an instance of service using class name "
+								+ this.className);
 			}
 		}
 		if (this.actions == null) {
-			throw new ApplicationError("Service " + this.getQualifiedName() + " has no actions.");
-		}
-		int i = 0;
-		for (Action action : this.actions) {
-			action.getReady(i);
-			if (this.indexedActions.containsKey(action.actionName)) {
-				throw new ApplicationError("Service " + this.name + " has duplicate action name " + action.actionName
-						+ " as its action nbr " + (i + 1));
+			Tracer.trace("Service " + this.getQualifiedName()
+					+ " has no actions.");
+			this.actions = new Action[0];
+		} else {
+			int i = 0;
+			for (Action action : this.actions) {
+				action.getReady(i);
+				if (this.indexedActions.containsKey(action.actionName)) {
+					throw new ApplicationError("Service " + this.name
+							+ " has duplicate action name " + action.actionName
+							+ " as its action nbr " + (i + 1));
+				}
+				this.indexedActions.put(action.getName(), new Integer(i));
+				i++;
+
 			}
-			this.indexedActions.put(action.getName(), new Integer(i));
-			i++;
 		}
 		if (this.requestTextFieldName != null) {
 			Tracer.trace("Service " + this.name
@@ -498,7 +515,7 @@ public class Service implements ServiceInterface {
 		/*
 		 * We have just one action : read action
 		 */
-		Action action = new Read(record, getChildRecords(record, true));
+		Action action = new Read(record);
 		Action[] actions = { action };
 		service.actions = actions;
 
@@ -541,7 +558,7 @@ public class Service implements ServiceInterface {
 		/*
 		 * one filter action
 		 */
-		Action action = new Filter(record, getChildRecords(record, true));
+		Action action = new Filter(record);
 		Action[] actions = { action };
 		service.actions = actions;
 
@@ -593,7 +610,7 @@ public class Service implements ServiceInterface {
 		/*
 		 * output as sheet
 		 */
-		OutputRecord outRec = new OutputRecord(record.getDefaultSheetName());
+		OutputRecord outRec = new OutputRecord(record);
 		OutputRecord[] outRecs = { outRec };
 		OutputData outData = new OutputData();
 		outData.outputRecords = outRecs;
@@ -644,7 +661,7 @@ public class Service implements ServiceInterface {
 		/*
 		 * output as sheet
 		 */
-		OutputRecord outRec = new OutputRecord(record.getDefaultSheetName());
+		OutputRecord outRec = new OutputRecord(record);
 		OutputRecord[] outRecs = { outRec };
 		OutputData outData = new OutputData();
 		outData.outputRecords = outRecs;
@@ -726,7 +743,8 @@ public class Service implements ServiceInterface {
 		Tracer.trace("service name set to " + this.name + " and " + this.moduleName);
 	}
 
-	protected static RelatedRecord[] getChildRecords(Record record, boolean forRead) {
+	protected static RelatedRecord[] getChildRecords(Record record,
+			boolean forRead) {
 		String[] children;
 		if (forRead) {
 			children = record.getChildrenToOutput();
@@ -749,33 +767,9 @@ public class Service implements ServiceInterface {
 	}
 
 	protected static OutputRecord[] getOutputRecords(Record record) {
-		String[] children = record.getChildrenToOutput();
-		int nrecs = 1;
-		if (children != null) {
-			nrecs = children.length + 1;
-		}
-		OutputRecord[] recs = new OutputRecord[nrecs];
-		/*
-		 * put this record as the first one for fields (not sheet)
-		 */
-		OutputRecord outRec = new OutputRecord();
-		outRec.recordName = record.getQualifiedName();
-		/*
-		 * safe to put sheet name, because outputRec tries fields if sheet is
-		 * not found.
-		 */
-		outRec.sheetName = record.getDefaultSheetName();
-		recs[0] = outRec;
-		if (children != null) {
-			String sheetName = outRec.sheetName;
-			int i = 1;
-			for (String child : children) {
-				recs[i] = ComponentManager.getRecord(child).getOutputRecord(sheetName);
-				i++;
-			}
-		}
-
-		return recs;
+		List<OutputRecord> recs = new ArrayList<OutputRecord>();
+		record.addOutputRecords(recs, null, null);
+		return recs.toArray(new OutputRecord[0]);
 	}
 
 	/**
@@ -820,11 +814,14 @@ public class Service implements ServiceInterface {
 			try {
 				Object obj = Class.forName(this.className).newInstance();
 				if (obj instanceof ServiceInterface == false) {
-					ctx.addError(this.className + " is set as className but it does not implement ServiceInterface");
+					ctx.addError(this.className
+							+ " is set as className but it does not implement ServiceInterface");
 					count++;
 				}
 			} catch (Exception e) {
-				ctx.addError(this.className + " could not be used to instantiate an object.\n" + e.getMessage());
+				ctx.addError(this.className
+						+ " could not be used to instantiate an object.\n"
+						+ e.getMessage());
 				count++;
 			}
 			if (this.actions != null) {
@@ -844,7 +841,8 @@ public class Service implements ServiceInterface {
 			for (Action action : this.actions) {
 				if (action.actionName != null) {
 					if (addedSoFar.add(action.actionName) == false) {
-						ctx.addError("Duplicate action name " + action.actionName + " at " + i);
+						ctx.addError("Duplicate action name "
+								+ action.actionName + " at " + i);
 						count++;
 					}
 				}
@@ -1006,7 +1004,7 @@ public class Service implements ServiceInterface {
 		service.dbAccessType = accessType;
 		service.setName(serviceName);
 		/*
-		 * we have no idea what this service wants as input. May be we shoudl
+		 * we have no idea what this service wants as input. May be we should
 		 * add that to the interface, so that any service has to tell what input
 		 * it expects. Till such time, here is a dirty short-cut
 		 */

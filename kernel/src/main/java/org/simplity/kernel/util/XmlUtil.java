@@ -907,8 +907,8 @@ public class XmlUtil {
 		try {
 			Document doc = DocumentBuilderFactory.newInstance()
 					.newDocumentBuilder().newDocument();
-			Element ele = doc.createElementNS("http://www.simplity.org/schema/"
-					+ eleName, eleName);
+			Element ele = doc.createElementNS("http://www.simplity.org/schema",
+					eleName);
 			objectToEle(object, doc, ele);
 			doc.appendChild(ele);
 			DOMSource source = new DOMSource(doc);

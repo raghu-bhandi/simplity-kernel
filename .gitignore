@@ -7,8 +7,12 @@
 /target/
 run.bat
 .DS_Store
+<<<<<<< HEAD
 /.openshift/
 deploy_key
 .docx
 /BlobTest/
 /ValidationTest/
+=======
+/.openshift/
+>>>>>>> b500c2ff61dc848994fb41b10a26963349896213

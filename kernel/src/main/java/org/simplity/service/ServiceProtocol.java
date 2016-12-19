@@ -59,22 +59,24 @@ public abstract class ServiceProtocol {
 	public static final String USER_TOKEN = "_userToken";
 
 	/**
+	 * name/attribute that has the status of request. Possible values are
+	 * STATUS_*
+	 */
+	public static final String REQUEST_STATUS = "_requestStatus";
+
+	/**
 	 * HTTP status all OK
 	 */
-	public static final int STATUS_OK = 200;
+	public static final String STATUS_OK = "ok";
 	/**
 	 * User needs to login for this service
 	 */
-	public static final int STATUS_NO_LOGIN = 401;
+	public static final String STATUS_NO_LOGIN = "noLogin";
 	/**
-	 * HTTP Status - non-standard custom. Service failed. Could be data error,
-	 * or rejected because of business rules
+	 * Service failed. Could be data error, or rejected because of business
+	 * rules. Or it can be an internal error
 	 */
-	public static final int STATUS_FAILED = 444;
-	/**
-	 * HTTP status - error on server, not related to this service
-	 */
-	public static final int STATUS_ERROR = 500;
+	public static final String STATUS_ERROR = "error";
 
 	/**
 	 * time taken by this engine to execute this service in milliseconds

@@ -482,7 +482,7 @@ public class MultiRowsSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see org.simplity.kernel.data.DataSheet#trace()
 	 */
 	@Override
@@ -507,7 +507,7 @@ public class MultiRowsSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 *
+	 * 
 	 * @see
 	 * org.simplity.kernel.data.DataSheet#appendRows(org.simplity.kernel.data.
 	 * DataSheet)
@@ -563,6 +563,7 @@ public class MultiRowsSheet implements DataSheet {
 			if (colName.equals(columnName)) {
 				return i;
 			}
+			i++;
 		}
 		Tracer.trace("We did not find column " + columnName
 				+ " in this multi-row sheet");

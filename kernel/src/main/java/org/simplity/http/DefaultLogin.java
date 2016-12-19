@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Tracer;
 import org.simplity.service.ServiceProtocol;
 
@@ -74,12 +75,12 @@ public class DefaultLogin extends HttpServlet {
 
 		text = HttpAgent.login(userId, pwd, req.getSession(true));
 		if (text == null) {
-			resp.setStatus(ServiceProtocol.STATUS_FAILED);
-		} else {
-			resp.setStatus(ServiceProtocol.STATUS_OK);
-			Writer writer = resp.getWriter();
-			writer.write(text);
-			writer.close();
+			FormattedMessage msg = HttpAgent.LOGIN_FAILED;
+			FormattedMessage[] messages = { msg };
+			text = HttpAgent.getResponseForError(messages);
 		}
+		Writer writer = resp.getWriter();
+		writer.write(text);
+		writer.close();
 	}
 }

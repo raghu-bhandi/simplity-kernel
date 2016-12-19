@@ -64,6 +64,11 @@ public class Filter extends DbAction {
 	RelatedRecord[] childRecords;
 
 	/**
+	 * should child records for this filter/record be filtered automatically?
+	 */
+	boolean cascadeFilterForChildren;
+
+	/**
 	 * default constructor
 	 */
 	public Filter() {
@@ -74,15 +79,14 @@ public class Filter extends DbAction {
 	 * get a default filterAction for a record, possibly with child rows
 	 *
 	 * @param record
-	 * @param children
 	 */
-	public Filter(Record record, RelatedRecord[] children) {
+	public Filter(Record record) {
 		this.actionName = "filter_" + record.getSimpleName();
 		String recordName = record.getQualifiedName();
 		this.filterRecordName = recordName;
 		this.outputRecordName = recordName;
 		this.outputSheetName = record.getDefaultSheetName();
-		this.childRecords = children;
+		this.cascadeFilterForChildren = true;
 	}
 
 	@Override
@@ -118,15 +122,20 @@ public class Filter extends DbAction {
 			result = 1;
 		}
 		ctx.putDataSheet(this.outputSheetName, outSheet);
-		if (this.childRecords != null & result > 0) {
-			for (RelatedRecord rr : this.childRecords) {
-				record = ComponentManager.getRecord(rr.recordName);
-				DataSheet relatedSheet = record.filterForParent(outSheet,
-						driver);
-				ctx.putDataSheet(rr.sheetName, relatedSheet);
-			}
+		if (result == 0) {
+			return 0;
 		}
-
+		if (this.childRecords != null) {
+			for (RelatedRecord rr : this.childRecords) {
+				Record cr = ComponentManager.getRecord(rr.recordName);
+				cr.filterForParents(outSheet, driver, rr.sheetName,
+						this.cascadeFilterForChildren, ctx);
+			}
+			return result;
+		}
+		if (this.cascadeFilterForChildren) {
+			record.filterChildRecords(outSheet, driver, ctx);
+		}
 		return result;
 	}
 

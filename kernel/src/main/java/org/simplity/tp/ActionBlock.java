@@ -89,8 +89,11 @@ public class ActionBlock implements DbClientInterface {
 	 */
 	public boolean act(DbDriver driver) {
 
+		int nbrActions = this.actions == null ? 0 : this.actions.length;
+		if (nbrActions == 0) {
+			return true;
+		}
 		int currentIdx = 0;
-		int nbrActions = this.actions.length;
 		Value result = null;
 
 		while (currentIdx < nbrActions) {

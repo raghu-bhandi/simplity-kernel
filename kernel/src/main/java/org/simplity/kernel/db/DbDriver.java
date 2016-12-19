@@ -487,7 +487,7 @@ public class DbDriver {
 	 * @param schema
 	 * @return connection
 	 */
-	public static Connection getConnection(DbAccessType acType, String schema) {
+	static Connection getConnection(DbAccessType acType, String schema) {
 		/*
 		 * set sch to an upper-cased schema, but only if it is non-null and
 		 * different from default schema
@@ -546,11 +546,13 @@ public class DbDriver {
 				throw new ApplicationError(
 						"Database should be initialized properly before any operation can be done.");
 			}
-			if (acType == DbAccessType.READ_ONLY) {
-				con.setReadOnly(true);
-			} else {
-				con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-				con.setAutoCommit(acType == DbAccessType.AUTO_COMMIT);
+			if (acType != null) {
+				if (acType == DbAccessType.READ_ONLY) {
+					con.setReadOnly(true);
+				} else {
+					con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+					con.setAutoCommit(acType == DbAccessType.AUTO_COMMIT);
+				}
 			}
 			return con;
 		} catch (Exception e) {
@@ -1036,7 +1038,7 @@ public class DbDriver {
 	 *            if we are managing transaction, true implies commit, and false
 	 *            implies roll-back
 	 */
-	public static void closeConnection(Connection con, DbAccessType accType,
+	static void closeConnection(Connection con, DbAccessType accType,
 			boolean allOk) {
 		try {
 			Tracer.trace("Going to close a connection of type " + accType
@@ -1314,7 +1316,8 @@ public class DbDriver {
 			if (value == null) {
 				break;
 			}
-			sbf.append('\n').append(++i).append(" : ").append(value.toString());
+			i++;
+			sbf.append('\n').append(i).append(" : ").append(value.toString());
 			if (i > 12) {
 				sbf.append("..like wise up to ").append(values.length)
 				.append(" : ").append(values[values.length - 1]);
@@ -1331,13 +1334,15 @@ public class DbDriver {
 			if (row == null) {
 				break;
 			}
-			sbf.append("\n SET ").append(++i);
+			i++;
+			sbf.append("\n SET ").append(i);
 			int j = 0;
 			for (Value value : row) {
 				if (value == null) {
 					break;
 				}
-				sbf.append('\n').append(++j).append(" : ").append(value);
+				j++;
+				sbf.append('\n').append(j).append(" : ").append(value);
 			}
 		}
 		// Tracer.trace(sbf.toString());
@@ -1366,13 +1371,14 @@ public class DbDriver {
 	 * get column names of a table
 	 *
 	 * @param schemaName
-	 *            can be null to get all schema
+	 *            schema to which this table belongs to. leave it null to get
+	 *            the table from default schema
 	 * @param tableName
-	 *            can be null to get all tables or patern, or actual names
+	 *            can be null to get all tables or pattern, or actual name
 	 * @return sheet with one row per column. Null if no columns.
 	 */
 	public static DataSheet getTableColumns(String schemaName, String tableName) {
-			Connection con = getConnection(DbAccessType.READ_ONLY, null);
+		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
 		try {
 			return getMetaSheet(con, schemaName, tableName, COL_IDX);
 		} finally {
@@ -1517,9 +1523,6 @@ public class DbDriver {
 			case TABLE_IDX:
 				rs = meta.getTables(null, schemaName, metaName,
 						TABLE_TYPES_TO_EXTRACT);
-				if(rs.next()==false)
-					rs = meta.getTables(null, null,null,
-							TABLE_TYPES_TO_EXTRACT);
 				break;
 			case COL_IDX:
 				rs = meta.getColumns(null, schemaName, metaName, null);
@@ -1765,4 +1768,15 @@ public class DbDriver {
 							+ e.getMessage());
 		}
 	}
+
+	/**
+	 * not recommended for use. Use only under strict parental supervision.
+	 * ensure that you close it properly
+	 *
+	 * @return connection object that MUST be closed by you at any cost!!
+	 */
+	public static Connection getConnection() {
+		return getConnection(null, null);
+	}
 }
+
