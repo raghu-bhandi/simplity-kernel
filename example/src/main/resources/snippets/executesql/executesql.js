@@ -1,1 +1,0 @@
-Simplity.getResponse("tutorial.executeSql");

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<service dbAccessType="none" name="test" moduleName="test"
-	xmlns="http://www.simplity.org/schema">
-	<actions>
-		<setValue fieldName="abc" fieldValue="abc"></setValue>
-	</actions>
-	<outputData fieldNames="abc">
-	</outputData>
-</service>
