@@ -9,6 +9,5 @@
   <modules>
     <module>kernel</module>
     <module>js</module>
-    <module>petstore</module>
   </modules>
 </project>
