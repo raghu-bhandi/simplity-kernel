@@ -236,7 +236,7 @@ public class ServiceAgent {
 				 */
 				Tracer.trace("Logged in user " + userId
 						+ " is not granted access to this service");
-				response.addMessage(Messages.getMessage(Messages.NO_SERVICE));
+				response.addMessage(Messages.getMessage(Messages.NO_ACCESS));
 				break;
 			}
 			/*

@@ -982,20 +982,11 @@
 
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="actions" minOccurs="0" maxOccurs="1"
-	type="actions" />
 				<xs:element
-<<<<<<< HEAD
-					name="testCases"
-					type="testCases"
-					minOccurs="0"
-					maxOccurs="1" />
-=======
 					name="actions"
 					minOccurs="0"
 					maxOccurs="1"
 					type="actions" />
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
 			</xs:all>
 			<xs:attribute
 				name="name"
@@ -1317,21 +1308,9 @@
 				minOccurs="0" maxOccurs="unbounded" />
 			<xs:element name="executeSp" type="executeSp" minOccurs="0"
 				maxOccurs="unbounded" />
-<<<<<<< HEAD
 			<xs:element name="executeSql" type="executeSql"
 				minOccurs="0" maxOccurs="unbounded" />
 			<xs:element name="filter" type="filter" minOccurs="0"
-=======
-			<xs:element
-				name="keyValueList"
-				type="keyValueList"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="log"
-				type="log"
-				minOccurs="0"
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
 				maxOccurs="unbounded" />
 			<xs:element name="jumpTo" type="jumpTo" minOccurs="0"
 				maxOccurs="unbounded" />
@@ -1341,19 +1320,7 @@
 				maxOccurs="unbounded" />
 			<xs:element name="logic" type="logic" minOccurs="0"
 				maxOccurs="unbounded" />
-<<<<<<< HEAD
 			<xs:element name="loop" type="loop" minOccurs="0"
-=======
-			<xs:element
-				name="readChildren"
-				type="readChildren"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="readWithSql"
-				type="readWithSql"
-				minOccurs="0"
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
 				maxOccurs="unbounded" />
 			<xs:element name="read" type="read" minOccurs="0"
 				maxOccurs="unbounded" />
@@ -1369,6 +1336,8 @@
 				maxOccurs="unbounded" />
 			<xs:element name="setValue" type="setValue" minOccurs="0"
 				maxOccurs="unbounded" />
+			<xs:element name="removeValue" type="removeValue" minOccurs="0"
+				maxOccurs="unbounded" />				
 			<xs:element name="subService" type="subService"
 				minOccurs="0" maxOccurs="unbounded" />
 			<xs:element name="suggest" type="suggest" minOccurs="0"
@@ -1594,8 +1563,6 @@
 		<xs:attribute
 			name="toSheetName"
 			type="xs:string"
-<<<<<<< HEAD
-=======
 			use="required"
 		>
 			<xs:annotation>
@@ -1768,447 +1735,6 @@
 		<xs:attribute
 			name="outputSheetName"
 			type="xs:string"
-			use="optional" />
-		<xs:attribute
-			name="cascadeFilterForChildren"
-			type="booleanType"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>By default, only the first level children are read
-					along with the parent. Do you want that action to cascade down to
-					subsequent generations as well? That is, if teh childRecord has
-					children, read them as well, and so on.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="jumpTo">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="toAction"
-			type="xs:string"
-			use="required" />
-	</xs:complexType>
-
-	<xs:complexType name="log">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="names"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Comma separated list of names of fields and sheets
-					whose values are to be logged at this stage.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="keyValueList">
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="outputSheetName"
-			type="xs:NCName"
-			use="optional" />
-	</xs:complexType>
-
-	<xs:complexType name="logic">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="className"
-			type="xs:string"
-			use="required" />
-	</xs:complexType>
-
-	<xs:complexType name="loop">
-		<xs:sequence
-			minOccurs="1"
-			maxOccurs="1"
-		>
-			<xs:element
-				name="ations"
-				type="actions"
-				minOccurs="1"
-				maxOccurs="1" />
-		</xs:sequence>
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="dataSheetName"
-			type="xs:string"
-			use="required" />
-	</xs:complexType>
-
-	<xs:complexType name="read">
-		<xs:sequence>
-			<xs:element
-				name="childRecords"
-				type="relatedRecords"
-				minOccurs="0"
-				maxOccurs="1" />
-		</xs:sequence>
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="inputSheetName"
-			type="xs:NCName"
-			use="optional" />
-		<xs:attribute
-			name="outputSheetName"
-			type="xs:NCName"
-			use="optional" />
-		<xs:attribute
-			name="cascadeFilterForChildren"
-			type="booleanType"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>By default, only the first level children are read
-					along with the parent. Do you want that action to cascade down to
-					subsequent generations as well? That is, if teh childRecord has
-					children, read them as well, and so on.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="readChildren">
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="outputSheetName"
-			type="xs:NCName"
-			use="optional" />
-		<xs:attribute
-			name="parentKeyFieldName"
-			type="xs:NCName"
-			use="optional" />
-	</xs:complexType>
-
-	<xs:complexType name="readWithSql">
-		<xs:sequence>
-			<xs:element
-				name="childRecords"
-				type="relatedRecords"
-				minOccurs="0"
-				maxOccurs="1" />
-		</xs:sequence>
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="sqlName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="inputSheetName"
-			type="xs:NCName"
-			use="optional" />
-		<xs:attribute
-			name="outputSheetName"
-			type="xs:NCName"
-			use="optional" />
-		<xs:attribute
-			name="cascadeFilterForChildren"
-			type="booleanType"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>By default, only the first level children are read
-					along with the parent. Do you want that action to cascade down to
-					subsequent generations as well? That is, if teh childRecord has
-					children, read them as well, and so on.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="renameSheet">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="sheetName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="newSheetName"
-			type="xs:string"
-			use="required" />
-	</xs:complexType>
-
-	<xs:complexType name="rowExists">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="fieldName"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>if you wnat to use a key field name different from
-					the one defined in the record.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>record to check the row</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="save">
-		<xs:sequence>
-			<xs:element
-				name="childRecords"
-				type="relatedRecords"
-				minOccurs="0"
-				maxOccurs="1" />
-		</xs:sequence>
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="inputSheetName"
-			type="xs:string"
-			use="optional" />
-		<xs:attribute
-			name="treatSqlErrorAsNoResult"
-			type="booleanType"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>If constraints are defined in database, you may
-					want to use that to try to save, failing which you may want to
-					treat it as validation error, rather than a SQL Exception.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="saveAction"
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Sheet to which rows are copied to. If this is not
-					found, we copy entire fromSheet as toSheet, failing which we set 0
-					as result, but no error.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="copyUserId">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="fieldName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-<<<<<<< HEAD
-				<xs:documentation>Field to which userId is to be copied to
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="createSheet">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="sheetName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Name by which sheet is to be added to
-					serviceContext. Once added, this sheet is available for subsequent
-					actions, as well as for output
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="data"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>
-					Of the form
-					header1,header2...;val11,val12,val13...;val21,val22,val23....
-					rows
-					are separated by semicolumn(;)and cells are separated by comma(,)
-					forst row is header. refer to fieldValue attrivute of setValue for
-					syntax of cells. Each cell can be either a field name ($fieldNAme)
-					or constant.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="fieldValue"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>
-					use either a constant, or a $fieldName as value
-					ofthe field. If you use this, you should not specify expression.
-=======
-				<xs:documentation>
-					use either a constant, or a $fieldName as value of
-					the field. I fyou use this, you should not specify expression.
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-<<<<<<< HEAD
-	<xs:complexType name="executeSp">
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="procedureName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>qualified name of .xml component you have saved
-					under sp folder. This is NOT the name of stored procedure in your
-					DB
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="sheetNameForInputParameters"
-			type="xs:NCName"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>If your sp has in parameters, by default we pick
-					them up from name-value pairs. But if you have designed to have
-					them in a sheet, this is the name of that sheet.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="sheetNameForOutputParameters"
-			type="xs:NCName"
-			use="optional"
-=======
-	<xs:complexType name="subService">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="serviceName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>Fully qualified service name</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="suggest">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-			use="required"
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
-		>
-			<xs:annotation>
-				<xs:documentation>If your sp has out parameters, by default we
-					extract them to name-value pairs. But if you have designed to have
-					them in a sheet, this is the name of that sheet.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="outputSheetNames"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-<<<<<<< HEAD
-				<xs:documentation>If your SP extracts one or more result set (but
-					not return them as parameters), by default we extract them to sheet
-					names based on record. You may change the names with this
-					attribute. Use comma separated list if there are 2 or more sheets
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-	</xs:complexType>
-
-	<xs:complexType name="executeSql">
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="sqlName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="inputSheetName"
-			type="xs:NCName"
-			use="optional" />
-		<xs:attribute
-			name="treatSqlErrorAsNoResult"
-			type="booleanType"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>If constraints are defined in database, you may
-					want to use that to try to save, failing which you may want to
-					treat it as validation error, rather than a SQL Exception.
-=======
-				<xs:documentation>Field to filter on. defaults to what is specified
-					in record. default is to match anywhere. If you want to match
-					starting only, then a special field named _matchStarting can be set
-					to true.
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-
-	</xs:complexType>
-
-	<xs:complexType name="filter">
-		<xs:sequence>
-			<xs:element
-				name="childRecords"
-				type="relatedRecords"
-				minOccurs="0"
-				maxOccurs="1" />
-		</xs:sequence>
-		<xs:attributeGroup ref="dbActionAttributes" />
-		<xs:attribute
-			name="filterRecordName"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="outputRecordName"
-			type="xs:string"
-			use="optional" />
-		<xs:attribute
-			name="inputSheetName"
-			type="xs:string"
-			use="optional" />
-		<xs:attribute
-			name="outputSheetName"
-			type="xs:string"
-<<<<<<< HEAD
 			use="optional" />
 	</xs:complexType>
 
@@ -2469,6 +1995,21 @@
 		</xs:attribute>
 	</xs:complexType>
 
+
+	<xs:complexType name="removeValue">
+		<xs:all
+			minOccurs="0"
+			maxOccurs="1">
+		</xs:all>
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="fieldName"
+			type="xs:string"
+			use="required" />
+	</xs:complexType>
+
+
+
 	<xs:complexType name="subService">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2509,14 +2050,11 @@
 		<xs:attribute
 			name="outputSheetName"
 			type="xs:string"
-=======
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
 			use="optional"
 		>
 			<xs:annotation>
 				<xs:documentation>Name of the output data sheet. If not specified,
 					it defaults to the name as specified in record.
-<<<<<<< HEAD
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2567,8 +2105,6 @@
 				<xs:documentation>
 					Name of the output data sheet. If not specified, it
 					defaults to the name as specified in record.
-=======
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -3031,252 +2567,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-<<<<<<< HEAD
-	<xs:element name="serviceTest">
-		<xs:complexType>
-			<xs:sequence
-				maxOccurs="1"
-				minOccurs="1"
-			>
-				<xs:element
-					name="testCases"
-					type="testCases"
-					minOccurs="1"
-					maxOccurs="1" />
-			</xs:sequence>
-			<xs:attribute
-				name="name"
-				type="xs:string"
-				use="required"
-			>
-				<xs:annotation>
-					<xs:documentation>Simple name of service wihtout its module name
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="moduleName"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>module name of service</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-		</xs:complexType>
-	</xs:element>
-
-	<xs:complexType name="testCases">
-		<xs:sequence>
-			<xs:element
-				name="testCase"
-				minOccurs="1"
-				maxOccurs="unbounded"
-			>
-				<xs:complexType>
-					<xs:all>
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="inputPayload"
-							type="xs:string"
-						>
-							<xs:annotation>
-								<xs:documentation>Use a CDATA section to specify a json. Since
-									json is full of double quotes, it is quite ugly to specify it
-									as attribute or contennt</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="inputFields"
-							type="testFieldsIn" />
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="inputSheets"
-							type="testSheetsIn" />
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="outputFields"
-							type="testFieldsOut" />
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="outputSheets"
-							type="testSheetsOut" />
-						<xs:element
-							minOccurs="0"
-							maxOccurs="1"
-							name="outputPayload" 
-							type="xs:string"
-						>
-							<xs:annotation>
-								<xs:documentation>Use a CDATA section to specify a json. Since
-									json is full of double quotes, it is quite ugly to specify it
-									as attribute or contennt</xs:documentation>
-							</xs:annotation>
-							
-						</xs:element>
-					</xs:all>
-					<xs:attribute
-						name="testCaseName"
-						type="xs:string"
-						use="required"
-					>
-						<xs:annotation>
-							<xs:documentation>Unique name within a service for us to identify
-								this test case</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="description"
-						type="xs:string"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>Unique name within a service for us to identify
-								this test case</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="nbrErrorsExpected"
-						type="xs:int"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>Unique name within a service for us to identify
-								this test case</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-
-	<xs:complexType name="testFieldsIn">
-		<xs:sequence>
-			<xs:element name="Field">
-				<xs:complexType>
-					<xs:attribute
-						name="fieldName"
-						type="xs:string"
-						use="required" />
-					<xs:attribute
-						name="fieldVaue"
-						type="xs:string"
-						use="required" />
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="testFieldsOut">
-		<xs:sequence>
-			<xs:element name="Field">
-				<xs:complexType>
-					<xs:attribute
-						name="fieldName"
-						type="xs:string"
-						use="required" />
-					<xs:attribute
-						name="fieldVaue"
-						type="xs:string"
-						use="optional" />
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="testSheetsOut">
-		<xs:sequence>
-			<xs:element name="Sheet">
-				<xs:complexType>
-					<xs:attribute
-						name="sheetName"
-						type="xs:string"
-						use="required" />
-					<xs:attribute
-						name="columnNames"
-						type="xs:string"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>required if data is specified.
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="data"
-						type="xs:string"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>Comma separated list of values for a row. row
-								values are semicolon separated. for example a1,b1,c2;a2,b3,c2...
-								Of course value can not contain , or ;, but then you should be
-								able to design your test data that way :-) </xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="minRows"
-						type="xs:int"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>min rws expected in output. Not relevant if
-								data itself is specified.</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="maxRows"
-						type="xs:int"
-						use="optional"
-					>
-						<xs:annotation>
-							<xs:documentation>max nbr rows expected. Not relevant if actual
-								data is specified</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="testSheetsIn">
-		<xs:sequence>
-			<xs:element name="Sheet">
-				<xs:complexType>
-					<xs:attribute
-						name="sheetName"
-						type="xs:string"
-						use="required" />
-					<xs:attribute
-						name="columnNames"
-						type="xs:string"
-						use="required"
-					>
-						<xs:annotation>
-							<xs:documentation>Comma separated list of column names. Value is
-								required for input</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="data"
-						type="xs:string"
-						use="required"
-					>
-						<xs:annotation>
-							<xs:documentation>Comma separated list of values for a row. row
-								values are semicolon separated. for example a1,b1,c2;a2,b3,c2...
-								Of course value can not contain , or ;, but then you should be
-								able to design your test data that way :-) </xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-=======
 	<!-- Test case. we systematically develop elements bottom-up for this.. -->
 
 	<!-- testFieldAtts is common to inputField and outputField -->
@@ -3626,5 +2916,4 @@
 				use="optional" />
 		</xs:complexType>
 	</xs:element>
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
 </xs:schema>

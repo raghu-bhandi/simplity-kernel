@@ -101,6 +101,10 @@ public class Messages {
 	/**
 	 *
 	 */
+	public static final String NO_ACCESS = "kernel.noAccess";
+	/**
+	 *
+	 */
 	public static final String SUCCESS = "kernel.success";
 
 	/**

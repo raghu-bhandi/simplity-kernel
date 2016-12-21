@@ -23,6 +23,7 @@
 	<message messageType="error" name="kernal.invalidTableAction" text="add, modify, delete and save are the vaid actions."/>
 	<message messageType="error" name="kernel.invalidInputStream" text="Serialized data sent by the client is invalid"/>
 	<message messageType="error" name="kernel.noService" text="Service $1 is not served by this server."/>
+	<message messageType="error" name="kernel.noAccess" text="Denied access to the service for this user."/>
 
     <message messageType="error" name="kernel.invalidText" text="We accpet any character up to a max of 3000 of them."/>
 	<message messageType="error" name="kernel.invalidBoolean" text="1 for true and 0 for false"/>

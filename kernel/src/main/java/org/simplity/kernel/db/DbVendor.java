@@ -55,7 +55,7 @@ public enum DbVendor {
 	/**
 	 * H2 data base
 	 */
-	, H2;
+	, H2("SELECT SCHEMA()","SET schema ") ;
 
 	/*
 	 * fields default to standard
