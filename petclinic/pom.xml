@@ -60,6 +60,7 @@
 							<srcFiles>
 								<srcFile>${resourcespath}/dbscripts/h2/schema.sql</srcFile>
 								<srcFile>${resourcespath}/dbscripts/h2/data.sql</srcFile>
+								<srcFile>${resourcespath}/dbscripts/h2/views.sql</srcFile>								
 							</srcFiles>
 						</configuration>
 					</execution>

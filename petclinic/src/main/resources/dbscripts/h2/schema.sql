@@ -1,3 +1,5 @@
+DROP VIEW IF EXISTS `vet_specialties_details` ;
+DROP VIEW IF EXISTS `pet_details` ;
 DROP TABLE vet_specialties IF EXISTS;
 DROP TABLE vets IF EXISTS;
 DROP TABLE specialties IF EXISTS;
