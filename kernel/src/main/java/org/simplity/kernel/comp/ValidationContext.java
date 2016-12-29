@@ -48,7 +48,8 @@ import org.simplity.tp.Service;
  *
  */
 public class ValidationContext {
-	private static String[] MSG_HDR = { "compType", "compName", "errorMessage" };
+	private static String[] MSG_HDR = { "compType", "compName",
+			"errorMessage" };
 	private static String[] REF_HDR = { "compType", "compName", "refType",
 			"refName" };
 	private static String[] COMP_HDR = { "compType", "compName", "nbrErrors" };
@@ -250,8 +251,8 @@ public class ValidationContext {
 		try {
 			Class<?> cls = Class.forName(className);
 			if (cls.isAssignableFrom(klass) == false) {
-				this.addError(className + " should implement "
-						+ klass.getName());
+				this.addError(
+						className + " should implement " + klass.getName());
 				return 1;
 			}
 		} catch (Exception e) {
@@ -259,6 +260,21 @@ public class ValidationContext {
 			return 1;
 		}
 
+		return 0;
+	}
+
+	/**
+	 * check existence of a class and whether it implements the right interface
+	 *
+	 * @param fieldName
+	 * @param fieldValue
+	 * @return 0 if all OK, 1 if an error got added
+	 */
+	public int checkMandatoryField(String fieldName, Object fieldValue) {
+		if (fieldValue == null) {
+			this.addError(fieldName + " is a required field.");
+			return 1;
+		}
 		return 0;
 	}
 
@@ -391,10 +407,8 @@ public class ValidationContext {
 			if (obj instanceof Component) {
 				((Component) obj).validate(this);
 			} else {
-				this.addError("Component "
-						+ entry.getKey()
-						+ " turned out to be a "
-						+ obj.getClass().getName()
+				this.addError("Component " + entry.getKey()
+						+ " turned out to be a " + obj.getClass().getName()
 						+ " that does not implement org.simplity.comp.Component");
 			}
 		}

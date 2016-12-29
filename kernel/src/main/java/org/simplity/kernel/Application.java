@@ -70,16 +70,42 @@ public class Application {
 	 */
 	public static void bootStrap(String componentFolder) throws Exception {
 		Tracer.trace("Bootstrapping with " + componentFolder);
-		ComponentType.setComponentFolder(componentFolder);
+		Exception msg = null;
 		Application app = new Application();
-		XmlUtil.xmlToObject(componentFolder + CONFIG_FILE_NAME, app);
-		if (app.applicationId == null) {
-			throw new Exception("Unable to load the configuration component "
-					+ CONFIG_FILE_NAME
-					+ ". This file is expected to be inside folder "
-					+ componentFolder);
+		try {
+			ComponentType.setComponentFolder(componentFolder);
+			XmlUtil.xmlToObject(componentFolder + CONFIG_FILE_NAME, app);
+			if (app.applicationId == null) {
+				msg = new ApplicationError(
+						"Unable to load the configuration component "
+								+ CONFIG_FILE_NAME
+								+ ". This file is expected to be inside folder "
+								+ componentFolder);
+			} else {
+				app.configure();
+			}
+		} catch (Exception e) {
+			msg = e;
 		}
-		app.configure();
+
+		if (msg == null) {
+			return;
+		}
+
+		/**
+		 * try and pipe exception to the listener..
+		 */
+		if (app.exceptionListener != null) {
+			try {
+				ExceptionListener listener = (ExceptionListener) Class
+						.forName(app.exceptionListener).newInstance();
+				listener.listen(new ServiceData(), msg);
+				return;
+			} catch (Exception ignore) {
+				// we just tried
+			}
+		}
+		throw msg;
 	}
 
 	/**
@@ -214,8 +240,8 @@ public class Application {
 		ServiceCacheManager casher = null;
 		if (this.serviceCacheManager != null) {
 			try {
-				casher = (ServiceCacheManager) Class.forName(
-						this.serviceCacheManager).newInstance();
+				casher = (ServiceCacheManager) Class
+						.forName(this.serviceCacheManager).newInstance();
 
 			} catch (Exception e) {
 				Tracer.trace(this.serviceCacheManager
@@ -242,8 +268,8 @@ public class Application {
 		ExceptionListener listener = null;
 		if (this.exceptionListener != null) {
 			try {
-				listener = (ExceptionListener) Class.forName(
-						this.exceptionListener).newInstance();
+				listener = (ExceptionListener) Class
+						.forName(this.exceptionListener).newInstance();
 
 			} catch (Exception e) {
 				Tracer.trace(this.exceptionListener
@@ -266,8 +292,8 @@ public class Application {
 		HttpCacheManager cacheManager = null;
 		if (this.httpCacheManager != null) {
 			try {
-				cacheManager = (HttpCacheManager) Class.forName(
-						this.httpCacheManager).newInstance();
+				cacheManager = (HttpCacheManager) Class
+						.forName(this.httpCacheManager).newInstance();
 
 			} catch (Exception e) {
 				Tracer.trace(this.httpCacheManager
@@ -279,8 +305,8 @@ public class Application {
 		if (this.autoLoginUserId != null) {
 			if (this.userIdIsNumber) {
 				try {
-					uid = Value.newIntegerValue(Integer
-							.parseInt(this.autoLoginUserId));
+					uid = Value.newIntegerValue(
+							Integer.parseInt(this.autoLoginUserId));
 				} catch (Exception e) {
 					Tracer.trace("autoLoginUserId is set to "
 							+ this.autoLoginUserId
@@ -301,8 +327,8 @@ public class Application {
 			ast = new FileBasedAssistant(this.attachmentsFolderPath);
 		} else if (this.attachmentAssistant != null) {
 			try {
-				ast = (AttachmentAssistant) Class.forName(
-						this.attachmentAssistant).newInstance();
+				ast = (AttachmentAssistant) Class
+						.forName(this.attachmentAssistant).newInstance();
 			} catch (Exception e) {
 				Tracer.trace(e,
 						"Error while setting storage asstistant based on class "
@@ -327,7 +353,8 @@ public class Application {
 		 * name is a must. Else we will have identity crisis!!
 		 */
 		if (this.applicationId == null) {
-			ctx.addError("applicationId must be specified as a unique id for your applicaiton on your corporate network. This id can be used for inter-application communication.");
+			ctx.addError(
+					"applicationId must be specified as a unique id for your applicaiton on your corporate network. This id can be used for inter-application communication.");
 			count++;
 		}
 
@@ -372,8 +399,7 @@ public class Application {
 			try {
 				Integer.parseInt(this.autoLoginUserId);
 			} catch (Exception e) {
-				ctx.addError("autoLoginUserId is set to "
-						+ this.autoLoginUserId
+				ctx.addError("autoLoginUserId is set to " + this.autoLoginUserId
 						+ " but it is to be numeric because userIdIsNumber is set to true");
 				count++;
 			}
@@ -387,7 +413,8 @@ public class Application {
 				count++;
 			}
 			if (this.attachmentAssistant != null) {
-				ctx.addError("Choose either built-in attachment manager with attachmntsFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
+				ctx.addError(
+						"Choose either built-in attachment manager with attachmntsFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
 			}
 		}
 		return count;
@@ -433,9 +460,7 @@ public class Application {
 			return true;
 
 		} catch (Exception e) {
-			ctx.addError(attName
-					+ " is set to "
-					+ className
+			ctx.addError(attName + " is set to " + className
 					+ ". Error while using this class to instantiate an object. "
 					+ e.getMessage());
 			return true;
@@ -453,35 +478,34 @@ public class Application {
 	 *            comFolderName serviceName param1=value1 param2=value2 .....
 	 */
 	public static void main(String[] args) {
-		String[] parms = { "e:/repos/simplity/WebContent/WEB-INF/comp/",
-				"tutorial.createSheet" };
-		myTest(parms);
-		// myTest(args);
+		// String[] parms = { "c:/repos/simplity/WebContent/WEB-INF/comp/",
+		// "tutorial.createSheet" };
+		// myTest(parms);
+		myTest(args);
 	}
 
 	private static void myTest(String[] args) {
 		int nbr = args.length;
 		if (nbr < 2) {
 			printUsage();
-			System.exit(-1);
+			return;
 		}
 
 		String compPath = args[0];
 		File file = new File(compPath);
 		if (file.exists() == false) {
-			System.out
-					.println(compPath
-							+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
-			System.exit(-1);
+			System.out.println(compPath
+					+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
+			return;
 		}
 
 		try {
 			bootStrap(compPath);
 		} catch (Exception e) {
-			System.err.println("error while bootstrapping with compFolder="
-					+ compPath);
+			System.err.println(
+					"error while bootstrapping with compFolder=" + compPath);
 			e.printStackTrace(System.err);
-			System.exit(-2);
+			return;
 		}
 
 		String serviceName = args[1];
@@ -516,15 +540,15 @@ public class Application {
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		System.out.println("response :" + outData.getPayLoad());
 		System.out
-				.println("message :" + JsonUtil.toJson(outData.getMessages()));
+		.println("message :" + JsonUtil.toJson(outData.getMessages()));
 		System.out.println("trace :" + outData.getTrace());
 
 	}
 
 	private static void printUsage() {
-		System.out
-				.println("Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
-		System.out
-				.println("example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
+		System.out.println(
+				"Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
+		System.out.println(
+				"example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
 	}
 }

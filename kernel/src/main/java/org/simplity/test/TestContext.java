@@ -30,6 +30,7 @@ import java.util.Map;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.service.JavaAgent;
@@ -139,7 +140,7 @@ public class TestContext {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String root = "e:/repos/simplity/pet/WebContent/WEB-INF/comp/";
+		String root = "c:/repos/simplity/pet/WebContent/WEB-INF/comp/";
 		Application.bootStrap(root);
 		TestContext ctx = new TestContext();
 		ctx.start("111", "foo");
@@ -151,6 +152,9 @@ public class TestContext {
 		writer.key("report");
 		JsonUtil.addObject(writer, ctx.getReport());
 		writer.endObject();
-		System.out.println(writer.toString());
+		Tracer.trace(writer.toString());
+		for (TestResult tr : ctx.results) {
+			Tracer.trace(tr.toString());
+		}
 	}
 }

@@ -31,6 +31,7 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.file.AttachmentManager;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
+import org.simplity.service.ServiceProtocol;
 
 /**
  * Component that specifies what inputs are expected
@@ -98,35 +99,29 @@ public class InputData {
 	 * @param ctx
 	 * @param toStore
 	 */
-	static void storeColumnAttaches(String[] columns, ServiceContext ctx,
-			boolean toStore) {
+	static void storeColumnAttaches(String[] columns, ServiceContext ctx, boolean toStore) {
 		for (String ac : columns) {
 			int idx = ac.lastIndexOf('.');
 			if (idx == -1) {
-				throw new ApplicationError(
-						"Invalid attachmentColumns specification");
+				throw new ApplicationError("Invalid attachmentColumns specification");
 			}
 			String sheetName = ac.substring(0, idx);
 			String colName = ac.substring(idx + 1);
 			DataSheet sheet = ctx.getDataSheet(sheetName);
 			if (sheet == null) {
-				Tracer.trace("Data sheet "
-						+ sheetName
-						+ " not input. Hence no attachment management on its column "
-						+ colName);
+				Tracer.trace("Data sheet " + sheetName
+						+ " not input. Hence no attachment management on its column " + colName);
 				continue;
 			}
 			idx = sheet.getColIdx(colName);
 			if (idx == -1) {
-				Tracer.trace("Data sheet " + sheetName
-						+ " does not have a column named " + colName
+				Tracer.trace("Data sheet " + sheetName + " does not have a column named " + colName
 						+ " No attachment management on this column");
 				continue;
 			}
 			int nbr = sheet.length();
 			if (nbr == 0) {
-				Tracer.trace("Data sheet "
-						+ sheetName
+				Tracer.trace("Data sheet " + sheetName
 						+ " has no rows. No attachment management on this column");
 				continue;
 			}
@@ -143,14 +138,12 @@ public class InputData {
 					newKey = AttachmentManager.moveFromStorage(key.toText());
 				}
 				if (newKey == null) {
-					Tracer.trace("Unable to move attachment content with key="
-							+ key + " from/to temp area");
+					Tracer.trace("Unable to move attachment content with key=" + key
+							+ " from/to temp area");
 					ctx.addInternalMessage(MessageType.ERROR,
-							"Error while storing attachment with temp key "
-									+ key);
+							"Error while storing attachment with temp key " + key);
 				} else {
-					Tracer.trace("Attachment key " + key + " replaced with "
-							+ newKey
+					Tracer.trace("Attachment key " + key + " replaced with " + newKey
 							+ " aftr swapping content from/to temp area");
 					sheet.setColumnValue(colName, i, Value.newTextValue(newKey));
 				}
@@ -164,13 +157,11 @@ public class InputData {
 	 * @param ctx
 	 * @param toStor
 	 */
-	static void storeFieldAttaches(String[] fields, ServiceContext ctx,
-			boolean toStor) {
+	static void storeFieldAttaches(String[] fields, ServiceContext ctx, boolean toStor) {
 		for (String af : fields) {
 			String key = ctx.getTextValue(af);
 			if (key == null || key.isEmpty()) {
-				Tracer.trace("Attachment field " + af
-						+ " is not specified. Skipping it.");
+				Tracer.trace("Attachment field " + af + " is not specified. Skipping it.");
 				continue;
 			}
 			String newKey = null;
@@ -181,11 +172,10 @@ public class InputData {
 			}
 			if (newKey == null) {
 				Tracer.trace("Error while managing attachment key " + key);
-				ctx.addValidationMessage(Messages.INVALID_ATTACHMENT_KEY, af,
-						null, null, 0, newKey);
+				ctx.addValidationMessage(Messages.INVALID_ATTACHMENT_KEY, af, null, null, 0,
+						newKey);
 			} else {
-				Tracer.trace("Attachment key " + key + " repalced with "
-						+ newKey
+				Tracer.trace("Attachment key " + key + " repalced with " + newKey
 						+ " after swapping the contnts from/to temp area");
 				ctx.setTextValue(af, newKey);
 			}
@@ -217,7 +207,8 @@ public class InputData {
 	public int validate(ValidationContext ctx) {
 		if (this.inputRecords == null) {
 			if (this.inputFields == null) {
-				ctx.addError("input data has no input records and no input fields. If no data is expected, just skip InputData.");
+				ctx.addError(
+						"input data has no input records and no input fields. If no data is expected, just skip InputData.");
 				return 1;
 			}
 			return 0;
@@ -235,13 +226,38 @@ public class InputData {
 			for (String txt : this.attachmentColumns) {
 				int idx = txt.lastIndexOf('.');
 				if (idx == -1) {
-					ctx.addError("attachmentColumns is set to "
-							+ txt
+					ctx.addError("attachmentColumns is set to " + txt
 							+ ". This should be of the form sheetName.columnName");
 					count++;
 				}
 			}
 		}
 		return count;
+	}
+
+	/**
+	 * Now that the service has succeeded, is there anything that the input had
+	 * done that need to be cleaned-up? As of now, we have attachments that may
+	 * have been superseded..
+	 * 
+	 * @param ctx
+	 */
+	public void cleanup(ServiceContext ctx) {
+		if (this.attachmentFields == null) {
+			return;
+		}
+		for (String attId : this.attachmentFields) {
+			String fieldName = attId + ServiceProtocol.OLD_ATT_TOKEN_SUFFIX;
+			String token = ctx.getTextValue(fieldName);
+			if (token == null) {
+				Tracer.trace(attId + " is an attchment input field. No value found in " + fieldName
+						+ " on exit of service, and hence this attachment is not removed from storage");
+			} else {
+				AttachmentManager.removeFromStorage(token);
+				Tracer.trace("Attachment field " + attId + " had an existing token " + token
+						+ ". That is now removed from storage");
+			}
+
+		}
 	}
 }

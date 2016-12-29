@@ -297,5 +297,13 @@ public abstract class ServiceProtocol {
 	 * special file name that indicates logs instead of a file content
 	 */
 	public static final String FILE_NAME_FOR_LOGS = "_logs";
+	/**
+	 * whenever an attachment field is updated, its existing value in the data
+	 * base can be set to a field with the name+prefix. Service will process
+	 * this and take care of removing the attachment from storage based on input
+	 * specification
+	 * 
+	 */
+	public static final String OLD_ATT_TOKEN_SUFFIX = "Old";
 
 }

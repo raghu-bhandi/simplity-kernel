@@ -52,7 +52,7 @@ public class TestResult {
 	 * header fields for the row of data toRow() would return
 	 */
 	public static final String[] HEADR = { "serviceName", "testCaseName",
-		"millis", "cleared", "errorMessage" };
+			"millis", "cleared", "errorMessage" };
 
 	/**
 	 * construct with all its attributes
@@ -87,5 +87,17 @@ public class TestResult {
 		String[] row = { this.serviceName, this.testCaseName, this.millis + "",
 				(this.errorMessage == null) + "", this.errorMessage };
 		return row;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.testCaseName + " for service " + this.serviceName
+				+ " has msg = " + this.errorMessage;
 	}
 }

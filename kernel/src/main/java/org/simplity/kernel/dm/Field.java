@@ -22,7 +22,6 @@
  */
 package org.simplity.kernel.dm;
 
-import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -320,11 +319,7 @@ public class Field {
 		/*
 		 * filter field need not conform to data-type but it should be of the
 		 * same value type
-<<<<<<< HEAD
-		 * 
-=======
 		 *
->>>>>>> b500c2ff61dc848994fb41b10a26963349896213
 		 * Special case of in list. We validate it here, but except if it is
 		 * IN_LIST operator
 		 */

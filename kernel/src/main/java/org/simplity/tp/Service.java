@@ -263,8 +263,7 @@ public class Service implements ServiceInterface {
 				ctx.addInternalMessage(MessageType.ERROR, e.getMessage());
 			}
 		}
-		ServiceData response = new ServiceData(ctx.getUserId(),
-				this.getQualifiedName());
+		ServiceData response = new ServiceData(ctx.getUserId(), this.getQualifiedName());
 		int nbrErrors = 0;
 		for (FormattedMessage msg : ctx.getMessages()) {
 			if (msg.messageType == MessageType.ERROR) {
@@ -281,6 +280,9 @@ public class Service implements ServiceInterface {
 				this.setPayload(ctx, response, inData);
 			} else {
 				this.prepareResponse(ctx, response);
+				if (this.inputData != null) {
+					this.inputData.cleanup(ctx);
+				}
 			}
 			if (this.canBeCachedByFields != null) {
 				response.setCacheForInput(this.canBeCachedByFields);
@@ -290,14 +292,14 @@ public class Service implements ServiceInterface {
 	}
 
 	protected void extractInput(ServiceContext ctx, String requestText) {
-
 		if (requestText == null || requestText.length() == 0) {
 			Tracer.trace("No input received from client");
 			return;
 		}
 		if (this.requestTextFieldName != null) {
 			ctx.setObject(this.requestTextFieldName, requestText);
-			Tracer.trace("Request text is not parsed but set as object value of " + this.requestTextFieldName);
+			Tracer.trace("Request text is not parsed but set as object value of "
+					+ this.requestTextFieldName);
 			return;
 		}
 		String jsonText = requestText.trim();
@@ -331,7 +333,8 @@ public class Service implements ServiceInterface {
 				obj = ctx.getValue(this.responseTextFieldName);
 			}
 			if (obj == null) {
-				Tracer.trace("Service " + this.name + " failed to set field " + this.responseTextFieldName
+				Tracer.trace("Service " + this.name + " failed to set field "
+						+ this.responseTextFieldName
 						+ " to a response text. We will send no response");
 			} else {
 				response.setPayLoad(obj.toString());
@@ -355,8 +358,7 @@ public class Service implements ServiceInterface {
 	 * @param response
 	 * @param inData
 	 */
-	protected void setPayload(ServiceContext ctx, ServiceData response,
-			ServiceData inData) {
+	protected void setPayload(ServiceContext ctx, ServiceData response, ServiceData inData) {
 		JSONWriter writer = new JSONWriter();
 		writer.object();
 		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
@@ -397,30 +399,27 @@ public class Service implements ServiceInterface {
 		this.gotReady = true;
 		if (this.className != null) {
 			try {
-				this.serviceInstance = (ServiceInterface) Class.forName(
-						this.className).newInstance();
+				this.serviceInstance = (ServiceInterface) Class.forName(this.className)
+						.newInstance();
 			} catch (Exception e) {
 				throw new ApplicationError(e,
-						"Unable to get an instance of service using class name "
-								+ this.className);
+						"Unable to get an instance of service using class name " + this.className);
 			}
 		}
 		if (this.actions == null) {
-			Tracer.trace("Service " + this.getQualifiedName()
-					+ " has no actions.");
+			Tracer.trace("Service " + this.getQualifiedName() + " has no actions.");
 			this.actions = new Action[0];
 		} else {
 			int i = 0;
 			for (Action action : this.actions) {
 				action.getReady(i);
 				if (this.indexedActions.containsKey(action.actionName)) {
-					throw new ApplicationError("Service " + this.name
-							+ " has duplicate action name " + action.actionName
-							+ " as its action nbr " + (i + 1));
+					throw new ApplicationError(
+							"Service " + this.name + " has duplicate action name "
+									+ action.actionName + " as its action nbr " + (i + 1));
 				}
 				this.indexedActions.put(action.getName(), new Integer(i));
 				i++;
-
 			}
 		}
 		if (this.requestTextFieldName != null) {
@@ -428,8 +427,9 @@ public class Service implements ServiceInterface {
 					+ " is designed to manage its own input. Request string coming from clinet will be set to field "
 					+ this.requestTextFieldName);
 			if (this.inputData != null) {
-				Tracer.trace("dataInput specification would be ignored because requestTextFieldName is set to "
-						+ this.requestTextFieldName);
+				Tracer.trace(
+						"dataInput specification would be ignored because requestTextFieldName is set to "
+								+ this.requestTextFieldName);
 			}
 		} else {
 			if (this.inputData == null) {
@@ -441,8 +441,9 @@ public class Service implements ServiceInterface {
 					+ " is designed to manage its own output. Response string would be picked up from field "
 					+ this.responseTextFieldName);
 			if (this.outputData != null) {
-				Tracer.trace("output data specification would be ignored as responseTextFieldName is set to "
-						+ this.responseTextFieldName);
+				Tracer.trace(
+						"output data specification would be ignored as responseTextFieldName is set to "
+								+ this.responseTextFieldName);
 			}
 		} else {
 			if (this.outputData == null) {
@@ -455,13 +456,15 @@ public class Service implements ServiceInterface {
 		 */
 		if (this.referredServiceForInput != null) {
 			if (this.inputData != null) {
-				throw new ApplicationError("Service " + this.getQualifiedName() + " refers to service "
-						+ this.referredServiceForInput + " but also specifies its own input records.");
+				throw new ApplicationError("Service " + this.getQualifiedName()
+						+ " refers to service " + this.referredServiceForInput
+						+ " but also specifies its own input records.");
 			}
 			ServiceInterface service = ComponentManager.getService(this.referredServiceForInput);
 			if (service instanceof Service == false) {
-				throw new ApplicationError("Service " + this.getQualifiedName() + " refers to another service "
-						+ this.referredServiceForInput + ", but that is not an xml-based service.");
+				throw new ApplicationError("Service " + this.getQualifiedName()
+						+ " refers to another service " + this.referredServiceForInput
+						+ ", but that is not an xml-based service.");
 			}
 			this.inputData = ((Service) service).inputData;
 		}
@@ -473,13 +476,15 @@ public class Service implements ServiceInterface {
 		 */
 		if (this.referredServiceForOutput != null) {
 			if (this.outputData != null) {
-				throw new ApplicationError("Service " + this.getQualifiedName() + " refers to service "
-						+ this.referredServiceForOutput + " but also specifies its own output records.");
+				throw new ApplicationError("Service " + this.getQualifiedName()
+						+ " refers to service " + this.referredServiceForOutput
+						+ " but also specifies its own output records.");
 			}
 			ServiceInterface service = ComponentManager.getService(this.referredServiceForOutput);
 			if (service instanceof Service == false) {
-				throw new ApplicationError("Service " + this.getQualifiedName() + " refers to another service "
-						+ this.referredServiceForOutput + ", but that is not an xml-based service.");
+				throw new ApplicationError("Service " + this.getQualifiedName()
+						+ " refers to another service " + this.referredServiceForOutput
+						+ ", but that is not an xml-based service.");
 			}
 			this.outputData = ((Service) service).outputData;
 		}
@@ -592,8 +597,10 @@ public class Service implements ServiceInterface {
 		/*
 		 * input for suggest
 		 */
-		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY, DataType.DEFAULT_TEXT, true, null);
-		InputField f2 = new InputField(ServiceProtocol.SUGGEST_STARTING, DataType.DEFAULT_BOOLEAN, false, null);
+		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY, DataType.DEFAULT_TEXT,
+				true, null);
+		InputField f2 = new InputField(ServiceProtocol.SUGGEST_STARTING, DataType.DEFAULT_BOOLEAN,
+				false, null);
 
 		InputField[] inFields = { f1, f2 };
 		InputData inData = new InputData();
@@ -646,7 +653,8 @@ public class Service implements ServiceInterface {
 		 * do we need any input? we are flexible
 		 */
 
-		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY, DataType.DEFAULT_TEXT, false, null);
+		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY, DataType.DEFAULT_TEXT,
+				false, null);
 		InputField[] inFields = { f1 };
 		InputData inData = new InputData();
 		inData.inputFields = inFields;
@@ -743,8 +751,7 @@ public class Service implements ServiceInterface {
 		Tracer.trace("service name set to " + this.name + " and " + this.moduleName);
 	}
 
-	protected static RelatedRecord[] getChildRecords(Record record,
-			boolean forRead) {
+	protected static RelatedRecord[] getChildRecords(Record record, boolean forRead) {
 		String[] children;
 		if (forRead) {
 			children = record.getChildrenToOutput();
@@ -819,8 +826,7 @@ public class Service implements ServiceInterface {
 					count++;
 				}
 			} catch (Exception e) {
-				ctx.addError(this.className
-						+ " could not be used to instantiate an object.\n"
+				ctx.addError(this.className + " could not be used to instantiate an object.\n"
 						+ e.getMessage());
 				count++;
 			}
@@ -841,8 +847,7 @@ public class Service implements ServiceInterface {
 			for (Action action : this.actions) {
 				if (action.actionName != null) {
 					if (addedSoFar.add(action.actionName) == false) {
-						ctx.addError("Duplicate action name "
-								+ action.actionName + " at " + i);
+						ctx.addError("Duplicate action name " + action.actionName + " at " + i);
 						count++;
 					}
 				}
@@ -861,7 +866,8 @@ public class Service implements ServiceInterface {
 		}
 		if (this.referredServiceForInput != null) {
 			i++;
-			ServiceInterface service = ComponentManager.getServiceOrNull(this.referredServiceForInput);
+			ServiceInterface service = ComponentManager
+					.getServiceOrNull(this.referredServiceForInput);
 			if (service == null) {
 				ctx.addError("referredServiceForInput set to " + this.referredServiceForInput
 						+ " but that service is not defined");
@@ -883,7 +889,8 @@ public class Service implements ServiceInterface {
 		}
 		if (this.referredServiceForOutput != null) {
 			i++;
-			ServiceInterface service = ComponentManager.getServiceOrNull(this.referredServiceForOutput);
+			ServiceInterface service = ComponentManager
+					.getServiceOrNull(this.referredServiceForOutput);
 			if (service == null) {
 				ctx.addError("referredServiceForOutput set to " + this.referredServiceForOutput
 						+ " but that service is not defined");
@@ -936,7 +943,8 @@ public class Service implements ServiceInterface {
 			Tracer.trace(e, "Error while loading record " + recordName);
 		}
 		if (record == null) {
-			Tracer.trace(recordName + " is not defined as a record, and hence we are unable to generate a servce named "
+			Tracer.trace(recordName
+					+ " is not defined as a record, and hence we are unable to generate a servce named "
 					+ serviceName);
 			return null;
 		}

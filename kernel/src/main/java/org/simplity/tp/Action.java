@@ -86,7 +86,7 @@ public abstract class Action {
 				throw new ApplicationError("Action " + this.actionName
 						+ " has an executOnCondition="
 						+ this.executeOnCondition.toString()
-						+ " that is invalied. \nError : " + e.getMessage());
+						+ " that is invalid. \nError : " + e.getMessage());
 			}
 		}
 		if (this.executeIfNoRowsInSheet != null

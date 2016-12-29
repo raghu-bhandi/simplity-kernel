@@ -26,8 +26,6 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
-import org.simplity.kernel.expr.Expression;
-import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -42,21 +40,31 @@ import org.simplity.service.ServiceContext;
 public class RemoveValue extends Action {
 
 	/**
-	 * field name
+	 * field name. Can be $fieldName, in which case we get the value from
+	 * service context, and use that value as the name of the field to be
+	 * removed from the context
 	 */
 	String fieldName;
 
 	/*
-	 * if fieldValue is a field, then we keep that parsed name
+	 * if fieldName is of the form $fieldName then we keep that run-time field
+	 * name
 	 */
-	private String parsedField;
+	private String runTimeFieldName;
 
 	@Override
 	protected Value doAct(ServiceContext ctx, DbDriver driver) {
-		if (this.parsedField != null) {
-			this.fieldName = ctx.getValue(this.parsedField).toText();
+		if (this.runTimeFieldName == null) {
+			ctx.removeValue(this.fieldName);
+		} else {
+			Value field = ctx.getValue(this.runTimeFieldName);
+			if (field == null) {
+				Tracer.trace("No value for found in service context for field name " + this.runTimeFieldName
+						+ ". RemoveValue action could not continue.");
+			} else {
+				ctx.removeValue(field.toString());
+			}
 		}
-		ctx.removeValue(this.fieldName);
 		return Value.newBooleanValue(true);
 	}
 
@@ -73,14 +81,9 @@ public class RemoveValue extends Action {
 	@Override
 	public void getReady(int idx) {
 		super.getReady(idx);
-		if (this.fieldName == null && this.parsedField == null) {
-			throw new ApplicationError("RemoveValue action '" + this.actionName
-					+ "' requires either fieldName or parsedField to be specified");
-
+		if (this.fieldName == null) {
+			throw new ApplicationError("RemoveValue action '" + this.actionName + "' requires either fieldName");
 		}
-		if (this.parsedField != null && Value.parseValue(this.parsedField) == null) {
-			throw new ApplicationError(
-					"RemovetValue action " + this.actionName + " has an invalid parsedField=" + this.parsedField);
-		}
+		this.runTimeFieldName = TextUtil.getFieldName(this.fieldName);
 	}
 }

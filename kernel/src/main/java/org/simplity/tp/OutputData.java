@@ -107,6 +107,9 @@ public class OutputData {
 				if (val == null) {
 					val = ctx.getObject(f);
 				}
+				/*
+				 * we may set null to remove existing values
+				 */
 				outData.put(f, val);
 			}
 		}

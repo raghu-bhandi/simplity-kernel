@@ -95,13 +95,11 @@ public class Stream extends HttpServlet {
 			Tracer.trace(e, "Error while trying to upload a file.");
 			String msg = Tracer.stopAccumulation();
 			this.log(msg);
-			System.out.println(msg);
 			throw new ApplicationError(e,
 					"Error while trying to upload a file.");
 		}
 		String msg = Tracer.stopAccumulation();
 		this.log(msg);
-		System.out.println(msg);
 	}
 
 	/**
@@ -118,7 +116,7 @@ public class Stream extends HttpServlet {
 		 * ?key
 		 */
 		if (token == null) {
-			Tracer.trace("No file/token specified for fiel download request");
+			Tracer.trace("No file/token specified for file download request");
 			resp.setStatus(404);
 			return;
 		}
@@ -198,7 +196,7 @@ public class Stream extends HttpServlet {
 
 	/**
 	 * retrieve buffered logs from session a
-	 * 
+	 *
 	 * @param req
 	 * @param resp
 	 * @throws IOException

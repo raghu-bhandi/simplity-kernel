@@ -90,8 +90,12 @@ class Operand {
 						valueToReturn = Value.newUnknownValue(ValueType.TEXT);
 					}
 				} else {
-					valueToReturn = ComponentManager.evaluate(fname,
-							this.expression.getValueList(data), data);
+					Value[] args = null;
+					if (this.expression != null) {
+						args = this.expression.getValueList(data);
+					}
+					valueToReturn = ComponentManager.evaluate(fname, args,
+							data);
 				}
 			}
 			if (this.uop == null || valueToReturn.isUnknown()) {

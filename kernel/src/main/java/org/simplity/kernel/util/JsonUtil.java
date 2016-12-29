@@ -965,18 +965,6 @@ public class JsonUtil {
 	}
 
 	/**
-	 * test
-	 *
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		String fieldName = "2.0 ";
-		JSONObject json = new JSONObject("{\"a\":[12,23,[\"12\"]]}");
-		Object obj = getValue(fieldName, json.get("a"));
-		System.out.println(obj);
-	}
-
-	/**
 	 * @param itemSelector
 	 * @param json
 	 * @return object as per selector. A new JSON Object is added and returned
