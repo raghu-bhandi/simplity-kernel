@@ -142,19 +142,17 @@ public class ProcedureParameter {
 			}
 		} else {
 			if (this.sqlObjectType == null) {
-				throw new ApplicationError(
-						"Stored procedure parameter "
-								+ this.name
-								+ " has a record associated with it, impliying that it is a struct/object. Please specify sqlObjectType as the type of this parameter in the stored procedure");
+				throw new ApplicationError("Stored procedure parameter "
+						+ this.name
+						+ " has a record associated with it, impliying that it is a struct/object. Please specify sqlObjectType as the type of this parameter in the stored procedure");
 			}
 			this.sqlObjectType = this.sqlObjectType.toUpperCase();
 		}
 		if (this.isArray) {
 			if (this.sqlArrayType == null) {
-				throw new ApplicationError(
-						"Stored procedure parameter "
-								+ this.name
-								+ " is an arry, and hence sqlArrayType must be specified as the type with which this parametr is defined in the stored procedure");
+				throw new ApplicationError("Stored procedure parameter "
+						+ this.name
+						+ " is an arry, and hence sqlArrayType must be specified as the type with which this parametr is defined in the stored procedure");
 			}
 			this.sqlArrayType = this.sqlArrayType.toUpperCase();
 		}
@@ -174,6 +172,11 @@ public class ProcedureParameter {
 	 *         be continues
 	 * @throws SQLException
 	 */
+	/*
+	 * we use connection object, but we are not to close this. Suppress that
+	 * warning
+	 */
+	@SuppressWarnings("resource")
 	public boolean setParameter(CallableStatement stmt,
 			FieldsInterface inputFields, ServiceContext ctx)
 					throws SQLException {
@@ -328,13 +331,13 @@ public class ProcedureParameter {
 		 */
 		int scale = this.dataTypeObject.getScale();
 		if (scale == 0) {
-			stmt.registerOutParameter(this.myPosn, this.getValueType()
-					.getSqlType());
+			stmt.registerOutParameter(this.myPosn,
+					this.getValueType().getSqlType());
 			return;
 		}
 
-		stmt.registerOutParameter(this.myPosn,
-				this.getValueType().getSqlType(), scale);
+		stmt.registerOutParameter(this.myPosn, this.getValueType().getSqlType(),
+				scale);
 		return;
 	}
 
@@ -364,11 +367,12 @@ public class ProcedureParameter {
 		}
 		if (this.isArray) {
 			if (obj instanceof JSONArray == false) {
-				Tracer.trace("Servie Context has an object as source for stored procedure "
-						+ this.name
-						+ " but while we expected it to be an instance of JSONArray (array of objects) it turned out to be "
-						+ obj.getClass().getName()
-						+ ". Assumed no value for this parameter");
+				Tracer.trace(
+						"Servie Context has an object as source for stored procedure "
+								+ this.name
+								+ " but while we expected it to be an instance of JSONArray (array of objects) it turned out to be "
+								+ obj.getClass().getName()
+								+ ". Assumed no value for this parameter");
 				return this.setNullParam(stmt, ctx);
 			}
 			Array array = record.createStructArrayForSp((JSONArray) obj,
@@ -377,11 +381,12 @@ public class ProcedureParameter {
 			return true;
 		}
 		if (obj instanceof JSONObject == false) {
-			Tracer.trace("Servie Context has an object as source for stored procedure "
-					+ this.name
-					+ " but while we expected it to be an instance of JSONObject it turned out to be "
-					+ obj.getClass().getName()
-					+ ". Assumed no value for this parameter");
+			Tracer.trace(
+					"Servie Context has an object as source for stored procedure "
+							+ this.name
+							+ " but while we expected it to be an instance of JSONObject it turned out to be "
+							+ obj.getClass().getName()
+							+ ". Assumed no value for this parameter");
 			return this.setNullParam(stmt, ctx);
 		}
 		Struct struct = record.createStructForSp((JSONObject) obj,
@@ -407,17 +412,46 @@ public class ProcedureParameter {
 			return;
 		}
 
+		/*
+		 * simple value
+		 */
 		if (this.recordName == null && this.isArray == false) {
 			Value value = this.getValueType().extractFromSp(stmt, this.myPosn);
-			outputFields.setValue(this.name, value);
+			if (Value.isNull(value)) {
+				Tracer.trace(
+						"Null value received for stored procedure parameter "
+								+ this.name
+								+ ". Data is not added to context.");
+			} else {
+				outputFields.setValue(this.name, value);
+			}
 			return;
 		}
+		/*
+		 * struct/array etc..
+		 */
 		Object object = stmt.getObject(this.myPosn);
+		if (object == null) {
+			Tracer.trace("Got null as value of stored procedure parameter "
+					+ this.name + ". Data is not added to context.");
+			return;
+		}
+
+		Object[] array = null;
+		if (this.isArray) {
+			if (object instanceof Array == false) {
+				throw new ApplicationError("procedure parameter " + this.name
+						+ " is probably not set properly. We received an object of type "
+						+ object.getClass().getName()
+						+ " at run time while we expected an Array");
+			}
+			array = (Object[]) ((Array) object).getArray();
+		}
 		/*
 		 * array of primitives
 		 */
 		if (this.recordName == null) {
-			ctx.putDataSheet(this.name, this.arrayToDs(object));
+			ctx.putDataSheet(this.name, this.arrayToDs(array));
 			return;
 		}
 
@@ -431,11 +465,18 @@ public class ProcedureParameter {
 			ctx.setObject(this.name, object);
 			return;
 		}
+
 		if (this.isArray) {
-			ctx.putDataSheet(this.name, this.structsToDs(object));
+			ctx.putDataSheet(this.name, this.structsToDs(array));
 			return;
 		}
-		ctx.putDataSheet(this.name, this.structToDs(object));
+		if (object instanceof Struct == false) {
+			throw new ApplicationError("procedure parameter " + this.name
+					+ " is probably not set properly. We received an object of type "
+					+ object.getClass().getName()
+					+ " at run time while we expected Struct");
+		}
+		ctx.putDataSheet(this.name, this.structToDs((Struct) object));
 	}
 
 	/**
@@ -445,14 +486,13 @@ public class ProcedureParameter {
 	 * @return
 	 * @throws SQLException
 	 */
-	private DataSheet structToDs(Object dbObject) throws SQLException {
+	private DataSheet structToDs(Struct struct) throws SQLException {
 		/*
 		 * struct is extracted into a data sheet with just one row
 		 */
-		DataSheet ds = ComponentManager.getRecord(this.recordName).createSheet(
-				true, false);
+		DataSheet ds = ComponentManager.getRecord(this.recordName)
+				.createSheet(true, false);
 		ValueType[] types = ds.getValueTypes();
-		Struct struct = (Struct) dbObject;
 		Value[] row = this.getRowFromStruct(struct.getAttributes(), types);
 		ds.addRow(row);
 		return ds;
@@ -461,18 +501,24 @@ public class ProcedureParameter {
 	/**
 	 * create a data sheet out of an array of structs
 	 *
-	 * @param objectData
+	 * @param array
 	 *            that is received from db converted into array of array of
 	 *            objects
 	 * @return data sheet into which data from the db object is extracted
 	 * @throws SQLException
 	 */
-	private DataSheet structsToDs(Object dbObject) throws SQLException {
-		DataSheet ds = ComponentManager.getRecord(this.recordName).createSheet(
-				false, false);
+	private DataSheet structsToDs(Object[] array) throws SQLException {
+		DataSheet ds = ComponentManager.getRecord(this.recordName)
+				.createSheet(false, false);
 		ValueType[] types = ds.getValueTypes();
-		Object[] arr = (Object[]) ((Array) dbObject).getArray();
-		for (Object struct : arr) {
+		for (Object struct : array) {
+			if (struct == null || struct instanceof Struct == false) {
+				Tracer.trace(
+						"Found an empty row or a non-struct object for stored procedure parameter "
+								+ this.name
+								+ ". skipping this row, but not throwing an error.");
+				continue;
+			}
 			Object[] rowData = ((Struct) struct).getAttributes();
 			Value[] row = this.getRowFromStruct(rowData, types);
 			ds.addRow(row);
@@ -502,18 +548,20 @@ public class ProcedureParameter {
 	/**
 	 * create a data sheet with the array of the only column in that
 	 *
-	 * @param dbObject
+	 * @param array
 	 *            that is received from db
 	 * @return data sheet into which value is extracted
 	 * @throws SQLException
 	 */
-	private DataSheet arrayToDs(Object dbObject) throws SQLException {
-		Array arr = (Array) dbObject;
-		Value[] values = this.getValueType()
-				.toValues((Object[]) arr.getArray());
+	private DataSheet arrayToDs(Object[] row) throws SQLException {
 		String[] columnNames = { this.name };
-		Value[][] columnValues = { values };
-		return new MultiRowsSheet(columnNames, columnValues);
+		ValueType vt = this.getValueType();
+		if (row.length == 0) {
+			ValueType[] types = { this.dataTypeObject.getValueType() };
+			return new MultiRowsSheet(columnNames, types);
+		}
+		Value[][] values = { vt.toValues(row) };
+		return new MultiRowsSheet(columnNames, values);
 	}
 
 	/**
@@ -531,18 +579,17 @@ public class ProcedureParameter {
 		msg.append(this.name).append(" at number ").append(this.myPosn)
 		.append(" has caused an exception.");
 		if (this.isArray) {
-			msg.append(
-					"Verify that this array paramater is defined as type "
-							+ this.sqlArrayType)
-							.append("which is an array of ");
+			msg.append("Verify that this array paramater is defined as type "
+					+ this.sqlArrayType).append("which is an array of ");
 			if (this.recordName != null) {
 				msg.append(this.sqlObjectType);
 			} else {
 				msg.append(this.getValueType());
 			}
 		} else if (this.recordName == null) {
-			msg.append("Ensure that the db type of this parameter is compatible with our type "
-					+ this.getValueType());
+			msg.append(
+					"Ensure that the db type of this parameter is compatible with our type "
+							+ this.getValueType());
 		}
 		if (this.recordName != null) {
 			msg.append("Verify that the fields in record ")
@@ -562,7 +609,8 @@ public class ProcedureParameter {
 	int validate(ValidationContext ctx) {
 		int count = 0;
 		if (this.name == null) {
-			ctx.addError("Parameter has to have a name. This need not be the same as the one in the db though.");
+			ctx.addError(
+					"Parameter has to have a name. This need not be the same as the one in the db though.");
 			count++;
 		}
 		count += ctx.checkDtExistence(this.dataType, "dataType", false);
@@ -584,32 +632,29 @@ public class ProcedureParameter {
 
 		if (this.recordName != null) {
 			if (this.dataType != null) {
-				this.addError(
-						ctx,
+				this.addError(ctx,
 						" Both dataType and recordName specified. Use dataType if this is primitive type, or record if it as array or a structure.");
 				count++;
 			}
 			if (this.sqlObjectType == null) {
-				this.addError(
-						ctx,
+				this.addError(ctx,
 						" recordName is specified which means that it is a data-structure. Please specify sqlObjectType as the type of this parameter in the stored procedure");
 			}
 		} else {
 			if (this.dataType == null) {
-				this.addError(
-						ctx,
+				this.addError(ctx,
 						" No data type or recordName specified. Use dataType if this is primitive type, or record if it as an array or a data-structure.");
 				count++;
 			} else if (this.sqlObjectType != null) {
-				ctx.addError("sqlObjectType is relevant ony if this parameter is non-primitive.");
+				ctx.addError(
+						"sqlObjectType is relevant ony if this parameter is non-primitive.");
 			}
 
 		}
 
 		if (this.isArray) {
 			if (this.sqlArrayType == null) {
-				this.addError(
-						ctx,
+				this.addError(ctx,
 						" is an array, and hence sqlArrayType must be specified as the type with which this parametr is defined in the stored procedure");
 				count++;
 			}
