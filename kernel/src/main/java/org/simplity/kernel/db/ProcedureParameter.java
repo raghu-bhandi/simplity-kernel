@@ -30,6 +30,7 @@ import java.sql.Types;
 
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
@@ -457,26 +458,62 @@ public class ProcedureParameter {
 
 		Record record = ComponentManager.getRecord(this.recordName);
 
+		if (this.isArray == false) {
+			if (object instanceof Struct == false) {
+				throw new ApplicationError("procedure parameter " + this.name
+						+ " is probably not set properly. We received an object of type "
+						+ object.getClass().getName()
+						+ " at run time while we expected Struct");
+			}
+			Struct struct = (Struct) object;
+			if (record.isComplexStruct()) {
+				ctx.setObject(this.name,
+						this.extractToJson(record, struct, stmt));
+			} else {
+				ctx.putDataSheet(this.name, this.structToDs(struct));
+			}
+			return;
+		}
+		/*
+		 * array of strcuts. the most complex case.
+		 */
 		if (record.isComplexStruct()) {
-			/*
-			 * our current design is to put this object in ctx. outputRecord
-			 * will take care of that
-			 */
-			ctx.setObject(this.name, object);
-			return;
+			ctx.setObject(this.name,
+					this.extractToJsonArray(record, array, stmt));
+		} else {
+			ctx.putDataSheet(this.name, this.structsToDs(record, array));
 		}
+	}
 
-		if (this.isArray) {
-			ctx.putDataSheet(this.name, this.structsToDs(array));
-			return;
-		}
-		if (object instanceof Struct == false) {
-			throw new ApplicationError("procedure parameter " + this.name
-					+ " is probably not set properly. We received an object of type "
-					+ object.getClass().getName()
-					+ " at run time while we expected Struct");
-		}
-		ctx.putDataSheet(this.name, this.structToDs((Struct) object));
+	/**
+	 *
+	 * @param struct
+	 * @param record
+	 * @param stmt
+	 * @return
+	 * @throws SQLException
+	 */
+	private JSONObject extractToJson(Record record, Struct struct,
+			CallableStatement stmt) throws SQLException {
+		JSONWriter writer = new JSONWriter();
+		record.toJsonObjectFromStruct(struct, writer);
+		return new JSONObject(writer);
+
+	}
+
+	/**
+	 *
+	 * @param array
+	 * @param record
+	 * @param stmt
+	 * @return
+	 * @throws SQLException
+	 */
+	private JSONArray extractToJsonArray(Record record, Object[] array,
+			CallableStatement stmt) throws SQLException {
+		JSONWriter writer = new JSONWriter();
+		record.toJsonArrayFromStruct(array, writer);
+		return new JSONArray(writer);
 	}
 
 	/**
@@ -507,9 +544,9 @@ public class ProcedureParameter {
 	 * @return data sheet into which data from the db object is extracted
 	 * @throws SQLException
 	 */
-	private DataSheet structsToDs(Object[] array) throws SQLException {
-		DataSheet ds = ComponentManager.getRecord(this.recordName)
-				.createSheet(false, false);
+	private DataSheet structsToDs(Record record, Object[] array)
+			throws SQLException {
+		DataSheet ds = record.createSheet(false, false);
 		ValueType[] types = ds.getValueTypes();
 		for (Object struct : array) {
 			if (struct == null || struct instanceof Struct == false) {

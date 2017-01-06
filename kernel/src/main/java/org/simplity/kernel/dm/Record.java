@@ -1360,12 +1360,12 @@ public class Record implements Component {
 			}
 		}
 		update.append(" WHERE ").append(this.primaryKeyField.columnName).append(Record.EQUAL)
-				.append(Record.PARAM);
+		.append(Record.PARAM);
 		values[valueIdx++] = inData.getValue(this.primaryKeyField.name);
 
 		if (this.modifiedStampField != null) {
 			update.append(" AND ").append(this.modifiedStampField.columnName).append(Record.EQUAL)
-					.append(Record.PARAM);
+			.append(Record.PARAM);
 			values[valueIdx++] = inData.getValue(this.modifiedStampField.name);
 		}
 		/*
@@ -1435,10 +1435,10 @@ public class Record implements Component {
 		Value[] values = parentData.getColumnValues(keyName);
 		Tracer.trace("There are " + n + " rows in parent sheet. column " + keyName + " has "
 				+ values.length + " values with first value=" + values[0]
-				+ ". We are going to read child rows for them using record " + this.name);
+						+ ". We are going to read child rows for them using record " + this.name);
 		/*
 		 * for single key we use where key = ?
-		 * 
+		 *
 		 * for multiple, we use where key in (?,?,....)
 		 */
 		if (n == 1) {
@@ -1509,30 +1509,30 @@ public class Record implements Component {
 	 * we will track this during getReady() invocation. getReady() will ask for
 	 * a referred record. That record will execute getReady() before returning.
 	 * It may ask for another record, so an and so forth.
-	 * 
+	 *
 	 * There are two ways to solve this problem.
-	 * 
+	 *
 	 * One way is to differentiate between normal-request and reference-request
 	 * for a record. Pass history during reference request so that we can detect
 	 * circular reference. Issue with this is that getRequest() is a generic
 	 * method and hence we can not customize it.
-	 * 
+	 *
 	 * Other approach is to use thread-local that is initiated by getReady().
-	 * 
+	 *
 	 * our algorithm is :
-	 * 
+	 *
 	 * 1. we initiate refHistory before getReady() and current record to
 	 * pendingOnes.
-	 * 
+	 *
 	 * 2. A referred field may invoke parent.getRefrecord() Referred record is
 	 * requested from ComponentManager.getRecord();
-	 * 
+	 *
 	 * 3. that call will trigger getReady() on the referred record. This chain
 	 * will go-on..
-	 * 
+	 *
 	 * 4. before adding to pending list we check if it already exists. That
 	 * would be a circular reference.
-	 * 
+	 *
 	 * 5. Once we complete getReady(), we remove this record from pendingOnes.
 	 * And if there no more pending ones, we remove it. and that completes the
 	 * check.
@@ -1778,8 +1778,8 @@ public class Record implements Component {
 		}
 
 		throw new ApplicationError("Record " + this.getQualifiedName()
-				+ " defines more than one field with field type " + savedField.fieldType.name()
-				+ ". This feature is not supported");
+		+ " defines more than one field with field type " + savedField.fieldType.name()
+		+ ". This feature is not supported");
 
 	}
 
@@ -1931,7 +1931,7 @@ public class Record implements Component {
 		}
 		if (this.suggestionOutputNames == null || this.suggestionOutputNames.length == 0) {
 			throw new ApplicationError("Record " + this.getQualifiedName()
-					+ " specifies suggestion key but no suggestion output fields");
+			+ " specifies suggestion key but no suggestion output fields");
 		}
 		StringBuilder sbf = new StringBuilder();
 		sbf.append("SELECT ");
@@ -1945,7 +1945,7 @@ public class Record implements Component {
 		}
 		sbf.setLength(sbf.length() - 1);
 		sbf.append(" from ").append(this.tableName).append(" WHERE ").append(field.columnName)
-				.append(" LIKE ?");
+		.append(" LIKE ?");
 		this.suggestSql = sbf.toString();
 	}
 
@@ -2281,7 +2281,7 @@ public class Record implements Component {
 			if (f == null) {
 				throw new ApplicationError(
 						"Record " + this.getQualifiedName() + " is asked to get a field named " + s
-								+ ". Such a field is not defined for this record.");
+						+ ". Such a field is not defined for this record.");
 			}
 			result[i] = f;
 			i++;
@@ -2362,7 +2362,7 @@ public class Record implements Component {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
 	 * ValidationContext)
@@ -2658,7 +2658,7 @@ public class Record implements Component {
 				if (obj instanceof JSONArray == false) {
 					errors.add(new FormattedMessage(Messages.INVALID_DATA,
 							"Input value for parameter. " + field.name
-									+ " is expected to be an array of values."));
+							+ " is expected to be an array of values."));
 					continue;
 				}
 				Value[] arr = field.parseArray(JsonUtil.toObjectArray((JSONArray) obj), errors,
@@ -2674,7 +2674,7 @@ public class Record implements Component {
 				if (obj instanceof JSONObject == false) {
 					errors.add(new FormattedMessage(Messages.INVALID_DATA,
 							"Input value for parameter. " + field.name
-									+ " is expected to be an objects."));
+							+ " is expected to be an objects."));
 					continue;
 				}
 				Record childRecord = ComponentManager.getRecord(field.referredRecord);
@@ -2690,7 +2690,7 @@ public class Record implements Component {
 				if (obj instanceof JSONArray == false) {
 					errors.add(new FormattedMessage(Messages.INVALID_DATA,
 							"Input value for parameter. " + field.name
-									+ " is expected to be an array of objects."));
+							+ " is expected to be an array of objects."));
 					continue;
 				}
 				Record childRecord = ComponentManager.getRecord(field.referredRecord);
@@ -2821,7 +2821,7 @@ public class Record implements Component {
 	private ApplicationError getAppError(int nbr, Field field, String txt, Object value) {
 		StringBuilder sbf = new StringBuilder();
 		sbf.append("Error while creating JSON from output of stored procedure using record ")
-				.append(this.getQualifiedName()).append(". ");
+		.append(this.getQualifiedName()).append(". ");
 		if (txt == null) {
 			sbf.append("We expect an array of objects with " + this.fields.length
 					+ " elements but we got ");
@@ -2832,7 +2832,7 @@ public class Record implements Component {
 			}
 		} else {
 			sbf.append("Field ").append(field.name).append(txt).append(" but we got an instance of")
-					.append(value.getClass().getName());
+			.append(value.getClass().getName());
 		}
 		return new ApplicationError(sbf.toString());
 	}
@@ -2840,20 +2840,20 @@ public class Record implements Component {
 	/**
 	 * Write an object to writer that represents a JOSONObject for this record
 	 *
-	 * @param data
+	 * @param array
 	 *
 	 * @param writer
 	 * @throws SQLException
 	 * @throws JSONException
 	 */
-	public void toJsonArrayFromStruct(Array data, JSONWriter writer)
+	public void toJsonArrayFromStruct(Object[] array, JSONWriter writer)
 			throws JSONException, SQLException {
-		if (data == null) {
+		if (array == null) {
 			writer.value(null);
 			return;
 		}
 		writer.array();
-		for (Object struct : (Object[]) data.getArray()) {
+		for (Object struct : array) {
 			this.toJsonObjectFromStruct((Struct) struct, writer);
 		}
 		writer.endArray();
@@ -2924,7 +2924,8 @@ public class Record implements Component {
 									+ obj.getClass().getName());
 				}
 				Record childRecord = ComponentManager.getRecord(field.referredRecord);
-				childRecord.toJsonArrayFromStruct((Array) obj, writer);
+				Object[] array = (Object[]) ((Array) obj).getArray();
+				childRecord.toJsonArrayFromStruct(array, writer);
 				continue;
 			}
 			/*
