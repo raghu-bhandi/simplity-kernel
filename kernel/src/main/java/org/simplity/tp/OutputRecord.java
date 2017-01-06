@@ -21,8 +21,6 @@
  */
 package org.simplity.tp;
 
-import java.sql.Array;
-import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -145,31 +143,10 @@ public class OutputRecord {
 			Object obj = ctx.getObject(this.sheetName);
 			writer.key(this.sheetName);
 			if (obj == null) {
-				writer.value(null);
 				Tracer.trace("No Object found for complex structure "
 						+ this.sheetName + ". Null sent to client");
-				return;
 			}
-			try {
-				Record record = ComponentManager.getRecord(this.recordName);
-				if (obj instanceof Array) {
-					record.toJsonArrayFromStruct((Array) obj, writer);
-					return;
-				}
-				if (obj instanceof Struct) {
-					record.toJsonObjectFromStruct((Struct) obj, writer);
-					return;
-				}
-			} catch (Exception e) {
-				throw new ApplicationError(e,
-						"Error while converting data structure to JSON");
-			}
-			Tracer.trace("Json for "
-					+ this.sheetName
-					+ " coud not be copied because it is "
-					+ obj.getClass().getName()
-					+ " while we would have been happy with java.sql.Array or java.sql.Struct ");
-			writer.value(null);
+			writer.value(obj);
 			return;
 		}
 		if (this.sheetName == null) {
