@@ -228,8 +228,8 @@ public class ServiceAgent {
 			 * is it accessible to user?
 			 */
 			if (this.securityManager != null
-					&& this.securityManager.okToServe(userId, serviceName,
-							service) == false) {
+					&& this.securityManager.okToServe(service,
+							inputData) == false) {
 				response = new ServiceData();
 				/*
 				 * should we say you are not authorized?
