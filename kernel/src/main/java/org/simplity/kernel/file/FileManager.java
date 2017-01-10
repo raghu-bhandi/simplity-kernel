@@ -99,6 +99,7 @@ public class FileManager {
 
 	private static void addAllResourcesWithCtx(String parentFolder,
 			List<String> resources) {
+		@SuppressWarnings("unchecked")
 		Set<String> paths = myContext.getResourcePaths(FOLDER_CHAR
 				+ parentFolder);
 		if (paths == null) {

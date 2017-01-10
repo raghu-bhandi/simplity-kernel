@@ -71,7 +71,7 @@ public class DecimalValue extends Value {
 
 	@Override
 	public long toInteger() throws InvalidValueException {
-		return (long) this.value;
+		return Math.round(this.value);
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class DecimalValue extends Value {
 	 * @return long value
 	 */
 	public long getLong() {
-		return (long) this.value;
+		return Math.round(this.value);
 	}
 
 	/**

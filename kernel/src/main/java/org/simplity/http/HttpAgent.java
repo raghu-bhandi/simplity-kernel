@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
@@ -39,6 +38,7 @@ import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
+import org.simplity.kernel.ServiceLogger;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.util.CircularLifo;
 import org.simplity.kernel.util.JsonUtil;
@@ -67,36 +67,25 @@ public class HttpAgent {
 	 * sessions, we make this a set of tokens.
 	 */
 	private static final String GET = "GET";
-	private static final String TAG = "<htppTrace at=\"";
-	private static final String ELAPSED = "\" elapsed=\"";
-	private static final String SERVICE = "\" serviceName=\"";
-	private static final String USER = "\" userId=\"";
-	private static final String TAG_CLOSE = "\n]]>\n</httpTrace>";
-	private static final String CLOSE = "\" >\n<![CDATA[\n";
-	private static final String TRACE = "trace";
 
-	private static final Logger myLogger = Logger.getLogger(TRACE);
 	/**
 	 * message to be sent to client if there is any internal error
 	 */
 	public static final FormattedMessage INTERNAL_ERROR = new FormattedMessage(
-			"internalError",
-			MessageType.ERROR,
+			"internalError", MessageType.ERROR,
 			"We are sorry. There was an internal error on server. Support team has been notified.");
 	/**
 	 * message to be sent to client if this request requires a login and the
 	 * user has not logged in
 	 */
 	public static final FormattedMessage NO_LOGIN = new FormattedMessage(
-			"notLoggedIn",
-			MessageType.ERROR,
+			"notLoggedIn", MessageType.ERROR,
 			"You are not logged into the server, or server may have logged-you out as a safety measure after a period of no activity.");
 	/**
 	 * message to be sent to client if data text was not in order.
 	 */
 	public static final FormattedMessage DATA_ERROR = new FormattedMessage(
-			"invalidDataFormat",
-			MessageType.ERROR,
+			"invalidDataFormat", MessageType.ERROR,
 			"Data text sent from client is not formatted properly. Unable to extract data from the text.");
 	/**
 	 * message to be used when client has not specified a service
@@ -166,7 +155,8 @@ public class HttpAgent {
 		String serviceName = req.getHeader(ServiceProtocol.SERVICE_NAME);
 		HttpSession session = req.getSession(true);
 		boolean isGet = GET.equals(req.getMethod());
-
+		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+		resp.setDateHeader("Expires", 0);
 		/*
 		 * serviceName is a parameter in GET mode, and CSRF would be in session
 		 */
@@ -272,20 +262,29 @@ public class HttpAgent {
 			 * all OK
 			 */
 			response = outData.getPayLoad();
-			Tracer.trace("Service has no errors and has "
-					+ (response == null ? "no " : (response.length())
-							+ " chars ") + " payload");
+			Tracer.trace(
+					"Service succeeded and has "
+							+ (response == null ? "no "
+									: (response.length()) + " chars ")
+							+ " payload");
 		}
 		ServletOutputStream out = resp.getOutputStream();
 		out.print(response);
 		out.close();
 		String trace = Tracer.stopAccumulation();
+		if (outData != null) {
+			String serverTrace = outData.getTrace();
+			if (serverTrace != null) {
+				trace = "---- Web Tier Trace ---\n" + trace
+						+ "\n------ App Tier Trace ----\n" + serverTrace;
+			}
+		}
 		if (tracesToBeCached) {
 			cacheTraces(session, trace);
 		}
-		String log = TAG + startedAt + ELAPSED + elapsed + SERVICE
-				+ serviceName + USER + userId + CLOSE + trace + TAG_CLOSE;
-		myLogger.info(log);
+		String uid = userId == null ? "unknown" : userId.toString();
+		ServiceLogger.pushTraceToLog(serviceName, uid, (int) elapsed, trace);
+
 	}
 
 	/**
@@ -354,7 +353,8 @@ public class HttpAgent {
 			 */
 			Object uid = outData.get(ServiceProtocol.USER_ID);
 			if (uid == null) {
-				Tracer.trace("Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
+				Tracer.trace(
+						"Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
 				return null;
 			}
 			if (uid instanceof Value) {
@@ -393,7 +393,8 @@ public class HttpAgent {
 		}
 		ServiceData inData = createServiceData(session);
 		if (inData == null) {
-			Tracer.trace("No active session found, and hence logout not called");
+			Tracer.trace(
+					"No active session found, and hence logout not called");
 			return;
 		}
 		if (timedOut) {
@@ -436,6 +437,11 @@ public class HttpAgent {
 	private static String queryToJson(HttpServletRequest req) {
 		JSONWriter writer = new JSONWriter();
 		writer.object();
+		/*
+		 * we have to suppress this warning as it is an external call that we
+		 * have no control over
+		 */
+		@SuppressWarnings("unchecked")
 		Map<String, String[]> fields = req.getParameterMap();
 		if (fields != null) {
 			for (Map.Entry<String, String[]> entry : fields.entrySet()) {
@@ -482,8 +488,7 @@ public class HttpAgent {
 			login(autoLoginUserId.toString(), null, session);
 			userId = (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
 			if (userId == null) {
-				Tracer.trace("autoLoginUserId is set to "
-						+ autoLoginUserId
+				Tracer.trace("autoLoginUserId is set to " + autoLoginUserId
 						+ " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in applicaiton.xml and esnure that your service clears this dummy userId with no credentials");
 				return null;
 			}
@@ -492,7 +497,7 @@ public class HttpAgent {
 
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-				.getAttribute(SESSION_NAME_FOR_MAP);
+		.getAttribute(SESSION_NAME_FOR_MAP);
 		if (sessionData == null) {
 			throw new ApplicationError(
 					"Unexpected situation. UserId is located in session, but not map");
@@ -530,10 +535,11 @@ public class HttpAgent {
 	private static void setSessionData(HttpSession session, ServiceData data) {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-				.getAttribute(SESSION_NAME_FOR_MAP);
+		.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
-			Tracer.trace("Unexpected situation. setSession invoked with no active session. Action ignored");
+			Tracer.trace(
+					"Unexpected situation. setSession invoked with no active session. Action ignored");
 		} else {
 			for (String key : data.getFieldNames()) {
 				sessionData.put(key, data.get(key));
@@ -582,7 +588,8 @@ public class HttpAgent {
 	 * @param serviceName
 	 * @param session
 	 */
-	public static void invalidateCache(String serviceName, HttpSession session) {
+	public static void invalidateCache(String serviceName,
+			HttpSession session) {
 		if (httpCacheManager != null) {
 			httpCacheManager.invalidate(serviceName, session);
 		}
@@ -597,7 +604,8 @@ public class HttpAgent {
 	private static void cacheTraces(HttpSession session, String trace) {
 		Object obj = session.getAttribute(HttpAgent.CACHED_TRACES);
 		if (obj == null) {
-			Tracer.trace("Unexpected absence of trace buffer in session. Client will not get traces.");
+			Tracer.trace(
+					"Unexpected absence of trace buffer in session. Client will not get traces.");
 			return;
 		}
 		@SuppressWarnings("unchecked")

@@ -312,7 +312,7 @@ public abstract class Value implements Serializable {
 			case DECIMAL:
 				return new DecimalValue(Double.parseDouble(text));
 			case INTEGER:
-				return new IntegerValue(Long.parseLong(text));
+				return new IntegerValue(Math.round(Double.parseDouble(text)));
 			case TEXT:
 				return new TextValue(text);
 			case BLOB:
@@ -498,9 +498,11 @@ public abstract class Value implements Serializable {
 		String[] vals = textList.split(ServiceProtocol.LIST_SEPARATOR + "");
 		for (String val : vals) {
 			val = val.trim();
+			String key = val;
 			int idx = val.indexOf(ServiceProtocol.LIST_VALUE_SEPARATOR);
 			if (idx != -1) {
-				val = val.substring(0, idx).trim();
+				key = val.substring(0, idx).trim();
+				val = val.substring(idx + 1).trim();
 			}
 			if (val.length() == 0) {
 				/*
@@ -514,11 +516,11 @@ public abstract class Value implements Serializable {
 				throw new ApplicationError("Value list " + textList
 						+ " has an invalid value of " + val);
 			}
-			if (result.containsKey(val)) {
+			if (result.containsKey(key)) {
 				throw new ApplicationError("Value list " + textList
 						+ " has duplicate value of " + val);
 			}
-			result.put(val, value);
+			result.put(key, value);
 		}
 		return result;
 	}

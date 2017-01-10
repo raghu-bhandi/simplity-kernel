@@ -76,13 +76,20 @@ public class OutputField {
 	String match(Object json, TestContext ctx) {
 		Object val = JsonUtil.getValue(this.fieldSelector, json);
 		if (this.fieldValue != null && this.fieldValue.isEmpty() == false) {
+			/*
+			 * we expect some specific value for this field
+			 */
+			if (val == null) {
+				return "No value for " + this.fieldSelector;
+			}
+
 			String thisValue = this.fieldValue;
 			if (this.fieldValue.charAt(0) == '$') {
 				thisValue = ctx.getValue(this.fieldValue.substring(1))
 						.toString();
 			}
 
-			if (thisValue.equals(val) == false) {
+			if (thisValue.equals(val.toString()) == false) {
 				return "Expected a value of " + thisValue + " for field "
 						+ this.fieldSelector + " but we got " + val;
 			}

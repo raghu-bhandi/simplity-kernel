@@ -140,12 +140,11 @@ public class TestContext {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		String root = "c:/repos/simplity/pet/WebContent/WEB-INF/comp/";
+		String root = "c:/repos/simplity/test/WebContent/WEB-INF/comp/";
 		Application.bootStrap(root);
 		TestContext ctx = new TestContext();
-		ctx.start("111", "foo");
-		ctx.setValue("fieldInCtx", "ctx");
-		TestRun testRun = ComponentManager.getTestRunOrNull("pet");
+		ctx.start("100", "abrakadabra");
+		TestRun testRun = ComponentManager.getTestRunOrNull("self.dt");
 		testRun.run(ctx);
 		JSONWriter writer = new JSONWriter();
 		writer.object();
@@ -153,8 +152,5 @@ public class TestContext {
 		JsonUtil.addObject(writer, ctx.getReport());
 		writer.endObject();
 		Tracer.trace(writer.toString());
-		for (TestResult tr : ctx.results) {
-			Tracer.trace(tr.toString());
-		}
 	}
 }

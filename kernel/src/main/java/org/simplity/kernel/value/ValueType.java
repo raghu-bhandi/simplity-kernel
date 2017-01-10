@@ -291,7 +291,6 @@ public enum ValueType {
 			if (resultSet.wasNull()) {
 				return Value.newUnknownValue(DATE);
 			}
-			Tracer.trace("DAte value extracted : " + DateUtil.format(val));
 			return Value.newDateValue(val);
 		}
 
@@ -504,7 +503,7 @@ public enum ValueType {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see org.simplity.kernel.value.ValueType#fromObject(java.lang.Object)
 		 * )
 		 */

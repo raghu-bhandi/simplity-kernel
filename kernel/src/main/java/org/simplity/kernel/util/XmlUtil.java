@@ -174,7 +174,6 @@ public class XmlUtil {
 	public static boolean xmlToObject(String fileName, Object object)
 			throws XmlParseException {
 		InputStream stream = null;
-		Tracer.trace("Going to load a component from " + fileName);
 		try {
 			stream = FileManager.getResourceStream(fileName);
 			if (stream == null) {

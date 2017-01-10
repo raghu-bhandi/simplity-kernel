@@ -106,6 +106,12 @@ public class TestCase {
 	ContextField[] fieldsToBeAddedToContext;
 
 	/**
+	 * Use java to inspect the result and assert. fully qualified class name
+	 * that implements org.simplity.test.Inspector
+	 */
+	String testClassName;
+
+	/**
 	 * run this test and report result to the context
 	 *
 	 * @param ctx
@@ -115,10 +121,18 @@ public class TestCase {
 		String json = this.getInput(ctx);
 		Tracer.trace("Input Json : " + json);
 		long startedAt = new Date().getTime();
-		json = ctx.runService(this.serviceName, json);
+		String msg = null;
+		try {
+			json = ctx.runService(this.serviceName, json);
+			msg = this.assertOutput(json, ctx);
+		} catch (Exception e) {
+			msg = "Service or serviceTest has a fatal error : "
+					+ e.getMessage();
+			Tracer.trace(e,
+					this.serviceName + " raised fatal error during testing.");
+		}
 		Tracer.trace("Output JSON : " + json);
 		int millis = (int) (new Date().getTime() - startedAt);
-		String msg = this.assertOutput(json, ctx);
 		TestResult result = new TestResult(this.serviceName, this.testCaseName,
 				millis, msg);
 		ctx.addResult(result);
@@ -205,6 +219,31 @@ public class TestCase {
 			}
 		}
 
+		/*
+		 * last one. Is there a java code?
+		 */
+		if (this.testClassName != null) {
+			String msg = null;
+			try {
+				Class<?> cls = Class.forName(this.testClassName);
+				Object obj = cls.newInstance();
+				if (obj instanceof Inspector == false) {
+					msg = "Error in test case : " + this.testClassName
+							+ " is not an instance of Inspector.";
+				} else {
+					msg = ((Inspector) obj).test(json, ctx);
+				}
+			} catch (Exception e) {
+				msg = "Error in test case while using class "
+						+ this.testClassName + " : " + e.getMessage();
+			}
+			if (msg != null) {
+				return msg;
+			}
+		}
+		/*
+		 * fantastic We crossed all hurdles!!!
+		 */
 		return null;
 	}
 

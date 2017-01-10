@@ -28,10 +28,10 @@ import org.simplity.kernel.value.ValueType;
  * timestamp is a pseudo data type, because it is actually a numeric field, but
  * it corresponds to an RDBMS field defined as timestamp. JDBC, in our opinion,
  * created a mess by defining timestamp as an extension of Date field, but not
- * exactly. Confusion is that is you cast Timestamp to Date then you loose the
+ * exactly. Confusion is that if you cast Timestamp to Date then you loose the
  * entire second, not just the nano-part of it. Hence we treat it as long
  * internally, but allow users to treat it as date as well. Nano second is
- * relevant nly if teh caller treats it as long.
+ * relevant only if the caller treats it as long.
  *
  * Also, time-stamp is used for checking whether the record is stale/dirty
  * before updating. Hence, it is important that we do not loose the nano-part

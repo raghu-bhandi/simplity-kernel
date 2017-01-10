@@ -203,6 +203,8 @@ public class Stream extends HttpServlet {
 	 */
 	private void sendLogs(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
+		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+		resp.setDateHeader("Expires", 0);
 		HttpSession session = req.getSession(false);
 		if (session == null) {
 			return;
@@ -228,6 +230,5 @@ public class Stream extends HttpServlet {
 				//
 			}
 		}
-
 	}
 }

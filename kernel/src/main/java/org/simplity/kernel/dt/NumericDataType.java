@@ -23,7 +23,8 @@
 package org.simplity.kernel.dt;
 
 import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.value.InvalidValueException;
+import org.simplity.kernel.value.DecimalValue;
+import org.simplity.kernel.value.IntegerValue;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
@@ -52,32 +53,68 @@ public class NumericDataType extends DataType {
 
 	@Override
 	public Value validateValue(Value value) {
-		long intVal = 0;
+		if (this.nbrFractionDigits == 0) {
+			return this.validateInt(value);
+		}
+		return this.validateDecimal(value);
+	}
+
+	private Value validateInt(Value value) {
+		ValueType valueType = value.getValueType();
+		long longValue = 0L;
+
 		/*
-		 * is it numeric?
+		 * check for numeric type
 		 */
-		try {
-			intVal = value.toInteger();
-		} catch (InvalidValueException e) {
+		if (valueType == ValueType.INTEGER) {
+			longValue = ((IntegerValue) value).getLong();
+		} else if (valueType == ValueType.DECIMAL) {
+			longValue = ((DecimalValue) value).getLong();
+		} else {
 			return null;
 		}
 		/*
-		 * max/min is long and we do not care about fraction
+		 * min-max check
 		 */
-		if (intVal > this.maxValue || intVal < this.minValue) {
+		if (longValue > this.maxValue || longValue < this.minValue) {
 			return null;
 		}
 		/*
-		 * ensure that we have the right type
+		 * create new value if required
 		 */
-		ValueType thisType = this.getValueType();
-		if (thisType == value.getValueType()) {
+		if (valueType == ValueType.INTEGER) {
 			return value;
 		}
-		if (thisType == ValueType.INTEGER) {
-			return Value.newIntegerValue(intVal);
+		return Value.newIntegerValue(longValue);
+	}
+
+	private Value validateDecimal(Value value) {
+		ValueType valueType = value.getValueType();
+		double dbl = 0;
+
+		/*
+		 * check for numeric type
+		 */
+		if (valueType == ValueType.INTEGER) {
+			dbl = ((IntegerValue) value).getDouble();
+		} else if (valueType == ValueType.DECIMAL) {
+			dbl = ((DecimalValue) value).getDouble();
+		} else {
+			return null;
 		}
-		return Value.newDecimalValue(intVal);
+		/*
+		 * min-max check
+		 */
+		if (dbl > this.maxValue || dbl < this.minValue) {
+			return null;
+		}
+		/*
+		 * create new value if required
+		 */
+		if (valueType == ValueType.DECIMAL) {
+			return value;
+		}
+		return Value.newDecimalValue(dbl);
 	}
 
 	@Override
@@ -117,7 +154,7 @@ public class NumericDataType extends DataType {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.dt.DataType#synthesiseDscription()
 	 */
 	@Override
@@ -129,7 +166,7 @@ public class NumericDataType extends DataType {
 			sbf.append("a decimal number ");
 		}
 		sbf.append("between ").append(this.minValue).append(" and ")
-				.append(this.maxValue);
+		.append(this.maxValue);
 		return sbf.toString();
 	}
 }

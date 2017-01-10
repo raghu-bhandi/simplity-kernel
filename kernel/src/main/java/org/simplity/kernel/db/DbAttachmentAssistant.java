@@ -46,8 +46,8 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 			+ "_SEQ.NEXTVAL,?)";
 	private static final String DELETE_SQL = "DELETE FROM " + TABLE_NAME
 			+ " where attachment_id = ?";
-	private static final String GET_SQL = "SELECT attachment FROM "
-			+ TABLE_NAME + " where attachment_id = ?";
+	private static final String GET_SQL = "SELECT attachment FROM " + TABLE_NAME
+			+ " where attachment_id = ?";
 	private static final String[] KEYS = { "attachment_id" };
 
 	private final String saveSql;
@@ -65,10 +65,11 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.media.MediaStorageAssistant#store(java.io.InputStream,
 	 * java.lang.String, java.lang.String)
 	 */
+	@SuppressWarnings("resource")
 	@Override
 	public String store(InputStream inStream) {
 		boolean allOk = true;
@@ -100,7 +101,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.media.MediaStorageAssistant#store(java.lang.string,
 	 * java.lang.String, java.lang.String)
 	 */
@@ -127,19 +128,27 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 * forced to suppress warning by design
+	 *
 	 * @see org.simplity.kernel.MediaStoreRoom#retrieve(java.lang.String)
+	 *
 	 */
+	@SuppressWarnings("resource")
 	@Override
 	public String retrieve(String storageKey) {
 		long key = 0;
 		try {
 			key = Long.parseLong(storageKey);
 		} catch (Exception e) {
-			Tracer.trace(storageKey + " is not a valid attachment storage key.");
+			Tracer.trace(
+					storageKey + " is not a valid attachment storage key.");
 			return null;
 		}
 		boolean allOk = true;
+		/*
+		 *
+		 */
+
 		Connection con = DbDriver.getConnection(DbAccessType.READ_ONLY, null);
 		String tempKey = null;
 		InputStream in = null;
@@ -174,7 +183,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.media.MediaStorageAssistant#discard(java.lang.String)
 	 */
 	@Override
@@ -187,6 +196,11 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 					+ " is not a valid storage key. remove() failed.");
 			return;
 		}
+		/*
+		 * try-finally is there and my eclipse is still cribbing!! So,politely
+		 * asking for a shut-up
+		 */
+		@SuppressWarnings("resource")
 		Connection con = DbDriver.getConnection(DbAccessType.AUTO_COMMIT, null);
 		boolean allOk = true;
 		try {

@@ -136,8 +136,8 @@ public class ServiceAgent {
 		if (this.loginService == null) {
 			result = this.dummyLogin(inputData);
 		} else {
-			result = ComponentManager.getService(this.loginService).respond(
-					inputData);
+			result = ComponentManager.getService(this.loginService)
+					.respond(inputData);
 		}
 		Object uid = result.get(ServiceProtocol.USER_ID);
 		if (uid == null) {
@@ -165,17 +165,18 @@ public class ServiceAgent {
 		if (obj != null) {
 			userId = obj.toString();
 		}
-		Value userIdValue = this.numericUserId ? Value.parseValue(userId,
-				ValueType.INTEGER) : Value.newTextValue(userId);
-		if (Value.isNull(userIdValue)) {
-			Tracer.trace("I would have cleared userId " + userId
-					+ " but for the fact that we insist on a number");
-		} else {
-			Tracer.trace("we cleared userId=" + userId
-					+ " with no authentication whatsoever.");
-			result.put(ServiceProtocol.USER_ID, userIdValue);
-		}
-		return result;
+		Value userIdValue = this.numericUserId
+				? Value.parseValue(userId, ValueType.INTEGER)
+						: Value.newTextValue(userId);
+				if (Value.isNull(userIdValue)) {
+					Tracer.trace("I would have cleared userId " + userId
+							+ " but for the fact that we insist on a number");
+				} else {
+					Tracer.trace("we cleared userId=" + userId
+							+ " with no authentication whatsoever.");
+					result.put(ServiceProtocol.USER_ID, userIdValue);
+				}
+				return result;
 	}
 
 	/**
@@ -200,7 +201,17 @@ public class ServiceAgent {
 	 *
 	 */
 	public ServiceData executeService(ServiceData inputData) {
-		// String existingTrace = Tracer.startAccumulation();
+		/*
+		 * this is the entry point for the app-side. This method may be invoked
+		 * either remotely, or with HttpAgent on the same JVM. This is
+		 * distinction need not be detected, except for a small issue with
+		 * trace.
+		 */
+		boolean isRemoteCall = Tracer.acucumulationIsOn() == false;
+		if (isRemoteCall) {
+			Tracer.startAccumulation();
+		}
+
 		String serviceName = inputData.getServiceName();
 		Value userId = inputData.getUserId();
 		ServiceInterface service = ComponentManager
@@ -216,20 +227,19 @@ public class ServiceAgent {
 			 * do we have this service?
 			 */
 			if (service == null) {
-				Tracer.trace("Service " + serviceName
-						+ " is missing in action !!");
+				Tracer.trace(
+						"Service " + serviceName + " is missing in action !!");
 				response = new ServiceData();
-				response.addMessage(Messages.getMessage(Messages.NO_SERVICE,
-						serviceName));
+				response.addMessage(
+						Messages.getMessage(Messages.NO_SERVICE, serviceName));
 				break;
 			}
 
 			/*
 			 * is it accessible to user?
 			 */
-			if (this.securityManager != null
-					&& this.securityManager.okToServe(service,
-							inputData) == false) {
+			if (this.securityManager != null && this.securityManager
+					.okToServe(service, inputData) == false) {
 				response = new ServiceData();
 				/*
 				 * should we say you are not authorized?
@@ -255,8 +265,11 @@ public class ServiceAgent {
 				Tracer.trace("Invoking service " + serviceName);
 				response = service.respond(inputData);
 				boolean hasErrors = response != null && response.hasErrors();
-				Tracer.trace(serviceName + " returned with "
-						+ (hasErrors ? "" : "NO") + " errors");
+				if (hasErrors) {
+					Tracer.trace(serviceName + " returned with errors.");
+				} else {
+					Tracer.trace(serviceName + " responded with all OK dignal");
+				}
 				if (this.cacheManager != null && hasErrors == false) {
 					this.cacheManager.cache(inputData, response);
 				}
@@ -266,8 +279,8 @@ public class ServiceAgent {
 				}
 				Tracer.trace(e, "Exception thrown by service " + serviceName);
 				response = new ServiceData();
-				response.addMessage(Messages.getMessage(
-						Messages.INTERNAL_ERROR, e.getMessage()));
+				response.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR,
+						e.getMessage()));
 			}
 		} while (false);
 
@@ -275,6 +288,9 @@ public class ServiceAgent {
 		long diffTime = endTime.getTime() - startTime.getTime();
 		if (response != null) {
 			response.setExecutionTime((int) diffTime);
+			if (isRemoteCall) {
+				response.setTrace(Tracer.stopAccumulation());
+			}
 		}
 		return response;
 	}
