@@ -275,10 +275,10 @@ public class MultiRowsSheet implements DataSheet {
 			int idx = this.columnIndexes.get(columnName).intValue();
 			return this.data.get(zeroBasedRowNumber)[idx];
 		} catch (Exception e) {
-			Tracer.trace("Request to get value for column" + columnName
+			throw new ApplicationError(e,
+					"Request to get value for column" + columnName
 					+ " and index " + zeroBasedRowNumber
 					+ " is not valid. going to return null");
-			return null;
 		}
 	}
 
@@ -289,9 +289,10 @@ public class MultiRowsSheet implements DataSheet {
 			int idx = this.columnIndexes.get(columnName).intValue();
 			this.data.get(zeroBasedRowNumber)[idx] = value;
 		} catch (Exception e) {
-			Tracer.trace("Request to set value  for column" + columnName
+			throw new ApplicationError(e,
+					"Request to set value  for column" + columnName
 					+ " and index " + zeroBasedRowNumber
-					+ " is not valid. ignoring request");
+							+ " is not valid.");
 		}
 	}
 
@@ -482,7 +483,7 @@ public class MultiRowsSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.data.DataSheet#trace()
 	 */
 	@Override
@@ -507,7 +508,7 @@ public class MultiRowsSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.data.DataSheet#appendRows(org.simplity.kernel.data.
 	 * DataSheet)

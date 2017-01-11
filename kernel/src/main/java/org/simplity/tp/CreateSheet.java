@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.MultiRowsSheet;
@@ -81,11 +79,7 @@ public class CreateSheet extends Action {
 			sheet.validate();
 			ctx.putDataSheet(this.sheetName, sheet);
 		} catch (Exception e) {
-			Tracer.trace(e, "error while creating sheet.");
-			ctx.addInternalMessage(
-					MessageType.ERROR,
-					"data specified for createSheet has errors."
-							+ e.getMessage());
+			throw new ApplicationError(e, " Error while creating data sheet.");
 		}
 		return this.returnValue;
 	}
@@ -141,7 +135,7 @@ public class CreateSheet extends Action {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
 	 * , org.simplity.tp.Service)
@@ -199,7 +193,7 @@ public class CreateSheet extends Action {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.tp.Action#getReady(int)
 	 */
 	@Override

@@ -54,7 +54,6 @@ import org.simplity.kernel.value.Value;
  *
  */
 public class ServiceContext extends CommonData {
-	private static final String INTERNAL = "internal";
 
 	private final String serviceName;
 	private final Value userId;
@@ -136,18 +135,6 @@ public class ServiceContext extends CommonData {
 	public MessageType addMessage(String messageName, String... paramValues) {
 		return this.addValidationMessage(messageName, null, null, null, 0,
 				paramValues);
-	}
-
-	/**
-	 * called when an internal error is encountered.
-	 *
-	 * @param messageType
-	 * @param messageText
-	 *            in English always
-	 */
-	public void addInternalMessage(MessageType messageType, String messageText) {
-		this.addMessageRow(ServiceContext.INTERNAL, messageType, messageText,
-				null, null, null, 0);
 	}
 
 	/**
