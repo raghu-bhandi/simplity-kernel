@@ -168,22 +168,22 @@
 		<booleanDataType
 			name="active"
 			description="Is this active" 
-			valueList="0:Inactive,1:Active"
+			valueList="Inactive:0,Active:1"
 			messageName="invalidActive"/>
 		<booleanDataType
 			name="boolean"
 			description="0 for false and 1 for true"
-			valueList="0:False,1:True"
+			valueList="False:0,True:1"
 			messageName="invalidBoolean" />
 		<booleanDataType
 			name="trueFalse"
 			description="true and false are the only valid values"
-			valueList="0:False,1:True"
+			valueList="False:0,True:1"
 			messageName="invalidTrueFalse" />
 		<booleanDataType
 			name="yesNo"
 			description="yes or no please"
-			valueList="0:Yes,1:No"
+			valueList="No:0,Yes:1"
 			messageName="invalidYesNo" />
 	</components>
 </dataTypes>
