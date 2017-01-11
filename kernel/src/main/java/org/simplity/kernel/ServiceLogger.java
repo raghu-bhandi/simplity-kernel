@@ -176,7 +176,7 @@ class JulWorker extends ServiceLogger {
 }
 
 class Log4JWorker extends ServiceLogger {
-	org.apache.log4j.Logger logger = org.apache.log4j.LogManager
+	org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager
 			.getLogger(ServiceLogger.LOGGER_NAME);
 
 	/*
