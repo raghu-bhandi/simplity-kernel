@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.infosys.simplity</groupId>
 	<artifactId>archetype-partial</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.4</version>
 	<name>Simplity Archetype</name>
 	<packaging>jar</packaging>
 	<dependencies>
