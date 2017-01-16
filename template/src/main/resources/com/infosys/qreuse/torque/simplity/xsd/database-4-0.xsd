@@ -1,0 +1,1084 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+<!--
+    Torque XML database schema DTD
+    $Id: database-4-0.xsd 1447627 2013-02-19 08:49:59Z tfischer $
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://db.apache.org/torque/4.0/templates/database"
+           xmlns="http://db.apache.org/torque/4.0/templates/database"
+           elementFormDefault="qualified"
+           version="4.0">
+           
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+The XML schema used by version 4.0 and greater of the Apache Software
+Foundation Torque project(
+<a href="http://db.apache.org/torque">http://db.apache.org/torque</a> )
+to model SQL database information. This model is used by various Torque
+utilities for managing the SQL Server info and to build the Java objects
+to access this data.
+
+The basic structure of a model is built using the database element
+as the root.  This will contain references to options, external (include)
+models, new SQL Domain definitions, and tables.  See the Torque project
+home page for more details.
+    </xs:documentation>
+  </xs:annotation>
+  
+<!-- =====================================
+     database element definition
+     ===================================== -->
+  <xs:element name="database" type="databaseType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+The root element for defining a Torque database schema.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:complexType name="databaseType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+The root type definition for a Torque database schema.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="option" type="optionType" minOccurs="0"
+                  maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+A set of key/value options to be passed to custom generator templates.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>                  
+                  
+      <xs:element name="include-schema" type="includeSchemaType"
+                  minOccurs="0" maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Include another schema file in this schema (as if it were a part of this
+schema file).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="external-schema" type="externalSchemaType"
+                  minOccurs="0" maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Reference another schema file from this schema (outbound connections only).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="domain" type="domainType" minOccurs="0"
+                  maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Domains are used to define common attribute sets for columns.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="table" type="tableType" minOccurs="0"
+                  maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Defines a database table.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="view" type="viewType" minOccurs="0"
+                  maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Defines a database view.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="javaNameType" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en" >
+The name used to identify this schema in the generated
+Java objects and as the default JDBC connection pool to use.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="defaultJavaType" use="optional"
+                  type="javaReturnType" default="primitive" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Defines if the record object property getter / setters will 
+use objects (e.g. Integer) or primitives (e.g. int), defaults
+to primitive.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="defaultIdMethod" use="optional" type="idMethodType"
+                  default="none" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Defines the defaultIdMethod to use with tables which do not have an idMethod
+attribute defined. This attribute has 3 possible values, they are:
+
+- idbroker
+    Torque's software based id broker system
+- native
+    The SQL Server's native autoincrement/identifier process
+- none
+    Don't try to auto assign id numbers
+- null
+    Use the value previously set or the default value.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+<!-- =====================================
+     option element definition
+     ===================================== -->
+  <xs:complexType name="optionType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+These tags allows a set of key/value options to be passed to custom generator
+templates.
+      </xs:documentation>
+    </xs:annotation>
+      <xs:attribute name="key" type="xs:string" use="required" />
+      <xs:attribute name="value" type="xs:string" use="required" />
+  </xs:complexType>
+  
+<!-- =====================================
+     include-schema element definition
+     ===================================== -->
+  <xs:complexType name="includeSchemaType" >
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Include another schema file in this schema (as if it were a part of this
+schema file).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="filename" type="xs:string" use="required" />
+  </xs:complexType>
+
+<!-- =====================================
+     external-schema element definition
+     ===================================== -->
+  <xs:complexType name="externalSchemaType" >
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Includes another schema file.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="filename" type="xs:string" use="required" />
+  </xs:complexType>
+  
+<!-- =====================================
+     domain element definition
+     ===================================== -->
+  <xs:complexType name="domainType" >
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Domains are used to define attributes for columns.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="name" type="xs:string" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The name used to reference this set of column attributes.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" use="optional" type="sqlDataType"
+                  default="VARCHAR" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The SQL Standard data type for the column
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="size" type="xs:decimal" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The size of the field. E.g. Varchar(size) or Numeric(Size). Note that 
+while this still supports the original torque use of using a
+decimal number (5.2) to indicate the precision
+and scale in one attribute. Use of the scale attribute is preferred.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="scale" type="xs:integer" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The scale of the field.  E.g.decimal(size, scale)
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="default" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The default column value
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="description" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The description of this domain for documentation purposes.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     table element definition
+     ===================================== -->
+  <xs:complexType name="tableType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+The table element and its relevant attributes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="option" type="optionType" minOccurs="0"
+                  maxOccurs="unbounded" />
+      <xs:element name="column" type="columnType" maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+The column element and its relevant attributes
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice minOccurs="0" maxOccurs="unbounded" >
+        <xs:element name="foreign-key" type="foreignKeyType">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+Define a foreign key constraint for this table.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="index" type="indexType" >
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+Defines an index for this table.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="unique" type="uniqueType">
+          <xs:annotation>
+            <xs:documentation xml:lang="en">
+Define a unique value constraint
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="id-method-parameter" type="idMethodParameterType">
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="name" type="sqlQualifiedNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The table name of the SQL table.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="interface" type="javaQualifiedNameType"
+                  use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The interface attribute specifies an interface that should be referenced in
+the implements section of the generated extension class. If this is a fully
+qualified class name (i. e. the string contains dots), the interface will
+simply be implemented by the extension object. If the interface is a simple
+class name (without dots), an empty interface file will be generated in the
+extension object package. When this attribute is used, all methods that
+normally would return the extension object type will now return the interface
+type. This feature allows to use Torque generated classes in the context of
+other applications or APIs.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="baseClass" type="javaQualifiedNameType" use="optional">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The fully qualified class that the generated Java table
+record objects will extend. This class does not have to extend 
+org.apache.torque.om.BaseObject.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="basePeer" type="javaQualifiedNameType" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The fully qualified class that the generated Java Peer objects will extend.
+Unlike baseClass, basePeer should extend BasePeer at some point in the chain,
+i.e. it needs to be the superclass.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="idMethod" use="optional" type="idMethodType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Defines the id method to automatically generate ids for this table.
+This attribute has 3 possible values, they are:
+
+- idbroker
+    Torque's software based id broker system
+- native
+    The SQL Server's native autoincrement / identifier process
+- none
+    Don't try to auto assign id numbers
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="abstract" use="optional" type="xs:boolean"
+                  default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Whether or not to generate the class as Abstract or not
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="javaName" type="javaNameType" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+This is the Java class name to use when generating the table. If
+this is missing the Java name is generated from the name attribute.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="skipSql" use="optional" type="xs:boolean"
+                  default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Whether or not to skip SQL generation for this reference.  Useful for using
+Views or creating a "subset" of columns in an existing table.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="description" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+A description of this table.  Used for documentation and will be included in
+the table generation SQL if the server type supports this.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     column element definition
+     ===================================== -->
+  <xs:complexType name="columnType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+The column element and its relevant attributes
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="option" type="optionType" minOccurs="0"
+                  maxOccurs="unbounded" />
+      <xs:element name="inheritance" type="inheritanceType" minOccurs="0"
+                  maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Define an inheritance mapping of records to class by a key column.  See the
+inheritance How To document.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+                  
+    </xs:sequence>
+    <xs:attribute name="name" type="sqlNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The column name
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" use="optional" type="sqlDataType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The SQL data type for the column. Is required unless a domain is used.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="size" type="xs:decimal" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The size of the field. E.g. Varchar(size) or Numeric(Size). Note that 
+while this still supports the original torque use of using a
+decimal number (5.2) to indicate the precision
+and scale in one attribute. Use of the scale attribute is preferred.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="scale" type="xs:integer" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The scale of the field.  E.g.decimal(size, scale)
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="default" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The default column value
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="useDatabaseDefaultValue" type="xs:boolean" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Whether to use the database default value if a new object is saved
+and the attribute value is equal to the java default value. Default is false.
+Has no effect on primitive boolean columns.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="primaryKey" use="optional"
+                  type="xs:boolean" default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Whether the id method for the table (see idMethod) should be applied
+to this column. Defaults to true for primary key columns and has no effect
+on columns which are not part of the table's primary key.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="autoIncrement" use="optional"
+                  type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Whether or not to auto-increment this field (true or false, defaults to false)
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="required" use="optional" type="xs:boolean"
+                  default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Whether a value is required in this column (NULL ALLOWED) (true or false,
+defaults to false)
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="javaName" type="javaNameType"
+                  use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The Java property name to use for this column in the record objects.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="javaType" use="optional"
+                  type="javaReturnType" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Defines if the record object property getter / setters will
+use objects (e.g. Integer) or primitives (e.g. int), defaults 
+to database attribute or primitive
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="domain" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The domain reference name to set common settings.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="inheritance" type="inheritanceAttrType" use="optional"
+                  default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The inheritance method used (see Inheritance How-To)
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="protected" use="optional"
+                  type="xs:boolean" default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+If true, the setters and getters for this property will be protected rather
+than public.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="version" use="optional"
+                  type="xs:boolean" default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+If true, this column is used as a version number for optimistic locking.
+I.e. for updates, Torque will check that the version number in the database
+is equal to the version number of the supplied object
+and it will automatically increase the version number of the updated row.
+Setting version to true will only work for numeric columns and will produce
+code that does not compile if applied to other column types.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="description" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The description of this domain for documentation purposes.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     inheritance element definition
+     ===================================== -->
+  <xs:complexType name="inheritanceType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Define an inheritance mapping of records to class by a key column.  See the
+inheritance How To document.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="key" type="xs:string" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+A value found in the column marked as the inheritance key column
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="class" type="javaNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The class name for the object that will inherit the record values
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="extends" type="javaQualifiedNameType" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The class that the inheritor class will extend
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     foreign-key element definition
+     ===================================== -->
+  <xs:complexType name="foreignKeyType" >
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Define a foreign key constraint for this table.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="option" type="optionType" minOccurs="0"
+                  maxOccurs="unbounded" />
+      <xs:element name="reference" type="referenceType" maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Define a mapping between a local column containing a foreign key value and
+the foreign table column.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="sqlNameType" use="optional" >
+        <xs:annotation>
+        <xs:documentation xml:lang="en">
+The name used to create the foreign key constraint.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="foreignTable" type="sqlQualifiedNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The name of the table that contains the foreign key
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="onDelete" use="optional" type="cascadeType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The action to take when the referenced value in foreignTable is deleted.
+Note this is handled by the database server and not Torque code.  Will not
+work if the DB server does not support this.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="onUpdate" use="optional" type="cascadeType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The action to take when the referenced value in foreignTable is updated.
+Note this is handled by the database server and not Torque code.  Will not
+work if the DB server does not support this.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     reference element definition
+     ===================================== -->
+  <xs:complexType name="referenceType" >
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Define a mapping between a local column containing a foreign key value and
+the foreign table column.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="foreign" type="sqlNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The column in the foreign table that contains the key.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="local" type="sqlNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The column in this table that contains the foreign key.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     index element definition
+     ===================================== -->
+  <xs:complexType name="indexType" >
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Defines an index for this table.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="option" type="optionType" minOccurs="0"
+                  maxOccurs="unbounded" />
+      <xs:element name="index-column" type="indexColumnType"
+                  maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Define a column to use in a table index.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="sqlNameType" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The name used in creating this index in the database.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     reference element definition
+     ===================================== -->
+  <xs:complexType name="indexColumnType" >
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Define a column to use in a table index.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="name" type="sqlNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+A column name to use in this index.  Must exist in the table.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     unique element definition
+     ===================================== -->
+  <xs:complexType name="uniqueType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Define a unique value constraint
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="option" type="optionType" minOccurs="0"
+                  maxOccurs="unbounded" />
+      <xs:element name="unique-column" type="uniqueColumnType"
+                  maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Specify a column to use in the unique constraint.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="sqlNameType" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The name to use in defining this constraint.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     unique-column element definition
+     ===================================== -->
+  <xs:complexType name="uniqueColumnType" >
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Specify a column to use in the unique constraint.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="name" type="sqlNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The name to use in defining this constraint.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     id-method-parameter element definition
+     ===================================== -->
+  <xs:complexType name="idMethodParameterType">
+    <xs:attribute name="name" type="xs:string" use="optional"
+                  default="default" />
+    <xs:attribute name="value" type="xs:string"
+                  use="required" />
+  </xs:complexType>
+
+<!-- =====================================
+     view element definition
+     ===================================== -->
+  <xs:complexType name="viewType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+The view element and its relevant attributes.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="option" type="optionType" minOccurs="0"
+                  maxOccurs="unbounded" />
+      <xs:element name="column" type="viewColumnType" maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+The column element and its relevant attributes
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" type="sqlNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The name of the SQL view.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="baseClass" type="javaQualifiedNameType" use="optional">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The fully qualified class that the generated Java view
+record objects will extend. This class does not have to extend 
+org.apache.torque.om.BaseObject.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="basePeer" type="javaQualifiedNameType" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The fully qualified class that the generated Java Peer objects will extend.
+Unlike baseClass, basePeer should extend BasePeer at some point in the chain,
+i.e. it needs to be the superclass.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="abstract" use="optional" type="xs:boolean"
+                  default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Whether or not to generate the class as Abstract or not
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="javaName" type="javaNameType" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+This is the Java class name to use when generating the view. If
+this is missing the Java name is generated from the name attribute.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sqlSuffix" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The remainder of the sql for the view after column definitions.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="createSql" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The complete SQL for creating the view. Overrides all other means
+of generating the SQL for view creation.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="skipSql" use="optional" type="xs:boolean"
+                  default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Whether or not to skip SQL generation for this reference.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="description" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+A description of this view.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+  
+<!-- =====================================
+     view column element definition
+     ===================================== -->
+  <xs:complexType name="viewColumnType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+The column element and its relevant attributes
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="option" type="optionType" minOccurs="0"
+                  maxOccurs="unbounded" />
+      <xs:element name="inheritance" type="inheritanceType" minOccurs="0"
+                  maxOccurs="unbounded" >
+        <xs:annotation>
+          <xs:documentation xml:lang="en">
+Define an inheritance mapping of records to class by a key column.  See the
+inheritance How To document.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+                  
+    </xs:sequence>
+    <xs:attribute name="name" type="sqlNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The column name
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" use="required" type="sqlDataType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The SQL Standard data type for the column
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="size" type="xs:decimal" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The size of the field. E.g. Varchar(size) or Numeric(Size). Note that 
+while this still supports the original torque use of using a
+decimal number (5.2) to indicate the precision
+and scale in one attribute. Use of the scale attribute is preferred.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="scale" type="xs:integer" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The scale of the field.  E.g.decimal(size, scale)
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="javaName" type="javaNameType"
+                  use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The Java property name to use for this column in the record objects.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="javaType" use="optional"
+                  type="javaReturnType" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+Defines if the record object property getter / setters will
+use objects (e.g. Integer) or primitives (e.g. int), defaults 
+to database attribute or primitive
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="domain" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The domain reference name to set common settings.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="select" type="sqlQualifiedNameType" use="required" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The sql snippet which contains the value to select.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="protected" use="optional"
+                  type="xs:boolean" default="false" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+If true, the setters and getters for this property will be protected rather
+than public.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="description" type="xs:string" use="optional" >
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+The description of this column for documentation purposes.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+<!-- =====================================
+    Type definitions for attributes
+     ===================================== -->
+
+  <xs:simpleType name="sqlDataType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Standard SQL column data types.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="BIT" />
+      <xs:enumeration value="TINYINT" />
+      <xs:enumeration value="SMALLINT" />
+      <xs:enumeration value="INTEGER" />
+      <xs:enumeration value="BIGINT" />
+      <xs:enumeration value="FLOAT" />
+      <xs:enumeration value="REAL" />
+      <xs:enumeration value="NUMERIC" />
+      <xs:enumeration value="DECIMAL" />
+      <xs:enumeration value="CHAR" />
+      <xs:enumeration value="VARCHAR" />
+      <xs:enumeration value="LONGVARCHAR" />
+      <xs:enumeration value="DATE" />
+      <xs:enumeration value="TIME" />
+      <xs:enumeration value="TIMESTAMP" />
+      <xs:enumeration value="BINARY" />
+      <xs:enumeration value="VARBINARY" />
+      <xs:enumeration value="LONGVARBINARY" />
+      <xs:enumeration value="NULL" />
+      <xs:enumeration value="OTHER" />
+      <xs:enumeration value="JAVA_OBJECT" />
+      <xs:enumeration value="DISTINCT" />
+      <xs:enumeration value="STRUCT" />
+      <xs:enumeration value="ARRAY" />
+      <xs:enumeration value="BLOB" />
+      <xs:enumeration value="CLOB" />
+      <xs:enumeration value="REF" />
+      <xs:enumeration value="BOOLEANINT" />
+      <xs:enumeration value="BOOLEANCHAR" />
+      <xs:enumeration value="DOUBLE" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="idMethodType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+A schema type for methods to create ids automatically.
+
+idbroker = Torque's software based id broker system
+native   = The SQL Server's native method, depends on database used
+           (e.g. autoincrement for MySQL, sequence for postgresql...)
+none     = Don't try to auto assign id numbers
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="idbroker" />
+      <xs:enumeration value="native" />
+      <xs:enumeration value="none" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="javaReturnType">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="object" />
+      <xs:enumeration value="primitive" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="cascadeType" >
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="cascade" />
+      <xs:enumeration value="setnull" />
+      <xs:enumeration value="restrict" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="inheritanceAttrType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="single" />
+      <xs:enumeration value="false" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="javaNameType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Java identifiers, e.g. [A-Za-z_$]A-Za-z_$0-9]*
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="javaQualifiedNameType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+Java fully qualified names (e.g. x.y.x)
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="sqlNameType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+SQL Standard non-delimited identifiers.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string" />
+  </xs:simpleType>
+
+  <xs:simpleType name="sqlQualifiedNameType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">
+SQL Standard non-delimited identifiers.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string" />
+  </xs:simpleType>
+
+</xs:schema>

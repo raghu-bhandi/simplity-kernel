@@ -69,6 +69,10 @@ public class Field {
 	 */
 	String dataType;
 
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
+	}
+
 	/**
 	 * If this is a column in the database, and we use a different naming
 	 * convention for db, this is the way to map field names to column names.
@@ -928,5 +932,29 @@ public class Field {
 	public boolean requiresDataType() {
 		return this.fieldType != FieldType.RECORD
 				&& this.fieldType != FieldType.RECORD_ARRAY;
+	}
+
+	public void setColumnName(String columnName) {
+		this.columnName = columnName;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setSqlTypeName(String sqlTypeName) {
+		this.sqlTypeName = sqlTypeName;
+	}
+
+	public void setNullable(boolean isNullable) {
+		this.isNullable = isNullable;
+	}
+
+	public boolean isNullable() {
+		return isNullable;
+	}
+
+	public void setRequired(boolean isRequired) {
+		this.isRequired = isRequired;
 	}
 }

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+<!--
+    Torque XML database schema DTD
+    $Id: database-4-0-strict.xsd 1403508 2012-10-29 21:00:59Z tfischer $
+-->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://db.apache.org/torque/4.0/templates/database"
+           xmlns="http://db.apache.org/torque/4.0/templates/database"
+           elementFormDefault="qualified"
+           version="4.0">
+           
+  <xs:annotation>
+    <xs:documentation xml:lang="en">
+The XML schema used by version 4.0 and greater of the Apache Software
+Foundation Torque project(
+<a href="http://db.apache.org/torque">http://db.apache.org/torque</a> )
+to model SQL database information. 
+This model restricts the available characters in java names and sql names
+as compared to the standard database.xsd
+    </xs:documentation>
+  </xs:annotation>
+  
+  <xs:redefine schemaLocation="http://db.apache.org/torque/4.0/templates/database.xsd">
+    <xs:simpleType name="javaNameType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+  Java identifiers, e.g. [A-Za-z_$]A-Za-z_$0-9]*
+        </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="javaNameType">
+        <xs:pattern value="[A-Za-z_$][A-Za-z_$0-9]*" />
+      </xs:restriction>
+    </xs:simpleType>
+  
+    <xs:simpleType name="javaQualifiedNameType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+  Java fully qualified names (e.g. x.y.x)
+        </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="javaQualifiedNameType">
+        <xs:pattern
+                value="([A-Za-z_$][A-Za-z_$0-9]*[.])*[A-Za-z_$][A-Za-z_$0-9]*" />
+      </xs:restriction>
+    </xs:simpleType>
+  
+    <xs:simpleType name="sqlNameType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+  SQL Standard non-delimited identifiers.
+        </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="sqlNameType">
+        <xs:pattern value="[A-Za-z$#][A-Za-z_$#0-9]*" />
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="sqlQualifiedNameType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+  SQL Standard non-delimited identifiers.
+        </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="sqlQualifiedNameType">
+        <xs:pattern value="[A-Za-z$#][A-Za-z_$#0-9]*(\.[A-Za-z$#][A-Za-z_$#0-9]*)?" />
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:redefine>
+
+</xs:schema>
