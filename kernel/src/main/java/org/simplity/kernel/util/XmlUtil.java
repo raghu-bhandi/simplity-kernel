@@ -131,8 +131,8 @@ import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
 @SuppressWarnings("restriction")
 public class XmlUtil {
 	private static final String DEFAULT_MAP_KEY = "name";
-	private static final String TRUE_VALUE = "yes";
-	private static final String FALSE_VALUE = "no";
+	private static final String TRUE_VALUE = "true";
+	private static final String FALSE_VALUE = "false";
 	/**
 	 * attribute name of an element that specifies the fully qualified class
 	 * name to be mapped to the element

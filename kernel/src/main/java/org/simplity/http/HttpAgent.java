@@ -296,7 +296,9 @@ public class HttpAgent {
 			cacheTraces(session, trace);
 		}
 		String uid = userId == null ? "unknown" : userId.toString();
+		System.out.println("Service : " + serviceName + "  user : " + uid + " completed in " + elapsed + " ms. \n" + trace );
 		ServiceLogger.pushTraceToLog(serviceName, uid, (int) elapsed, trace);
+		
 
 	}
 
