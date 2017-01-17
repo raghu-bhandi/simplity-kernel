@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<record moduleName="dept_emp" name="dept_emp" recordType="storage" tableName="dept_emp" xmlns="http://www.simplity.org/schema">
-<fields>
-<field columnName="emp_no" dataType="INTEGER" fieldType="data" isNullable="yes" sqlTypeName="INTEGER"/>
-<field columnName="dept_no" dataType="CHAR" fieldType="data" isNullable="yes" sqlTypeName="CHAR"/>
-<field columnName="from_date" dataType="DATE" fieldType="data" isNullable="yes" sqlTypeName="DATE"/>
-<field columnName="to_date" dataType="DATE" fieldType="data" isNullable="yes" sqlTypeName="DATE"/>
-</fields>
-</record>
