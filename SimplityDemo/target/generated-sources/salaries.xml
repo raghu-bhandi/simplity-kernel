@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record moduleName="salaries" name="salaries" recordType="storage" tableName="salaries" xmlns="http://www.simplity.org/schema">
+<fields>
+<field columnName="emp_no" dataType="INTEGER" fieldType="data" isNullable="yes" sqlTypeName="INTEGER"/>
+<field columnName="salary" dataType="INTEGER" fieldType="data" isNullable="yes" sqlTypeName="INTEGER"/>
+<field columnName="from_date" dataType="DATE" fieldType="data" isNullable="yes" sqlTypeName="DATE"/>
+<field columnName="to_date" dataType="DATE" fieldType="data" isNullable="yes" sqlTypeName="DATE"/>
+</fields>
+</record>

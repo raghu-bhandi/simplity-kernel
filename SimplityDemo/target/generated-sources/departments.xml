@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record moduleName="departments" name="departments" recordType="storage" tableName="departments" xmlns="http://www.simplity.org/schema">
+<fields>
+<field columnName="dept_no" dataType="CHAR" fieldType="data" isNullable="yes" sqlTypeName="CHAR"/>
+<field columnName="dept_name" dataType="VARCHAR" fieldType="data" isNullable="yes" sqlTypeName="VARCHAR"/>
+</fields>
+</record>

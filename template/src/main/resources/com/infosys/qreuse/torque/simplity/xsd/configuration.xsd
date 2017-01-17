@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+    xmlns:configuration="http://db.apache.org/torque/4.0/generator/configuration"
+    targetNamespace="http://db.apache.org/torque/4.0/generator/configuration"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+  <!--  use HTTP location, will be resolved locally by entity resolver -->
+  <include schemaLocation="http://db.apache.org/torque/4.0/generator/outlet.xsd"/>
+
+  <simpleType name="loglevelType">
+    <annotation>
+      <documentation>
+        The possible log levels for the generator.
+      </documentation>
+    </annotation>
+    <restriction base="string">
+      <enumeration value="trace"/>
+      <enumeration value="debug"/>
+      <enumeration value="info"/>
+      <enumeration value="warn"/>
+      <enumeration value="error"/>
+    </restriction>
+  </simpleType>
+  
+  <complexType name="baseOptions" abstract="true">
+    <annotation>
+      <documentation>
+        A reference to a options file.
+      </documentation>
+    </annotation>
+  </complexType>
+
+  <complexType name="xmlOptions">
+    <annotation>
+      <documentation>
+        A reference to a options file in java properties XML format.
+        See the javadoc of java.util.Properties for more information about
+        this format.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="configuration:baseOptions">
+        <sequence>
+          <any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute name="path" type="string" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="propertiesOptions">
+    <annotation>
+      <documentation>
+        A reference to a options file in java properties format (key=value).
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="configuration:baseOptions">
+        <sequence>
+          <any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute name="path" type="string" use="required"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="entityReference">
+    <annotation>
+      <documentation>
+        Where to find external resources which are referenced by a key.
+        Typically this will be XSD files where the key is the systemId.
+      </documentation>
+    </annotation>
+    <attribute name="systemId" type="string" use="required"/>
+    <attribute name="resource" type="string" use="required"/>
+  </complexType>
+
+  <complexType name="output">
+    <sequence>
+      <element name="filenameOutlet" type="configuration:baseOutlet" minOccurs="0"/>
+      <element name="source" type="configuration:source"/>
+      <element name="outlet" type="configuration:outletReference"/>
+    </sequence>
+    <attribute name="name" type="string" use="required">
+      <annotation>
+        <documentation>
+          The name by which this output can be identified.
+          Must be unique over one project.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="file" type="string" use="optional">
+      <annotation>
+        <documentation>
+          Contains the name of the generated file.
+          Relative paths are relative to the target directory.
+          If the file name is not fixed, omit this attribute and use
+          the child element filenameOutlet instead.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="encoding" type="string" use="optional">
+      <annotation>
+        <documentation>
+          The character encoding in which this file is written.
+          Default is the platform's default encoding.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="existingTargetStrategy" use="optional">
+      <annotation>
+        <documentation>
+          What to do when a file which is about to be generated already exists.
+          Default is "replace".
+        </documentation>
+      </annotation>
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="replace"/>
+          <enumeration value="skip"/>
+          <enumeration value="append"/>
+          <enumeration value="merge"/>
+        </restriction>
+      </simpleType>
+    </attribute>
+    <attribute name="type" use="optional">
+      <annotation>
+        <documentation>
+          The type of the output, e.g. java, html, xml, unknown.
+          Default is "unknown"
+        </documentation>
+      </annotation>
+      <simpleType>
+        <restriction base="string">
+          <enumeration value="java"/>
+          <enumeration value="html"/>
+          <enumeration value="xml"/>
+          <enumeration value="properties"/>
+          <enumeration value="unknown"/>
+        </restriction>
+      </simpleType>
+    </attribute>
+    <attribute name="outputDirKey" type="string" use="optional">
+      <annotation>
+        <documentation>
+          The key for the base directory into which the output is written
+          (The corresponding directory for the key is defined when running
+          the generator).
+          If not set, the default targetDirKey is used.
+        </documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+  
+  <complexType name="source" abstract="true">
+    <annotation>
+      <documentation>
+        A collection of sources for a generation process.
+        Typically this will be one or more files, but can virtually be anything.
+      </documentation>
+    </annotation>
+    <sequence>
+      <element name="transformer" type="configuration:transformer" minOccurs="0" maxOccurs="unbounded">
+        <annotation>
+          <documentation>
+            The transformers which are applied to the source.
+            Transformers transform (change) the source graph before generation
+            starts.
+          </documentation>
+        </annotation>
+      </element>
+    </sequence>
+    <attribute name="elements" type="string" use="optional">
+      <annotation>
+        <documentation>
+          The path to the source elements for which an own output file should
+          be created.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="skipDecider" type="string" use="optional">
+      <annotation>
+        <documentation>
+          The fully qualified class name of a java class implementing the
+          org.apache.torque.generator.source.skipDecider.SkipDecider
+          interface. This class decides whether to proceed
+          with the current generation or not after the source has been loaded.
+        </documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+  
+  <complexType name="fileSource">
+    <annotation>
+      <documentation>
+        A collection of source files.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="configuration:source">
+        <sequence>
+          <element name="include" type="string" minOccurs="0" maxOccurs="unbounded"/>
+          <element name="exclude" type="string" minOccurs="0" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute name="format" type="string" use="optional"/>
+        <attribute name="combineFiles" type="boolean" use="optional">
+          <annotation>
+            <documentation>
+              Whether to combine all source files in a single source tree.
+              Default is false. If true, the name of the source tree's root
+              element will be source. Each loaded source file will be put
+              into a child element with element name file. The root element
+              of the single file will be the only child element of the file
+              element. The name of the file will be put into the attribute 
+              path of the file element.
+            </documentation>
+          </annotation>
+        </attribute>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="jdbcMetadataSource">
+    <annotation>
+      <documentation>
+        A source read from the jbdc metadata of a database.
+      </documentation>
+    </annotation>
+    <complexContent>
+      <extension base="configuration:source">
+        <attribute name="driverOption" type="string" use="required"/>
+        <attribute name="urlOption" type="string" use="required"/>
+        <attribute name="usernameOption" type="string" use="optional"/>
+        <attribute name="passwordOption" type="string" use="optional"/>
+        <attribute name="schemaOption" type="string" use="optional"/>
+      </extension>
+    </complexContent>
+  </complexType>
+
+  <complexType name="transformer">
+    <annotation>
+      <documentation>
+        Configures a transformer which transforms the source tree before
+        generation starts. The transformer can be configured by adding
+        nested elements where the element name is the property name
+        and the text content the property value.
+      </documentation>
+    </annotation>
+    <sequence>
+      <any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+    </sequence>
+    <attribute name="class" type="string" use="required">
+      <annotation>
+        <documentation>
+          The fully qualified class name of a java class implementing the
+          org.apache.torque.generator.source.transform.SourceTransformer
+          interface. Instances of this interface transform (change)
+          the source graph.
+        </documentation>
+      </annotation>
+    </attribute>
+    <attribute name="elements" type="string" use="optional">
+      <annotation>
+        <documentation>
+          The path to source elements to which the transformer is applied.
+          If not set, the transformer is applied to the root element
+          of the source.
+        </documentation>
+      </annotation>
+    </attribute>
+  </complexType>
+
+  <complexType name="outletReference">
+    <annotation>
+      <documentation>
+        Points to an outlet defined in the outlet definition directory.
+      </documentation>
+    </annotation>
+    <attribute name="name" type="string" use="required"/>
+  </complexType>
+
+  <element name="control">
+    <annotation>
+      <documentation>
+        The root element of the control configuration.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element name="options" type="configuration:baseOptions" minOccurs="0" maxOccurs="unbounded"/>
+        <element name="entityReference" type="configuration:entityReference" minOccurs="0" maxOccurs="unbounded"/>
+        <element name="output" type="configuration:output" minOccurs="0" maxOccurs="unbounded"/>
+      </sequence>
+      <attribute name="loglevel" type="configuration:loglevelType" use="optional">
+        <annotation>
+          <documentation>
+            The loglevel defines the log level during the generation process.
+            The default loglevel is info.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+</schema>

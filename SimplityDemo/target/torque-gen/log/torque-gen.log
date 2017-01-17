@@ -1,0 +1,10 @@
+2017-01-17 12:53:23,907 [main] INFO  org.apache.torque.generator.control.Controller - readConfiguration() : Starting to read configuration files
+2017-01-17 12:53:24,218 [main] INFO  org.apache.torque.generator.control.Controller - readConfiguration() : Configuration read.
+2017-01-17 12:53:24,220 [main] INFO  org.apache.torque.generator.control.Controller - Processing output torque.simplity
+2017-01-17 12:53:24,223 [main] INFO  org.apache.torque.generator.control.Controller - Processing source JdbcMetadataSource using url jdbc:mysql://localhost:3306/employees
+2017-01-17 12:53:24,632 [main] INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\experiments\SimplityDemo\target\generated-sources\departments.xml
+2017-01-17 12:53:24,859 [main] INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\experiments\SimplityDemo\target\generated-sources\dept_emp.xml
+2017-01-17 12:53:24,863 [main] INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\experiments\SimplityDemo\target\generated-sources\dept_manager.xml
+2017-01-17 12:53:24,868 [main] INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\experiments\SimplityDemo\target\generated-sources\employees.xml
+2017-01-17 12:53:24,871 [main] INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\experiments\SimplityDemo\target\generated-sources\salaries.xml
+2017-01-17 12:53:24,877 [main] INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\experiments\SimplityDemo\target\generated-sources\titles.xml
