@@ -607,17 +607,12 @@ public class Record implements Component {
 		 * we have to create where clause with ? and corresponding values[]
 		 */
 		StringBuilder sql = new StringBuilder(this.filterSql);
-		Tracer.trace("Filter started with " + this.filterSql);
 		List<Value> filterValues = new ArrayList<Value>();
 		boolean firstTime = true;
 		for (Field field : inputRecord.fields) {
 			String fieldName = field.name;
 			Value value = inData.getValue(fieldName);
-			if (value == null || value.isUnknown()) {
-				continue;
-			}
-			if (value.toString().length() == 0) {
-				Tracer.trace("I found " + field.name + " with an empty value in filtering.");
+			if (Value.isNull(value) || value.toString().isEmpty()) {
 				continue;
 			}
 			if (firstTime) {

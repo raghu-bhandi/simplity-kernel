@@ -43,11 +43,15 @@ package org.simplity.kernel.util;
  * SOFTWARE.
  */
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidExpressionException;
+import org.simplity.kernel.value.Value;
 
 /**
  * utility methods relating to text handling and manipulation
@@ -56,6 +60,7 @@ import org.simplity.kernel.expr.InvalidExpressionException;
  *
  */
 public class TextUtil {
+	private static final Pattern FIELD = Pattern.compile("[$][{][\\w]*[}]");
 	private static final String[] TRUE_VALUES = { "1", "TRUE", "YES" };
 	private static final String ARRAY_DELIMITER = ",";
 	private static final String ROW_DLIMITER = ";";
@@ -382,5 +387,113 @@ public class TextUtil {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * parse into parts where [0] is the text before first variable, [1] is the
+	 * first fieldName, [2] is next constant between first and second field name
+	 * etc.. [last] is the constant after the last field name. This array can be
+	 * used used to optimize substitution of values at run time
+	 *
+	 * @param textWithFieldNames
+	 *            text that may contain one or more ${...} in it.
+	 * @return null if the text has no field names in it. array, with a minimum
+	 *         of three elements. You may supply this as argument to
+	 *         substituteParts()
+	 *         constants
+	 */
+	public static String[] parseToParts(String textWithFieldNames) {
+		/*
+		 * we expect the caller to have optimized or case where there is no $.
+		 */
+		Matcher matcher = FIELD.matcher(textWithFieldNames);
+		java.util.List<String> parts = new ArrayList<String>();
+		/*
+		 * our constant starts here, and ends before the first match character
+		 */
+		int idx = 0;
+		while (true) {
+			if (matcher.find() == false) {
+				parts.add(textWithFieldNames.substring(idx));
+				break;
+			}
+
+			int fieldStart = matcher.start();
+			parts.add(textWithFieldNames.substring(idx, fieldStart));
+			idx = matcher.end();
+			parts.add(textWithFieldNames.substring(fieldStart + 2, idx - 1));
+		}
+		if (parts.size() <= 1) {
+			return null;
+		}
+		return parts.toArray(new String[0]);
+	}
+
+	/**
+	 * return a text value that is formed by substituting ${...} field names in
+	 * the input with their values from the collection
+	 *
+	 * @param textWithFieldNames
+	 * @param fieldValues
+	 * @return resultant text
+	 */
+	public static String substituteFields(String textWithFieldNames,
+			FieldsInterface fieldValues) {
+		/*
+		 * if there is no $?
+		 */
+		int idx = textWithFieldNames.indexOf(DOLLAR);
+		if (idx == -1) {
+			return textWithFieldNames;
+		}
+
+		Matcher matcher = FIELD.matcher(textWithFieldNames);
+		/*
+		 * our constant starts here, and ends before the first match character
+		 */
+		StringBuilder sbf = new StringBuilder();
+		idx = 0;
+		while (true) {
+			if (matcher.find() == false) {
+				sbf.append(textWithFieldNames.substring(idx));
+				return sbf.toString();
+			}
+
+			int fieldStart = matcher.start();
+			sbf.append(textWithFieldNames.substring(idx, fieldStart));
+			idx = matcher.end();
+			String fieldName = textWithFieldNames.substring(fieldStart + 2,
+					idx - 1);
+			Value value = fieldValues.getValue(fieldName);
+			if (Value.isNull(value) == false) {
+				sbf.append(value.toString());
+			}
+		}
+	}
+
+	/**
+	 * return a text value that is formed by substituting fields in the parts
+	 * with their values from the collection
+	 *
+	 * @param textParts
+	 *            that was returned by a call to parseToParts
+	 * @param fieldValues
+	 * @return resultant text
+	 */
+	public static String substituteFields(String[] textParts,
+			FieldsInterface fieldValues) {
+		StringBuilder sbf = new StringBuilder(textParts[0]);
+		int done = textParts.length;
+		int idx = 1;
+		while (idx < done) {
+			Value value = fieldValues.getValue(textParts[idx]);
+			if (Value.isNull(value) == false) {
+				sbf.append(value.toString());
+			}
+			idx++;
+			sbf.append(textParts[idx]);
+			idx++;
+		}
+		return sbf.toString();
 	}
 }

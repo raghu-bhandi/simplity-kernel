@@ -23,11 +23,14 @@
 package org.simplity.tp;
 
 import org.simplity.kernel.Tracer;
+import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.SingleRowSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
+import org.simplity.kernel.dm.Field;
+import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.service.ServiceContext;
@@ -46,7 +49,7 @@ public class ReplaceAttachment extends DbAction {
 	/**
 	 * rdbms table that has this column
 	 */
-	String tableName;
+	String recordName;
 
 	/**
 	 * field name of this attachment. This is the name that we refer in our
@@ -54,37 +57,21 @@ public class ReplaceAttachment extends DbAction {
 	 */
 	String attachmentFieldName;
 
-	/**
-	 * column name in the db
-	 */
-	String attachmentColumnName;
-
-	/**
-	 * field name of the primary key for this table
-	 */
-	String keyFieldName;
-
-	/**
-	 * column name of the primary key for this table
-	 */
-	String keyColumnName;
-
+	private String selectSql;
+	private String updateSql;
+	private String keyFieldName;
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
 		Value tokenValue = ctx.getValue(this.attachmentFieldName);
 		Value keyValue = ctx.getValue(this.keyFieldName);
-		/*
-		 * select existing token into a sheet
-		 */
-		String sql = "SELECT " + this.attachmentColumnName + " FROM " + this.tableName + " WHERE "
-				+ this.keyColumnName + " =?";
 		Value[] values = { keyValue };
 		String[] columnNames = { this.attachmentFieldName };
 		ValueType[] valueTypes = { ValueType.TEXT };
 		DataSheet outData = new SingleRowSheet(columnNames, valueTypes);
-		int res = driver.extractFromSql(sql, values, outData, true);
+		int res = driver.extractFromSql(this.selectSql, values, outData, true);
 		if (res == 0) {
-			Tracer.trace("No row in table " + this.tableName + " for key value " + keyValue
+			Tracer.trace("No row found while reading from record "
+					+ this.recordName + " for key value " + keyValue
 					+ " and hence no update.");
 			return 0;
 		}
@@ -97,9 +84,8 @@ public class ReplaceAttachment extends DbAction {
 		/*
 		 * update row with new value
 		 */
-		sql = "UPDATE " + this.tableName + " SET " + this.attachmentColumnName + " = ? " + " WHERE " + this.keyColumnName + " =?";
 		Value[] updateValues = { tokenValue, keyValue };
-		return driver.executeSql(sql, updateValues, false);
+		return driver.executeSql(this.updateSql, updateValues, false);
 	}
 
 	@Override
@@ -111,10 +97,48 @@ public class ReplaceAttachment extends DbAction {
 	public int validate(ValidationContext ctx, Service service) {
 		int count = super.validate(ctx, service);
 		count += ctx.checkMandatoryField("attachmentFieldName", this.attachmentFieldName);
-		count += ctx.checkMandatoryField("attachmentColumnName", this.attachmentColumnName);
-		count += ctx.checkMandatoryField("tableName", this.tableName);
-		count += ctx.checkMandatoryField("keyColumnName", this.keyColumnName);
-		count += ctx.checkMandatoryField("keyFieldName", this.keyFieldName);
+		count += ctx.checkMandatoryField("recordName", this.recordName);
+		int j = ctx.checkRecordExistence(this.recordName, "recordName", true);
+		if (j == 0) {
+			Record record = ComponentManager.getRecordOrNull(this.recordName);
+			Field field = record.getField(this.attachmentFieldName);
+			if (field == null) {
+				ctx.addError(this.attachmentFieldName
+						+ " is defined an an attachmentField, but this field is not defined in this record");
+			}
+			if (record.getPrimaryKeyName() == null) {
+				ctx.addError("Record " + this.recordName
+						+ " has not defined a primary key, and hence can not be used for replaceAttachment action.");
+			}
+		} else {
+			count++;
+		}
 		return count;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.tp.Action#getReady(int)
+	 */
+	@Override
+	public void getReady(int idx) {
+		super.getReady(idx);
+		this.createSqls();
+	}
+
+	private void createSqls() {
+		Record record = ComponentManager.getRecord(this.recordName);
+		this.keyFieldName = record.getPrimaryKeyName();
+
+		String tableName = record.getTableName();
+		String attColName = record.getField(this.attachmentFieldName)
+				.getColumnName();
+		String keyColName = record.getField(this.keyFieldName).getColumnName();
+
+		this.selectSql = "SELECT " + attColName + " FROM " + tableName
+				+ " WHERE " + keyColName + " =?";
+		this.updateSql = "UPDATE " + tableName + " SET " + attColName + " = ? "
+				+ " WHERE " + keyColName + " =?";
 	}
 }
