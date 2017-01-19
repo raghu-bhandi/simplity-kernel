@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -38,7 +38,7 @@ import org.simplity.kernel.value.ValueType;
  *
  * This is to be used "internally" by another class, after taking care of
  * authentication, session management etc.. ServiceAgent assumes that the caller
- * is entitled for this service, and it is upto service to do any additional
+ * is entitled for this service, and it is up to service to do any additional
  * security/based on userId. It also assumes that the caller has authenticated
  * the userId.
  */
@@ -149,7 +149,7 @@ public class ServiceAgent {
 				throw new ApplicationError(
 						"Login service returned userId as a field in "
 								+ ServiceProtocol.USER_ID
-								+ " but intead of being an instance of Value we found it an instance of "
+								+ " but instead of being an instance of Value we found it an instance of "
 								+ uid.getClass().getName());
 			}
 			result.setUserId((Value) uid);
@@ -159,7 +159,7 @@ public class ServiceAgent {
 
 	private ServiceData dummyLogin(ServiceData inData) {
 		ServiceData result = new ServiceData();
-		Tracer.trace("No login service is attched. we use a dummy login.");
+		Tracer.trace("No login service is attached. we use a dummy login.");
 		String userId = "100";
 		Object obj = inData.get(ServiceProtocol.USER_ID);
 		if (obj != null) {
@@ -268,7 +268,7 @@ public class ServiceAgent {
 				if (hasErrors) {
 					Tracer.trace(serviceName + " returned with errors.");
 				} else {
-					Tracer.trace(serviceName + " responded with all OK dignal");
+					Tracer.trace(serviceName + " responded with all OK signal");
 				}
 				if (this.cacheManager != null && hasErrors == false) {
 					this.cacheManager.cache(inputData, response);

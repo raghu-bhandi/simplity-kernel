@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -43,7 +43,7 @@ public class ClobDataType extends DataType {
 	 */
 	private static final int MAX_LENGTH = 50;
 
-	private static final String DESC = "This is an internally generated key. You should not synthesise, but re-send what you have recived";
+	private static final String DESC = "This is an internally generated key. You should not synthesize, but re-send what you have received";
 
 	/*
 	 * (non-Javadoc)Should we check whether the key indeed points to a file?

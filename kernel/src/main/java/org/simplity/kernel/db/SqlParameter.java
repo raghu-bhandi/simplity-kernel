@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -80,8 +80,8 @@ public class SqlParameter {
 			this.defaultValueObject = this.dataTypeObject
 					.parseValue(this.defaultValue);
 			if (this.defaultValueObject == null) {
-				throw new ApplicationError("sql paramter " + this.name
-						+ " has an invalid defaullt value.");
+				throw new ApplicationError("sql parameter " + this.name
+						+ " has an invalid default value.");
 			}
 		}
 	}
@@ -128,8 +128,8 @@ public class SqlParameter {
 		if (this.defaultValue != null && this.dataType == null) {
 			DataType dt = ComponentManager.getDataTypeOrNull(this.dataType);
 			if (dt != null && dt.parseValue(this.defaultValue) == null) {
-				ctx.addError("Paramter " + this.name
-						+ " has an invalid defaullt value of "
+				ctx.addError("Parameter " + this.name
+						+ " has an invalid default value of "
 						+ this.defaultValue);
 				count++;
 			}

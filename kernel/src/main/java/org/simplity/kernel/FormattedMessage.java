@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -108,7 +108,7 @@ public class FormattedMessage implements Jsonable {
 			this.text = messageName
 					+ " : description for this message is not found.";
 			this.messageType = MessageType.WARNING;
-			Tracer.trace("Missing mssage : " + messageName);
+			Tracer.trace("Missing message : " + messageName);
 		} else {
 			this.name = msg.getQualifiedName();
 			this.messageType = msg.getMessageType();

@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -30,7 +30,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 
 /**
- * Most corporates have central service that stores files. Attachment Manager is
+ * Most corporate have central service that stores files. Attachment Manager is
  * the interface between such a service and this application.
  *
  * Process to upload a file.
@@ -54,7 +54,7 @@ import org.simplity.kernel.Tracer;
  * 1. Service retrieves all data from db, including the storage token for the
  * file.
  *
- * 2. Field that reprsent such a key are specified as part of OutputData
+ * 2. Field that represent such a key are specified as part of OutputData
  * specification. Service uses this class to retrieve the stored attachment into
  * a temp area. Value of the field is changed to this new temp-key.
  *
@@ -133,7 +133,7 @@ public class AttachmentManager {
 			in = new FileInputStream(file);
 			newKey = assistant.store(in);
 		} catch (Exception e) {
-			Tracer.trace(e, "Error while moving attacment " + key
+			Tracer.trace(e, "Error while moving attachment " + key
 					+ " from temp area to storage");
 			return null;
 		} finally {

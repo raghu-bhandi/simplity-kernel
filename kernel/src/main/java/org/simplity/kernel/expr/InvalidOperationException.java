@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -56,7 +56,7 @@ public class InvalidOperationException extends Exception {
 	 */
 	protected InvalidOperationException(BinaryOperator operator,
 			ValueType operand1, ValueType operand2) {
-		this.message = "Opeator " + operator
+		this.message = "Operator " + operator
 				+ " is not a valid operator between value type " + operand1
 				+ " and " + operand2;
 	}

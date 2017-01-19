@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -73,7 +73,7 @@ public class TestResult {
 	/**
 	 * did this test case cleared it?
 	 *
-	 * @return true if the service cleared the test, fase if it failed
+	 * @return true if the service cleared the test, false if it failed
 	 */
 	public boolean cleared() {
 		return this.errorMessage == null;
@@ -96,7 +96,6 @@ public class TestResult {
 	 */
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return this.testCaseName + " for service " + this.serviceName
 				+ " has msg = " + this.errorMessage;
 	}

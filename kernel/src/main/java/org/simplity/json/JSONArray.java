@@ -19,7 +19,7 @@ package org.simplity.json;
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
@@ -68,7 +68,7 @@ import org.simplity.kernel.util.DateUtil;
  * <li>An extra <code>,</code>&nbsp;<small>(comma)</small> may appear just
  * before the closing bracket.</li>
  * <li>The <code>null</code> value will be inserted when there is <code>,</code>
- * &nbsp;<small>(comma)</small> elision.</li>
+ * &nbsp;<small>(comma)</small> epsilon.</li>
  * <li>Strings may be quoted with <code>'</code>&nbsp;<small>(single
  * quote)</small>.</li>
  * <li>Strings do not need to be quoted at all if they do not begin with a quote
@@ -749,7 +749,7 @@ public class JSONArray implements Iterable<Object> {
 	/**
 	 * Get the optional string value associated with an index. It returns an
 	 * empty string if there is no value at that index. If the value is not a
-	 * string and is not null, then it is coverted to a string.
+	 * string and is not null, then it is converted to a string.
 	 *
 	 * @param index
 	 *            The index must be between 0 and length() - 1.
@@ -1144,7 +1144,7 @@ public class JSONArray implements Iterable<Object> {
 	 * @param indentFactor
 	 *            The number of spaces to add to each level of indentation.
 	 * @param indent
-	 *            The indention of the top level.
+	 *            The indentation of the top level.
 	 * @return The writer.
 	 * @throws JSONException
 	 *             Exception

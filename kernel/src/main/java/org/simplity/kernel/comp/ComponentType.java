@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -139,7 +139,7 @@ public enum ComponentType {
 				String fname = fn.getSimpleName();
 				if (this.cachedOnes.get(fname) != null) {
 					Tracer.trace(fname
-							+ " is a built-in function and can not be over-ridden. User defined funciton with the same name is discarded.");
+							+ " is a built-in function and can not be over-ridden. User defined function with the same name is discarded.");
 				}
 				this.cachedOnes.put(fname, fn);
 			}
@@ -484,7 +484,7 @@ public enum ComponentType {
 	 * static methods that are used by infra-set up to load/cache components
 	 */
 	/**
-	 * MUST BE CALLED AS PART OF APPLCATION INIT. Initial load, or reload of
+	 * MUST BE CALLED AS PART OF APPLICATION INIT. Initial load, or reload of
 	 * components that are pre-loaded. It also resets and cached components that
 	 * are not pre-loaded
 	 */

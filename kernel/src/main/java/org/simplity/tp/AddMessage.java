@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -68,7 +68,7 @@ public class AddMessage extends Action {
 	public int validate(ValidationContext ctx, Service service) {
 		int count = super.validate(ctx, service);
 		if (this.messageName == null) {
-			ctx.addError("Message name is requried for addMessage action");
+			ctx.addError("Message name is required for addMessage action");
 			count++;
 		} else {
 			ctx.addReference(ComponentType.MSG, this.messageName);

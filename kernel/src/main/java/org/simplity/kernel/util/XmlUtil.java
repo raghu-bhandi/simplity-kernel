@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -613,7 +613,7 @@ public class XmlUtil {
 					|| Modifier.isAbstract(fieldType.getModifiers())) {
 				/*
 				 * It is super class/interface. As per our syntax, this element
-				 * woudl be wrapper for the concrete class-element
+				 * would be wrapper for the concrete class-element
 				 */
 				fieldObject = elementWrapperToSubclass(element, field, object);
 				if (fieldObject != null) {

@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -47,7 +47,7 @@ public class InvalidExpressionException extends Exception {
 			if (position >= expression.length()) {
 				msg.append("Unexpected end of expression. ").append(error);
 			} else {
-				msg.append("parsed upto ")
+				msg.append("parsed up to ")
 						.append(expression.substring(0, position)).append('\n')
 						.append(error);
 			}

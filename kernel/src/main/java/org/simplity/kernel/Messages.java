@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -109,7 +109,7 @@ public class Messages {
 
 	/**
 	 * client has sent an invalid attachment key. Client should send only the
-	 * key that it woudl have received after a successful upload of attachment
+	 * key that it would have received after a successful upload of attachment
 	 */
 	public static final String INVALID_ATTACHMENT_KEY = "kernel.invalidAttachmentKey";
 
@@ -135,7 +135,7 @@ public class Messages {
 		msg.name = messageName;
 		msg.text = messageName
 				+ " : description for this message is not found.";
-		Tracer.trace("Missing mssage : " + messageName);
+		Tracer.trace("Missing message : " + messageName);
 		return msg;
 	}
 }

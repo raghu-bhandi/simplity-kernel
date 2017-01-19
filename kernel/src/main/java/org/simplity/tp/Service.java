@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -185,7 +185,7 @@ public class Service implements ServiceInterface {
 	private boolean justOutputEveryThing;
 
 	/*
-	 * instance of className to be used as body of tis service
+	 * instance of className to be used as body of this service
 	 */
 	private ServiceInterface serviceInstance;
 
@@ -359,7 +359,7 @@ public class Service implements ServiceInterface {
 	}
 
 	/**
-	 * output all fields, and sheets, except sesison fields
+	 * output all fields, and sheets, except session fields
 	 *
 	 * @param ctx
 	 * @param response
@@ -435,7 +435,7 @@ public class Service implements ServiceInterface {
 		}
 		if (this.requestTextFieldName != null) {
 			Tracer.trace("Service " + this.name
-					+ " is designed to manage its own input. Request string coming from clinet will be set to field "
+					+ " is designed to manage its own input. Request string coming from client will be set to field "
 					+ this.requestTextFieldName);
 			if (this.inputData != null) {
 				Tracer.trace(
@@ -601,7 +601,7 @@ public class Service implements ServiceInterface {
 	 *
 	 * @param serviceName
 	 * @param record
-	 * @return service that returns a sheet with suggested rows for teh supplied
+	 * @return service that returns a sheet with suggested rows for the supplied
 	 *         text value
 	 */
 	public static Service getSuggestionService(String serviceName,
@@ -650,7 +650,7 @@ public class Service implements ServiceInterface {
 	 *
 	 * @param serviceName
 	 * @param record
-	 * @return service that returns a sheet with suggested rows for teh supplied
+	 * @return service that returns a sheet with suggested rows for the supplied
 	 *         text value
 	 */
 	public static Service getListService(String serviceName, Record record) {
@@ -730,7 +730,7 @@ public class Service implements ServiceInterface {
 		Action[] actions = { action };
 		service.actions = actions;
 		/*
-		 * we think we have to read back the row, but not suer.. Here the aciton
+		 * we think we have to read back the row, but not suer.. Here the action
 		 * commented for that
 		 */
 		// Read action1 = new Read();
@@ -854,7 +854,7 @@ public class Service implements ServiceInterface {
 			}
 			if (this.actions != null) {
 				ctx.addError(this.className
-						+ " is set as className. This java code is used as servie definition. Actions are not vaid.");
+						+ " is set as className. This java code is used as service definition. Actions are not valid.");
 				count++;
 			}
 			return count;
@@ -970,7 +970,7 @@ public class Service implements ServiceInterface {
 		}
 		if (record == null) {
 			Tracer.trace(recordName
-					+ " is not defined as a record, and hence we are unable to generate a servce named "
+					+ " is not defined as a record, and hence we are unable to generate a service named "
 					+ serviceName);
 			return null;
 		}
@@ -991,7 +991,7 @@ public class Service implements ServiceInterface {
 			return getSuggestionService(serviceName, record);
 		}
 
-		Tracer.trace("We have no on-the-fly servce generator for operation "
+		Tracer.trace("We have no on-the-fly service generator for operation "
 				+ operation);
 		return null;
 

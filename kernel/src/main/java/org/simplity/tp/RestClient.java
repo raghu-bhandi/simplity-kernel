@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -26,33 +26,22 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URL;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.simplity.json.JSONObject;
 import org.simplity.json.XML;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
-import org.simplity.kernel.comp.ComponentManager;
-import org.simplity.kernel.comp.ComponentType;
-import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
-import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.util.TextUtil;
-import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
-import org.simplity.service.ServiceProtocol;
 
 /**
- * Open an urlconnection and make a rest call with the configuraitons
+ * Open an url connection and make a rest call with the configurations
  *
  * @author infosys.com
  *

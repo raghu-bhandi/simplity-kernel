@@ -20,7 +20,7 @@ package org.simplity.json;
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
@@ -125,7 +125,7 @@ public class JSONObject {
 		 * A Null object is equal to the null value and to itself.
 		 *
 		 * @param object
-		 *            An object to test for nullness.
+		 *            An object to test for null.
 		 * @return true if the object parameter is the JSONObject.NULL object or
 		 *         null.
 		 */
@@ -1870,7 +1870,7 @@ public class JSONObject {
 	 * @param indentFactor
 	 *            The number of spaces to add to each level of indentation.
 	 * @param indent
-	 *            The indention of the top level.
+	 *            The indentation of the top level.
 	 * @return The writer.
 	 * @throws JSONException
 	 *             Exception

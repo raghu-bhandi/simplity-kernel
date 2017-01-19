@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -72,7 +72,7 @@ public class ProcedureParameter {
 	InOutType inOutType = InOutType.INPUT;
 	/**
 	 * if this is a data structure/object, specify the type name as declared in
-	 * the db or stored procedure. This MIUST match the declared data type
+	 * the db or stored procedure. This MUST match the declared data type
 	 */
 	String sqlObjectType;
 	/**
@@ -117,7 +117,7 @@ public class ProcedureParameter {
 	private int myPosn;
 
 	/**
-	 * get ready after loading. Called only once after lkoading
+	 * get ready after loading. Called only once after loading
 	 *
 	 * @param posn
 	 */
@@ -137,15 +137,15 @@ public class ProcedureParameter {
 				this.defaultValueObjet = this.dataTypeObject
 						.parseValue(this.defaultValue);
 				if (this.defaultValueObjet == null) {
-					throw new ApplicationError("sql paramter " + this.name
-							+ " has an invalid defaullt value.");
+					throw new ApplicationError("sql parameter " + this.name
+							+ " has an invalid default value.");
 				}
 			}
 		} else {
 			if (this.sqlObjectType == null) {
 				throw new ApplicationError("Stored procedure parameter "
 						+ this.name
-						+ " has a record associated with it, impliying that it is a struct/object. Please specify sqlObjectType as the type of this parameter in the stored procedure");
+						+ " has a record associated with it, implying that it is a struct/object. Please specify sqlObjectType as the type of this parameter in the stored procedure");
 			}
 			this.sqlObjectType = this.sqlObjectType.toUpperCase();
 		}
@@ -153,7 +153,7 @@ public class ProcedureParameter {
 			if (this.sqlArrayType == null) {
 				throw new ApplicationError("Stored procedure parameter "
 						+ this.name
-						+ " is an arry, and hence sqlArrayType must be specified as the type with which this parametr is defined in the stored procedure");
+						+ " is an array, and hence sqlArrayType must be specified as the type with which this parameter is defined in the stored procedure");
 			}
 			this.sqlArrayType = this.sqlArrayType.toUpperCase();
 		}
@@ -173,11 +173,6 @@ public class ProcedureParameter {
 	 *         be continues
 	 * @throws SQLException
 	 */
-	/*
-	 * we use connection object, but we are not to close this. Suppress that
-	 * warning
-	 */
-	@SuppressWarnings("resource")
 	public boolean setParameter(CallableStatement stmt,
 			FieldsInterface inputFields, ServiceContext ctx)
 					throws SQLException {
@@ -369,7 +364,7 @@ public class ProcedureParameter {
 		if (this.isArray) {
 			if (obj instanceof JSONArray == false) {
 				Tracer.trace(
-						"Servie Context has an object as source for stored procedure "
+						"Service Context has an object as source for stored procedure "
 								+ this.name
 								+ " but while we expected it to be an instance of JSONArray (array of objects) it turned out to be "
 								+ obj.getClass().getName()
@@ -383,7 +378,7 @@ public class ProcedureParameter {
 		}
 		if (obj instanceof JSONObject == false) {
 			Tracer.trace(
-					"Servie Context has an object as source for stored procedure "
+					"Service Context has an object as source for stored procedure "
 							+ this.name
 							+ " but while we expected it to be an instance of JSONObject it turned out to be "
 							+ obj.getClass().getName()
@@ -475,7 +470,7 @@ public class ProcedureParameter {
 			return;
 		}
 		/*
-		 * array of strcuts. the most complex case.
+		 * array of structs. the most complex case.
 		 */
 		if (record.isComplexStruct()) {
 			ctx.setObject(this.name,
@@ -616,7 +611,7 @@ public class ProcedureParameter {
 		msg.append(this.name).append(" at number ").append(this.myPosn)
 		.append(" has caused an exception.");
 		if (this.isArray) {
-			msg.append("Verify that this array paramater is defined as type "
+			msg.append("Verify that this array parameter is defined as type "
 					+ this.sqlArrayType).append("which is an array of ");
 			if (this.recordName != null) {
 				msg.append(this.sqlObjectType);
@@ -656,7 +651,7 @@ public class ProcedureParameter {
 		if (this.defaultValue != null) {
 			if (this.dataType == null) {
 				this.addError(ctx,
-						" is non-promitive but a default value is specified.");
+						" is non-primitive but a default value is specified.");
 				count++;
 			} else {
 				DataType dt = ComponentManager.getDataTypeOrNull(this.dataType);
@@ -684,7 +679,7 @@ public class ProcedureParameter {
 				count++;
 			} else if (this.sqlObjectType != null) {
 				ctx.addError(
-						"sqlObjectType is relevant ony if this parameter is non-primitive.");
+						"sqlObjectType is relevant only if this parameter is non-primitive.");
 			}
 
 		}
@@ -692,7 +687,7 @@ public class ProcedureParameter {
 		if (this.isArray) {
 			if (this.sqlArrayType == null) {
 				this.addError(ctx,
-						" is an array, and hence sqlArrayType must be specified as the type with which this parametr is defined in the stored procedure");
+						" is an array, and hence sqlArrayType must be specified as the type with which this parameter is defined in the stored procedure");
 				count++;
 			}
 		}

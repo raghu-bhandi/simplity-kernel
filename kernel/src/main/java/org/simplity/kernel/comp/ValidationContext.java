@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -168,7 +168,7 @@ public class ValidationContext {
 	public void addReference(ComponentType refType, String refName) {
 		if (this.currentType == null) {
 			throw new ApplicationError(
-					"Referrence being added without a call to startValidation(). "
+					"Reference being added without a call to startValidation(). "
 							+ refType + " : " + refName);
 		}
 		this.references.add(refType + " " + refName);
@@ -296,7 +296,7 @@ public class ValidationContext {
 				.getServiceOrNull(serviceName);
 		if (service == null) {
 			this.addError(attName + " is set to" + serviceName
-					+ " but it is not a vaid service name.");
+					+ " but it is not a valid service name.");
 			return true;
 		}
 		return false;
@@ -370,7 +370,7 @@ public class ValidationContext {
 			} catch (Exception e) {
 				this.addError("Unable to get new instance for component "
 						+ cls.getName()
-						+ ". Abandoning validaiton of components of this type");
+						+ ". Abandoning validation of components of this type");
 				return;
 			}
 			try {

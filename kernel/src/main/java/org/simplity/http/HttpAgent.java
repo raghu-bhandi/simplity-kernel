@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -64,7 +64,7 @@ public class HttpAgent {
 	/*
 	 * session parameter name with which user token is saved. This token is the
 	 * name under which our global parameters are saved. This indirection is
-	 * used to keep flexibility allow a client to haev multiple active sessions.
+	 * used to keep flexibility allow a client to have multiple active sessions.
 	 * sessions, we make this a set of tokens.
 	 */
 	private static final String GET = "GET";
@@ -100,7 +100,7 @@ public class HttpAgent {
 	 */
 	public static final FormattedMessage LOGIN_FAILED = new FormattedMessage(
 			"loginFailed", MessageType.ERROR,
-			"Invalid Credentials. Login faied.");
+			"Invalid Credentials. Login failed.");
 
 	/**
 	 * parameter name with which userId is to be saved in session. made this
@@ -245,7 +245,7 @@ public class HttpAgent {
 					exceptionListener.listen(inData, e);
 					Tracer.trace("listener notified");
 				} else {
-					Tracer.trace("No listenr to notify support team");
+					Tracer.trace("No listener to notify support team");
 				}
 				message = INTERNAL_ERROR;
 			}
@@ -263,7 +263,7 @@ public class HttpAgent {
 			/*
 			 * we got error
 			 */
-			Tracer.trace("Error on web teir : " + message.text);
+			Tracer.trace("Error on web tier : " + message.text);
 			messages = new FormattedMessage[1];
 			messages[0] = message;
 			response = getResponseForError(messages);
@@ -306,7 +306,7 @@ public class HttpAgent {
 	 * get the JSON to be sent back to client in case of errors
 	 *
 	 * @param messages
-	 * @return JSON string for teh supplied errors
+	 * @return JSON string for the supplied errors
 	 */
 	public static String getResponseForError(FormattedMessage[] messages) {
 		JSONWriter writer = new JSONWriter();
@@ -456,7 +456,6 @@ public class HttpAgent {
 		 * we have to suppress this warning as it is an external call that we
 		 * have no control over
 		 */
-		@SuppressWarnings("unchecked")
 		Map<String, String[]> fields = req.getParameterMap();
 		if (fields != null) {
 			for (Map.Entry<String, String[]> entry : fields.entrySet()) {
@@ -507,7 +506,7 @@ public class HttpAgent {
 			userId = (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
 			if (userId == null) {
 				Tracer.trace("autoLoginUserId is set to " + autoLoginUserId
-						+ " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in applicaiton.xml and esnure that your service clears this dummy userId with no credentials");
+						+ " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in applicaiton.xml and ensure that your service clears this dummy userId with no credentials");
 				return null;
 			}
 			Tracer.trace("User " + userId + " auto logged-in");
@@ -537,7 +536,7 @@ public class HttpAgent {
 	private static void removeSession(HttpSession session) {
 		Object obj = session.getAttribute(SESSION_NAME_FOR_USER_ID);
 		if (obj == null) {
-			Tracer.trace("Remove session : No sesion to remove");
+			Tracer.trace("Remove session : No session to remove");
 			return;
 		}
 		Tracer.trace("Session removed for " + obj);

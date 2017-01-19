@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -99,7 +99,6 @@ public class FileManager {
 
 	private static void addAllResourcesWithCtx(String parentFolder,
 			List<String> resources) {
-		@SuppressWarnings("unchecked")
 		Set<String> paths = myContext.getResourcePaths(FOLDER_CHAR
 				+ parentFolder);
 		if (paths == null) {
@@ -158,7 +157,7 @@ public class FileManager {
 				throw new ApplicationError("File " + fileName
 						+ " could not be opened for reading in a "
 						+ (myContext == null ? "non-" : "")
-						+ "web environmment");
+						+ "web environment");
 			}
 			Reader reader = new InputStreamReader(in, "UTF-8");
 			StringBuilder sbf = new StringBuilder();
@@ -212,7 +211,7 @@ public class FileManager {
 		File file = getNewFile();
 		try {
 			file.createNewFile();
-			Tracer.trace("Creatng and returning an empty file");
+			Tracer.trace("Creating and returning an empty file");
 			return file;
 		} catch (IOException e) {
 			throw new ApplicationError(e, MSG);

@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -92,7 +92,7 @@ public class FileBasedAssistant implements AttachmentAssistant {
 			FileManager.streamToFile(file, inStream);
 			return key;
 		} catch (Exception e) {
-			Tracer.trace(e, "Error while storiing temp file " + tempKey);
+			Tracer.trace(e, "Error while storing temp file " + tempKey);
 			return null;
 		} finally {
 			if (inStream != null) {
@@ -115,7 +115,7 @@ public class FileBasedAssistant implements AttachmentAssistant {
 	public String retrieve(String storageKey) {
 		File file = new File(this.storageRoot, storageKey);
 		if (file.exists() == false) {
-			Tracer.trace("Invaid storage key requested : " + storageKey);
+			Tracer.trace("Invalid storage key requested : " + storageKey);
 			return null;
 		}
 		InputStream in = null;
@@ -123,7 +123,7 @@ public class FileBasedAssistant implements AttachmentAssistant {
 			in = new FileInputStream(file);
 			return FileManager.createTempFile(in).getName();
 		} catch (Exception e) {
-			Tracer.trace(e, "error while copying permenant storage with key "
+			Tracer.trace(e, "error while copying permanent storage with key "
 					+ storageKey + " to temp area");
 			return null;
 		} finally {

@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -69,7 +69,6 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 	 * @see org.simplity.media.MediaStorageAssistant#store(java.io.InputStream,
 	 * java.lang.String, java.lang.String)
 	 */
-	@SuppressWarnings("resource")
 	@Override
 	public String store(InputStream inStream) {
 		boolean allOk = true;
@@ -133,7 +132,6 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 	 * @see org.simplity.kernel.MediaStoreRoom#retrieve(java.lang.String)
 	 *
 	 */
-	@SuppressWarnings("resource")
 	@Override
 	public String retrieve(String storageKey) {
 		long key = 0;
@@ -196,11 +194,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
 					+ " is not a valid storage key. remove() failed.");
 			return;
 		}
-		/*
-		 * try-finally is there and my eclipse is still cribbing!! So,politely
-		 * asking for a shut-up
-		 */
-		@SuppressWarnings("resource")
+
 		Connection con = DbDriver.getConnection(DbAccessType.AUTO_COMMIT, null);
 		boolean allOk = true;
 		try {

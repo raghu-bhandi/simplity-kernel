@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -302,7 +302,7 @@ public class DbDriver {
 
 		if (conString == null) {
 			throw new ApplicationError(
-					"driveClassName is specified but conneciton string is missing in your application set up.");
+					"driveClassName is specified but connection string is missing in your application set up.");
 		}
 		try {
 			Class.forName(driverClassName);
@@ -380,7 +380,7 @@ public class DbDriver {
 			}
 		} catch (SQLException e) {
 			err = new ApplicationError(e,
-					"Data source is initialized but error while opening onnection.");
+					"Data source is initialized but error while opening connection.");
 		} finally {
 			try {
 				if (con != null) {
@@ -475,11 +475,10 @@ public class DbDriver {
 	 * @param callBackObject
 	 * @param accType
 	 * @param schema
-	 *            optional. Use ONY if your application is designed to work with
+	 *            optional. Use Only if your application is designed to work with
 	 *            multiple schemas, AND this session transaction need to use a
 	 *            schema different from the default one
 	 */
-	@SuppressWarnings("resource")
 	public static void workWithDriver(DbClientInterface callBackObject,
 			DbAccessType accType, String schema) {
 		Connection con = null;
@@ -526,7 +525,7 @@ public class DbDriver {
 						+ " but that is the default. default connection used");
 				sch = null;
 			} else {
-				Tracer.trace("Going to open a non-defult connection for schema "
+				Tracer.trace("Going to open a non-default connection for schema "
 						+ schema);
 			}
 		}
@@ -585,7 +584,7 @@ public class DbDriver {
 						+ " but that is the default. default connection used");
 				sch = null;
 			} else {
-				Tracer.trace("Going to open a non-defult connection for schema "
+				Tracer.trace("Going to open a non-default connection for schema "
 						+ schema);
 			}
 		}
@@ -602,7 +601,7 @@ public class DbDriver {
 			DataSource ds = otherDataSources.get(sch);
 			if (ds == null) {
 				throw new ApplicationError(
-						"No dataSource configred for schema " + sch);
+						"No dataSource configured for schema " + sch);
 			}
 			return ds.getConnection();
 
@@ -623,7 +622,7 @@ public class DbDriver {
 		String conString = otherConStrings.get(sch);
 		if (conString == null) {
 			throw new ApplicationError(
-					"No connection string configred for schema " + sch);
+					"No connection string configured for schema " + sch);
 		}
 		return DriverManager.getConnection(conString);
 	}
@@ -653,7 +652,6 @@ public class DbDriver {
 	 *            all rows
 	 * @return number of rows extracted
 	 */
-	@SuppressWarnings("resource")
 	public int extractFromSql(String sql, Value[] values, DataSheet outSheet,
 			boolean oneRowOnly) {
 		if (traceSqls) {
@@ -686,7 +684,6 @@ public class DbDriver {
 	 * @param values
 	 * @return true if there is at least one row
 	 */
-	@SuppressWarnings("resource")
 	public boolean hasResult(String sql, Value[] values) {
 		if (traceSqls) {
 			this.traceSql(sql, values);
@@ -724,7 +721,6 @@ public class DbDriver {
 	 *            data sheet that has the expected columns defined in it.
 	 * @return number of rows extracted
 	 */
-	@SuppressWarnings("resource")
 	public int extractFromSql(String sql, Value[][] values,
 			DataSheet outSheet) {
 		if (traceSqls) {
@@ -762,7 +758,6 @@ public class DbDriver {
 	 *            all rows
 	 * @return a data sheet with has 0 or more rows of extracted data
 	 */
-	@SuppressWarnings("resource")
 	public DataSheet extractFromDynamicSql(String sql, Value[] values,
 			boolean oneRowOnly) {
 		if (traceSqls) {
@@ -801,7 +796,6 @@ public class DbDriver {
 	 *            would treat failure as validation issue.
 	 * @return number of affected rows
 	 */
-	@SuppressWarnings("resource")
 	public int executeSql(String sql, Value[] values,
 			boolean treatSqlErrorAsNoAction) {
 		PreparedStatement stmt = null;
@@ -856,7 +850,6 @@ public class DbDriver {
 	 *            would treat failure as validation issue.
 	 * @return number of affected rows
 	 */
-	@SuppressWarnings("resource")
 	public int insertAndGetKeys(String sql, Value[] values,
 			long[] generatedKeys, String[] keyNames,
 			boolean treatSqlErrorAsNoAction) {
@@ -928,7 +921,6 @@ public class DbDriver {
 	 *            stops if this method returns false;
 	 * @return number of rows iterated
 	 */
-	@SuppressWarnings("resource")
 	public int workWithRows(String sql, Value[] values, ValueType[] outputTypes,
 			RowIterator iterator) {
 		PreparedStatement stmt = null;
@@ -956,7 +948,6 @@ public class DbDriver {
 	 *            would treat failure as validation issue.
 	 * @return affected rows for each set of values
 	 */
-	@SuppressWarnings("resource")
 	public int[] executeBatch(String sql, Value[][] values,
 			boolean treatSqlErrorAsNoAction) {
 		if (traceSqls) {
@@ -1018,7 +1009,6 @@ public class DbDriver {
 	 * @param ctx
 	 * @return number of rows extracted
 	 */
-	@SuppressWarnings("resource")
 	public int executeSp(String sql, FieldsInterface inputFields,
 			FieldsInterface outputFields, ProcedureParameter[] params,
 			DataSheet[] outputSheets, ServiceContext ctx) {
@@ -1371,7 +1361,7 @@ public class DbDriver {
 
 	/**
 	 * put % and escape the text suitable for a LIKE operation as per brand of
-	 * RDMS. we have standardised on ! as escape character
+	 * RDBMS. we have standardized on ! as escape character
 	 *
 	 * @param text
 	 *            to be escaped
@@ -1439,7 +1429,6 @@ public class DbDriver {
 	 * @return data sheet that has attributes for tables/views. Null if no
 	 *         output
 	 */
-	@SuppressWarnings("resource")
 	public static DataSheet getTables(String schemaName, String tableName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
 		try {
@@ -1459,7 +1448,6 @@ public class DbDriver {
 	 *            can be null to get all tables or pattern, or actual name
 	 * @return sheet with one row per column. Null if no columns.
 	 */
-	@SuppressWarnings("resource")
 	public static DataSheet getTableColumns(String schemaName,
 			String tableName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
@@ -1477,7 +1465,6 @@ public class DbDriver {
 	 * @return sheet with one row per column. Null if this table does not exist,
 	 *         or something went wrong!!
 	 */
-	@SuppressWarnings("resource")
 	public static DataSheet getPrimaryKeys(String schemaName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
 		try {
@@ -1496,12 +1483,11 @@ public class DbDriver {
 	 *            non-null
 	 * @return key column names
 	 */
-	@SuppressWarnings("resource")
 	public static String[] getPrimaryKeysForTable(String schemaName,
 			String tableName) {
 		if (tableName == null) {
 			Tracer.trace(
-					"getPrimaryKeysForTable() is for a specific table. If you wnat for all tables, use the getPrimaryKeys()");
+					"getPrimaryKeysForTable() is for a specific table. If you want for all tables, use the getPrimaryKeys()");
 			return null;
 		}
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
@@ -1532,7 +1518,6 @@ public class DbDriver {
 	 *            null, pattern or name
 	 * @return data sheet that has attributes of procedures. Null if no output
 	 */
-	@SuppressWarnings("resource")
 	public static DataSheet getProcedures(String schemaName,
 			String procedureName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
@@ -1553,7 +1538,6 @@ public class DbDriver {
 	 * @return sheet with one row per column. Null if this table does not exist,
 	 *         or something went wrong!!
 	 */
-	@SuppressWarnings("resource")
 	public DataSheet getProcedureParams(String schemaName,
 			String procedureName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
@@ -1573,7 +1557,6 @@ public class DbDriver {
 	 *            null or pattern.
 	 * @return data sheet containing attributes of structures. Null of no output
 	 */
-	@SuppressWarnings("resource")
 	public DataSheet getStructs(String schemaName, String structName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
 		try {
@@ -1592,7 +1575,6 @@ public class DbDriver {
 	 *            null for all or pattern/name
 	 * @return sheet with one row per column. Null if no output
 	 */
-	@SuppressWarnings("resource")
 	public DataSheet getStructAttributes(String schemaName, String structName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
 		try {
@@ -1637,7 +1619,7 @@ public class DbDriver {
 				break;
 			default:
 				throw new ApplicationError(
-						"Meata data " + metaIdx + " is not defined yet.");
+						"Meta data " + metaIdx + " is not defined yet.");
 			}
 			if (rs.next()) {
 				DataSheet sheet = new MultiRowsSheet(META_COLUMNS[metaIdx],
@@ -1674,7 +1656,6 @@ public class DbDriver {
 	 * @param con
 	 * @param schema
 	 */
-	@SuppressWarnings("resource")
 	private static String extractDefaultSchema(Connection con) {
 		String schema = null;
 		try {
@@ -1761,7 +1742,6 @@ public class DbDriver {
 	 * @return object that is suitable to be assigned to an array parameter
 	 * @throws SQLException
 	 */
-	@SuppressWarnings("resource")
 	public static Array createArray(Connection con, Value[] values,
 			String dbArrayType) throws SQLException {
 		Object[] data = new Object[values.length];
@@ -1792,7 +1772,6 @@ public class DbDriver {
 	 * @return object that can be assigned to a struct parameter
 	 * @throws SQLException
 	 */
-	@SuppressWarnings("resource")
 	public static Struct createStruct(Connection con, Object[] data,
 			String dbObjectType) throws SQLException {
 		if (dbVendor == DbVendor.ORACLE) {
@@ -1840,7 +1819,6 @@ public class DbDriver {
 	 *         parameter
 	 * @throws SQLException
 	 */
-	@SuppressWarnings("resource")
 	public static Array createStructArray(Connection con, Struct[] structs,
 			String dbArrayType) throws SQLException {
 		if (dbVendor == DbVendor.ORACLE) {
@@ -1860,7 +1838,7 @@ public class DbDriver {
 			return con.unwrap(OracleConnection.class);
 		} catch (Exception e) {
 			throw new ApplicationError(
-					"Error while unwrapping to Oracle connection. This is a set-up issue with your server. It is probably using a pooled-conneciton with a flag not to allow access to underlying connection object "
+					"Error while unwrapping to Oracle connection. This is a set-up issue with your server. It is probably using a pooled-connection with a flag not to allow access to underlying connection object "
 							+ e.getMessage());
 		}
 	}

@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -121,7 +121,7 @@ public class Read extends DbAction {
 		if (this.childRecords != null) {
 			for (RelatedRecord rr : this.childRecords) {
 				Record cr = ComponentManager.getRecord(rr.recordName);
-				Tracer.trace("Going to read child rcord ");
+				Tracer.trace("Going to read child record ");
 				cr.filterForParents(outSheet, driver, rr.sheetName,
 						this.cascadeFilterForChildren, ctx);
 			}

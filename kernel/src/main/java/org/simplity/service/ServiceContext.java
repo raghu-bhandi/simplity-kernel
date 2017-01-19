@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -84,7 +84,7 @@ public class ServiceContext extends CommonData {
 	 * @param rowNumber
 	 *            if table is referred, 1 based.
 	 * @param params
-	 *            if the message is parameterised, provide values for those
+	 *            if the message is parameterized, provide values for those
 	 *            parameters. $name means name is a field, and the field value
 	 *            is to be taken from context
 	 * @return type of message that got added
@@ -128,7 +128,7 @@ public class ServiceContext extends CommonData {
 	 *
 	 * @param messageName
 	 * @param paramValues
-	 *            if the message is parameterised, provide values for those
+	 *            if the message is parameterized, provide values for those
 	 *            parameters
 	 * @return type of message that got added
 	 */
@@ -209,7 +209,7 @@ public class ServiceContext extends CommonData {
 
 	/**
 	 *
-	 * @return set of all sheets that you can itrate over
+	 * @return set of all sheets that you can iterate over
 	 */
 	public Set<Map.Entry<String, DataSheet>> getAllSheets() {
 		return this.allSheets.entrySet();

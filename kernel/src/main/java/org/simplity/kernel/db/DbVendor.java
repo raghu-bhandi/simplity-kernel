@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -43,7 +43,7 @@ public enum DbVendor {
 			']')
 
 	/**
-	 * postgre sql
+	 * postgres sql
 	 */
 	, POSTGRE("select current_schema()", "SET schema ")
 
@@ -107,7 +107,7 @@ public enum DbVendor {
 
 	/**
 	 *
-	 * @return escape characters recognised inside a like parameter.
+	 * @return escape characters recognized inside a like parameter.
 	 */
 	public char[] getEscapesForLike() {
 		return this.escapeCharsForLike;
@@ -124,7 +124,7 @@ public enum DbVendor {
 
 	/**
 	 * @param schema
-	 *            to bw set as default
+	 *            to be set as default
 	 * @return ddl sql get the sql that sets the schema
 	 */
 	public String getSetSchemaSql(String schema) {

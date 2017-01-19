@@ -1787,7 +1787,7 @@
 			maxOccurs="1"
 		>
 			<xs:element
-				name="ations"
+				name="actions"
 				type="actions"
 				minOccurs="1"
 				maxOccurs="1" />

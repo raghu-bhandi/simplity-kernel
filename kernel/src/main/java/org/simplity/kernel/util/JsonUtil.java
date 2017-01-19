@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -169,7 +169,6 @@ public class JsonUtil {
 	 * @return data sheet. Null if no data found. Throws ApplicationError on
 	 *         case the array is not well-formed
 	 */
-	@SuppressWarnings("null")
 	public static DataSheet getChildSheet(JSONArray arr, String attName,
 			Field[] fields, List<FormattedMessage> errors,
 			boolean allFieldsAreOptional) {
@@ -443,7 +442,7 @@ public class JsonUtil {
 		FilterCondition f = FilterCondition.parse(otherValue);
 		/*
 		 * filter field need not conform to data-type but it should be of the
-		 * same value type, except that IN_LIST is alwasy text
+		 * same value type, except that IN_LIST is always text
 		 */
 		Value value = FilterCondition.In == f ? ValueType.TEXT.parseObject(obj)
 				: valueType.parseObject(obj);
@@ -495,10 +494,10 @@ public class JsonUtil {
 				DataSheet sheet = JsonUtil.getSheet(arr, null, null, true,
 						null, null);
 				if (sheet == null) {
-					Tracer.trace("Table " + key + " could not be etxracted");
+					Tracer.trace("Table " + key + " could not be extracted");
 				} else {
 					ctx.putDataSheet(key, sheet);
-					Tracer.trace("Table " + key + " etxracted with "
+					Tracer.trace("Table " + key + " extracted with "
 							+ sheet.length() + " rows");
 				}
 				continue;
@@ -655,7 +654,7 @@ public class JsonUtil {
 
 	/**
 	 * @param object
-	 *            to be jsoned
+	 *            to be convert to json
 	 * @return json string for the object
 	 */
 	public static String toJson(Object object) {
@@ -746,7 +745,7 @@ public class JsonUtil {
 			if (obj instanceof JSONObject || obj instanceof JSONArray) {
 				Tracer.trace("Element no (zero based) "
 						+ i
-						+ " is not a primitive, and hence unable to convert the JSONArray into an array of primtitives");
+						+ " is not a primitive, and hence unable to convert the JSONArray into an array of primitives");
 				return null;
 			}
 			result[i] = obj;
@@ -826,7 +825,7 @@ public class JsonUtil {
 					if (idx != -1) {
 						throw new ApplicationError(
 								fieldSelector
-								+ " is not an apprpriate selector. We encountered a non-object for attribute "
+								+ " is not an appropriate selector. We encountered a non-object for attribute "
 								+ part);
 					}
 					resultObj = (JSONObject) result;
@@ -835,7 +834,7 @@ public class JsonUtil {
 					if (idx == -1) {
 						throw new ApplicationError(
 								fieldSelector
-								+ " is not an apprpriate selector. We encountered a object when we were expectng an array for index "
+								+ " is not an appropriate selector. We encountered a object when we were expecting an array for index "
 								+ idx);
 					}
 					resultArr = (JSONArray) result;
@@ -843,7 +842,7 @@ public class JsonUtil {
 				} else {
 					throw new ApplicationError(
 							fieldSelector
-							+ " is not an apprpriate selector as we encoutered a non-object on the path.");
+							+ " is not an appropriate selector as we encountered a non-object on the path.");
 				}
 				if (child != null) {
 					result = child;

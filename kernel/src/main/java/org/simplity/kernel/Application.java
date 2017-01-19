@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -196,7 +196,7 @@ public class Application {
 
 	/**
 	 * should the sqls that are executed be added to trace?? Required during
-	 * development. Some corporates have security policy that requires you not
+	 * development. Some corporate have security policy that requires you not
 	 * log sqls
 	 */
 	boolean logSqls;
@@ -246,7 +246,7 @@ public class Application {
 				msgs.add(this.traceWrapper
 						+ " could not be used to instantiate a Trace Wrapper. "
 						+ e.getMessage()
-						+ " We will work with adefault wrapper");
+						+ " We will work with a default wrapper");
 			}
 		}
 
@@ -258,7 +258,7 @@ public class Application {
 
 			} catch (Exception e) {
 				msgs.add(this.serviceCacheManager
-						+ " could not be used to instantiate a cahce manager. "
+						+ " could not be used to instantiate a cache manager. "
 						+ e.getMessage()
 						+ " We will work with no cache manager");
 			}
@@ -345,7 +345,7 @@ public class Application {
 				} catch (Exception e) {
 					msgs.add("autoLoginUserId is set to "
 							+ this.autoLoginUserId
-							+ " but it has to be a number because userIdIsNumber is set to true. Autologin is not enabled.");
+							+ " but it has to be a number because userIdIsNumber is set to true. Auto login is not enabled.");
 				}
 			} else {
 				uid = Value.newTextValue(this.autoLoginUserId);
@@ -364,7 +364,7 @@ public class Application {
 						.forName(this.attachmentAssistant).newInstance();
 			} catch (Exception e) {
 				msgs.add(
-						"Error while setting storage asstistant based on class "
+						"Error while setting storage assistant based on class "
 								+ this.attachmentAssistant + ". "
 								+ e.getMessage());
 			}
@@ -404,7 +404,7 @@ public class Application {
 		 */
 		if (this.applicationId == null) {
 			ctx.addError(
-					"applicationId must be specified as a unique id for your applicaiton on your corporate network. This id can be used for inter-application communication.");
+					"applicationId must be specified as a unique id for your application on your corporate network. This id can be used for inter-application communication.");
 			count++;
 		}
 
@@ -468,7 +468,7 @@ public class Application {
 			}
 			if (this.attachmentAssistant != null) {
 				ctx.addError(
-						"Choose either built-in attachment manager with attachmntsFolderPath or your own calss with mediStorageAssistantClass, but you can not use both.");
+						"Choose either built-in attachment manager with attachmntsFolderPath or your own class with mediStorageAssistantClass, but you can not use both.");
 			}
 		}
 		return count;
@@ -481,7 +481,7 @@ public class Application {
 		ServiceInterface service = ComponentManager
 				.getServiceOrNull(serviceName);
 		if (service == null) {
-			ctx.addError(serviceName + " is not a vaid service name.");
+			ctx.addError(serviceName + " is not a valid service name.");
 			return true;
 		}
 		return false;
@@ -532,9 +532,6 @@ public class Application {
 	 *            comFolderName serviceName param1=value1 param2=value2 .....
 	 */
 	public static void main(String[] args) {
-		// String[] parms = { "c:/repos/simplity/WebContent/WEB-INF/comp/",
-		// "tutorial.createSheet" };
-		// myTest(parms);
 		myTest(args);
 	}
 
@@ -549,7 +546,7 @@ public class Application {
 		File file = new File(compPath);
 		if (file.exists() == false) {
 			System.out.println(compPath
-					+ " is not a valid path. Esnure that you give the valid path of to the component root folder as first argument");
+					+ " is not a valid path. Ensure that you give the valid path of to the component root folder as first argument");
 			return;
 		}
 
@@ -603,6 +600,6 @@ public class Application {
 		System.out.println(
 				"Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
 		System.out.println(
-				"example : java  org.simplity.kernel.Applicaiton /usr/data/ serviceName inputParam1=vaue1 ...");
+				"example : java  org.simplity.kernel.Applicaiton /user/data/ serviceName inputParam1=vaue1 ...");
 	}
 }

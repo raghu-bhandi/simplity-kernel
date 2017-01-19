@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -234,7 +234,7 @@ public class ComponentManager {
 	 *            require any arguments
 	 * @param data
 	 *            fields context that may contain other fields that the function
-	 *            may refer at run time. This is typically the fieds from
+	 *            may refer at run time. This is typically the fields from
 	 *            serviceCOntext
 	 * @return value is never null. However value.isNull() could be true.
 	 * @throws ApplicationError

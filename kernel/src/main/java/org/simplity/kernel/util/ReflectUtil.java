@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -61,7 +61,7 @@ public class ReflectUtil {
 			if (setOnlyIfFieldIsNull) {
 				if (isSpecified(field.get(object))) {
 					Tracer.trace(fieldName + " already has a value of "
-							+ field.get(object) + " and hence a vaue of "
+							+ field.get(object) + " and hence a value of "
 							+ textValue + " is not set");
 					return;
 				}
@@ -171,7 +171,7 @@ public class ReflectUtil {
 			return;
 		} catch (Exception e) {
 			throw new XmlParseException("A value of |" + value
-					+ "| could not be parsed and set to fied "
+					+ "| could not be parsed and set to field "
 					+ field.getName());
 		}
 	}
@@ -221,7 +221,7 @@ public class ReflectUtil {
 						+ fromAttribute.getType().getSimpleName()
 						+ " in from object but of type "
 						+ toAttribute.getType().getSimpleName()
-						+ " in the toObject. Henc ethe attribute is not copied.");
+						+ " in the toObject. Hence the attribute is not copied.");
 				continue;
 			}
 			try {
@@ -237,7 +237,7 @@ public class ReflectUtil {
 				toAttribute.set(toObject, fromValue);
 
 			} catch (Exception e) {
-				String msg = "Unabe to copy attrbute " + attName
+				String msg = "Unable to copy attribute " + attName
 						+ " from object of type "
 						+ fromObject.getClass().getSimpleName()
 						+ " to an object of type "

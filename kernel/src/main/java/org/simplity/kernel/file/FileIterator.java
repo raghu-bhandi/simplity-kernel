@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -27,7 +27,7 @@ import java.util.Iterator;
 
 /**
  * an iterator that gives you next file from a folder, recursively going thru
- * sub-folders. we can filter files based on extension, like xml. we ALAYS
+ * sub-folders. we can filter files based on extension, like xml. we always
  * exclude folders starting with .
  *
  * @author simplity.org
@@ -59,13 +59,13 @@ public class FileIterator implements Iterator<File> {
 	 * we seek (not someone's blessings, but do the hard work) and keep the next
 	 * answer ready. (Why wait for some one to call, keep it ready. Nay way it
 	 * is question of time before they call you for next one!!) Real reason is
-	 * that hasNext() does lot of har work, which we do not want to repeat in
+	 * that hasNext() does lot of hard work, which we do not want to repeat in
 	 * next()
 	 */
 	private File nextFile;
 
 	/**
-	 * get an iterotor that returns files inside this folder, including all
+	 * get an iterator that returns files inside this folder, including all
 	 * sub-folders (excluding folders/files that start with .) to be invoked by
 	 * FileCollection only
 	 *
@@ -150,7 +150,7 @@ public class FileIterator implements Iterator<File> {
 		File fileToReturn = this.nextFile;
 		if (fileToReturn != null) {
 			/*
-			 * our main algorithm is to be ready with the next AWAYS
+			 * our main algorithm is to be ready with the next file
 			 */
 			this.setNextFile();
 		}

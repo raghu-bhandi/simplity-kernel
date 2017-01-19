@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -82,7 +82,7 @@ public class TestCase {
 
 	/**
 	 * if you want to specify exactly the fields/sheets expected as in the
-	 * pay-load format(josn). We compare the josn elements, and not just a
+	 * pay-load format(json). We compare the json elements, and not just a
 	 * string comparison to take care of white-space and sequence/order issues
 	 */
 	String outputJson;
@@ -284,7 +284,6 @@ public class TestCase {
 	 * @param vtx
 	 * @return number of errors detected
 	 */
-	@SuppressWarnings("unused")
 	public int validate(ValidationContext vtx) {
 		int nbr = 0;
 		if (this.inputJson != null) {

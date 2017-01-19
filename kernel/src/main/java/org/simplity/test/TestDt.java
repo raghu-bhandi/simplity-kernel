@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -95,7 +95,7 @@ public class TestDt extends AbstractService {
 	 * @param fieldName
 	 * @return dataType, never null
 	 * @throws ApplicaitonError
-	 *             in case of mal-formed name, or non-existing data type name
+	 *             in case of malformed name, or non-existing data type name
 	 */
 	private DataType getDt(String key) {
 		int idx = key.indexOf('_');
@@ -118,7 +118,7 @@ public class TestDt extends AbstractService {
 	 * Parse and replace the right date value in yyyy-MM-dd format.
 	 *
 	 * @param value
-	 * @return value as it is, or replaced with a date realtive to today
+	 * @return value as it is, or replaced with a date relative to today
 	 */
 	private String getDateValue(String value) {
 		if (value.isEmpty() == false) {

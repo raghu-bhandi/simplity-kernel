@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -274,7 +274,7 @@ public class Field {
 	 * @param extratedFields
 	 * @param validationErrors
 	 * @param recordName
-	 * @return number of fields etxtracted
+	 * @return number of fields extracted
 	 */
 	public int parseFilter(Map<String, String> inputValues,
 			FieldsInterface extratedFields,
@@ -306,7 +306,7 @@ public class Field {
 				validationErrors
 				.add(new FormattedMessage(Messages.INVALID_VALUE,
 						recordName, this.name, null, 0,
-						" inList contition is valid for numeric and text fields only "));
+						" inList condition is valid for numeric and text fields only "));
 				return 0;
 			}
 			Value[] vals = Value.parse(textValue.split(","), vt);
@@ -612,7 +612,7 @@ public class Field {
 									+ this.referredField
 									+ " of record "
 									+ this.referredRecord
-									+ ". Refferred field is not found in the referred record.");
+									+ ". Referred field is not found in the referred record.");
 				}
 				this.copyFromRefField();
 			}

@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -71,9 +71,9 @@ import org.simplity.tp.OutputRecord;
 /**
  *
  * This is the main part of our data model. Every piece of data that the
- * application has to keep as part of "system of records" must be modelled into
+ * application has to keep as part of "system of records" must be modeled into
  * this. Data structures that are used as input to, or output from a service are
- * modelled as records as well.
+ * modeled as records as well.
  *
  * It is common industry practice to have "physical data model" and
  * "logical data model" for proper understanding. We encourage such designs
@@ -137,7 +137,7 @@ public class Record implements Component {
 	 */
 	boolean keyToBeGenerated;
 	/**
-	 * oracle does not support auto-increment. Standard practise is to have a
+	 * oracle does not support auto-increment. Standard practice is to have a
 	 * sequence, typically named as tableName_SEQ, and use sequence.NEXTVAL as
 	 * value of the key field. If you follow different standard that that,
 	 * please specify the expression. We have made this an expression to provide
@@ -548,7 +548,7 @@ public class Record implements Component {
 		}
 		Value value = inData.getValue(this.primaryKeyField.getName());
 		if (value == null || value.isUnknown()) {
-			Tracer.trace("Value for primary key not prsent, and hence no read operation.");
+			Tracer.trace("Value for primary key not present, and hence no read operation.");
 			return 0;
 		}
 		Value[] values = { value };
@@ -666,7 +666,7 @@ public class Record implements Component {
 			if (condition == FilterCondition.Between) {
 				otherValue = inData.getValue(fieldName + ServiceProtocol.TO_FIELD_SUFFIX);
 				if (otherValue == null || otherValue.isUnknown()) {
-					throw new ApplicationError("To value not supplied for fied " + this.name + " for filtering");
+					throw new ApplicationError("To value not supplied for field " + this.name + " for filtering");
 				}
 				sql.append(" AND ?");
 				filterValues.add(otherValue);
@@ -779,7 +779,7 @@ public class Record implements Component {
 			values = this.getUpdateValues(row, userId);
 			if (driver.executeSql(this.updateSql, values, treatSqlErrorAsNoResult) == 0) {
 				throw new ApplicationError(
-						"Data was changed by some one else while you were editing it. Please cancel this oepration and redo it with latest data.");
+						"Data was changed by some one else while you were editing it. Please cancel this operation and redo it with latest data.");
 			}
 		}
 		return saveAction;
@@ -920,7 +920,7 @@ public class Record implements Component {
 						value = Value.newUnknownValue(field.getValueType());
 					} else {
 						throw new ApplicationError("Column " + field.columnName + " in table " + this.tableName
-								+ " is designed to be non-null, but a row is being updated witha null value in it.");
+								+ " is designed to be non-null, but a row is being updated with a null value in it.");
 					}
 				}
 				values[valueIdx] = value;
@@ -1296,7 +1296,7 @@ public class Record implements Component {
 		}
 		if (generatedKeys != null) {
 			Tracer.trace(
-					"Generated key retrieval is NOT supported for batch. Keys for child table are ot retrievend automatcially");
+					"Generated key retrieval is NOT supported for batch. Keys for child table are to be retrieved automatically");
 		}
 		int[] counts = driver.executeBatch(sql, values, treatSqlErrorAsNoResult);
 		int result = 0;
@@ -1736,7 +1736,7 @@ public class Record implements Component {
 			if (this.modifiedStampField.getValueType() != ValueType.TIMESTAMP) {
 				throw new ApplicationError("Record " + this.name + " uses " + this.modifiedStampField.name
 						+ " as modiedAt field, but has defined it as a " + this.modifiedStampField.getValueType()
-						+ ". It should be defiened as a TIMESTAMP for it to be used for concurrency check.");
+						+ ". It should be defined as a TIMESTAMP for it to be used for concurrency check.");
 			}
 		}
 		if (this.defaultSheetName == null) {
@@ -1808,7 +1808,7 @@ public class Record implements Component {
 			}
 			FieldType fieldType = field.fieldType;
 			/*
-			 * if primary key is managed by rdms, we do not bother about it?
+			 * if primary key is managed by rdbms, we do not bother about it?
 			 */
 			if (fieldType == FieldType.PRIMARY_KEY && this.keyToBeGenerated && this.sequence == null) {
 				continue;
@@ -2158,7 +2158,7 @@ public class Record implements Component {
 						field = TABLE_ACTION_FIELD;
 					} else {
 						throw new ApplicationError(
-								s + " is not a valid fiels in Record " + this.name + ". Field can not be extracted.");
+								s + " is not a valid fields in Record " + this.name + ". Field can not be extracted.");
 					}
 				}
 				result[i] = field;
@@ -2438,10 +2438,10 @@ public class Record implements Component {
 		 */
 		if (this.useTimestampForConcurrency) {
 			if (this.modifiedStampField == null) {
-				ctx.addError("useTimestampForConcurrency=true, but no fild of type modifiedAt.");
+				ctx.addError("useTimestampForConcurrency=true, but no field of type modifiedAt.");
 				count++;
 			} else if (this.modifiedStampField.getValueType() != ValueType.TIMESTAMP) {
-				ctx.addError("useTimestampForConcurrency=true, but the timestampfield " + this.modifiedStampField.name
+				ctx.addError("useTimestampForConcurrency=true, but the timestamp field " + this.modifiedStampField.name
 						+ " is defined as " + this.modifiedStampField.getValueType()
 						+ ". It should be defined as a timestamp.");
 				count++;
@@ -2791,7 +2791,7 @@ public class Record implements Component {
 			if (nbr != -1) {
 				sbf.append(nbr).append(" elements.");
 			} else {
-				sbf.append(" an instanceof " + value.getClass().getName());
+				sbf.append(" an instance of " + value.getClass().getName());
 			}
 		} else {
 			sbf.append("Field ").append(field.name).append(txt).append(" but we got an instance of")

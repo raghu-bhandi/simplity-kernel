@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -160,7 +160,7 @@ public class CreateSheet extends Action {
 		for (int i = 1; i < this.data.length; i++) {
 			String[] arr = this.data[i];
 			if (arr.length != n) {
-				ctx.addError("Each row in data is to have same nume numbe of columns as the header. we have header with "
+				ctx.addError("Each row in data is to have same number of columns as the header. we have header with "
 						+ n
 						+ " columns, but data row "
 						+ i
@@ -182,7 +182,7 @@ public class CreateSheet extends Action {
 					if (val == null) {
 						ctx.addError("Cell at row " + i
 								+ " and column (1 based) " + (j + 1)
-								+ " has an invaid value of " + cell);
+								+ " has an invalid value of " + cell);
 						nbr++;
 					}
 				}

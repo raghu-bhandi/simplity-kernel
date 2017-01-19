@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -146,7 +146,7 @@ public class InputData {
 							+ " from/to temp area");
 				}
 				Tracer.trace("Attachment key " + key + " replaced with "
-						+ newKey + " aftr swapping content from/to temp area");
+						+ newKey + " after swapping content from/to temp area");
 				sheet.setColumnValue(colName, i, Value.newTextValue(newKey));
 			}
 		}
@@ -179,8 +179,8 @@ public class InputData {
 						null, null, 0, newKey);
 			} else {
 				Tracer.trace(
-						"Attachment key " + key + " repalced with " + newKey
-						+ " after swapping the contnts from/to temp area");
+						"Attachment key " + key + " replaced with " + newKey
+						+ " after swapping the contents from/to temp area");
 				ctx.setTextValue(af, newKey);
 			}
 		}
@@ -255,7 +255,7 @@ public class InputData {
 			String token = ctx.getTextValue(fieldName);
 			if (token == null) {
 				Tracer.trace(
-						attId + " is an attchment input field. No value found in "
+						attId + " is an attachment input field. No value found in "
 								+ fieldName
 						+ " on exit of service, and hence this attachment is not removed from storage");
 			} else {

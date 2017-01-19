@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -56,7 +56,7 @@ public abstract class AbstractParameterHandler {
 	 * @throws SQLException 
 	 */
 	public void setStructArray(CallableStatement statement , String arrayType, String objectType, Object[][] array, int posn ) throws SQLException{
-		throw new SQLException("Passing array of object/strures to a stored procedure is not supported with current database driver.");
+		throw new SQLException("Passing array of object/struct to a stored procedure is not supported with current database driver.");
 	}
 	
 	/**

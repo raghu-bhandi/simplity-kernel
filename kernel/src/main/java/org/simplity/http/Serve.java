@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -45,7 +45,7 @@ public class Serve extends HttpServlet {
 	/*
 	 * we may have to co-exist with other application. It is possible that our
 	 * start-up never started. One check may not be too expensive. Our start-up
-	 * calls kepe this as marker..
+	 * calls keep this as marker..
 	 */
 	private static boolean startedUp = false;
 	private static boolean startUpFailed = false;
@@ -66,7 +66,7 @@ public class Serve extends HttpServlet {
 			Tracer.trace("Web Agent is given a green signal by Startup to start serving.");
 		} else {
 			startUpFailed = true;
-			Tracer.trace("Web agent Serve will not be serviceing on this server as Startup reported a failure on boot-strap.");
+			Tracer.trace("Web agent Serve will not be servicing on this server as Startup reported a failure on boot-strap.");
 		}
 	}
 
@@ -86,7 +86,7 @@ public class Serve extends HttpServlet {
 				 */
 				this.reportError(
 						resp,
-						"Application start-up had an error. Please refer to the logs. No service is ppossible.");
+						"Application start-up had an error. Please refer to the logs. No service is possible.");
 				return;
 			}
 		}

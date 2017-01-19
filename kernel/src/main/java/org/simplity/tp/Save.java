@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -71,7 +71,7 @@ public class Save extends DbAction {
 	 * at times, you may design an insert operation that will try to insert,
 	 * failing which you may want to update. In such cases, you may get a sql
 	 * error on key-violation. By default we would raise an exception. You may
-	 * alter this behaviour with this keyword.
+	 * alter this behavior with this keyword.
 	 */
 	boolean treatSqlErrorAsNoResult;
 
@@ -125,7 +125,7 @@ public class Save extends DbAction {
 			nbrRowsAffected = actions.length;
 		}
 		if (this.childRecords != null) {
-			Tracer.trace("Child records are valid only when parent is for a sigle row. Data if any, ignored.");
+			Tracer.trace("Child records are valid only when parent is for a single row. Data if any, ignored.");
 		}
 		return nbrRowsAffected;
 	}
@@ -165,7 +165,7 @@ public class Save extends DbAction {
 				 * be because of time-stamp..
 				 */
 				throw new ApplicationError(
-						"Data was changed by some one else while you were editing it. Please cancel this oepration and redo it with latest data.");
+						"Data was changed by some one else while you were editing it. Please cancel this operation and redo it with latest data.");
 			}
 			return nbrRowsAffected + nbrChildrenSaved;
 		}
@@ -215,7 +215,7 @@ public class Save extends DbAction {
 				nbr += record.insertWithParent(relatedSheet, ctx, driver,
 						userId);
 				Tracer.trace("Rows in record " + rr.recordName
-						+ " replced based on " + relatedSheet.length()
+						+ " replaced based on " + relatedSheet.length()
 						+ " rows of data in sheet " + rr.sheetName);
 				continue;
 			}

@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -27,7 +27,7 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.util.JsonUtil;
 
 /**
- * Specification for a filed from out put of a service test to be added to teh
+ * Specification for a filed from out put of a service test to be added to the
  * test context
  *
  */
@@ -55,7 +55,7 @@ public class ContextField {
 		Object value = JsonUtil.getValue(this.fieldSelector, json);
 		if (value == null) {
 			Tracer.trace("Value for " + this.fieldSelector
-					+ " is null and hence is not added to the cntext");
+					+ " is null and hence is not added to the context");
 			return;
 		}
 		if (this.nameInContext == null) {

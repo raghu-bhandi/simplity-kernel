@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -26,7 +26,7 @@ import org.simplity.kernel.value.Value;
 
 /**
  * Way to iterate over each resultant row of a SQL. To be used if a large number
- * of rows are expected and you od not want to get them in a data sheet. Also
+ * of rows are expected and you do not want to get them in a data sheet. Also
  * useful if you may abandon it based on some logic. This is to be used for
  * RdbDriver.WorkWithRows() method
  *

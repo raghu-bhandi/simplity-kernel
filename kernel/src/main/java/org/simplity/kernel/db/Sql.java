@@ -16,7 +16,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -189,7 +189,7 @@ public class Sql implements Component {
 			throw new ApplicationError(
 					"Sql "
 							+ this.getQualifiedName()
-							+ " is meant for data extraciton, but it is called for update");
+							+ " is meant for data extraction, but it is called for update");
 		}
 		int nbrRows = inSheet.length();
 		if (nbrRows == 0) {
@@ -294,7 +294,7 @@ public class Sql implements Component {
 				throw new ApplicationError(
 						"Sql "
 								+ this.getQualifiedName()
-								+ " is defined as an update sql but it specifies output paremetrs.");
+								+ " is defined as an update sql but it specifies output parameters.");
 			}
 			if (this.outputRecordName != null) {
 				throw new ApplicationError("Sql " + this.getQualifiedName()
@@ -338,7 +338,7 @@ public class Sql implements Component {
 		if (this.inputParameters != null) {
 			if (nbrParams != this.inputParameters.length) {
 				ctx.addError("There are " + nbrParams
-						+ " parameters in prepared statment, but "
+						+ " parameters in prepared statement, but "
 						+ this.inputParameters + " number input parameters.");
 				count++;
 			}
@@ -346,7 +346,7 @@ public class Sql implements Component {
 				count += p.validate(ctx);
 			}
 			if (this.inputRecordName != null) {
-				ctx.addError("Specify either inputparameters or inputRecordName but not both.");
+				ctx.addError("Specify either input parameters or inputRecordName but not both.");
 				count++;
 			}
 		}
@@ -362,7 +362,7 @@ public class Sql implements Component {
 				int n = record.getFields().length;
 				if (n != nbrParams) {
 					ctx.addError(nbrParams
-							+ " parameters in prepared statment, but the input record "
+							+ " parameters in prepared statement, but the input record "
 							+ this.inputRecordName + " has " + n + " fields.");
 					count++;
 				}
@@ -378,7 +378,7 @@ public class Sql implements Component {
 				count += p.validate(ctx);
 			}
 			if (this.outputRecordName != null) {
-				ctx.addError("Both outputparameters and outputRecordName are specified.");
+				ctx.addError("Both output parameters and outputRecordName are specified.");
 				count++;
 			}
 		}

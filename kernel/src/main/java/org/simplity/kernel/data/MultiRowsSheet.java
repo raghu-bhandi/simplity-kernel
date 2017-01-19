@@ -15,7 +15,7 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
@@ -138,7 +138,7 @@ public class MultiRowsSheet implements DataSheet {
 			for (String nam : this.columnNames) {
 				if (set.add(nam) == false) {
 					throw new ApplicationError(nam
-							+ " is a dunplicate column in data sheet.");
+							+ " is a duplicate column in data sheet.");
 				}
 			}
 		}
@@ -275,10 +275,10 @@ public class MultiRowsSheet implements DataSheet {
 			int idx = this.columnIndexes.get(columnName).intValue();
 			return this.data.get(zeroBasedRowNumber)[idx];
 		} catch (Exception e) {
-			throw new ApplicationError(e,
-					"Request to get value for column" + columnName
+			Tracer.trace("Request to get value for column" + columnName
 					+ " and index " + zeroBasedRowNumber
 					+ " is not valid. going to return null");
+			return null;
 		}
 	}
 
