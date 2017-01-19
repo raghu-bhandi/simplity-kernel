@@ -34,7 +34,7 @@ import org.simplity.kernel.comp.ComponentType;
 public class Messages {
 	/*
 	 * messages used internally
-	 *
+	 * 
 	 * these are defined in kernel.xml under msg folder. we have to ensure that
 	 * this list and that file are in synch.
 	 */
@@ -83,12 +83,12 @@ public class Messages {
 	/**
 	 *
 	 */
-	public static final String INTERNAL_ERROR = "kernel.internalError";
+	public static final String INTERNAL_ERROR = "kernal.internalError";
 
 	/**
 	 *
 	 */
-	public static final String INVALID_TABLE_ACTION = "kernel.invalidTableAction";
+	public static final String INVALID_TABLE_ACTION = "kernal.invalidTableAction";
 
 	/**
 	 *

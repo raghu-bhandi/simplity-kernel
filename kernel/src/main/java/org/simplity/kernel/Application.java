@@ -22,8 +22,6 @@
 package org.simplity.kernel;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.simplity.http.HttpAgent;
 import org.simplity.http.HttpCacheManager;
@@ -224,32 +222,21 @@ public class Application {
 	String attachmentAssistant;
 
 	/**
-	 * fully qualified class name that implements org.simplity.core.TraceWrapper
-	 * to either format service-log or to actually log it.
-	 */
-	String traceWrapper;
-
-	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
 	 * servlet in a web-app
 	 */
 	public void configure() {
-		List<String> msgs = new ArrayList<String>();
-		if (this.traceWrapper != null) {
-			try {
-				TraceWrapper wrapper = (TraceWrapper) Class
-						.forName(this.traceWrapper).newInstance();
-				ServiceLogger.setWrapper(wrapper);
+		/*
+		 * Set up db driver.
+		 */
+		DbDriver.initialSetup(this.dbVendor, this.dataSourceName,
+				this.dbDriverClassName, this.connectionString, this.logSqls,
+				this.schemaDetails);
 
-			} catch (Exception e) {
-				msgs.add(this.traceWrapper
-						+ " could not be used to instantiate a Trace Wrapper. "
-						+ e.getMessage()
-						+ " We will work with adefault wrapper");
-			}
-		}
-
+		/*
+		 * set up ServiceAgenet
+		 */
 		ServiceCacheManager casher = null;
 		if (this.serviceCacheManager != null) {
 			try {
@@ -257,7 +244,7 @@ public class Application {
 						.forName(this.serviceCacheManager).newInstance();
 
 			} catch (Exception e) {
-				msgs.add(this.serviceCacheManager
+				Tracer.trace(this.serviceCacheManager
 						+ " could not be used to instantiate a cahce manager. "
 						+ e.getMessage()
 						+ " We will work with no cache manager");
@@ -271,7 +258,7 @@ public class Application {
 						.newInstance();
 
 			} catch (Exception e) {
-				msgs.add(this.accessController
+				Tracer.trace(this.accessController
 						+ " could not be used to instantiate access controller. "
 						+ e.getMessage()
 						+ " We will work with no cache manager");
@@ -285,41 +272,11 @@ public class Application {
 						.forName(this.exceptionListener).newInstance();
 
 			} catch (Exception e) {
-				msgs.add(this.exceptionListener
+				Tracer.trace(this.exceptionListener
 						+ " could not be used to instantiate an exception listener. "
 						+ e.getMessage() + " We will work with no listener");
 			}
 		}
-
-		HttpCacheManager cacheManager = null;
-		if (this.httpCacheManager != null) {
-			try {
-				cacheManager = (HttpCacheManager) Class
-						.forName(this.httpCacheManager).newInstance();
-
-			} catch (Exception e) {
-				msgs.add(this.httpCacheManager
-						+ " could not be used to instantiate a cache manager. "
-						+ e.getMessage()
-						+ " We will work with no http cache manager");
-			}
-		}
-
-		/*
-		 * Set up db driver.
-		 */
-		try {
-			DbDriver.initialSetup(this.dbVendor, this.dataSourceName,
-					this.dbDriverClassName, this.connectionString, this.logSqls,
-					this.schemaDetails);
-		} catch (Exception e) {
-			msgs.add("Error while setting up DbDriver. " + e.getMessage()
-					+ " Application will not work properly.");
-		}
-
-		/*
-		 * setup service agent
-		 */
 		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName,
 				this.logoutServiceName, casher, gard, listener);
 
@@ -327,31 +284,41 @@ public class Application {
 		 * Some components like data-type are to be pre-loaded for the app to
 		 * work.
 		 */
-		try {
-			ComponentType.preLoad();
-		} catch (Exception e) {
-			msgs.add("Error while pre-loading components" + e.getMessage());
-		}
+		ComponentType.preLoad();
 		if (this.cacheComponents) {
 			ComponentType.startCaching();
 		}
-
 		Value uid = null;
+		HttpCacheManager cacheManager = null;
+		if (this.httpCacheManager != null) {
+			try {
+				cacheManager = (HttpCacheManager) Class
+						.forName(this.httpCacheManager).newInstance();
+
+			} catch (Exception e) {
+				Tracer.trace(this.httpCacheManager
+						+ " could not be used to instantiate a cache manager. "
+						+ e.getMessage()
+						+ " We will work with no http cache manager");
+			}
+		}
 		if (this.autoLoginUserId != null) {
 			if (this.userIdIsNumber) {
 				try {
 					uid = Value.newIntegerValue(
 							Integer.parseInt(this.autoLoginUserId));
 				} catch (Exception e) {
-					msgs.add("autoLoginUserId is set to "
+					Tracer.trace("autoLoginUserId is set to "
 							+ this.autoLoginUserId
 							+ " but it has to be a number because userIdIsNumber is set to true. Autologin is not enabled.");
 				}
 			} else {
 				uid = Value.newTextValue(this.autoLoginUserId);
 			}
+			if (uid != null || cacheManager != null) {
+				HttpAgent.setUp(uid, cacheManager, this.sendTraceToClient);
+			}
 		}
-		HttpAgent.setUp(uid, cacheManager, listener, this.sendTraceToClient);
 		/*
 		 * what about file/media/attachment storage assistant?
 		 */
@@ -363,30 +330,13 @@ public class Application {
 				ast = (AttachmentAssistant) Class
 						.forName(this.attachmentAssistant).newInstance();
 			} catch (Exception e) {
-				msgs.add(
+				Tracer.trace(e,
 						"Error while setting storage asstistant based on class "
-								+ this.attachmentAssistant + ". "
-								+ e.getMessage());
+								+ this.attachmentAssistant);
 			}
 		}
 		if (ast != null) {
 			AttachmentManager.setAssistant(ast);
-		}
-		if (msgs.size() == 0) {
-			return;
-		}
-		/*
-		 * we got errors. Let us throw an exception for it to be handled by our
-		 * caller.
-		 */
-		StringBuilder err = new StringBuilder("Error while bootstrapping\n");
-		for (String msg : msgs) {
-			err.append(msg).append('\n');
-		}
-		String msg = err.toString();
-		Tracer.trace(msg);
-		if (listener != null) {
-			listener.listen(null, new Exception(msg));
 		}
 	}
 
@@ -429,10 +379,6 @@ public class Application {
 		}
 		if (this.classInError(AttachmentAssistant.class,
 				this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
-			count++;
-		}
-		if (this.classInError(AttachmentAssistant.class, this.traceWrapper,
-				"traceWrapper", ctx)) {
 			count++;
 		}
 

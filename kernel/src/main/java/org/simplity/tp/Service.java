@@ -246,8 +246,7 @@ public class Service implements ServiceInterface {
 			 * all set to start with actions
 			 */
 			try {
-				ActionBlock worker = new ActionBlock(this.actions,
-						this.indexedActions, ctx);
+				ActionBlock worker = new ActionBlock(this.actions, this.indexedActions, ctx);
 				if (this.dbAccessType == DbAccessType.NONE) {
 					worker.act(null);
 				} else {
@@ -259,15 +258,12 @@ public class Service implements ServiceInterface {
 					 */
 					DbDriver.workWithDriver(worker, access, this.schemaName);
 				}
-			} catch (ApplicationError e) {
-				throw e;
 			} catch (Exception e) {
-				throw new ApplicationError(e,
-						"Exception during execution of service. ");
+				Tracer.trace(e, "Exception during execution of service. " + e.getMessage());
+				ctx.addInternalMessage(MessageType.ERROR, e.getMessage());
 			}
 		}
-		ServiceData response = new ServiceData(ctx.getUserId(),
-				this.getQualifiedName());
+		ServiceData response = new ServiceData(ctx.getUserId(), this.getQualifiedName());
 		int nbrErrors = 0;
 		for (FormattedMessage msg : ctx.getMessages()) {
 			if (msg.messageType == MessageType.ERROR) {
@@ -302,9 +298,8 @@ public class Service implements ServiceInterface {
 		}
 		if (this.requestTextFieldName != null) {
 			ctx.setObject(this.requestTextFieldName, requestText);
-			Tracer.trace(
-					"Request text is not parsed but set as object value of "
-							+ this.requestTextFieldName);
+			Tracer.trace("Request text is not parsed but set as object value of "
+					+ this.requestTextFieldName);
 			return;
 		}
 		String jsonText = requestText.trim();
@@ -324,8 +319,7 @@ public class Service implements ServiceInterface {
 		try {
 			this.inputData.extractFromJson(json, ctx);
 		} catch (Exception e) {
-			ctx.addMessage(Messages.INVALID_DATA,
-					"Invalid input data format. " + e.getMessage());
+			ctx.addMessage(Messages.INVALID_DATA, "Invalid input data format. " + e.getMessage());
 		}
 	}
 
@@ -353,8 +347,7 @@ public class Service implements ServiceInterface {
 			return;
 		}
 
-		Tracer.trace(
-				"Service " + this.name + " is designed to send no response.");
+		Tracer.trace("Service " + this.name + " is designed to send no response.");
 
 	}
 
@@ -365,8 +358,7 @@ public class Service implements ServiceInterface {
 	 * @param response
 	 * @param inData
 	 */
-	protected void setPayload(ServiceContext ctx, ServiceData response,
-			ServiceData inData) {
+	protected void setPayload(ServiceContext ctx, ServiceData response, ServiceData inData) {
 		JSONWriter writer = new JSONWriter();
 		writer.object();
 		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
@@ -389,8 +381,7 @@ public class Service implements ServiceInterface {
 
 	@Override
 	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
-		ActionBlock actionBlock = new ActionBlock(this.actions,
-				this.indexedActions, ctx);
+		ActionBlock actionBlock = new ActionBlock(this.actions, this.indexedActions, ctx);
 		boolean result = actionBlock.workWithDriver(driver);
 		if (result) {
 			return Value.VALUE_TRUE;
@@ -402,32 +393,30 @@ public class Service implements ServiceInterface {
 	public void getReady() {
 		if (this.gotReady) {
 			Tracer.trace("Service " + this.getQualifiedName()
-			+ " is being harassed by repeatedly asking it to getReady(). Please look into this..");
+					+ " is being harassed by repeatedly asking it to getReady(). Please look into this..");
 			return;
 		}
 		this.gotReady = true;
 		if (this.className != null) {
 			try {
-				this.serviceInstance = (ServiceInterface) Class
-						.forName(this.className).newInstance();
+				this.serviceInstance = (ServiceInterface) Class.forName(this.className)
+						.newInstance();
 			} catch (Exception e) {
 				throw new ApplicationError(e,
-						"Unable to get an instance of service using class name "
-								+ this.className);
+						"Unable to get an instance of service using class name " + this.className);
 			}
 		}
 		if (this.actions == null) {
-			Tracer.trace(
-					"Service " + this.getQualifiedName() + " has no actions.");
+			Tracer.trace("Service " + this.getQualifiedName() + " has no actions.");
 			this.actions = new Action[0];
 		} else {
 			int i = 0;
 			for (Action action : this.actions) {
 				action.getReady(i);
 				if (this.indexedActions.containsKey(action.actionName)) {
-					throw new ApplicationError("Service " + this.name
-							+ " has duplicate action name " + action.actionName
-							+ " as its action nbr " + (i + 1));
+					throw new ApplicationError(
+							"Service " + this.name + " has duplicate action name "
+									+ action.actionName + " as its action nbr " + (i + 1));
 				}
 				this.indexedActions.put(action.getName(), new Integer(i));
 				i++;
@@ -444,8 +433,7 @@ public class Service implements ServiceInterface {
 			}
 		} else {
 			if (this.inputData == null) {
-				Tracer.trace("Service " + this.name
-						+ " is designed to take no inputs");
+				Tracer.trace("Service " + this.name + " is designed to take no inputs");
 			}
 		}
 		if (this.responseTextFieldName != null) {
@@ -469,16 +457,14 @@ public class Service implements ServiceInterface {
 		if (this.referredServiceForInput != null) {
 			if (this.inputData != null) {
 				throw new ApplicationError("Service " + this.getQualifiedName()
-				+ " refers to service " + this.referredServiceForInput
-				+ " but also specifies its own input records.");
+						+ " refers to service " + this.referredServiceForInput
+						+ " but also specifies its own input records.");
 			}
-			ServiceInterface service = ComponentManager
-					.getService(this.referredServiceForInput);
+			ServiceInterface service = ComponentManager.getService(this.referredServiceForInput);
 			if (service instanceof Service == false) {
 				throw new ApplicationError("Service " + this.getQualifiedName()
-				+ " refers to another service "
-				+ this.referredServiceForInput
-				+ ", but that is not an xml-based service.");
+						+ " refers to another service " + this.referredServiceForInput
+						+ ", but that is not an xml-based service.");
 			}
 			this.inputData = ((Service) service).inputData;
 		}
@@ -491,16 +477,14 @@ public class Service implements ServiceInterface {
 		if (this.referredServiceForOutput != null) {
 			if (this.outputData != null) {
 				throw new ApplicationError("Service " + this.getQualifiedName()
-				+ " refers to service " + this.referredServiceForOutput
-				+ " but also specifies its own output records.");
+						+ " refers to service " + this.referredServiceForOutput
+						+ " but also specifies its own output records.");
 			}
-			ServiceInterface service = ComponentManager
-					.getService(this.referredServiceForOutput);
+			ServiceInterface service = ComponentManager.getService(this.referredServiceForOutput);
 			if (service instanceof Service == false) {
 				throw new ApplicationError("Service " + this.getQualifiedName()
-				+ " refers to another service "
-				+ this.referredServiceForOutput
-				+ ", but that is not an xml-based service.");
+						+ " refers to another service " + this.referredServiceForOutput
+						+ ", but that is not an xml-based service.");
 			}
 			this.outputData = ((Service) service).outputData;
 		}
@@ -604,8 +588,7 @@ public class Service implements ServiceInterface {
 	 * @return service that returns a sheet with suggested rows for teh supplied
 	 *         text value
 	 */
-	public static Service getSuggestionService(String serviceName,
-			Record record) {
+	public static Service getSuggestionService(String serviceName, Record record) {
 		Service service = new Service();
 		service.dbAccessType = DbAccessType.READ_ONLY;
 		service.setName(serviceName);
@@ -614,10 +597,10 @@ public class Service implements ServiceInterface {
 		/*
 		 * input for suggest
 		 */
-		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY,
-				DataType.DEFAULT_TEXT, true, null);
-		InputField f2 = new InputField(ServiceProtocol.SUGGEST_STARTING,
-				DataType.DEFAULT_BOOLEAN, false, null);
+		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY, DataType.DEFAULT_TEXT,
+				true, null);
+		InputField f2 = new InputField(ServiceProtocol.SUGGEST_STARTING, DataType.DEFAULT_BOOLEAN,
+				false, null);
 
 		InputField[] inFields = { f1, f2 };
 		InputData inData = new InputData();
@@ -670,8 +653,8 @@ public class Service implements ServiceInterface {
 		 * do we need any input? we are flexible
 		 */
 
-		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY,
-				DataType.DEFAULT_TEXT, false, null);
+		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY, DataType.DEFAULT_TEXT,
+				false, null);
 		InputField[] inFields = { f1 };
 		InputData inData = new InputData();
 		inData.inputFields = inFields;
@@ -707,8 +690,7 @@ public class Service implements ServiceInterface {
 	 * @return a service that would save a rows, possibly along with some child
 	 *         rows
 	 */
-	public static ServiceInterface getSaveService(String serviceName,
-			Record record) {
+	public static ServiceInterface getSaveService(String serviceName, Record record) {
 		String recordName = record.getQualifiedName();
 		Service service = new Service();
 		service.dbAccessType = DbAccessType.READ_WRITE;
@@ -766,12 +748,10 @@ public class Service implements ServiceInterface {
 			this.name = possiblyQualifiedName.substring(idx + 1);
 			this.moduleName = possiblyQualifiedName.substring(0, idx);
 		}
-		Tracer.trace(
-				"service name set to " + this.name + " and " + this.moduleName);
+		Tracer.trace("service name set to " + this.name + " and " + this.moduleName);
 	}
 
-	protected static RelatedRecord[] getChildRecords(Record record,
-			boolean forRead) {
+	protected static RelatedRecord[] getChildRecords(Record record, boolean forRead) {
 		String[] children;
 		if (forRead) {
 			children = record.getChildrenToOutput();
@@ -827,8 +807,7 @@ public class Service implements ServiceInterface {
 			String sheetName = record.getDefaultSheetName();
 			int i = 1;
 			for (String child : children) {
-				recs[i++] = ComponentManager.getRecord(child)
-						.getInputRecord(sheetName);
+				recs[i++] = ComponentManager.getRecord(child).getInputRecord(sheetName);
 			}
 		}
 		return recs;
@@ -847,8 +826,7 @@ public class Service implements ServiceInterface {
 					count++;
 				}
 			} catch (Exception e) {
-				ctx.addError(this.className
-						+ " could not be used to instantiate an object.\n"
+				ctx.addError(this.className + " could not be used to instantiate an object.\n"
 						+ e.getMessage());
 				count++;
 			}
@@ -869,8 +847,7 @@ public class Service implements ServiceInterface {
 			for (Action action : this.actions) {
 				if (action.actionName != null) {
 					if (addedSoFar.add(action.actionName) == false) {
-						ctx.addError("Duplicate action name "
-								+ action.actionName + " at " + i);
+						ctx.addError("Duplicate action name " + action.actionName + " at " + i);
 						count++;
 					}
 				}
@@ -892,8 +869,7 @@ public class Service implements ServiceInterface {
 			ServiceInterface service = ComponentManager
 					.getServiceOrNull(this.referredServiceForInput);
 			if (service == null) {
-				ctx.addError("referredServiceForInput set to "
-						+ this.referredServiceForInput
+				ctx.addError("referredServiceForInput set to " + this.referredServiceForInput
 						+ " but that service is not defined");
 				count++;
 			}
@@ -916,8 +892,7 @@ public class Service implements ServiceInterface {
 			ServiceInterface service = ComponentManager
 					.getServiceOrNull(this.referredServiceForOutput);
 			if (service == null) {
-				ctx.addError("referredServiceForOutput set to "
-						+ this.referredServiceForOutput
+				ctx.addError("referredServiceForOutput set to " + this.referredServiceForOutput
 						+ " but that service is not defined");
 				count++;
 			}
@@ -927,8 +902,7 @@ public class Service implements ServiceInterface {
 					"More than one output specifications. Use one of dataOutput, responseTextFieldName or referredServiceForOutput.");
 			count++;
 		}
-		if (this.schemaName != null
-				&& DbDriver.isSchmeaDefined(this.schemaName) == false) {
+		if (this.schemaName != null && DbDriver.isSchmeaDefined(this.schemaName) == false) {
 			ctx.addError("schemaName is set to " + this.schemaName
 					+ " but it is not defined as one of additional schema names in application.xml");
 		}
@@ -991,8 +965,7 @@ public class Service implements ServiceInterface {
 			return getSuggestionService(serviceName, record);
 		}
 
-		Tracer.trace("We have no on-the-fly servce generator for operation "
-				+ operation);
+		Tracer.trace("We have no on-the-fly servce generator for operation " + operation);
 		return null;
 
 	}
@@ -1007,8 +980,7 @@ public class Service implements ServiceInterface {
 	 * @return service if this is a valid class, or null if it is not a valid
 	 *         class, or some error with that
 	 */
-	public static ServiceInterface getLogicService(String serviceName,
-			String className) {
+	public static ServiceInterface getLogicService(String serviceName, String className) {
 		Action action = null;
 		DbAccessType accessType = DbAccessType.NONE;
 		try {
@@ -1029,12 +1001,11 @@ public class Service implements ServiceInterface {
 				return null;
 			}
 		} catch (ClassNotFoundException e) {
-			Tracer.trace(className + " is designated as a class for service "
-					+ serviceName + " but the class can not be located.");
+			Tracer.trace(className + " is designated as a class for service " + serviceName
+					+ " but the class can not be located.");
 			return null;
 		} catch (Exception e) {
-			Tracer.trace("Error while getting class for " + className + " "
-					+ e.getMessage());
+			Tracer.trace("Error while getting class for " + className + " " + e.getMessage());
 			return null;
 		}
 		Service service = new Service();

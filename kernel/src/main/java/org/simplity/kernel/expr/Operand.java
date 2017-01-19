@@ -22,7 +22,7 @@
  */
 package org.simplity.kernel.expr;
 
-import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.value.InvalidValueException;
@@ -160,10 +160,7 @@ class Operand {
 				}
 			}
 		} catch (InvalidValueException e) {
-			/*
-			 * by design, we are not to reach here. But we have to play it safe
-			 */
-			throw new ApplicationError(e, "Error while using an operand.");
+			Tracer.trace(e, "oooooooooooooooops : unexpected exception ");
 		}
 		return false;
 	}

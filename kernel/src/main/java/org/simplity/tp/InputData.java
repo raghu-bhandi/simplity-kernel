@@ -23,6 +23,7 @@ package org.simplity.tp;
 
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
@@ -98,27 +99,23 @@ public class InputData {
 	 * @param ctx
 	 * @param toStore
 	 */
-	static void storeColumnAttaches(String[] columns, ServiceContext ctx,
-			boolean toStore) {
+	static void storeColumnAttaches(String[] columns, ServiceContext ctx, boolean toStore) {
 		for (String ac : columns) {
 			int idx = ac.lastIndexOf('.');
 			if (idx == -1) {
-				throw new ApplicationError(
-						"Invalid attachmentColumns specification");
+				throw new ApplicationError("Invalid attachmentColumns specification");
 			}
 			String sheetName = ac.substring(0, idx);
 			String colName = ac.substring(idx + 1);
 			DataSheet sheet = ctx.getDataSheet(sheetName);
 			if (sheet == null) {
 				Tracer.trace("Data sheet " + sheetName
-						+ " not input. Hence no attachment management on its column "
-						+ colName);
+						+ " not input. Hence no attachment management on its column " + colName);
 				continue;
 			}
 			idx = sheet.getColIdx(colName);
 			if (idx == -1) {
-				Tracer.trace("Data sheet " + sheetName
-						+ " does not have a column named " + colName
+				Tracer.trace("Data sheet " + sheetName + " does not have a column named " + colName
 						+ " No attachment management on this column");
 				continue;
 			}
@@ -141,13 +138,15 @@ public class InputData {
 					newKey = AttachmentManager.moveFromStorage(key.toText());
 				}
 				if (newKey == null) {
-					throw new ApplicationError(
-							"Unable to move attachment content with key=" + key
+					Tracer.trace("Unable to move attachment content with key=" + key
 							+ " from/to temp area");
+					ctx.addInternalMessage(MessageType.ERROR,
+							"Error while storing attachment with temp key " + key);
+				} else {
+					Tracer.trace("Attachment key " + key + " replaced with " + newKey
+							+ " aftr swapping content from/to temp area");
+					sheet.setColumnValue(colName, i, Value.newTextValue(newKey));
 				}
-				Tracer.trace("Attachment key " + key + " replaced with "
-						+ newKey + " aftr swapping content from/to temp area");
-				sheet.setColumnValue(colName, i, Value.newTextValue(newKey));
 			}
 		}
 	}
@@ -158,13 +157,11 @@ public class InputData {
 	 * @param ctx
 	 * @param toStor
 	 */
-	static void storeFieldAttaches(String[] fields, ServiceContext ctx,
-			boolean toStor) {
+	static void storeFieldAttaches(String[] fields, ServiceContext ctx, boolean toStor) {
 		for (String af : fields) {
 			String key = ctx.getTextValue(af);
 			if (key == null || key.isEmpty()) {
-				Tracer.trace("Attachment field " + af
-						+ " is not specified. Skipping it.");
+				Tracer.trace("Attachment field " + af + " is not specified. Skipping it.");
 				continue;
 			}
 			String newKey = null;
@@ -175,11 +172,10 @@ public class InputData {
 			}
 			if (newKey == null) {
 				Tracer.trace("Error while managing attachment key " + key);
-				ctx.addValidationMessage(Messages.INVALID_ATTACHMENT_KEY, af,
-						null, null, 0, newKey);
+				ctx.addValidationMessage(Messages.INVALID_ATTACHMENT_KEY, af, null, null, 0,
+						newKey);
 			} else {
-				Tracer.trace(
-						"Attachment key " + key + " repalced with " + newKey
+				Tracer.trace("Attachment key " + key + " repalced with " + newKey
 						+ " after swapping the contnts from/to temp area");
 				ctx.setTextValue(af, newKey);
 			}
@@ -243,7 +239,7 @@ public class InputData {
 	 * Now that the service has succeeded, is there anything that the input had
 	 * done that need to be cleaned-up? As of now, we have attachments that may
 	 * have been superseded..
-	 *
+	 * 
 	 * @param ctx
 	 */
 	public void cleanup(ServiceContext ctx) {
@@ -254,15 +250,12 @@ public class InputData {
 			String fieldName = attId + ServiceProtocol.OLD_ATT_TOKEN_SUFFIX;
 			String token = ctx.getTextValue(fieldName);
 			if (token == null) {
-				Tracer.trace(
-						attId + " is an attchment input field. No value found in "
-								+ fieldName
+				Tracer.trace(attId + " is an attchment input field. No value found in " + fieldName
 						+ " on exit of service, and hence this attachment is not removed from storage");
 			} else {
 				AttachmentManager.removeFromStorage(token);
-				Tracer.trace(
-						"Attachment field " + attId + " had an existing token "
-								+ token + ". That is now removed from storage");
+				Tracer.trace("Attachment field " + attId + " had an existing token " + token
+						+ ". That is now removed from storage");
 			}
 
 		}

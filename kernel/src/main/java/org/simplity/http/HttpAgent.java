@@ -43,7 +43,6 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.util.CircularLifo;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
-import org.simplity.service.ExceptionListener;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceProtocol;
@@ -132,11 +131,6 @@ public class HttpAgent {
 	 * accumulated traces to be streamed to client when requested.
 	 */
 	private static boolean tracesToBeCached;
-	/**
-	 * any exception thrown by service may need to be reported to a central
-	 * system.
-	 */
-	private static ExceptionListener exceptionListener;
 
 	/**
 	 * serve this service. Main entrance to the server from an http client.
@@ -183,7 +177,6 @@ public class HttpAgent {
 		 * let us earnestly try to serve now :-) this do{} is not a loop, but a
 		 * block that helps in handling errors in an elegant way
 		 */
-		ServiceData inData = null;
 		do {
 			try {
 				if (serviceName == null) {
@@ -191,7 +184,7 @@ public class HttpAgent {
 					break;
 				}
 
-				inData = createServiceData(session);
+				ServiceData inData = createServiceData(session);
 				if (inData == null) {
 					message = NO_LOGIN;
 					break;
@@ -241,12 +234,6 @@ public class HttpAgent {
 				}
 			} catch (Exception e) {
 				Tracer.trace(e, "Internal error");
-				if (exceptionListener != null) {
-					exceptionListener.listen(inData, e);
-					Tracer.trace("listener notified");
-				} else {
-					Tracer.trace("No listenr to notify support team");
-				}
 				message = INTERNAL_ERROR;
 			}
 		} while (false);
@@ -471,18 +458,15 @@ public class HttpAgent {
 	 *            for all services
 	 * @param cacher
 	 *            http cache manager
-	 * @param listener
-	 *            exception listener
 	 * @param cacheTraces
-	 *            if true, traces are also saved into a circular buffer that can
+	 *            if true, traces are also saved into a circular buffer tat can
 	 *            be delivered to the client
 	 */
 	public static void setUp(Value autoUserId, HttpCacheManager cacher,
-			ExceptionListener listener, boolean cacheTraces) {
+			boolean cacheTraces) {
 		autoLoginUserId = autoUserId;
 		httpCacheManager = cacher;
 		tracesToBeCached = cacheTraces;
-		exceptionListener = listener;
 
 	}
 

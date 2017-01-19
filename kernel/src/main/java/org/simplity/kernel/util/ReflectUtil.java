@@ -243,7 +243,8 @@ public class ReflectUtil {
 						+ " to an object of type "
 						+ toObject.getClass().getSimpleName() + ". "
 						+ e.getMessage();
-				throw new ApplicationError(e, msg);
+				Tracer.trace(e, msg);
+				throw new ApplicationError(msg);
 			}
 		}
 	}

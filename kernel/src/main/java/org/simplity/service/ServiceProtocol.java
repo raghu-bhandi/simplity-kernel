@@ -249,7 +249,7 @@ public abstract class ServiceProtocol {
 	public static final char LIST_SEPARATOR = ',';
 	/**
 	 * value can have an internal value and a display value, separated with this
-	 * character. e.g. True:1,False:0
+	 * character. eg. 1:True,0:False
 	 */
 	public static final char LIST_VALUE_SEPARATOR = ':';
 
@@ -302,7 +302,7 @@ public abstract class ServiceProtocol {
 	 * base can be set to a field with the name+prefix. Service will process
 	 * this and take care of removing the attachment from storage based on input
 	 * specification
-	 *
+	 * 
 	 */
 	public static final String OLD_ATT_TOKEN_SUFFIX = "Old";
 
