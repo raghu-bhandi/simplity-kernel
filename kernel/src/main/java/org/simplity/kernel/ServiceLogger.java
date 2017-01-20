@@ -57,61 +57,52 @@ public abstract class ServiceLogger {
 	static final String LOGGER_NAME = "service";
 
 	/*
-	 * class name of primary logger from the utilities that we support. It is in
-	 * the order of our preference
-	 */
-	private static final String[] CLASS_NAMES = { "org.apache.log4j.Logger",
-			"org.apache.commons.logging.Log", "org.slf4j.Logger" };
-	/*
-	 * our worker classes corresponding to the entries in CLASS_NAMES
-	 */
-	private static final Class<?>[] LOGGERS = { Log4JWorker.class,
-			JclWorker.class, Slf4JWorker.class };
-
-	/*
 	 * bound to the worker who understands the discovered logging utility.
 	 * practically non-null, because the last entry is java.util.Logger
 	 */
-	private static ServiceLogger myWorker = createLogger();
+	private static ServiceLogger myWorker = new ConsoleLogger();
 
 	private static TraceWrapper myWrapper = new SimpleXmlWrapper();
 
 	/**
-	 * create best possible logger based on our preference
+	 * choose the logger
+	 * @param framework
 	 *
-	 * @return a worker for the discovered logging utility, or the worker for
-	 *         the undiscovered java.util.Logger :-)
 	 */
-	private static ServiceLogger createLogger() {
-		int i = 0;
-		for (String cls : CLASS_NAMES) {
-			try {
-				/*
-				 * has the project included this class?
-				 */
-				Class.forName(cls);
-				/*
-				 * got it. get the corresponding worker
-				 */
-				return (ServiceLogger) LOGGERS[i].newInstance();
-			} catch (Exception ignore) {
-				// try-not-catch
-			}
-			i++;
+	public static void setLogger(LoggingFramework framework) {
+		if (framework == null) {
+			myWorker = new ConsoleLogger();
+			return;
 		}
-		/*
-		 * No luck with any framework. Settle for JUL
-		 */
-		return new JulWorker();
-	}
 
-	/**
-	 * get the singleton logger used by Simplity Engine
-	 *
-	 * @return worker for logging
-	 */
-	public static ServiceLogger getLogger() {
-		return myWorker;
+		try{
+		switch (framework) {
+		case LOG4J_CLASSIC:
+			myWorker = new Log4JClassicWorker();
+			return;
+
+		case LOG4J_V2:
+			myWorker = new Log4JWorker();
+			return;
+
+		case COMMONS_LOGGING:
+			myWorker = new Log4JWorker();
+			return;
+
+		case SLF4J:
+			myWorker = new Log4JWorker();
+			return;
+
+		case JULI:
+			myWorker = new Log4JWorker();
+			return;
+
+		default:
+		}
+		}catch(Exception e){
+			myWorker = new ConsoleLogger();
+			throw new ApplicationError(e, "Error while instantiating the specified logging utility." + framework);
+		}
 	}
 
 	/**
@@ -123,7 +114,7 @@ public abstract class ServiceLogger {
 	 */
 	public static void setWrapper(TraceWrapper wrapper) {
 		if (wrapper == null) {
-			myWorker.log(
+			myWorker.info(
 					"setWrapper called with null. Default wrapper will be used.");
 			myWrapper = new SimpleXmlWrapper();
 		} else {
@@ -148,7 +139,7 @@ public abstract class ServiceLogger {
 		 * null implies that we are not to push this to log
 		 */
 		if (txt != null) {
-			myWorker.log(txt);
+			myWorker.info(txt);
 		}
 	}
 
@@ -157,7 +148,11 @@ public abstract class ServiceLogger {
 	 *
 	 * @param msg
 	 */
-	public abstract void log(String msg);
+	public static void log(String msg) {
+		myWorker.info(msg);
+	}
+
+	protected abstract void info(String text);
 }
 
 class JulWorker extends ServiceLogger {
@@ -169,7 +164,23 @@ class JulWorker extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void log(String msg) {
+	public void info(String msg) {
+		this.logger.info(msg);
+	}
+
+}
+
+class Log4JClassicWorker extends ServiceLogger {
+	org.apache.log4j.Logger logger = org.apache.log4j.LogManager
+			.getLogger(ServiceLogger.LOGGER_NAME);
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
+	 */
+	@Override
+	public void info(String msg) {
 		this.logger.info(msg);
 	}
 
@@ -185,7 +196,7 @@ class Log4JWorker extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void log(String msg) {
+	public void info(String msg) {
 		this.logger.info(msg);
 	}
 
@@ -201,7 +212,7 @@ class JclWorker extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void log(String msg) {
+	public void info(String msg) {
 		this.logger.info(msg);
 	}
 
@@ -217,8 +228,21 @@ class Slf4JWorker extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void log(String msg) {
+	public void info(String msg) {
 		this.logger.info(msg);
+	}
+}
+
+class ConsoleLogger extends ServiceLogger {
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
+	 */
+	@Override
+	public void info(String msg) {
+		System.out.println(msg);
 	}
 }
 

@@ -222,7 +222,10 @@ public class Application {
 	 * AttachmentAssistant. A single instance of this class is re-used
 	 */
 	String attachmentAssistant;
-
+	/**
+	 * logging utility to which service log is to be emitted to. Default is to emit to console (System.out)
+	 */
+	LoggingFramework loggingFramework;
 	/**
 	 * fully qualified class name that implements org.simplity.core.TraceWrapper
 	 * to either format service-log or to actually log it.
@@ -261,6 +264,15 @@ public class Application {
 						+ " could not be used to instantiate a cache manager. "
 						+ e.getMessage()
 						+ " We will work with no cache manager");
+			}
+		}
+
+		if(this.loggingFramework != null){
+			try {
+				ServiceLogger.setLogger(this.loggingFramework);
+				Tracer.trace("Service logs will be successfully diverted to the logging framework " + this.loggingFramework);
+			} catch (Exception e) {
+				msgs.add("Logging framework " + this.loggingFramework + " could not be initiated for logging. Are you missing required jar file?. Service logs will be written to console.");
 			}
 		}
 

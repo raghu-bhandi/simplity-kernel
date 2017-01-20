@@ -296,9 +296,8 @@ public class HttpAgent {
 			cacheTraces(session, trace);
 		}
 		String uid = userId == null ? "unknown" : userId.toString();
-		System.out.println("Service : " + serviceName + "  user : " + uid + " completed in " + elapsed + " ms. \n" + trace );
 		ServiceLogger.pushTraceToLog(serviceName, uid, (int) elapsed, trace);
-		
+
 
 	}
 
@@ -456,6 +455,7 @@ public class HttpAgent {
 		 * we have to suppress this warning as it is an external call that we
 		 * have no control over
 		 */
+		@SuppressWarnings("unchecked")
 		Map<String, String[]> fields = req.getParameterMap();
 		if (fields != null) {
 			for (Map.Entry<String, String[]> entry : fields.entrySet()) {
