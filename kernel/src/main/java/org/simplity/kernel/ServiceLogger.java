@@ -66,12 +66,19 @@ public abstract class ServiceLogger {
 
 	/**
 	 * choose the logger
+	 *
 	 * @param framework
+	 * @throws Exception
+	 *             in case required classes are missing for the chosen
+	 *             framework.
 	 *
 	 */
-	public static void setLogger(LoggingFramework framework) {
+	public static void setLogger(LoggingFramework framework) throws Exception {
+		/*
+		 * play it safe and set the logger to default.
+		 */
+		myWorker = new ConsoleLogger();
 		if (framework == null) {
-			myWorker = new ConsoleLogger();
 			return;
 		}
 
@@ -86,22 +93,21 @@ public abstract class ServiceLogger {
 			return;
 
 		case COMMONS_LOGGING:
-			myWorker = new Log4JWorker();
+			myWorker = new JclWorker();
 			return;
 
 		case SLF4J:
-			myWorker = new Log4JWorker();
+			myWorker = new Slf4JWorker();
 			return;
 
 		case JULI:
-			myWorker = new Log4JWorker();
+			myWorker = new JulWorker();
 			return;
 
 		default:
 		}
-		}catch(Exception e){
-			myWorker = new ConsoleLogger();
-			throw new ApplicationError(e, "Error while instantiating the specified logging utility." + framework);
+		}catch(Error e){
+			throw new ApplicationError("Unable to locate the required classes for logging framework " + framework + "\n " + e.getMessage());
 		}
 	}
 
@@ -164,7 +170,7 @@ class JulWorker extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void info(String msg) {
+	protected void info(String msg) {
 		this.logger.info(msg);
 	}
 
@@ -180,7 +186,7 @@ class Log4JClassicWorker extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void info(String msg) {
+	protected void info(String msg) {
 		this.logger.info(msg);
 	}
 
@@ -196,7 +202,7 @@ class Log4JWorker extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void info(String msg) {
+	protected void info(String msg) {
 		this.logger.info(msg);
 	}
 
@@ -212,7 +218,7 @@ class JclWorker extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void info(String msg) {
+	protected void info(String msg) {
 		this.logger.info(msg);
 	}
 
@@ -228,7 +234,7 @@ class Slf4JWorker extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void info(String msg) {
+	protected void info(String msg) {
 		this.logger.info(msg);
 	}
 }
@@ -241,7 +247,7 @@ class ConsoleLogger extends ServiceLogger {
 	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
 	 */
 	@Override
-	public void info(String msg) {
+	protected void info(String msg) {
 		System.out.println(msg);
 	}
 }

@@ -949,7 +949,7 @@ public class Service implements ServiceInterface {
 	 * @return service, or null if name is not a valid on-the-fly service name
 	 */
 	public static ServiceInterface generateService(String serviceName) {
-		Tracer.trace("Trying " + serviceName + " as a fly-by-night operator");
+		Tracer.trace("Trying to generate service " + serviceName + " on-the-fly");
 		int idx = serviceName.indexOf(PREFIX_DELIMITER);
 		if (idx == -1) {
 			return null;
@@ -962,12 +962,7 @@ public class Service implements ServiceInterface {
 		 * convention, we are quite likely to to get the record.
 		 */
 
-		Record record = null;
-		try {
-			record = (Record) ComponentType.REC.getComponent(recordName);
-		} catch (Exception e) {
-			Tracer.trace(e, "Error while loading record " + recordName);
-		}
+		Record record = ComponentManager.getRecordOrNull(recordName);
 		if (record == null) {
 			Tracer.trace(recordName
 					+ " is not defined as a record, and hence we are unable to generate a service named "
