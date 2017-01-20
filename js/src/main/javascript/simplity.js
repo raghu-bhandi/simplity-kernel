@@ -904,7 +904,7 @@ var Simplity = (function() {
 	};
 
 	/**
-	 * @method getHtmlForPart get an html for teh part and data
+	 * @method getHtmlForPart get an html for the part and data
 	 * @param {Part}
 	 *            part
 	 * @param {Object}

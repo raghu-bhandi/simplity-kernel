@@ -34,7 +34,7 @@ var submitted = function() {
 };
 
 var pageError = function() {
-	alert('This page is to be invoked as .html?12 where 12 is teh petId for which visit is to be added');
+	alert('This page is to be invoked as .html?12 where 12 is the petId for which visit is to be added');
 	window.location.href = PAGES.home;
 };
 /**

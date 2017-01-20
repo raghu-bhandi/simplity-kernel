@@ -1812,7 +1812,7 @@
 			<xs:annotation>
 				<xs:documentation>By default, only the first level children are read
 					along with the parent. Do you want that action to cascade down to
-					subsequent generations as well? That is, if teh childRecord has
+					subsequent generations as well? That is, if the childRecord has
 					children, read them as well, and so on.
 				</xs:documentation>
 			</xs:annotation>
@@ -1909,7 +1909,7 @@
 			<xs:annotation>
 				<xs:documentation>By default, only the first level children are read
 					along with the parent. Do you want that action to cascade down to
-					subsequent generations as well? That is, if teh childRecord has
+					subsequent generations as well? That is, if the childRecord has
 					children, read them as well, and so on.
 				</xs:documentation>
 			</xs:annotation>
@@ -1961,7 +1961,7 @@
 			<xs:annotation>
 				<xs:documentation>By default, only the first level children are read
 					along with the parent. Do you want that action to cascade down to
-					subsequent generations as well? That is, if teh childRecord has
+					subsequent generations as well? That is, if the childRecord has
 					children, read them as well, and so on.
 				</xs:documentation>
 			</xs:annotation>

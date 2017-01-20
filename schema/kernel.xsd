@@ -502,7 +502,8 @@
 				<xs:annotation>
 					<xs:documentation>If this record is to be used for listing
 						key-value pairs, and the table contains list of values across
-						groups, like states for all countries, then you need to specify the
+						groups, like states for all countries, then you need to specify
+						the
 						field name to be used based on which rows are to be subset. For
 						example it would be country-code to get list of states for a given
 						country
@@ -536,7 +537,11 @@
 			<xs:attribute name="expectedNbrRows">
 				<xs:annotation>
 					<xs:documentation>
-						This is not the upper limit, but the number for which we have to tune the design for. Customers tend to be defensive, and give large numbers, but that may result in sub-optimal design. It is important to articulate that this number will put no restriction on actual number rows
+						This is not the upper limit, but the number for
+						which we have to tune the design for. Customers tend to be
+						defensive, and give large numbers, but that may result in
+						sub-optimal design. It is important to articulate that this number
+						will put no restriction on actual number rows
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -927,7 +932,9 @@
 			>
 				<xs:annotation>
 					<xs:documentation>
-						If output is exactly the same as that of another service, use this feature. Note that the referred service MUST have output records, and can not refer to another service
+						If output is exactly the same as that of another
+						service, use this feature. Note that the referred service MUST
+						have output records, and can not refer to another service
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -974,10 +981,13 @@
 			>
 				<xs:annotation>
 					<xs:documentation>can the response from this service be cached? If
-						so what are the input fields that this response depends on? provide
-						comma separated list of field names. Null (default) implies that
+						so what are the input fields that this response depends on?
+						provide
+						comma separated list of field names. Null (default) implies
+						that
 						this service can not be cashed.Empty string implies that the
-						response does not depend on the input at all. If it is dependent on
+						response does not depend on the input at all. If it is dependent
+						on
 						userId, then "_userId" must be the first field name. A cache
 						manager can keep the response from this service and re-use it so
 						long as the input values for these fields are same.
@@ -1489,8 +1499,10 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>In case the message is parameterized, provide comma
-					separated list of values. Value starting with $ is assumed to be a
+				<xs:documentation>In case the message is parameterized, provide
+					comma
+					separated list of values. Value starting with $ is assumed to
+					be a
 					fieldName to get value at run time.
 				</xs:documentation>
 			</xs:annotation>
@@ -1501,8 +1513,10 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>In case the message is parameterized, provide comma
-					separated list of values. Value starting with $ is assumed to be a
+				<xs:documentation>In case the message is parameterized, provide
+					comma
+					separated list of values. Value starting with $ is assumed to
+					be a
 					fieldName to get value at run time.
 				</xs:documentation>
 			</xs:annotation>
@@ -2233,7 +2247,9 @@
 		>
 			<xs:annotation>
 				<xs:documentation>
-Note that you have to xml escape double quote and less-than, greater-than etc.. If this is confusing,use expression element instead with CDATA section.
+					Note that you have to xml escape double quote and less-than,
+					greater-than etc.. If this is confusing,use expression element
+					instead with CDATA section.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2560,26 +2576,6 @@ Note that you have to xml escape double quote and less-than, greater-than etc.. 
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element
-					name="sessionParams"
-					minOccurs="0"
-					maxOccurs="1"
-				>
-					<xs:annotation>
-						<xs:documentation>If session is managed by a different module, and
-							you have set PassiveHelper as session helper, please specify the
-							fields that are to be extracted from session
-						</xs:documentation>
-					</xs:annotation>
-					<xs:complexType>
-						<xs:sequence minOccurs="1">
-							<xs:element
-								ref="parameter"
-								minOccurs="1"
-								maxOccurs="unbounded" />
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
-				<xs:element
 					name="schemaDetails"
 					minOccurs="0"
 					maxOccurs="1"
@@ -2843,6 +2839,37 @@ Note that you have to xml escape double quote and less-than, greater-than etc.. 
 						org.simplity.AttachmentManager class
 					</xs:documentation>
 				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="traceWrapper"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>By default, service-log is wrapped in a simple
+						xml element and the actual trace text is put inside a CDATA
+						section. You may format it differently using your own wrapper that
+						implements
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="loggingFramework"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>By default, service-log is emitted to console (System.out). If you use any of the standard logging framework, and you would like to service log to be diverted to your logger.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:NCName">
+						<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old log4J uses log4j-1.2.17.jar</xs:documentation></xs:annotation></xs:enumeration>
+						<xs:enumeration value="log4jV2"><xs:annotation><xs:documentation>Version 2.* of log4J. uses log4j-api-2.7.jar</xs:documentation></xs:annotation></xs:enumeration>
+						<xs:enumeration value="commonsLogging"><xs:annotation><xs:documentation>Also known as JCL, uses commons-logging-1.2.jar</xs:documentation></xs:annotation></xs:enumeration>
+						<xs:enumeration value="slf4j"><xs:annotation><xs:documentation>SLF4J adapter that you can bind to any other framework. For example slf4J-Simple or LogBack. slf4j-api-1.7.2.jar</xs:documentation></xs:annotation></xs:enumeration>
+						<xs:enumeration value="juli"><xs:annotation><xs:documentation>Plain vanilla java.util.logging. Requires no jar file, but configuration is the key</xs:documentation></xs:annotation></xs:enumeration>
+					</xs:restriction>
+				</xs:simpleType>
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>

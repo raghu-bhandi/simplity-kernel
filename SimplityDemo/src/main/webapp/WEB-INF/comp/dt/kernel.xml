@@ -48,9 +48,9 @@
 
 		<clobDataType
 			name="_clob"
-			description="CLOB data type as in RDBMS. However the field actually is a text-field in the sense that teh field contains the text-key for the CLOB content" />
+			description="CLOB data type as in RDBMS. However the field actually is a text-field in the sense that the field contains the text-key for the CLOB content" />
 		<blobDataType
 			name="_blob"
-			description="BLOB data type as in RDBMS. However the field actually is a text-field in the sense that teh field contains the text-key for the BLOB content" />
+			description="BLOB data type as in RDBMS. However the field actually is a text-field in the sense that the field contains the text-key for the BLOB content" />
 	</components>
 </dataTypes>
