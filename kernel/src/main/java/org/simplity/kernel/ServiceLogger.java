@@ -84,11 +84,12 @@ public abstract class ServiceLogger {
 
 		try{
 		switch (framework) {
+/*
 		case LOG4J_CLASSIC:
 			myWorker = new Log4JClassicWorker();
 			return;
-
-		case LOG4J_V2:
+*/
+		case LOG4J:
 			myWorker = new Log4JWorker();
 			return;
 
@@ -163,22 +164,6 @@ public abstract class ServiceLogger {
 
 class JulWorker extends ServiceLogger {
 	Logger logger = Logger.getLogger(LOGGER_NAME);
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.MyWorker#log(java.lang.String)
-	 */
-	@Override
-	protected void info(String msg) {
-		this.logger.info(msg);
-	}
-
-}
-
-class Log4JClassicWorker extends ServiceLogger {
-	org.apache.log4j.Logger logger = org.apache.log4j.LogManager
-			.getLogger(ServiceLogger.LOGGER_NAME);
 
 	/*
 	 * (non-Javadoc)
