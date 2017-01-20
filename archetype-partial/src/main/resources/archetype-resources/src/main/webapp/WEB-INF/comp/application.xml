@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <application xmlns="http://www.simplity.org/schema" 
-<<<<<<< HEAD
 			applicationId="ApplicationName"
 			autoLoginUserId="100"
 			>
-=======
-			autoLoginUserId="100"
-			applicationId="ApplicationName">
->>>>>>> 6f22e91cd8a1353236c208732425ac5d5739e2dc
 </application>
