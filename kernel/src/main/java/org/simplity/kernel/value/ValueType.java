@@ -625,18 +625,18 @@ public enum ValueType {
 	}
 
 	/**
-	 * @param dbObject
-	 *            as returned by a resultSet.getObject()
-	 * @return Value of this value type based on the dbObject
+	 * @param object
+	 *            as returned by a resultSet.getObject() or json.opt()
+	 * @return object converted to value of this value type
 	 */
-	public Value parseObject(Object dbObject) {
-		if (dbObject == null) {
+	public Value parseObject(Object object) {
+		if (object == null) {
 			Tracer.trace("Parse Object received null for type "
 					+ this.name()
 					+ ". Client may receive null or empty string depending on the setting.");
 			return Value.newUnknownValue(this);
 		}
-		return this.fromObject(dbObject);
+		return this.fromObject(object);
 	}
 
 	protected abstract Value fromObject(Object dbObject);

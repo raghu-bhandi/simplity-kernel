@@ -27,7 +27,7 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.util.JsonUtil;
 
 /**
- * Specification for a filed from out put of a service test to be added to the
+ * Specification for a field from output of a service test to be added to the
  * test context
  *
  */

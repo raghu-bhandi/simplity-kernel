@@ -124,7 +124,14 @@ public class TestCase {
 		String msg = null;
 		try {
 			json = ctx.runService(this.serviceName, json);
-			msg = this.assertOutput(json, ctx);
+			/*
+			 * this is a patch for current design of sending an array of messages
+			 */
+			if(json.charAt(0) == '['){
+				msg = "Service has failed during execution.";
+			}else{
+				msg = this.assertOutput(json, ctx);
+			}
 		} catch (Exception e) {
 			msg = "Service or serviceTest has a fatal error : "
 					+ e.getMessage();

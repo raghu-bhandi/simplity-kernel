@@ -547,7 +547,7 @@ public class Record implements Component {
 			return 0;
 		}
 		Value value = inData.getValue(this.primaryKeyField.getName());
-		if (value == null || value.isUnknown()) {
+		if (Value.isNull(value)) {
 			Tracer.trace("Value for primary key not present, and hence no read operation.");
 			return 0;
 		}

@@ -251,7 +251,8 @@ public class InputRecord {
 
 		}
 		ctx.putDataSheet(this.sheetName, sheet);
-		Tracer.trace("Datasheet " + this.sheetName + " with " + nbrRows + " added to the context.");
+		Tracer.trace("Datasheet " + this.sheetName + " with " + nbrRows
+				+ " added to the context.");
 	}
 
 	/**
@@ -323,7 +324,7 @@ public class InputRecord {
 		 * no parent sheet. do we have child sheet at least?
 		 */
 		data = json.optJSONArray(this.sheetName);
-		if(data != null){
+		if (data != null) {
 			return null;
 		}
 
@@ -331,7 +332,7 @@ public class InputRecord {
 		 * assume a single row of parent in fields collection
 		 */
 		Value parentValue = ctx.getValue(this.linkColumnInParentSheet);
-		if(Value.isNull(parentValue)){
+		if (Value.isNull(parentValue)) {
 			/*
 			 * degenerated into a simple sheet case
 			 */
@@ -341,8 +342,7 @@ public class InputRecord {
 		 * parent key value added to child rows
 		 */
 		return JsonUtil.getSheet(data, this.fields, errors,
-				allFieldsAreOptional, this.linkColumnInThisSheet,
-				parentValue);
+				allFieldsAreOptional, this.linkColumnInThisSheet, parentValue);
 	}
 
 	private DataSheet getSheetFromArray(JSONObject json, ServiceContext ctx,
@@ -353,7 +353,8 @@ public class InputRecord {
 			 * data sheet not recd. We try fields
 			 */
 			if (this.minRows <= 1) {
-				Tracer.trace("No data for sheet " + this.sheetName + ". We try and add fields instead.");
+				Tracer.trace("No data for sheet " + this.sheetName
+						+ ". We try and add fields instead.");
 				this.extractFields(json, ctx);
 			}
 			return null;
@@ -408,11 +409,15 @@ public class InputRecord {
 	 * called once on loading the component
 	 */
 	public void getReady() {
+		if (this.recordName == null) {
+			return;
+		}
 		Record record = ComponentManager.getRecord(this.recordName);
 		if (record.isComplexStruct()) {
 			this.isComplexStructure = true;
 			return;
 		}
+
 		this.fields = record.getFieldsToBeExtracted(this.fieldNames,
 				this.purpose, this.saveActionExpected);
 		this.hasInterFieldValidations = record.hasInterFieldValidations();
