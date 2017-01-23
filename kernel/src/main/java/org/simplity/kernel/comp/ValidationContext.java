@@ -110,7 +110,7 @@ public class ValidationContext {
 	 */
 	public void beginValidation(ComponentType compType, String compName) {
 		if (this.currentType != null) {
-			throw new ApplicationError("startValidaiton() invoked for "
+			throw new ApplicationError("startValidation() invoked for "
 					+ compName + " before endValidation() is invoked for "
 					+ this.currentCompName);
 		}

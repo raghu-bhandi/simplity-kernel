@@ -9,7 +9,7 @@ import com.infosys.qreuse.simplity.test.SimpliTestCase;
 public class PetClinicTest extends SimpliTestCase{
 	@Override
 	protected void setUp() throws Exception {
-		applicationRoot="D:/Workspace/simplity/petclinic/target/petstore/WEB-INF/comp/";
+		applicationRoot="D:/Workspace/simplity/petclinic/src/main/webapp/WEB-INF/comp/";
 		testuser="100";
 		testpwd="pwd";		
 		super.setUp();
