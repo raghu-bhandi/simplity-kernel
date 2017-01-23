@@ -252,7 +252,7 @@ public class InputRecord {
 		}
 		ctx.putDataSheet(this.sheetName, sheet);
 		Tracer.trace("Datasheet " + this.sheetName + " with " + nbrRows
-				+ " added to the context.");
+				+ " rows added to the context.");
 	}
 
 	/**
@@ -410,6 +410,14 @@ public class InputRecord {
 	 */
 	public void getReady() {
 		if (this.recordName == null) {
+			return;
+		}
+		/**
+		 * special feature for utility routines to cheat the xsd and not give
+		 * recordName
+		 */
+		if (this.recordName.charAt(0) == '.') {
+			this.recordName = null;
 			return;
 		}
 		Record record = ComponentManager.getRecord(this.recordName);

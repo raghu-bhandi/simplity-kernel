@@ -1019,39 +1019,6 @@ public class JSONArray implements Iterable<Object> {
 				.remove(index) : null;
 	}
 
-	/**
-	 * Determine if two JSONArrays are similar. They must contain similar
-	 * sequences.
-	 *
-	 * @param other
-	 *            The other JSONArray
-	 * @return true if they are equal
-	 */
-	public boolean similar(Object other) {
-		if (!(other instanceof JSONArray)) {
-			return false;
-		}
-		int len = this.length();
-		if (len != ((JSONArray) other).length()) {
-			return false;
-		}
-		for (int i = 0; i < len; i += 1) {
-			Object valueThis = this.get(i);
-			Object valueOther = ((JSONArray) other).get(i);
-			if (valueThis instanceof JSONObject) {
-				if (!((JSONObject) valueThis).agreesWith(valueOther)) {
-					return false;
-				}
-			} else if (valueThis instanceof JSONArray) {
-				if (!((JSONArray) valueThis).similar(valueOther)) {
-					return false;
-				}
-			} else if (!valueThis.equals(valueOther)) {
-				return false;
-			}
-		}
-		return true;
-	}
 
 	/**
 	 * Produce a JSONObject by combining a JSONArray of names with the values of
@@ -1192,37 +1159,40 @@ public class JSONArray implements Iterable<Object> {
 	 *
 	 * @param other
 	 *            The other JSONObject
-	 * @return true if they are equal
+	 * @return null - Yes there is agreement. Non-null text of disagreement
 	 */
-	public boolean agreesWith(Object other) {
+	public String agreesWith(Object other) {
+		if(other == null){
+			return " value mismatch. " + this + " != null";
+		}
+
 		if (other instanceof JSONArray == false) {
-			return false;
+			return " type mismatch. JSONArray != " + other.getClass().getSimpleName();
 		}
-		JSONArray otherJson = (JSONArray) other;
+		JSONArray arr = (JSONArray) other;
 		int nbr = this.length();
-		if (nbr != otherJson.length()) {
-			return false;
+		if (nbr != arr.length()) {
+			return " array length mismatch. " + nbr + " != " + arr.length();
 		}
-		for (int i = 0; i < nbr; i++) {
-			Object thisValue = this.get(i);
-			Object otherValue = otherJson.opt(i);
+		String msg = null;
+		int idx = 0;
+		while (idx < nbr) {
+			Object thisValue = this.get(idx);
+			Object otherValue = arr.opt(idx);
 			if (thisValue instanceof JSONObject) {
-				if (((JSONObject) thisValue).agreesWith(otherValue) == false) {
-					return false;
-				}
-				continue;
+				msg = ((JSONObject) thisValue).agreesWith(otherValue);
+			}else if (thisValue instanceof JSONArray) {
+				msg = ((JSONArray) thisValue).agreesWith(otherValue);
+			}else if (thisValue.equals(otherValue) == false) {
+				msg = " value mismatch. " + thisValue + " != " + otherValue;
 			}
-			if (thisValue instanceof JSONArray) {
-				if (((JSONArray) thisValue).agreesWith(otherValue) == false) {
-					return false;
-				}
-				continue;
+			if(msg != null){
+				return '.' + idx + msg;
 			}
-			if (thisValue.equals(otherValue) == false) {
-				return false;
-			}
+			idx++;
+
 		}
-		return true;
+		return null;
 	}
 
 }

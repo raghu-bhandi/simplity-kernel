@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
 
 /**
@@ -80,10 +79,8 @@ public class JavaAgent {
 		}
 		inData.setPayLoad(pl);
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
-		if (outData.hasErrors()) {
-			return JsonUtil.toJson(outData.getMessages());
-		}
-		return outData.getPayLoad();
+		Tracer.trace(outData.getTrace());
+		return outData.getResponseJson();
 	}
 
 	private boolean login(String loginId, String pwd) {
