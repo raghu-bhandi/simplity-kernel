@@ -27,15 +27,22 @@ import org.simplity.kernel.comp.Component;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 
+import junit.framework.Test;
+import junit.framework.TestResult;
+
+
 /**
  * Sequence of test cases that are run in that order
  *
  */
-public class TestRun implements Component {
+public class TestRun implements Component,Test {
 	String testName;
 	String moduleName;
 
 	TestCase[] testCases;
+	TestResult testresult=new TestResult();
+	int countTestcases=0;
+	
 
 	/**
 	 * run all test cases and report number of failure
@@ -51,10 +58,13 @@ public class TestRun implements Component {
 		int nbrFailure = 0;
 
 		for (TestCase tc : this.testCases) {
+			
 			String msg = tc.run(ctx);
+			countTestcases++;
 			if (msg != null) {
 				nbrFailure++;
-			}
+				testresult.addError(this, new Throwable(msg));
+			}			
 		}
 		return nbrFailure;
 	}
@@ -64,7 +74,6 @@ public class TestRun implements Component {
 	 * 
 	 * @see org.simplity.kernel.comp.Component#getSimpleName()
 	 */
-	@Override
 	public String getSimpleName() {
 		return this.testName;
 	}
@@ -74,7 +83,6 @@ public class TestRun implements Component {
 	 * 
 	 * @see org.simplity.kernel.comp.Component#getQualifiedName()
 	 */
-	@Override
 	public String getQualifiedName() {
 		if (this.moduleName == null) {
 			return this.testName;
@@ -87,7 +95,6 @@ public class TestRun implements Component {
 	 * 
 	 * @see org.simplity.kernel.comp.Component#getReady()
 	 */
-	@Override
 	public void getReady() {
 		// This component is not saved and re-used in memory. Hence no
 		// preparation on load.
@@ -98,7 +105,6 @@ public class TestRun implements Component {
 	 * 
 	 * @see org.simplity.kernel.comp.Component#getComponentType()
 	 */
-	@Override
 	public ComponentType getComponentType() {
 		return ComponentType.TEST_RUN;
 	}
@@ -110,7 +116,6 @@ public class TestRun implements Component {
 	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
 	 * ValidationContext)
 	 */
-	@Override
 	public int validate(ValidationContext vtx) {
 		int nbrErrors = 0;
 		if (this.testCases != null) {
@@ -119,6 +124,16 @@ public class TestRun implements Component {
 			}
 		}
 		return nbrErrors;
+	}
+
+	@Override
+	public int countTestCases() {
+		return countTestcases;
+	}
+
+	@Override
+	public void run(TestResult result) {
+		result = this.testresult;
 	}
 
 }

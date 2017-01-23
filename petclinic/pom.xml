@@ -5,6 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.simplity.example</groupId>
 	<artifactId>petclinic</artifactId>
+	<version>1.0.0</version>
 	<packaging>war</packaging>
 	<name>petstore Maven Webapp</name>
 	<url>http://maven.apache.org</url>
@@ -27,6 +28,12 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.infosys.qreuse.simplity</groupId>
+			<artifactId>test</artifactId>
+			<version>1.1.4</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
