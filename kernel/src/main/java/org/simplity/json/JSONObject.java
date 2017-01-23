@@ -371,13 +371,13 @@ public class JSONObject {
 	 * @throws JSONException
 	 *             If the value is an invalid number or if the key is null.
 	 */
-	public JSONObject accumulate(String key, Object value) throws JSONException {
+	public JSONObject accumulate(String key, Object value)
+			throws JSONException {
 		testValidity(value);
 		Object object = this.opt(key);
 		if (object == null) {
-			this.put(key,
-					value instanceof JSONArray ? new JSONArray().put(value)
-							: value);
+			this.put(key, value instanceof JSONArray
+					? new JSONArray().put(value) : value);
 		} else if (object instanceof JSONArray) {
 			((JSONArray) object).put(value);
 		} else {
@@ -409,8 +409,8 @@ public class JSONObject {
 		} else if (object instanceof JSONArray) {
 			this.put(key, ((JSONArray) object).put(value));
 		} else {
-			throw new JSONException("JSONObject[" + key
-					+ "] is not a JSONArray.");
+			throw new JSONException(
+					"JSONObject[" + key + "] is not a JSONArray.");
 		}
 		return this;
 	}
@@ -458,7 +458,8 @@ public class JSONObject {
 		}
 		Object object = this.opt(key);
 		if (object == null) {
-			throw new JSONException("JSONObject[" + quote(key) + "] not found.");
+			throw new JSONException(
+					"JSONObject[" + quote(key) + "] not found.");
 		}
 		return object;
 	}
@@ -485,9 +486,9 @@ public class JSONObject {
 			// JSONException should really take a throwable argument.
 			// If it did, I would re-implement this with the Enum.valueOf
 			// method and place any thrown exception in the JSONException
-			throw new JSONException("JSONObject[" + quote(key)
-					+ "] is not an enum of type "
-					+ quote(clazz.getSimpleName()) + ".");
+			throw new JSONException(
+					"JSONObject[" + quote(key) + "] is not an enum of type "
+							+ quote(clazz.getSimpleName()) + ".");
 		}
 		return val;
 	}
@@ -504,17 +505,15 @@ public class JSONObject {
 	 */
 	public boolean getBoolean(String key) throws JSONException {
 		Object object = this.get(key);
-		if (object.equals(Boolean.FALSE)
-				|| (object instanceof String && ((String) object)
-						.equalsIgnoreCase("false"))) {
+		if (object.equals(Boolean.FALSE) || (object instanceof String
+				&& ((String) object).equalsIgnoreCase("false"))) {
 			return false;
-		} else if (object.equals(Boolean.TRUE)
-				|| (object instanceof String && ((String) object)
-						.equalsIgnoreCase("true"))) {
+		} else if (object.equals(Boolean.TRUE) || (object instanceof String
+				&& ((String) object).equalsIgnoreCase("true"))) {
 			return true;
 		}
-		throw new JSONException("JSONObject[" + quote(key)
-				+ "] is not a Boolean.");
+		throw new JSONException(
+				"JSONObject[" + quote(key) + "] is not a Boolean.");
 	}
 
 	/**
@@ -573,8 +572,8 @@ public class JSONObject {
 			return object instanceof Number ? ((Number) object).doubleValue()
 					: Double.parseDouble((String) object);
 		} catch (Exception e) {
-			throw new JSONException("JSONObject[" + quote(key)
-					+ "] is not a number.");
+			throw new JSONException(
+					"JSONObject[" + quote(key) + "] is not a number.");
 		}
 	}
 
@@ -612,8 +611,8 @@ public class JSONObject {
 			return object instanceof Number ? ((Number) object).intValue()
 					: Integer.parseInt((String) object);
 		} catch (Exception e) {
-			throw new JSONException("JSONObject[" + quote(key)
-					+ "] is not an int.");
+			throw new JSONException(
+					"JSONObject[" + quote(key) + "] is not an int.");
 		}
 	}
 
@@ -631,8 +630,8 @@ public class JSONObject {
 		if (object instanceof JSONArray) {
 			return (JSONArray) object;
 		}
-		throw new JSONException("JSONObject[" + quote(key)
-				+ "] is not a JSONArray.");
+		throw new JSONException(
+				"JSONObject[" + quote(key) + "] is not a JSONArray.");
 	}
 
 	/**
@@ -649,8 +648,8 @@ public class JSONObject {
 		if (object instanceof JSONObject) {
 			return (JSONObject) object;
 		}
-		throw new JSONException("JSONObject[" + quote(key)
-				+ "] is not a JSONObject.");
+		throw new JSONException(
+				"JSONObject[" + quote(key) + "] is not a JSONObject.");
 	}
 
 	/**
@@ -669,8 +668,8 @@ public class JSONObject {
 			return object instanceof Number ? ((Number) object).longValue()
 					: Long.parseLong((String) object);
 		} catch (Exception e) {
-			throw new JSONException("JSONObject[" + quote(key)
-					+ "] is not a long.");
+			throw new JSONException(
+					"JSONObject[" + quote(key) + "] is not a long.");
 		}
 	}
 
@@ -779,7 +778,8 @@ public class JSONObject {
 		} else if (value instanceof Float) {
 			this.put(key, (((Float) value).floatValue() + 1));
 		} else {
-			throw new JSONException("Unable to increment [" + quote(key) + "].");
+			throw new JSONException(
+					"Unable to increment [" + quote(key) + "].");
 		}
 		return this;
 	}
@@ -1175,8 +1175,8 @@ public class JSONObject {
 
 		boolean includeSuperClass = klass.getClassLoader() != null;
 
-		Method[] methods = includeSuperClass ? klass.getMethods() : klass
-				.getDeclaredMethods();
+		Method[] methods = includeSuperClass ? klass.getMethods()
+				: klass.getDeclaredMethods();
 		for (Method method : methods) {
 			try {
 				if (Modifier.isPublic(method.getModifiers())) {
@@ -1192,8 +1192,7 @@ public class JSONObject {
 					} else if (name.startsWith("is")) {
 						key = name.substring(2);
 					}
-					if (key.length() > 0
-							&& Character.isUpperCase(key.charAt(0))
+					if (key.length() > 0 && Character.isUpperCase(key.charAt(0))
 							&& method.getParameterTypes().length == 0) {
 						if (key.length() == 1) {
 							key = key.toLowerCase();
@@ -1242,7 +1241,8 @@ public class JSONObject {
 	 * @throws JSONException
 	 *             Exception
 	 */
-	public JSONObject put(String key, Collection<?> value) throws JSONException {
+	public JSONObject put(String key, Collection<?> value)
+			throws JSONException {
 		this.put(key, new JSONArray(value));
 		return this;
 	}
@@ -1510,33 +1510,36 @@ public class JSONObject {
 	 *
 	 * @param other
 	 *            The other JSONObject
-	 * @return true if they are equal
+	 * @return non-null message if there is disagreement. null if there is
+	 *         perfect agreement
 	 */
-	public boolean agreesWith(Object other) {
+	public String agreesWith(Object other) {
+		if (other == null) {
+			return " value mismatch. " + this + " != null";
+		}
+
 		if (other instanceof JSONObject == false) {
-			return false;
+			return " type mismatch. JSONObject != "
+					+ other.getClass().getSimpleName();
 		}
 		JSONObject otherJson = (JSONObject) other;
+		String msg = null;
 		for (String key : this.keySet()) {
 			Object thisValue = this.get(key);
 			Object otherValue = otherJson.opt(key);
 			if (thisValue instanceof JSONObject) {
-				if (((JSONObject) thisValue).agreesWith(otherValue) == false) {
-					return false;
-				}
-				continue;
+				msg = ((JSONObject) thisValue).agreesWith(otherValue);
+			} else if (thisValue instanceof JSONArray) {
+				msg = ((JSONArray) thisValue).agreesWith(otherValue);
+			} else if (thisValue.equals(otherValue) == false) {
+				msg = " value mismatch " + thisValue + " != " + otherValue;
+
 			}
-			if (thisValue instanceof JSONArray) {
-				if (((JSONArray) thisValue).agreesWith(otherValue) == false) {
-					return false;
-				}
-				continue;
-			}
-			if (thisValue.equals(otherValue) == false) {
-				return false;
+			if (msg != null) {
+				return '.' + key + msg;
 			}
 		}
-		return true;
+		return null;
 	}
 
 	/**
@@ -1788,8 +1791,8 @@ public class JSONObject {
 				return new JSONObject(map);
 			}
 			Package objectPackage = object.getClass().getPackage();
-			String objectPackageName = objectPackage != null ? objectPackage
-					.getName() : "";
+			String objectPackageName = objectPackage != null
+					? objectPackage.getName() : "";
 			if (objectPackageName.startsWith("java.")
 					|| objectPackageName.startsWith("javax.")
 					|| object.getClass().getClassLoader() == null) {

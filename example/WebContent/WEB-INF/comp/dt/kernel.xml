@@ -48,10 +48,10 @@
 
 		<clobDataType
 			name="_clob"
-			description="CLOB data type as in RDBMS. However the field actually is a text-field in the sense that teh field contains the text-key for the CLOB content" />
+			description="CLOB data type as in RDBMS. However the field actually is a text-field in the sense that the field contains the text-key for the CLOB content" />
 		<blobDataType
 			name="_blob"
-			description="BLOB data type as in RDBMS. However the field actually is a text-field in the sense that teh field contains the text-key for the BLOB content" />
+			description="BLOB data type as in RDBMS. However the field actually is a text-field in the sense that the field contains the text-key for the BLOB content" />
 		<timestampDataType
 			name="_timestamp"
 			description="TIMESTAMP data type as in RDBMS. Behaves like an integer, but can be convrted to date if required. Contains number of nano seconds from epoch." />

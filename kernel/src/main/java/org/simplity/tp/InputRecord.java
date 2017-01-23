@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
-import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
@@ -54,6 +53,12 @@ public class InputRecord {
 	 * validation. Must be used with care.
 	 */
 	String recordName;
+
+	/**
+	 * it is possible that the client is sending data in an array, but you want
+	 * the fields extracted into fields collection
+	 */
+	boolean extractIntoFields;
 
 	/**
 	 * For the purpose of input parsing and validation, assume this record has
@@ -143,8 +148,8 @@ public class InputRecord {
 	 * @param childColName
 	 * @param parentColName
 	 */
-	public InputRecord(String recName, String sheetName,
-			String parentSheetName, String childColName, String parentColName) {
+	public InputRecord(String recName, String sheetName, String parentSheetName,
+			String childColName, String parentColName) {
 		this.recordName = recName;
 		this.sheetName = sheetName;
 		this.parentSheetName = parentSheetName;
@@ -163,87 +168,47 @@ public class InputRecord {
 	 *            into which data is extracted
 	 */
 	public void extractInput(JSONObject json, ServiceContext ctx) {
+
 		if (this.isComplexStructure) {
-			/*
-			 * current design is to keep the json as it is and validate it at
-			 * the time of its use
-			 */
-			Object obj = json.opt(this.sheetName);
-			if (obj != null) {
-				ctx.setObject(this.sheetName, obj);
-				Tracer.trace("Data input for " + this.sheetName + " saved as "
-						+ obj.getClass().getName() + " for later use.");
-				return;
-			}
-			if (this.minRows > 1) {
-				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, ""
-						+ this.minRows, "" + this.maxRows);
-			} else {
-				Tracer.trace("No data for sheet " + this.sheetName);
-			}
+			this.extractComplexSheet(json, ctx);
 			return;
 		}
+		/*
+		 * special case where we are to blindly take whatever is coming in.
+		 * this is restricted to utility services, and not for production
+		 * service. Hopefully enforced by design reviews :-)
+		 */
 		if (this.fields == null) {
 			JsonUtil.extractWithNoValidation(json, ctx, this.sheetName,
 					this.parentSheetName);
 			return;
 		}
 
+		/*
+		 * if sheet name is not specified, we are to extract fields
+		 */
 		if (this.sheetName == null) {
 			this.extractFields(json, ctx);
 			return;
 		}
 
-		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
+		/*
+		 * are we to extract to fields even when sheet is specified?
+		 */
+		if (this.extractIntoFields) {
+			this.extractSheetToFields(json, ctx);
+			return;
+		}
+
 		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
 		/*
 		 * use record for validating input
 		 */
-		JSONArray data = null;
 		DataSheet sheet = null;
 		if (this.parentSheetName == null) {
-			/*
-			 * simple sheet
-			 */
-			data = json.optJSONArray(this.sheetName);
-			if (data == null) {
-				/*
-				 * data sheet not received. We try fields
-				 */
-				if (this.minRows <= 1) {
-					this.extractFields(json, ctx);
-					return;
-				}
-			} else {
-				sheet = JsonUtil.getSheet(data, this.fields, errors,
-						allFieldsAreOptional, null, null);
-			}
+			sheet = this.getSheetFromArray(json, ctx, errors);
 		} else {
-			/*
-			 * this is a child sheet. parent may or may not be a sheet
-			 */
-			data = json.optJSONArray(this.parentSheetName);
-			if (data == null) {
-				/*
-				 * case 1: parent record is not in a sheet, but a single row
-				 * sent as attributes.
-				 */
-				Value parentValue = ctx.getValue(this.linkColumnInParentSheet);
-				data = json.optJSONArray(this.sheetName);
-				sheet = JsonUtil.getSheet(data, this.fields, errors,
-						allFieldsAreOptional, this.linkColumnInThisSheet,
-						parentValue);
-			} else {
-				/*
-				 * case 2: parent is a sheet. Rows for this sheet are child rows
-				 * for each row in parent sheet
-				 */
-				data = json.optJSONArray(this.parentSheetName);
-				if (data != null) {
-					sheet = JsonUtil.getChildSheet(data, this.sheetName,
-							this.fields, errors, allFieldsAreOptional);
-				}
-			}
+			sheet = this.getSheetFromParent(json, ctx, errors);
 		}
 		/*
 		 * got trouble?
@@ -257,8 +222,8 @@ public class InputRecord {
 		 */
 		if (sheet == null || sheet.length() == 0) {
 			if (this.minRows > 1) {
-				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, ""
-						+ this.minRows, "" + this.maxRows);
+				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS,
+						"" + this.minRows, "" + this.maxRows);
 			} else {
 				Tracer.trace("No data for sheet " + this.sheetName);
 			}
@@ -269,11 +234,11 @@ public class InputRecord {
 		if (nbrRows < this.minRows
 				|| (this.maxRows != 0 && nbrRows > this.maxRows)) {
 			if (this.minRows > 0) {
-				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, ""
-						+ this.minRows, "" + this.maxRows);
+				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS,
+						"" + this.minRows, "" + this.maxRows);
 			} else {
-				ctx.addMessage(ServiceMessages.MAX_INPUT_ROWS, ""
-						+ this.maxRows, "" + this.maxRows);
+				ctx.addMessage(ServiceMessages.MAX_INPUT_ROWS,
+						"" + this.maxRows, "" + this.maxRows);
 			}
 			return;
 		}
@@ -285,32 +250,174 @@ public class InputRecord {
 			}
 
 		}
-		if (nbrRows > 0) {
-			ctx.putDataSheet(this.sheetName, sheet);
+		ctx.putDataSheet(this.sheetName, sheet);
+		Tracer.trace("Datasheet " + this.sheetName + " with " + nbrRows
+				+ " rows added to the context.");
+	}
+
+	/**
+	 *
+	 * current design is to keep the json as it is and validate it at
+	 * the time of its use
+	 *
+	 * @param json
+	 * @param ctx
+	 */
+	private void extractComplexSheet(JSONObject json, ServiceContext ctx) {
+		Object object = json.opt(this.sheetName);
+		if (object != null) {
+			ctx.setObject(this.sheetName, object);
+			Tracer.trace("Data input for " + this.sheetName + " saved as "
+					+ object.getClass().getName() + " for later use.");
+		} else if (this.minRows > 0) {
+			ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, "" + this.minRows,
+					"" + this.maxRows);
+
+		} else {
+			Tracer.trace("No data for sheet " + this.sheetName);
 		}
-		Tracer.trace(nbrRows + " rows extracted for record " + this.recordName);
+		return;
+	}
+
+	private void extractSheetToFields(JSONObject json, ServiceContext ctx) {
+		Object object = json.opt(this.sheetName);
+		if (object == null) {
+			/*
+			 * let us not give-up, but try at the top itself
+			 */
+			this.extractFields(json, ctx);
+			return;
+		}
+		/*
+		 * if it is array, we get the first element
+		 */
+		if (object instanceof JSONArray) {
+			object = ((JSONArray) object).opt(0);
+		}
+		if (object instanceof JSONObject) {
+			this.extractFields((JSONObject) object, ctx);
+			return;
+		}
+
+		Tracer.trace(
+				"We expected an object, or an array with an objectas its first element, but got "
+						+ object + ". This is ignored.");
+		/*
+		 * let us not give-up, but try at the top itself
+		 */
+		this.extractFields(json, ctx);
+	}
+
+	private DataSheet getSheetFromParent(JSONObject json, ServiceContext ctx,
+			List<FormattedMessage> errors) {
+		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
+		/*
+		 * this is a child sheet. parent may or may not be a sheet
+		 */
+		JSONArray data = json.optJSONArray(this.parentSheetName);
+		if (data != null) {
+			return JsonUtil.getChildSheet(data, this.sheetName, this.fields,
+					errors, allFieldsAreOptional);
+		}
+
+		/*
+		 * no parent sheet. do we have child sheet at least?
+		 */
+		data = json.optJSONArray(this.sheetName);
+		if (data != null) {
+			return null;
+		}
+
+		/*
+		 * assume a single row of parent in fields collection
+		 */
+		Value parentValue = ctx.getValue(this.linkColumnInParentSheet);
+		if (Value.isNull(parentValue)) {
+			/*
+			 * degenerated into a simple sheet case
+			 */
+			return this.getSheetFromArray(json, ctx, errors);
+		}
+		/*
+		 * parent key value added to child rows
+		 */
+		return JsonUtil.getSheet(data, this.fields, errors,
+				allFieldsAreOptional, this.linkColumnInThisSheet, parentValue);
+	}
+
+	private DataSheet getSheetFromArray(JSONObject json, ServiceContext ctx,
+			List<FormattedMessage> errors) {
+		Object object = json.opt(this.sheetName);
+		if (object == null) {
+			/*
+			 * data sheet not recd. We try fields
+			 */
+			if (this.minRows <= 1) {
+				Tracer.trace("No data for sheet " + this.sheetName
+						+ ". We try and add fields instead.");
+				this.extractFields(json, ctx);
+			}
+			return null;
+		}
+		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
+		if (object instanceof JSONArray) {
+			return JsonUtil.getSheet((JSONArray) object, this.fields, errors,
+					allFieldsAreOptional, null, null);
+		}
+
+		if (object instanceof JSONObject) {
+			JSONArray arr = new JSONArray();
+			arr.put(object);
+			return JsonUtil.getSheet(arr, this.fields, errors,
+					allFieldsAreOptional, null, null);
+		}
+		Tracer.trace("Receieved " + object + " as value for " + this.sheetName
+				+ " while we would have been happy with an array or an object. Input ignored");
+		return null;
+
+	}
+
+	private void extractFields(JSONObject json, ServiceContext ctx) {
+		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
+		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
+		int nbr = 0;
+		if (this.purpose == DataPurpose.FILTER) {
+			nbr = JsonUtil.extractFilterFields(json, this.fields, ctx, errors);
+
+		} else {
+			nbr = JsonUtil.extractFields(json, this.fields, ctx, errors,
+					allFieldsAreOptional);
+		}
+		Tracer.trace(
+				nbr + " fields into ctx based on record " + this.recordName);
+
+		if (errors.size() == 0 && this.hasInterFieldValidations
+				&& allFieldsAreOptional == false && nbr > 1) {
+			for (Field field : this.fields) {
+				field.validateInterfield(ctx, errors, null);
+			}
+		}
+		if (errors.size() > 0) {
+			Tracer.trace(" We got " + errors.size()
+					+ " validaiton errors during this record input");
+			ctx.addMessages(errors);
+		}
+		return;
 	}
 
 	/**
 	 * called once on loading the component
 	 */
 	public void getReady() {
-		if (this.parentSheetName != null && this.sheetName == null) {
-			throw new ApplicationError(
-					"Can not have a parent sheet name without a sheet name for this record");
-		}
 		if (this.recordName == null) {
-			if (this.sheetName == null) {
-				throw new ApplicationError(
-						"Input record has no record or sheet specified");
-			}
-			if (this.fieldNames != null) {
-				throw new ApplicationError(
-						"Field names is meant to specify a subset of fields in record. Valid only if record is specified.");
-			}
-			Tracer.trace("WARNING : Input in sheet "
-					+ this.sheetName
-					+ " will be accepted as it is with no validation whatsoever.");
+			return;
+		}
+		/**
+		 * special feature for utility routines to cheat the xsd and not give
+		 * recordName
+		 */
+		if (this.recordName.charAt(0) == '.') {
+			this.recordName = null;
 			return;
 		}
 		Record record = ComponentManager.getRecord(this.recordName);
@@ -318,10 +425,10 @@ public class InputRecord {
 			this.isComplexStructure = true;
 			return;
 		}
+
 		this.fields = record.getFieldsToBeExtracted(this.fieldNames,
 				this.purpose, this.saveActionExpected);
 		this.hasInterFieldValidations = record.hasInterFieldValidations();
-
 	}
 
 	/**
@@ -336,58 +443,53 @@ public class InputRecord {
 				count++;
 			}
 			if (this.fieldNames != null) {
-				ctx.addError("Field names is meant to specify a subset of fields in record. Valid only if record is specified.");
+				ctx.addError(
+						"fieldNames are meant to specify a subset of fields in a record. Since record is not specified, this list is invalid.");
 				count++;
 			}
 		}
 		count += ctx.checkRecordExistence(this.recordName, "recordName", false);
+
 		/*
 		 * can not have parent sheet if sheet itself is not there
 		 */
 		if (this.parentSheetName != null) {
 			if (this.sheetName == null) {
-				ctx.addError("Can not have a parent sheet name without a sheet name for this record");
+				ctx.addError(
+						"Can not have a parent sheet name without a sheet name for this record");
 				count++;
 			}
 			if (this.linkColumnInParentSheet == null
 					|| this.linkColumnInThisSheet == null) {
-				ctx.addError("linkColumnInParentSheet and linkColumnInThisSheet are required to link this sheet with parent sheet.");
+				ctx.addError(
+						"linkColumnInParentSheet and linkColumnInThisSheet are required to link this sheet with parent sheet.");
+				count++;
+			}
+			if (this.extractIntoFields) {
+				ctx.addError(
+						"extractIntoFields is set to true, but parentSheetName is specified. If this is a child it HAS to be a sheet.");
 				count++;
 			}
 		}
 
-		if (this.minRows < 0 || this.maxRows < 0 || this.minRows > this.maxRows) {
-			ctx.addError("minRows and maxRows are to be positive and min should not be greater than max.");
+		if (this.minRows < 0 || this.maxRows < 0
+				|| this.minRows > this.maxRows) {
+			ctx.addError(
+					"minRows and maxRows are to be positive and min should not be greater than max.");
+			count++;
+		}
+		if ((this.sheetName == null || this.extractIntoFields)
+				&& (this.minRows > 1 || this.maxRows > 1)) {
+			String msg = "minRows=" + this.minRows + " and maxRows="
+					+ this.maxRows;
+			if (this.sheetName == null) {
+				msg += " but no sheetName specified.";
+			} else {
+				msg += " but extractIntoFields is set to true.";
+			}
+			ctx.addError(msg);
 			count++;
 		}
 		return count;
-	}
-
-	private void extractFields(JSONObject json, ServiceContext ctx) {
-		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
-		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
-		int nbr = 0;
-		if (this.purpose == DataPurpose.FILTER) {
-			nbr = JsonUtil.extractFilterFields(json, this.fields, ctx, errors);
-
-		} else {
-			nbr = JsonUtil.extractFields(json, this.fields, ctx, errors,
-					allFieldsAreOptional);
-		}
-		Tracer.trace(nbr + " fields into ctx based on record "
-				+ this.recordName);
-
-		if (errors.size() == 0 && this.hasInterFieldValidations
-				&& allFieldsAreOptional == false && nbr > 1) {
-			for (Field field : this.fields) {
-				field.validateInterfield(ctx, errors, null);
-			}
-		}
-		if (errors.size() > 0) {
-			Tracer.trace(" We got " + errors.size()
-					+ " validaiton errors during this record input");
-			ctx.addMessages(errors);
-		}
-		return;
 	}
 }

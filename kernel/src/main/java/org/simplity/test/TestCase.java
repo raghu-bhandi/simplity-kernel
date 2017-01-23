@@ -151,21 +151,21 @@ public class TestCase {
 	 */
 	String assertOutput(String output, TestContext ctx) {
 		JSONObject json = new JSONObject(output);
+		boolean succeeded = this.serviceSucceeded(json);
+		/*
+		 * service succeeded.
+		 */
+		if (succeeded == false && this.testForFailure == false) {
+			return "Service failed while we expected it to succeed.";
+		}
 		if (this.fieldsToBeAddedToContext != null) {
 			for (ContextField field : this.fieldsToBeAddedToContext) {
 				field.addToContext(json, ctx);
 			}
 		}
 
-		boolean succeeded = this.serviceSucceeded(json);
 		if (succeeded && this.testForFailure) {
 			return "Service succeeded while we expected it to fail.";
-		}
-		/*
-		 * service succeeded.
-		 */
-		if (succeeded == false && this.testForFailure == false) {
-			return "Service failed while we expected it to succeed.";
 		}
 
 		/*
@@ -181,8 +181,9 @@ public class TestCase {
 			 * we assert expected attributes, but not bother if there are
 			 * others.
 			 */
-			if (expected.agreesWith(json) == false) {
-				return "Response json did not match the expected json";
+			String msg = expected.agreesWith(json);
+			if(msg != null){
+				return msg;
 			}
 		}
 
@@ -269,7 +270,8 @@ public class TestCase {
 		for (int i = 0; i < nbrMsgs; i++) {
 			obj = msgs.opt(i);
 			if (obj instanceof JSONObject) {
-				if (((JSONObject) obj).optString("messageType").equals("error")) {
+				if (((JSONObject) obj).optString("messageType")
+						.equals("error")) {
 					return false;
 				}
 			}
@@ -284,6 +286,7 @@ public class TestCase {
 	 * @param vtx
 	 * @return number of errors detected
 	 */
+	@SuppressWarnings("unused")
 	public int validate(ValidationContext vtx) {
 		int nbr = 0;
 		if (this.inputJson != null) {
@@ -293,8 +296,8 @@ public class TestCase {
 				 */
 				new JSONObject(this.inputJson);
 			} catch (Exception e) {
-				vtx.addError("inputPayload is not a valid json\n"
-						+ this.inputJson);
+				vtx.addError(
+						"inputPayload is not a valid json\n" + this.inputJson);
 				nbr++;
 			}
 		}
@@ -302,13 +305,14 @@ public class TestCase {
 			try {
 				new JSONObject(this.outputJson);
 			} catch (Exception e) {
-				vtx.addError("inputPayload is not a valid json\n"
-						+ this.outputJson);
+				vtx.addError(
+						"inputPayload is not a valid json\n" + this.outputJson);
 				nbr++;
 			}
 			if (this.outputFields != null || this.outputItems != null
 					|| this.outputLists != null || this.testForFailure) {
-				vtx.addError("outputJson is specified, and hence other assertions on output are not relevant.");
+				vtx.addError(
+						"outputJson is specified, and hence other assertions on output are not relevant.");
 				nbr++;
 			}
 			return nbr;

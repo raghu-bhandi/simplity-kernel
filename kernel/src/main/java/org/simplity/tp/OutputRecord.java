@@ -79,6 +79,10 @@ public class OutputRecord {
 	 * is the associated record a complex struct?
 	 */
 	private boolean isComplexStruct;
+	/**
+	 * keep a pointer to parent in case we need to delegate some work back
+	 */
+	private OutputData myParenData;
 
 	/**
 	 * default constructor
@@ -185,11 +189,21 @@ public class OutputRecord {
 		 */
 		DataSheet sheet = ctx.getDataSheet(this.sheetName);
 		if (sheet == null) {
-			Tracer.trace("Service context has no sheet with name "
-					+ this.sheetName + " for output. We try and output fields.");
 			if (this.fields != null) {
-				this.fieldsToJson(writer, this.fields, ctx);
+				if (this.myParenData.okToOutputFieldsFromRecord(this.fields)) {
+					Tracer.trace("Service context has no sheet with name "
+							+ this.sheetName
+							+ " for output. We try and output fields.");
+					this.fieldsToJson(writer, this.fields, ctx);
+				} else {
+					Tracer.trace("Service context has no sheet with name "
+							+ this.sheetName
+							+ " for output. We decided against trying fields collection because it will create duplicate keys in response.");
+				}
 			}
+			/*
+			 * and we push the child records as if they have no parent.
+			 */
 			if (this.childRecords != null) {
 				for (OutputRecord child : this.childRecords) {
 					child.sheetToJson(writer, ctx);
@@ -252,9 +266,9 @@ public class OutputRecord {
 		}
 		int parentIdx = parentSheet.getColIdx(this.linkColumnInParentSheet);
 		if (parentIdx == -1) {
-			throw new ApplicationError("Link column "
-					+ this.linkColumnInParentSheet
-					+ " is not found in parent sheet.");
+			throw new ApplicationError(
+					"Link column " + this.linkColumnInParentSheet
+							+ " is not found in parent sheet.");
 		}
 		/*
 		 * is this child a parent?
@@ -273,8 +287,11 @@ public class OutputRecord {
 
 	/**
 	 * open shop and get ready for service
+	 *
+	 * @param parenData
 	 */
-	public void getReady() {
+	public void getReady(OutputData parenData) {
+		this.myParenData = parenData;
 		if (this.recordName == null) {
 			if (this.sheetName == null) {
 				throw new ApplicationError(

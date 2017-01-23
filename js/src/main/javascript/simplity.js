@@ -368,9 +368,10 @@ var Simplity = (function() {
 				t.push(msg.messageType.toUpperCase());
 				t.push('\n');
 			}
-			if (msg.name) {
-				t.push(msg.name);
-				t.push(' : ');
+			if (msg.fieldName) {
+				t.push('Field : ');
+				t.push(msg.fieldName);
+				t.push(' - ');
 			}
 			t.push(msg.text);
 			t.push('\n\n');
@@ -903,7 +904,7 @@ var Simplity = (function() {
 	};
 
 	/**
-	 * @method getHtmlForPart get an html for teh part and data
+	 * @method getHtmlForPart get an html for the part and data
 	 * @param {Part}
 	 *            part
 	 * @param {Object}
@@ -971,9 +972,9 @@ var Simplity = (function() {
 	/*
 	 * </pre>
 	 */
-	var downloadCSV = function(arrData) {
+	var downloadCsv = function(arrData) {
 		if (!Array.isArray(arrData)) {
-			log('Simplity function downloadCSV() requires that the json to be an array. Data not pushed to page');
+			log('Simplity function downloadCsv() requires that the json to be an array. Data not pushed to page');
 			return;
 		}
 
@@ -1215,7 +1216,7 @@ var Simplity = (function() {
 			if (userToken) {
 				text += ' ' + userToken;
 			}
-			xhr.setRequestHeader(POCOL.USER_TOKEN, btoa(text));
+			xhr.setRequestHeader(POCOL.USER_TOKEN, text);
 			xhr.send('');
 		} catch (e) {
 			failureFn(createMessageArray('Unable to connect to server. Error : '
@@ -1387,7 +1388,8 @@ var Simplity = (function() {
 		} catch (e) {
 			log('Response is not a valid JSON. Assumed to be text and returning text instead of JSON.');
 		}
-		if (response[POCOL.REQUEST_STATUS] == POCOL.STATUS_OK) {
+		var st = response[POCOL.REQUEST_STATUS];
+		if (!st || st == POCOL.STATUS_OK) {
 			/*
 			 * save json to a window variable
 			 */
@@ -1524,8 +1526,7 @@ var Simplity = (function() {
 	 *            call back function is called with content of ths file. called
 	 *            back with null in case of any issue.
 	 */
-	var downloadFile = function(key, filename, filetype, callbackFn, progressFn) {
-		callbackFn = callbackFn || saveasfile;
+	var downloadFile = function(key, fileName, fileType, callbackFn, progressFn) {
 		if (!key) {
 			error("No file token specified for download request");
 			return;
@@ -1547,7 +1548,7 @@ var Simplity = (function() {
 				resp = xhr.response;
 			}
 			if (callbackFn) {
-				callbackFn(resp,filename,filetype);
+				callbackFn(resp,fileName,fileType);
 			} else {
 				Simplity.message('We successfully downloaded file for key '
 						+ key + ' with content-type='
@@ -1577,7 +1578,9 @@ var Simplity = (function() {
 		}
 		try {
 			xhr.open('GET', FILE_URL + '?' + key, true);
-			xhr.responseType = "blob";
+			if(fileName || fileType){
+				xhr.responseType = "blob";
+			}
 			xhr.send();
 		} catch (e) {
 			error("error during xhr for downloading token : " + key
@@ -1590,7 +1593,7 @@ var Simplity = (function() {
 	 * prompt the user to download the file with file name
 	 * 
 	 */
-	var saveasfile = function(contents,name, mime_type) {
+	var saveAsFile = function(contents,name, mime_type) {
         mime_type = mime_type || "text/plain";
 
         var dlink = document.createElement('a');
@@ -1627,7 +1630,7 @@ var Simplity = (function() {
 
 	var getLogs = function(callBackFn) {
 		callBackFn = callBackFn || doNothing;
-		downloadFile(POCOL.FILE_NAME_FOR_LOGS, callBackFn);
+		downloadFile(POCOL.FILE_NAME_FOR_LOGS, null, null, callBackFn);
 	};
 
 	/*
@@ -2216,6 +2219,6 @@ var Simplity = (function() {
 		registerRelogin : registerRelogin,
 		getLogs : getLogs,
 		htmlEscape : htmlEscape,
-		downloadCSV : downloadCSV()
+		downloadCsv : downloadCsv
 	};
 })();

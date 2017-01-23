@@ -547,7 +547,7 @@ public class Record implements Component {
 			return 0;
 		}
 		Value value = inData.getValue(this.primaryKeyField.getName());
-		if (value == null || value.isUnknown()) {
+		if (Value.isNull(value)) {
 			Tracer.trace("Value for primary key not present, and hence no read operation.");
 			return 0;
 		}
@@ -607,17 +607,12 @@ public class Record implements Component {
 		 * we have to create where clause with ? and corresponding values[]
 		 */
 		StringBuilder sql = new StringBuilder(this.filterSql);
-		Tracer.trace("Filter started with " + this.filterSql);
 		List<Value> filterValues = new ArrayList<Value>();
 		boolean firstTime = true;
 		for (Field field : inputRecord.fields) {
 			String fieldName = field.name;
 			Value value = inData.getValue(fieldName);
-			if (value == null || value.isUnknown()) {
-				continue;
-			}
-			if (value.toString().length() == 0) {
-				Tracer.trace("I found " + field.name + " with an empty value in filtering.");
+			if (Value.isNull(value) || value.toString().isEmpty()) {
 				continue;
 			}
 			if (firstTime) {

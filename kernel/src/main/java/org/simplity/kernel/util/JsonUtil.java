@@ -209,7 +209,7 @@ public class JsonUtil {
 				if (obj == null) {
 					continue;
 				}
-				if (inputFields == null) {
+				if (ds == null || inputFields == null) {
 					inputFields = getFields(obj);
 					ds = new MultiRowsSheet(inputFields);
 				}
@@ -247,9 +247,6 @@ public class JsonUtil {
 			Tracer.trace("Sheet  has no data. json is not added");
 			return;
 		}
-		Tracer.trace("Going to generate Json with "
-				+ (childSheets == null ? "no " : (childSheets.length + " "))
-				+ "child sheets");
 		writer.array();
 		String[] names = ds.getColumnNames();
 		for (int i = 0; i < nbrRows; i++) {
@@ -543,7 +540,7 @@ public class JsonUtil {
 				ds = getChildSheet(arr, sheetName, null, null, true);
 			}
 		} else {
-			arr = json.optJSONArray(parentSheetName);
+			arr = json.optJSONArray(sheetName);
 			if (arr == null) {
 				arrName = sheetName;
 			} else {

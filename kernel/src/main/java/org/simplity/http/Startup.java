@@ -70,14 +70,14 @@ public class Startup extends HttpServlet {
 		}
 		Tracer.trace("Going to bootstrap Application with comp folder at "
 				+ folder);
+		boolean allOk = false;
 		try {
-			Application.bootStrap(folder);
-			Serve.updateStartupStatus(true);
+			allOk = Application.bootStrap(folder);
 		} catch (Exception e) {
-			Serve.updateStartupStatus(false);
 			Tracer.trace(e,
 					"Unable to bootstrap Application using resource folder "
 							+ folder + ". Application will not work.");
 		}
+		Serve.updateStartupStatus(allOk);
 	}
 }

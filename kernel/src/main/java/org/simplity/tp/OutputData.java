@@ -21,7 +21,9 @@
  */
 package org.simplity.tp;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.simplity.json.JSONWriter;
@@ -31,6 +33,7 @@ import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceData;
@@ -119,6 +122,32 @@ public class OutputData {
 		 */
 		JSONWriter writer = new JSONWriter();
 		writer.object();
+		this.dataToJson(writer, ctx);
+		/*
+		 * we also push non-error messages
+		 */
+		writer.key(ServiceProtocol.MESSAGES).array();
+		for (FormattedMessage msg : ctx.getMessages()) {
+			if (msg.messageType != MessageType.ERROR) {
+				msg.writeJsonValue(writer);
+			}
+		}
+		writer.endArray();
+
+		writer.endObject();
+		outData.setPayLoad(writer.toString());
+	}
+
+	/**
+	 * write data to the json writer based on this spec, and data available in
+	 * the context
+	 *
+	 * @param writer
+	 *            should be ready to receive key-value pairs. That is, writer
+	 *            should have issued a .object()
+	 * @param ctx
+	 */
+	public void dataToJson(JSONWriter writer, ServiceContext ctx) {
 		if (this.fieldNames != null) {
 			JsonUtil.addAttributes(writer, this.fieldNames, ctx);
 		}
@@ -140,19 +169,7 @@ public class OutputData {
 				rec.toJson(writer, ctx);
 			}
 		}
-		/*
-		 * we also push non-error messages
-		 */
-		writer.key(ServiceProtocol.MESSAGES).array();
-		for (FormattedMessage msg : ctx.getMessages()) {
-			if (msg.messageType != MessageType.ERROR) {
-				msg.writeJsonValue(writer);
-			}
-		}
-		writer.endArray().endObject();
-		outData.setPayLoad(writer.toString());
 	}
-
 	/**
 	 * get ready for a long-haul service :-)
 	 */
@@ -164,7 +181,7 @@ public class OutputData {
 		int nbrChildren = 0;
 		if (this.outputRecords != null) {
 			for (OutputRecord rec : this.outputRecords) {
-				rec.getReady();
+				rec.getReady(this);
 				if (rec.parentSheetName != null) {
 					nbrChildren++;
 				}
@@ -234,30 +251,121 @@ public class OutputData {
 	 * @return number of errors added
 	 */
 	int validate(ValidationContext ctx) {
+		int count = 0;
+		/*
+		 * duplicate field names
+		 */
+		if(this.fieldNames != null && this.fieldNames.length > 0){
+			Set<String> keys = new HashSet<String>();
+			for(String key : this.fieldNames){
+				if(keys.add(key) == false){
+					ctx.addError(key + " is a duplicate field name for output.");
+					count++;
+				}
+			}
+		}
+		/*
+		 * duplicate data sheets?
+		 */
+		if(this.dataSheets != null && this.dataSheets.length > 0){
+			Set<String> keys = new HashSet<String>();
+			for(String key : this.dataSheets){
+				if(keys.add(key) == false){
+					ctx.addError(key + " is a duplicate data sheet name for output.");
+					count++;
+				}
+			}
+		}
+
 		if (this.outputRecords == null) {
 			return 0;
 		}
 
-		int count = 0;
-		Set<String> allSheets = new HashSet<String>();
-		Set<String> parentSheets = new HashSet<String>();
+		/*
+		 * validate output records, and also keep sheet-record mapping for other validations.
+		 */
+		Map<String, OutputRecord> allSheets = new HashMap<String, OutputRecord>();
+		int nbrParents = 0;
 		for (OutputRecord rec : this.outputRecords) {
 			count += rec.validate(ctx);
-			allSheets.add(rec.sheetName);
+			allSheets.put(rec.sheetName, rec);
 			if (rec.parentSheetName != null) {
-				parentSheets.add(rec.parentSheetName);
+				nbrParents++;
 			}
 		}
-		if (parentSheets.size() == 0) {
+
+		if (nbrParents == 0) {
 			return count;
 		}
-		for (String sheetName : parentSheets) {
-			if (allSheets.contains(sheetName) == false) {
-				ctx.addError(sheetName
-						+ " is designated as a parent, but it is not as sheet name in any output record.");
-				count++;
+		/*
+		 * any infinite loops with cyclical relationships?
+		 */
+		for (OutputRecord rec : this.outputRecords) {
+			if (rec.parentSheetName != null) {
+				count += this.validateParent(rec, allSheets, ctx);
 			}
 		}
 		return count;
+	}
+
+	/**
+	 * @return
+	 */
+	private int validateParent(OutputRecord outRec, Map<String, OutputRecord> allSheets, ValidationContext ctx) {
+		/*
+		 * check for existence of parent, as well
+		 */
+		Set<String> parents = new HashSet<String>();
+		String sheet = outRec.sheetName;
+		String parent = outRec.parentSheetName;
+		while(true){
+			OutputRecord rec = allSheets.get(parent);
+			/*
+			 * do we have the parent?
+			 */
+			if(rec == null){
+				ctx.addError("output sheet "  + sheet + " uses parentSheetName=" + parent
+						+ " but that sheet name is not used in any outputRecord. Note that all sheets that aprticipate iin parent-child relationship must be defined using outputRecord elements.");
+				return 1;
+			}
+			/*
+			 * are we cycling in a circle?
+			 */
+			if(parents.add(parent) == false){
+				ctx.addError("output record with sheetName=" + sheet + " has its parentSheetName set to " + parent + ". This is creating a cyclical child-parent relationship.");
+				return 1;
+			}
+			/*
+			 * is the chain over?
+			 */
+			if(rec.parentSheetName == null){
+				/*
+				 * we are fine with this outoutRecord
+				 */
+				return 0;
+			}
+			sheet = rec.sheetName;
+			parent = rec.parentSheetName;
+		}
+	}
+
+	/**
+	 * @param fields
+	 * @return
+	 */
+	boolean okToOutputFieldsFromRecord(Field[] fields) {
+		if(this.fieldNames == null || this.fieldNames.length == 0 || fields == null || fields.length == 0){
+			return true;
+		}
+		Set<String> allNames = new HashSet<String>(this.fieldNames.length);
+		for (String aName : this.fieldNames) {
+			allNames.add(aName);
+		}
+		for (Field field : fields) {
+			if (allNames.contains(field.getName())) {
+				return false;
+			}
+		}
+		return true;
 	}
 }

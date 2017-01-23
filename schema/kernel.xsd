@@ -52,7 +52,7 @@
 								type="Ctype"
 							>
 								<xs:annotation>
-									<xs:documentation>There is a predefined type called timestamp.
+									<xs:documentation>There is a predefined type called time-stamp.
 										Use that. There is no point defining another one
 									</xs:documentation>
 								</xs:annotation>
@@ -502,10 +502,11 @@
 				<xs:annotation>
 					<xs:documentation>If this record is to be used for listing
 						key-value pairs, and the table contains list of values across
-						groups, like states for all coutries, then you need to specify the
+						groups, like states for all countries, then you need to specify
+						the
 						field name to be used based on which rows are to be subset. For
-						example it would be coutry-code to get list of states for a given
-						coutry
+						example it would be country-code to get list of states for a given
+						country
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -524,8 +525,8 @@
 			>
 				<xs:annotation>
 					<xs:documentation>
-						First field is typicay displayed and used for
-						matching while second one is the key/interna value
+						First field is typically displayed and used for
+						matching while second one is the key/internal value
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -537,15 +538,10 @@
 				<xs:annotation>
 					<xs:documentation>
 						This is not the upper limit, but the number for
-						which we have to tune
-						the design for.
-						Customers tend to be
-						defensive, and give large numbers, but that may result
-						in
-						sub-optimal design.
-						It is important to articulate that this number
-						will put no
-						restriction on actual number rows
+						which we have to tune the design for. Customers tend to be
+						defensive, and give large numbers, but that may result in
+						sub-optimal design. It is important to articulate that this number
+						will put no restriction on actual number rows
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -557,8 +553,8 @@
 				<xs:annotation>
 					<xs:documentation>If the underlying table/view is in a schema other
 						than the default, use this attribute for on-the-fly services for
-						this record to use the right schema. Note that this attriute is
-						not used for regular service. You have to use schemaName attriute
+						this record to use the right schema. Note that this attribute is
+						not used for regular service. You have to use schemaName attribute
 						at the service level there
 					</xs:documentation>
 				</xs:annotation>
@@ -583,7 +579,7 @@
 			>
 				<xs:annotation>
 					<xs:documentation>if this table is (almost) static, and the
-						vauleList that is delivered ona list request can be cached by the
+						vauleList that is delivered on a list request can be cached by the
 						agent. Valid only if valueListFieldis set (list_ auto service is
 						enabled) if valueListKey is specified, the result will be cached
 						by that field. For example, by country-code.
@@ -856,131 +852,17 @@
 			<xs:all>
 				<xs:element
 					name="inputData"
+					type="inputData"
 					minOccurs="0"
 					maxOccurs="1"
 				>
-					<xs:complexType>
-						<xs:sequence
-							minOccurs="1"
-							maxOccurs="2"
-						>
-							<xs:element
-								name="inputFields"
-								type="inputFields"
-								minOccurs="0"
-								maxOccurs="1" />
-							<xs:element
-								name="inputRecords"
-								type="inputRecords"
-								minOccurs="0"
-								maxOccurs="1" />
-						</xs:sequence>
-						<xs:attribute
-							name="attachmentFields"
-							type="xs:string"
-							use="optional"
-						>
-							<xs:annotation>
-								<xs:documentation>Comma separated list if fields that carry the
-									key for attachment files. These MUST be included in the input
-									fields. This is an additional info about those fields for us to
-									manage the attachment
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-						<xs:attribute
-							name="attachmentColumns"
-							type="xs:string"
-							use="optional"
-						>
-							<xs:annotation>
-								<xs:documentation>Refer to attachmentFields. This is for columns
-									in sheet. use sheetName.columnName to qualify.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-					</xs:complexType>
 				</xs:element>
 				<xs:element
 					name="outputData"
+					type="outputData"
 					minOccurs="0"
 					maxOccurs="1"
 				>
-					<xs:complexType>
-						<xs:choice
-							minOccurs="0"
-							maxOccurs="unbounded"
-						>
-							<xs:element
-								name="outputRecords"
-								type="outputRecords"
-								minOccurs="0"
-								maxOccurs="1" />
-						</xs:choice>
-						<xs:attribute
-							name="fieldNames"
-							type="xs:string"
-							use="optional"
-						>
-							<xs:annotation>
-								<xs:documentation>Give comma separated names of fields to be
-									sent to client. We will pick up values from context and send
-									these values to client
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-						<xs:attribute
-							name="dataSheets"
-							type="xs:string"
-							use="optional"
-						>
-							<xs:annotation>
-								<xs:documentation>Give comma separated names of data sheets to
-									be
-									sent to client.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-						<xs:attribute
-							name="attachmentFields"
-							type="xs:string"
-							use="optional"
-						>
-							<xs:annotation>
-								<xs:documentation>Comma separated list if fields that carry the
-									key for attachment files. These MUST be included in the input
-									fields. This is an additional info about those fields for us to
-									manage the attachment
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-						<xs:attribute
-							name="attachmentColumns"
-							type="xs:string"
-							use="optional"
-						>
-							<xs:annotation>
-								<xs:documentation>Refer to attachmentFields. This is for columns
-									in sheet. use sheetName.columnName to qualify.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-
-						<xs:attribute
-							name="sessionFields"
-							type="xs:string"
-							use="optional"
-						>
-							<xs:annotation>
-								<xs:documentation>Any session fields that you want to set or
-									reset. Comma separated list of names. If you are writing your
-									login service, this atribute is a MUST to set at least _userId
-									to signal that the login process is successful.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-
-					</xs:complexType>
 				</xs:element>
 				<xs:element
 					name="actions"
@@ -1038,11 +920,8 @@
 				<xs:annotation>
 					<xs:documentation>
 						If input is exactly the same as that of another
-						service, use this
-						feature.
-						Note that the referred service MUST have
-						input records, and can not
-						refer to another service
+						service, use this feature. Note that the referred service MUST
+						have input records, and can not refer to another service
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -1054,11 +933,8 @@
 				<xs:annotation>
 					<xs:documentation>
 						If output is exactly the same as that of another
-						service, use this
-						feature.
-						Note that the referred service MUST have
-						output records, and can not
-						refer to another service
+						service, use this feature. Note that the referred service MUST
+						have output records, and can not refer to another service
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -1093,7 +969,7 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Optional. Valid if allowServiceSpecificSchema is
-						set to true in application.xml. default schema for the conneciton
+						set to true in application.xml. default schema for the connection
 						is set to this before executing the service.
 					</xs:documentation>
 				</xs:annotation>
@@ -1105,18 +981,138 @@
 			>
 				<xs:annotation>
 					<xs:documentation>can the response from this service be cached? If
-						so what are the inputfields that this response depends on? provide
-						comma separated list offield names. Null (default) implies that
+						so what are the input fields that this response depends on?
+						provide
+						comma separated list of field names. Null (default) implies
+						that
 						this service can not be cashed.Empty string implies that the
-						response does not depend on the input atall. If it is dependent on
-						userId, then "_userId" must be the first fieldname. A cache
-						manager can keep the response from this service and re-useit so
+						response does not depend on the input at all. If it is dependent
+						on
+						userId, then "_userId" must be the first field name. A cache
+						manager can keep the response from this service and re-use it so
 						long as the input values for these fields are same.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+	<xs:complexType name="inputData">
+		<xs:sequence
+			minOccurs="1"
+			maxOccurs="2"
+		>
+			<xs:element
+				name="inputFields"
+				type="inputFields"
+				minOccurs="0"
+				maxOccurs="1" />
+			<xs:element
+				name="inputRecords"
+				type="inputRecords"
+				minOccurs="0"
+				maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute
+			name="attachmentFields"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Comma separated list if fields that carry the key
+					for attachment files. These MUST be included in the input fields.
+					This is an additional info about those fields for us to manage the
+					attachment
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="attachmentColumns"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Refer to attachmentFields. This is for columns in
+					sheet. use sheetName.columnName to qualify.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="outputData">
+		<xs:choice
+			minOccurs="0"
+			maxOccurs="unbounded"
+		>
+			<xs:element
+				name="outputRecords"
+				type="outputRecords"
+				minOccurs="0"
+				maxOccurs="1" />
+		</xs:choice>
+		<xs:attribute
+			name="fieldNames"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Give comma separated names of fields to be sent to
+					client. We will pick up values from context and send these values
+					to client
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="dataSheets"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Give comma separated names of data sheets to be
+					sent to client.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="attachmentFields"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Comma separated list if fields that carry the key
+					for attachment files. These MUST be included in the input fields.
+					This is an additional info about those fields for us to manage the
+					attachment
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="attachmentColumns"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Refer to attachmentFields. This is for columns in
+					sheet. use sheetName.columnName to qualify.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+
+		<xs:attribute
+			name="sessionFields"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Any session fields that you want to set or reset.
+					Comma separated list of names. If you are writing your login
+					service, this attribute is a MUST to set at least _userId to signal
+					that the login process is successful.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+
 
 	<xs:complexType name="inputRecords">
 		<xs:sequence
@@ -1149,6 +1145,19 @@
 						name="sheetName"
 						type="xs:NCName"
 						use="optional" />
+					<xs:attribute
+						name="extractIntoFields"
+						type="booleanType"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Use this option if client is sending one row in
+								a sheet, but you want to extract the row into fields collection,
+								rather than a data sheet.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+
 					<xs:attribute
 						name="description"
 						type="xs:string"
@@ -1223,12 +1232,9 @@
 					>
 						<xs:annotation>
 							<xs:documentation>Use record name as a short-cut to specifying
-								all
-								the fields. Note that we do not use validate output
-								parameters. We
-								use only the names to pick values from output, and
-								send to
-								client
+								all the fields. Note that we do not use validate output
+								parameters. We use only the names to pick values from output,
+								and send to client
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -1250,10 +1256,8 @@
 					>
 						<xs:annotation>
 							<xs:documentation>Sheet name to which this sheet should be
-								embedded
-								as child rows. You must specify the two link column
-								attributes for
-								this to work
+								embedded as child rows. You must specify the two link column
+								attributes for this to work
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -1264,10 +1268,8 @@
 					>
 						<xs:annotation>
 							<xs:documentation>Required if parentSheet is specified. Column
-								name
-								in this sheet whose value is treated as parentKey to attach
-								this
-								row its parent row.
+								name in this sheet whose value is treated as parentKey to attach
+								this row its parent row.
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -1278,10 +1280,8 @@
 					>
 						<xs:annotation>
 							<xs:documentation>Required if parentSheetName is specified.
-								Column
-								in parent sheet that has the primary key to parent sheet,
-								which is
-								used to match with parentKey in child sheet for
+								Column in parent sheet that has the primary key to parent sheet,
+								which is used to match with parentKey in child sheet for
 								embedding.
 							</xs:documentation>
 						</xs:annotation>
@@ -1293,56 +1293,139 @@
 	</xs:complexType>
 
 	<xs:complexType name="actions">
-		<xs:choice minOccurs="1" maxOccurs="unbounded">
-			<xs:element name="addColumn" type="addColumn" minOccurs="0"
+		<xs:choice
+			minOccurs="1"
+			maxOccurs="unbounded"
+		>
+			<xs:element
+				name="addColumn"
+				type="addColumn"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="addMessage" type="addMessage"
-				minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="complexLogic" type="logic" minOccurs="0"
+			<xs:element
+				name="addMessage"
+				type="addMessage"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="copyRows" type="copyRows" minOccurs="0"
+			<xs:element
+				name="complexLogic"
+				type="logic"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="copyUserId" type="copyUserId"
-				minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="createSheet" type="createSheet"
-				minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="executeSp" type="executeSp" minOccurs="0"
+			<xs:element
+				name="copyRows"
+				type="copyRows"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="executeSql" type="executeSql"
-				minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="filter" type="filter" minOccurs="0"
+			<xs:element
+				name="copyUserId"
+				type="copyUserId"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="jumpTo" type="jumpTo" minOccurs="0"
+			<xs:element
+				name="createSheet"
+				type="createSheet"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="keyValueList" type="keyValueList"
-				minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="log" type="log" minOccurs="0"
+			<xs:element
+				name="executeSp"
+				type="executeSp"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="logic" type="logic" minOccurs="0"
+			<xs:element
+				name="executeSql"
+				type="executeSql"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="loop" type="loop" minOccurs="0"
+			<xs:element
+				name="filter"
+				type="filter"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="read" type="read" minOccurs="0"
+			<xs:element
+				name="jumpTo"
+				type="jumpTo"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="readChildren" type="readChildren"
-				minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="readWithSql" type="readWithSql"
-				minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="renameSheet" type="renameSheet"
-				minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="rowExists" type="rowExists" minOccurs="0"
+			<xs:element
+				name="httpClient"
+				type="httpClient"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="save" type="save" minOccurs="0"
+			<xs:element
+				name="keyValueList"
+				type="keyValueList"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="setValue" type="setValue" minOccurs="0"
+			<xs:element
+				name="log"
+				type="log"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="removeValue" type="removeValue" minOccurs="0"
-				maxOccurs="unbounded" />				
-			<xs:element name="subService" type="subService"
-				minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="suggest" type="suggest" minOccurs="0"
+			<xs:element
+				name="logic"
+				type="logic"
+				minOccurs="0"
 				maxOccurs="unbounded" />
-			<xs:element name="restClient" type="restClient" minOccurs="0"
+			<xs:element
+				name="loop"
+				type="loop"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="read"
+				type="read"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="readChildren"
+				type="readChildren"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="readWithSql"
+				type="readWithSql"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="removeValue"
+				type="removeValue"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="renameSheet"
+				type="renameSheet"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="replaceAttachment"
+				type="replaceAttachment"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="rowExists"
+				type="rowExists"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="save"
+				type="save"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="setValue"
+				type="setValue"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="subService"
+				type="subService"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="suggest"
+				type="suggest"
+				minOccurs="0"
 				maxOccurs="unbounded" />
 		</xs:choice>
 	</xs:complexType>
@@ -1416,8 +1499,10 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>In case the message is parameterized, provide coma
-					separated list of values. Value starting with $ is assumed to be a
+				<xs:documentation>In case the message is parameterized, provide
+					comma
+					separated list of values. Value starting with $ is assumed to
+					be a
 					fieldName to get value at run time.
 				</xs:documentation>
 			</xs:annotation>
@@ -1428,8 +1513,10 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>In case the message is parameterized, provide coma
-					separated list of values. Value starting with $ is assumed to be a
+				<xs:documentation>In case the message is parameterized, provide
+					comma
+					separated list of values. Value starting with $ is assumed to
+					be a
 					fieldName to get value at run time.
 				</xs:documentation>
 			</xs:annotation>
@@ -1489,7 +1576,7 @@
 				<xs:documentation>
 					if the value is going to be the same for all rows,
 					use this feature. Just specify the value if it is constant. In case
-					it is a field in the icntext, specify $fieldName.
+					it is a field in the context, specify $fieldName.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1500,7 +1587,7 @@
 		>
 			<xs:annotation>
 				<xs:documentation>Expression that is evaluated for each row to
-					assign value of the colun for that row. Optional if you are going
+					assign value of the column for that row. Optional if you are going
 					to assign value later.
 				</xs:documentation>
 			</xs:annotation>
@@ -1539,7 +1626,7 @@
 			<xs:annotation>
 				<xs:documentation>if the message type of the message is ERROR,
 					should we stop/end this service. Normally you end the service, but
-					in case you are accumulating validaiton errors, you may want to
+					in case you are accumulating validation errors, you may want to
 					continue.
 				</xs:documentation>
 			</xs:annotation>
@@ -1610,10 +1697,9 @@
 			<xs:annotation>
 				<xs:documentation>
 					Of the form
-					header1,header2...;val11,val12,val13...;val21,val22,val23....
-					rows
-					are separated by semicolumn(;)and cells are separated by comma(,)
-					forst row is header. refer to fieldValue attrivute of setValue for
+					header1,header2...;val11,val12,val13...;val21,val22,val23.... rows
+					are separated by semicolon(;)and cells are separated by comma(,)
+					first row is header. refer to fieldValue attribute of setValue for
 					syntax of cells. Each cell can be either a field name ($fieldNAme)
 					or constant.
 				</xs:documentation>
@@ -1736,6 +1822,147 @@
 			name="outputSheetName"
 			type="xs:string"
 			use="optional" />
+		<xs:attribute
+			name="cascadeFilterForChildren"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>By default, only the first level children are read
+					along with the parent. Do you want that action to cascade down to
+					subsequent generations as well? That is, if the childRecord has
+					children, read them as well, and so on.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="httpClient">
+		<xs:all>
+			<xs:element
+				minOccurs="0"
+				maxOccurs="1"
+				name="requestData"
+				type="outputData"
+			>
+				<xs:annotation>
+					<xs:documentation>If data needs to be formatted as a json from set
+						of data fields/sheets in the service context, use this option. If
+						the data is non-json, or a simple value of a field, use
+						requestFieldName attribute instead.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element
+				minOccurs="0"
+				maxOccurs="1"
+				name="responseData"
+				type="inputData"
+			>
+				<xs:annotation>
+					<xs:documentation>If data needs to be formatted as a json from set
+						of data fields/sheets in the service context, use this option. If
+						the data is non-json, or a simple value of a field, use
+						requestFieldName attribute instead.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:all>
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="urlString"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>provide full url. In case the url has parts that
+					are known at run time, use ${fieldName}. For example
+					http://.....${orderNo}...${customerId}... Values are substituted at
+					run time. If field has no value in the context, we use empty string
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="contentType"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>example application/json or application/xml or
+					text/html. We assume that the content type is same for both request
+					and response, in case we send request data as well.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="requestFieldName"
+			type="xs:NCName"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>if request data is to be sent, this is the field
+					that will have the data at run time in service context. Ensure that
+					the value is as per the requirements for the request.For example it
+					could be a valid json, xml or form data, as required by the
+					service.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="responseFieldName"
+			type="xs:NCName"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>response from service is assigned as value of this
+					field in the service context. Not valid if you have specified
+					responseData provide full url. In case the url has parts that
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="proxy"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>in case the service request has to go thru a
+					proxy.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="proxyUserName"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>For proxy credential. use $fieldName in case the
+					value is known at run time. (not ${fieldName})
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="proxyPassword"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>For proxy credential. use $fieldName in case the
+					value is known at run time. (not ${fieldName})
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="proxyPort"
+			type="xs:int"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Required if proxy is to be used
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="jumpTo">
@@ -1820,6 +2047,19 @@
 			name="outputSheetName"
 			type="xs:NCName"
 			use="optional" />
+		<xs:attribute
+			name="cascadeFilterForChildren"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>By default, only the first level children are read
+					along with the parent. Do you want that action to cascade down to
+					subsequent generations as well? That is, if the childRecord has
+					children, read them as well, and so on.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="readChildren">
@@ -1859,6 +2099,19 @@
 			name="outputSheetName"
 			type="xs:NCName"
 			use="optional" />
+		<xs:attribute
+			name="cascadeFilterForChildren"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>By default, only the first level children are read
+					along with the parent. Do you want that action to cascade down to
+					subsequent generations as well? That is, if the childRecord has
+					children, read them as well, and so on.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="renameSheet">
@@ -1873,6 +2126,28 @@
 			use="required" />
 	</xs:complexType>
 
+	<xs:complexType name="replaceAttachment">
+		<xs:attributeGroup ref="dbActionAttributes" />
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>Record us used to get the rdbms table and the key
+					field details. This record must contain the attachment field that
+					we are replacing. Other fields may be there, but we ignore them.
+					With this behavior, you may reuse a record define for regular save
+					operation.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="attachmentFieldName"
+			type="xs:string"
+			use="required" />
+	</xs:complexType>
+
 	<xs:complexType name="rowExists">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1881,7 +2156,7 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>if you wnat to use a key field name different from
+				<xs:documentation>if you want to use a key field name different from
 					the one defined in the record.
 				</xs:documentation>
 			</xs:annotation>
@@ -1931,7 +2206,7 @@
 			use="required"
 		>
 			<xs:annotation>
-				<xs:documentation>auto means we will figire out based on presence of
+				<xs:documentation>auto means we will figure out based on presence of
 					value of primary key
 				</xs:documentation>
 			</xs:annotation>
@@ -1972,12 +2247,9 @@
 		>
 			<xs:annotation>
 				<xs:documentation>
-					Note that you have to xml escape double qoute and
-					less-than,
-					greater-than etc..
-					If this is confusing,use expression
-					element instead with CDATA
-					section.
+					Note that you have to xml escape double quote and less-than,
+					greater-than etc.. If this is confusing,use expression element
+					instead with CDATA section.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1989,7 +2261,7 @@
 			<xs:annotation>
 				<xs:documentation>
 					use either a constant, or a $fieldName as value of
-					the field. I fyou use this, you should not specify expression.
+					the field. If you use this, you should not specify expression.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1999,7 +2271,8 @@
 	<xs:complexType name="removeValue">
 		<xs:all
 			minOccurs="0"
-			maxOccurs="1">
+			maxOccurs="1"
+		>
 		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2064,13 +2337,16 @@
 	<xs:complexType name="restClient">
 		<xs:attributeGroup ref="actionAttributes" />
 
-		<xs:attribute name="restMethod" use="required">
+		<xs:attribute
+			name="restMethod"
+			use="required"
+		>
 			<xs:annotation>
 				<xs:documentation>
-					Field to filter on. defaults to what is specified in
-					record. default is to match anywhere. If you want to
-					match starting only, then a special field named
-					_matchStarting can be set to true.
+					Field to filter on. defaults to what is specified
+					in record. default is to match anywhere. If you want to match
+					starting only, then a special field named _matchStarting can be set
+					to true.
 				</xs:documentation>
 			</xs:annotation>
 			<xs:simpleType>
@@ -2080,10 +2356,16 @@
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>
-		<xs:attribute name="urlString" type="xs:string"
-			use="required">
+		<xs:attribute
+			name="urlString"
+			type="xs:string"
+			use="required"
+		>
 		</xs:attribute>
-		<xs:attribute name="contentType" use="required">
+		<xs:attribute
+			name="contentType"
+			use="required"
+		>
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
 					<xs:enumeration value="application/json"></xs:enumeration>
@@ -2091,24 +2373,43 @@
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>
-		<xs:attribute name="proxy" type="xs:string" use="optional"></xs:attribute>
-		<xs:attribute name="proxyport" type="xs:int"></xs:attribute>
-		<xs:attribute name="proxyUserName" type="xs:string"
-			use="optional">
+		<xs:attribute
+			name="proxy"
+			type="xs:string"
+			use="optional"
+		></xs:attribute>
+		<xs:attribute
+			name="proxyport"
+			type="xs:int"
+		></xs:attribute>
+		<xs:attribute
+			name="proxyUserName"
+			type="xs:string"
+			use="optional"
+		>
 		</xs:attribute>
-		<xs:attribute name="proxyPassword" type="xs:string"
-			use="optional">
+		<xs:attribute
+			name="proxyPassword"
+			type="xs:string"
+			use="optional"
+		>
 		</xs:attribute>
-		<xs:attribute name="outputFieldName" type="xs:string"
-			use="required">
+		<xs:attribute
+			name="outputFieldName"
+			type="xs:string"
+			use="required"
+		>
 			<xs:annotation>
 				<xs:documentation>
-					Name of the output data sheet. If not specified, it
-					defaults to the name as specified in record.
+					Name of the output data sheet. If not specified,
+					it defaults to the name as specified in record.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-		<xs:attribute name="outputFieldValue" type="xs:string"></xs:attribute>
+		<xs:attribute
+			name="outputFieldValue"
+			type="xs:string"
+		></xs:attribute>
 	</xs:complexType>
 
 	<xs:simpleType name="valueType">
@@ -2123,7 +2424,7 @@
 
 	<xs:complexType name="relatedRecords">
 		<xs:annotation>
-			<xs:documentation>Typcically child tables that are read/saved along
+			<xs:documentation>Typically child tables that are read/saved along
 				with parent
 			</xs:documentation>
 		</xs:annotation>
@@ -2161,12 +2462,9 @@
 						<xs:annotation>
 							<xs:documentation>
 								if the child rows are not referred any where
-								else, it is simpler
-								at times to just delete all existing rows,
-								and insert new ones.
-								Use this flag for such an operation. Note
-								that save aciton at
-								the rows are ignored, and all rows are
+								else, it is simpler at times to just delete all existing rows,
+								and insert new ones. Use this flag for such an operation. Note
+								that save action at the rows are ignored, and all rows are
 								inserted
 							</xs:documentation>
 						</xs:annotation>
@@ -2277,26 +2575,6 @@
 	<xs:element name="application">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element
-					name="sessionParams"
-					minOccurs="0"
-					maxOccurs="1"
-				>
-					<xs:annotation>
-						<xs:documentation>If session is managed by a different module, and
-							you have set PassiveHelper as session helper, please specify the
-							fields that are to be extracted from session
-						</xs:documentation>
-					</xs:annotation>
-					<xs:complexType>
-						<xs:sequence minOccurs="1">
-							<xs:element
-								ref="parameter"
-								minOccurs="1"
-								maxOccurs="unbounded" />
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
 				<xs:element
 					name="schemaDetails"
 					minOccurs="0"
@@ -2425,9 +2703,8 @@
 						securityToken. If you use SSO, security token would be the
 						authenticated ssoId, otherwise it would be the password entered by
 						user. This service MUST set _userId as sessionField using
-						sessionFields="" attriubute of outputData tag. All these fields
-						will be used as global
-						data, and will be made available to all
+						sessionFields="" attribute of outputData tag. All these fields
+						will be used as global data, and will be made available to all
 						services.
 					</xs:documentation>
 				</xs:annotation>
@@ -2469,7 +2746,7 @@
 				<xs:annotation>
 					<xs:documentation>During development/demo, login would be a
 						nuisance. You may disable that, and use a default userId for all
-						services. Esnure that this is a number in case your project uses
+						services. Ensure that this is a number in case your project uses
 						numeric value as userId, as set in userIdIsNumber
 						attribute.
 					</xs:documentation>
@@ -2482,7 +2759,7 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Responses can be cached at http(web tier) as well
-						as at service (app tier). specify the qualified calss name for the
+						as at service (app tier). specify the qualified class name for the
 						http cache manager that implements HttpCacheManager interface.
 						Services should indicate cacheability in response service data
 						(refer to service.xml attributes)
@@ -2496,12 +2773,10 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Responses can be cached at http(web tier) as well
-						as at service (app tier). specify the qualified calss name for the
+						as at service (app tier). specify the qualified class name for the
 						service cache manager that implements ServiceCacheManager
-						interface.
-						Services should indicate cacheability in response
-						service data
-						(refer to service.xml attributes)
+						interface. Services should indicate cacheability in response
+						service data (refer to service.xml attributes)
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2546,7 +2821,7 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>Simplity povides a simple way to store
+					<xs:documentation>Simplity provides a simple way to store
 						attachments in folder that is accessible to web tier as well as
 						App tier. Use this attribute to set the folder.
 					</xs:documentation>
@@ -2564,6 +2839,39 @@
 						org.simplity.AttachmentManager class
 					</xs:documentation>
 				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="traceWrapper"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>By default, service-log is wrapped in a simple
+						xml element and the actual trace text is put inside a CDATA
+						section. You may format it differently using your own wrapper that
+						implements
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="loggingFramework"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>By default, service-log is emitted to console (System.out). If you use any of the standard logging framework, and you would like to service log to be diverted to your logger.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:NCName">
+					<!-- not used any more any ways.... let us wait for some one to ask...
+						<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old log4J uses log4j-1.2.17.jar</xs:documentation></xs:annotation></xs:enumeration>
+						 -->
+						<xs:enumeration value="log4jV2"><xs:annotation><xs:documentation>Version 2.* of log4J. uses log4j-api-2.7.jar</xs:documentation></xs:annotation></xs:enumeration>
+						<xs:enumeration value="commonsLogging"><xs:annotation><xs:documentation>Also known as JCL, uses commons-logging-1.2.jar</xs:documentation></xs:annotation></xs:enumeration>
+						<xs:enumeration value="slf4j"><xs:annotation><xs:documentation>SLF4J adapter that you can bind to any other framework. For example slf4J-Simple or LogBack. slf4j-api-1.7.2.jar</xs:documentation></xs:annotation></xs:enumeration>
+						<xs:enumeration value="juli"><xs:annotation><xs:documentation>Plain vanilla java.util.logging. Requires no jar file, but configuration is the key</xs:documentation></xs:annotation></xs:enumeration>
+					</xs:restriction>
+				</xs:simpleType>
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
@@ -2634,7 +2942,7 @@
 			<xs:annotation>
 				<xs:documentation>name of the context variable to set this to. This
 					is the name used by subsequent services to refer to this value.
-					Defaults to fieldselector
+					Defaults to field selector
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2689,7 +2997,7 @@
 				<xs:documentation>item selector, for example order, or order.lines.2
 					Ensure that the selector selects an item, and not a an array at run
 					time. This item is the parent for all the fields in the fields
-					collection. Their selctor would be relative to this item
+					collection. Their selector would be relative to this item
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2712,7 +3020,7 @@
 				<xs:documentation>item selector, for example order, or order.lines.2
 					Ensure that the selector selects an item, and not a an array at run
 					time. This item is the parent for all the fields in the fields
-					collection. Their selctor would be relative to this item
+					collection. Their selector would be relative to this item
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2782,8 +3090,7 @@
 				>
 					<xs:annotation>
 						<xs:documentation>Use a CDATA section to specify a json. Since
-							json
-							is full of double quotes, it is quite ugly to specify it as
+							json is full of double quotes, it is quite ugly to specify it as
 							attribute or content. This is the initial JSON. Other input
 							specifications can alter or add to this
 						</xs:documentation>
@@ -2797,7 +3104,7 @@
 				>
 					<xs:annotation>
 						<xs:documentation>Use a CDATA section to specify a json. Once this
-							is specified, no other spcifiction about output makes sense.
+							is specified, no other specification about output makes sense.
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
@@ -2871,7 +3178,7 @@
 				use="required"
 			>
 				<xs:annotation>
-					<xs:documentation>Fully qualified name of service this test case is
+					<xs:documentation>Fully qualified name of service this test caseis
 						meant for
 					</xs:documentation>
 				</xs:annotation>

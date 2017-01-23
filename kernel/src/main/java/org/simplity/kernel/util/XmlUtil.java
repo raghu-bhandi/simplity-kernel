@@ -22,6 +22,7 @@
  */
 package org.simplity.kernel.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +47,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MapDetails;
 import org.simplity.kernel.Tracer;
+import org.simplity.kernel.data.Fields;
+import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.value.Value;
 import org.w3c.dom.DOMException;
@@ -143,6 +146,7 @@ public class XmlUtil {
 	private static final String NAME_ATTRIBUTE = "name";
 	private static final String ENTRY = "entry";
 	private static final String CLASS_NAME_ATTRIBUTE = "className";
+	private static final String UTF8 = "UTF-8";
 
 	/**
 	 * bind data from an xml stream into object
@@ -1141,5 +1145,66 @@ public class XmlUtil {
 			//
 		}
 		return out.toString();
+	}
+
+	/**
+	 * extract all attributes from the root node. We extract attributes, as well
+	 * as simple elements as fields. This is not suitable for arbitrary
+	 * object/data structure with multiple levels
+	 *
+	 * @param xml
+	 * @param fields
+	 * @return number of fields extracted
+	 */
+	public static int extractAll(String xml, FieldsInterface fields) {
+		try {
+			byte[] bytes = xml.getBytes(UTF8);
+			InputStream is = new ByteArrayInputStream(bytes);
+			/*
+			 * get the doc first
+			 */
+			Node node = getDocument(is).getDocumentElement().getFirstChild();
+
+			/*
+			 * data could be modeled as attributes...
+			 */
+			NamedNodeMap attrs = node.getAttributes();
+			int n = attrs.getLength();
+			for (int i = 0; i < n; i++) {
+				Node att = attrs.item(i);
+				fields.setValue(att.getNodeName(),
+						Value.newTextValue(att.getNodeValue()));
+			}
+			int nbrExtracted = n;
+			/*
+			 * data could also be modeled as elements with just text data.
+			 */
+			NodeList childs = node.getChildNodes();
+			n = childs.getLength();
+			for (int i = 0; i < n; i++) {
+				Node child = childs.item(i);
+				if (child.getNodeType() == Node.ELEMENT_NODE) {
+					String value = ((Element) child).getTextContent();
+					fields.setValue(child.getNodeName(),
+							Value.newTextValue(value));
+					nbrExtracted++;
+				}
+			}
+			Tracer.trace(nbrExtracted + " fields extracted from root node.");
+			return nbrExtracted;
+		} catch (Exception e) {
+			throw new ApplicationError(e,
+					" Error while extracting fields from an xml.\n" + xml);
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		String fileName = "c:/dev/a.xml";
+		String xml = FileManager.readResource(fileName);
+		Fields fields = new Fields();
+		extractAll(xml, fields);
+		for(Map.Entry<String, Value> field : fields.getAllFields()){
+			System.out.println(field.getKey() + " = " + field.getValue().toString());
+		}
 	}
 }

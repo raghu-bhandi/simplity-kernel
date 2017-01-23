@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.simplity.json.JSONObject;
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.util.JsonUtil;
@@ -280,5 +281,28 @@ public class ServiceData {
 	 */
 	public FormattedMessage[] getMessages() {
 		return this.messages.toArray(new FormattedMessage[0]);
+	}
+
+	/**
+	 * if there are errors, then create a valid JSON response as if messages are
+	 * added to the response, rather than creating an array of messages
+	 *
+	 * @return json response with status and messages
+	 */
+	public String getResponseJson() {
+		if (this.hasErrors() == false) {
+			String resp = this.getPayLoad();
+			if (resp != null) {
+				return resp;
+			}
+			return "{}";
+		}
+		JSONWriter writer = new JSONWriter();
+		writer.object();
+		writer.key(ServiceProtocol.REQUEST_STATUS)
+				.value(ServiceProtocol.STATUS_ERROR);
+		writer.key(ServiceProtocol.MESSAGES);
+		JsonUtil.addObject(writer, this.getMessages());
+		return writer.toString();
 	}
 }

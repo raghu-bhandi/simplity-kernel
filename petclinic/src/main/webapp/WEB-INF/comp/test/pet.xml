@@ -39,7 +39,7 @@
 		<testCase
 			testCaseName="shouldInsertOwner"
 			serviceName="save_owners"
-			description="We insert with some wrong values, but use the generated id to chaneg them in teh next test case"
+			description="We insert with some wrong values, but use the generated id to chaneg them in the next test case"
 		>
 			<inputJson><![CDATA[ {
 		"firstName":"Sam-Old",

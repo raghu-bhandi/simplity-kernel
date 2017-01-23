@@ -66,34 +66,35 @@ public class Application {
 	 *
 	 * @param componentFolder
 	 *            folder relative to applicationRoot
+	 * @return true if all OK. False in case of any set-up issue.
 	 * @throws Exception
 	 *             in case the root folder does not exist, or does not required
 	 *             resources
 	 */
-	public static void bootStrap(String componentFolder) throws Exception {
+	public static boolean bootStrap(String componentFolder) throws Exception {
 		Tracer.trace("Bootstrapping with " + componentFolder);
-		Exception msg = null;
+		String msg = null;
 		Application app = new Application();
 		try {
 			ComponentType.setComponentFolder(componentFolder);
 			XmlUtil.xmlToObject(componentFolder + CONFIG_FILE_NAME, app);
 			if (app.applicationId == null) {
-				msg = new ApplicationError(
-						"Unable to load the configuration component "
+				msg = "Unable to load the configuration component "
 								+ CONFIG_FILE_NAME
 								+ ". This file is expected to be inside folder "
-								+ componentFolder);
+								+ componentFolder;
 			} else {
-				app.configure();
+				msg = app.configure();
 			}
 		} catch (Exception e) {
-			msg = e;
+			msg = e.getMessage();
 		}
 
 		if (msg == null) {
-			return;
+			return true;
 		}
 
+		ApplicationError e = new ApplicationError(msg);
 		/**
 		 * try and pipe exception to the listener..
 		 */
@@ -101,13 +102,12 @@ public class Application {
 			try {
 				ExceptionListener listener = (ExceptionListener) Class
 						.forName(app.exceptionListener).newInstance();
-				listener.listen(new ServiceData(), msg);
-				return;
+				listener.listen(new ServiceData(), e);
 			} catch (Exception ignore) {
 				// we just tried
 			}
 		}
-		throw msg;
+		throw e;
 	}
 
 	/**
@@ -222,7 +222,11 @@ public class Application {
 	 * AttachmentAssistant. A single instance of this class is re-used
 	 */
 	String attachmentAssistant;
-
+	/**
+	 * logging utility to which service log is to be emitted to. Default is to
+	 * emit to console (System.out)
+	 */
+	LoggingFramework loggingFramework;
 	/**
 	 * fully qualified class name that implements org.simplity.core.TraceWrapper
 	 * to either format service-log or to actually log it.
@@ -233,9 +237,11 @@ public class Application {
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
 	 * servlet in a web-app
+	 * @return null if all OK. Else message that described why we could not succeed.
 	 */
-	public void configure() {
+	public String configure() {
 		List<String> msgs = new ArrayList<String>();
+		Tracer.startAccumulation();
 		if (this.traceWrapper != null) {
 			try {
 				TraceWrapper wrapper = (TraceWrapper) Class
@@ -343,8 +349,7 @@ public class Application {
 					uid = Value.newIntegerValue(
 							Integer.parseInt(this.autoLoginUserId));
 				} catch (Exception e) {
-					msgs.add("autoLoginUserId is set to "
-							+ this.autoLoginUserId
+					msgs.add("autoLoginUserId is set to " + this.autoLoginUserId
 							+ " but it has to be a number because userIdIsNumber is set to true. Auto login is not enabled.");
 				}
 			} else {
@@ -363,31 +368,54 @@ public class Application {
 				ast = (AttachmentAssistant) Class
 						.forName(this.attachmentAssistant).newInstance();
 			} catch (Exception e) {
-				msgs.add(
-						"Error while setting storage assistant based on class "
-								+ this.attachmentAssistant + ". "
-								+ e.getMessage());
+				msgs.add("Error while setting storage assistant based on class "
+						+ this.attachmentAssistant + ". " + e.getMessage());
 			}
 		}
 		if (ast != null) {
 			AttachmentManager.setAssistant(ast);
 		}
-		if (msgs.size() == 0) {
-			return;
+		/*
+		 * is there a logging framework
+		 */
+		if (this.loggingFramework == null) {
+			Tracer.trace(
+					"No logging framework set by application designer. All service logs will be emitted to console. (System.out)");
+		} else {
+			Tracer.trace("Logging framework is set to " + this.loggingFramework
+					+ ". Will try to locate the right class and connect to it.");
+			try {
+				ServiceLogger.setLogger(this.loggingFramework);
+				Tracer.trace(
+						"Service logs successfully diverted to the logging framework "
+								+ this.loggingFramework);
+			} catch (Exception e) {
+				String msg = "Logging framework " + this.loggingFramework
+						+ " could not be initiated for logging. \n " + e.getMessage() +"\nAre you missing required jar file?. ";
+				Tracer.trace(msg);
+				msgs.add(msg);
+			}
+		}
+
+		String result = null;
+		if (msgs.size() > 0) {
+			/*
+			 * we got errors.
+			 */
+			StringBuilder err = new StringBuilder("Error while bootstrapping\n");
+			for (String msg : msgs) {
+				err.append(msg).append('\n');
+			}
+			result = err.toString();
+			Tracer.trace(result);
 		}
 		/*
-		 * we got errors. Let us throw an exception for it to be handled by our
-		 * caller.
+		 * we will output all the messages to console as well, just in case the
+		 * logging set-up is not ok, or it is sending to some place the poor
+		 * programmer is unable to figure out
 		 */
-		StringBuilder err = new StringBuilder("Error while bootstrapping\n");
-		for (String msg : msgs) {
-			err.append(msg).append('\n');
-		}
-		String msg = err.toString();
-		Tracer.trace(msg);
-		if (listener != null) {
-			listener.listen(null, new Exception(msg));
-		}
+		System.out.println(Tracer.stopAccumulation());
+		return result;
 	}
 
 	/**
@@ -531,7 +559,7 @@ public class Application {
 	 * @param args
 	 *            comFolderName serviceName param1=value1 param2=value2 .....
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args){
 		myTest(args);
 	}
 
@@ -591,7 +619,7 @@ public class Application {
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		System.out.println("response :" + outData.getPayLoad());
 		System.out
-		.println("message :" + JsonUtil.toJson(outData.getMessages()));
+				.println("message :" + JsonUtil.toJson(outData.getMessages()));
 		System.out.println("trace :" + outData.getTrace());
 
 	}

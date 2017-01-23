@@ -54,10 +54,6 @@ public class Tracer {
 	 */
 	private static ThreadLocal<StringBuilder> tracedText = new ThreadLocal<StringBuilder>();
 
-	/**
-	 * slf4j logger to flush things out
-	 */
-	private static final ServiceLogger logger = ServiceLogger.getLogger();
 
 	/**
 	 * start accumulation of trace. Once started, traces are accumulated, but
@@ -96,7 +92,7 @@ public class Tracer {
 
 		StringBuilder sbf = Tracer.tracedText.get();
 		if (sbf != null) {
-			Tracer.logger.log(sbf.toString());
+			ServiceLogger.log(sbf.toString());
 			Tracer.tracedText.set(new StringBuilder());
 		}
 	}
@@ -124,7 +120,7 @@ public class Tracer {
 
 		StringBuilder sbf = Tracer.tracedText.get();
 		if (sbf == null) {
-			Tracer.logger.log(Tracer.NEW_LINE + text);
+			ServiceLogger.log(Tracer.NEW_LINE + text);
 		} else {
 			sbf.append(Tracer.NEW_LINE).append(text);
 		}

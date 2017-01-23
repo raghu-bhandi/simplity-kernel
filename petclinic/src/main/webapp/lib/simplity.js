@@ -244,7 +244,7 @@ var POCOL = {
 	COL_MARKER : '__',
 	/**
 	 * mark a space to put the index suffix. like row__i__ to suffix row with _i
-	 * where is teh row number
+	 * where is the row number
 	 */
 	IDX_MARKER : 'i',
 	/**
@@ -904,7 +904,7 @@ var Simplity = (function() {
 	};
 
 	/**
-	 * @method getHtmlForPart get an html for teh part and data
+	 * @method getHtmlForPart get an html for the part and data
 	 * @param {Part}
 	 *            part
 	 * @param {Object}

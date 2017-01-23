@@ -124,34 +124,38 @@ public class InputField {
 	public boolean extractInput(Object objectValue, ServiceContext ctx) {
 		Value value = this.dataTypeObject.getValueType().parseObject(
 				objectValue);
-		if (value == null || value.isUnknown()) {
+		if (Value.isNull(value)) {
 			value = this.defaultObject;
 			if (value == null && this.isRequired) {
 				Tracer.trace(this.name + " failed mandatory criterion");
 				ctx.addMessage(Messages.VALUE_REQUIRED, this.name);
+				return false;
 			}
+			/*
+			 * default value is validated at load time. No need to validate it again
+			 */
+			ctx.setValue(this.name, value);
+			return true;
+		}
+		value = this.dataTypeObject.validateValue(value);
+		if (value != null) {
+			ctx.setValue(this.name, value);
+			return true;
+		}
+
+		Tracer.trace(this.name
+				+ " failed validation against data type "
+				+ this.dataType);
+		String msg = this.dataTypeObject.getMessageName();
+		if (msg != null) {
+			ctx.addValidationMessage(msg, this.name, null, null, 0,
+					objectValue.toString());
 		} else {
-			value = this.dataTypeObject.validateValue(value);
-			if (value == null) {
-				Tracer.trace(this.name
-						+ " failed validation against data type "
-						+ this.dataType);
-				String msg = this.dataTypeObject.getMessageName();
-				if (msg != null) {
-					ctx.addValidationMessage(msg, this.name, null, null, 0,
-							objectValue.toString());
-				} else {
-					msg = this.dataTypeObject.getDescription();
-					ctx.addValidationMessage(Messages.INVALID_DATA, this.name,
-							null, null, 0, objectValue.toString(), msg);
-				}
-			}
+			msg = this.dataTypeObject.getDescription();
+			ctx.addValidationMessage(Messages.INVALID_DATA, this.name,
+					null, null, 0, objectValue.toString(), msg);
 		}
-		if (value == null) {
-			return false;
-		}
-		ctx.setValue(this.name, value);
-		return true;
+		return false;
 	}
 
 	/**
