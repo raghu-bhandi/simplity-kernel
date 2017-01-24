@@ -27,22 +27,18 @@ import org.simplity.kernel.comp.Component;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 
-import junit.framework.Test;
-import junit.framework.TestResult;
+
 
 
 /**
  * Sequence of test cases that are run in that order
  *
  */
-public class TestRun implements Component,Test {
+public class TestRun implements Component {
 	String testName;
 	String moduleName;
 
 	TestCase[] testCases;
-	TestResult testresult=new TestResult();
-	int countTestcases=0;
-	
 
 	/**
 	 * run all test cases and report number of failure
@@ -58,13 +54,10 @@ public class TestRun implements Component,Test {
 		int nbrFailure = 0;
 
 		for (TestCase tc : this.testCases) {
-			
 			String msg = tc.run(ctx);
-			countTestcases++;
 			if (msg != null) {
 				nbrFailure++;
-				testresult.addError(this, new Throwable(msg));
-			}			
+			}
 		}
 		return nbrFailure;
 	}
@@ -116,6 +109,7 @@ public class TestRun implements Component,Test {
 	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
 	 * ValidationContext)
 	 */
+	@Override
 	public int validate(ValidationContext vtx) {
 		int nbrErrors = 0;
 		if (this.testCases != null) {
@@ -124,16 +118,6 @@ public class TestRun implements Component,Test {
 			}
 		}
 		return nbrErrors;
-	}
-
-	@Override
-	public int countTestCases() {
-		return countTestcases;
-	}
-
-	@Override
-	public void run(TestResult result) {
-		result = this.testresult;
 	}
 
 }
