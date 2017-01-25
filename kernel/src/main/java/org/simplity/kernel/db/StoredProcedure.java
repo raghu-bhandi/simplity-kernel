@@ -193,6 +193,7 @@ public class StoredProcedure implements Component {
 	@Override
 	public int validate(ValidationContext ctx) {
 		ctx.beginValidation(MY_TYPE, this.getQualifiedName());
+		try{
 		int count = 0;
 		if (this.procedureName != null) {
 			ctx.addError("Procedure name is required.");
@@ -211,8 +212,10 @@ public class StoredProcedure implements Component {
 				count += param.validate(ctx);
 			}
 		}
-		ctx.endValidation();
 		return count;
+		}finally{
+			ctx.endValidation();
+		}
 	}
 
 	@Override

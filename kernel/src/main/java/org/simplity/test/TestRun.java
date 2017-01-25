@@ -27,9 +27,6 @@ import org.simplity.kernel.comp.Component;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 
-
-
-
 /**
  * Sequence of test cases that are run in that order
  *
@@ -67,6 +64,7 @@ public class TestRun implements Component {
 	 * 
 	 * @see org.simplity.kernel.comp.Component#getSimpleName()
 	 */
+	@Override
 	public String getSimpleName() {
 		return this.testName;
 	}
@@ -76,6 +74,7 @@ public class TestRun implements Component {
 	 * 
 	 * @see org.simplity.kernel.comp.Component#getQualifiedName()
 	 */
+	@Override
 	public String getQualifiedName() {
 		if (this.moduleName == null) {
 			return this.testName;
@@ -88,6 +87,7 @@ public class TestRun implements Component {
 	 * 
 	 * @see org.simplity.kernel.comp.Component#getReady()
 	 */
+	@Override
 	public void getReady() {
 		// This component is not saved and re-used in memory. Hence no
 		// preparation on load.
@@ -98,6 +98,7 @@ public class TestRun implements Component {
 	 * 
 	 * @see org.simplity.kernel.comp.Component#getComponentType()
 	 */
+	@Override
 	public ComponentType getComponentType() {
 		return ComponentType.TEST_RUN;
 	}

@@ -34,6 +34,7 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataPurpose;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
+import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.util.JsonUtil;
@@ -310,39 +311,184 @@ public class InputRecord {
 
 	private DataSheet getSheetFromParent(JSONObject json, ServiceContext ctx,
 			List<FormattedMessage> errors) {
-		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
 		/*
 		 * this is a child sheet. parent may or may not be a sheet
 		 */
 		JSONArray data = json.optJSONArray(this.parentSheetName);
-		if (data != null) {
-			return JsonUtil.getChildSheet(data, this.sheetName, this.fields,
-					errors, allFieldsAreOptional);
+		if (data != null && data.length() > 0) {
+			return this.getChildSheet(data, errors);
 		}
 
 		/*
 		 * no parent sheet. do we have child sheet at least?
 		 */
 		data = json.optJSONArray(this.sheetName);
-		if (data != null) {
+		if (data == null) {
+			Tracer.trace("No rows for " + this.sheetName);
 			return null;
 		}
 
-		/*
-		 * assume a single row of parent in fields collection
-		 */
-		Value parentValue = ctx.getValue(this.linkColumnInParentSheet);
-		if (Value.isNull(parentValue)) {
+		Object obj = json.opt(this.linkColumnInParentSheet);
+		if (obj == null) {
 			/*
 			 * degenerated into a simple sheet case
 			 */
 			return this.getSheetFromArray(json, ctx, errors);
 		}
 		/*
-		 * parent key value added to child rows
+		 * assume a single row of parent in fields collection, and extract all
+		 * child rows
 		 */
-		return JsonUtil.getSheet(data, this.fields, errors,
-				allFieldsAreOptional, this.linkColumnInThisSheet, parentValue);
+		Field[] inputFields = this.fields;
+		if (inputFields == null) {
+			inputFields = this.guessFieldsFromChildRows(data, json);
+			if (inputFields == null) {
+				Tracer.trace("We did not get any non-empty rows for "
+						+ this.sheetName + " and hence no rows extracted.");
+				return null;
+			}
+		}
+		DataSheet ds = new MultiRowsSheet(inputFields);
+		int parentKeyIdx = ds.getColIdx(this.linkColumnInThisSheet);
+		this.addRowsFromParent(json, inputFields, parentKeyIdx, ds, errors);
+		return ds;
+	}
+
+	private DataSheet getChildSheet(JSONArray parentRows,
+			List<FormattedMessage> errors) {
+		/*
+		 * parentRows corresponds to following json. We are to accumulate child
+		 * rows
+		 * across all main rows
+		 *
+		 * [...,"attName"=[{},{}....],..],[....,"attName"=[{},{}.... ],..]....
+		 */
+		Field[] inputFields = this.fields;
+		if (inputFields == null) {
+			inputFields = this.guessFieldsFromParentRows(parentRows);
+		}
+		if (inputFields == null) {
+			/*
+			 * we do not have any child rows in the parent sheet...
+			 */
+			return null;
+		}
+		DataSheet ds = new MultiRowsSheet(inputFields);
+		/*
+		 * we are not sure of getting a valid child row in first element. So,
+		 * let us have a flexible strategy
+		 */
+		int nbrParentRows = parentRows.length();
+		/*
+		 * col number in child sheet to which we have to copy parent key
+		 */
+		int parentKeyIdx = ds.getColIdx(this.linkColumnInThisSheet);
+		/*
+		 * for each parent row
+		 */
+		for (int parentIdx = 0; parentIdx < nbrParentRows; parentIdx++) {
+			JSONObject pr = parentRows.optJSONObject(parentIdx);
+			if (pr == null) {
+				continue;
+			}
+			this.addRowsFromParent(pr, inputFields, parentKeyIdx, ds, errors);
+		}
+		return ds;
+	}
+
+	/**
+	 * adding all child rows from a given parent object
+	 *
+	 * @param parentObject
+	 *            that has the rows for children
+	 * @param inputFields
+	 *            actual fields to be added, including the parent key field
+	 * @param parentKeyIdx
+	 *            index to the above array to locate the parentKey
+	 * @param ds
+	 *            data sheet to which we extract rows into
+	 * @param errors
+	 *            accumulate any error while parsing data
+	 */
+	private void addRowsFromParent(JSONObject parentObject, Field[] inputFields,
+			int parentKeyIdx, DataSheet ds, List<FormattedMessage> errors) {
+		JSONArray rows = parentObject.optJSONArray(this.sheetName);
+		if (rows == null) {
+			return;
+		}
+		int n = rows.length();
+		Object parentVal = parentObject.opt(this.linkColumnInParentSheet);
+		for (int childIdx = 0; childIdx < n; childIdx++) {
+			JSONObject obj = rows.optJSONObject(childIdx);
+			if (obj == null) {
+				continue;
+			}
+			int fieldIdx = 0;
+			Value[] row = new Value[inputFields.length];
+			for (Field field : inputFields) {
+				Object val = null;
+				if (fieldIdx == parentKeyIdx) {
+					val = parentVal;
+				} else {
+					val = obj.opt(field.getName());
+				}
+				row[fieldIdx] = field.parseObject(val, errors,
+						this.purpose == DataPurpose.SUBSET, this.sheetName);
+				fieldIdx++;
+			}
+			ds.addRow(row);
+		}
+	}
+
+	/**
+	 * @param parentRows
+	 * @return
+	 */
+	private Field[] guessFieldsFromParentRows(JSONArray parentRows) {
+		/*
+		 * go down till we get the first row for this child, and we get all
+		 * attributes as fields.
+		 *
+		 */
+		int n = parentRows.length();
+		for (int i = 0; i < n; i++) {
+			JSONObject pr = parentRows.optJSONObject(0);
+			if (pr == null) {
+				continue;
+			}
+			JSONArray children = pr.optJSONArray(this.sheetName);
+			if (children == null) {
+				continue;
+			}
+			Field[] f = this.guessFieldsFromChildRows(children, pr);
+			if (f != null) {
+				return f;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param parentRows
+	 * @return
+	 */
+	private Field[] guessFieldsFromChildRows(JSONArray childRows,
+			JSONObject parentObject) {
+		/*
+		 * go down till we get the first row for this child, and we get all
+		 * attributes as fields.
+		 *
+		 */
+		int nbr = childRows.length();
+		Object parentValue = parentObject.opt(this.linkColumnInParentSheet);
+		for (int j = 0; j < nbr; j++) {
+			JSONObject child = childRows.optJSONObject(j);
+			if (child != null) {
+				return JsonUtil.getFields(child, this.linkColumnInThisSheet,
+						parentValue);
+			}
+		}
+		return null;
 	}
 
 	private DataSheet getSheetFromArray(JSONObject json, ServiceContext ctx,
