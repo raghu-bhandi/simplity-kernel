@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	name="owners"
+	okToSelectAll="true"
+	keyToBeGenerated="true"
+	childrenToBeRead="petDetails"
+	childrenToBeSaved="pets"
+>
+	<fields>
+		<field
+			name="ownerId"
+			columnName="id"
+			dataType="id"
+			fieldType="primaryKey" />
+		<field
+			name="firstName"
+			columnName="first_name"
+			dataType="name"
+			isRequired="true" />
+		<field
+			name="lastName"
+			columnName="last_name"
+			dataType="name"
+			isRequired="true" />
+		<field
+			name="address"
+			dataType="address"
+			isRequired="true" />
+		<field
+			name="city"
+			dataType="city" 
+			isRequired="true"/>
+		<field
+			name="telephone"
+			columnName="telephone"
+			dataType="phone" />
+	</fields>
+</record>

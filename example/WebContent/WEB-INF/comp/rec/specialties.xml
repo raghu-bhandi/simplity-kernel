@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	name="specialties"
+	okToSelectAll="true"
+	keyToBeGenerated="true"
+	listFieldName="specialty"
+>
+	<fields>
+		<field
+			name="specialtyId"
+			columnName="id"
+			dataType="id"
+			fieldType="primaryKey"
+			isRequired="true"
+			/>
+		<field
+			name="specialty"
+			columnName="name"
+			dataType="text80"
+			isRequired="true"
+			/>
+	</fields>
+</record>

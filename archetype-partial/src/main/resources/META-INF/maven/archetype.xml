@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype
+	xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype/1.0.0">
+	<id>archetype-partial</id>
+	<allowPartial>true</allowPartial>
+	<testSources>
+        <source>src/test/java/HelloWorldTest.java</source>
+    </testSources>
+	<resources>
+	    <resource>src/main/resources/log4j2.xml</resource>
+		<resource>src/main/webapp/WEB-INF/comp/application.xml</resource>
+		<resource>src/main/webapp/js/simplity-min.js</resource>			
+	</resources>
+</archetype>

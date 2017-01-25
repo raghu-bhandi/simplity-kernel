@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Simplity Test</title>
+<script type="text/javascript" src="js/test.js"></script>
+<script type="text/javascript" src="lib/simplity.js"></script>
+<style type="text/css">
+.key{
+	color:red;
+}
+.number{
+	color:blue;
+}
+.string{
+	color:green;
+}
+.boolean {
+	color:olive;
+}
+.null{
+	color:fuchsia;
+}
+
+</style>
+</head>
+<body onload="login()">
+	<h1 id="Simplity Test"></h1>
+	Service name to invoke : &nbsp;
+	<input id="service" width="25" onchange="serviceChanged(this)" />
+	<br />
+	<br />
+	Json Data : <textarea id="json" cols="50" rows="10"> </textarea>
+	<br/>
+	<br />
+	
+	<input type="button" value="Go... Get Response" onclick="test()" />
+	<br />
+	<br />
+	<h4>Request data</h4>
+	<pre id="request" ></pre >
+	<br />
+	<br />
+	<h4>Response data</h4>
+	<pre id="response"></pre>
+</body>
+</html>

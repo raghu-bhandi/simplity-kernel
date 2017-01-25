@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	name="visits"
+	keyToBeGenerated="true"
+>
+	<fields>
+		<field
+			name="visitId"
+			columnName="id"
+			dataType="id"
+			fieldType="primaryKey"
+			isRequired="true" />
+		<field
+			name="petId"
+			columnName="pet_id"
+			dataType="id"
+			fieldType="parentKey"
+			referredRecord="pets"
+			referredField="petId"
+			isRequired="true" />
+		<field
+			name="visitDate"
+			columnName="visit_date"
+			dataType="date"
+			isRequired="true" />
+		<field
+			name="visitDescription"
+			columnName="description"
+			dataType="description"
+			isRequired="true" />
+	</fields>
+</record>

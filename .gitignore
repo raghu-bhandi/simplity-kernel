@@ -1,0 +1,14 @@
+/.metadata/
+/RemoteSystemsTempFiles/
+/Servers/
+/.recommenders/
+/.settings/
+/javadocs/ 
+/target/
+run.bat
+.DS_Store
+/.openshift/
+deploy_key
+.docx
+README.md
+
