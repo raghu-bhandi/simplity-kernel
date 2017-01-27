@@ -4,6 +4,7 @@
 <meta charset="ISO-8859-1">
 <title>Simplity Test</title>
 <script type="text/javascript" src="lib/simplity-min.js"></script>
+ 
 <style type="text/css">
 .key {
 	color: red;
@@ -25,7 +26,8 @@
 	color: fuchsia;
 }
 </style>
-<!-- This is not a good practice, but we are embedding script her at the top for convenience. 
+ 
+<!-- This is not a good practice, but we are embedding script here at the top for convenience. 
 	This is a test page, not a production page
  -->
 <script type="text/javascript">
@@ -75,11 +77,12 @@
 			Simplity.showMessage('Please enter the service name to test');
 			return;
 		}
-		var data = document.getElementById('json').value;
+		var json = document.getElementById('json');
+		var data = json.value;
 		if (data) {
 			try {
 				var txt = JSON.stringify(JSON.parse(data), null, 2);
-				document.getElementById('json').value = txt;
+				json.value = txt;
 			} catch (e) {
 				if (!confirm("Your json has sytax error. want to still proceed? \n\n "
 						+ e)) {
@@ -109,8 +112,6 @@
 	<h4>Json Input Data :</h4>
 	<textarea id="json" cols="50" rows="10"> </textarea>
 	<br />
-	<br />
-
 	<input type="button" value="Go... Get Response" onclick="test()" />
 	<br />
 	<br />
