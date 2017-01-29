@@ -21,13 +21,17 @@
  */
 package org.simplity.tp;
 
+import org.simplity.json.JSONArray;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -51,6 +55,11 @@ public class InputField {
 	 * used in case value is not available at run time, and isRequired is true
 	 */
 	String defaultValue;
+
+	/**
+	 * is it an array
+	 */
+	boolean isArray;
 	/*
 	 * cached for performance
 	 */
@@ -122,39 +131,161 @@ public class InputField {
 	 * @return true if data is extracted, false otherwise.
 	 */
 	public boolean extractInput(Object objectValue, ServiceContext ctx) {
-		Value value = this.dataTypeObject.getValueType().parseObject(
-				objectValue);
-		if (Value.isNull(value)) {
-			value = this.defaultObject;
+		if (objectValue == null) {
+			Value value = this.defaultObject;
 			if (value == null && this.isRequired) {
 				Tracer.trace(this.name + " failed mandatory criterion");
 				ctx.addMessage(Messages.VALUE_REQUIRED, this.name);
 				return false;
 			}
 			/*
-			 * default value is validated at load time. No need to validate it again
+			 * default value is validated at load time. No need to validate it
+			 * again
 			 */
+			if (this.isArray) {
+				Value[] vals = {this.defaultObject};
+				ctx.putDataSheet(this.name, this.createDataSheet(vals));
+			} else {
+				ctx.setValue(this.name, value);
+			}
+			return true;
+		}
+		/*
+		 * normal field
+		 */
+		if (this.isArray == false) {
+			Value value = this.parseValue(objectValue, ctx, 0);
+			if (value == null) {
+				return false;
+			}
 			ctx.setValue(this.name, value);
 			return true;
 		}
-		value = this.dataTypeObject.validateValue(value);
-		if (value != null) {
-			ctx.setValue(this.name, value);
+		/*
+		 * array
+		 */
+		Value[] values = null;
+		if (objectValue instanceof JSONArray) {
+			values = this.jsonToValues((JSONArray) objectValue, ctx);
+		} else if (objectValue.getClass().isArray()) {
+			values = this.arrayToValues((Object[]) objectValue, ctx);
+		} else {
+			values = Value.parse(objectValue.toString().split(","), this.dataTypeObject.getValueType());
+		}
+		if (values != null) {
+			ctx.putDataSheet(this.name, this.createDataSheet(values));
 			return true;
 		}
 
-		Tracer.trace(this.name
-				+ " failed validation against data type "
+		return false;
+	}
+
+	private Value parseValue(Object objectValue, ServiceContext ctx, int idx) {
+		Value value = this.dataTypeObject.getValueType()
+				.fromObject(objectValue);
+		if (value != null) {
+			value = this.dataTypeObject.validateValue(value);
+		}
+		if (value == null) {
+			this.validationError(objectValue.toString(), idx, ctx);
+		}
+		return value;
+	}
+
+	/**
+	 * create a data sheet with one column named same as this field name
+	 *
+	 * @return multi-rows data sheet to which one can keep adding rows
+	 */
+	private DataSheet createDataSheet(Value[] values) {
+		String[] fields = { this.name };
+		ValueType[] types = { this.dataTypeObject.getValueType() };
+		DataSheet sheet = new MultiRowsSheet(fields, types);
+		if(values != null){
+			for(Value value : values){
+				if(value != null){
+					Value[] row = {value};
+					sheet.addRow(row);
+				}
+			}
+		}
+		return sheet;
+	}
+
+	/**
+	 * extract values from an array into a data sheet
+	 *
+	 * @param arr
+	 * @param sheet
+	 * @param ctx
+	 * @return
+	 */
+	private Value[] arrayToValues(Object[] arr,	ServiceContext ctx) {
+		ValueType vt = this.dataTypeObject.getValueType();
+		int idx = 0;
+		Value[] values = new Value[arr.length];
+		for (Object obj : arr) {
+			Value value = null;
+			if (obj != null) {
+				value = vt.fromObject(obj);
+			}
+			if (value == null) {
+				this.validationError("" + obj, idx, ctx);
+				return null;
+			}
+			idx++;
+		}
+		return values;
+	}
+
+	/**
+	 * extract values from a json array into a sheet
+	 *
+	 * @param arr
+	 * @param sheet
+	 * @param ctx
+	 * @return
+	 */
+	private Value[] jsonToValues(JSONArray arr,	ServiceContext ctx) {
+		ValueType vt = this.dataTypeObject.getValueType();
+		int nbr = arr.length();
+		Value[] values = new Value[nbr];
+		for (int i = 0; i < nbr; i++) {
+			Object obj = arr.opt(i);
+			Value value = null;
+			if (obj != null) {
+				value = vt.fromObject(obj);
+			}
+			if (value == null) {
+				this.validationError("" + obj, i, ctx);
+				return null;
+			}
+			values[i] =  value;
+		}
+		return values;
+	}
+
+	/**
+	 * add validation error for this field to the context
+	 *
+	 * @param value
+	 * @param idx
+	 * @param ctx
+	 * @return false for convenience
+	 */
+	private boolean validationError(String value, int idx, ServiceContext ctx) {
+		Tracer.trace(this.name + " failed validation against data type "
 				+ this.dataType);
 		String msg = this.dataTypeObject.getMessageName();
 		if (msg != null) {
-			ctx.addValidationMessage(msg, this.name, null, null, 0,
-					objectValue.toString());
-		} else {
-			msg = this.dataTypeObject.getDescription();
-			ctx.addValidationMessage(Messages.INVALID_DATA, this.name,
-					null, null, 0, objectValue.toString(), msg);
+			ctx.addValidationMessage(msg, this.name, null, null, idx, value);
+			return false;
 		}
+
+		msg = this.dataTypeObject.getDescription();
+		ctx.addValidationMessage(Messages.INVALID_DATA, this.name, null, null,
+				idx, value, msg);
+
 		return false;
 	}
 
@@ -177,13 +308,11 @@ public class InputField {
 			Value val = dt.parseValue(this.defaultValue);
 
 			if (val == null) {
-				ctx.addError("Input field " + this.name
-						+ " has an invalid default value of "
-						+ this.defaultValue);
+				ctx.addError("Default value of " + this.defaultValue
+						+ " is invalid for field " + this.name);
 				count++;
 			}
 		}
 		return count;
 	}
-
 }

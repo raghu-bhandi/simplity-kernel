@@ -35,6 +35,7 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.JsonUtil;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceProtocol;
@@ -53,6 +54,11 @@ public class OutputData {
 	 */
 	String[] fieldNames;
 
+	/**
+	 * comma separated list of arrays. Values for arrays are in data sheet with
+	 * a single column
+	 */
+	String[] arrayNames;
 	/**
 	 * sheets/fields to be output based on record definitions
 	 */
@@ -160,7 +166,7 @@ public class OutputData {
 							+ sheetName + " for output.");
 				} else {
 					writer.key(sheetName);
-					JsonUtil.sheetToJson(writer, sheet, null);
+					JsonUtil.sheetToJson(writer, sheet, null, false);
 				}
 			}
 		}
@@ -169,7 +175,25 @@ public class OutputData {
 				rec.toJson(writer, ctx);
 			}
 		}
+		if(this.arrayNames != null){
+			for(String arrayName : this.arrayNames){
+				DataSheet sheet = ctx.getDataSheet(arrayName);
+				if (sheet == null) {
+					Value value = ctx.getValue(arrayName);
+					if(value == null){
+					Tracer.trace("Service context has no sheet with name "
+							+ arrayName + " for output.");
+					continue;
+					}
+					writer.key(arrayName).array().value(value).endArray();
+				} else {
+					writer.key(arrayName);
+					JsonUtil.sheetToArray(writer, sheet);
+				}
+			}
+		}
 	}
+
 	/**
 	 * get ready for a long-haul service :-)
 	 */
@@ -255,11 +279,12 @@ public class OutputData {
 		/*
 		 * duplicate field names
 		 */
-		if(this.fieldNames != null && this.fieldNames.length > 0){
+		if (this.fieldNames != null && this.fieldNames.length > 0) {
 			Set<String> keys = new HashSet<String>();
-			for(String key : this.fieldNames){
-				if(keys.add(key) == false){
-					ctx.addError(key + " is a duplicate field name for output.");
+			for (String key : this.fieldNames) {
+				if (keys.add(key) == false) {
+					ctx.addError(
+							key + " is a duplicate field name for output.");
 					count++;
 				}
 			}
@@ -267,11 +292,12 @@ public class OutputData {
 		/*
 		 * duplicate data sheets?
 		 */
-		if(this.dataSheets != null && this.dataSheets.length > 0){
+		if (this.dataSheets != null && this.dataSheets.length > 0) {
 			Set<String> keys = new HashSet<String>();
-			for(String key : this.dataSheets){
-				if(keys.add(key) == false){
-					ctx.addError(key + " is a duplicate data sheet name for output.");
+			for (String key : this.dataSheets) {
+				if (keys.add(key) == false) {
+					ctx.addError(key
+							+ " is a duplicate data sheet name for output.");
 					count++;
 				}
 			}
@@ -282,7 +308,8 @@ public class OutputData {
 		}
 
 		/*
-		 * validate output records, and also keep sheet-record mapping for other validations.
+		 * validate output records, and also keep sheet-record mapping for other
+		 * validations.
 		 */
 		Map<String, OutputRecord> allSheets = new HashMap<String, OutputRecord>();
 		int nbrParents = 0;
@@ -311,34 +338,38 @@ public class OutputData {
 	/**
 	 * @return
 	 */
-	private int validateParent(OutputRecord outRec, Map<String, OutputRecord> allSheets, ValidationContext ctx) {
+	private int validateParent(OutputRecord outRec,
+			Map<String, OutputRecord> allSheets, ValidationContext ctx) {
 		/*
 		 * check for existence of parent, as well
 		 */
 		Set<String> parents = new HashSet<String>();
 		String sheet = outRec.sheetName;
 		String parent = outRec.parentSheetName;
-		while(true){
+		while (true) {
 			OutputRecord rec = allSheets.get(parent);
 			/*
 			 * do we have the parent?
 			 */
-			if(rec == null){
-				ctx.addError("output sheet "  + sheet + " uses parentSheetName=" + parent
+			if (rec == null) {
+				ctx.addError("output sheet " + sheet + " uses parentSheetName="
+						+ parent
 						+ " but that sheet name is not used in any outputRecord. Note that all sheets that aprticipate iin parent-child relationship must be defined using outputRecord elements.");
 				return 1;
 			}
 			/*
 			 * are we cycling in a circle?
 			 */
-			if(parents.add(parent) == false){
-				ctx.addError("output record with sheetName=" + sheet + " has its parentSheetName set to " + parent + ". This is creating a cyclical child-parent relationship.");
+			if (parents.add(parent) == false) {
+				ctx.addError("output record with sheetName=" + sheet
+						+ " has its parentSheetName set to " + parent
+						+ ". This is creating a cyclical child-parent relationship.");
 				return 1;
 			}
 			/*
 			 * is the chain over?
 			 */
-			if(rec.parentSheetName == null){
+			if (rec.parentSheetName == null) {
 				/*
 				 * we are fine with this outoutRecord
 				 */
@@ -354,7 +385,8 @@ public class OutputData {
 	 * @return
 	 */
 	boolean okToOutputFieldsFromRecord(Field[] fields) {
-		if(this.fieldNames == null || this.fieldNames.length == 0 || fields == null || fields.length == 0){
+		if (this.fieldNames == null || this.fieldNames.length == 0
+				|| fields == null || fields.length == 0) {
 			return true;
 		}
 		Set<String> allNames = new HashSet<String>(this.fieldNames.length);

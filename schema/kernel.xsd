@@ -1110,6 +1110,20 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute
+			name="arrayNames"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>comma separated names of arrays to be output. A
+					data sheet with a single column is expected in the service context
+					as value. If sheet is not found, but a value is found in fields
+					collection, then we send an array with just one element of that
+					value.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 
@@ -1256,6 +1270,18 @@
 						name="defaultValue"
 						type="xs:string"
 						use="optional" />
+					<xs:attribute
+						name="isArray"
+						type="booleanType"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Values for an array can be input either as
+								array
+								or a comma separated field
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>

@@ -67,8 +67,15 @@ public class OutputRecord {
 	 */
 	String linkColumnInThisSheet;
 
+	/**
+	 * field name in the parent sheet to match with the field name in this sheet
+	 */
 	String linkColumnInParentSheet;
 
+	/**
+	 * if this is a data structure and not a data sheet, output its first row as an object
+	 */
+	boolean outputAsObject;
 	/*
 	 * we cache child records for convenience
 	 */
@@ -224,7 +231,7 @@ public class OutputRecord {
 			}
 		}
 		writer.key(this.sheetName);
-		JsonUtil.sheetToJson(writer, sheet, children);
+		JsonUtil.sheetToJson(writer, sheet, children, this.outputAsObject);
 	}
 
 	/**

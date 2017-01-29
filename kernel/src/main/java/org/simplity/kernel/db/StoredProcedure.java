@@ -94,6 +94,9 @@ public class StoredProcedure implements Component {
 	 */
 	@Override
 	public String getQualifiedName() {
+		if(this.moduleName == null){
+			return this.name;
+		}
 		return this.moduleName + '.' + this.name;
 	}
 

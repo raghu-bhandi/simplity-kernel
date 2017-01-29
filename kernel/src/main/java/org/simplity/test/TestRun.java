@@ -61,7 +61,7 @@ public class TestRun implements Component {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getSimpleName()
 	 */
 	@Override
@@ -71,7 +71,7 @@ public class TestRun implements Component {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getQualifiedName()
 	 */
 	@Override
@@ -84,7 +84,7 @@ public class TestRun implements Component {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getReady()
 	 */
 	@Override
@@ -95,7 +95,7 @@ public class TestRun implements Component {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getComponentType()
 	 */
 	@Override
@@ -105,7 +105,7 @@ public class TestRun implements Component {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
 	 * ValidationContext)
@@ -113,10 +113,15 @@ public class TestRun implements Component {
 	@Override
 	public int validate(ValidationContext vtx) {
 		int nbrErrors = 0;
+		vtx.beginValidation(ComponentType.TEST_RUN, this.testName);
+		try{
 		if (this.testCases != null) {
 			for (TestCase testCase : this.testCases) {
 				nbrErrors += testCase.validate(vtx);
 			}
+		}
+		}finally{
+			vtx.endValidation();
 		}
 		return nbrErrors;
 	}

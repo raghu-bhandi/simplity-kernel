@@ -381,7 +381,7 @@ public class Service implements ServiceInterface {
 		}
 		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
 			writer.key(entry.getKey());
-			JsonUtil.sheetToJson(writer, entry.getValue(), null);
+			JsonUtil.sheetToJson(writer, entry.getValue(), null, false);
 		}
 		writer.endObject();
 		response.setPayLoad(writer.toString());

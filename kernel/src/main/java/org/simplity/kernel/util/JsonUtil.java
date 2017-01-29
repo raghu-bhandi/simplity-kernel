@@ -233,9 +233,12 @@ public class JsonUtil {
 	 * @param writer
 	 * @param ds
 	 * @param childSheets
+	 * @param outputAsObject
+	 *            if the data sheet is meant for an object/data structure and
+	 *            not an array of them. Only first row is used
 	 */
 	public static void sheetToJson(JSONWriter writer, DataSheet ds,
-			HierarchicalSheet[] childSheets) {
+			HierarchicalSheet[] childSheets, boolean outputAsObject) {
 		int nbrRows = 0;
 		int nbrCols = 0;
 		if (ds != null) {
@@ -247,7 +250,11 @@ public class JsonUtil {
 			Tracer.trace("Sheet  has no data. json is not added");
 			return;
 		}
-		writer.array();
+		if (outputAsObject) {
+			nbrRows = 1;
+		} else {
+			writer.array();
+		}
 		String[] names = ds.getColumnNames();
 		for (int i = 0; i < nbrRows; i++) {
 			writer.object();
@@ -276,6 +283,30 @@ public class JsonUtil {
 				}
 			}
 			writer.endObject();
+		}
+		if (outputAsObject == false) {
+			writer.endArray();
+		}
+	}
+
+	/**
+	 * write the first column of data sheet as an array
+	 *
+	 * @param writer
+	 * @param ds
+	 */
+	public static void sheetToArray(JSONWriter writer, DataSheet ds) {
+		writer.array();
+		if (ds != null && ds.length() > 0) {
+			/*
+			 * if rows exist, then first column is guaranteed
+			 */
+			for (Value[] row : ds.getAllRows()) {
+				Value value = row[0];
+				if (value != null) {
+					writer.value(value.toObject());
+				}
+			}
 		}
 		writer.endArray();
 	}
