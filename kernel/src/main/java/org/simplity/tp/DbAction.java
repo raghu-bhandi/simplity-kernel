@@ -78,7 +78,7 @@ public abstract class DbAction extends Action {
 		}
 		if (this.stopIfMessageTypeIsError && msgType != null
 				&& msgType == MessageType.ERROR) {
-			return ActionBlock.STOP_VALUE;
+			return Service.STOP_VALUE;
 		}
 		return Value.newIntegerValue(result);
 	}
@@ -94,7 +94,7 @@ public abstract class DbAction extends Action {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
 	 * , org.simplity.tp.Service)

@@ -1187,10 +1187,9 @@ public class JSONArray implements Iterable<Object> {
 				msg = " value mismatch. " + thisValue + " != " + otherValue;
 			}
 			if(msg != null){
-				return '.' + idx + msg;
+				return "." + idx + msg;
 			}
 			idx++;
-
 		}
 		return null;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 simplity.org
+ * Copyright (c) 2017 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,56 +15,48 @@
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package org.simplity.tp;
 
-import org.simplity.kernel.db.DbDriver;
-import org.simplity.kernel.value.Value;
-import org.simplity.service.ServiceContext;
-
 /**
- * service has actions that are executed in a sequence. JumpTo allows you to
- * change this sequence.
- *
- *
  * @author simplity.org
  *
  */
-public class JumpTo extends org.simplity.tp.Action {
-
+public enum JumpSignal {
 	/**
-	 * returns either a name of action to go to, or "_stop", "_error",
-	 * "_continue", "_break"
+	 * break out of this block. Valid if the action is inside a loop
 	 */
-	String toAction;
-
+	BREAK,
 	/**
-	 * cached for performance
+	 * continue with the next loop, valid if this is inside a loop
 	 */
-	private Value returnValue;
-	private JumpSignal jumpSignal;
-
-	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
-		return this.returnValue;
-	}
-
+	CONTINUE,
 	/**
-	 *
-	 * @return if this is for a signal, then signal, else null
+	 * stop the service normally
 	 */
-	public JumpSignal getSignal(){
-		return this.jumpSignal;
-	}
-
-	@Override
-	public void getReady(int idx) {
-		this.jumpSignal = JumpSignal.getSignal(this.toAction);
-		if(this.jumpSignal == null) {
-			this.returnValue = Value.newTextValue(this.toAction);
+	STOP;
+	private static final String _STOP = "_stop";
+	private static final String _CONTINUE = "_continue";
+	private static final String _BREAK = "_break";
+	/**
+	 * check if this text is a signal. null if it is not.
+	 * @param text
+	 * @return signal or null;
+	 */
+	public static JumpSignal getSignal(String text){
+		if(_STOP.equals(text)){
+			return STOP;
 		}
+		if(_BREAK.equals(text)){
+			return BREAK;
+		}
+		if(_CONTINUE.equals(text)){
+			return CONTINUE;
+		}
+		return null;
 	}
 }

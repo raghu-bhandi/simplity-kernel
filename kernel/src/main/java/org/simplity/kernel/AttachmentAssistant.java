@@ -19,11 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.kernel.file;
+package org.simplity.kernel;
 
 import java.io.InputStream;
-
-import org.simplity.kernel.ApplicationError;
 
 /**
  * An assistant to AttachmentManager who can store/retrieve file/media in a

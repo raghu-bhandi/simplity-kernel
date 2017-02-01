@@ -144,7 +144,7 @@ public class TestContext {
 		Application.bootStrap(root);
 		TestContext ctx = new TestContext();
 		ctx.start("100", "abrakadabra");
-		TestRun testRun = ComponentManager.getTestRunOrNull("service.input");
+		TestRun testRun = ComponentManager.getTestRunOrNull("action.httpClient");
 		testRun.run(ctx);
 		JSONWriter writer = new JSONWriter();
 		writer.object();

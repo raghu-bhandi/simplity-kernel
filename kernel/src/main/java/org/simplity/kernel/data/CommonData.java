@@ -182,22 +182,33 @@ public class CommonData implements CommonDataInterface {
 		return this.allSheets.remove(sheetName);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.simplity.kernel.data.CommonDataInterface#startIteration(java.lang.String)
+	 */
 	@Override
+	/**
+	 * iterator is non-null. This avoids for-loop null-pointer exceptions
+	 */
 	public final DataSheetIterator startIteration(String sheetName)
 			throws AlreadyIteratingException {
-		DataSheet sheet = this.getDataSheet(sheetName);
-
-		if (sheet == null || this.iteratedSheets.containsKey(sheetName)) {
+		if (this.iteratedSheets.containsKey(sheetName)) {
 			throw new AlreadyIteratingException();
 		}
-		int nbrRows = sheet.length();
-		SheetIterator iter;
-		if (nbrRows > 0 && sheet instanceof MultiRowsSheet) {
-			iter = new SheetIterator(sheetName, nbrRows);
-			this.iteratedSheets.put(sheetName, iter);
-		} else {
-			iter = new SheetIterator(null, nbrRows);
+		DataSheet sheet = this.getDataSheet(sheetName);
+		int nbrRows = 0;
+		if(sheet != null){
+			nbrRows = sheet.length();
 		}
+
+		if (nbrRows == 0 || sheet instanceof MultiRowsSheet == false) {
+			return new SheetIterator(null, nbrRows);
+		}
+		/*
+		 * we have to track this iterator
+		 */
+		SheetIterator	iter = new SheetIterator(sheetName, nbrRows);
+		this.iteratedSheets.put(sheetName, iter);
 		return iter;
 	}
 

@@ -81,8 +81,7 @@ public class Service implements ServiceInterface {
 	/**
 	 * stop the execution of this service as success
 	 */
-	public static final String STOP = "_s";
-
+	public static final Value STOP_VALUE = Value.newTextValue("_s");
 	/**
 	 * field name with which result of an action is available in service context
 	 */

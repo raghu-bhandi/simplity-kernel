@@ -1536,7 +1536,7 @@ public class JSONObject {
 
 			}
 			if (msg != null) {
-				return '.' + key + msg;
+				return "."+ key + msg;
 			}
 		}
 		return null;

@@ -41,21 +41,22 @@ import org.simplity.service.ServiceContext;
 public class ActionBlock implements DbClientInterface {
 
 	/**
-	 * stop the execution of this service as success
-	 */
-	public static final String STOP = "_stop";
-
-	/**
-	 * stop the execution of this service as success
-	 */
-	public static final Value STOP_VALUE = Value.newTextValue(STOP);
-
-	/**
 	 * field name with which result of an action is available in service context
 	 */
 	public static final String RESULT_SUFFIX = "Result";
+	/**
+	 * actions we have to take care of
+	 */
 	private final Action[] actions;
+
+	/**
+	 * in case there is a goto action, we need the map
+	 */
 	private final Map<String, Integer> indexedActions;
+
+	/**
+	 * service context
+	 */
 	private final ServiceContext ctx;
 
 	/**
@@ -88,42 +89,37 @@ public class ActionBlock implements DbClientInterface {
 	 *         and we stopped in between.
 	 */
 	public boolean act(DbDriver driver) {
-
 		int nbrActions = this.actions == null ? 0 : this.actions.length;
 		if (nbrActions == 0) {
 			return true;
 		}
+		return this.execute(driver) !=  JumpSignal.STOP;
+	}
+
+	/**
+	 * execute this block once
+	 * @param driver
+	 * @return null if it is a normal exit, or a specific signal
+	 */
+	public JumpSignal execute(DbDriver driver) {
+		int nbrActions = this.actions.length;
 		int currentIdx = 0;
 		Value result = null;
-
 		while (currentIdx < nbrActions) {
 			Action action = this.actions[currentIdx];
-			long startedAt = new Date().getTime();
-			result = action.act(this.ctx, driver);
-			Tracer.trace("Action " + action.actionName
-					+ " finished with result=" + result + " in "
-					+ (new Date().getTime() - startedAt) + " ms");
-
-			if (result == null) {
-				currentIdx++;
-				continue;
-			}
 			/*
-			 * did the caller signal a stop ?
-			 */
-			if (result.equals(STOP_VALUE)) {
-				return false;
-			}
-			/*
-			 * are we to jump up or down?
+			 * jump if required
 			 */
 			if (action instanceof JumpTo) {
-				String resultText = result.toText();
-				Integer idx = this.indexedActions.get(resultText);
+				JumpTo jt = (JumpTo) action;
+				JumpSignal signal = jt.getSignal();
+				if (signal != null) {
+					return signal;
+				}
+				Integer idx = this.indexedActions.get(jt.toAction);
 				if (idx == null) {
-					throw new ApplicationError("NavigationAction "
-							+ action.actionName
-							+ " returned an invalid action name " + resultText);
+					throw new ApplicationError(jt.actionName
+							+ " is not a valid action to jump to.");
 				}
 				/*
 				 * we are to go to this step.
@@ -131,14 +127,27 @@ public class ActionBlock implements DbClientInterface {
 				currentIdx = idx.intValue();
 				continue;
 			}
-			/*
-			 * normal action returned non-null. save the value and move on
-			 */
-			this.ctx.setValue(action.actionName + ActionBlock.RESULT_SUFFIX,
-					result);
+			long startedAt = new Date().getTime();
+			result = action.act(this.ctx, driver);
+			Tracer.trace("Action " + action.actionName
+					+ " finished with result=" + result + " in "
+					+ (new Date().getTime() - startedAt) + " ms");
+
+			if (result != null) {
+				/*
+				 * did the caller signal a stop ?
+				 */
+				if (result.equals(Service.STOP_VALUE)) {
+					return JumpSignal.STOP;
+				}
+				/*
+				 * normal action returned non-null. save the value and move on
+				 */
+				this.ctx.setValue(action.actionName + ActionBlock.RESULT_SUFFIX,
+						result);
+			}
 			currentIdx++;
 		}
-		return true;
+		return null;
 	}
-
 }

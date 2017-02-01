@@ -20,14 +20,13 @@
  * SOFTWARE.
  */
 
-package org.simplity.kernel.file;
+package org.simplity.kernel;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+import org.simplity.kernel.file.FileManager;
 
 /**
  * Most corporate have central service that stores files. Attachment Manager is

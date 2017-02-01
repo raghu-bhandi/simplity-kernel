@@ -34,8 +34,6 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.DbVendor;
 import org.simplity.kernel.db.SchemaDetail;
-import org.simplity.kernel.file.AttachmentAssistant;
-import org.simplity.kernel.file.AttachmentManager;
 import org.simplity.kernel.file.FileBasedAssistant;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;

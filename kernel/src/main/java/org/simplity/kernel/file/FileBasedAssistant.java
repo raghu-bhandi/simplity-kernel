@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.AttachmentAssistant;
 import org.simplity.kernel.Tracer;
 
 /**

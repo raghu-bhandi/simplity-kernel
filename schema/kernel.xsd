@@ -1360,6 +1360,30 @@
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
+		<xs:attribute
+			name="arrayNames"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>comma separated names of arrays to be output. A
+					data sheet with a single column is expected in the service context
+					as value. If sheet is not found, but a value is found in fields
+					collection, then we send an array with just one element of that
+					value.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="outputAsObject"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>first row of this data sheet 
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 				</xs:complexType>
 
 			</xs:element>
@@ -2006,6 +2030,16 @@
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
+			name="httpMethod"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>GET, PUT etc..
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
 			name="proxyUserName"
 			type="xs:string"
 			use="optional"
@@ -2097,7 +2131,7 @@
 		<xs:attribute
 			name="dataSheetName"
 			type="xs:string"
-			use="required" />
+			use="optional" />
 	</xs:complexType>
 
 	<xs:complexType name="read">
