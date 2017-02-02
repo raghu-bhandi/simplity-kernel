@@ -117,10 +117,8 @@ public class Sql implements Component {
 	 */
 	public DataSheet extractBatch(DataSheet inSheet, DbDriver driver) {
 		if (this.sqlType == SqlType.UPDATE) {
-			throw new ApplicationError(
-					"Sql "
-							+ this.getQualifiedName()
-							+ " is meant for update, but it is called for data extraction");
+			throw new ApplicationError("Sql " + this.getQualifiedName()
+					+ " is meant for update, but it is called for data extraction");
 		}
 		/*
 		 * are we running this sql once, or multiple times?
@@ -143,15 +141,14 @@ public class Sql implements Component {
 	 */
 	public DataSheet extract(FieldsInterface dataRow, DbDriver driver) {
 		if (this.sqlType == SqlType.UPDATE) {
-			throw new ApplicationError(
-					"Sql "
-							+ this.getQualifiedName()
-							+ " is meant for update, but it is called for data extraction");
+			throw new ApplicationError("Sql " + this.getQualifiedName()
+					+ " is meant for update, but it is called for data extraction");
 		}
 		DataSheet outSheet = this.createOutputSheet();
 		Value[] values = this.getInputValues(dataRow);
 		boolean singles = this.sqlType == SqlType.SINGLE_SELECT;
-		driver.extractFromSql(this.preparedStatement, values, outSheet, singles);
+		driver.extractFromSql(this.preparedStatement, values, outSheet,
+				singles);
 		return outSheet;
 	}
 
@@ -167,10 +164,8 @@ public class Sql implements Component {
 	public int execute(FieldsInterface dataRow, DbDriver driver,
 			boolean treatErrorAsNoAction) {
 		if (this.sqlType != SqlType.UPDATE) {
-			throw new ApplicationError(
-					"Sql "
-							+ this.getQualifiedName()
-							+ " is meant for data extraction, but it is called for update");
+			throw new ApplicationError("Sql " + this.getQualifiedName()
+					+ " is meant for data extraction, but it is called for update");
 		}
 		return driver.executeSql(this.preparedStatement,
 				this.getInputValues(dataRow), treatErrorAsNoAction);
@@ -186,10 +181,8 @@ public class Sql implements Component {
 	public int executeBatch(DataSheet inSheet, DbDriver driver,
 			boolean treatErrorAsNoAction) {
 		if (this.sqlType != SqlType.UPDATE) {
-			throw new ApplicationError(
-					"Sql "
-							+ this.getQualifiedName()
-							+ " is meant for data extraction, but it is called for update");
+			throw new ApplicationError("Sql " + this.getQualifiedName()
+					+ " is meant for data extraction, but it is called for update");
 		}
 		int nbrRows = inSheet.length();
 		if (nbrRows == 0) {
@@ -291,10 +284,8 @@ public class Sql implements Component {
 		}
 		if (this.outputParameters != null) {
 			if (this.sqlType == SqlType.UPDATE) {
-				throw new ApplicationError(
-						"Sql "
-								+ this.getQualifiedName()
-								+ " is defined as an update sql but it specifies output parameters.");
+				throw new ApplicationError("Sql " + this.getQualifiedName()
+						+ " is defined as an update sql but it specifies output parameters.");
 			}
 			if (this.outputRecordName != null) {
 				throw new ApplicationError("Sql " + this.getQualifiedName()
@@ -311,10 +302,8 @@ public class Sql implements Component {
 			}
 		} else if (this.sqlType != SqlType.UPDATE
 				&& this.outputRecordName == null) {
-			throw new ApplicationError(
-					"Sql "
-							+ this.getQualifiedName()
-							+ " is designed to extract data, but no outputParameters or outputRecord defined.");
+			throw new ApplicationError("Sql " + this.getQualifiedName()
+					+ " is designed to extract data, but no outputParameters or outputRecord defined.");
 		}
 	}
 
@@ -327,72 +316,80 @@ public class Sql implements Component {
 	public int validate(ValidationContext ctx) {
 		int count = 0;
 		ctx.beginValidation(MY_TYPE, this.getQualifiedName());
-
-		if (this.preparedStatement == null) {
-			ctx.addError("preparedStatement is required.");
-			count++;
-		}
-
-		int nbrParams = this.preparedStatement.split("?").length - 1;
-
-		if (this.inputParameters != null) {
-			if (nbrParams != this.inputParameters.length) {
-				ctx.addError("There are " + nbrParams
-						+ " parameters in prepared statement, but "
-						+ this.inputParameters + " number input parameters.");
+		try {
+			if (this.preparedStatement == null) {
+				ctx.addError("preparedStatement is required.");
 				count++;
 			}
-			for (SqlParameter p : this.inputParameters) {
-				count += p.validate(ctx);
-			}
-			if (this.inputRecordName != null) {
-				ctx.addError("Specify either input parameters or inputRecordName but not both.");
-				count++;
-			}
-		}
 
-		if (this.inputRecordName != null) {
-			Record record = ComponentManager
-					.getRecordOrNull(this.inputRecordName);
-			if (record == null) {
-				ctx.addError("inputRecordName is set to "
-						+ this.inputRecordName + " but it is not defined.");
-				count++;
-			} else {
-				int n = record.getFields().length;
-				if (n != nbrParams) {
-					ctx.addError(nbrParams
-							+ " parameters in prepared statement, but the input record "
-							+ this.inputRecordName + " has " + n + " fields.");
+			int nbrParams = this.preparedStatement.split("?").length - 1;
+
+			if (this.inputParameters != null) {
+				if (nbrParams != this.inputParameters.length) {
+					ctx.addError("There are " + nbrParams
+							+ " parameters in prepared statement, but "
+							+ this.inputParameters
+							+ " number input parameters.");
+					count++;
+				}
+				for (SqlParameter p : this.inputParameters) {
+					count += p.validate(ctx);
+				}
+				if (this.inputRecordName != null) {
+					ctx.addError(
+							"Specify either input parameters or inputRecordName but not both.");
 					count++;
 				}
 			}
-		}
 
-		if (this.outputParameters != null) {
-			if (this.sqlType == SqlType.UPDATE) {
-				ctx.addError("This is for update but outputParameters specified.");
-				count++;
+			if (this.inputRecordName != null) {
+				Record record = ComponentManager
+						.getRecordOrNull(this.inputRecordName);
+				if (record == null) {
+					ctx.addError("inputRecordName is set to "
+							+ this.inputRecordName + " but it is not defined.");
+					count++;
+				} else {
+					int n = record.getFields().length;
+					if (n != nbrParams) {
+						ctx.addError(nbrParams
+								+ " parameters in prepared statement, but the input record "
+								+ this.inputRecordName + " has " + n
+								+ " fields.");
+						count++;
+					}
+				}
 			}
-			for (SqlParameter p : this.inputParameters) {
-				count += p.validate(ctx);
+
+			if (this.outputParameters != null) {
+				if (this.sqlType == SqlType.UPDATE) {
+					ctx.addError(
+							"This is for update but outputParameters specified.");
+					count++;
+				}
+				for (SqlParameter p : this.inputParameters) {
+					count += p.validate(ctx);
+				}
+				if (this.outputRecordName != null) {
+					ctx.addError(
+							"Both output parameters and outputRecordName are specified.");
+					count++;
+				}
 			}
+
 			if (this.outputRecordName != null) {
-				ctx.addError("Both output parameters and outputRecordName are specified.");
-				count++;
+				ctx.checkRecordExistence(this.outputRecordName,
+						"outputRecordName", false);
+				if (this.sqlType == SqlType.UPDATE) {
+					ctx.addError(
+							"This is for update but outputRecordName is specified.");
+					count++;
+				}
 			}
-		}
 
-		if (this.outputRecordName != null) {
-			ctx.checkRecordExistence(this.outputRecordName, "outputRecordName",
-					false);
-			if (this.sqlType == SqlType.UPDATE) {
-				ctx.addError("This is for update but outputRecordName is specified.");
-				count++;
-			}
+			return count;
+		} finally {
+			ctx.endValidation();
 		}
-
-		ctx.endValidation();
-		return count;
 	}
 }

@@ -95,10 +95,11 @@ public class JsonUtil {
 			 */
 			JSONObject exampleObject = arr.optJSONObject(0);
 			if (exampleObject == null) {
-				Tracer.trace("Json array has its first object as null, and hence we abandoned parsing it.");
+				Tracer.trace(
+						"Json array has its first object as null, and hence we abandoned parsing it.");
 				return null;
 			}
-			fields = getFields(exampleObject);
+			fields = getFields(exampleObject, null, null);
 			if (parentFieldName != null) {
 				Field[] newFields = new Field[fields.length + 1];
 				newFields[0] = Field.getDefaultField(parentFieldName,
@@ -120,8 +121,7 @@ public class JsonUtil {
 				j++;
 			}
 			if (parentIdx == -1) {
-				Tracer.trace("Parent field name "
-						+ parentFieldName
+				Tracer.trace("Parent field name " + parentFieldName
 						+ " not found in the fields list for child. Filed will not be populated from parent sheet.");
 			}
 		}
@@ -161,7 +161,7 @@ public class JsonUtil {
 	 * @param attName
 	 *            attribute name that holds the child JSONArray
 	 * @param fields
-	 *            expected fields. INput data is validated as per these field
+	 *            expected fields. Input data is validated as per these field
 	 *            specifications.
 	 * @param errors
 	 * @param allFieldsAreOptional
@@ -210,7 +210,7 @@ public class JsonUtil {
 					continue;
 				}
 				if (ds == null || inputFields == null) {
-					inputFields = getFields(obj);
+					inputFields = getFields(obj, null, null);
 					ds = new MultiRowsSheet(inputFields);
 				}
 				int j = 0;
@@ -233,9 +233,12 @@ public class JsonUtil {
 	 * @param writer
 	 * @param ds
 	 * @param childSheets
+	 * @param outputAsObject
+	 *            if the data sheet is meant for an object/data structure and
+	 *            not an array of them. Only first row is used
 	 */
 	public static void sheetToJson(JSONWriter writer, DataSheet ds,
-			HierarchicalSheet[] childSheets) {
+			HierarchicalSheet[] childSheets, boolean outputAsObject) {
 		int nbrRows = 0;
 		int nbrCols = 0;
 		if (ds != null) {
@@ -247,7 +250,11 @@ public class JsonUtil {
 			Tracer.trace("Sheet  has no data. json is not added");
 			return;
 		}
-		writer.array();
+		if (outputAsObject) {
+			nbrRows = 1;
+		} else {
+			writer.array();
+		}
 		String[] names = ds.getColumnNames();
 		for (int i = 0; i < nbrRows; i++) {
 			writer.object();
@@ -277,6 +284,30 @@ public class JsonUtil {
 			}
 			writer.endObject();
 		}
+		if (outputAsObject == false) {
+			writer.endArray();
+		}
+	}
+
+	/**
+	 * write the first column of data sheet as an array
+	 *
+	 * @param writer
+	 * @param ds
+	 */
+	public static void sheetToArray(JSONWriter writer, DataSheet ds) {
+		writer.array();
+		if (ds != null && ds.length() > 0) {
+			/*
+			 * if rows exist, then first column is guaranteed
+			 */
+			for (Value[] row : ds.getAllRows()) {
+				Value value = row[0];
+				if (value != null) {
+					writer.value(value.toObject());
+				}
+			}
+		}
 		writer.endArray();
 	}
 
@@ -284,14 +315,28 @@ public class JsonUtil {
 	 * create a data sheet for attributes in this object
 	 *
 	 * @param obj
-	 * @param parentName
-	 * @return
+	 * @param additionalAtt
+	 * @param additionalVal
+	 * @return array of fields in this object. additional att/val if supplied
+	 *         are added as the first one.
 	 */
-	private static Field[] getFields(JSONObject obj) {
+	public static Field[] getFields(JSONObject obj, String additionalAtt,
+			Object additionalVal) {
 		String[] names = JSONObject.getNames(obj);
 		int nbrCols = names.length;
-		int j = 0;
+		int fieldIdx = 0;
 		Field[] fields = new Field[nbrCols];
+		if (additionalAtt != null) {
+			/*
+			 * rare case, and hence not-optimized for creation of fields
+			 */
+			nbrCols++;
+			fields = new Field[nbrCols];
+			Value val = Value.parseObject(additionalVal);
+			fields[fieldIdx] = Field.getDefaultField(additionalAtt,
+					val.getValueType());
+			fieldIdx = 1;
+		}
 		int nonAtts = 0;
 		for (String colName : names) {
 			Object val = obj.opt(colName);
@@ -301,10 +346,9 @@ public class JsonUtil {
 				 */
 				nonAtts++;
 			} else {
-				Value value = Value.parseObject(val);
-				fields[j] = Field
-						.getDefaultField(colName, value.getValueType());
-				j++;
+				ValueType vt = Value.parseObject(val).getValueType();
+				fields[fieldIdx] = Field.getDefaultField(colName, vt);
+				fieldIdx++;
 			}
 		}
 		if (nonAtts == 0) {
@@ -318,11 +362,8 @@ public class JsonUtil {
 		 */
 		nbrCols = nbrCols - nonAtts;
 		Field[] newFields = new Field[nbrCols];
-		int newIdx = 0;
-		for (Field field : fields) {
-			if (field != null) {
-				newFields[newIdx++] = field;
-			}
+		for (int i = 0; i < newFields.length; i++) {
+			newFields[i] = fields[i];
 		}
 		return newFields;
 	}
@@ -346,9 +387,9 @@ public class JsonUtil {
 				value = field.getValueType().parseObject(val);
 				if (value == null) {
 					errors.add(new FormattedMessage(Messages.INVALID_VALUE,
-							null, field.getName(), null, 0, '\''
-							+ val.toString() + "' is not a valid "
-							+ field.getValueType()));
+							null, field.getName(), null, 0,
+							'\'' + val.toString() + "' is not a valid "
+									+ field.getValueType()));
 					continue;
 				}
 			}
@@ -488,8 +529,8 @@ public class JsonUtil {
 		for (String key : json.keySet()) {
 			JSONArray arr = json.optJSONArray(key);
 			if (arr != null) {
-				DataSheet sheet = JsonUtil.getSheet(arr, null, null, true,
-						null, null);
+				DataSheet sheet = JsonUtil.getSheet(arr, null, null, true, null,
+						null);
 				if (sheet == null) {
 					Tracer.trace("Table " + key + " could not be extracted");
 				} else {
@@ -740,8 +781,7 @@ public class JsonUtil {
 				continue;
 			}
 			if (obj instanceof JSONObject || obj instanceof JSONArray) {
-				Tracer.trace("Element no (zero based) "
-						+ i
+				Tracer.trace("Element no (zero based) " + i
 						+ " is not a primitive, and hence unable to convert the JSONArray into an array of primitives");
 				return null;
 			}
@@ -774,11 +814,13 @@ public class JsonUtil {
 	 * @param fieldSelector
 	 * @param json
 	 * @param option
+	 *
 	 *            <pre>
 	 * 0 means do not create/add anything. return null if anything is not found
 	 * 1 means create, add and return a JSON object at the end if it is missing
 	 * 2 means create, add and return a JSON array at the end if it is missing
-	 * </pre>
+	 *            </pre>
+	 *
 	 * @return
 	 */
 	private static Object getValueWorker(String fieldSelector, Object json,
@@ -820,8 +862,7 @@ public class JsonUtil {
 				JSONArray resultArr = null;
 				if (result instanceof JSONObject) {
 					if (idx != -1) {
-						throw new ApplicationError(
-								fieldSelector
+						throw new ApplicationError(fieldSelector
 								+ " is not an appropriate selector. We encountered a non-object for attribute "
 								+ part);
 					}
@@ -829,16 +870,14 @@ public class JsonUtil {
 					child = resultObj.opt(part);
 				} else if (result instanceof JSONArray) {
 					if (idx == -1) {
-						throw new ApplicationError(
-								fieldSelector
+						throw new ApplicationError(fieldSelector
 								+ " is not an appropriate selector. We encountered a object when we were expecting an array for index "
 								+ idx);
 					}
 					resultArr = (JSONArray) result;
 					child = resultArr.opt(idx);
 				} else {
-					throw new ApplicationError(
-							fieldSelector
+					throw new ApplicationError(fieldSelector
 							+ " is not an appropriate selector as we encountered a non-object on the path.");
 				}
 				if (child != null) {
@@ -880,8 +919,7 @@ public class JsonUtil {
 			throw new ApplicationError(fieldSelector
 					+ " is malformed for a qualified json field name.");
 		} catch (ClassCastException e) {
-			throw new ApplicationError(
-					fieldSelector
+			throw new ApplicationError(fieldSelector
 					+ " is used as an attribute-selector for a test case, but the json does not have the right structure for this pattern.");
 		} catch (ApplicationError e) {
 			throw e;
@@ -907,11 +945,13 @@ public class JsonUtil {
 		if (fieldSelector.equals(".")) {
 			if (value instanceof JSONObject == false
 					|| json instanceof JSONObject == false) {
-				Tracer.trace("We expected a JSONObjects for source and destination, but got "
-						+ json.getClass().getName()
-						+ " as object, and  "
-						+ (value == null ? "null" : value.getClass().getName())
-						+ " as value");
+				Tracer.trace(
+						"We expected a JSONObjects for source and destination, but got "
+								+ json.getClass().getName()
+								+ " as object, and  "
+								+ (value == null ? "null"
+										: value.getClass().getName())
+								+ " as value");
 				return;
 			}
 			JSONObject objFrom = (JSONObject) value;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 simplity.org
+ * Copyright (c) 2017 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,31 +20,43 @@
  * SOFTWARE.
  */
 
-package org.simplity.kernel;
-
-import org.simplity.service.ExceptionListener;
-import org.simplity.service.ServiceData;
+package org.simplity.tp;
 
 /**
  * @author simplity.org
  *
  */
-public class ExampleExceptionListener implements ExceptionListener {
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.service.ExceptionListener#listen(org.simplity.service.
-	 * ServiceData, java.lang.Exception)
+public enum JumpSignal {
+	/**
+	 * break out of this block. Valid if the action is inside a loop
 	 */
-	@Override
-	public void listen(ServiceData inputData, Exception e) {
-		System.err.println(
-				"Applicaiton has issues that require the attention of the support team");
-		if (inputData != null) {
-			System.err.println("Input : " + inputData.getPayLoad());
+	BREAK,
+	/**
+	 * continue with the next loop, valid if this is inside a loop
+	 */
+	CONTINUE,
+	/**
+	 * stop the service normally
+	 */
+	STOP;
+	private static final String _STOP = "_stop";
+	private static final String _CONTINUE = "_continue";
+	private static final String _BREAK = "_break";
+	/**
+	 * check if this text is a signal. null if it is not.
+	 * @param text
+	 * @return signal or null;
+	 */
+	public static JumpSignal getSignal(String text){
+		if(_STOP.equals(text)){
+			return STOP;
 		}
-		System.err.println("Error\n : " + e.getMessage());
+		if(_BREAK.equals(text)){
+			return BREAK;
+		}
+		if(_CONTINUE.equals(text)){
+			return CONTINUE;
+		}
+		return null;
 	}
-
 }

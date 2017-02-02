@@ -47,7 +47,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MapDetails;
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.data.Fields;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.value.Value;
@@ -653,7 +652,8 @@ public class XmlUtil {
 		/*
 		 * this case is applicable only if there are no child elements
 		 */
-		if (element.getChildNodes().getLength() > 0) {
+		NodeList children = element.getChildNodes();
+		if (children != null && children.getLength() > 0) {
 			return false;
 		}
 
@@ -662,10 +662,12 @@ public class XmlUtil {
 		 * hence we are safe
 		 */
 		NamedNodeMap attrs = element.getAttributes();
-		int n = attrs.getLength();
-		for (int i = 0; i < n; i++) {
-			Node att = attrs.item(i);
-			map.put(att.getNodeName(), att.getNodeValue());
+		if(attrs != null){
+			int n = attrs.getLength();
+			for (int i = 0; i < n; i++) {
+				Node att = attrs.item(i);
+				map.put(att.getNodeName(), att.getNodeValue());
+			}
 		}
 		return true;
 	}
@@ -686,7 +688,7 @@ public class XmlUtil {
 				Element childElement = (Element) child;
 				if (valueName == null) {
 					NamedNodeMap attribs = child.getAttributes();
-					if (attribs.getLength() != 2) {
+					if (attribs == null || attribs.getLength() != 2) {
 						throw new ApplicationError(
 								"Special element "
 										+ COMP_LIST
@@ -850,6 +852,9 @@ public class XmlUtil {
 	private static void setAttributes(Object object, Map<String, Field> fields,
 			Element element) throws DOMException, XmlParseException {
 		NamedNodeMap attributes = element.getAttributes();
+		if(attributes == null){
+			return;
+		}
 		int nbr = attributes.getLength();
 		for (int i = 0; i < nbr; i++) {
 			Node attribute = attributes.item(i);
@@ -872,11 +877,15 @@ public class XmlUtil {
 	 *         text/CData child otherwise
 	 */
 	private static String getElementValue(Element element) {
-		if (element.getAttributes().getLength() > 0) {
+		NamedNodeMap attribs = element.getAttributes();
+		if (attribs != null && attribs.getLength() > 0) {
 			return null;
 		}
 
 		NodeList children = element.getChildNodes();
+		if(children == null){
+			return null;
+		}
 		String value = null;
 		int nbrChildren = children.getLength();
 		for (int i = 0; i < nbrChildren; i++) {
@@ -1163,48 +1172,43 @@ public class XmlUtil {
 			/*
 			 * get the doc first
 			 */
-			Node node = getDocument(is).getDocumentElement().getFirstChild();
+			Node node = getDocument(is).getDocumentElement();
 
 			/*
 			 * data could be modeled as attributes...
 			 */
+			int nbrExtracted = 0;
 			NamedNodeMap attrs = node.getAttributes();
-			int n = attrs.getLength();
-			for (int i = 0; i < n; i++) {
-				Node att = attrs.item(i);
-				fields.setValue(att.getNodeName(),
-						Value.newTextValue(att.getNodeValue()));
+			if(attrs != null){
+				int n = attrs.getLength();
+				for (int i = 0; i < n; i++) {
+					Node att = attrs.item(i);
+					fields.setValue(att.getNodeName(),
+							Value.newTextValue(att.getNodeValue()));
+				}
+				nbrExtracted += n;
 			}
-			int nbrExtracted = n;
 			/*
 			 * data could also be modeled as elements with just text data.
 			 */
 			NodeList childs = node.getChildNodes();
-			n = childs.getLength();
-			for (int i = 0; i < n; i++) {
-				Node child = childs.item(i);
-				if (child.getNodeType() == Node.ELEMENT_NODE) {
-					String value = ((Element) child).getTextContent();
-					fields.setValue(child.getNodeName(),
-							Value.newTextValue(value));
-					nbrExtracted++;
+			if(childs != null){
+				int n = childs.getLength();
+				for (int i = 0; i < n; i++) {
+					Node child = childs.item(i);
+					if (child.getNodeType() == Node.ELEMENT_NODE) {
+						String value = ((Element) child).getTextContent();
+						fields.setValue(child.getNodeName(),
+								Value.newTextValue(value));
+					}
 				}
+				nbrExtracted += n;
 			}
-			Tracer.trace(nbrExtracted + " fields extracted from root node.");
+			Tracer.trace(nbrExtracted + " fields extracted from root node. " + node.getNodeName());
 			return nbrExtracted;
 		} catch (Exception e) {
 			throw new ApplicationError(e,
 					" Error while extracting fields from an xml.\n" + xml);
-		}
-	}
-
-	public static void main(String[] args) throws Exception {
-		String fileName = "c:/dev/a.xml";
-		String xml = FileManager.readResource(fileName);
-		Fields fields = new Fields();
-		extractAll(xml, fields);
-		for(Map.Entry<String, Value> field : fields.getAllFields()){
-			System.out.println(field.getKey() + " = " + field.getValue().toString());
 		}
 	}
 }

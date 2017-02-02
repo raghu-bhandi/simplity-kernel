@@ -66,7 +66,7 @@ public class HttpClient extends Action {
 	/**
 	 * The HTTP method, GET, POST etc..
 	 */
-	String restMethod;
+	String httpMethod;
 
 	/**
 	 * application/json, application/xml, and text/html are the common ones.
@@ -209,8 +209,9 @@ public class HttpClient extends Action {
 			/*
 			 * despatch request
 			 */
-			conn.setRequestMethod(this.restMethod);
+			conn.setRequestMethod(this.httpMethod);
 			conn.setRequestProperty("Accept", this.contentType);
+			conn.setDoOutput(true);
 			String req = this.getRequestText(ctx);
 			if(req != null){
 				conn.getOutputStream().write(req.getBytes("UTF-8"));
@@ -342,7 +343,7 @@ public class HttpClient extends Action {
 				&& this.proxyPassword.charAt(0) == DOLLAR) {
 			this.proxyPwdField = this.proxyPassword.substring(1);
 		}
-		if (this.proxyPwdField == null && this.proxyUserField == null) {
+		if (this.proxyPwdField != null && this.proxyUserField != null) {
 			this.authenticator = new MyAuthenticator(this.proxyUserName,
 					this.proxyPassword);
 		}
@@ -370,7 +371,7 @@ public class HttpClient extends Action {
 		 * mandatory fields
 		 */
 		count += ctx.checkMandatoryField("urlString", this.urlString);
-		count += ctx.checkMandatoryField("restMethod", this.restMethod);
+		count += ctx.checkMandatoryField("restMethod", this.httpMethod);
 		count += ctx.checkMandatoryField("contentType", this.contentType);
 
 		/*
@@ -382,10 +383,10 @@ public class HttpClient extends Action {
 				ctx.addError(
 						"proxy port, user, password are not relavant when proxy is not specified.");
 				count++;
-			} else if (this.proxyPort == 0) {
+			}
+		} else if (this.proxyPort == 0) {
 				ctx.addError("proxyPort is required if proxy is to be used.");
 				count++;
-			}
 		}
 
 		/*

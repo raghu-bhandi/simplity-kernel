@@ -52,14 +52,14 @@ public class AddMessage extends Action {
 	protected Value doAct(ServiceContext ctx, DbDriver driver) {
 		MessageType msgType = ctx.addMessage(this.messageName, this.parameters);
 		if (this.stopIfMessageTypeIsError && msgType == MessageType.ERROR) {
-			return ActionBlock.STOP_VALUE;
+			return Service.STOP_VALUE;
 		}
 		return Value.VALUE_TRUE;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
 	 * , org.simplity.tp.Service)

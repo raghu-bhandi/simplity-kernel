@@ -45,14 +45,26 @@ public class JumpTo extends org.simplity.tp.Action {
 	 * cached for performance
 	 */
 	private Value returnValue;
+	private JumpSignal jumpSignal;
 
 	@Override
 	protected Value doAct(ServiceContext ctx, DbDriver driver) {
 		return this.returnValue;
 	}
 
+	/**
+	 *
+	 * @return if this is for a signal, then signal, else null
+	 */
+	public JumpSignal getSignal(){
+		return this.jumpSignal;
+	}
+
 	@Override
 	public void getReady(int idx) {
-		this.returnValue = Value.newTextValue(this.toAction);
+		this.jumpSignal = JumpSignal.getSignal(this.toAction);
+		if(this.jumpSignal == null) {
+			this.returnValue = Value.newTextValue(this.toAction);
+		}
 	}
 }

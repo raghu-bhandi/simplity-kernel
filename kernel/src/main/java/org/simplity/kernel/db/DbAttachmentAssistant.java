@@ -30,8 +30,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.simplity.kernel.AttachmentAssistant;
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.file.AttachmentAssistant;
 import org.simplity.kernel.file.FileManager;
 
 /**

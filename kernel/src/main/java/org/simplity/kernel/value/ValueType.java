@@ -639,7 +639,12 @@ public enum ValueType {
 		return this.fromObject(object);
 	}
 
-	protected abstract Value fromObject(Object dbObject);
+	/**
+	 * parse/convert object instance to specific value
+	 * @param dbObject
+	 * @return value. null if dbObject is not the right object for this value type.
+	 */
+	public abstract Value fromObject(Object dbObject);
 
 	/**
 	 * @return get the sql type text

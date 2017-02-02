@@ -23,6 +23,7 @@
 package org.simplity.kernel;
 
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.simplity.kernel.util.DateUtil;
@@ -159,6 +160,16 @@ public abstract class ServiceLogger {
 		myWorker.info(msg);
 	}
 
+	/**
+	 * log this text as error by the underlying logging utility
+	 *
+	 * @param msg
+	 */
+	public static void error(String msg) {
+		myWorker.myError(msg);
+	}
+
+	protected abstract void myError(String text);
 	protected abstract void info(String text);
 }
 
@@ -173,6 +184,14 @@ class JulWorker extends ServiceLogger {
 	@Override
 	protected void info(String msg) {
 		this.logger.info(msg);
+	}
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.ServiceLogger#myError(java.lang.String)
+	 */
+	@Override
+	protected void myError(String msg) {
+		this.logger.log(Level.SEVERE, msg);
+
 	}
 
 }
@@ -191,6 +210,13 @@ class Log4JWorker extends ServiceLogger {
 		this.logger.info(msg);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.ServiceLogger#myError(java.lang.String)
+	 */
+	@Override
+	protected void myError(String msg) {
+		this.logger.error(msg);
+	}
 }
 
 class JclWorker extends ServiceLogger {
@@ -205,6 +231,14 @@ class JclWorker extends ServiceLogger {
 	@Override
 	protected void info(String msg) {
 		this.logger.info(msg);
+	}
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.ServiceLogger#myError(java.lang.String)
+	 */
+	@Override
+	protected void myError(String msg) {
+		this.logger.error(msg);
+
 	}
 
 }
@@ -222,6 +256,15 @@ class Slf4JWorker extends ServiceLogger {
 	protected void info(String msg) {
 		this.logger.info(msg);
 	}
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.ServiceLogger#myError(java.lang.String)
+	 */
+	@Override
+	protected void myError(String msg) {
+		this.logger.error(msg);
+
+	}
+
 }
 
 class ConsoleLogger extends ServiceLogger {
@@ -235,6 +278,14 @@ class ConsoleLogger extends ServiceLogger {
 	protected void info(String msg) {
 		System.out.println(msg);
 	}
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.ServiceLogger#myError(java.lang.String)
+	 */
+	@Override
+	protected void myError(String msg) {
+		System.err.println(msg);
+	}
+
 }
 
 class SimpleXmlWrapper implements TraceWrapper {

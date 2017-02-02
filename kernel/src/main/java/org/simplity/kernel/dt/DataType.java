@@ -258,27 +258,31 @@ public abstract class DataType implements Component {
 	@Override
 	public int validate(ValidationContext ctx) {
 		ctx.beginValidation(ComponentType.DT, this.name);
-		int count = 0;
+		try {
+			int count = 0;
 
-		if (this.messageName != null) {
-			ctx.addReference(ComponentType.MSG, this.messageName);
-			Message msg = ComponentManager.getMessageOrNull(this.messageName);
-			if (msg == null) {
-				ctx.addError(this.messageName + " is not defined");
-			}
-			count++;
-		}
-		if (this.valueList != null) {
-			try {
-				Value.parseValueList(this.valueList, this.getValueType());
-			} catch (ApplicationError e) {
-				ctx.addError(e.getMessage());
+			if (this.messageName != null) {
+				ctx.addReference(ComponentType.MSG, this.messageName);
+				Message msg = ComponentManager
+						.getMessageOrNull(this.messageName);
+				if (msg == null) {
+					ctx.addError(this.messageName + " is not defined");
+				}
 				count++;
 			}
+			if (this.valueList != null) {
+				try {
+					Value.parseValueList(this.valueList, this.getValueType());
+				} catch (ApplicationError e) {
+					ctx.addError(e.getMessage());
+					count++;
+				}
+			}
+			count += this.validateSpecific(ctx);
+			return count;
+		} finally {
+			ctx.endValidation();
 		}
-		count += this.validateSpecific(ctx);
-		ctx.endValidation();
-		return count;
 	}
 
 	/**

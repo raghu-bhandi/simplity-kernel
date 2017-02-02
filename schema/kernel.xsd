@@ -1110,6 +1110,20 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute
+			name="arrayNames"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>comma separated names of arrays to be output. A
+					data sheet with a single column is expected in the service context
+					as value. If sheet is not found, but a value is found in fields
+					collection, then we send an array with just one element of that
+					value.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 
@@ -1158,6 +1172,54 @@
 						</xs:annotation>
 					</xs:attribute>
 
+					<xs:attribute
+						name="saveActionExpected"
+						type="booleanType"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Are you expecting client to send _saveAction to
+								indicate insert/update operation?
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="parentSheetName"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Is data for this sheet being sent by client in
+								a typical json parent-child way? That is rows for this data
+								sheet are added as attribute of it parent row?
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="linkColumnInThisSheet"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>required when parentSheetName is used. Name of
+								the column in this sheet that has the value of the parent row
+								key that.Typycally, this field is not included in the client
+								data, but we copy it from the parent row.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="linkColumnInParentSheet"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Required if parentSheetName is used. Field name
+								in the parent row that is to be copied to the corresponding
+								column in the child sheet.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
 					<xs:attribute
 						name="description"
 						type="xs:string"
@@ -1208,6 +1270,18 @@
 						name="defaultValue"
 						type="xs:string"
 						use="optional" />
+					<xs:attribute
+						name="isArray"
+						type="booleanType"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Values for an array can be input either as
+								array
+								or a comma separated field
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
 				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
@@ -1286,6 +1360,30 @@
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
+		<xs:attribute
+			name="arrayNames"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>comma separated names of arrays to be output. A
+					data sheet with a single column is expected in the service context
+					as value. If sheet is not found, but a value is found in fields
+					collection, then we send an array with just one element of that
+					value.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="outputAsObject"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>first row of this data sheet 
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 				</xs:complexType>
 
 			</xs:element>
@@ -1932,6 +2030,16 @@
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
+			name="httpMethod"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>GET, PUT etc..
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
 			name="proxyUserName"
 			type="xs:string"
 			use="optional"
@@ -2023,7 +2131,7 @@
 		<xs:attribute
 			name="dataSheetName"
 			type="xs:string"
-			use="required" />
+			use="optional" />
 	</xs:complexType>
 
 	<xs:complexType name="read">
@@ -2247,8 +2355,10 @@
 		>
 			<xs:annotation>
 				<xs:documentation>
-					Note that you have to xml escape double quote and less-than,
-					greater-than etc.. If this is confusing,use expression element
+					Note that you have to xml escape double quote and
+					less-than,
+					greater-than etc.. If this is confusing,use expression
+					element
 					instead with CDATA section.
 				</xs:documentation>
 			</xs:annotation>
@@ -2858,18 +2968,44 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>By default, service-log is emitted to console (System.out). If you use any of the standard logging framework, and you would like to service log to be diverted to your logger.
+					<xs:documentation>By default, service-log is emitted to console
+						(System.out). If you use any of the standard logging framework,
+						and you would like to service log to be diverted to your logger.
 					</xs:documentation>
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:NCName">
-					<!-- not used any more any ways.... let us wait for some one to ask...
-						<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old log4J uses log4j-1.2.17.jar</xs:documentation></xs:annotation></xs:enumeration>
-						 -->
-						<xs:enumeration value="log4jV2"><xs:annotation><xs:documentation>Version 2.* of log4J. uses log4j-api-2.7.jar</xs:documentation></xs:annotation></xs:enumeration>
-						<xs:enumeration value="commonsLogging"><xs:annotation><xs:documentation>Also known as JCL, uses commons-logging-1.2.jar</xs:documentation></xs:annotation></xs:enumeration>
-						<xs:enumeration value="slf4j"><xs:annotation><xs:documentation>SLF4J adapter that you can bind to any other framework. For example slf4J-Simple or LogBack. slf4j-api-1.7.2.jar</xs:documentation></xs:annotation></xs:enumeration>
-						<xs:enumeration value="juli"><xs:annotation><xs:documentation>Plain vanilla java.util.logging. Requires no jar file, but configuration is the key</xs:documentation></xs:annotation></xs:enumeration>
+						<!-- not used any more any ways.... let us wait for some one to ask... 
+							<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old 
+							log4J uses log4j-1.2.17.jar</xs:documentation></xs:annotation></xs:enumeration> -->
+						<xs:enumeration value="log4j">
+							<xs:annotation>
+								<xs:documentation>Version 2.* of log4J. uses log4j-api-2.7.jar
+								</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
+						<xs:enumeration value="commonsLogging">
+							<xs:annotation>
+								<xs:documentation>Also known as JCL, uses
+									commons-logging-1.2.jar
+								</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
+						<xs:enumeration value="slf4j">
+							<xs:annotation>
+								<xs:documentation>SLF4J adapter that you can bind to any other
+									framework. For example slf4J-Simple or LogBack.
+									slf4j-api-1.7.2.jar
+								</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
+						<xs:enumeration value="juli">
+							<xs:annotation>
+								<xs:documentation>Plain vanilla java.util.logging. Requires no
+									jar file, but configuration is the key
+								</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
@@ -3145,19 +3281,7 @@
 				use="required"
 			>
 				<xs:annotation>
-					<xs:documentation>Name should match the file within which this is
-						defined.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="moduleName"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>module name, if present should patch the folder
-						structure within which this file is saved.
+					<xs:documentation>Unique within a test run for identification.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -3167,8 +3291,8 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>Unique name within a service for us to identify
-						this test case
+					<xs:documentation>Describe what we are trying to test. Include
+						reference to features
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -3178,8 +3302,11 @@
 				use="required"
 			>
 				<xs:annotation>
-					<xs:documentation>Fully qualified name of service this test caseis
-						meant for
+					<xs:documentation>Fully qualified name of service to be executed.
+						Normally, this is the service we are testing, but there are
+						certainly occasions where we use a service to verify the output of
+						teh service being tested, or prepare data in the db for the
+						service
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>

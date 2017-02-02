@@ -475,7 +475,8 @@ public class DbDriver {
 	 * @param callBackObject
 	 * @param accType
 	 * @param schema
-	 *            optional. Use Only if your application is designed to work with
+	 *            optional. Use Only if your application is designed to work
+	 *            with
 	 *            multiple schemas, AND this session transaction need to use a
 	 *            schema different from the default one
 	 */
@@ -525,8 +526,9 @@ public class DbDriver {
 						+ " but that is the default. default connection used");
 				sch = null;
 			} else {
-				Tracer.trace("Going to open a non-default connection for schema "
-						+ schema);
+				Tracer.trace(
+						"Going to open a non-default connection for schema "
+								+ schema);
 			}
 		}
 		Connection con = null;
@@ -584,8 +586,9 @@ public class DbDriver {
 						+ " but that is the default. default connection used");
 				sch = null;
 			} else {
-				Tracer.trace("Going to open a non-default connection for schema "
-						+ schema);
+				Tracer.trace(
+						"Going to open a non-default connection for schema "
+								+ schema);
 			}
 		}
 		if (dataSource != null) {
@@ -814,8 +817,8 @@ public class DbDriver {
 		} catch (SQLException e) {
 			if (treatSqlErrorAsNoAction) {
 				Tracer.trace("SQLException code:" + e.getErrorCode()
-				+ " message :" + e.getMessage()
-				+ " is treated as zero rows affected.");
+						+ " message :" + e.getMessage()
+						+ " is treated as zero rows affected.");
 			} else {
 				throw new ApplicationError(e, "Sql Error while executing sql ");
 			}
@@ -872,8 +875,8 @@ public class DbDriver {
 		} catch (SQLException e) {
 			if (treatSqlErrorAsNoAction) {
 				Tracer.trace("SQLException code:" + e.getErrorCode()
-				+ " message :" + e.getMessage()
-				+ " is treated as zero rows affected.");
+						+ " message :" + e.getMessage()
+						+ " is treated as zero rows affected.");
 			} else {
 				throw new ApplicationError(e, "Sql Error while executing sql ");
 			}
@@ -969,8 +972,8 @@ public class DbDriver {
 		} catch (SQLException e) {
 			if (treatSqlErrorAsNoAction) {
 				Tracer.trace("SQLException code:" + e.getErrorCode()
-				+ " message :" + e.getMessage()
-				+ " is treated as zero rows affected.");
+						+ " message :" + e.getMessage()
+						+ " is treated as zero rows affected.");
 			} else {
 				throw new ApplicationError(e,
 						"Sql Error while executing batch ");
@@ -1391,7 +1394,7 @@ public class DbDriver {
 			sbf.append('\n').append(i).append(" : ").append(value.toString());
 			if (i > 12) {
 				sbf.append("..like wise up to ").append(values.length)
-				.append(" : ").append(values[values.length - 1]);
+						.append(" : ").append(values[values.length - 1]);
 				break;
 			}
 		}
@@ -1691,7 +1694,13 @@ public class DbDriver {
 	 * @return true if the db vendor needs a key generator , like oracle
 	 */
 	public static boolean generatorNameRequired() {
-		return dbVendor == DbVendor.ORACLE;
+		return false;
+		/*
+		 * good practice in oracle is to use a trigger.
+		 * We will enable our algorithm of using sequence only when a user asks
+		 * for an existing project
+		 */
+		// return dbVendor == DbVendor.ORACLE;
 	}
 
 	private void checkWritable() {
@@ -1751,6 +1760,7 @@ public class DbDriver {
 				data[i] = val.toObject();
 			}
 		}
+		Tracer.trace("Going to create an array descriptor for " + dbArrayType);
 		if (dbVendor == DbVendor.ORACLE) {
 			OracleConnection ocon = toOracleConnection(con);
 			ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType,
@@ -1774,6 +1784,7 @@ public class DbDriver {
 	 */
 	public static Struct createStruct(Connection con, Object[] data,
 			String dbObjectType) throws SQLException {
+		Tracer.trace("Going to create a descriptor for " + dbObjectType);
 		if (dbVendor == DbVendor.ORACLE) {
 			OracleConnection ocon = toOracleConnection(con);
 			StructDescriptor sd = StructDescriptor

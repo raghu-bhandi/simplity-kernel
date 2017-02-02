@@ -79,7 +79,7 @@ public class Log extends Action {
 		Tracer.trace("Data Sheets = ");
 		for(Map.Entry<String, DataSheet> entry : ctx.getAllSheets()){
 			writer.key(entry.getKey());
-			JsonUtil.sheetToJson(writer, entry.getValue(), null);
+			JsonUtil.sheetToJson(writer, entry.getValue(), null, false);
 		}
 	}
 }
