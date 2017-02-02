@@ -29,7 +29,7 @@ import org.simplity.service.ServiceData;
  * @author simplity.org
  *
  */
-public class ExampleExceptionListener implements ExceptionListener {
+public class DefaultExceptionListener implements ExceptionListener {
 
 	/*
 	 * (non-Javadoc)
@@ -39,12 +39,12 @@ public class ExampleExceptionListener implements ExceptionListener {
 	 */
 	@Override
 	public void listen(ServiceData inputData, Exception e) {
-		System.err.println(
-				"Applicaiton has issues that require the attention of the support team");
+		ServiceLogger.error(
+				"******************** FATAL ERROR **************************");
 		if (inputData != null) {
-			System.err.println("Input : " + inputData.getPayLoad());
+			ServiceLogger.error("Input : \n" + inputData.getPayLoad());
 		}
-		System.err.println("Error\n : " + e.getMessage());
+		ServiceLogger.error("Error :\n " + e.getMessage());
 	}
 
 }

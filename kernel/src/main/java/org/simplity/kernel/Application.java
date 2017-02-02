@@ -96,14 +96,17 @@ public class Application {
 		/**
 		 * try and pipe exception to the listener..
 		 */
+		ExceptionListener listener = new DefaultExceptionListener();
 		if (app.exceptionListener != null) {
 			try {
-				ExceptionListener listener = (ExceptionListener) Class
+				listener = (ExceptionListener) Class
 						.forName(app.exceptionListener).newInstance();
-				listener.listen(new ServiceData(), e);
 			} catch (Exception ignore) {
 				// we just tried
 			}
+		}
+		if(listener != null){
+			listener.listen(null, e);
 		}
 		throw e;
 	}
@@ -291,10 +294,12 @@ public class Application {
 			} catch (Exception e) {
 				msgs.add(this.exceptionListener
 						+ " could not be used to instantiate an exception listener. "
-						+ e.getMessage() + " We will work with no listener");
+						+ e.getMessage() + " We will work with default listener");
 			}
 		}
-
+		if(listener == null){
+			listener = new DefaultExceptionListener();
+		}
 		HttpCacheManager cacheManager = null;
 		if (this.httpCacheManager != null) {
 			try {
