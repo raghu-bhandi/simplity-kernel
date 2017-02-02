@@ -24,6 +24,7 @@ package org.simplity.http;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -254,6 +255,7 @@ public class HttpAgent {
 		elapsed = new Date().getTime() - startedAt;
 		resp.setHeader(ServiceProtocol.SERVICE_EXECUTION_TIME, elapsed + "");
 		resp.setContentType("text/json");
+		resp.setCharacterEncoding("UTF-8"); 
 		String response = null;
 		FormattedMessage[] messages = null;
 		if (outData == null) {
@@ -281,7 +283,7 @@ public class HttpAgent {
 									: (response.length()) + " chars ")
 							+ " payload");
 		}
-		ServletOutputStream out = resp.getOutputStream();
+		PrintWriter out = resp.getWriter();
 		out.print(response);
 		out.close();
 		String trace = Tracer.stopAccumulation();
