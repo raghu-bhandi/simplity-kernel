@@ -381,7 +381,13 @@ public class XmlUtil {
 			throws XmlParseException {
 		Document doc = null;
 		String msg = null;
+		/*
+		 * workaround for some APP servers that have classLoader related issue with using xrececs
+		 */
+		ClassLoader savedClassloader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(XmlUtil.class.getClassLoader());
 		DocumentBuilderFactory docuBuilder = new DocumentBuilderFactoryImpl();
+		Thread.currentThread().setContextClassLoader(savedClassloader);
 		docuBuilder.setIgnoringComments(true);
 		docuBuilder.setValidating(false);
 		docuBuilder.setCoalescing(false);
