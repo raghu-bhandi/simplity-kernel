@@ -4,14 +4,13 @@ import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
-import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
 
 /**
  * Example of a class that implements a full service
- * 
+ *
  * @author simplity.org
  *
  */
@@ -20,7 +19,7 @@ public class HelloJavaDirect implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getSimpleName()
 	 */
 	@Override
@@ -30,7 +29,7 @@ public class HelloJavaDirect implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getQualifiedName()
 	 */
 	@Override
@@ -40,7 +39,7 @@ public class HelloJavaDirect implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getReady()
 	 */
 	@Override
@@ -51,19 +50,19 @@ public class HelloJavaDirect implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.service.ServiceInterface#executeAsAction(org.simplity.service
 	 * .ServiceContext, org.simplity.kernel.db.DbDriver)
 	 */
 	@Override
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
-		return Value.VALUE_TRUE;
+	public int executeAsAction(ServiceContext ctx, DbDriver driver) {
+		return 1;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.service.ServiceInterface#toBeRunInBackground()
 	 */
 	@Override
@@ -73,7 +72,7 @@ public class HelloJavaDirect implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.service.ServiceInterface#okToCache()
 	 */
 	@Override
@@ -83,7 +82,7 @@ public class HelloJavaDirect implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.service.ServiceInterface#getDataAccessType()
 	 */
 	@Override
@@ -93,7 +92,7 @@ public class HelloJavaDirect implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.service.ServiceInterface#respond(org.simplity.service.
 	 * ServiceData)
 	 */
@@ -106,7 +105,7 @@ public class HelloJavaDirect implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
 	 * ValidationContext)
@@ -118,7 +117,7 @@ public class HelloJavaDirect implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getComponentType()
 	 */
 	@Override

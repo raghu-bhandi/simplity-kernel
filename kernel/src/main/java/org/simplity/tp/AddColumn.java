@@ -27,7 +27,6 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.AlreadyIteratingException;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.DataSheetIterator;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.util.TextUtil;
@@ -73,7 +72,7 @@ public class AddColumn extends Action {
 	Expression columnValueExpression;
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		DataSheet sheet = ctx.getDataSheet(this.sheetName);
 		if (sheet == null) {
 			return Value.VALUE_FALSE;

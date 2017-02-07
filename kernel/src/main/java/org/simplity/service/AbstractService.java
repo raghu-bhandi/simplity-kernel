@@ -27,7 +27,6 @@ import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
-import org.simplity.kernel.value.Value;
 
 /**
  * @author simplity.org
@@ -37,7 +36,7 @@ public abstract class AbstractService implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getSimpleName()
 	 */
 	@Override
@@ -47,7 +46,7 @@ public abstract class AbstractService implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getQualifiedName()
 	 */
 	@Override
@@ -57,7 +56,7 @@ public abstract class AbstractService implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getReady()
 	 */
 	@Override
@@ -67,7 +66,7 @@ public abstract class AbstractService implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
 	 * ValidationContext)
@@ -79,7 +78,7 @@ public abstract class AbstractService implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.comp.Component#getComponentType()
 	 */
 	@Override
@@ -89,20 +88,20 @@ public abstract class AbstractService implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.service.ServiceInterface#executeAsAction(org.simplity.service
 	 * .ServiceContext, org.simplity.kernel.db.DbDriver)
 	 */
 	@Override
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
+	public int executeAsAction(ServiceContext ctx, DbDriver driver) {
 		throw new ApplicationError(this.getSimpleName()
 				+ " is not designed to be run as an sub-service action.");
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.service.ServiceInterface#toBeRunInBackground()
 	 */
 	@Override
@@ -112,7 +111,7 @@ public abstract class AbstractService implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.service.ServiceInterface#okToCache()
 	 */
 	@Override
@@ -122,7 +121,7 @@ public abstract class AbstractService implements ServiceInterface {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.service.ServiceInterface#getDataAccessType()
 	 */
 	@Override

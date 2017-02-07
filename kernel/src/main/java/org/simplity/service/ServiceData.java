@@ -21,6 +21,7 @@
  */
 package org.simplity.service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -41,7 +42,11 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  *
  */
-public class ServiceData {
+public class ServiceData implements Serializable {
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
 	/**
 	 * for documentation. Not used as part of any logic.
 	 */

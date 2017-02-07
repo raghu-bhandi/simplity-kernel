@@ -37,7 +37,6 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.util.XmlUtil;
@@ -146,7 +145,7 @@ public class HttpClient extends Action {
 	private boolean isXml;
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		String txt;
 		if (this.urlParts == null) {
 			txt = this.urlString;

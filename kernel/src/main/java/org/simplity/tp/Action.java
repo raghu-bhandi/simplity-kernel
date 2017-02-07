@@ -72,6 +72,20 @@ public abstract class Action {
 	 *         actions. null implies no such feature
 	 */
 	public Value act(ServiceContext ctx, DbDriver driver) {
+		if(this.toContinue(ctx) == false){
+			return null;
+		}
+		return this.doAct(ctx);
+	}
+
+	/**
+	 * evaluate pre-conditions and determine whether we should go ahead with
+	 * this action.
+	 *
+	 * @param ctx
+	 * @return
+	 */
+	protected boolean toContinue(ServiceContext ctx) {
 		/*
 		 * is this a conditional step? i.e. to be executed only if the condition
 		 * is met
@@ -80,7 +94,7 @@ public abstract class Action {
 		if (this.executeOnCondition != null) {
 			try {
 				if (!this.executeOnCondition.evaluate(ctx).toBoolean()) {
-					return null;
+					return false;
 				}
 			} catch (Exception e) {
 				throw new ApplicationError("Action " + this.actionName
@@ -91,13 +105,13 @@ public abstract class Action {
 		}
 		if (this.executeIfNoRowsInSheet != null
 				&& ctx.nbrRowsInSheet(this.executeIfNoRowsInSheet) > 0) {
-			return null;
+			return false;
 		}
 		if (this.executeIfRowsInSheet != null
 				&& ctx.nbrRowsInSheet(this.executeIfRowsInSheet) == 0) {
-			return null;
+			return false;
 		}
-		return this.doAct(ctx, driver);
+		return true;
 	}
 
 	/**
@@ -108,7 +122,7 @@ public abstract class Action {
 	 * @return an indicator of what the action did. null means it has detected
 	 *         an error, and we have to stop and roll-back this service
 	 */
-	protected abstract Value doAct(ServiceContext ctx, DbDriver driver);
+	protected abstract Value doAct(ServiceContext ctx);
 
 	/***
 	 * what type of data access does this action require?

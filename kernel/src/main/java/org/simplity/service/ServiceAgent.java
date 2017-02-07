@@ -22,12 +22,17 @@
  */
 package org.simplity.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.Date;
 
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
+import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
@@ -229,7 +234,7 @@ public class ServiceAgent {
 			if (service == null) {
 				Tracer.trace(
 						"Service " + serviceName + " is missing in action !!");
-				response = new ServiceData();
+				response = this.defaultResponse(inputData);
 				response.addMessage(
 						Messages.getMessage(Messages.NO_SERVICE, serviceName));
 				break;
@@ -240,7 +245,7 @@ public class ServiceAgent {
 			 */
 			if (this.securityManager != null && this.securityManager
 					.okToServe(service, inputData) == false) {
-				response = new ServiceData();
+				response = this.defaultResponse(inputData);
 				/*
 				 * should we say you are not authorized?
 				 */
@@ -257,6 +262,13 @@ public class ServiceAgent {
 				if (response != null) {
 					break;
 				}
+			}
+			/*
+			 * is this to be run in the background always?
+			 */
+			if(service.toBeRunInBackground()){
+				response = this.runInBackground(inputData, service);
+				break;
 			}
 			/*
 			 * OK. here we go and call the actual service
@@ -278,7 +290,7 @@ public class ServiceAgent {
 					this.exceptionListener.listen(inputData, e);
 				}
 				Tracer.trace(e, "Exception thrown by service " + serviceName);
-				response = new ServiceData();
+				response = this.defaultResponse(inputData);
 				response.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR,
 						e.getMessage()));
 			}
@@ -296,6 +308,39 @@ public class ServiceAgent {
 	}
 
 	/**
+	 * @param inData
+	 * @return response to be sent back to client
+	 */
+	private ServiceData runInBackground(ServiceData inData, ServiceInterface service) {
+		ServiceData outData = this.defaultResponse(inData);
+		File file = FileManager.createTempFile();
+		ObjectOutputStream stream;
+		try {
+			stream = new ObjectOutputStream(new FileOutputStream(file));
+		} catch (Exception e) {
+			throw new ApplicationError(e, "Error while creating file for output from  bckground job");
+		}
+		String token = file.getName();
+		inData.put(ServiceProtocol.HEADER_FILE_TOKEN, token);
+		JSONWriter writer = new JSONWriter();
+		writer.object().key(ServiceProtocol.HEADER_FILE_TOKEN).value(token).endObject();
+		outData.setPayLoad(writer.toString());
+		ServiceSubmitter submitter = new ServiceSubmitter(inData, service, stream, this.exceptionListener);
+		Thread thread = new Thread(submitter);
+		thread.start();
+
+		return outData;
+	}
+
+	/**
+	 * create a response with right headers..
+	 * @param inData
+	 * @return
+	 */
+	private ServiceData defaultResponse(ServiceData inData){
+		return new ServiceData(inData.getUserId(), inData.getServiceName());
+	}
+	/**
 	 * invalidate any cached response for this service
 	 *
 	 * @param serviceName
@@ -305,4 +350,6 @@ public class ServiceAgent {
 			instance.cacheManager.invalidate(serviceName);
 		}
 	}
+
+
 }

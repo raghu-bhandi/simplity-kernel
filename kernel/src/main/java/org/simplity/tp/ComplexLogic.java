@@ -24,7 +24,6 @@ package org.simplity.tp;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
-import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -37,7 +36,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class ComplexLogic extends Action {
+public class ComplexLogic extends DbAction {
 	/**
 	 * fully qualified class name
 	 */
@@ -63,13 +62,13 @@ public class ComplexLogic extends Action {
 	}
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
-		return this.logic.execute(ctx, driver);
+	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+			return this.logic.execute(ctx, driver);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
 	 * , org.simplity.tp.Service)

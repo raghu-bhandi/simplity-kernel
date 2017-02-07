@@ -23,7 +23,6 @@
 package org.simplity.tp;
 
 import org.simplity.kernel.data.DataSheet;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -46,7 +45,7 @@ public class CopyRows extends Action {
 	String fromSheetName;
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		DataSheet fromSheet = ctx.getDataSheet(this.fromSheetName);
 		if (fromSheet == null) {
 			return Value.VALUE_ZERO;

@@ -250,13 +250,21 @@ public class Service implements ServiceInterface {
 				if (this.dbAccessType == DbAccessType.NONE) {
 					worker.act(null);
 				} else {
-					DbAccessType access = this.dbAccessType;
 					/*
 					 * get database handle. dbDriver is bit crazy. Does not
 					 * return driver, but expects us to supply a client instance
 					 * with whom it works.
+					 *
+					 * Also, sub-Service means we open a read-only, and then
+					 * call sub-service and complex-logic to manage their own
+					 * connections
 					 */
-					DbDriver.workWithDriver(worker, access, this.schemaName);
+					DbAccessType access = this.getDataAccessType();
+					if (access == DbAccessType.SUB_SERVICE) {
+						access = DbAccessType.READ_ONLY;
+					}
+					DbDriver.workWithDriver(worker, this.dbAccessType,
+							this.schemaName);
 				}
 			} catch (ApplicationError e) {
 				throw e;
@@ -387,21 +395,21 @@ public class Service implements ServiceInterface {
 	}
 
 	@Override
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
-		ActionBlock actionBlock = new ActionBlock(this.actions,
-				this.indexedActions, ctx);
-		boolean result = actionBlock.workWithDriver(driver);
+	public int executeAsAction(ServiceContext ctx, DbDriver driver) {
+		ActionBlock worker = new ActionBlock(this.actions, this.indexedActions,
+				ctx);
+		boolean result = worker.workWithDriver(driver);
 		if (result) {
-			return Value.VALUE_TRUE;
+			return 1;
 		}
-		return Value.VALUE_FALSE;
+		return 0;
 	}
 
 	@Override
 	public void getReady() {
 		if (this.gotReady) {
 			Tracer.trace("Service " + this.getQualifiedName()
-			+ " is being harassed by repeatedly asking it to getReady(). Please look into this..");
+					+ " is being harassed by repeatedly asking it to getReady(). Please look into this..");
 			return;
 		}
 		this.gotReady = true;
@@ -468,16 +476,16 @@ public class Service implements ServiceInterface {
 		if (this.referredServiceForInput != null) {
 			if (this.inputData != null) {
 				throw new ApplicationError("Service " + this.getQualifiedName()
-				+ " refers to service " + this.referredServiceForInput
-				+ " but also specifies its own input records.");
+						+ " refers to service " + this.referredServiceForInput
+						+ " but also specifies its own input records.");
 			}
 			ServiceInterface service = ComponentManager
 					.getService(this.referredServiceForInput);
 			if (service instanceof Service == false) {
 				throw new ApplicationError("Service " + this.getQualifiedName()
-				+ " refers to another service "
-				+ this.referredServiceForInput
-				+ ", but that is not an xml-based service.");
+						+ " refers to another service "
+						+ this.referredServiceForInput
+						+ ", but that is not an xml-based service.");
 			}
 			this.inputData = ((Service) service).inputData;
 		}
@@ -490,16 +498,16 @@ public class Service implements ServiceInterface {
 		if (this.referredServiceForOutput != null) {
 			if (this.outputData != null) {
 				throw new ApplicationError("Service " + this.getQualifiedName()
-				+ " refers to service " + this.referredServiceForOutput
-				+ " but also specifies its own output records.");
+						+ " refers to service " + this.referredServiceForOutput
+						+ " but also specifies its own output records.");
 			}
 			ServiceInterface service = ComponentManager
 					.getService(this.referredServiceForOutput);
 			if (service instanceof Service == false) {
 				throw new ApplicationError("Service " + this.getQualifiedName()
-				+ " refers to another service "
-				+ this.referredServiceForOutput
-				+ ", but that is not an xml-based service.");
+						+ " refers to another service "
+						+ this.referredServiceForOutput
+						+ ", but that is not an xml-based service.");
 			}
 			this.outputData = ((Service) service).outputData;
 		}
@@ -837,106 +845,106 @@ public class Service implements ServiceInterface {
 	public int validate(ValidationContext ctx) {
 		ctx.beginValidation(MY_TYPE, this.getQualifiedName());
 		/*
-		 *it is important that we endValidtion() before returning
+		 * it is important that we endValidtion() before returning
 		 */
-		try{
-		int count = 0;
-		if (this.className != null) {
-			try {
-				Object obj = Class.forName(this.className).newInstance();
-				if (obj instanceof ServiceInterface == false) {
-					ctx.addError(this.className
-							+ " is set as className but it does not implement ServiceInterface");
-					count++;
-				}
-			} catch (Exception e) {
-				ctx.addError(this.className
-						+ " could not be used to instantiate an object.\n"
-						+ e.getMessage());
-				count++;
-			}
-			if (this.actions != null) {
-				ctx.addError(this.className
-						+ " is set as className. This java code is used as service definition. Actions are not valid.");
-				count++;
-			}
-			return count;
-		}
-		int i = 0;
-		if (this.actions == null) {
-			ctx.addError("No actions.");
-			count++;
-		} else {
-			Set<String> addedSoFar = new HashSet<String>();
-			i = 1;
-			for (Action action : this.actions) {
-				if (action.actionName != null) {
-					if (addedSoFar.add(action.actionName) == false) {
-						ctx.addError("Duplicate action name "
-								+ action.actionName + " at " + i);
+		try {
+			int count = 0;
+			if (this.className != null) {
+				try {
+					Object obj = Class.forName(this.className).newInstance();
+					if (obj instanceof ServiceInterface == false) {
+						ctx.addError(this.className
+								+ " is set as className but it does not implement ServiceInterface");
 						count++;
 					}
+				} catch (Exception e) {
+					ctx.addError(this.className
+							+ " could not be used to instantiate an object.\n"
+							+ e.getMessage());
+					count++;
 				}
-				count += action.validate(ctx, this);
+				if (this.actions != null) {
+					ctx.addError(this.className
+							+ " is set as className. This java code is used as service definition. Actions are not valid.");
+					count++;
+				}
+				return count;
+			}
+			int i = 0;
+			if (this.actions == null) {
+				ctx.addError("No actions.");
+				count++;
+			} else {
+				Set<String> addedSoFar = new HashSet<String>();
+				i = 1;
+				for (Action action : this.actions) {
+					if (action.actionName != null) {
+						if (addedSoFar.add(action.actionName) == false) {
+							ctx.addError("Duplicate action name "
+									+ action.actionName + " at " + i);
+							count++;
+						}
+					}
+					count += action.validate(ctx, this);
+					i++;
+				}
+			}
+
+			i = 0;
+			if (this.requestTextFieldName != null) {
 				i++;
 			}
-		}
-
-		i = 0;
-		if (this.requestTextFieldName != null) {
-			i++;
-		}
-		if (this.inputData != null) {
-			count += this.inputData.validate(ctx);
-			i++;
-		}
-		if (this.referredServiceForInput != null) {
-			i++;
-			ServiceInterface service = ComponentManager
-					.getServiceOrNull(this.referredServiceForInput);
-			if (service == null) {
-				ctx.addError("referredServiceForInput set to "
-						+ this.referredServiceForInput
-						+ " but that service is not defined");
+			if (this.inputData != null) {
+				count += this.inputData.validate(ctx);
+				i++;
+			}
+			if (this.referredServiceForInput != null) {
+				i++;
+				ServiceInterface service = ComponentManager
+						.getServiceOrNull(this.referredServiceForInput);
+				if (service == null) {
+					ctx.addError("referredServiceForInput set to "
+							+ this.referredServiceForInput
+							+ " but that service is not defined");
+					count++;
+				}
+			}
+			if (i > 1) {
+				ctx.addError(
+						"More than one input specifications. Use one of dataInput, requestTextFieldName or referredServiceForInput.");
 				count++;
 			}
-		}
-		if (i > 1) {
-			ctx.addError(
-					"More than one input specifications. Use one of dataInput, requestTextFieldName or referredServiceForInput.");
-			count++;
-		}
-		i = 0;
-		if (this.responseTextFieldName != null) {
-			i++;
-		}
-		if (this.outputData != null) {
-			count += this.outputData.validate(ctx);
-			i++;
-		}
-		if (this.referredServiceForOutput != null) {
-			i++;
-			ServiceInterface service = ComponentManager
-					.getServiceOrNull(this.referredServiceForOutput);
-			if (service == null) {
-				ctx.addError("referredServiceForOutput set to "
-						+ this.referredServiceForOutput
-						+ " but that service is not defined");
+			i = 0;
+			if (this.responseTextFieldName != null) {
+				i++;
+			}
+			if (this.outputData != null) {
+				count += this.outputData.validate(ctx);
+				i++;
+			}
+			if (this.referredServiceForOutput != null) {
+				i++;
+				ServiceInterface service = ComponentManager
+						.getServiceOrNull(this.referredServiceForOutput);
+				if (service == null) {
+					ctx.addError("referredServiceForOutput set to "
+							+ this.referredServiceForOutput
+							+ " but that service is not defined");
+					count++;
+				}
+			}
+			if (i > 1) {
+				ctx.addError(
+						"More than one output specifications. Use one of dataOutput, responseTextFieldName or referredServiceForOutput.");
 				count++;
 			}
-		}
-		if (i > 1) {
-			ctx.addError(
-					"More than one output specifications. Use one of dataOutput, responseTextFieldName or referredServiceForOutput.");
-			count++;
-		}
-		if (this.schemaName != null
-				&& DbDriver.isSchmeaDefined(this.schemaName) == false) {
-			ctx.addError("schemaName is set to " + this.schemaName
-					+ " but it is not defined as one of additional schema names in application.xml");
-		}
-		return count;
-		}finally{
+			if (this.schemaName != null
+					&& DbDriver.isSchmeaDefined(this.schemaName) == false) {
+				ctx.addError("schemaName is set to " + this.schemaName
+						+ " but it is not defined as one of additional schema names in application.xml");
+			}
+			return count;
+		} finally {
 			ctx.endValidation();
 		}
 	}
@@ -954,7 +962,8 @@ public class Service implements ServiceInterface {
 	 * @return service, or null if name is not a valid on-the-fly service name
 	 */
 	public static ServiceInterface generateService(String serviceName) {
-		Tracer.trace("Trying to generate service " + serviceName + " on-the-fly");
+		Tracer.trace(
+				"Trying to generate service " + serviceName + " on-the-fly");
 		int idx = serviceName.indexOf(PREFIX_DELIMITER);
 		if (idx == -1) {
 			return null;

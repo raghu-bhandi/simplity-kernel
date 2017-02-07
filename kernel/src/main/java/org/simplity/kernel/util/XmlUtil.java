@@ -147,6 +147,7 @@ public class XmlUtil {
 	private static final String CLASS_NAME_ATTRIBUTE = "className";
 	private static final String UTF8 = "UTF-8";
 
+	private static final DocumentBuilderFactory docFactory = getFactory();
 	/**
 	 * bind data from an xml stream into object
 	 *
@@ -381,21 +382,9 @@ public class XmlUtil {
 			throws XmlParseException {
 		Document doc = null;
 		String msg = null;
-		/*
-		 * workaround for some APP servers that have classLoader related issue with using xrececs
-		 */
-		ClassLoader savedClassloader = Thread.currentThread().getContextClassLoader();
-		Thread.currentThread().setContextClassLoader(XmlUtil.class.getClassLoader());
-		DocumentBuilderFactory docuBuilder = new DocumentBuilderFactoryImpl();
-		Thread.currentThread().setContextClassLoader(savedClassloader);
-		docuBuilder.setIgnoringComments(true);
-		docuBuilder.setValidating(false);
-		docuBuilder.setCoalescing(false);
-		docuBuilder.setXIncludeAware(false);
-		docuBuilder.setNamespaceAware(false);
 
 		try {
-			DocumentBuilder builder = docuBuilder.newDocumentBuilder();
+			DocumentBuilder builder = docFactory.newDocumentBuilder();
 			doc = builder.parse(stream);
 		} catch (SAXParseException e) {
 			msg = "Error while parsing xml text. " + e.getMessage()
@@ -408,6 +397,26 @@ public class XmlUtil {
 			throw new XmlParseException(msg);
 		}
 		return doc;
+	}
+
+	/***
+	 * create the factory, once and for all
+	 * @return Factory to create DOM
+	 */
+	private static  DocumentBuilderFactory getFactory() {
+		/*
+		 * workaround for some APP servers that have classLoader related issue with using xrececs
+		 */
+		ClassLoader savedClassloader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(XmlUtil.class.getClassLoader());
+		DocumentBuilderFactory factory = new DocumentBuilderFactoryImpl();
+		Thread.currentThread().setContextClassLoader(savedClassloader);
+		factory.setIgnoringComments(true);
+		factory.setValidating(false);
+		factory.setCoalescing(false);
+		factory.setXIncludeAware(false);
+		factory.setNamespaceAware(false);
+		return factory;
 	}
 
 	/**

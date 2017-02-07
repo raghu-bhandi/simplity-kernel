@@ -24,7 +24,6 @@ package org.simplity.tp;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -49,7 +48,7 @@ public class AddMessage extends Action {
 	boolean stopIfMessageTypeIsError;
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		MessageType msgType = ctx.addMessage(this.messageName, this.parameters);
 		if (this.stopIfMessageTypeIsError && msgType == MessageType.ERROR) {
 			return Service.STOP_VALUE;

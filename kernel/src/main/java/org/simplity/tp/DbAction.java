@@ -21,9 +21,11 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.db.DbClientInterface;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -63,22 +65,74 @@ public abstract class DbAction extends Action {
 	 */
 	boolean stopIfMessageTypeIsError;
 
+	/**
+	 * schema name, different from the default schema, to be used specifically
+	 * for this service
+	 */
+	String schemaName;
+
+	/**
+	 * name of action to navigate to within this block, (_stop, _continue and
+	 * _break are special commands, as in jumpTo)
+	 */
+	String actionNameOnSuccess;
+	/**
+	 * name of action to navigate to within this block, (_stop, _continue and
+	 * _break are special commands, as in jumpTo)
+	 */
+	String actionNameOnFailure;
+
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
-		int result = this.doDbAct(ctx, driver);
-		MessageType msgType = null;
-		if (result == 0) {
-			if (this.failureMessageName != null) {
-				msgType = ctx.addMessage(this.failureMessageName,
-						this.failureMessageParameters);
-			}
-		} else if (this.successMessageName != null) {
-			msgType = ctx.addMessage(this.successMessageName,
-					this.successMessageParameters);
+	public Value act(ServiceContext ctx, DbDriver driver) {
+		if (this.toContinue(ctx) == false) {
+			return null;
 		}
-		if (this.stopIfMessageTypeIsError && msgType != null
-				&& msgType == MessageType.ERROR) {
-			return Service.STOP_VALUE;
+		int result = 0;
+		if (this.getDataAccessType().updatesDb() && (driver == null
+				|| driver.getAccessType().updatesDb() == false)) {
+			/*
+			 * service has delegated transactions to its actions...
+			 * We have to directly deal with the driver for this
+			 */
+			Worker worker = new Worker(ctx);
+			if (DbDriver.workWithDriver(worker, this.getDataAccessType(),
+					this.schemaName)) {
+				result = worker.getResult();
+			}
+		} else {
+			result = this.doDbAct(ctx, driver);
+		}
+		if (result == 0) {
+			/*
+			 * action has failed to do its job. What has the designer asked us
+			 * to do in this case?
+			 */
+			if (this.actionNameOnFailure != null) {
+				return Value.newTextValue(this.actionNameOnFailure);
+			}
+			if (this.failureMessageName != null) {
+				MessageType msgType = ctx.addMessage(this.failureMessageName,
+						this.failureMessageParameters);
+				if (msgType == MessageType.ERROR
+						&& this.stopIfMessageTypeIsError) {
+					return Service.STOP_VALUE;
+				}
+			}
+			return Value.VALUE_ZERO;
+
+		}
+		/*
+		 * any result other than 0 is success.
+		 */
+		if (this.actionNameOnFailure != null) {
+			return Value.newTextValue(this.actionNameOnFailure);
+		}
+		if (this.successMessageName != null) {
+			MessageType msgType = ctx.addMessage(this.successMessageName,
+					this.successMessageParameters);
+			if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
+				return Service.STOP_VALUE;
+			}
 		}
 		return Value.newIntegerValue(result);
 	}
@@ -96,7 +150,8 @@ public abstract class DbAction extends Action {
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
+	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.
+	 * ValidationContext
 	 * , org.simplity.tp.Service)
 	 */
 	@Override
@@ -109,5 +164,52 @@ public abstract class DbAction extends Action {
 			ctx.addReference(ComponentType.MSG, this.successMessageName);
 		}
 		return count;
+	}
+
+	/*
+	 * as per our design, this method should never be invoked
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.tp.Action#doAct(org.simplity.service.ServiceContext)
+	 */
+	@Override
+	protected final Value doAct(ServiceContext ctx) {
+		throw new ApplicationError(
+				"Design Error : DbActionis called without a driver");
+	}
+
+	/**
+	 * worker class to work with the driver
+	 *
+	 * @author simplity.org
+	 *
+	 */
+	protected class Worker implements DbClientInterface {
+		private final ServiceContext ctx;
+		private int result = 0;
+
+		Worker(ServiceContext ctx) {
+			this.ctx = ctx;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see
+		 * org.simplity.kernel.db.DbClientInterface#workWithDriver(org.simplity.
+		 * kernel.db.DbDriver)
+		 */
+		@Override
+		public boolean workWithDriver(DbDriver driver) {
+			this.result = DbAction.this.doDbAct(this.ctx, driver);
+			if (this.ctx.isInError()) {
+				return false;
+			}
+			return true;
+		}
+
+		int getResult(){
+			return this.result;
+		}
 	}
 }

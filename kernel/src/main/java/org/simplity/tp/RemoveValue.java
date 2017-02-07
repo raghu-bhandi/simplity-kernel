@@ -25,7 +25,6 @@ package org.simplity.tp;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.db.DbAccessType;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -53,7 +52,7 @@ public class RemoveValue extends Action {
 	private String runTimeFieldName;
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		if (this.runTimeFieldName == null) {
 			ctx.removeValue(this.fieldName);
 		} else {
@@ -75,7 +74,7 @@ public class RemoveValue extends Action {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.tp.Action#getReady()
 	 */
 	@Override

@@ -21,7 +21,6 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -48,7 +47,7 @@ public class JumpTo extends org.simplity.tp.Action {
 	private JumpSignal jumpSignal;
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		return this.returnValue;
 	}
 

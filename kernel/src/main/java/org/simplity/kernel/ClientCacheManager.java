@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.http;
+package org.simplity.kernel;
 
 import javax.servlet.http.HttpSession;
 
@@ -29,7 +29,8 @@ import org.simplity.service.ServiceData;
  * @author simplity.org
  *
  */
-public interface HttpCacheManager {
+public interface ClientCacheManager {
+
 	/**
 	 * get a cached response
 	 *

@@ -305,5 +305,4 @@ public abstract class ServiceProtocol {
 	 *
 	 */
 	public static final String OLD_ATT_TOKEN_SUFFIX = "Old";
-
 }

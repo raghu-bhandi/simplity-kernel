@@ -41,10 +41,10 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class Loop extends Action {
+public class Loop extends DbAction {
 
 	/**
-	 * returns either a name of action to go to, or "_stop", "_error"
+	 * data sheet on which to loop
 	 */
 	String dataSheetName;
 
@@ -54,14 +54,14 @@ public class Loop extends Action {
 	Action[] actions;
 
 	/**
-	 * calculated based on sub-actions of this block
+	 * determined based on sub-actions of this block
 	 */
 	private DbAccessType dbAccess;
 
 	private Map<String, Integer> indexedActions = new HashMap<String, Integer>();
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
 		ActionBlock actionBlock = new ActionBlock(this.actions, this.indexedActions,
 				ctx);
 		boolean toContinue = true;
@@ -74,9 +74,12 @@ public class Loop extends Action {
 					+ " has niether data sheet, nor condition.");
 		}
 		if(toContinue){
-			return null;
+			return 1;
 		}
-		return Service.STOP_VALUE;
+		/*
+		 * since we have set this.messageNameOnFailure to _stop...
+		 */
+		return 0;
 	}
 
 	/**
@@ -148,6 +151,10 @@ public class Loop extends Action {
 	@Override
 	public void getReady(int idx) {
 		super.getReady(idx);
+		/*
+		 * loop action may want the caller to stop. We use this facility
+		 */
+		this.actionNameOnFailure = "_stop";
 		if (this.actions == null) {
 			throw new ApplicationError("Loop Action " + this.actionName
 					+ " is empty. No point in looping just like that :-) ");

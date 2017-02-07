@@ -26,7 +26,6 @@ import java.util.Map;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -44,7 +43,7 @@ public class Log extends Action {
 	String[] names;
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		if (this.names == null) {
 			return Value.VALUE_FALSE;
 		}

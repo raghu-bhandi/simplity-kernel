@@ -29,7 +29,6 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.db.DbAccessType;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -63,7 +62,7 @@ public class CreateSheet extends Action {
 	private Value returnValue;
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		/*
 		 * parse rows into a collection
 		 */

@@ -479,8 +479,9 @@ public class DbDriver {
 	 *            with
 	 *            multiple schemas, AND this session transaction need to use a
 	 *            schema different from the default one
+	 * @return true if allOK, false in case of roll-back
 	 */
-	public static void workWithDriver(DbClientInterface callBackObject,
+	public static boolean workWithDriver(DbClientInterface callBackObject,
 			DbAccessType accType, String schema) {
 		Connection con = null;
 		if (accType != DbAccessType.NONE) {
@@ -504,6 +505,7 @@ public class DbDriver {
 					+ exception.getMessage();
 			throw new ApplicationError(exception, msg);
 		}
+		return allOk;
 	}
 
 	/**
@@ -1862,5 +1864,12 @@ public class DbDriver {
 	 */
 	public static Connection getConnection() {
 		return getConnection(null, null);
+	}
+
+	/**
+	 * @return db access type for which this connection is geared-up for
+	 */
+	public DbAccessType getAccessType() {
+		return this.accessType;
 	}
 }

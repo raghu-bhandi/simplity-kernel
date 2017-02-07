@@ -25,7 +25,6 @@ package org.simplity.tp;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.db.DbAccessType;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.util.TextUtil;
@@ -66,7 +65,7 @@ public class SetValue extends Action {
 	private String parsedField;
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		Value value = null;
 		if (this.parsedValue != null) {
 			value = this.parsedValue;
@@ -94,7 +93,7 @@ public class SetValue extends Action {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.tp.Action#getReady()
 	 */
 	@Override

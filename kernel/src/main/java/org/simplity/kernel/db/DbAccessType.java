@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -30,24 +30,24 @@ public enum DbAccessType {
 	/**
 	 * No data base access. No need to open a connection
 	 */
-	NONE,
+	NONE(false),
 	/**
 	 * use a read-only connection. transaction processing is not started. any
 	 * attempt inside the service to update will result in an exception
 	 */
-	READ_ONLY,
+	READ_ONLY(false),
 	/**
 	 * a transaction processing is initiated in the beginning. At the end, it is
 	 * committed except for exceptions and for error in the returned db
 	 */
-	READ_WRITE,
+	READ_WRITE(true),
 	/**
 	 * a read-write connection, but no transaction processing. In case of any
 	 * error/exception, earlier updates are not rolled back. This the most
 	 * efficient way of updating, but has no protection for any exception.
 	 * Suitable if recovery processes are defined outside the application.
 	 */
-	AUTO_COMMIT,
+	AUTO_COMMIT(true),
 	/**
 	 * service consists of only sub-services. each sub-service has its own
 	 * access type and commitment control. This Should be used ONLY UNDER
@@ -59,5 +59,19 @@ public enum DbAccessType {
 	 * you run the whole thing in a transaction, the reads will result in large
 	 * number of locks, affecting performance.
 	 */
-	SUB_SERVICE
+	SUB_SERVICE(false);
+	private final boolean updatable;
+	/**
+	 *
+	 */
+	private DbAccessType(boolean updatable) {
+		this.updatable = updatable;
+	}
+	/**
+	 *
+	 * @return does this access mean updates to the database?
+	 */
+	public boolean updatesDb(){
+		return this.updatable;
+	}
 }

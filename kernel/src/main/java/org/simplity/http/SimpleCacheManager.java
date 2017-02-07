@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 
 import org.simplity.json.JSONObject;
+import org.simplity.kernel.ClientCacheManager;
 import org.simplity.kernel.Tracer;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceProtocol;
@@ -38,7 +39,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  *
  */
-public class SimpleCacheManager implements HttpCacheManager {
+public class SimpleCacheManager implements ClientCacheManager {
 	/**
 	 * user id specific responses are saved in session in this name
 	 */

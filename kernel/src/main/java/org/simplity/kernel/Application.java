@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.simplity.http.HttpAgent;
-import org.simplity.http.HttpCacheManager;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -300,10 +299,10 @@ public class Application {
 		if(listener == null){
 			listener = new DefaultExceptionListener();
 		}
-		HttpCacheManager cacheManager = null;
+		ClientCacheManager cacheManager = null;
 		if (this.httpCacheManager != null) {
 			try {
-				cacheManager = (HttpCacheManager) Class
+				cacheManager = (ClientCacheManager) Class
 						.forName(this.httpCacheManager).newInstance();
 
 			} catch (Exception e) {
@@ -446,7 +445,7 @@ public class Application {
 				"accessControllerClassName", ctx)) {
 			count++;
 		}
-		if (this.classInError(HttpCacheManager.class, this.httpCacheManager,
+		if (this.classInError(ClientCacheManager.class, this.httpCacheManager,
 				"httpCacheManager", ctx)) {
 			count++;
 		}

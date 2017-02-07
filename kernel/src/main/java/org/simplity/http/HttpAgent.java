@@ -23,24 +23,28 @@
 package org.simplity.http;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.Writer;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.ClientCacheManager;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.ServiceLogger;
 import org.simplity.kernel.Tracer;
+import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.CircularLifo;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
@@ -104,6 +108,22 @@ public class HttpAgent {
 			"Invalid Credentials. Login failed.");
 
 	/**
+	 * no token from client
+	 */
+	public static final FormattedMessage NO_TOKEN = new FormattedMessage(
+			"noToken", MessageType.ERROR,
+			"A valid token for the bckground job is required to get its response.");
+
+	/**
+	 * response is not yet available for this token
+	 */
+	public static final FormattedMessage NO_RESPONSE = new FormattedMessage(
+			"noResponse", MessageType.INFO,
+			"No response yet from the background job.");
+	private static final String STILL_PENDING_PREFIX = "{\""
+			+ ServiceProtocol.HEADER_FILE_TOKEN + "\":\"";
+	private static final String STILL_PENDING_SUFFIX = "\"}";
+	/**
 	 * parameter name with which userId is to be saved in session. made this
 	 * public filters to observe this convention. Value in session with this
 	 * name implies that the user has logged-in. HttpAgent does not serve unless
@@ -127,7 +147,7 @@ public class HttpAgent {
 	/**
 	 * cache service responses
 	 */
-	private static HttpCacheManager httpCacheManager;
+	private static ClientCacheManager httpCacheManager;
 
 	/**
 	 * accumulated traces to be streamed to client when requested.
@@ -155,15 +175,15 @@ public class HttpAgent {
 	public static void serve(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 
-		/*
-		 * serviceName and CSRF headers are expected in header in AJAX mode with
-		 * post
-		 */
+		String fileToken = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
+		if(fileToken != null){
+			Tracer.trace("Checking for pending service with token " + fileToken);
+			getPendingResponse(req, resp, fileToken);
+			return;
+		}
 		String serviceName = req.getHeader(ServiceProtocol.SERVICE_NAME);
 		HttpSession session = req.getSession(true);
 		boolean isGet = GET.equals(req.getMethod());
-		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-		resp.setDateHeader("Expires", 0);
 		/*
 		 * serviceName is a parameter in GET mode, and CSRF would be in session
 		 */
@@ -255,7 +275,6 @@ public class HttpAgent {
 		elapsed = new Date().getTime() - startedAt;
 		resp.setHeader(ServiceProtocol.SERVICE_EXECUTION_TIME, elapsed + "");
 		resp.setContentType("text/json");
-		resp.setCharacterEncoding("UTF-8"); 
 		String response = null;
 		FormattedMessage[] messages = null;
 		if (outData == null) {
@@ -283,9 +302,7 @@ public class HttpAgent {
 									: (response.length()) + " chars ")
 							+ " payload");
 		}
-		PrintWriter out = resp.getWriter();
-		out.print(response);
-		out.close();
+		writeResponse(resp, response);
 		String trace = Tracer.stopAccumulation();
 		if (outData != null) {
 			String serverTrace = outData.getTrace();
@@ -299,7 +316,6 @@ public class HttpAgent {
 		}
 		String uid = userId == null ? "unknown" : userId.toString();
 		ServiceLogger.pushTraceToLog(serviceName, uid, (int) elapsed, trace);
-
 
 	}
 
@@ -480,7 +496,7 @@ public class HttpAgent {
 	 *            if true, traces are also saved into a circular buffer that can
 	 *            be delivered to the client
 	 */
-	public static void setUp(Value autoUserId, HttpCacheManager cacher,
+	public static void setUp(Value autoUserId, ClientCacheManager cacher,
 			ExceptionListener listener, boolean cacheTraces) {
 		autoLoginUserId = autoUserId;
 		httpCacheManager = cacher;
@@ -516,7 +532,7 @@ public class HttpAgent {
 
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-		.getAttribute(SESSION_NAME_FOR_MAP);
+				.getAttribute(SESSION_NAME_FOR_MAP);
 		if (sessionData == null) {
 			throw new ApplicationError(
 					"Unexpected situation. UserId is located in session, but not map");
@@ -554,7 +570,7 @@ public class HttpAgent {
 	private static void setSessionData(HttpSession session, ServiceData data) {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session
-		.getAttribute(SESSION_NAME_FOR_MAP);
+				.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
 			Tracer.trace(
@@ -631,5 +647,103 @@ public class HttpAgent {
 		CircularLifo<String> lifo = ((CircularLifo<String>) obj);
 		lifo.put(trace);
 
+	}
+
+	/**
+	 * serve this service. Main entrance to the server from an http client.
+	 *
+	 * @param req
+	 *            http request
+	 * @param resp
+	 *            http response
+	 * @param fileToken this is the token that was returned by an earlier call to server. Whenever a service request is  for a service indicating that the service
+	 * @throws ServletException
+	 *             Servlet exception
+	 * @throws IOException
+	 *             IO exception
+	 *
+	 */
+	public static void getPendingResponse(HttpServletRequest req,
+			HttpServletResponse resp, String fileToken) throws ServletException, IOException {
+
+		FormattedMessage message = null;
+		ServiceData outData = null;
+		do {
+			File file = FileManager.getTempFile(fileToken);
+			if (file == null || file.length() == 0) {
+				/*
+				 * trick-design. To be re-factored later. We break with no
+				 * message and no Data to imply a pending status
+				 */
+				// message = NO_RESPONSE;
+				break;
+			}
+			Object obj = null;
+			try {
+				ObjectInputStream stream = new ObjectInputStream(
+						new FileInputStream(file));
+				obj = stream.readObject();
+			} catch (Exception e) {
+				if (exceptionListener != null) {
+					exceptionListener.listen(null, e);
+				}
+				message = INTERNAL_ERROR;
+				break;
+			}
+			if (obj instanceof ServiceData == false) {
+				String text = "Temp file is expected to contain an object instance of ServiceData but we found "
+						+ obj.getClass().getName();
+				if (exceptionListener != null) {
+					exceptionListener.listen(null, new ApplicationError(text));
+				} else {
+					Tracer.trace(text);
+				}
+				message = INTERNAL_ERROR;
+				break;
+			}
+			outData = (ServiceData) obj;
+		} while (false);
+
+		String response = null;
+		if (message != null) {
+			FormattedMessage[] messages = { message };
+			response = getResponseForError(messages);
+		} else if (outData != null) {
+			if (outData.hasErrors()) {
+				response = getResponseForError(outData.getMessages());
+			} else {
+				response = outData.getPayLoad();
+			}
+		} else {
+			/*
+			 * trick design. no data, no message implies no response available
+			 * yet for this token. We have no way to check whether this is a
+			 * valid token. Feature has to be added.
+			 *
+			 */
+			response = STILL_PENDING_PREFIX + fileToken + STILL_PENDING_SUFFIX;
+		}
+
+		writeResponse(resp, response);
+		if (tracesToBeCached && outData != null) {
+			cacheTraces(req.getSession(true), outData.getTrace());
+		}
+	}
+
+	/**
+	 * respond back with the pay load
+	 *
+	 * @param resp
+	 * @param payLoad
+	 * @throws IOException
+	 */
+	private static void writeResponse(HttpServletResponse resp, String payLoad)
+			throws IOException {
+		resp.setContentType("text/json");
+		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+		resp.setDateHeader("Expires", 0);
+		Writer writer = resp.getWriter();
+		writer.write(payLoad);
+		writer.close();
 	}
 }
