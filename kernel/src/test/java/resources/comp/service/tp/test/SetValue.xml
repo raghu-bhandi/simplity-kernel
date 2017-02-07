@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <service dbAccessType="none" description="Action setvalue test"
-	executeInBackground="true" moduleName="test" name="SetValue"
+	moduleName="test" name="SetValue"
 	xmlns="http://www.simplity.org/schema">
 	<!-- No Input data required for setValye action -->
 	<outputData fieldNames="island,leader,gang,adversaries,novel,lostBoys">

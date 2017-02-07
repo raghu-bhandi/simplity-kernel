@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <service dbAccessType="none" description="Test the Logic xml"
-	executeInBackground="true" moduleName="test" name="Logic"
+	moduleName="test" name="Logic"
 	xmlns="http://www.simplity.org/schema">
 	
 	<inputData>

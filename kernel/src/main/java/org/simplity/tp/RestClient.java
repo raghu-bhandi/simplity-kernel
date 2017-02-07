@@ -93,7 +93,7 @@ public class RestClient extends Action {
 	}
 
 	@Override
-	protected Value doAct(ServiceContext ctx, DbDriver driver) {
+	protected Value doAct(ServiceContext ctx) {
 		try {
 			if(parsedUrlString!=null){
 				urlString = ctx.getTextValue(parsedUrlString);
