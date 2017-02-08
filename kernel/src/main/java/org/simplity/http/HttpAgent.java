@@ -39,6 +39,7 @@ import javax.servlet.http.HttpSession;
 
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.ClientAgentInterface;
 import org.simplity.kernel.ClientCacheManager;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
@@ -65,7 +66,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  *
  */
-public class HttpAgent {
+public class HttpAgent implements ClientAgentInterface {
 	/*
 	 * session parameter name with which user token is saved. This token is the
 	 * name under which our global parameters are saved. This indirection is
@@ -176,8 +177,9 @@ public class HttpAgent {
 			throws ServletException, IOException {
 
 		String fileToken = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
-		if(fileToken != null){
-			Tracer.trace("Checking for pending service with token " + fileToken);
+		if (fileToken != null) {
+			Tracer.trace(
+					"Checking for pending service with token " + fileToken);
 			getPendingResponse(req, resp, fileToken);
 			return;
 		}
@@ -496,7 +498,8 @@ public class HttpAgent {
 	 *            if true, traces are also saved into a circular buffer that can
 	 *            be delivered to the client
 	 */
-	public static void setUp(Value autoUserId, ClientCacheManager cacher,
+	@Override
+	public void setUp(Value autoUserId, ClientCacheManager cacher,
 			ExceptionListener listener, boolean cacheTraces) {
 		autoLoginUserId = autoUserId;
 		httpCacheManager = cacher;
@@ -656,7 +659,10 @@ public class HttpAgent {
 	 *            http request
 	 * @param resp
 	 *            http response
-	 * @param fileToken this is the token that was returned by an earlier call to server. Whenever a service request is  for a service indicating that the service
+	 * @param fileToken
+	 *            this is the token that was returned by an earlier call to
+	 *            server. Whenever a service request is for a service indicating
+	 *            that the service
 	 * @throws ServletException
 	 *             Servlet exception
 	 * @throws IOException
@@ -664,7 +670,8 @@ public class HttpAgent {
 	 *
 	 */
 	public static void getPendingResponse(HttpServletRequest req,
-			HttpServletResponse resp, String fileToken) throws ServletException, IOException {
+			HttpServletResponse resp, String fileToken)
+			throws ServletException, IOException {
 
 		FormattedMessage message = null;
 		ServiceData outData = null;

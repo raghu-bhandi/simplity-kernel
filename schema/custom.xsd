@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema targetNamespace="http://www.simplity.org/declaredDataTypes"
-           xmlns="http://www.simplity.org/dataTypes"
+<xs:schema targetNamespace="http://www.simplity.org/custom"
+           xmlns="http://www.simplity.org/custom"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:simpleType name="declaredDataTypes">
     <xs:restriction base="xs:NCName">

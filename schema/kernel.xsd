@@ -4,13 +4,13 @@
 	elementFormDefault="qualified"
 	xmlns="http://www.simplity.org/schema"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:dt="http://www.simplity.org/declaredDataTypes"
+	xmlns:dt="http://www.simplity.org/custom" 
 >
 
-	<xs:import namespace="http://www.simplity.org/declaredDataTypes"></xs:import>
+	<xs:import namespace="http://www.simplity.org/custom"></xs:import>
 	<!-- data types are organized in one or more files, but not one per file. 
 		hence we have a wrapper element <dataTypes> with another wrapper element 
-		called <dataTYpes> for the collection. -->
+		called <dataTypes> for the collection. -->
 	<xs:element name="dataTypes">
 		<xs:annotation>
 			<xs:documentation>
@@ -904,11 +904,39 @@
 			>
 				<xs:simpleType>
 					<xs:restriction base="xs:NCName">
-						<xs:enumeration value="none" />
-						<xs:enumeration value="readOnly" />
-						<xs:enumeration value="readWrite" />
-						<xs:enumeration value="autoCommit" />
-						<xs:enumeration value="subService" />
+						<xs:enumeration value="none">
+							<xs:annotation>
+								<xs:documentation>No database usage</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
+						<xs:enumeration value="readOnly">
+							<xs:annotation>
+								<xs:documentation>No updates to the database</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
+						<xs:enumeration value="readWrite">
+							<xs:annotation>
+								<xs:documentation>database is updated as a single transaction.
+									It is committed or rolled back at the end of this service
+								</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
+						<xs:enumeration value="autoCommit">
+							<xs:annotation>
+								<xs:documentation>Updates are made with no commit/roll back. Use
+									with caution because this violates the concept of a user
+									transaction.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
+						<xs:enumeration value="subService">
+							<xs:annotation>
+								<xs:documentation>No database use by actions, except for
+									sub-service-actions. Each of the sub-service will manage its
+									own transaction.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
@@ -1360,30 +1388,33 @@
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
-		<xs:attribute
-			name="arrayNames"
-			type="xs:string"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>comma separated names of arrays to be output. A
-					data sheet with a single column is expected in the service context
-					as value. If sheet is not found, but a value is found in fields
-					collection, then we send an array with just one element of that
-					value.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="outputAsObject"
-			type="booleanType"
-			use="optional"
-		>
-			<xs:annotation>
-				<xs:documentation>first row of this data sheet 
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
+					<xs:attribute
+						name="arrayNames"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>comma separated names of arrays to be output. A
+								data sheet with a single column is expected in the service
+								context
+								as value. If sheet is not found, but a value is found in
+								fields
+								collection, then we send an array with just one element of
+								that
+								value.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="outputAsObject"
+						type="booleanType"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>first row of this data sheet
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
 				</xs:complexType>
 
 			</xs:element>
@@ -2077,8 +2108,15 @@
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
 			name="toAction"
+			use="required"
 			type="xs:string"
-			use="required" />
+		>
+			<xs:annotation>
+				<xs:documentation>_stop, _break, _continue or a name of an action to
+					go to
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="log">
@@ -2682,6 +2720,67 @@
 		</xs:annotation>
 	</xs:element>
 
+	<xs:element name="clients">
+		<xs:complexType>
+			<xs:choice minOccurs="1">
+				<xs:element name="clientAgentParams">
+					<xs:complexType>
+						<xs:attribute
+							name="clientAgent"
+							type="xs:string"
+							use="required"
+						>
+							<xs:annotation>
+								<xs:documentation>class name of the client agent being used.e.g.
+									org.simplity.http.HttpAgent.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute
+							name="sendTraceToClient"
+							type="booleanType"
+							use="optional"
+						>
+							<xs:annotation>
+								<xs:documentation>should the trace/log for the service execution
+									be arranged to be sent to the caller/client? True during
+									development, false during production
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+			<xs:attribute
+				name="autoLoginUserId"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>During development/demo, login would be a
+						nuisance. You may disable that, and use a default userId for all
+						services. Ensure that this is a number in case your project uses
+						numeric value as userId, as set in userIdIsNumber
+						attribute.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="clientCacheManager"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>Responses can be cached at http(web tier) as well
+						as at service (app tier). specify the qualified class name for the
+						http cache manager that implements HttpCacheManager interface.
+						Services should indicate cacheability in response service data
+						(refer to service.xml attributes)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+			</xs:choice>
+		</xs:complexType>
+	</xs:element>
 	<xs:element name="application">
 		<xs:complexType>
 			<xs:sequence>
@@ -2720,6 +2819,10 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
+				<xs:element
+					ref="clients"
+					minOccurs="0"
+					maxOccurs="1" />
 			</xs:sequence>
 			<xs:attribute
 				name="applicationId"
@@ -2741,17 +2844,6 @@
 					<xs:documentation>During development, we prefer not to cache
 						components, so that any change to them is immediately reflected in
 						the application. This reduces the build requirements.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="sendTraceToClient"
-				type="booleanType"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>Should the trace be sent to client? True during
-						development to help in debugging.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2845,34 +2937,6 @@
 						as modified-by-user). Default is text, which you can change to
 						integral. Of course, we do not allow you to design it as any other
 						type
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="autoLoginUserId"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>During development/demo, login would be a
-						nuisance. You may disable that, and use a default userId for all
-						services. Ensure that this is a number in case your project uses
-						numeric value as userId, as set in userIdIsNumber
-						attribute.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="httpCacheManager"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>Responses can be cached at http(web tier) as well
-						as at service (app tier). specify the qualified class name for the
-						http cache manager that implements HttpCacheManager interface.
-						Services should indicate cacheability in response service data
-						(refer to service.xml attributes)
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>

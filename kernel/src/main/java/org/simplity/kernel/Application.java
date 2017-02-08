@@ -25,7 +25,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.simplity.http.HttpAgent;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -118,10 +117,6 @@ public class Application {
 	String applicationId;
 
 	/**
-	 * should we send server trace to client?
-	 */
-	boolean sendTraceToClient;
-	/**
 	 * do we cache components as they are loaded
 	 */
 	boolean cacheComponents;
@@ -160,23 +155,6 @@ public class Application {
 	 * does this project use an integer as user id? (default is string
 	 */
 	boolean userIdIsNumber;
-
-	/**
-	 * if you want to disable login, and use a dummy user id for all services,
-	 * typically during development/demo. Ensure that this value is numeric in
-	 * case you have set userIdIsNumber="true"
-	 */
-	String autoLoginUserId;
-
-	/**
-	 * Response to service request can be cached at two levels : at the Web tier
-	 * or at the service level. specify fully qualified class name you want use
-	 * as cache manager at we tier. This class must implement HttpCacheManager
-	 * interface. You may start with the a simple one called
-	 * org.siplity.http.SimpleCacheManager that caches services based on service
-	 * definition inside http sessions.
-	 */
-	String httpCacheManager;
 
 	/**
 	 * Response to service request can be cached at two levels : at the Web tier
@@ -233,6 +211,10 @@ public class Application {
 	 */
 	String traceWrapper;
 
+	/**
+	 *parameters for each of the clients
+	 */
+	ClientAgentParams[] clients;
 	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
@@ -299,19 +281,6 @@ public class Application {
 		if(listener == null){
 			listener = new DefaultExceptionListener();
 		}
-		ClientCacheManager cacheManager = null;
-		if (this.httpCacheManager != null) {
-			try {
-				cacheManager = (ClientCacheManager) Class
-						.forName(this.httpCacheManager).newInstance();
-
-			} catch (Exception e) {
-				msgs.add(this.httpCacheManager
-						+ " could not be used to instantiate a cache manager. "
-						+ e.getMessage()
-						+ " We will work with no http cache manager");
-			}
-		}
 
 		/*
 		 * Set up db driver.
@@ -325,11 +294,6 @@ public class Application {
 					+ " Application will not work properly.");
 		}
 
-		/*
-		 * setup service agent
-		 */
-		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName,
-				this.logoutServiceName, casher, gard, listener);
 
 		/*
 		 * Some components like data-type are to be pre-loaded for the app to
@@ -344,21 +308,6 @@ public class Application {
 			ComponentType.startCaching();
 		}
 
-		Value uid = null;
-		if (this.autoLoginUserId != null) {
-			if (this.userIdIsNumber) {
-				try {
-					uid = Value.newIntegerValue(
-							Integer.parseInt(this.autoLoginUserId));
-				} catch (Exception e) {
-					msgs.add("autoLoginUserId is set to " + this.autoLoginUserId
-							+ " but it has to be a number because userIdIsNumber is set to true. Auto login is not enabled.");
-				}
-			} else {
-				uid = Value.newTextValue(this.autoLoginUserId);
-			}
-		}
-		HttpAgent.setUp(uid, cacheManager, listener, this.sendTraceToClient);
 		/*
 		 * what about file/media/attachment storage assistant?
 		 */
@@ -399,6 +348,21 @@ public class Application {
 			}
 		}
 
+		/*
+		 * initialize service agent
+		 */
+		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard, listener);
+
+		/*
+		 * set-up clients
+		 *
+		 */
+		if(this.clients == null){
+			Tracer.trace("Application set with no client Agent. WIll work only thru native java agent.");
+		}else{
+			this.setUpClients(msgs, listener);
+		}
+
 		String result = null;
 		if (msgs.size() > 0) {
 			/*
@@ -420,6 +384,42 @@ public class Application {
 		return result;
 	}
 
+	private void setUpClients(List<String> msgs, ExceptionListener listener){
+		for(ClientAgentParams params : this.clients){
+			ClientAgentInterface client = null;
+			ClientCacheManager cacher = null;
+			Value uid = null;
+			try{
+				client = (ClientAgentInterface)Class.forName(params.clientAgent).newInstance();
+			}catch(Exception e){
+				msgs.add("Error while creating a ClientAgentInterface instance using class name " + params.clientAgent + ". " + e.getMessage());
+			}
+
+			if(params.clientCacheManager != null){
+				try{
+				cacher = (ClientCacheManager)Class.forName(params.clientCacheManager).newInstance();
+				}catch(Exception e){
+					msgs.add("Error while creating a ClientCacheManager instance using class name " + params.clientCacheManager + ". " + e.getMessage());
+				}
+			}
+			if (params.autoLoginUserId != null) {
+				if (this.userIdIsNumber) {
+					try {
+						uid = Value.newIntegerValue(
+								Integer.parseInt(params.autoLoginUserId));
+					} catch (Exception e) {
+						msgs.add("autoLoginUserId is set to " + params.autoLoginUserId
+								+ " but it has to be a number because userIdIsNumber is set to true. Auto login is not enabled.");
+					}
+				} else {
+					uid = Value.newTextValue(params.autoLoginUserId);
+				}
+			}
+			if(client != null){
+				client.setUp(uid, cacher, listener, params.sendTraceToClient);
+			}
+		}
+	}
 	/**
 	 * validate attributes
 	 *
@@ -443,10 +443,6 @@ public class Application {
 		 */
 		if (this.classInError(AccessController.class, this.accessController,
 				"accessControllerClassName", ctx)) {
-			count++;
-		}
-		if (this.classInError(ClientCacheManager.class, this.httpCacheManager,
-				"httpCacheManager", ctx)) {
 			count++;
 		}
 		if (this.classInError(ServiceCacheManager.class,
@@ -476,18 +472,6 @@ public class Application {
 			count++;
 		}
 
-		/*
-		 *
-		 */
-		if (this.autoLoginUserId != null && this.userIdIsNumber) {
-			try {
-				Integer.parseInt(this.autoLoginUserId);
-			} catch (Exception e) {
-				ctx.addError("autoLoginUserId is set to " + this.autoLoginUserId
-						+ " but it is to be numeric because userIdIsNumber is set to true");
-				count++;
-			}
-		}
 		if (this.attachmentsFolderPath != null) {
 			File file = new File(this.attachmentsFolderPath);
 			if (file.exists() == false) {
@@ -499,6 +483,34 @@ public class Application {
 			if (this.attachmentAssistant != null) {
 				ctx.addError(
 						"Choose either built-in attachment manager with attachmntsFolderPath or your own class with mediStorageAssistantClass, but you can not use both.");
+			}
+		}
+		if(this.clients != null){
+			for(ClientAgentParams params :this.clients){
+				if(params.clientAgent == null){
+					ctx.addError("clientAgent must be specified as a qualified class name");
+					count++;
+				}
+				if (this.classInError(ClientAgentInterface.class, params.clientAgent,
+						"clientAgent", ctx)) {
+					count++;
+				}
+				if (this.classInError(ClientCacheManager.class, params.clientCacheManager,
+						"clientCacheManager", ctx)) {
+					count++;
+				}
+				/*
+				 *
+				 */
+				if (params.autoLoginUserId != null && this.userIdIsNumber) {
+					try {
+						Integer.parseInt(params.autoLoginUserId);
+					} catch (Exception e) {
+						ctx.addError("autoLoginUserId is set to " + params.autoLoginUserId
+								+ " but it is to be numeric because userIdIsNumber is set to true");
+						count++;
+					}
+				}
 			}
 		}
 		return count;
