@@ -4,7 +4,7 @@
 	elementFormDefault="qualified"
 	xmlns="http://www.simplity.org/schema"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:dt="http://www.simplity.org/custom" 
+	xmlns:dt="http://www.simplity.org/custom"
 >
 
 	<xs:import namespace="http://www.simplity.org/custom"></xs:import>
@@ -392,6 +392,18 @@
 											</xs:documentation>
 										</xs:annotation>
 									</xs:attribute>
+									<xs:attribute
+										name="fieldWidth"
+										type="xs:int"
+										use="optional"
+									>
+										<xs:annotation>
+											<xs:documentation>Required if record is marked
+												forFixedWidthRow. Number of characters this field occupies
+												in the row.
+											</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
 
 								</xs:complexType>
 							</xs:element>
@@ -595,6 +607,22 @@
 					<xs:documentation>Name used by the rdbms to define a structure that
 						this record corresponds to. Mandatory if this record is used as
 						child-record by another field in a complex data structure.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="forFixedWidthRow"
+				type="booleanType"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>If you deal with input or output text/file that
+						has data as rows with fixed width for fields, you can model that
+						with this record and specify width for each field.
+						Simplity can
+						manage to parse text into data sheet as well as output
+						datasheet
+						into fixed-length text rows
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2720,67 +2748,6 @@
 		</xs:annotation>
 	</xs:element>
 
-	<xs:element name="clients">
-		<xs:complexType>
-			<xs:choice minOccurs="1">
-				<xs:element name="clientAgentParams">
-					<xs:complexType>
-						<xs:attribute
-							name="clientAgent"
-							type="xs:string"
-							use="required"
-						>
-							<xs:annotation>
-								<xs:documentation>class name of the client agent being used.e.g.
-									org.simplity.http.HttpAgent.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-						<xs:attribute
-							name="sendTraceToClient"
-							type="booleanType"
-							use="optional"
-						>
-							<xs:annotation>
-								<xs:documentation>should the trace/log for the service execution
-									be arranged to be sent to the caller/client? True during
-									development, false during production
-								</xs:documentation>
-							</xs:annotation>
-						</xs:attribute>
-			<xs:attribute
-				name="autoLoginUserId"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>During development/demo, login would be a
-						nuisance. You may disable that, and use a default userId for all
-						services. Ensure that this is a number in case your project uses
-						numeric value as userId, as set in userIdIsNumber
-						attribute.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="clientCacheManager"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>Responses can be cached at http(web tier) as well
-						as at service (app tier). specify the qualified class name for the
-						http cache manager that implements HttpCacheManager interface.
-						Services should indicate cacheability in response service data
-						(refer to service.xml attributes)
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-					</xs:complexType>
-				</xs:element>
-			</xs:choice>
-		</xs:complexType>
-	</xs:element>
 	<xs:element name="application">
 		<xs:complexType>
 			<xs:sequence>
@@ -2819,10 +2786,6 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element
-					ref="clients"
-					minOccurs="0"
-					maxOccurs="1" />
 			</xs:sequence>
 			<xs:attribute
 				name="applicationId"
@@ -3024,6 +2987,45 @@
 						xml element and the actual trace text is put inside a CDATA
 						section. You may format it differently using your own wrapper that
 						implements
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="sendTraceToClient"
+				type="booleanType"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>should the trace/log for the service execution be
+						arranged to be sent to the caller/client? True during development,
+						false during production
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="autoLoginUserId"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>During development/demo, login would be a
+						nuisance. You may disable that, and use a default userId for all
+						services. Ensure that this is a number in case your project uses
+						numeric value as userId, as set in userIdIsNumberattribute.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="clientCacheManager"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>Responses can be cached at http(web tier) as well
+						as at service (app tier). specify the qualified class name for the
+						http cache manager that implements HttpCacheManager interface.
+						Services should indicate cacheability in response service data
+						(refer to service.xml attributes)
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>

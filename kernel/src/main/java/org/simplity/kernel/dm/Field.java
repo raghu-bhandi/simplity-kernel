@@ -171,6 +171,12 @@ public class Field {
 	 * to the name used by rdbms for the array of struct.
 	 */
 	String sqlTypeName;
+
+	/**
+	 * if the record is mapped to a fixed-width flat file row, then this is the
+	 * number of characters this field is taking-up
+	 */
+	int fieldWidth;
 	// Map<String, String> pageFieldAttributes = new HashMap<String, String>();
 	/*
 	 * fields that are cached for performance
@@ -303,17 +309,16 @@ public class Field {
 		if (FilterCondition.In == f) {
 			if (vt != ValueType.TEXT && vt != ValueType.INTEGER
 					&& vt != ValueType.DECIMAL) {
-				validationErrors
-				.add(new FormattedMessage(Messages.INVALID_VALUE,
-						recordName, this.name, null, 0,
+				validationErrors.add(new FormattedMessage(
+						Messages.INVALID_VALUE, recordName, this.name, null, 0,
 						" inList condition is valid for numeric and text fields only "));
 				return 0;
 			}
 			Value[] vals = Value.parse(textValue.split(","), vt);
 			if (vals == null) {
 				validationErrors
-				.add(new FormattedMessage(Messages.INVALID_VALUE,
-						recordName, this.name, null, 0));
+						.add(new FormattedMessage(Messages.INVALID_VALUE,
+								recordName, this.name, null, 0));
 				return 0;
 			}
 			extratedFields.setValue(this.name, Value.newTextValue(textValue));
@@ -382,8 +387,8 @@ public class Field {
 			if (this.isRequired == false || allFieldsAreOptional) {
 				return null;
 			}
-			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED,
-					recordName, this.name, null, 0));
+			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName,
+					this.name, null, 0));
 			return null;
 		}
 		Value value = null;
@@ -422,8 +427,8 @@ public class Field {
 			if (this.isRequired == false || allFieldsAreOptional) {
 				return null;
 			}
-			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED,
-					recordName, this.name, null, 0));
+			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName,
+					this.name, null, 0));
 			return null;
 		}
 		Value value = Value.parseObject(inputValue);
@@ -508,8 +513,8 @@ public class Field {
 				Value otherValue = fields.getValue(this.basedOnField);
 				if (otherValue == null) {
 					validationErrors.add(new FormattedMessage(
-							Messages.INVALID_OTHER_FIELD, recordName,
-							this.name, this.basedOnField, 0));
+							Messages.INVALID_OTHER_FIELD, recordName, this.name,
+							this.basedOnField, 0));
 				}
 			}
 			return;
@@ -523,17 +528,17 @@ public class Field {
 			Value fromValue = fields.getValue(this.fromField);
 			if (fromValue != null) {
 				try {
-					result = (BooleanValue) BinaryOperator.Greater.operate(
-							fromValue, value);
+					result = (BooleanValue) BinaryOperator.Greater
+							.operate(fromValue, value);
 				} catch (InvalidOperationException e) {
 					throw new ApplicationError("incompatible fields "
 							+ this.name + " and " + this.fromField
 							+ " are set as from-to fields");
 				}
 				if (result.getBoolean()) {
-					validationErrors.add(new FormattedMessage(
-							Messages.INVALID_FROM_TO, recordName,
-							this.fromField, this.name, 0));
+					validationErrors
+							.add(new FormattedMessage(Messages.INVALID_FROM_TO,
+									recordName, this.fromField, this.name, 0));
 				}
 			}
 		}
@@ -544,17 +549,17 @@ public class Field {
 			Value toValue = fields.getValue(this.toField);
 			if (toValue != null) {
 				try {
-					result = (BooleanValue) BinaryOperator.Greater.operate(
-							value, toValue);
+					result = (BooleanValue) BinaryOperator.Greater
+							.operate(value, toValue);
 				} catch (InvalidOperationException e) {
 					throw new ApplicationError("incompatible fields "
 							+ this.name + " and " + this.fromField
 							+ " are set as from-to fields");
 				}
 				if (result.getBoolean()) {
-					validationErrors.add(new FormattedMessage(
-							Messages.INVALID_FROM_TO, recordName, this.name,
-							this.toField, 0));
+					validationErrors
+							.add(new FormattedMessage(Messages.INVALID_FROM_TO,
+									recordName, this.name, this.toField, 0));
 				}
 			}
 		}
@@ -603,16 +608,11 @@ public class Field {
 				}
 				this.referredFieldCached = ref.getField(this.referredField);
 				if (this.referredFieldCached == null) {
-					throw new ApplicationError(
-							"Field "
-									+ this.name
-									+ " in record "
-									+ parentRecord.getQualifiedName()
-									+ " refers to field "
-									+ this.referredField
-									+ " of record "
-									+ this.referredRecord
-									+ ". Referred field is not found in the referred record.");
+					throw new ApplicationError("Field " + this.name
+							+ " in record " + parentRecord.getQualifiedName()
+							+ " refers to field " + this.referredField
+							+ " of record " + this.referredRecord
+							+ ". Referred field is not found in the referred record.");
 				}
 				this.copyFromRefField();
 			}
@@ -628,10 +628,8 @@ public class Field {
 			this.dataType = DataType.DEFAULT_TEXT;
 		}
 		if (this.dataType == null) {
-			throw new ApplicationError(
-					"Field "
-							+ this.name
-							+ " is not associated with any data type. Please specify dataType attribute, or associate this panel with the right record.");
+			throw new ApplicationError("Field " + this.name
+					+ " is not associated with any data type. Please specify dataType attribute, or associate this panel with the right record.");
 		}
 		this.dataTypeObject = ComponentManager.getDataType(this.dataType);
 
@@ -679,7 +677,8 @@ public class Field {
 				|| this.fieldType == FieldType.MODIFIED_TIME_STAMP;
 		this.doNotInsert = this.fieldType == FieldType.CREATED_TIME_STAMP
 				|| this.fieldType == FieldType.MODIFIED_TIME_STAMP
-				|| (this.fieldType == FieldType.PRIMARY_KEY && parentRecord.keyToBeGenerated);
+				|| (this.fieldType == FieldType.PRIMARY_KEY
+						&& parentRecord.keyToBeGenerated);
 
 		// this.doNotShow = this.doNotInsert || this.fieldType ==
 		// FieldType.CREATED_BY_USER
@@ -805,8 +804,8 @@ public class Field {
 			}
 			Tracer.trace("Record " + recordName + " field " + this.name
 					+ " is mandatory.");
-			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED,
-					recordName, this.name, null, 0));
+			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName,
+					this.name, null, 0));
 			return null;
 		}
 		Value result = this.dataTypeObject.validateValue(inputValue);
@@ -870,8 +869,7 @@ public class Field {
 			}
 			if (this.fieldType == FieldType.VALUE_ARRAY
 					&& this.sqlTypeName == null) {
-				ctx.addError("field "
-						+ this.name
+				ctx.addError("field " + this.name
 						+ " is an array of values. sqlTypeName is mandatory for this field");
 				count++;
 			}
@@ -881,14 +879,12 @@ public class Field {
 		 * this field refers to a child-record
 		 */
 		if (this.sqlTypeName == null) {
-			ctx.addError("field "
-					+ this.name
+			ctx.addError("field " + this.name
 					+ " represents a child-record and hence sqlTypeName is mandatory for this field");
 			count++;
 		}
 		if (this.referredRecord == null) {
-			ctx.addError("field "
-					+ this.name
+			ctx.addError("field " + this.name
 					+ " represents a child-record, but referred record is not specified.");
 			count++;
 		}
@@ -896,15 +892,13 @@ public class Field {
 		 * also, this record has to be a data structure
 		 */
 		if (record.recordType != RecordUsageType.STRUCTURE) {
-			ctx.addError("field "
-					+ this.name
+			ctx.addError("field " + this.name
 					+ " represents a child-record, but this record is not a data structure. child-record is valid only for data structures.");
 			count++;
 		}
 		if (this.fieldType == FieldType.RECORD_ARRAY
 				&& record.sqlStructName == null) {
-			ctx.addError("field "
-					+ this.name
+			ctx.addError("field " + this.name
 					+ " represents an array of child record "
 					+ this.referredRecord
 					+ ". But that child record has not defined a value for sqlStructName.");
@@ -951,7 +945,7 @@ public class Field {
 	}
 
 	public boolean isNullable() {
-		return isNullable;
+		return this.isNullable;
 	}
 
 	public void setRequired(boolean isRequired) {

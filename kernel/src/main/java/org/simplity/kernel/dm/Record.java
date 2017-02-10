@@ -21,9 +21,13 @@
  */
 package org.simplity.kernel.dm;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -39,7 +43,6 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
-import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
@@ -240,6 +243,12 @@ public class Record implements Component {
 	 */
 	String sqlStructName;
 
+	/**
+	 * do you intend to use this to read from /write to flat file with fixed
+	 * width rows? If this is set to true, then each field must set fieldWidth;
+	 */
+	boolean forFixedWidthRow;
+
 	/*
 	 * following fields are assigned for caching/performance
 	 */
@@ -318,6 +327,10 @@ public class Record implements Component {
 	 */
 	private boolean isComplexStruct;
 
+	/**
+	 * length of record in case forFixedWidthRow = true
+	 */
+	private int recordLength;
 	/*
 	 * methods for ComponentInterface
 	 */
@@ -1771,8 +1784,12 @@ public class Record implements Component {
 			refRecord = this.getRefRecord(this.defaultRefRecord);
 		}
 		this.fieldNames = new String[this.fields.length];
+
 		for (int i = 0; i < this.fields.length; i++) {
 			Field field = this.fields[i];
+			if (this.forFixedWidthRow) {
+				this.recordLength += field.fieldWidth;
+			}
 			field.getReady(this, refRecord,
 					this.recordType == RecordUsageType.VIEW);
 			String fName = field.name;
@@ -2506,6 +2523,11 @@ public class Record implements Component {
 				 * validate this field
 				 */
 				count += field.validate(ctx, this, referredFields);
+				if (this.forFixedWidthRow && field.fieldWidth == 0) {
+					ctx.addError(field.name
+							+ " should specify fieldWidth since the record is designed for a fixed-width row.");
+					count++;
+				}
 				if (field.fieldType == FieldType.PRIMARY_KEY) {
 					pkey = field;
 					nbrKeys++;
@@ -3236,17 +3258,6 @@ public class Record implements Component {
 	}
 
 	/**
-	 *
-	 * @param args
-	 * @throws Exception
-	 */
-	public static void main(String[] args) throws Exception {
-		Application.bootStrap("e:/repos/simplity/WebContent/WEB-INF/comp/");
-		File folder = new File("e:/temp/");
-		Record.createAllRecords(folder, DbToJavaNameConversion.CAMEL_CASE);
-	}
-
-	/**
 	 * @return table name for this record
 	 */
 	public String getTableName() {
@@ -3256,4 +3267,178 @@ public class Record implements Component {
 	public void setFields(Field[] fields) {
 		this.fields = fields;
 	}
+
+	/**
+	 * write contents of a data sheet to a flat-file
+	 *
+	 * @param writer
+	 * @param ds
+	 * @param toWriteLine
+	 */
+	public void toFlatFile(BufferedWriter writer, DataSheet ds,
+			boolean toWriteLine) {
+		if (this.recordLength == 0) {
+			throw new ApplicationError("Record " + this.getQualifiedName()
+					+ " is not designed for a flat file");
+		}
+
+		if (this.fields.length != ds.width()) {
+			throw new ApplicationError(
+					"supplied data sheet is not created using record "
+							+ this.getQualifiedName()
+							+ " and it can not be used to write to a flat-file");
+		}
+
+		try {
+			int n = ds.length();
+			for (int i = 0; i < n; i++) {
+				this.writeFields(writer, ds.getRow(i));
+				if (toWriteLine) {
+					writer.newLine();
+				}
+			}
+		} catch (IOException e) {
+			throw new ApplicationError(e,
+					"Error while writing fixed-width rows for record "
+							+ this.getQualifiedName());
+		}
+	}
+
+	/**
+	 * get widths of fields. Meaningful only if this record is designed for
+	 * fixed widths with each field specifying its widths
+	 *
+	 * @return array of widths of fields, in that order
+	 */
+	public int[] getFieldWidths() {
+		int[] widths = new int[this.fields.length];
+		for (int i = 0; i < widths.length; i++) {
+			widths[i] = this.fields[i].fieldWidth;
+		}
+		return widths;
+	}
+
+	private void writeFields(Writer writer, Value[] row) throws IOException {
+		for (int i = 0; i < row.length; i++) {
+			Field field = this.fields[i];
+			String txt = field.getDataType().formatValue(row[i]);
+			int m = txt.length();
+			int n = field.fieldWidth;
+			if (m > n) {
+				writer.write(txt.substring(0, n));
+				Tracer.trace(
+						"Value " + txt + " is wider than the alotted width of "
+								+ n + " characters and hence is truncated");
+				continue;
+			}
+			writer.write(txt);
+			if (m < n) {
+				while (m++ < n) {
+					writer.write(' ');
+				}
+			}
+		}
+	}
+
+	/**
+	 * reads fixed-width rows from a stream into a data sheet.
+	 *
+	 * @param reader
+	 * @param errors errors list to which any parse error is added. Field in error is treated as not given
+	 * @param toReadLine
+	 *            true if the file contains new-line markers, false if there are
+	 *            no chars between rows.
+	 * @return dataSheet. Null in case of any parse error, in which case error message/s would have been added to errors.
+	 */
+	public DataSheet fromFlatFile(BufferedReader reader, List<FormattedMessage> errors, boolean toReadLine) {
+		if (this.recordLength == 0) {
+			throw new ApplicationError("Record " + this.getQualifiedName()
+					+ " is not designed for a flat file");
+		}
+		DataSheet ds = this.createSheet(false, false);
+		int nbr = errors.size();
+		try {
+			if (toReadLine) {
+				this.fromFileWithLineSep(reader, ds, errors);
+			} else {
+				this.fromFileNoLineSep(reader, ds, errors);
+			}
+		} catch (IOException e) {
+			throw new ApplicationError(e,
+					" error while reading a flat file for record "
+							+ this.getQualifiedName());
+		} finally {
+			try {
+				reader.close();
+			} catch (Exception ignore) {
+				//
+			}
+		}
+		if(errors.size() > nbr){
+			Tracer.trace("Errors detected while prsing a flat file. Data sheet not created.");
+			return null;
+		}
+		return ds;
+	}
+
+	private void fromFileWithLineSep(BufferedReader reader, DataSheet ds,
+			List<FormattedMessage> errors) throws IOException {
+		while (true) {
+			String lineText = reader.readLine();
+			if (lineText == null) {
+				return;
+			}
+			if (lineText.length() != this.recordLength) {
+				this.throwInvalidLengthError(lineText.length());
+			}
+			ds.addRow(this.parseRow(lineText, errors));
+		}
+	}
+
+	private void fromFileNoLineSep(BufferedReader reader, DataSheet ds,
+			List<FormattedMessage> errors) throws IOException {
+		char[] line = new char[this.recordLength];
+		while (true) {
+			int n = reader.read(line);
+			if (n == -1) {
+				return;
+			}
+			if (n != line.length) {
+				this.throwInvalidLengthError(n);
+			}
+			ds.addRow(this.parseRow(new String(line), errors));
+		}
+
+	}
+
+	private void throwInvalidLengthError(int n) {
+		throw new ApplicationError(
+				"Flat file being read has " + n + " characters in a line whiel "
+						+ this.recordLength + " chars expected.");
+
+	}
+
+	/**
+	 * parses a fixed length text into values for fields.
+	 *
+	 * @param rowText
+	 * @param errors
+	 * @return row of values
+	 */
+	public Value[] parseRow(String rowText, List<FormattedMessage> errors) {
+		Value[] values = new Value[this.fields.length];
+		int idx = 0;
+		int startAt = 0;
+		for (Field field : this.fields) {
+			int endAt = startAt + field.fieldWidth;
+			String text = rowText.substring(startAt, endAt);
+			values[idx] = field.parseField(text, errors, false,
+					this.getDefaultSheetName());
+			idx++;
+			startAt = endAt;
+		}
+
+		return values;
+	}
+
 }

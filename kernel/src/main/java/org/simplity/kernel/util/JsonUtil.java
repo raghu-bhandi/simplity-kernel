@@ -383,7 +383,12 @@ public class JsonUtil {
 		for (Field field : fields) {
 			Object val = json.opt(field.getName());
 			Value value = null;
-			if (val != null) {
+			if(val == null){
+				/*
+				 * possible that this field is already extracted
+				 */
+				value = ctx.getValue(field.getName());
+			}else{
 				value = field.getValueType().parseObject(val);
 				if (value == null) {
 					errors.add(new FormattedMessage(Messages.INVALID_VALUE,

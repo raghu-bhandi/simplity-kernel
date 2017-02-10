@@ -307,9 +307,27 @@ public abstract class DataType implements Component {
 	protected abstract String synthesiseDscription();
 
 	/**
-	 * @return messag ename
+	 * @return message name
 	 */
 	public String getMessageName() {
 		return this.messageName;
+	}
+
+	/**
+	 * format value to be output. For example a date value needs to be formatted
+	 *
+	 * @param value
+	 * @return text value. empty string if the value is indeed an empty text
+	 *         value, or if it is incompatible with the data type
+	 */
+	public String formatValue(Value value){
+		if(Value.isNull(value)){
+			return "";
+		}
+		return this.formatVal(value);
+	}
+
+	protected String formatVal(Value value){
+		return value.toString();
 	}
 }

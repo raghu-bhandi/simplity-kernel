@@ -131,6 +131,20 @@ public class InputField {
 	 * @return true if data is extracted, false otherwise.
 	 */
 	public boolean extractInput(Object objectValue, ServiceContext ctx) {
+		/*
+		 * is this already in the context?
+		 */
+		Value val = ctx.getValue(this.name);
+		if(val != null){
+			Value newValue = this.dataTypeObject.validateValue(val);
+			if(newValue == null){
+				this.validationError(val.toText(), 0, ctx);
+				return false;
+			}
+			ctx.setValue(this.name, newValue);
+			return true;
+		}
+
 		if (objectValue == null) {
 			Value value = this.defaultObject;
 			if (value == null && this.isRequired) {

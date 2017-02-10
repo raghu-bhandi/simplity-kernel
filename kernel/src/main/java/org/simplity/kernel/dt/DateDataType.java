@@ -24,9 +24,11 @@ package org.simplity.kernel.dt;
 
 import java.util.Date;
 
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.DateUtil;
 import org.simplity.kernel.value.DateValue;
+import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
@@ -138,7 +140,7 @@ public class DateDataType extends DataType {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.dt.DataType#synthesiseDscription()
 	 */
 	@Override
@@ -164,5 +166,23 @@ public class DateDataType extends DataType {
 			return "Expecting a date before " + DateUtil.formatDate(maxDate);
 		}
 		return "Expecting a valid date";
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.dt.DataType#formtValue(org.simplity.kernel.value.Value)
+	 */
+	@Override
+	public String formatVal(Value value) {
+		Date date;
+		try {
+			date = value.toDate();
+		} catch (InvalidValueException e) {
+			Tracer.trace("Value of type " + value.getValueType() + " passed for frmatting as date.");
+			return "";
+		}
+		if(this.hasTime){
+			return DateUtil.formatDateTime(date);
+		}
+		return DateUtil.formatDate(date);
 	}
 }

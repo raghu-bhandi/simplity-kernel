@@ -68,7 +68,7 @@ public enum ComponentType {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see
 		 * org.simplity.kernel.comp.ComponentType#generateComp(java.lang.String)
 		 */
@@ -219,7 +219,7 @@ public enum ComponentType {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Enum#toString()
 	 */
 	@Override
@@ -488,7 +488,7 @@ public enum ComponentType {
 	 * components that are pre-loaded. It also resets and cached components that
 	 * are not pre-loaded
 	 */
-	public static void preLoad() {
+	private static void preLoad() {
 		serviceClasses.clear();
 		loadGroups(CLASS_FOLDER, null, serviceClasses);
 		Tracer.trace(serviceClasses.size()
@@ -547,6 +547,12 @@ public enum ComponentType {
 			componentFolder += FOLDER_CHAR;
 		}
 		Tracer.trace("component folder set to " + componentFolder);
+		/*
+		 * Some components like data-type are to be pre-loaded for the app to
+		 * work.
+		 */
+		preLoad();
+		Tracer.trace("components pre-loaded");
 	}
 
 	/**

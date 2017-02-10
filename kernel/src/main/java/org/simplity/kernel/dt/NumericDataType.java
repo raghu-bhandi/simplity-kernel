@@ -22,9 +22,11 @@
  */
 package org.simplity.kernel.dt;
 
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.value.DecimalValue;
 import org.simplity.kernel.value.IntegerValue;
+import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
@@ -168,5 +170,20 @@ public class NumericDataType extends DataType {
 		sbf.append("between ").append(this.minValue).append(" and ")
 		.append(this.maxValue);
 		return sbf.toString();
+	}
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.dt.DataType#formatVal(org.simplity.kernel.value.Value)
+	 */
+	@Override
+	public String formatVal(Value value) {
+		try {
+		if(this.nbrFractionDigits == 0){
+			return ""+ value.toInteger();
+		}
+		return String.format("%." + this.nbrFractionDigits + "f", new Double(value.toDecimal()));
+		} catch (InvalidValueException e) {
+			Tracer.trace("Numeric data type is asked to format " + value.getValueType());
+		}
+		return Value.FALSE_TEXT_VALUE;
 	}
 }

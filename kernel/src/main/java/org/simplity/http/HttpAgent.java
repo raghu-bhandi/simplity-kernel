@@ -39,7 +39,6 @@ import javax.servlet.http.HttpSession;
 
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.ClientAgentInterface;
 import org.simplity.kernel.ClientCacheManager;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
@@ -66,7 +65,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  *
  */
-public class HttpAgent implements ClientAgentInterface {
+public class HttpAgent {
 	/*
 	 * session parameter name with which user token is saved. This token is the
 	 * name under which our global parameters are saved. This indirection is
@@ -498,8 +497,7 @@ public class HttpAgent implements ClientAgentInterface {
 	 *            if true, traces are also saved into a circular buffer that can
 	 *            be delivered to the client
 	 */
-	@Override
-	public void setUp(Value autoUserId, ClientCacheManager cacher,
+	public static void setUp(Value autoUserId, ClientCacheManager cacher,
 			ExceptionListener listener, boolean cacheTraces) {
 		autoLoginUserId = autoUserId;
 		httpCacheManager = cacher;

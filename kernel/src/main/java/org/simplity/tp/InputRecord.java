@@ -284,6 +284,17 @@ public class InputRecord {
 		Object object = json.opt(this.sheetName);
 		if (object == null) {
 			/*
+			 * do we have this sheet already in the context?
+			 */
+			DataSheet ds = ctx.getDataSheet(this.sheetName);
+			if (ds != null) {
+				/*
+				 * we skip validation. Our understanding is that this is indeed
+				 * prepared by a server component
+				 */
+				return;
+			}
+			/*
 			 * let us not give-up, but try at the top itself
 			 */
 			this.extractFields(json, ctx);

@@ -22,6 +22,8 @@
  */
 package org.simplity.kernel.dt;
 
+import org.simplity.kernel.Tracer;
+import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
@@ -51,5 +53,21 @@ public class BooleanDataType extends DataType {
 	@Override
 	protected String synthesiseDscription() {
 		return DESC;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.dt.DataType#formtValue(org.simplity.kernel.value.Value)
+	 */
+	@Override
+	public String formatVal(Value value) {
+
+		try {
+			if(value.toBoolean()){
+				return Value.TRUE_TEXT_VALUE;
+			}
+		} catch (InvalidValueException e) {
+			Tracer.trace("Boolean data type is asked to format  non-boolean value. False value assumed");
+		}
+		return Value.FALSE_TEXT_VALUE;
 	}
 }

@@ -223,23 +223,29 @@ public class Service implements ServiceInterface {
 		}
 
 		ServiceContext ctx = new ServiceContext(this.name, inData.getUserId());
+		/*
+		 * copy values and data sheets sent by the client agent.
+		 * These are typically session-stored, but not necessarily that
+		 */
+		for (String key : inData.getFieldNames()) {
+			Object val = inData.get(key);
+			if (val instanceof Value) {
+				ctx.setValue(key, (Value) val);
+			} else if(val instanceof DataSheet){
+				ctx.putDataSheet(key, (DataSheet)val);
+			}else{
+				ctx.setObject(key, val);
+			}
+		}
+		/*
+		 * process input specification
+		 */
 		this.extractInput(ctx, inData.getPayLoad());
 
 		/*
 		 * let us proceed if all OK
 		 */
 		if (ctx.isInError() == false) {
-			/*
-			 * copy session variables
-			 */
-			for (String key : inData.getFieldNames()) {
-				Object val = inData.get(key);
-				if (val instanceof Value) {
-					ctx.setValue(key, (Value) val);
-				} else {
-					ctx.setObject(key, val);
-				}
-			}
 
 			/*
 			 * all set to start with actions
