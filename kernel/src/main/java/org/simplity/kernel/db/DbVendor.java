@@ -55,7 +55,11 @@ public enum DbVendor {
 	/**
 	 * H2 data base
 	 */
-	, H2("SELECT SCHEMA()","SET schema ") ;
+	, H2("SELECT SCHEMA()","SET schema ")
+	/**
+	 * db2
+	 */
+	,DB2("select current_schema from sysibm.sysdummy1", "set schema ");
 
 	/*
 	 * fields default to standard
