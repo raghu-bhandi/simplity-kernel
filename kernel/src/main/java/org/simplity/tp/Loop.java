@@ -26,8 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.AlreadyIteratingException;
+import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.DataSheetIterator;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
@@ -49,6 +51,18 @@ public class Loop extends DbAction {
 	String dataSheetName;
 
 	/**
+	 * for the loop, do you want to treat some columns as if they are fields in
+	 * the collection? This feature helps in re-using services that assume
+	 * fields as sub-service inside loops. * for all columns
+	 */
+	String[] columnsToCopyAsFields;
+
+	/**
+	 * in case the code inside the loop is updating some of the fields that are
+	 * to be copied back to data sheet
+	 */
+	String[] fieldsToCopyBackAsColumns;
+	/**
 	 * actions that are to be performed for each row of the data sheet
 	 */
 	Action[] actions;
@@ -60,10 +74,20 @@ public class Loop extends DbAction {
 
 	private Map<String, Integer> indexedActions = new HashMap<String, Integer>();
 
+	/**
+	 * special case where we are to copy all columns as fields
+	 */
+	private boolean copyAllColumnsToFields;
+
+	/**
+	 * special case where we are to copy back all fields into columns
+	 */
+	private boolean copyBackAllColumns;
+
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		ActionBlock actionBlock = new ActionBlock(this.actions, this.indexedActions,
-				ctx);
+		ActionBlock actionBlock = new ActionBlock(this.actions,
+				this.indexedActions, ctx);
 		boolean toContinue = true;
 		if (this.dataSheetName != null) {
 			toContinue = this.loopOnSheet(actionBlock, driver, ctx);
@@ -73,7 +97,7 @@ public class Loop extends DbAction {
 			throw new ApplicationError("Loop action " + this.actionName
 					+ " has niether data sheet, nor condition.");
 		}
-		if(toContinue){
+		if (toContinue) {
 			return 1;
 		}
 		/*
@@ -89,7 +113,8 @@ public class Loop extends DbAction {
 	 * @param driver
 	 * @return true if normal completion. False if we encountered a STOP signal
 	 */
-	private boolean loopOnCondition(ActionBlock actionBlock, DbDriver driver, ServiceContext ctx) {
+	private boolean loopOnCondition(ActionBlock actionBlock, DbDriver driver,
+			ServiceContext ctx) {
 		/*
 		 * loop with a condition
 		 */
@@ -119,7 +144,17 @@ public class Loop extends DbAction {
 	 * @param driver
 	 * @return true if normal completion. False if we encountered a STOP signal
 	 */
-	private boolean loopOnSheet(ActionBlock actionBlock, DbDriver driver, ServiceContext ctx) {
+	private boolean loopOnSheet(ActionBlock actionBlock, DbDriver driver,
+			ServiceContext ctx) {
+		DataSheet ds = ctx.getDataSheet(this.dataSheetName);
+		if(ds == null){
+			Tracer.trace("Data Sheet "+ this.dataSheetName + " not found in teh context. Loop action has no work.");
+			return true;
+		}
+		if(ds.length() == 0){
+			Tracer.trace("Data Sheet "+ this.dataSheetName + " has no data. Loop action has no work.");
+			return true;
+		}
 		DataSheetIterator iterator = null;
 		try {
 			iterator = ctx.startIteration(this.dataSheetName);
@@ -129,18 +164,122 @@ public class Loop extends DbAction {
 							+ this.dataSheetName
 							+ " but that data sheet is already iterating as part of an enclosing loop action.");
 		}
+		/*
+		 * are we to copy columns as fields?
+		 */
+		Value[] savedValues = null;
+		if(this.columnsToCopyAsFields != null){
+			savedValues = this.saveFields(ctx, ds);
+		}
+		boolean result = true;
+		int idx = 0;
 		while (iterator.moveToNextRow()) {
+			if(this.columnsToCopyAsFields != null){
+				this.copyToFields(ctx, ds, idx);
+			}
+
 			JumpSignal signal = actionBlock.execute(driver);
+			if(this.fieldsToCopyBackAsColumns != null){
+				this.copyToColumns(ctx, ds, idx);
+			}
 			if (signal == JumpSignal.STOP) {
 				iterator.cancelIteration();
-				return false;
+				result = false;
+				break;
 			}
 			if (signal == JumpSignal.BREAK) {
 				iterator.cancelIteration();
-				return true;
+				result = false;
+				break;
+			}
+			idx++;
+		}
+		if(savedValues != null){
+			this.restoreFields(ctx, ds, savedValues);
+		}
+		return result;
+	}
+
+	/**
+	 * @param ctx
+	 */
+	private void copyToColumns(ServiceContext ctx, DataSheet ds, int idx) {
+		if(this.copyBackAllColumns){
+			/*
+			 * slightly optimized over getting individual columns..
+			 */
+			Value[] values = ds.getRow(idx);
+			int i = 0;
+			for(String fieldName : ds.getColumnNames()){
+				values[i++] = ctx.getValue(fieldName);
+			}
+			return;
+		}
+		for(String fieldName : this.fieldsToCopyBackAsColumns){
+			ds.setColumnValue(fieldName, idx, ctx.getValue(fieldName));
+		}
+	}
+
+	/**
+	 * @param ctx
+	 */
+	private void restoreFields(ServiceContext ctx, DataSheet ds, Value[] values) {
+		int i = 0;
+		if(this.copyAllColumnsToFields){
+			for(String fieldName : ds.getColumnNames()){
+				Value value = values[i++];
+				if(value != null){
+					ctx.setValue(fieldName, value);
+				}
+			}
+		}else{
+			for(String fieldName : this.columnsToCopyAsFields){
+				Value value = values[i++];
+				if(value != null){
+					ctx.setValue(fieldName, value);
+				}
 			}
 		}
-		return true;
+	}
+
+	/**
+	 * @param ctx
+	 */
+	private void copyToFields(ServiceContext ctx, DataSheet ds, int idx) {
+		if(this.copyAllColumnsToFields){
+			/*
+			 * slightly optimized over getting individual columns..
+			 */
+			Value[] values = ds.getRow(idx);
+			int i = 0;
+			for(String fieldName : ds.getColumnNames()){
+				ctx.setValue(fieldName, values[i++]);
+			}
+			return;
+		}
+		for(String fieldName : this.columnsToCopyAsFields){
+			ctx.setValue(fieldName, ds.getColumnValue(fieldName, idx));
+		}
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private Value[] saveFields(ServiceContext ctx, DataSheet ds) {
+		if(this.copyAllColumnsToFields){
+			Value[] values = new Value[ds.width()];
+			int i = 0;
+			for(String fieldName : ds.getColumnNames()){
+				values[i++] = ctx.getValue(fieldName);
+			}
+			return values;
+		}
+		Value[] values = new Value[this.columnsToCopyAsFields.length];
+		for(int i = 0; i < values.length; i++){
+			values[i] = ctx.getValue(this.columnsToCopyAsFields[i]);
+		}
+		return values;
 	}
 
 	@Override
@@ -155,28 +294,51 @@ public class Loop extends DbAction {
 		 * loop action may want the caller to stop. We use this facility
 		 */
 		this.actionNameOnFailure = "_stop";
+
+		if(this.columnsToCopyAsFields != null){
+			if(this.columnsToCopyAsFields.length == 1 && this.columnsToCopyAsFields[0].equals("*")){
+				this.copyAllColumnsToFields = true;
+			}
+		}
+
+		if(this.fieldsToCopyBackAsColumns != null){
+			if(this.fieldsToCopyBackAsColumns.length == 1 && this.fieldsToCopyBackAsColumns[0].equals("*")){
+				this.copyBackAllColumns = true;
+			}
+		}
 		if (this.actions == null) {
 			throw new ApplicationError("Loop Action " + this.actionName
 					+ " is empty. No point in looping just like that :-) ");
 		}
 		int i = 0;
+		/*
+		 * this.dbAccess is set to propagate it upwards. Start with none.
+		 * upgrade it to READ_ONLY or READ_WRITE based on the demand by
+		 * sub-actions
+		 */
+		this.dbAccess = DbAccessType.NONE;
 		for (Action action : this.actions) {
 			action.getReady(i);
 			this.indexedActions.put(action.getName(), new Integer(i));
 			i++;
+			/*
+			 * see if we have to upgrade our access type
+			 */
+			if (this.dbAccess == DbAccessType.READ_WRITE) {
+				continue;
+			}
 			DbAccessType access = action.getDataAccessType();
-			switch (access) {
-			case READ_WRITE:
+			if (access == null || access == DbAccessType.NONE) {
+				continue;
+			}
+			if (access == DbAccessType.READ_ONLY) {
 				this.dbAccess = access;
-				return;
-			case READ_ONLY:
-				this.dbAccess = access;
-				break;
-			case NONE:
-				break;
-			default:
-				throw new ApplicationError(
-						"sub-actions of a loop action can not have dbAccess types other than none, readOnly and readWrite");
+			} else {
+				/*
+				 * anything other than none/read_only woudl mean read-write for
+				 * us
+				 */
+				this.dbAccess = DbAccessType.READ_WRITE;
 			}
 		}
 	}

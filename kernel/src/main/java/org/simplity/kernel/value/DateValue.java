@@ -60,7 +60,7 @@ public class DateValue extends Value {
 
 	@Override
 	protected void format() {
-		this.textValue = "" + this.value;
+		this.textValue = "" + DateUtil.format(this.value);
 	}
 
 	@Override

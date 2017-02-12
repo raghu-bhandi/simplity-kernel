@@ -22,7 +22,6 @@
 
 package org.simplity.kernel.fn;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
@@ -39,7 +38,7 @@ public class Concat extends AbstractFunction {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.fn.Function#execute(org.simplity.kernel.value.Value
 	 * [], org.simplity.kernel.data.FieldsInterface)
@@ -51,7 +50,6 @@ public class Concat extends AbstractFunction {
 		}
 		StringBuilder sbf = new StringBuilder();
 		for (Value val : arguments) {
-			Tracer.trace("arg " + val);
 			sbf.append(val);
 		}
 		return Value.newTextValue(sbf.toString());
@@ -59,7 +57,7 @@ public class Concat extends AbstractFunction {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.fn.Function#getReturnType()
 	 */
 	@Override
@@ -69,7 +67,7 @@ public class Concat extends AbstractFunction {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.fn.Function#getArgDataTypes()
 	 */
 	@Override

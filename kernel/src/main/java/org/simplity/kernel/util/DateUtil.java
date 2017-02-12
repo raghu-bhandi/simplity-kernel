@@ -44,14 +44,21 @@ public class DateUtil {
 	 * server always uses this format for date-time
 	 */
 	public static final String SERVER_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+	/**
+	 * trying to be lenient while parsing date-time coming from clients
+	 */
+	private static final String SERVER_DATE_SHORT_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
 	private static final int MILLISECS_PER_DAY = 24 * 60 * 60 * 1000;
 	private static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat(
 			SERVER_DATE_FORMAT);
 	private static final int DATE_TIME_LENGTH = 24;
+	private static final int DATE_SHORT_TIME_LENGTH = 20;
 	private static final int DATE_LENGTH = 10;
 	private static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat(
-			"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+			SERVER_DATE_TIME_FORMAT);
+	private static final SimpleDateFormat DATE_SHORT_TIME_FORMATTER = new SimpleDateFormat(
+			SERVER_DATE_SHORT_TIME_FORMAT);
 
 	/**
 	 * Dates are time-zone agnostic, and hence are dealt with local calendar.
@@ -63,6 +70,8 @@ public class DateUtil {
 		DATE_FORMATTER.setLenient(false);
 		DATE_TIME_FORMATTER.setTimeZone(UTC_ZONE);
 		DATE_TIME_FORMATTER.setLenient(false);
+		DATE_SHORT_TIME_FORMATTER.setTimeZone(UTC_ZONE);
+		DATE_SHORT_TIME_FORMATTER.setLenient(false);
 	}
 
 	/**
@@ -143,7 +152,7 @@ public class DateUtil {
 	 * @param days
 	 * @return date offset date
 	 */
-	public static Date addDays(Date date, int days) {
+	public static Date addDays(Date date, long days) {
 		return new Date(date.getTime() + days * DateUtil.MILLISECS_PER_DAY);
 	}
 
@@ -209,8 +218,13 @@ public class DateUtil {
 		try {
 			return DateUtil.DATE_TIME_FORMATTER.parse(value);
 		} catch (Exception ignore) {
-			return null;
+			try {
+				return DateUtil.DATE_TIME_FORMATTER.parse(value);
+			} catch (Exception ignoreAgain) {
+				//
+			}
 		}
+		return null;
 	}
 
 	/**
@@ -228,6 +242,9 @@ public class DateUtil {
 			}
 			if (len == DATE_TIME_LENGTH) {
 				return DATE_TIME_FORMATTER.parse(textToParse);
+			}
+			if (len == DATE_SHORT_TIME_LENGTH) {
+				return DATE_SHORT_TIME_FORMATTER.parse(textToParse);
 			}
 		} catch (Exception ignore) {
 			//
@@ -273,6 +290,24 @@ public class DateUtil {
 	}
 
 	/**
+	 * format date into text, in an economic way. If this is pure date with no
+	 * time, format it as date, else format it is UTC date-time. Use this ONLY
+	 * if it suits you to have a shorter version if possible. If you need the
+	 * output to be in a predictable format, use formatDate() or
+	 * formatDateTime()
+	 *
+	 * @param date
+	 *            may be date may be date and time, and we do
+	 * @return text
+	 */
+	public static String format(long date) {
+		if (hasTime(date)) {
+			return DATE_TIME_FORMATTER.format(date);
+		}
+		return DATE_FORMATTER.format(date);
+	}
+
+	/**
 	 * is this date a pure date, or has it got time component? It is dangerous
 	 * to guess this in your logic, as it is perfectly possible that the
 	 * date-time field may actually happen exactly at that time. Your algorithm
@@ -289,8 +324,8 @@ public class DateUtil {
 		cal.setTime(date);
 		return (cal.get(Calendar.MILLISECOND) != 0
 				|| cal.get(Calendar.SECOND) != 0
-				|| cal.get(Calendar.MINUTE) != 0 || cal
-				.get(Calendar.HOUR_OF_DAY) != 0);
+				|| cal.get(Calendar.MINUTE) != 0
+				|| cal.get(Calendar.HOUR_OF_DAY) != 0);
 	}
 
 	/**
@@ -310,7 +345,7 @@ public class DateUtil {
 		cal.setTimeInMillis(value);
 		return (cal.get(Calendar.MILLISECOND) != 0
 				|| cal.get(Calendar.SECOND) != 0
-				|| cal.get(Calendar.MINUTE) != 0 || cal
-				.get(Calendar.HOUR_OF_DAY) != 0);
+				|| cal.get(Calendar.MINUTE) != 0
+				|| cal.get(Calendar.HOUR_OF_DAY) != 0);
 	}
 }

@@ -431,7 +431,7 @@ public class Field {
 					this.name, null, 0));
 			return null;
 		}
-		Value value = Value.parseObject(inputValue);
+		Value value = this.dataTypeObject.getValueType().fromObject(inputValue);
 		if (value == null && errors != null) {
 			errors.add(new FormattedMessage(this.messageName, recordName,
 					this.name, null, 0));
@@ -465,7 +465,7 @@ public class Field {
 			if (val == null) {
 				continue;
 			}
-			Value value = Value.parseObject(val);
+			Value value = this.dataTypeObject.getValueType().fromObject(val);
 			if (value != null) {
 				value = this.dataTypeObject.validateValue(value);
 				if (value == null) {

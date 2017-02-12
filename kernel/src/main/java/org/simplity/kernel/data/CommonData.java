@@ -82,6 +82,7 @@ public class CommonData implements CommonDataInterface {
 		if (nameParts.sheet == null) {
 			return this.allFields.get(fieldName);
 		}
+
 		if (nameParts.rowIdx == CommonData.NOT_APPLICABLE) {
 			return nameParts.sheet.getValue(nameParts.fieldName);
 		}
@@ -307,7 +308,7 @@ public class CommonData implements CommonDataInterface {
 				return;
 			}
 
-			this.fieldName = fullName.substring(idx + 1);
+			this.fieldName = fullName.substring(idx + 1).trim();
 			String sheetName = fullName.substring(0, idx).trim();
 			this.sheet = CommonData.this.getDataSheet(sheetName);
 			if (this.sheet == null) {

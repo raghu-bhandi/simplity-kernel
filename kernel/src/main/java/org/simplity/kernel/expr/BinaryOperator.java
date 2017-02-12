@@ -139,26 +139,22 @@ public enum BinaryOperator {
 			ValueType lt = leftValue.getValueType();
 			ValueType rt = rightValue.getValueType();
 			int opType = this.getNumericType(lt, rt);
-			if (opType == BinaryOperator.INTEGER_OPERATION) {
+			if (opType == INTEGER_OPERATION) {
 				return Value.newIntegerValue(leftValue.toInteger()
 						+ rightValue.toInteger());
 			}
-			if (opType == BinaryOperator.DECIMAL_OPERATION) {
+			if (opType == DECIMAL_OPERATION) {
 				return Value.newDecimalValue(leftValue.toDecimal()
 						+ rightValue.toDecimal());
 			}
+			if(opType == DATE_ADD_OPERATION){
+				return Value.newDateValue(DateUtil.addDays(leftValue.toDate(), rightValue.toInteger()));
+			}
 			/*
-			 * plus is concatenate for string
+			 * plus is concatenate for nun-number
 			 */
-			if (lt == ValueType.TEXT || rt == ValueType.TEXT) {
-				return Value.newTextValue(leftValue.toText()
+			return Value.newTextValue(leftValue.toText()
 						+ rightValue.toText());
-			}
-			if (lt == ValueType.DATE && rt == ValueType.INTEGER) {
-				return Value.newDateValue(DateUtil.addDays(
-						leftValue.toInteger(), rightValue.toInteger()));
-			}
-			throw new InvalidValueException("");
 		}
 
 		@Override

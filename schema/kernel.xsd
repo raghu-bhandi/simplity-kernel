@@ -2197,7 +2197,47 @@
 		<xs:attribute
 			name="dataSheetName"
 			type="xs:string"
-			use="optional" />
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>If you want to loop for each row in a sheet, use
+					this feature. If this is not specified, you have to specify the
+					condition to be true to keep looping. Inside the loop, you may use
+					sheetName.columnName as if it is a field. Simplity will map this to
+					the column value in the current row of the dta sheet
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="columnsToCopyAsFields"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Use comma separated list of column names, or * to
+					imply all columns. If you are looping on a sheet, and you want to
+					refer to the columns in that sheet without prefixing them with
+					sheet name (for example you want to re-use a service that assumes
+					that the columns are actually fields in the context) then you may
+					copy columns from current row into the context as fields for each
+					loop. Simplity saves existing fields before starting the loop, and
+					restores them after the loop.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="fieldsToCopyBackAsColumns"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Use comma separated list of column names, or * to
+					imply all columns. At the end of loop, fields from ctx are copied
+					to the current row of the sheet. Valid only if you are looping on a
+					data sheet.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="read">

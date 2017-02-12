@@ -25,6 +25,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbClientInterface;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
@@ -88,8 +89,7 @@ public abstract class DbAction extends Action {
 			return null;
 		}
 		int result = 0;
-		if (this.getDataAccessType().updatesDb() && (driver == null
-				|| driver.getAccessType().updatesDb() == false)) {
+		if (this.transactionIsDelegated(driver)) {
 			/*
 			 * service has delegated transactions to its actions...
 			 * We have to directly deal with the driver for this
@@ -137,6 +137,29 @@ public abstract class DbAction extends Action {
 		return Value.newIntegerValue(result);
 	}
 
+	private boolean transactionIsDelegated(DbDriver driver){
+		/*
+		 * do we update?
+		 */
+		DbAccessType dat = this.getDataAccessType();
+		if ( dat == null || dat.updatesDb() == false){
+			return false;
+		}
+		/*
+		 * delegated if the driver can not update
+		 */
+		if(driver == null){
+			return true;
+		}
+		dat = driver.getAccessType();
+		if(dat == null || dat.updatesDb() == false) {
+			return true;
+		}
+		/*
+		 * caller can update
+		 */
+		return false;
+	}
 	/**
 	 * let the concrete action do its job.
 	 *

@@ -131,22 +131,22 @@ public class InputField {
 	 * @return true if data is extracted, false otherwise.
 	 */
 	public boolean extractInput(Object objectValue, ServiceContext ctx) {
-		/*
-		 * is this already in the context?
-		 */
-		Value val = ctx.getValue(this.name);
-		if(val != null){
-			Value newValue = this.dataTypeObject.validateValue(val);
-			if(newValue == null){
-				this.validationError(val.toText(), 0, ctx);
-				return false;
-			}
-			ctx.setValue(this.name, newValue);
-			return true;
-		}
-
 		if (objectValue == null) {
-			Value value = this.defaultObject;
+			/*
+			 * is this already in the context?. possible if this is called from
+			 * another java code rather than from a client agent
+			 */
+			Value value = ctx.getValue(this.name);
+			if (value != null) {
+				Value newValue = this.dataTypeObject.validateValue(value);
+				if (newValue == null) {
+					this.validationError(value.toText(), 0, ctx);
+					return false;
+				}
+				ctx.setValue(this.name, newValue);
+				return true;
+			}
+			value = this.defaultObject;
 			if (value == null && this.isRequired) {
 				Tracer.trace(this.name + " failed mandatory criterion");
 				ctx.addMessage(Messages.VALUE_REQUIRED, this.name);
@@ -157,7 +157,7 @@ public class InputField {
 			 * again
 			 */
 			if (this.isArray) {
-				Value[] vals = {this.defaultObject};
+				Value[] vals = { this.defaultObject };
 				ctx.putDataSheet(this.name, this.createDataSheet(vals));
 			} else {
 				ctx.setValue(this.name, value);
@@ -184,7 +184,8 @@ public class InputField {
 		} else if (objectValue.getClass().isArray()) {
 			values = this.arrayToValues((Object[]) objectValue, ctx);
 		} else {
-			values = Value.parse(objectValue.toString().split(","), this.dataTypeObject.getValueType());
+			values = Value.parse(objectValue.toString().split(","),
+					this.dataTypeObject.getValueType());
 		}
 		if (values != null) {
 			ctx.putDataSheet(this.name, this.createDataSheet(values));
@@ -215,10 +216,10 @@ public class InputField {
 		String[] fields = { this.name };
 		ValueType[] types = { this.dataTypeObject.getValueType() };
 		DataSheet sheet = new MultiRowsSheet(fields, types);
-		if(values != null){
-			for(Value value : values){
-				if(value != null){
-					Value[] row = {value};
+		if (values != null) {
+			for (Value value : values) {
+				if (value != null) {
+					Value[] row = { value };
 					sheet.addRow(row);
 				}
 			}
@@ -234,7 +235,7 @@ public class InputField {
 	 * @param ctx
 	 * @return
 	 */
-	private Value[] arrayToValues(Object[] arr,	ServiceContext ctx) {
+	private Value[] arrayToValues(Object[] arr, ServiceContext ctx) {
 		ValueType vt = this.dataTypeObject.getValueType();
 		int idx = 0;
 		Value[] values = new Value[arr.length];
@@ -260,7 +261,7 @@ public class InputField {
 	 * @param ctx
 	 * @return
 	 */
-	private Value[] jsonToValues(JSONArray arr,	ServiceContext ctx) {
+	private Value[] jsonToValues(JSONArray arr, ServiceContext ctx) {
 		ValueType vt = this.dataTypeObject.getValueType();
 		int nbr = arr.length();
 		Value[] values = new Value[nbr];
@@ -274,7 +275,7 @@ public class InputField {
 				this.validationError("" + obj, i, ctx);
 				return null;
 			}
-			values[i] =  value;
+			values[i] = value;
 		}
 		return values;
 	}
