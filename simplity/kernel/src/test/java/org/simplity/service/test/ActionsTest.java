@@ -70,7 +70,7 @@ public class ActionsTest extends Mockito {
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
 		System.out.println(COMP_PATH);
 		System.out.println(classloader.getResource("").getPath());
-        String compFolder = classloader.getResource(COMP_PATH).getPath()==null?COMP_PATH:classloader.getResource(COMP_PATH).getPath();	
+        String compFolder = classloader.getResource(COMP_PATH)==null?COMP_PATH:classloader.getResource(COMP_PATH).getPath();	
         final String testFolder = classloader.getResource(".").getPath();		
 		MockitoAnnotations.initMocks(ActionsTest.class);
 		ServletContext context = mock(ServletContext.class);
