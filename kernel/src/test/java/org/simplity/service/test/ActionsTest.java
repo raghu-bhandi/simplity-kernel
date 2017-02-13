@@ -47,6 +47,7 @@ import org.simplity.service.ServiceData;
 public class ActionsTest extends Mockito {
 	private static final String COMP_PATH = "resources/comp/";
 	final static String TEST_PATH = "src/test/java/";
+	
 	@Mock
 	HttpServletRequest request;
 
@@ -67,9 +68,10 @@ public class ActionsTest extends Mockito {
 
 	@BeforeClass
 	public static void setUp() throws Exception {
+		ClassLoader classloader = Thread.currentThread().getContextClassLoader();		
 		MockitoAnnotations.initMocks(ActionsTest.class);
 		ServletContext context = mock(ServletContext.class);
-		ComponentType.setComponentFolder(COMP_PATH);
+		ComponentType.setComponentFolder(classloader.getResource(COMP_PATH).getPath());
 		FileManager.setContext(context);
 
 		when(context.getResourceAsStream(anyString())).thenAnswer(new Answer<InputStream>() {
@@ -84,7 +86,7 @@ public class ActionsTest extends Mockito {
 					is = new FileInputStream(file);
 					return is;
 				}
-				file = new File(TestUtils.getFile(newPath, TEST_PATH));
+				file = new File(TestUtils.getFile(newPath, classloader.getResource(TEST_PATH).getPath()));
 				is = new FileInputStream(file);
 
 				return is;
@@ -99,7 +101,7 @@ public class ActionsTest extends Mockito {
 		});
 
 		Application app = new Application();
-		XmlUtil.xmlToObject(COMP_PATH + "applicationH2.xml", app);
+		XmlUtil.xmlToObject(classloader.getResource(COMP_PATH).getPath() + "applicationH2.xml", app);
 		/*
 		 * app.configure() takes care of all initial set up
 		 */
