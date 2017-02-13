@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="login"
+	dbAccessType="none">
+	<actions>
+		<ldapLookup providerUrl="ldap://192.168.200.57:3268/"/>	
+	</actions>	
+	<outputData sessionFields="_userId"></outputData>
+</service>

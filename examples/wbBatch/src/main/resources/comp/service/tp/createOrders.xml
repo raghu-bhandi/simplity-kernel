@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="createOrders"
+	dbAccessType="none"
+>
+	<inputData>
+		<inputRecords>
+		<!-- caller should add a data sheet named orders -->
+			<inputRecord recordName="fixed" sheetName="orders"/>
+		</inputRecords>
+	</inputData>
+	<actions>
+	<log names="orders"/>
+	<!-- 
+		<loop dataSheetName="orders" >
+			<actions>
+				<log names="orders.number,orders.text"/>
+			</actions>
+		</loop>
+		 -->
+	</actions>
+</service>

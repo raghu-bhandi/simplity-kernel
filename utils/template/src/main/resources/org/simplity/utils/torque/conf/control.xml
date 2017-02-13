@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<control
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://db.apache.org/torque/4.0/generator/configuration http://db.apache.org/torque/4.0/generator/configuration.xsd"
+    xmlns="http://db.apache.org/torque/4.0/generator/configuration">
+
+	<output name="torque.simplity">
+		<filenameOutlet name="torque.recnames" xsi:type="javaOutlet" class="org.simplity.utils.torque.outlets.java.SimplityRecordName">			 
+		</filenameOutlet>
+		<source xsi:type="jdbcMetadataSource"
+		    elements="database/table"
+			urlOption="torque.jdbc2schema.url"
+			driverOption="torque.jdbc2schema.driver"
+			usernameOption="torque.jdbc2schema.user"
+			passwordOption="torque.jdbc2schema.password"
+			schemaOption="torque.jdbc2schema.schema">
+		</source>
+		<outlet name="torque.simplity" />
+	</output>
+
+</control>
+  

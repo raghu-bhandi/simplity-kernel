@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	name="fixed"
+	forFixedWidthRow="true"
+>
+	<fields>
+		<field
+			name="number"
+			dataType="_number"
+			fieldWidth="10"
+			isRequired="true" />
+		<field
+			name="text"
+			dataType="_text"
+			fieldWidth="6" />
+		<field
+			name="decimal"
+			dataType="_decimal"
+			fieldWidth="10" />
+		<field
+			name="bool"
+			dataType="_boolean"
+			fieldWidth="1" />
+		<field
+			name="date"
+			dataType="_dateTime"
+			fieldWidth="24" />
+	</fields>
+</record>
