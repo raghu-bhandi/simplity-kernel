@@ -1,4 +1,0 @@
-installjob:
-  stage: build	
-  script: 
-    - mvn install	
