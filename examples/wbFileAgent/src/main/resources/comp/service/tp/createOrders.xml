@@ -12,12 +12,10 @@
 	</inputData>
 	<actions>
 	<log names="orders"/>
-	<!-- 
 		<loop dataSheetName="orders" >
 			<actions>
 				<log names="orders.number,orders.text"/>
 			</actions>
 		</loop>
-		 -->
 	</actions>
 </service>

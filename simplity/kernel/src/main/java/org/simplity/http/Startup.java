@@ -22,6 +22,8 @@
  */
 package org.simplity.http;
 
+import java.net.MalformedURLException;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -67,6 +69,11 @@ public class Startup extends HttpServlet {
 		String folder = ctx.getInitParameter(COMP_FOLDER);
 		if (folder == null) {
 			folder = DEFAULT_FOLDER;
+			try {
+				folder = ctx.getResource(folder).getPath();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
 		}
 		Tracer.trace("Going to bootstrap Application with comp folder at "
 				+ folder);

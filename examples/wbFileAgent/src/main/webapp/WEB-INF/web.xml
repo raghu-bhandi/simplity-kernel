@@ -8,7 +8,7 @@
 		<param-value>comp/</param-value>
 	</context-param>
 	<listener>
-		<listener-class>org.simplity.examples.QuartzListener</listener-class>
+		<listener-class>org.simplity.examples.FlatFileListener</listener-class>
 	</listener>
 	<servlet>
 		<servlet-name>SimplityStartup</servlet-name>

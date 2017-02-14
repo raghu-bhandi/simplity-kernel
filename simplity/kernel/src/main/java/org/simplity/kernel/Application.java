@@ -69,6 +69,9 @@ public class Application {
 	 *             resources
 	 */
 	public static boolean bootStrap(String componentFolder) throws Exception {
+		if(!(new File(componentFolder).exists())){
+			componentFolder = Thread.currentThread().getContextClassLoader().getResource(componentFolder).getPath();
+		}
 		Tracer.trace("Bootstrapping with " + componentFolder);
 		String msg = null;
 		Application app = new Application();

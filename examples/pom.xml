@@ -12,5 +12,6 @@
     <module>petclinic</module>
     <module>simplitytest</module>
 	<module>wbBatch</module>
+    <module>wbFileAgent</module>
   </modules>
 </project>

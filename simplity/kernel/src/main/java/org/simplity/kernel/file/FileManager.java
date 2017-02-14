@@ -89,11 +89,8 @@ public class FileManager {
 	public static String[] getResources(String parentFolder) {
 		String[] empty = new String[0];
 		List<String> resources = new ArrayList<String>();
-		if (myContext == null) {
-			addAllResourcesWithFs(parentFolder, resources);
-		} else {
-			addAllResourcesWithCtx(parentFolder, resources);
-		}
+		if(new File(parentFolder).exists())
+			addAllResourcesWithFs(parentFolder, resources);		
 		return resources.toArray(empty);
 	}
 
@@ -191,15 +188,11 @@ public class FileManager {
 	 */
 	public static InputStream getResourceStream(String fileName)
 			throws Exception {
-		if (myContext == null) {
-			File file = new File(fileName);
-			if (file.exists()) {
-				return new FileInputStream(file);
-			}
-			return null;
+		File file = new File(fileName);
+		if (file.exists()) {
+			return new FileInputStream(file);
 		}
-		return myContext.getResourceAsStream(FOLDER_CHAR + fileName);
-
+		return null;
 	}
 
 	/**

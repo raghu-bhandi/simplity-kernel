@@ -18,8 +18,7 @@ public class App {
 			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 			String folder = classLoader.getResource("comp").getPath()+"/";			
 			try {
-				Application app = new Application();
-				Application.bootStrap(folder,app);
+				Application.bootStrap(folder);
 			} catch (Exception e) {
 				System.err.println(
 						"error while bootstrapping with compFolder=" + folder);

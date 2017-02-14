@@ -18,7 +18,6 @@ public class QuartzListener implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent servletContext) {
-		System.out.println("Context Initialized");
 
 		try {
 			// Setup the Job class and the Job group
