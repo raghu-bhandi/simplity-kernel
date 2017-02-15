@@ -20,7 +20,7 @@ import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
 public class TestUtils {
-	final static String DATA_PATH = "src/test/java/resources/data/";
+	final static String DATA_PATH = "src/test/resources/data/";
 
 	public static Set<String> listFiles(File folder) {
 		Set<String> filePaths = new HashSet<String>();

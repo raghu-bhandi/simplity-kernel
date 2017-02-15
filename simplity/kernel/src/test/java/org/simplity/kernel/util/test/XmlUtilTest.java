@@ -59,7 +59,7 @@ public class XmlUtilTest {
 	public final void serviceXmlToObject() {
 		Object object = new Service();
 		try {
-			File fs = new File("src/test/java/resources/xml/service.xml");
+			File fs = new File("src/test/resources/xml/service.xml");
 			InputStream fis = new FileInputStream(fs);
 
 			XmlUtil.xmlToObject(fis, object);
@@ -79,7 +79,7 @@ public class XmlUtilTest {
 	public final void messageXmlToObject() {
 		Object object = new Message();
 		try {
-			File fs = new File("src/test/java/resources/xml/message.xml");
+			File fs = new File("src/test/resources/xml/message.xml");
 			InputStream fis = new FileInputStream(fs);
 			
 			 XmlUtil.xmlToObject(fis, object);
@@ -99,7 +99,7 @@ public class XmlUtilTest {
 	public final void storedProcXmlToObject() {
 		Object object = new StoredProcedure();
 		try {
-			File fs = new File("src/test/java/resources/xml/sp.xml");
+			File fs = new File("src/test/resources/xml/sp.xml");
 			InputStream fis = new FileInputStream(fs);
 
 			

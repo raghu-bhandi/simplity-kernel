@@ -2,7 +2,7 @@
 <service
 	xmlns="http://www.simplity.org/schema"
 	name="helloworld"
-	dbAccessType="none">
+	dbAccessType="none">	
 	<actions>
 		<setValue fieldName="hello" fieldValue="Hello World! from simplity"></setValue>
 		
