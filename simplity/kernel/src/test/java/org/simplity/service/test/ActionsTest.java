@@ -45,7 +45,7 @@ import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 
 public class ActionsTest extends Mockito {
-	private static final String COMP_PATH = "resources/comp/";
+	private static final String COMP_PATH = "comp/";
 	
 	@Mock
 	HttpServletRequest request;
@@ -68,8 +68,6 @@ public class ActionsTest extends Mockito {
 	@BeforeClass
 	public static void setUp() throws Exception {
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-		System.out.println(COMP_PATH);
-		System.out.println(classloader.getResource(".").getPath().concat(COMP_PATH));
         String compFolder = classloader.getResource(".").getPath().concat(COMP_PATH);	
         final String testFolder = classloader.getResource(".").getPath();		
 		MockitoAnnotations.initMocks(ActionsTest.class);
@@ -125,9 +123,9 @@ public class ActionsTest extends Mockito {
 		if(!destFile.exists()){
 			destFile.mkdir();
 		}
-		TestUtils.copyDirectory(new File("src/test/java/resources/data/datafiles"), destFile);
+		TestUtils.copyDirectory(new File("src/test/resources/data/datafiles"), destFile);
 		RunScript.execute(conn,
-				new FileReader(new File("src/test/java/resources/data/scripts/create_classicmodels.sql").getAbsolutePath()));
+				new FileReader(new File("src/test/resources/data/scripts/create_classicmodels.sql").getAbsolutePath()));
 		
 		
 
@@ -142,9 +140,9 @@ public class ActionsTest extends Mockito {
 				if(!destFile1.exists()){
 					destFile1.mkdir();
 				}
-				TestUtils.copyDirectory(new File("src/test/java/resources/data/datafiles"), destFile1);
+				TestUtils.copyDirectory(new File("src/test/resources/data/datafiles"), destFile1);
 				RunScript.execute(schemaConn,
-						new FileReader(new File("src/test/java/resources/data/scripts/create_classicmodels1.sql").getAbsolutePath()));
+						new FileReader(new File("src/test/resources/data/scripts/create_classicmodels1.sql").getAbsolutePath()));
 		
 	}
 
@@ -384,7 +382,7 @@ public class ActionsTest extends Mockito {
 	public final void recordProcXmlToObject() {
 		Object object = new Record();
 		try {
-			File fs = new File("src/test/java/resources/xml/record.xml");
+			File fs = new File("src/test/resources/xml/record.xml");
 			InputStream fis = new FileInputStream(fs);
 
 			
