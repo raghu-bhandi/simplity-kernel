@@ -41,6 +41,8 @@ public class ServiceSubmitter implements Runnable {
 	private final ObjectOutputStream outStream;
 	private final ExceptionListener listener;
 
+	private boolean timeToWindup = false;
+
 	/***
 	 * instantiate with required attributes
 	 *
@@ -55,19 +57,54 @@ public class ServiceSubmitter implements Runnable {
 		this.service = service;
 		this.outStream = outStream;
 		this.listener = listener;
+
 	}
 
 	@Override
 	public void run() {
+		int interval = this.service.getBackgroundRunInterval();
+		if( interval == 0){
+			this.runOnce();
+			return;
+		}
 		/*
-		 * we re a new thread. Start capturing spits.
+		 * interval in milli seconds
 		 */
+		interval = interval * 1000;
+		String serviceName = this.service.getQualifiedName();
+		while (true) {
+			Date started = new Date();
+			Tracer.trace("Started service " + serviceName + " at " + started);
+			this.runOnce();
+			if (this.timeToWindup) {
+				Tracer.trace(
+						"Shutting down service " + serviceName);
+				return;
+			}
+			Date finished = new Date();
+			Tracer.trace("Finished service " + serviceName + " at " + started);
+			long napTime = interval - (finished.getTime() - started.getTime());
+			if(napTime < 0){
+				Tracer.trace("Re-starting the service immediately");
+			}else{
+				try {
+					Tracer.trace("Going to wait for " + napTime + "ms");
+					Thread.sleep(napTime);
+				} catch (InterruptedException e) {
+					Tracer.trace(serviceName + " got interrupted..");
+					break;
+				}
+			}
+		}
+	}
+
+	private void runOnce() {
 		Tracer.startAccumulation();
 		Date startTime = new Date();
 		ServiceData outData = null;
 		String key = ServiceProtocol.HEADER_FILE_TOKEN;
 		String token = this.inData.get(key).toString();
-		String serviceName = this.inData.getServiceName();
+		String serviceName = this.service.getQualifiedName();
 		try{
 			outData = this.service.respond(this.inData);
 		} catch (Exception e) {

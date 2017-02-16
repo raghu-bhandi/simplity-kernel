@@ -22,6 +22,7 @@
 package org.simplity.tp;
 
 import org.simplity.kernel.db.DbDriver;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -52,11 +53,9 @@ public interface ComplexLogicInterface {
 	 *            you HAVE to use it, ensure that you do not mess around with
 	 *            the transaction that is already in progress, of which you are
 	 *            a part.
-	 * @return number to be used at the action level. Return 0 if the intended
-	 *         work is not done. +ve number to indicate some measure of work
-	 *         done. 1 is a good default
+	 * @return result of this action
 	 *
 	 */
-	public int execute(ServiceContext ctx, DbDriver driver);
+	public Value execute(ServiceContext ctx, DbDriver driver);
 
 }

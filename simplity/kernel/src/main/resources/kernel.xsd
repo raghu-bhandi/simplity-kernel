@@ -1454,136 +1454,7 @@
 			minOccurs="1"
 			maxOccurs="unbounded"
 		>
-			<xs:element
-				name="addColumn"
-				type="addColumn"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="addMessage"
-				type="addMessage"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="complexLogic"
-				type="logic"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="copyRows"
-				type="copyRows"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="copyUserId"
-				type="copyUserId"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="createSheet"
-				type="createSheet"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="executeSp"
-				type="executeSp"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="executeSql"
-				type="executeSql"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="filter"
-				type="filter"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="jumpTo"
-				type="jumpTo"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="httpClient"
-				type="httpClient"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="keyValueList"
-				type="keyValueList"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="log"
-				type="log"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="logic"
-				type="logic"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="loop"
-				type="loop"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="read"
-				type="read"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="readChildren"
-				type="readChildren"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="readWithSql"
-				type="readWithSql"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="removeValue"
-				type="removeValue"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="renameSheet"
-				type="renameSheet"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="replaceAttachment"
-				type="replaceAttachment"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="rowExists"
-				type="rowExists"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="save"
-				type="save"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="setValue"
-				type="setValue"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="subService"
-				type="subService"
-				minOccurs="0"
-				maxOccurs="unbounded" />
-			<xs:element
-				name="suggest"
-				type="suggest"
-				minOccurs="0"
-				maxOccurs="unbounded" />
+			<xs:group ref="allActions" />
 		</xs:choice>
 	</xs:complexType>
 
@@ -1870,7 +1741,8 @@
 			<xs:annotation>
 				<xs:documentation>
 					use either a constant, or a $fieldName as value
-					ofthe field. If you use this, you should not specify expression.
+					of
+					the field. If you use this, you should not specify expression.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2549,6 +2421,110 @@
 		</xs:attribute>
 	</xs:complexType>
 
+
+	<xs:complexType name="synchronizer">
+		<xs:sequence>
+			<xs:element
+				name="initialAction"
+				type="anAction"
+				minOccurs="0"
+				maxOccurs="1" />
+			<xs:element
+				name="finalAction"
+				type="anAction"
+				minOccurs="0"
+				maxOccurs="1" />
+			<xs:element
+				name="actions"
+				minOccurs="1"
+				maxOccurs="1"
+				type="actions" />
+		</xs:sequence>
+		<xs:attributeGroup ref="actionAttributes" />
+	</xs:complexType>
+
+	<xs:element name="fileProcessor">
+		<xs:complexType>
+			<xs:attribute
+				name="inFolderName"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>Name of the folder where the files are to be
+						processed. use $fieldName to use a field in the service context,
+						or @propertyName to get the property value from java context
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="fileNamePattern"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>Remember that this is a regular expression and
+						not wild-card. SO, not "*.txt" but ".*\\.txt"
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="archivalExtension"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>this is appended to the processed file name to
+						rename it. For example ".bak"
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="recordName"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>Qualified name of record that describes the
+						contents of this file-row.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="sheetName"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>If this file has more than one row of data, or if
+						the data is to be extracted into a single row, here is the name of
+						the data sheet. If this is null, first/only row of data is
+						extracted as fields into service context
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="serviceName"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>Service to be executed for the data extracted
+						from the file
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="fileHasEndOfLineChars"
+				type="booleanType"
+			>
+				<xs:annotation>
+					<xs:documentation>Does the file follw the convention of end-of-line
+						for the o/s, like new-line in Unix, or CR-LF in windows?
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
 
 	<xs:complexType name="restClient">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -3457,4 +3433,102 @@
 				use="optional" />
 		</xs:complexType>
 	</xs:element>
+	<xs:complexType name="anAction">
+		<xs:choice
+			minOccurs="1"
+			maxOccurs="1"
+		>
+			<xs:group ref="allActions" />
+
+		</xs:choice>
+	</xs:complexType>
+	<xs:group name="allActions">
+		<xs:choice>
+			<xs:element
+				name="addColumn"
+				type="addColumn" />
+			<xs:element
+				name="addMessage"
+				type="addMessage" />
+			<xs:element
+				name="complexLogic"
+				type="logic" />
+			<xs:element
+				name="copyRows"
+				type="copyRows" />
+			<xs:element
+				name="copyUserId"
+				type="copyUserId" />
+			<xs:element
+				name="createSheet"
+				type="createSheet" />
+			<xs:element
+				name="executeSp"
+				type="executeSp" />
+			<xs:element
+				name="executeSql"
+				type="executeSql" />
+			<xs:element ref="fileProcessor" />
+			<xs:element
+				name="filter"
+				type="filter" />
+			<xs:element
+				name="jumpTo"
+				type="jumpTo" />
+			<xs:element
+				name="httpClient"
+				type="httpClient" />
+			<xs:element
+				name="keyValueList"
+				type="keyValueList" />
+			<xs:element
+				name="log"
+				type="log" />
+			<xs:element
+				name="logic"
+				type="logic" />
+			<xs:element
+				name="loop"
+				type="loop" />
+			<xs:element
+				name="read"
+				type="read" />
+			<xs:element
+				name="readChildren"
+				type="readChildren" />
+			<xs:element
+				name="readWithSql"
+				type="readWithSql" />
+			<xs:element
+				name="removeValue"
+				type="removeValue" />
+			<xs:element
+				name="renameSheet"
+				type="renameSheet" />
+			<xs:element
+				name="replaceAttachment"
+				type="replaceAttachment" />
+			<xs:element
+				name="rowExists"
+				type="rowExists" />
+			<xs:element
+				name="save"
+				type="save" />
+			<xs:element
+				name="setValue"
+				type="setValue"
+				minOccurs="0"
+				maxOccurs="unbounded" />
+			<xs:element
+				name="subService"
+				type="subService" />
+			<xs:element
+				name="suggest"
+				type="suggest" />
+			<xs:element
+				name="synchronizer"
+				type="synchronizer" />
+		</xs:choice>
+	</xs:group>
+
 </xs:schema>

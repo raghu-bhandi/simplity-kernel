@@ -22,7 +22,6 @@
 package org.simplity.tp;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.MessageType;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
@@ -39,55 +38,14 @@ import org.simplity.service.ServiceContext;
  *
  */
 public abstract class DbAction extends Action {
-
-	/**
-	 * if the sql succeeds in extracting at least one row, or affecting one
-	 * update, do we need to put a message?
-	 */
-	String successMessageName;
-	/**
-	 * comma separated list of parameters, to be used to populate success
-	 * message
-	 */
-	String[] successMessageParameters;
-
-	/**
-	 * if the sql fails to extract/update even a single row, should we flash any
-	 * message?
-	 */
-	String failureMessageName;
-	/**
-	 * parameters to be used to format failure message
-	 */
-	String[] failureMessageParameters;
-
-	/**
-	 * should we stop this service in case the message added is of type error.
-	 */
-	boolean stopIfMessageTypeIsError;
-
 	/**
 	 * schema name, different from the default schema, to be used specifically
 	 * for this service
 	 */
 	String schemaName;
 
-	/**
-	 * name of action to navigate to within this block, (_stop, _continue and
-	 * _break are special commands, as in jumpTo)
-	 */
-	String actionNameOnSuccess;
-	/**
-	 * name of action to navigate to within this block, (_stop, _continue and
-	 * _break are special commands, as in jumpTo)
-	 */
-	String actionNameOnFailure;
-
 	@Override
-	public Value act(ServiceContext ctx, DbDriver driver) {
-		if (this.toContinue(ctx) == false) {
-			return null;
-		}
+	public Value delegate(ServiceContext ctx, DbDriver driver) {
 		int result = 0;
 		if (this.transactionIsDelegated(driver)) {
 			/*
@@ -101,38 +59,6 @@ public abstract class DbAction extends Action {
 			}
 		} else {
 			result = this.doDbAct(ctx, driver);
-		}
-		if (result == 0) {
-			/*
-			 * action has failed to do its job. What has the designer asked us
-			 * to do in this case?
-			 */
-			if (this.actionNameOnFailure != null) {
-				return Value.newTextValue(this.actionNameOnFailure);
-			}
-			if (this.failureMessageName != null) {
-				MessageType msgType = ctx.addMessage(this.failureMessageName,
-						this.failureMessageParameters);
-				if (msgType == MessageType.ERROR
-						&& this.stopIfMessageTypeIsError) {
-					return Service.STOP_VALUE;
-				}
-			}
-			return Value.VALUE_ZERO;
-
-		}
-		/*
-		 * any result other than 0 is success.
-		 */
-		if (this.actionNameOnFailure != null) {
-			return Value.newTextValue(this.actionNameOnFailure);
-		}
-		if (this.successMessageName != null) {
-			MessageType msgType = ctx.addMessage(this.successMessageName,
-					this.successMessageParameters);
-			if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
-				return Service.STOP_VALUE;
-			}
 		}
 		return Value.newIntegerValue(result);
 	}
