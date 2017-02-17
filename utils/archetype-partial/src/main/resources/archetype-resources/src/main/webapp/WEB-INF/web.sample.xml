@@ -3,6 +3,10 @@
  "http://java.sun.com/dtd/web-app_2_3.dtd" >
 <web-app>
 	<display-name>Simplity Hello World</display-name>
+	<context-param>
+		<param-name>comp-folder</param-name>
+		<param-value>comp/</param-value>
+	</context-param>	
 	<servlet>
 		<servlet-name>SimplityStartup</servlet-name>
 		<servlet-class>org.simplity.http.Startup</servlet-class>

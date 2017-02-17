@@ -76,7 +76,7 @@ public class Application {
 		String msg = null;
 		Application app = new Application();
 		try {
-			ComponentType.setComponentFolder(componentFolder);
+			componentFolder = ComponentType.setComponentFolder(componentFolder);
 			XmlUtil.xmlToObject(componentFolder + CONFIG_FILE_NAME, app);
 			if (app.applicationId == null) {
 				msg = "Unable to load the configuration component "

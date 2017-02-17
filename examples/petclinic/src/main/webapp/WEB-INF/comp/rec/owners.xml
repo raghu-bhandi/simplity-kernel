@@ -1,39 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
-	xmlns="http://www.simplity.org/schema"
 	name="owners"
+	recordType="storage"
+	tableName="OWNERS"
 	okToSelectAll="true"
 	keyToBeGenerated="true"
-	childrenToBeRead="petDetails"
-	childrenToBeSaved="pets"
+	xmlns="http://www.simplity.org/schema"
 >
 	<fields>
 		<field
-			name="ownerId"
-			columnName="id"
-			dataType="id"
-			fieldType="primaryKey" />
+			columnName="ID"
+			dataType="_number"
+			fieldType="primaryKey"
+			name="id"
+			sqlTypeName="INTEGER" />
 		<field
+			columnName="FIRST_NAME"
+			dataType="name"
+			fieldType="data"
 			name="firstName"
-			columnName="first_name"
-			dataType="name"
-			isRequired="true" />
+			sqlTypeName="VARCHAR" />
 		<field
+			columnName="LAST_NAME"
+			dataType="name"
+			fieldType="data"
 			name="lastName"
-			columnName="last_name"
-			dataType="name"
-			isRequired="true" />
+			sqlTypeName="VARCHAR" />
 		<field
-			name="address"
+			columnName="ADDRESS"
 			dataType="address"
-			isRequired="true" />
+			fieldType="data"
+			name="address"
+			sqlTypeName="VARCHAR" />
 		<field
+			columnName="CITY"
+			dataType="city"
+			fieldType="data"
 			name="city"
-			dataType="city" 
-			isRequired="true"/>
+			sqlTypeName="VARCHAR" />
 		<field
+			columnName="TELEPHONE"
+			dataType="phone"
+			fieldType="data"
 			name="telephone"
-			columnName="telephone"
-			dataType="phone" />
+			sqlTypeName="VARCHAR" />
 	</fields>
 </record>

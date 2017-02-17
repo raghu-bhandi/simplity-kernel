@@ -541,7 +541,7 @@ public enum ComponentType {
 	 *
 	 * @param folder
 	 */
-	public static void setComponentFolder(String folder) {
+	public static String setComponentFolder(String folder) {
 		componentFolder = folder;
 		if (folder.endsWith(FOLDER_STR) == false) {
 			componentFolder += FOLDER_CHAR;
@@ -553,6 +553,7 @@ public enum ComponentType {
 		 */
 		preLoad();
 		Tracer.trace("components pre-loaded");
+		return componentFolder;
 	}
 
 	/**

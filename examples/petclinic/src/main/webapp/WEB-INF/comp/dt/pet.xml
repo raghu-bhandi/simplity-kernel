@@ -32,12 +32,11 @@
 			name="text"
 			description="Three thousand characters are more than enough to describe pretty much anything. Well almost."
 			maxLength="3000"
-			 />
-			 
+			 />			 
 		<textDataType
 			name="address"
 			description="Three thousand characters are more than enough to describe pretty much anything. Well almost."
-			maxLength="3000"
+			maxLength="255"
 			 />
 		<textDataType
 			name="text80"

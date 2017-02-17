@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
-	xmlns="http://www.simplity.org/schema"
 	name="vets"
-	okToSelectAll="true"
-	keyToBeGenerated="true"
-	childrenToBeRead="vetSpecialtiesDetails"
+	recordType="storage"
+	tableName="VETS"
+	xmlns="http://www.simplity.org/schema"
 >
 	<fields>
 		<field
-			name="vetId"
-			columnName="id"
-			dataType="id"
+			columnName="ID"
+			dataType="_number"
 			fieldType="primaryKey"
-			isRequired="true"
-			 />
+			name="id"
+			sqlTypeName="INTEGER" />
 		<field
+			columnName="FIRST_NAME"
+			dataType="name"
+			fieldType="data"
 			name="firstName"
-			columnName="first_name"
-			dataType="name"
-			isRequired="true"
-			 />
+			sqlTypeName="VARCHAR" />
 		<field
-			name="lastName"
-			columnName="last_name"
+			columnName="LAST_NAME"
 			dataType="name"
-			isRequired="true"
-			/>
+			fieldType="data"
+			name="lastName"
+			sqlTypeName="VARCHAR" />
 	</fields>
 </record>

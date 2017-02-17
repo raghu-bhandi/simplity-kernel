@@ -84,11 +84,9 @@
 			serviceName="save_pets"
 			description="Add third pet to this owner"
 		>
-			<inputJson><![CDATA[ {
-		"petTypeId":"1",
-		"petName":"woofy",
-		"petDob":"2014-03-05"
-		} ]]></inputJson>
+			<inputJson><![CDATA[ {"petTypeId":"1",
+			                     "petName":"woofy",
+			                     "petDob":"2014-03-05"} ]]></inputJson>
 			<inputFields>
 				<inputField
 					fieldSelector="ownerId"
@@ -100,6 +98,7 @@
 					fieldSelector="petId"
 					nameInContext="newPetId" />
 			</fieldsToBeAddedToContext>
+			
 		</testCase>
 		<testCase
 			testCaseName="shouldGetOwnerWithPetDetails"

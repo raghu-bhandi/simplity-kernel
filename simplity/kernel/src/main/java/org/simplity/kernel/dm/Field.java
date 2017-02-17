@@ -939,6 +939,11 @@ public class Field {
 	public void setSqlTypeName(String sqlTypeName) {
 		this.sqlTypeName = sqlTypeName;
 	}
+	
+	public void setFieldType(FieldType fieldType) {
+		this.fieldType = fieldType;
+		
+	}
 
 	public void setNullable(boolean isNullable) {
 		this.isNullable = isNullable;
@@ -950,5 +955,21 @@ public class Field {
 
 	public void setRequired(boolean isRequired) {
 		this.isRequired = isRequired;
+	}
+
+	public String getReferredRecord() {
+		return referredRecord;
+	}
+
+	public void setReferredRecord(String referredRecord) {
+		this.referredRecord = referredRecord;
+	}
+
+	public String getReferredField() {
+		return referredField;
+	}
+
+	public void setReferredField(String referredField) {
+		this.referredField = referredField;
 	}
 }

@@ -18,6 +18,7 @@ public class SimpliTestCase extends TestCase {
 	public String testuser;
 	public String testpwd;
 	public String servicetest;
+	public boolean skipValidation;
 
 	private TestRun testRun;
 	private TestContext ctx = new TestContext();
@@ -51,28 +52,29 @@ public class SimpliTestCase extends TestCase {
 			}
 		}
 		StringBuilder errMessage = new StringBuilder();
-		errMessage.append(System.getProperty("line.separator"));		
-		
-		ValidationContext val = new ValidationContext();
-		ValidationResult valresult = val.validateAll();
-		String[][] messages = valresult.getAllMessages();
-		for (int i = 1; i < messages.length; i++) {
-			String compType = messages[i][0];
-			String compName = messages[i][1];
-			String errorMessage = messages[i][2];
-			errMessage.append("Semantic error: "+ compType + " " + compName + " failed on validation with message " + errorMessage);
-			errMessage.append(System.getProperty("line.separator"));
+		errMessage.append(System.getProperty("line.separator"));
+		if (!skipValidation) {
+			ValidationContext val = new ValidationContext();
+			ValidationResult valresult = val.validateAll();
+			String[][] messages = valresult.getAllMessages();
+			for (int i = 1; i < messages.length; i++) {
+				String compType = messages[i][0];
+				String compName = messages[i][1];
+				String errorMessage = messages[i][2];
+				errMessage.append("Semantic error: " + compType + " " + compName + " failed on validation with message "
+						+ errorMessage);
+				errMessage.append(System.getProperty("line.separator"));
+			}
+
+			if (messages.length > 1) {
+				result.addError(this, new Throwable(errMessage.toString()));
+				return;
+			}
 		}
-		
-		if ( messages.length > 1) {
-			result.addError(this, new Throwable(errMessage.toString()));
-			return;
-		}
-		
 		testRun = ComponentManager.getTestRunOrNull(servicetest);
 		testRun.run(ctx);
 		String[][] report = ctx.getReport();
-		
+
 		for (int i = 0; i < report.length; i++) {
 			String serviceName = report[i][0];
 			String testCaseName = report[i][1];
@@ -80,12 +82,10 @@ public class SimpliTestCase extends TestCase {
 			String cleared = report[i][3];
 			String errorMessage = report[i][4];
 			if (cleared.equals("false")) {
-				errMessage.append("Test failure: "+testCaseName + " failed with message " + errorMessage);
+				errMessage.append("Test failure: " + testCaseName + " failed with message " + errorMessage);
 				errMessage.append(System.getProperty("line.separator"));
 			}
 		}
-
-
 
 		if (ctx.getNbrFailed() > 0) {
 			result.addError(this, new Throwable(errMessage.toString()));

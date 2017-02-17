@@ -9,5 +9,6 @@
     	project with multiple modules 
      -->
     <message messageType="error" name="a" text="a"/>
+    <message messageType="error" name="invalidPhone" text="a"/>
     </components>
 </messages>

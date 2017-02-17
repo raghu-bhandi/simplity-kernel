@@ -1,44 +1,45 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
-	xmlns="http://www.simplity.org/schema"
 	name="pets"
+	recordType="storage"
+	tableName="PETS"
 	keyToBeGenerated="true"
+	xmlns="http://www.simplity.org/schema"
 >
 	<fields>
 		<field
-			name="petId"
-			columnName="id"
-			dataType="id"
+			columnName="ID"
+			dataType="_number"
 			fieldType="primaryKey"
-			isRequired="true"
-			 />
+			name="id"
+			sqlTypeName="INTEGER" />
 		<field
-			name="ownerId"
-			columnName="owner_id"
-			dataType="id"
-			fieldType="parentKey"
-			referredRecord="owners"
-			isRequired="true"
-			 />
-		<field
-			name="petName"
-			columnName="name"
+			columnName="NAME"
 			dataType="name"
-			isRequired="true"
-			/>
+			fieldType="data"
+			name="name"
+			sqlTypeName="VARCHAR" />
 		<field
-			name="petDob"
-			columnName="birth_date"
+			columnName="BIRTH_DATE"
 			dataType="date"
-			isRequired="true"
-			 />
+			fieldType="data"
+			name="birthDate"
+			sqlTypeName="DATE" />
 		<field
-			name="petTypeId"
-			columnName="type_id"
-			dataType="id"
+			columnName="TYPE_ID"
+			dataType="_number"
 			fieldType="foreignKey"
-			referredRecord="petTypes"
-			isRequired="true"
-			 />
+			name="typeId"
+			referredField="id"
+			referredRecord="types"
+			sqlTypeName="INTEGER" />
+		<field
+			columnName="OWNER_ID"
+			dataType="_number"
+			fieldType="foreignKey"
+			name="ownerId"
+			referredField="id"
+			referredRecord="owners"
+			sqlTypeName="INTEGER" />
 	</fields>
 </record>

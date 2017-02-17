@@ -1,26 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
-	xmlns="http://www.simplity.org/schema"
 	name="vetSpecialtiesDetails"
+	recordType="storage"
 	tableName="VET_SPECIALTIES_DETAILS"
+	xmlns="http://www.simplity.org/schema"
 >
 	<fields>
 		<field
+			columnName="VET_ID"
+			dataType="_number"
+			fieldType="data"
 			name="vetId"
-			columnName="vet_id"
-			fieldType="parentKey"
-			referredRecord="vets"
-			referredField="vetId"
-			 />
+			sqlTypeName="INTEGER" />
 		<field
+			columnName="SPECIALTY_ID"
+			dataType="_number"
+			fieldType="data"
 			name="specialtyId"
-			columnName="specialty_Id"
-			dataType="id"
-			/>
+			sqlTypeName="INTEGER" />
 		<field
-			name="specialty"
-			columnName="specialty"
+			columnName="SPECIALTY"
 			dataType="text80"
-			/>
+			fieldType="data"
+			name="specialty"
+			sqlTypeName="VARCHAR" />
 	</fields>
 </record>

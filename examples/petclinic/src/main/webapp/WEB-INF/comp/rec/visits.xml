@@ -1,33 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
-	xmlns="http://www.simplity.org/schema"
 	name="visits"
+	recordType="storage"
+	tableName="VISITS"
 	keyToBeGenerated="true"
+	xmlns="http://www.simplity.org/schema"
 >
 	<fields>
 		<field
-			name="visitId"
-			columnName="id"
-			dataType="id"
+			columnName="ID"
+			dataType="_number"
 			fieldType="primaryKey"
-			isRequired="true" />
+			name="id"
+			sqlTypeName="INTEGER" />
 		<field
+			columnName="PET_ID"
+			dataType="_number"
+			fieldType="foreignKey"
 			name="petId"
-			columnName="pet_id"
-			dataType="id"
-			fieldType="parentKey"
+			referredField="id"
 			referredRecord="pets"
-			referredField="petId"
-			isRequired="true" />
+			sqlTypeName="INTEGER" />
 		<field
-			name="visitDate"
-			columnName="visit_date"
+			columnName="VISIT_DATE"
 			dataType="date"
-			isRequired="true" />
+			fieldType="data"
+			name="visitDate"
+			sqlTypeName="DATE" />
 		<field
-			name="visitDescription"
-			columnName="description"
+			columnName="DESCRIPTION"
 			dataType="description"
-			isRequired="true" />
+			fieldType="data"
+			name="description"
+			sqlTypeName="VARCHAR" />
 	</fields>
 </record>
