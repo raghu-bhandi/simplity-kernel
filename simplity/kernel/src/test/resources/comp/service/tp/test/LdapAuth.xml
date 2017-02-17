@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="LdapAuth"
+	dbAccessType="none">
+	<actions>
+		<ldapAuth providerUrl=""/>
+	</actions>	
+	<outputData sessionFields="_userId"></outputData>
+</service>

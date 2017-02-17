@@ -2046,6 +2046,14 @@
 			use="optional" />
 	</xs:complexType>
 
+	<xs:complexType name="ldapAuth">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="providerUrl"
+			type="xs:string"
+			use="required" />
+	</xs:complexType>	
+
 	<xs:complexType name="logic">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -3481,6 +3489,9 @@
 			<xs:element
 				name="keyValueList"
 				type="keyValueList" />
+			<xs:element
+				name="ldapAuth"
+				type="ldapAuth" />				
 			<xs:element
 				name="log"
 				type="log" />

@@ -62,7 +62,7 @@ public class Startup extends HttpServlet {
 	 * servlet
 	 *
 	 * @param ctx
-	 * 			Context
+	 *            Context
 	 */
 	public static void bootStrap(ServletContext ctx) {
 		FileManager.setContext(ctx);
@@ -76,24 +76,20 @@ public class Startup extends HttpServlet {
 			try {
 				folder = ctx.getResource(folder).getPath();
 				Tracer.trace("Root folder is set using recource to " + folder);
-				allOk = true;
 			} catch (MalformedURLException e) {
 				Tracer.trace(e, "Error while getting root folder path from servlet context");
 			}
-		}else{
+		} else {
 			Tracer.trace("Root folder is set to " + folder + " as a web parameter.");
 		}
-		if(allOk){
-			try {
-				allOk = Application.bootStrap(folder);
-			} catch (Exception e) {
-				Tracer.trace(e,
-						"Unable to bootstrap Application using resource folder "
-								+ folder + ". Application will not work.");
-			}
+		Tracer.trace("Going to bootstrap Application with comp folder at " + folder);
+		try {
+			allOk = Application.bootStrap(folder);
+		} catch (Exception e) {
+			Tracer.trace(e,
+					"Unable to bootstrap Application using resource folder " + folder + ". Application will not work.");
 		}
-		Tracer.trace("Going to bootstrap Application with comp folder at "
-				+ folder);
+
 		Serve.updateStartupStatus(allOk);
 	}
 }
