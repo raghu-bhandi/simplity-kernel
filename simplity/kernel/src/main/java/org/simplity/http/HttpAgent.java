@@ -728,7 +728,6 @@ public class HttpAgent {
 			 */
 			response = STILL_PENDING_PREFIX + fileToken + STILL_PENDING_SUFFIX;
 		}
-
 		writeResponse(resp, response);
 		if (tracesToBeCached && outData != null) {
 			cacheTraces(req.getSession(true), outData.getTrace());
@@ -748,7 +747,11 @@ public class HttpAgent {
 		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 		resp.setDateHeader("Expires", 0);
 		Writer writer = resp.getWriter();
+		if(payLoad == null || payLoad.isEmpty()){
+			writer.write("{}");
+		}else{
 		writer.write(payLoad);
+		}
 		writer.close();
 	}
 }

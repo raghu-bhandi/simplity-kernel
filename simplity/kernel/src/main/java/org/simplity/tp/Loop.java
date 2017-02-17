@@ -22,9 +22,6 @@
  */
 package org.simplity.tp;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
@@ -43,7 +40,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class Loop extends DbAction {
+public class Loop extends Block {
 
 	/**
 	 * data sheet on which to loop
@@ -62,17 +59,6 @@ public class Loop extends DbAction {
 	 * to be copied back to data sheet
 	 */
 	String[] fieldsToCopyBackAsColumns;
-	/**
-	 * actions that are to be performed for each row of the data sheet
-	 */
-	Action[] actions;
-
-	/**
-	 * determined based on sub-actions of this block
-	 */
-	private DbAccessType dbAccess;
-
-	private Map<String, Integer> indexedActions = new HashMap<String, Integer>();
 
 	/**
 	 * special case where we are to copy all columns as fields
@@ -85,25 +71,17 @@ public class Loop extends DbAction {
 	private boolean copyBackAllColumns;
 
 	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		ActionBlock actionBlock = new ActionBlock(this.actions,
+	protected Value delegate(ServiceContext ctx, DbDriver driver) {
+		BlockWorker actionBlock = new BlockWorker(this.actions,
 				this.indexedActions, ctx);
-		boolean toContinue = true;
 		if (this.dataSheetName != null) {
-			toContinue = this.loopOnSheet(actionBlock, driver, ctx);
-		} else if (this.executeOnCondition != null) {
-			toContinue = this.loopOnCondition(actionBlock, driver, ctx);
-		} else {
-			throw new ApplicationError("Loop action " + this.actionName
-					+ " has niether data sheet, nor condition.");
+			return this.loopOnSheet(actionBlock, driver, ctx);
 		}
-		if (toContinue) {
-			return 1;
+		if (this.executeOnCondition != null) {
+			return this.loopOnCondition(actionBlock, driver, ctx);
 		}
-		/*
-		 * since we have set this.messageNameOnFailure to _stop...
-		 */
-		return 0;
+		throw new ApplicationError("Loop action " + this.actionName
+				+ " has niether data sheet, nor condition.");
 	}
 
 	/**
@@ -113,7 +91,7 @@ public class Loop extends DbAction {
 	 * @param driver
 	 * @return true if normal completion. False if we encountered a STOP signal
 	 */
-	private boolean loopOnCondition(ActionBlock actionBlock, DbDriver driver,
+	private Value loopOnCondition(BlockWorker actionBlock, DbDriver driver,
 			ServiceContext ctx) {
 		/*
 		 * loop with a condition
@@ -123,14 +101,14 @@ public class Loop extends DbAction {
 			while (value.toBoolean()) {
 				JumpSignal signal = actionBlock.execute(driver);
 				if (signal == JumpSignal.STOP) {
-					return false;
+					return Value.VALUE_FALSE;
 				}
 				if (signal == JumpSignal.BREAK) {
-					return true;
+					return Value.VALUE_TRUE;
 				}
 				value = this.executeOnCondition.evaluate(ctx);
 			}
-			return true;
+			return Value.VALUE_TRUE;
 		} catch (Exception e) {
 			throw new ApplicationError(e, "Error while evaluating "
 					+ this.executeOnCondition + " into a boolean value.");
@@ -144,16 +122,18 @@ public class Loop extends DbAction {
 	 * @param driver
 	 * @return true if normal completion. False if we encountered a STOP signal
 	 */
-	private boolean loopOnSheet(ActionBlock actionBlock, DbDriver driver,
+	private Value loopOnSheet(BlockWorker actionBlock, DbDriver driver,
 			ServiceContext ctx) {
 		DataSheet ds = ctx.getDataSheet(this.dataSheetName);
-		if(ds == null){
-			Tracer.trace("Data Sheet "+ this.dataSheetName + " not found in teh context. Loop action has no work.");
-			return true;
+		if (ds == null) {
+			Tracer.trace("Data Sheet " + this.dataSheetName
+					+ " not found in teh context. Loop action has no work.");
+			return Value.VALUE_TRUE;
 		}
-		if(ds.length() == 0){
-			Tracer.trace("Data Sheet "+ this.dataSheetName + " has no data. Loop action has no work.");
-			return true;
+		if (ds.length() == 0) {
+			Tracer.trace("Data Sheet " + this.dataSheetName
+					+ " has no data. Loop action has no work.");
+			return Value.VALUE_TRUE;
 		}
 		DataSheetIterator iterator = null;
 		try {
@@ -168,33 +148,33 @@ public class Loop extends DbAction {
 		 * are we to copy columns as fields?
 		 */
 		Value[] savedValues = null;
-		if(this.columnsToCopyAsFields != null){
+		if (this.columnsToCopyAsFields != null) {
 			savedValues = this.saveFields(ctx, ds);
 		}
-		boolean result = true;
+		Value result = Value.VALUE_TRUE;
 		int idx = 0;
 		while (iterator.moveToNextRow()) {
-			if(this.columnsToCopyAsFields != null){
+			if (this.columnsToCopyAsFields != null) {
 				this.copyToFields(ctx, ds, idx);
 			}
 
 			JumpSignal signal = actionBlock.execute(driver);
-			if(this.fieldsToCopyBackAsColumns != null){
+			if (this.fieldsToCopyBackAsColumns != null) {
 				this.copyToColumns(ctx, ds, idx);
 			}
 			if (signal == JumpSignal.STOP) {
 				iterator.cancelIteration();
-				result = false;
+				result = Value.VALUE_FALSE;
 				break;
 			}
 			if (signal == JumpSignal.BREAK) {
 				iterator.cancelIteration();
-				result = false;
+				result = Value.VALUE_FALSE;
 				break;
 			}
 			idx++;
 		}
-		if(savedValues != null){
+		if (savedValues != null) {
 			this.restoreFields(ctx, ds, savedValues);
 		}
 		return result;
@@ -204,18 +184,18 @@ public class Loop extends DbAction {
 	 * @param ctx
 	 */
 	private void copyToColumns(ServiceContext ctx, DataSheet ds, int idx) {
-		if(this.copyBackAllColumns){
+		if (this.copyBackAllColumns) {
 			/*
 			 * slightly optimized over getting individual columns..
 			 */
 			Value[] values = ds.getRow(idx);
 			int i = 0;
-			for(String fieldName : ds.getColumnNames()){
+			for (String fieldName : ds.getColumnNames()) {
 				values[i++] = ctx.getValue(fieldName);
 			}
 			return;
 		}
-		for(String fieldName : this.fieldsToCopyBackAsColumns){
+		for (String fieldName : this.fieldsToCopyBackAsColumns) {
 			ds.setColumnValue(fieldName, idx, ctx.getValue(fieldName));
 		}
 	}
@@ -223,19 +203,20 @@ public class Loop extends DbAction {
 	/**
 	 * @param ctx
 	 */
-	private void restoreFields(ServiceContext ctx, DataSheet ds, Value[] values) {
+	private void restoreFields(ServiceContext ctx, DataSheet ds,
+			Value[] values) {
 		int i = 0;
-		if(this.copyAllColumnsToFields){
-			for(String fieldName : ds.getColumnNames()){
+		if (this.copyAllColumnsToFields) {
+			for (String fieldName : ds.getColumnNames()) {
 				Value value = values[i++];
-				if(value != null){
+				if (value != null) {
 					ctx.setValue(fieldName, value);
 				}
 			}
-		}else{
-			for(String fieldName : this.columnsToCopyAsFields){
+		} else {
+			for (String fieldName : this.columnsToCopyAsFields) {
 				Value value = values[i++];
-				if(value != null){
+				if (value != null) {
 					ctx.setValue(fieldName, value);
 				}
 			}
@@ -246,18 +227,18 @@ public class Loop extends DbAction {
 	 * @param ctx
 	 */
 	private void copyToFields(ServiceContext ctx, DataSheet ds, int idx) {
-		if(this.copyAllColumnsToFields){
+		if (this.copyAllColumnsToFields) {
 			/*
 			 * slightly optimized over getting individual columns..
 			 */
 			Value[] values = ds.getRow(idx);
 			int i = 0;
-			for(String fieldName : ds.getColumnNames()){
+			for (String fieldName : ds.getColumnNames()) {
 				ctx.setValue(fieldName, values[i++]);
 			}
 			return;
 		}
-		for(String fieldName : this.columnsToCopyAsFields){
+		for (String fieldName : this.columnsToCopyAsFields) {
 			ctx.setValue(fieldName, ds.getColumnValue(fieldName, idx));
 		}
 	}
@@ -267,16 +248,16 @@ public class Loop extends DbAction {
 	 * @return
 	 */
 	private Value[] saveFields(ServiceContext ctx, DataSheet ds) {
-		if(this.copyAllColumnsToFields){
+		if (this.copyAllColumnsToFields) {
 			Value[] values = new Value[ds.width()];
 			int i = 0;
-			for(String fieldName : ds.getColumnNames()){
+			for (String fieldName : ds.getColumnNames()) {
 				values[i++] = ctx.getValue(fieldName);
 			}
 			return values;
 		}
 		Value[] values = new Value[this.columnsToCopyAsFields.length];
-		for(int i = 0; i < values.length; i++){
+		for (int i = 0; i < values.length; i++) {
 			values[i] = ctx.getValue(this.columnsToCopyAsFields[i]);
 		}
 		return values;
@@ -295,50 +276,17 @@ public class Loop extends DbAction {
 		 */
 		this.actionNameOnFailure = "_stop";
 
-		if(this.columnsToCopyAsFields != null){
-			if(this.columnsToCopyAsFields.length == 1 && this.columnsToCopyAsFields[0].equals("*")){
+		if (this.columnsToCopyAsFields != null) {
+			if (this.columnsToCopyAsFields.length == 1
+					&& this.columnsToCopyAsFields[0].equals("*")) {
 				this.copyAllColumnsToFields = true;
 			}
 		}
 
-		if(this.fieldsToCopyBackAsColumns != null){
-			if(this.fieldsToCopyBackAsColumns.length == 1 && this.fieldsToCopyBackAsColumns[0].equals("*")){
+		if (this.fieldsToCopyBackAsColumns != null) {
+			if (this.fieldsToCopyBackAsColumns.length == 1
+					&& this.fieldsToCopyBackAsColumns[0].equals("*")) {
 				this.copyBackAllColumns = true;
-			}
-		}
-		if (this.actions == null) {
-			throw new ApplicationError("Loop Action " + this.actionName
-					+ " is empty. No point in looping just like that :-) ");
-		}
-		int i = 0;
-		/*
-		 * this.dbAccess is set to propagate it upwards. Start with none.
-		 * upgrade it to READ_ONLY or READ_WRITE based on the demand by
-		 * sub-actions
-		 */
-		this.dbAccess = DbAccessType.NONE;
-		for (Action action : this.actions) {
-			action.getReady(i);
-			this.indexedActions.put(action.getName(), new Integer(i));
-			i++;
-			/*
-			 * see if we have to upgrade our access type
-			 */
-			if (this.dbAccess == DbAccessType.READ_WRITE) {
-				continue;
-			}
-			DbAccessType access = action.getDataAccessType();
-			if (access == null || access == DbAccessType.NONE) {
-				continue;
-			}
-			if (access == DbAccessType.READ_ONLY) {
-				this.dbAccess = access;
-			} else {
-				/*
-				 * anything other than none/read_only woudl mean read-write for
-				 * us
-				 */
-				this.dbAccess = DbAccessType.READ_WRITE;
 			}
 		}
 	}

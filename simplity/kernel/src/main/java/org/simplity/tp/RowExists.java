@@ -26,6 +26,7 @@ import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -35,7 +36,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class RowExists extends DbAction {
+public class RowExists extends Action {
 
 	/**
 	 * qualified record name
@@ -49,14 +50,14 @@ public class RowExists extends DbAction {
 	String fieldName;
 
 	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+	protected Value delegate(ServiceContext ctx, DbDriver driver) {
 		Record record = ComponentManager.getRecord(this.recordName);
 		boolean result = record.rowExistsForKey(ctx, this.fieldName, driver,
 				ctx.getUserId());
 		if(result){
-			return 1;
+			return Value.VALUE_TRUE;
 		}
-		return 0;
+		return Value.VALUE_FALSE;
 	}
 
 	@Override

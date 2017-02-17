@@ -21,6 +21,8 @@
  */
 package org.simplity.kernel.util;
 
+import java.io.File;
+import java.io.FilenameFilter;
 /*
  * Copyright (c) 2016 simplity.org
  *
@@ -118,8 +120,8 @@ public class TextUtil {
 		StringBuilder buffer = new StringBuilder(parts[0].toLowerCase());
 		for (int i = 1; i < parts.length; i++) {
 			String part = parts[i];
-			buffer.append(part.charAt(0)).append(
-					part.substring(1).toLowerCase());
+			buffer.append(part.charAt(0))
+					.append(part.substring(1).toLowerCase());
 		}
 		return buffer.toString();
 	}
@@ -213,8 +215,8 @@ public class TextUtil {
 		} else if (type.equals(Date.class)) {
 			Date date = DateUtil.parseDate(value);
 			if (date == null) {
-				throw new XmlParseException(value
-						+ " is not in yyyy-mm-dd format");
+				throw new XmlParseException(
+						value + " is not in yyyy-mm-dd format");
 			}
 			return date;
 		} else if (type.equals(Pattern.class)) {
@@ -496,4 +498,34 @@ public class TextUtil {
 		}
 		return sbf.toString();
 	}
+
+	/**
+	 * get a filename filter based on the provided regex
+	 *
+	 * @param pattern
+	 * @return a fileNameFIlter that can be used to filter file names from a
+	 *         folder
+	 */
+	public static FilenameFilter getFIleNameFilter(String pattern) {
+		return new MyFileFilter(pattern);
+	}
+}
+
+class MyFileFilter implements FilenameFilter {
+	private final Pattern pattern;
+
+	MyFileFilter(String filePattern) {
+		this.pattern = Pattern.compile(filePattern);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
+	 */
+	@Override
+	public boolean accept(File dir, String fileName) {
+		return this.pattern.matcher(fileName).matches();
+	}
+
 }

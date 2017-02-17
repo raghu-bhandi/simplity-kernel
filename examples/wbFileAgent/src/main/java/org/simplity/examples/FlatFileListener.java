@@ -34,13 +34,12 @@ import javax.servlet.ServletContextListener;
  */
 public class FlatFileListener implements ServletContextListener {
 	
-	private static final String IN_FOLDER_NAME = "d:/temp/test/in/";
-	private static final long NAP_TIME = 60000;
+	private static final long NAP_TIME = 6000;
 	
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		try {
-			FlatFileAgent.start(IN_FOLDER_NAME, NAP_TIME);
+			FlatFileAgent.start(null, NAP_TIME);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

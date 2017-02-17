@@ -24,6 +24,7 @@ package  org.simplity.examples;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -34,6 +35,7 @@ import java.nio.channels.OverlappingFileLockException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import org.simplity.kernel.Application;
 import org.simplity.kernel.FormattedMessage;
@@ -55,7 +57,7 @@ public class FlatFileAgent implements Runnable {
 	/**
 	 * hard coded parameters for the sake of demo.
 	 */
-	private static final String IN_FOLDER_NAME = "d:/temp/test/in/";
+	private static String IN_FOLDER_NAME = "";
 
 	/**
 	 * service is executed as if this user id is authenticated. In case any of
@@ -139,6 +141,15 @@ public class FlatFileAgent implements Runnable {
 	 */
 	public static synchronized void start(String inFolderName, long interval)
 			throws Exception {
+		Properties properties = new Properties();
+		try {
+			properties.load(FlatFileAgent.class.getClassLoader().getResourceAsStream("fileProperties.properties"));
+			IN_FOLDER_NAME = properties.getProperty("flatFilePath");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		if (myInstance != null) {
 			myInstance.shutDownPlease();
 		}

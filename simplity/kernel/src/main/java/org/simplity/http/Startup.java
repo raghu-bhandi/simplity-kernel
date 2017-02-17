@@ -67,24 +67,33 @@ public class Startup extends HttpServlet {
 	public static void bootStrap(ServletContext ctx) {
 		FileManager.setContext(ctx);
 		String folder = ctx.getInitParameter(COMP_FOLDER);
+		boolean allOk = false;
 		if (folder == null) {
+			/*
+			 * comp folder not set in web.xml. Let us look for that in context
+			 */
 			folder = DEFAULT_FOLDER;
 			try {
 				folder = ctx.getResource(folder).getPath();
+				Tracer.trace("Root folder is set using recource to " + folder);
+				allOk = true;
 			} catch (MalformedURLException e) {
-				e.printStackTrace();
+				Tracer.trace(e, "Error while getting root folder path from servlet context");
+			}
+		}else{
+			Tracer.trace("Root folder is set to " + folder + " as a web parameter.");
+		}
+		if(allOk){
+			try {
+				allOk = Application.bootStrap(folder);
+			} catch (Exception e) {
+				Tracer.trace(e,
+						"Unable to bootstrap Application using resource folder "
+								+ folder + ". Application will not work.");
 			}
 		}
 		Tracer.trace("Going to bootstrap Application with comp folder at "
 				+ folder);
-		boolean allOk = false;
-		try {
-			allOk = Application.bootStrap(folder);
-		} catch (Exception e) {
-			Tracer.trace(e,
-					"Unable to bootstrap Application using resource folder "
-							+ folder + ". Application will not work.");
-		}
 		Serve.updateStartupStatus(allOk);
 	}
 }

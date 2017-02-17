@@ -155,6 +155,11 @@ public class Service implements ServiceInterface {
 	 * should this be executed in the background ALWAYS?.
 	 */
 	boolean executeInBackground;
+
+	/**
+	 * if this is to be run in the background, should it be run every so many seconds?
+	 */
+	int backgroundRunInterval;
 	/**
 	 * can the response from this service be cached? If so what are the input
 	 * fields that this response depends on? provide comma separated list of
@@ -251,7 +256,7 @@ public class Service implements ServiceInterface {
 			 * all set to start with actions
 			 */
 			try {
-				ActionBlock worker = new ActionBlock(this.actions,
+				BlockWorker worker = new BlockWorker(this.actions,
 						this.indexedActions, ctx);
 				if (this.dbAccessType == DbAccessType.NONE) {
 					worker.act(null);
@@ -401,14 +406,14 @@ public class Service implements ServiceInterface {
 	}
 
 	@Override
-	public int executeAsAction(ServiceContext ctx, DbDriver driver) {
-		ActionBlock worker = new ActionBlock(this.actions, this.indexedActions,
+	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
+		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions,
 				ctx);
 		boolean result = worker.workWithDriver(driver);
 		if (result) {
-			return 1;
+			return Value.VALUE_TRUE;
 		}
-		return 0;
+		return Value.VALUE_FALSE;
 	}
 
 	@Override
@@ -1065,5 +1070,13 @@ public class Service implements ServiceInterface {
 		Action[] act = { action };
 		service.actions = act;
 		return service;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.service.ServiceInterface#getBackgroundRunInterval()
+	 */
+	@Override
+	public int getBackgroundRunInterval() {
+		return this.backgroundRunInterval;
 	}
 }

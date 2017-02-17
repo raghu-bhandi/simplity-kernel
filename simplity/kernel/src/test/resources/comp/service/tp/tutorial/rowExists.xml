@@ -14,7 +14,7 @@
 		<setValue fieldName="employeeNumber" fieldValue="1056"></setValue>
 		<rowExists recordName="birt.Employees" actionName="rowExistsAction"
 			description="Check if row exists"  fieldName="employeeNumber" />
-		<setValue fieldName="testValue" fieldValue="1234" executeOnCondition="rowExistsActionResult &gt; 0"></setValue>
+		<setValue fieldName="testValue" fieldValue="1234" executeOnCondition="rowExistsActionResult"></setValue>
 	</actions>
 	<outputData fieldNames="testValue"/>
 	<!-- <outputData fieldNames="txt">

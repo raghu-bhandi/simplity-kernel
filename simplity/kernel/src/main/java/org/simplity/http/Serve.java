@@ -66,7 +66,7 @@ public class Serve extends HttpServlet {
 			Tracer.trace("Web Agent is given a green signal by Startup to start serving.");
 		} else {
 			startUpFailed = true;
-			Tracer.trace("Web agent Serve will not be servicing on this server as Startup reported a failure on boot-strap.");
+			Tracer.trace("Web agent Serve will not be available on this server as Startup reported a failure on boot-strap.");
 		}
 	}
 
@@ -94,6 +94,8 @@ public class Serve extends HttpServlet {
 			HttpAgent.serve(req, resp);
 		} catch (Exception e) {
 			String msg = "We have an internal error. ";
+			String trace = Tracer.stopAccumulation();
+			Tracer.trace(trace);
 			Tracer.trace(e, msg);
 			this.reportError(resp, msg + e.getMessage());
 		}

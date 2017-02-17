@@ -23,6 +23,7 @@
 package org.simplity.tp;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.MessageType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
@@ -60,8 +61,46 @@ public abstract class Action {
 	 */
 	protected String executeIfNoRowsInSheet;
 
+	/**
+	 * if the sql succeeds in extracting at least one row, or affecting one
+	 * update, do we need to put a message?
+	 */
+	String successMessageName;
+	/**
+	 * comma separated list of parameters, to be used to populate success
+	 * message
+	 */
+	String[] successMessageParameters;
+
+	/**
+	 * if the sql fails to extract/update even a single row, should we flash any
+	 * message?
+	 */
+	String failureMessageName;
+	/**
+	 * parameters to be used to format failure message
+	 */
+	String[] failureMessageParameters;
+
+	/**
+	 * should we stop this service in case the message added is of type error.
+	 */
+	boolean stopIfMessageTypeIsError;
+
+	/**
+	 * name of action to navigate to within this block, (_stop, _continue and
+	 * _break are special commands, as in jumpTo)
+	 */
+	String actionNameOnSuccess;
+	/**
+	 * name of action to navigate to within this block, (_stop, _continue and
+	 * _break are special commands, as in jumpTo)
+	 */
+	String actionNameOnFailure;
+
 	private int serviceIdx;
 
+	private boolean requiresPostProcessing;
 	/**
 	 * main method called by service.
 	 *
@@ -72,20 +111,6 @@ public abstract class Action {
 	 *         actions. null implies no such feature
 	 */
 	public Value act(ServiceContext ctx, DbDriver driver) {
-		if(this.toContinue(ctx) == false){
-			return null;
-		}
-		return this.doAct(ctx);
-	}
-
-	/**
-	 * evaluate pre-conditions and determine whether we should go ahead with
-	 * this action.
-	 *
-	 * @param ctx
-	 * @return
-	 */
-	protected boolean toContinue(ServiceContext ctx) {
 		/*
 		 * is this a conditional step? i.e. to be executed only if the condition
 		 * is met
@@ -94,7 +119,7 @@ public abstract class Action {
 		if (this.executeOnCondition != null) {
 			try {
 				if (!this.executeOnCondition.evaluate(ctx).toBoolean()) {
-					return false;
+					return null;
 				}
 			} catch (Exception e) {
 				throw new ApplicationError("Action " + this.actionName
@@ -105,24 +130,67 @@ public abstract class Action {
 		}
 		if (this.executeIfNoRowsInSheet != null
 				&& ctx.nbrRowsInSheet(this.executeIfNoRowsInSheet) > 0) {
-			return false;
+			return null;
 		}
 		if (this.executeIfRowsInSheet != null
 				&& ctx.nbrRowsInSheet(this.executeIfRowsInSheet) == 0) {
-			return false;
+			return null;
 		}
-		return true;
+		Value result = this.delegate(ctx, driver);
+		if(this.requiresPostProcessing == false){
+			return result;
+		}
+		boolean ok = Value.intepretAsBoolean(result);
+		if(ok){
+			if (this.actionNameOnSuccess != null) {
+				return Value.newTextValue(this.actionNameOnSuccess);
+			}
+			if (this.successMessageName != null) {
+				MessageType msgType = ctx.addMessage(this.successMessageName,
+						this.successMessageParameters);
+				if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
+					return Service.STOP_VALUE;
+				}
+			}
+			return result;
+		}
+		if (this.actionNameOnFailure != null) {
+			return Value.newTextValue(this.actionNameOnFailure);
+		}
+		if (this.failureMessageName != null) {
+			MessageType msgType = ctx.addMessage(this.failureMessageName,
+					this.failureMessageParameters);
+			if (msgType == MessageType.ERROR
+					&& this.stopIfMessageTypeIsError) {
+				return Service.STOP_VALUE;
+			}
+		}
+		return result;
 	}
-
 	/**
-	 * main method of the concrete type.
+	 * This is the intermediate method that can be implemented by actions that
+	 * actually use db driver. We provide a default delegate that does not use
+	 * driver
 	 *
 	 * @param ctx
 	 * @param driver
-	 * @return an indicator of what the action did. null means it has detected
-	 *         an error, and we have to stop and roll-back this service
+	 * @return value from action
 	 */
-	protected abstract Value doAct(ServiceContext ctx);
+	protected Value delegate(ServiceContext ctx, DbDriver driver) {
+		return this.doAct(ctx);
+	}
+
+	/**
+	 * Method to be implemented by actions that do not use a driver.
+	 * We provide it as a dummy, rather than making it abstract to provide
+	 * concrete actions to wither have a method with driver or without
+	 *
+	 * @param ctx
+	 * @return
+	 */
+	protected Value doAct(ServiceContext ctx) {
+		return Value.VALUE_TRUE;
+	}
 
 	/***
 	 * what type of data access does this action require?
@@ -152,6 +220,7 @@ public abstract class Action {
 		if (this.actionName == null) {
 			this.actionName = ACTION_NAME_PREFIX + this.serviceIdx;
 		}
+		this.requiresPostProcessing = this.actionNameOnFailure != null || this.actionNameOnSuccess != null || this.failureMessageName != null || this.successMessageName != null;
 
 	}
 

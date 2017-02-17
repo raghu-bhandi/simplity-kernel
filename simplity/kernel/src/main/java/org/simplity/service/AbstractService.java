@@ -27,6 +27,7 @@ import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
+import org.simplity.kernel.value.Value;
 
 /**
  * @author simplity.org
@@ -94,7 +95,7 @@ public abstract class AbstractService implements ServiceInterface {
 	 * .ServiceContext, org.simplity.kernel.db.DbDriver)
 	 */
 	@Override
-	public int executeAsAction(ServiceContext ctx, DbDriver driver) {
+	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
 		throw new ApplicationError(this.getSimpleName()
 				+ " is not designed to be run as an sub-service action.");
 	}
@@ -127,5 +128,13 @@ public abstract class AbstractService implements ServiceInterface {
 	@Override
 	public DbAccessType getDataAccessType() {
 		return DbAccessType.NONE;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.service.ServiceInterface#getBackgroundRunInterval()
+	 */
+	@Override
+	public int getBackgroundRunInterval() {
+		return 0;
 	}
 }

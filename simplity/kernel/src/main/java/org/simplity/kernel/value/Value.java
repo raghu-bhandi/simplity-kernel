@@ -354,7 +354,8 @@ public abstract class Value implements Serializable {
 			return Value.UNKNOWN_TIMESTAMP_VALUE;
 		default:
 			throw new ApplicationError(
-					"Value class does not take care of value type " + valueType);
+					"Value class does not take care of value type "
+							+ valueType);
 		}
 	}
 
@@ -643,7 +644,8 @@ public abstract class Value implements Serializable {
 	 */
 	public static Value parseObject(Object object) {
 		if (object == null) {
-			Tracer.trace("Parse Object received null. Returning empty text value.");
+			Tracer.trace(
+					"Parse Object received null. Returning empty text value.");
 			return VALUE_EMPTY;
 		}
 		if (object instanceof Boolean) {
@@ -674,5 +676,30 @@ public abstract class Value implements Serializable {
 			return newTextValue(val);
 		}
 		return newDateValue(date);
+	}
+
+	/**
+	 * interpret the value as a boolean, irrespective of its value type
+	 *
+	 * @param value
+	 * @return true if boolean-true, positive-number, date, or non-empty content
+	 */
+	public static boolean intepretAsBoolean(Value value) {
+		if (Value.isNull(value)) {
+			return false;
+		}
+
+		switch (value.getValueType()) {
+		case BOOLEAN:
+			return ((BooleanValue) value).getBoolean();
+		case INTEGER:
+			return ((IntegerValue) value).getLong() > 0;
+		case DECIMAL:
+			return ((DecimalValue) value).getDouble() > 0;
+		case DATE:
+			return true;
+		default:
+			return value.toString().length() > 0;
+		}
 	}
 }
