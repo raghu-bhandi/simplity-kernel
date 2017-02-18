@@ -48,11 +48,11 @@ import org.simplity.service.ServiceContext;
  */
 
 public class JmsSend extends Action {
-	String destination;
-	String policy;
-	String message;
-	String requestService;
-	String messageID;
+	protected String destination;
+	protected String policy;
+	protected String message;
+	protected String requestService;
+	protected String messageID;
 
 	private QueueSender queueSender = null;
 	private QueueSession session = null;

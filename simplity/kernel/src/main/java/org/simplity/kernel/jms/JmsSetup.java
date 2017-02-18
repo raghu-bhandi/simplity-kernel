@@ -3,18 +3,18 @@ package org.simplity.kernel.jms;
 import org.simplity.kernel.ApplicationError;
 
 public class JmsSetup {
-	String jmss;
-	String destinationName;
-	String connectionFactory;
-	String acknowledgeMode;
-	String transacted;
-	String persistent;
-	String priority;
-	String timeToLive;
-	String initialContext;
-	String providerUrl;
+	protected String jmss;
+	protected String destinationName;
+	protected String connectionFactory;
+	protected String acknowledgeMode;
+	protected String transacted;
+	protected String persistent;
+	protected String priority;
+	protected String timeToLive;
+	protected String initialContext;
+	protected String providerUrl;
 
-	protected JmsSetup() {
+	public JmsSetup() {
 	}
 
 	void getReady() {

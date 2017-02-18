@@ -44,8 +44,8 @@ import org.simplity.service.ServiceContext;
  */
 
 public class JmsReceive extends Action {
-	String destination;
-	String policy;
+	protected String destination;
+	protected String policy;
 
 	private QueueReceiver queueReceiver;
 	private QueueSession session = null;
