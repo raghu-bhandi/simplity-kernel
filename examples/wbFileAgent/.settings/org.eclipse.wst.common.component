@@ -5,6 +5,9 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/java"/>
+        <dependent-module archiveName="kernel-1.2-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/kernel/kernel">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
         <property name="context-root" value="wbFileAgent"/>
         <property name="java-output-path" value="/wbFileAgent/target/classes"/>
     </wb-module>
