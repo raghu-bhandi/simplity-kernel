@@ -6,15 +6,13 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:dt="http://www.simplity.org/custom"
 >
-
 	<xs:import namespace="http://www.simplity.org/custom"></xs:import>
-	<!-- data types are organized in one or more files, but not one per file. 
-		hence we have a wrapper element <dataTypes> with another wrapper element 
+	<!-- data types are organized in one or more files, but not one per file.
+		hence we have a wrapper element <dataTypes> with another wrapper element
 		called <dataTypes> for the collection. -->
 	<xs:element name="dataTypes">
 		<xs:annotation>
-			<xs:documentation>
-				Define data types that your project require, in
+			<xs:documentation> Define data types that your project require, in
 				addition to the ones that are built-in
 			</xs:documentation>
 		</xs:annotation>
@@ -74,8 +72,7 @@
 			use="required"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					Name is to be unique within a project. text20 is
+				<xs:documentation> Name is to be unique within a project. text20 is
 					not a good name. shortDescription is a good name
 				</xs:documentation>
 			</xs:annotation>
@@ -86,8 +83,7 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					What is the message to be used to inform the user
+				<xs:documentation> What is the message to be used to inform the user
 					that the field is in error. While defining this message in
 					message.xml note that @1 is for field name, while @2 is for value.
 				</xs:documentation>
@@ -99,18 +95,15 @@
 			type="xs:NCName"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					name of function that is used by the client-side
+				<xs:documentation> name of function that is used by the client-side
 					script for formatting this value
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-
 		<xs:attribute
 			name="description"
 			type="xs:string"
 			use="optional" />
-
 		<xs:attribute
 			name="sqlType"
 			type="xs:string"
@@ -132,7 +125,6 @@
 					first,second for text type
 				</xs:documentation>
 			</xs:annotation>
-
 		</xs:attribute>
 	</xs:attributeGroup>
 	<xs:complexType name="Ttype">
@@ -147,7 +139,6 @@
 					specify. As per Java conventions
 				</xs:documentation>
 			</xs:annotation>
-
 		</xs:attribute>
 		<xs:attribute
 			name="minLength"
@@ -160,11 +151,9 @@
 		>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="Ctype">
 		<xs:attributeGroup ref="commonAttributes" />
 	</xs:complexType>
-
 	<xs:complexType name="Ntype">
 		<xs:attributeGroup ref="commonAttributes" />
 		<xs:attribute
@@ -187,7 +176,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="Dtype">
 		<xs:attributeGroup ref="commonAttributes" />
 		<xs:attribute
@@ -204,23 +192,20 @@
 			type="booleanType"
 			use="optional" />
 	</xs:complexType>
-
 	<xs:complexType name="Btype">
 		<xs:attributeGroup ref="commonAttributes" />
 	</xs:complexType>
-
 	<xs:simpleType name="booleanType">
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="true" />
 			<xs:enumeration value="false" />
 		</xs:restriction>
 	</xs:simpleType>
-
 	<!-- messages -->
-	<!-- Messages are organized in one or more files as collection. We have 
-		designed Messages as an element with a wrapper element <messages> that contains 
+	<!-- Messages are organized in one or more files as collection. We have
+		designed Messages as an element with a wrapper element <messages> that 
+		contains
 		<message> elements -->
-
 	<xs:element name="messages">
 		<xs:complexType>
 			<xs:sequence
@@ -259,8 +244,7 @@
 				use="required" />
 		</xs:complexType>
 	</xs:element>
-
-	<!-- record is generally reverse engineered from db for tables but views 
+	<!-- record is generally reverse engineered from db for tables but views
 		may have to be entered manually. In any case, let us have the schema. -->
 	<xs:element name="record">
 		<xs:complexType>
@@ -404,7 +388,6 @@
 											</xs:documentation>
 										</xs:annotation>
 									</xs:attribute>
-
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
@@ -515,10 +498,9 @@
 					<xs:documentation>If this record is to be used for listing
 						key-value pairs, and the table contains list of values across
 						groups, like states for all countries, then you need to specify
-						the
-						field name to be used based on which rows are to be subset. For
-						example it would be country-code to get list of states for a given
-						country
+						the field name to be used based on which rows are to be subset.
+						For example it would be country-code to get list of states for a
+						given country
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -536,8 +518,7 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>
-						First field is typically displayed and used for
+					<xs:documentation> First field is typically displayed and used for
 						matching while second one is the key/internal value
 					</xs:documentation>
 				</xs:annotation>
@@ -548,8 +529,7 @@
 				use="optional" />
 			<xs:attribute name="expectedNbrRows">
 				<xs:annotation>
-					<xs:documentation>
-						This is not the upper limit, but the number for
+					<xs:documentation> This is not the upper limit, but the number for
 						which we have to tune the design for. Customers tend to be
 						defensive, and give large numbers, but that may result in
 						sub-optimal design. It is important to articulate that this number
@@ -618,17 +598,14 @@
 				<xs:annotation>
 					<xs:documentation>If you deal with input or output text/file that
 						has data as rows with fixed width for fields, you can model that
-						with this record and specify width for each field.
-						Simplity can
-						manage to parse text into data sheet as well as output
-						datasheet
+						with this record and specify width for each field. Simplity can
+						manage to parse text into data sheet as well as output datasheet
 						into fixed-length text rows
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<!-- Sql. -->
 	<xs:element name="sql">
 		<xs:complexType>
@@ -669,7 +646,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<!-- Stored procedure -->
 	<xs:element name="storedProcedure">
 		<xs:complexType>
@@ -736,7 +712,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:attributeGroup name="sqlAttributes">
 		<xs:attribute
 			name="name"
@@ -755,7 +730,6 @@
 			type="xs:string"
 			use="optional" />
 	</xs:attributeGroup>
-
 	<xs:simpleType name="sqlType">
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="singleSelect" />
@@ -791,7 +765,6 @@
 			type="xs:string"
 			use="optional" />
 	</xs:complexType>
-
 	<xs:complexType name="procedureParameter">
 		<xs:attribute
 			name="name"
@@ -862,7 +835,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:simpleType name="inOutType">
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="input" />
@@ -870,11 +842,7 @@
 			<xs:enumeration value="inOut" />
 		</xs:restriction>
 	</xs:simpleType>
-
-
-
 	<!-- ********************** service *********** -->
-
 	<xs:element name="service">
 		<xs:complexType>
 			<xs:all>
@@ -974,8 +942,7 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>
-						If input is exactly the same as that of another
+					<xs:documentation> If input is exactly the same as that of another
 						service, use this feature. Note that the referred service MUST
 						have input records, and can not refer to another service
 					</xs:documentation>
@@ -987,8 +954,7 @@
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>
-						If output is exactly the same as that of another
+					<xs:documentation> If output is exactly the same as that of another
 						service, use this feature. Note that the referred service MUST
 						have output records, and can not refer to another service
 					</xs:documentation>
@@ -1038,15 +1004,12 @@
 				<xs:annotation>
 					<xs:documentation>can the response from this service be cached? If
 						so what are the input fields that this response depends on?
-						provide
-						comma separated list of field names. Null (default) implies
-						that
-						this service can not be cashed.Empty string implies that the
-						response does not depend on the input at all. If it is dependent
-						on
-						userId, then "_userId" must be the first field name. A cache
-						manager can keep the response from this service and re-use it so
-						long as the input values for these fields are same.
+						provide comma separated list of field names. Null (default)
+						implies that this service can not be cashed.Empty string implies
+						that the response does not depend on the input at all. If it is
+						dependent on userId, then "_userId" must be the first field name.
+						A cache manager can keep the response from this service and re-use
+						it so long as the input values for these fields are same.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -1093,7 +1056,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="outputData">
 		<xs:choice
 			minOccurs="0"
@@ -1152,7 +1114,6 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-
 		<xs:attribute
 			name="sessionFields"
 			type="xs:string"
@@ -1181,9 +1142,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
-
-
 	<xs:complexType name="inputRecords">
 		<xs:sequence
 			minOccurs="1"
@@ -1227,7 +1185,6 @@
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
-
 					<xs:attribute
 						name="saveActionExpected"
 						type="booleanType"
@@ -1297,8 +1254,6 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
-
 	<xs:complexType name="inputFields">
 		<xs:sequence
 			minOccurs="0"
@@ -1333,8 +1288,7 @@
 					>
 						<xs:annotation>
 							<xs:documentation>Values for an array can be input either as
-								array
-								or a comma separated field
+								array or a comma separated field
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -1342,7 +1296,6 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:complexType name="outputRecords">
 		<xs:sequence
 			minOccurs="1"
@@ -1353,7 +1306,6 @@
 				minOccurs="1"
 				maxOccurs="unbounded"
 			>
-
 				<xs:complexType>
 					<xs:attribute
 						name="recordName"
@@ -1424,12 +1376,9 @@
 						<xs:annotation>
 							<xs:documentation>comma separated names of arrays to be output. A
 								data sheet with a single column is expected in the service
-								context
-								as value. If sheet is not found, but a value is found in
-								fields
-								collection, then we send an array with just one element of
-								that
-								value.
+								context as value. If sheet is not found, but a value is found in
+								fields collection, then we send an array with just one element
+								of that value.
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -1444,11 +1393,9 @@
 						</xs:annotation>
 					</xs:attribute>
 				</xs:complexType>
-
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:complexType name="actions">
 		<xs:choice
 			minOccurs="1"
@@ -1457,7 +1404,6 @@
 			<xs:group ref="allActions" />
 		</xs:choice>
 	</xs:complexType>
-
 	<xs:attributeGroup name="actionAttributes">
 		<xs:attribute
 			name="actionName"
@@ -1494,7 +1440,6 @@
 			type="xs:string"
 			use="optional" />
 	</xs:attributeGroup>
-
 	<xs:attributeGroup name="dbActionAttributes">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1528,10 +1473,8 @@
 		>
 			<xs:annotation>
 				<xs:documentation>In case the message is parameterized, provide
-					comma
-					separated list of values. Value starting with $ is assumed to
-					be a
-					fieldName to get value at run time.
+					comma separated list of values. Value starting with $ is assumed to
+					be a fieldName to get value at run time.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1542,10 +1485,8 @@
 		>
 			<xs:annotation>
 				<xs:documentation>In case the message is parameterized, provide
-					comma
-					separated list of values. Value starting with $ is assumed to
-					be a
-					fieldName to get value at run time.
+					comma separated list of values. Value starting with $ is assumed to
+					be a fieldName to get value at run time.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1562,7 +1503,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:attributeGroup>
-
 	<xs:complexType name="addColumn">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1601,10 +1541,9 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					if the value is going to be the same for all rows,
-					use this feature. Just specify the value if it is constant. In case
-					it is a field in the context, specify $fieldName.
+				<xs:documentation> if the value is going to be the same for all
+					rows, use this feature. Just specify the value if it is constant.
+					In case it is a field in the context, specify $fieldName.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1621,7 +1560,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="addMessage">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1660,7 +1598,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="copyRows">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1688,7 +1625,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="copyUserId">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1702,7 +1638,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="createSheet">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1723,8 +1658,7 @@
 			use="required"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					Of the form
+				<xs:documentation> Of the form
 					header1,header2...;val11,val12,val13...;val21,val22,val23.... rows
 					are separated by semicolon(;)and cells are separated by comma(,)
 					first row is header. refer to fieldValue attribute of setValue for
@@ -1739,15 +1673,12 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					use either a constant, or a $fieldName as value
-					of
-					the field. If you use this, you should not specify expression.
+				<xs:documentation> use either a constant, or a $fieldName as value
+					of the field. If you use this, you should not specify expression.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="executeSp">
 		<xs:attributeGroup ref="dbActionAttributes" />
 		<xs:attribute
@@ -1800,7 +1731,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="executeSql">
 		<xs:attributeGroup ref="dbActionAttributes" />
 		<xs:attribute
@@ -1823,9 +1753,7 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-
 	</xs:complexType>
-
 	<xs:complexType name="filter">
 		<xs:sequence>
 			<xs:element
@@ -1865,7 +1793,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="httpClient">
 		<xs:all>
 			<xs:element
@@ -2003,6 +1930,40 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+	<xs:complexType name="jmsSend">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="destination"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="policy"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="message"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="requestService"
+			type="xs:string"
+			use="optional" />
+		<xs:attribute
+			name="messageID"
+			type="xs:string"
+			use="optional" />
+	</xs:complexType>
+	<xs:complexType name="jmsReceive">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="destination"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="policy"
+			type="xs:string"
+			use="required" />
+	</xs:complexType>
 
 	<xs:complexType name="jumpTo">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -2018,7 +1979,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="log">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2033,7 +1993,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="keyValueList">
 		<xs:attributeGroup ref="dbActionAttributes" />
 		<xs:attribute
@@ -2045,15 +2004,13 @@
 			type="xs:NCName"
 			use="optional" />
 	</xs:complexType>
-
 	<xs:complexType name="ldapAuth">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
 			name="providerUrl"
 			type="xs:string"
 			use="required" />
-	</xs:complexType>	
-
+	</xs:complexType>
 	<xs:complexType name="logic">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2061,7 +2018,6 @@
 			type="xs:string"
 			use="required" />
 	</xs:complexType>
-
 	<xs:complexType name="loop">
 		<xs:sequence
 			minOccurs="1"
@@ -2119,7 +2075,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="read">
 		<xs:sequence>
 			<xs:element
@@ -2155,7 +2110,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="readChildren">
 		<xs:attributeGroup ref="dbActionAttributes" />
 		<xs:attribute
@@ -2171,7 +2125,6 @@
 			type="xs:NCName"
 			use="optional" />
 	</xs:complexType>
-
 	<xs:complexType name="readWithSql">
 		<xs:sequence>
 			<xs:element
@@ -2207,7 +2160,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="renameSheet">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2219,7 +2171,6 @@
 			type="xs:string"
 			use="required" />
 	</xs:complexType>
-
 	<xs:complexType name="replaceAttachment">
 		<xs:attributeGroup ref="dbActionAttributes" />
 		<xs:attribute
@@ -2241,7 +2192,6 @@
 			type="xs:string"
 			use="required" />
 	</xs:complexType>
-
 	<xs:complexType name="rowExists">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2265,7 +2215,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="save">
 		<xs:sequence>
 			<xs:element
@@ -2314,7 +2263,25 @@
 			</xs:simpleType>
 		</xs:attribute>
 	</xs:complexType>
-
+	<xs:complexType name="smtpMail">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="fromId"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="toIds"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="subject"
+			type="xs:string"
+			use="required" />
+		<xs:attribute
+			name="content"
+			type="xs:string"
+			use="required" />
+	</xs:complexType>
 	<xs:complexType name="setValue">
 		<xs:all
 			minOccurs="0"
@@ -2322,8 +2289,7 @@
 		>
 			<xs:element name="expression">
 				<xs:annotation>
-					<xs:documentation>
-						Use CDATA section if your expression is complex,
+					<xs:documentation> Use CDATA section if your expression is complex,
 						and is confusing with xml escaping for quotes etc..
 					</xs:documentation>
 				</xs:annotation>
@@ -2340,12 +2306,9 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					Note that you have to xml escape double quote and
-					less-than,
-					greater-than etc.. If this is confusing,use expression
-					element
-					instead with CDATA section.
+				<xs:documentation> Note that you have to xml escape double quote and
+					less-than, greater-than etc.. If this is confusing,use expression
+					element instead with CDATA section.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2355,15 +2318,12 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					use either a constant, or a $fieldName as value of
-					the field. If you use this, you should not specify expression.
+				<xs:documentation> use either a constant, or a $fieldName as value
+					of the field. If you use this, you should not specify expression.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
-
 	<xs:complexType name="removeValue">
 		<xs:all
 			minOccurs="0"
@@ -2376,9 +2336,6 @@
 			type="xs:string"
 			use="required" />
 	</xs:complexType>
-
-
-
 	<xs:complexType name="subService">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2391,7 +2348,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="suggest">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2428,8 +2384,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
-
 	<xs:complexType name="synchronizer">
 		<xs:sequence>
 			<xs:element
@@ -2450,7 +2404,6 @@
 		</xs:sequence>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
-
 	<xs:element name="fileProcessor">
 		<xs:complexType>
 			<xs:attribute
@@ -2533,17 +2486,14 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:complexType name="restClient">
 		<xs:attributeGroup ref="actionAttributes" />
-
 		<xs:attribute
 			name="restMethod"
 			use="required"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					Field to filter on. defaults to what is specified
+				<xs:documentation> Field to filter on. defaults to what is specified
 					in record. default is to match anywhere. If you want to match
 					starting only, then a special field named _matchStarting can be set
 					to true.
@@ -2552,7 +2502,6 @@
 			<xs:simpleType>
 				<xs:restriction base="xs:string">
 					<xs:enumeration value="GET"></xs:enumeration>
-
 				</xs:restriction>
 			</xs:simpleType>
 		</xs:attribute>
@@ -2600,8 +2549,7 @@
 			use="required"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					Name of the output data sheet. If not specified,
+				<xs:documentation> Name of the output data sheet. If not specified,
 					it defaults to the name as specified in record.
 				</xs:documentation>
 			</xs:annotation>
@@ -2611,7 +2559,6 @@
 			type="xs:string"
 		></xs:attribute>
 	</xs:complexType>
-
 	<xs:simpleType name="valueType">
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="text" />
@@ -2621,7 +2568,6 @@
 			<xs:enumeration value="date" />
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:complexType name="relatedRecords">
 		<xs:annotation>
 			<xs:documentation>Typically child tables that are read/saved along
@@ -2660,8 +2606,7 @@
 						use="optional"
 					>
 						<xs:annotation>
-							<xs:documentation>
-								if the child rows are not referred any where
+							<xs:documentation> if the child rows are not referred any where
 								else, it is simpler at times to just delete all existing rows,
 								and insert new ones. Use this flag for such an operation. Note
 								that save action at the rows are ignored, and all rows are
@@ -2673,7 +2618,6 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:simpleType name="messageType">
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="info" />
@@ -2682,7 +2626,6 @@
 			<xs:enumeration value="success" />
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:element name="parameter">
 		<xs:complexType>
 			<xs:attribute
@@ -2695,7 +2638,6 @@
 				use="required" />
 		</xs:complexType>
 	</xs:element>
-
 	<xs:element
 		name="functions"
 		type="nameValuePairs"
@@ -2705,7 +2647,6 @@
 			</xs:documentation>
 		</xs:annotation>
 	</xs:element>
-
 	<xs:complexType name="nameValuePairs">
 		<xs:sequence
 			minOccurs="1"
@@ -2758,20 +2699,17 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
 	<!-- *********************** custom services ************************************** -->
 	<xs:element
 		name="services"
 		type="nameValuePairs"
 	>
-
 		<xs:annotation>
 			<xs:documentation>Define services that are implemented using java
 				class
 			</xs:documentation>
 		</xs:annotation>
 	</xs:element>
-
 	<xs:element name="application">
 		<xs:complexType>
 			<xs:sequence>
@@ -2781,7 +2719,7 @@
 					maxOccurs="1"
 				>
 					<xs:annotation>
-						<xs:documentation>If your application used more than one schemas,
+						<xs:documentation> If your application used more than one schemas,
 							then you need to provide details for non-default schema
 						</xs:documentation>
 					</xs:annotation>
@@ -2808,6 +2746,58 @@
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element
+					name="jmsSetup"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation> JMS setup configuration details
+						</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:attribute
+							name="jmss"
+							type="xs:string"
+							use="required" />
+						<xs:attribute
+							name="destinationName"
+							type="xs:string"
+							use="required" />
+						<xs:attribute
+							name="connectionFactory"
+							type="xs:string"
+							use="required" />
+						<xs:attribute
+							name="acknowledgeMode"
+							type="xs:string"
+							use="required" />
+						<xs:attribute
+							name="transacted"
+							type="xs:string"
+							use="required" />
+						<xs:attribute
+							name="persistent"
+							type="xs:string"
+							use="required" />
+						<xs:attribute
+							name="priority"
+							type="xs:string"
+							use="required" />
+						<xs:attribute
+							name="timeToLive"
+							type="xs:string"
+							use="required" />
+						<xs:attribute
+							name="initialContext"
+							type="xs:string"
+							use="required" />
+						<xs:attribute
+							name="providerUrl"
+							type="xs:string"
+							use="required" />
 					</xs:complexType>
 				</xs:element>
 			</xs:sequence>
@@ -3066,8 +3056,8 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:NCName">
-						<!-- not used any more any ways.... let us wait for some one to ask... 
-							<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old 
+						<!-- not used any more any ways.... let us wait for some one to ask...
+							<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old
 							log4J uses log4j-1.2.17.jar</xs:documentation></xs:annotation></xs:enumeration> -->
 						<xs:enumeration value="log4j">
 							<xs:annotation>
@@ -3103,7 +3093,6 @@
 		</xs:complexType>
 	</xs:element>
 	<!-- Test case. we systematically develop elements bottom-up for this.. -->
-
 	<!-- testFieldAtts is common to inputField and outputField -->
 	<xs:attributeGroup name="testFieldAtts">
 		<xs:attribute
@@ -3129,11 +3118,9 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:attributeGroup>
-
 	<xs:complexType name="testFieldIn">
 		<xs:attributeGroup ref="testFieldAtts" />
 	</xs:complexType>
-
 	<xs:complexType name="testFieldOut">
 		<xs:attributeGroup ref="testFieldAtts" />
 		<xs:attribute
@@ -3148,7 +3135,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="testFieldCtx">
 		<xs:attribute
 			name="fieldSelector"
@@ -3174,7 +3160,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="testFieldsIn">
 		<xs:sequence>
 			<xs:element
@@ -3185,7 +3170,6 @@
 			></xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:complexType name="testFieldsOut">
 		<xs:sequence>
 			<xs:element
@@ -3195,7 +3179,6 @@
 				maxOccurs="unbounded" />
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:complexType name="testFieldsCtx">
 		<xs:sequence>
 			<xs:element
@@ -3206,7 +3189,6 @@
 			></xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:complexType name="testItemIn">
 		<xs:sequence>
 			<xs:element
@@ -3229,7 +3211,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="testItemOut">
 		<xs:sequence>
 			<xs:element
@@ -3252,7 +3233,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="testListOut">
 		<xs:attribute
 			name="listSelector"
@@ -3275,7 +3255,6 @@
 			type="xs:int"
 			use="optional" />
 	</xs:complexType>
-
 	<xs:complexType name="testItemsIn">
 		<xs:sequence>
 			<xs:element
@@ -3285,7 +3264,6 @@
 				type="testItemIn" />
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:complexType name="testItemsOut">
 		<xs:sequence>
 			<xs:element
@@ -3295,7 +3273,6 @@
 				type="testItemOut" />
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:complexType name="testListsOut">
 		<xs:sequence>
 			<xs:element
@@ -3305,7 +3282,6 @@
 				type="testListOut" />
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:element name="testCase">
 		<xs:complexType>
 			<xs:all>
@@ -3447,7 +3423,6 @@
 			maxOccurs="1"
 		>
 			<xs:group ref="allActions" />
-
 		</xs:choice>
 	</xs:complexType>
 	<xs:group name="allActions">
@@ -3481,6 +3456,12 @@
 				name="filter"
 				type="filter" />
 			<xs:element
+				name="jmsSend"
+				type="jmsSend" />
+			<xs:element
+				name="jmsReceive"
+				type="jmsReceive" />				
+			<xs:element
 				name="jumpTo"
 				type="jumpTo" />
 			<xs:element
@@ -3491,7 +3472,7 @@
 				type="keyValueList" />
 			<xs:element
 				name="ldapAuth"
-				type="ldapAuth" />				
+				type="ldapAuth" />
 			<xs:element
 				name="log"
 				type="log" />
@@ -3531,6 +3512,9 @@
 				minOccurs="0"
 				maxOccurs="unbounded" />
 			<xs:element
+				name="smtpMail"
+				type="smtpMail" />
+			<xs:element
 				name="subService"
 				type="subService" />
 			<xs:element
@@ -3541,5 +3525,4 @@
 				type="synchronizer" />
 		</xs:choice>
 	</xs:group>
-
 </xs:schema>

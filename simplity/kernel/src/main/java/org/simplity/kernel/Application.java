@@ -34,6 +34,9 @@ import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.DbVendor;
 import org.simplity.kernel.db.SchemaDetail;
 import org.simplity.kernel.file.FileBasedAssistant;
+import org.simplity.kernel.jms.JmsAgent;
+import org.simplity.kernel.jms.JmsParms;
+import org.simplity.kernel.jms.JmsSetup;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
@@ -193,6 +196,10 @@ public class Application {
 	SchemaDetail[] schemaDetails;
 
 	/**
+	 * Configure the JMS Setup for the application
+	 */
+	JmsSetup jmsSetup;
+	/**
 	 * Simplity provides a rudimentary, folder-based system that can be used for
 	 * storing and retrieving attachments. If you want to use that, provide the
 	 * folder that is available for the server instance
@@ -243,6 +250,7 @@ public class Application {
 	public String configure() {
 		List<String> msgs = new ArrayList<String>();
 		Tracer.startAccumulation();
+		
 		if (this.traceWrapper != null) {
 			try {
 				TraceWrapper wrapper = (TraceWrapper) Class
@@ -312,7 +320,17 @@ public class Application {
 			msgs.add("Error while setting up DbDriver. " + e.getMessage()
 					+ " Application will not work properly.");
 		}
-
+		
+		/*
+		 * Setup JMS Agent
+		 */
+		try {
+			JmsAgent.initialSetup(this.jmsSetup);
+		} catch (Exception e) {
+			msgs.add("Error while setting up JmsAgent." + e.getMessage()
+					+ " Application will not work properly.");
+		}
+		
 		/*
 		 * in production, we cache components as they are loaded, but in development we prefer to load the latest
 		 */

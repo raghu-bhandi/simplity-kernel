@@ -19,6 +19,6 @@
 		<module>mcHelloWorld</module>
 		<module>wbBatch</module>
 		<module>wbFileAgent</module>
-		<module>petclinic</module>
+		<!--module>petclinic</module-->
 	</modules>
 </project>
