@@ -891,6 +891,20 @@
 				type="xs:boolean"
 				use="optional" />
 			<xs:attribute
+				name="backgroundRunInterval"
+				type="xs:int"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>interval in number of seconds between repeating
+						this service. If this is set, the service is always running in teh
+						background, and repeat the work every so many seconds. Note that
+						the job will not over-lap if it takes longer than this interval.
+						That is, the job is not fired every so many seconds, but is re-run
+						again, no earlier than the interval.</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
 				name="description"
 				type="xs:string"
 				use="optional" />
@@ -2406,6 +2420,14 @@
 	</xs:complexType>
 	<xs:element name="fileProcessor">
 		<xs:complexType>
+			<xs:choice>
+				<xs:element
+					name="actions"
+					type="actions"
+					minOccurs="1"
+					maxOccurs="1" />
+			</xs:choice>
+			<xs:attributeGroup ref="actionAttributes" />
 			<xs:attribute
 				name="inFolderName"
 				type="xs:string"
@@ -2460,17 +2482,6 @@
 						the data is to be extracted into a single row, here is the name of
 						the data sheet. If this is null, first/only row of data is
 						extracted as fields into service context
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="serviceName"
-				type="xs:string"
-				use="required"
-			>
-				<xs:annotation>
-					<xs:documentation>Service to be executed for the data extracted
-						from the file
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>

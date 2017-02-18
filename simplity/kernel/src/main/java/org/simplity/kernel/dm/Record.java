@@ -3375,7 +3375,7 @@ public class Record implements Component {
 			}
 		}
 		if(errors.size() > nbr){
-			Tracer.trace("Errors detected while prsing a flat file. Data sheet not created.");
+			Tracer.trace("Errors detected while parsing a flat file. Data sheet not created.");
 			return null;
 		}
 		return ds;

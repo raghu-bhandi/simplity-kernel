@@ -22,8 +22,15 @@
 
 package org.simplity.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 
 import org.simplity.kernel.Messages;
@@ -52,7 +59,8 @@ public class ServiceSubmitter implements Runnable {
 	 * @param listener
 	 *
 	 */
-	public ServiceSubmitter(ServiceData inData, ServiceInterface service, ObjectOutputStream outStream, ExceptionListener listener) {
+	public ServiceSubmitter(ServiceData inData, ServiceInterface service,
+			ObjectOutputStream outStream, ExceptionListener listener) {
 		this.inData = inData;
 		this.service = service;
 		this.outStream = outStream;
@@ -63,8 +71,8 @@ public class ServiceSubmitter implements Runnable {
 	@Override
 	public void run() {
 		int interval = this.service.getBackgroundRunInterval();
-		if( interval == 0){
-			this.runOnce();
+		if (interval == 0) {
+			this.runOnce(null);
 			return;
 		}
 		/*
@@ -75,18 +83,19 @@ public class ServiceSubmitter implements Runnable {
 		while (true) {
 			Date started = new Date();
 			Tracer.trace("Started service " + serviceName + " at " + started);
-			this.runOnce();
+			Object obj = this.inData.get(ServiceProtocol.HEADER_FILE_TOKEN);
+			String token = obj == null ? null : obj.toString();
+			this.runOnce(token);
 			if (this.timeToWindup) {
-				Tracer.trace(
-						"Shutting down service " + serviceName);
+				Tracer.trace("Shutting down service " + serviceName);
 				return;
 			}
 			Date finished = new Date();
 			Tracer.trace("Finished service " + serviceName + " at " + started);
 			long napTime = interval - (finished.getTime() - started.getTime());
-			if(napTime < 0){
+			if (napTime < 0) {
 				Tracer.trace("Re-starting the service immediately");
-			}else{
+			} else {
 				try {
 					Tracer.trace("Going to wait for " + napTime + "ms");
 					Thread.sleep(napTime);
@@ -98,49 +107,92 @@ public class ServiceSubmitter implements Runnable {
 		}
 	}
 
-	private void runOnce() {
+	private void runOnce(String token) {
 		Tracer.startAccumulation();
 		Date startTime = new Date();
 		ServiceData outData = null;
-		String key = ServiceProtocol.HEADER_FILE_TOKEN;
-		String token = this.inData.get(key).toString();
 		String serviceName = this.service.getQualifiedName();
-		try{
+		try {
 			outData = this.service.respond(this.inData);
 		} catch (Exception e) {
 			if (this.listener != null) {
 				this.listener.listen(this.inData, e);
 			}
 			outData = new ServiceData(this.inData.getUserId(), serviceName);
-			Tracer.trace(e, "Service " + serviceName + " resulted in fatal error");
+			Tracer.trace(e,
+					"Service " + serviceName + " resulted in fatal error");
 			outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR,
 					e.getMessage()));
 		}
 		String trace = Tracer.stopAccumulation();
-		if(this.outStream == null){
-			/*
-			 * no way to communicate back
-			 */
-			Tracer.trace("Background service completed with follwong trace");
-			Tracer.trace(trace);
+		/*
+		 * no way to communicate back
+		 */
+		Tracer.trace("Background service completed with following trace");
+		Tracer.trace(trace);
+		if (this.outStream == null) {
 			return;
 		}
-		outData.put(key, token);
 		Date endTime = new Date();
 		long diffTime = endTime.getTime() - startTime.getTime();
 		outData.setExecutionTime((int) diffTime);
 		outData.setTrace(trace);
-		try{
-		this.outStream.writeObject(outData);
-		}catch(IOException e){
-			Tracer.trace(e, "Error while writing response from background service onto stream");
-		}finally{
-			try{
+		if (token == null) {
+			return;
+		}
+
+		outData.put(ServiceProtocol.HEADER_FILE_TOKEN, token);
+
+		if (this.outStream == null) {
+			return;
+		}
+		try {
+			this.outStream.writeObject(outData);
+		} catch (IOException e) {
+			Tracer.trace(e,
+					"Error while writing response from background service onto stream");
+		} finally {
+			try {
 				this.outStream.close();
-			}catch(Exception ignore){
+			} catch (Exception ignore) {
 				//
 			}
 		}
+
 	}
 
+	public static void main(String[] args) {
+		FileChannel channel = null;
+		FileLock lock = null;
+		try {
+			File folder = new File("c:/temp/test/in");
+			for (File file : folder.listFiles()) {
+				channel = new RandomAccessFile(file, "rw").getChannel();
+				lock = channel.tryLock();
+				lock.release();
+				channel.close();
+
+				Path path = Paths.get(file.getAbsolutePath());
+				Files.move(path, path.resolveSibling(file.getName() + ".bak"));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			if(lock != null){
+				try {
+					lock.release();
+				} catch (Exception ignore) {
+					// TODO Auto-generated catch block
+				}
+			}
+			if(channel != null){
+				try {
+					channel.close();
+				} catch (Exception ignore) {
+					// TODO Auto-generated catch block
+				}
+			}
+		}
+	}
 }

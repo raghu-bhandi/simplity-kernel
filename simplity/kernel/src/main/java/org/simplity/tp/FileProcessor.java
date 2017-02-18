@@ -24,13 +24,13 @@ package org.simplity.tp;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,13 +43,12 @@ import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
-import org.simplity.service.ServiceInterface;
 
 /**
  * @author simplity.org
  *
  */
-public class FileProcessor extends Action {
+public class FileProcessor extends Block {
 	/**
 	 * folder in which we look for files to process
 	 */
@@ -76,11 +75,6 @@ public class FileProcessor extends Action {
 	String sheetName;
 
 	/**
-	 * service to be execute for data in each file
-	 */
-	String serviceName;
-
-	/**
 	 * Are there end-of-line markers in this file (could be LF or CR/LF )
 	 */
 	boolean fileHasEndOfLineChars;
@@ -100,84 +94,72 @@ public class FileProcessor extends Action {
 	public void getReady(int idx) {
 		super.getReady(idx);
 		this.filter = TextUtil.getFIleNameFilter(this.fileNamePattern);
-		this.inbox = new File (this.inFolderName);
+		this.inbox = new File(this.inFolderName);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.simplity.tp.Action#delegate(org.simplity.service.ServiceContext, org.simplity.kernel.db.DbDriver)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.tp.Action#delegate(org.simplity.service.ServiceContext,
+	 * org.simplity.kernel.db.DbDriver)
 	 */
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		int nbrFiles= 0;
-		try {
-			for (File file : this.inbox.listFiles(this.filter)) {
-				FileChannel channel = new RandomAccessFile(file, "rw")
-						.getChannel();
-				try {
-					FileLock lock = channel.tryLock();
-					lock.release();
-					try {
-						this.processOneFile(file, ctx, driver);
-					} catch (Exception e) {
-						System.err.println("Error while processing "
-								+ file.getName() + "\n" + e.getMessage()
-								+ "\n moving on to next file");
-					}
-					File newFile = new File(file.getPath() + this.archivalExtension);
-					if (file.renameTo(newFile) == false) {
-						Tracer.trace("Sorry, unable to rename the file to "
-								+ newFile.getAbsolutePath()
-								+ " going to delete it.");
-						if (file.delete() == false) {
-							Tracer.trace(
-									"Hey Bhagavaan, Ye tune kya kar raha hai? I am unable to provide muktu to file "
-											+ file.getName());
-						}
-
-					}
-				} catch (OverlappingFileLockException e) {
-					Tracer.trace("Unble to lock " + file.getName() + "\n "
-							+ e.getMessage());
-					/*
-					 * may be another thread is processing this
-					 */
-					continue;
-				}
+		Tracer.trace("GOing to process files in folder " + this.inFolderName
+				+ " that exists = " + this.inbox.exists());
+		int nbrFiles = 0;
+		for (File file : this.inbox.listFiles(this.filter)) {
+			Tracer.trace("File " + file.getAbsolutePath());
+			if (this.processOneFile(file, ctx, driver)) {
 				nbrFiles++;
 			}
-		} catch (Exception e) {
-			Tracer.trace(e, "Error while working on the folder");
 		}
 		return Value.newIntegerValue(nbrFiles);
 	}
+
 	/**
 	 * @param file
 	 * @throws IOException
 	 */
-	private boolean processOneFile(File file, ServiceContext ctx, DbDriver driver) throws IOException {
-		Tracer.trace("Processing " + file.getAbsolutePath() + "....");
-		Record record = ComponentManager.getRecord(this.recordName);
-		FileReader fr = new FileReader(file);
-		BufferedReader reader = new BufferedReader(fr);
-		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
-		DataSheet ds = record.fromFlatFile(reader, errors, this.fileHasEndOfLineChars);
-		if (errors.size() > 0) {
-			/*
-			 * process error. msg is a data structure with details for I18N as
-			 * well as client side help on fields and rows. FOr demo we just
-			 * spit out the text
-			 */
-			for (FormattedMessage msg : errors) {
-				System.err.println(msg.text);
+	private boolean processOneFile(File file, ServiceContext ctx,
+			DbDriver driver) {
+		BufferedReader reader = null;
+		try {
+			Tracer.trace("Processing " + file.getAbsolutePath() + "....");
+			Record record = ComponentManager.getRecord(this.recordName);
+			FileInputStream ins = new FileInputStream(file);
+			reader = new BufferedReader(new InputStreamReader(ins));
+			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
+			DataSheet ds = record.fromFlatFile(reader, errors,
+					this.fileHasEndOfLineChars);
+			reader.close();
+
+			if (errors.size() > 0) {
+				ctx.addMessages(errors);
+				return false;
 			}
+
+			ctx.putDataSheet(this.sheetName, ds);
+			BlockWorker worker = new BlockWorker(this.actions,
+					this.indexedActions, ctx);
+			worker.execute(driver);
+			Path path = Paths.get(file.getAbsolutePath());
+			Files.move(path, path.resolveSibling(file.getName() + ".bak"));
+			return true;
+		} catch (Exception e) {
+			Tracer.trace("Error while processing file " + file.getName() + ". "
+					+ e.getMessage());
+			e.printStackTrace();
 			return false;
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
 		}
-
-		ctx.putDataSheet(this.sheetName, ds);
-		ServiceInterface service = ComponentManager.getService(this.serviceName);
-		service.executeAsAction(ctx, driver);
-		return true;
 	}
-
 
 }
