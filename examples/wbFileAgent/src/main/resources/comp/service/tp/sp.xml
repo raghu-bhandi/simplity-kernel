@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="sp"
+	dbAccessType="readOnly"
+	executeInBackground="true"
+	description="This is an example stored procedure with every possible type of 
+		procedure parameter for both input and output"
+>
+	<inputData>
+		<inputFields>
+			<inputField dataType="text" name="txt"/>
+			<inputField dataType="number" name="nbr"/>
+			<inputField dataType="decimal" name="dec"/>
+			<inputField dataType="date" name="dat"/>
+			<inputField dataType="text" name="txtArr" isArray="true"/>
+			<inputField dataType="number" name="nbrArr" isArray="true"/>
+			<inputField dataType="decimal" name="decArr" isArray="true"/>
+			<inputField dataType="date" name="datArr" isArray="true"/>
+		</inputFields>
+		<inputRecords>
+			<inputRecord recordName="simpleStructure" sheetName="ds"/>
+			<inputRecord recordName="simpleStructure" sheetName="dsArr"/>
+			<inputRecord recordName="complexStructure" sheetName="cds"/>
+			<inputRecord recordName="complexStructure" sheetName="cdsArr"/>
+		</inputRecords>
+	</inputData>
+	<actions>
+		<executeSp procedureName="sp" />
+	</actions>
+	
+	<outputData fieldNames="txt,nbr,dec,dat" arrayNames="txtArr,nbrArr,decArr,datArr" dataSheets="ds,dsArr">
+		<outputRecords>
+			<outputRecord recordName="complexStructure" sheetName="cds" />
+			<outputRecord recordName="complexStructure" sheetName="cdsArr" />
+		</outputRecords>
+	</outputData>
+</service>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dataTypes
+	name="myTypes"
+	xmlns="http://www.simplity.org/schema"
+>
+	<components>
+		<textDataType
+			name="text"
+			description="max of 100 characters allwed."
+			maxLength="100" />
+		<numericDataType name="number" />
+		<numericDataType
+			name="decimal"
+			nbrFractionDigits="2"  />
+		<dateDataType
+			name="date"
+			maxDaysIntoFuture="730000"
+			maxDaysIntoPast="3650000" />
+		<booleanDataType name="boolean" />
+		<dateDataType name="dateTime" 
+		hasTime="true" 
+		/>
+		<blobDataType name="blob"/>
+		<clobDataType name="clob"/>
+		<timestampDataType name="timestamp"/>
+		<textDataType name="name" maxLength="50" regex="^\w*$"/>
+	</components>
+</dataTypes>

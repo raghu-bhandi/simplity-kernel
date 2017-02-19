@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="synch"
+	dbAccessType="none"
+>
+	<actions>
+		<synchronizer>
+			<actions>
+				<logic
+					actionName="JamesBond001"
+					className="org.simplity.examples.AsynchHelloWorld" />
+				<logic
+					actionName="JamesBond002"
+					className="org.simplity.examples.AsynchHelloWorld" />
+				<logic
+					actionName="JamesBond003"
+					className="org.simplity.examples.AsynchHelloWorld" />
+			</actions>
+		</synchronizer>
+	</actions>
+</service>

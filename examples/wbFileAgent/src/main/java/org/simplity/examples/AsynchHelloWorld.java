@@ -1,6 +1,5 @@
-package  org.simplity.examples;
 /*
- * Copyright (c) 2017 simplity.org
+ * Copyright (c) 2016 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,33 +20,34 @@ package  org.simplity.examples;
  * SOFTWARE.
  */
 
+package org.simplity.examples;
 
-
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Tracer;
+import org.simplity.kernel.value.Value;
+import org.simplity.service.ServiceContext;
+import org.simplity.tp.LogicInterface;
 
 /**
- * A scheduled job picks-up files from a folder and processes them
- *
  * @author simplity.org
  *
  */
-public class FlatFileListener implements ServletContextListener {
-	
-	private static final long NAP_TIME = 6000;
-	
-	@Override
-	public void contextInitialized(ServletContextEvent sce) {
-		try {
-			FlatFileAgent.start(null, NAP_TIME);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
+public class AsynchHelloWorld implements LogicInterface {
 
+	/* (non-Javadoc)
+	 * @see org.simplity.tp.LogicInterface#execute(org.simplity.service.ServiceContext)
+	 */
 	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
-		FlatFileAgent.stop();
+	public Value execute(ServiceContext arg0) {
+		// We want to put some arbitrary delay to simulate an external task
+		long l = Math.round(10000 * Math.random());
+		Tracer.trace("James Bond " + "started, but will take a nap for " + l + "ns");
+		try {
+			Thread.sleep(l);
+		} catch (InterruptedException e) {
+			throw new ApplicationError("James Bond is interrupted. Can you beleive that!!!");
+		}
+		Tracer.trace("My Name is Bond.. James Bond");
+		return Value.VALUE_TRUE;
 	}
 }
