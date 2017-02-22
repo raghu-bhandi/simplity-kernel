@@ -7,8 +7,8 @@
 	xmlns:dt="http://www.simplity.org/custom"
 >
 	<xs:import namespace="http://www.simplity.org/custom"></xs:import>
-	<!-- data types are organized in one or more files, but not one per file.
-		hence we have a wrapper element <dataTypes> with another wrapper element
+	<!-- data types are organized in one or more files, but not one per file. 
+		hence we have a wrapper element <dataTypes> with another wrapper element 
 		called <dataTypes> for the collection. -->
 	<xs:element name="dataTypes">
 		<xs:annotation>
@@ -202,9 +202,8 @@
 		</xs:restriction>
 	</xs:simpleType>
 	<!-- messages -->
-	<!-- Messages are organized in one or more files as collection. We have
-		designed Messages as an element with a wrapper element <messages> that 
-		contains
+	<!-- Messages are organized in one or more files as collection. We have 
+		designed Messages as an element with a wrapper element <messages> that contains 
 		<message> elements -->
 	<xs:element name="messages">
 		<xs:complexType>
@@ -244,7 +243,7 @@
 				use="required" />
 		</xs:complexType>
 	</xs:element>
-	<!-- record is generally reverse engineered from db for tables but views
+	<!-- record is generally reverse engineered from db for tables but views 
 		may have to be entered manually. In any case, let us have the schema. -->
 	<xs:element name="record">
 		<xs:complexType>
@@ -901,7 +900,8 @@
 						background, and repeat the work every so many seconds. Note that
 						the job will not over-lap if it takes longer than this interval.
 						That is, the job is not fired every so many seconds, but is re-run
-						again, no earlier than the interval.</xs:documentation>
+						again, no earlier than the interval.
+					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
@@ -1944,42 +1944,35 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-	<xs:complexType name="jmsSend">
+	<xs:complexType name="jmsProcessor">
+		<xs:all>
+			<xs:element
+				name="requestQueue"
+				type="jmsQueue"
+				minOccurs="1"
+				maxOccurs="1" />
+			<xs:element
+				name="responseQueue"
+				minOccurs="0"
+				maxOccurs="1"
+				type="jmsQueue" />
+			<xs:element
+				name="actions"
+				minOccurs="1"
+				maxOccurs="1"
+				type="actions" />
+		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="destination"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="policy"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="message"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="requestService"
-			type="xs:string"
-			use="optional" />
-		<xs:attribute
-			name="messageID"
-			type="xs:string"
-			use="optional" />
-	</xs:complexType>
-	<xs:complexType name="jmsReceive">
-		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="destination"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="policy"
-			type="xs:string"
-			use="required" />
 	</xs:complexType>
 
 	<xs:complexType name="jumpTo">
+		<xs:sequence>
+			<xs:element
+				name="actions"
+				minOccurs="1"
+				maxOccurs="1"
+				type="actions" />
+		</xs:sequence>
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
 			name="toAction"
@@ -2759,58 +2752,6 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element
-					name="jmsSetup"
-					minOccurs="0"
-					maxOccurs="1"
-				>
-					<xs:annotation>
-						<xs:documentation> JMS setup configuration details
-						</xs:documentation>
-					</xs:annotation>
-					<xs:complexType>
-						<xs:attribute
-							name="jmss"
-							type="xs:string"
-							use="required" />
-						<xs:attribute
-							name="destinationName"
-							type="xs:string"
-							use="required" />
-						<xs:attribute
-							name="connectionFactory"
-							type="xs:string"
-							use="required" />
-						<xs:attribute
-							name="acknowledgeMode"
-							type="xs:string"
-							use="required" />
-						<xs:attribute
-							name="transacted"
-							type="xs:string"
-							use="required" />
-						<xs:attribute
-							name="persistent"
-							type="xs:string"
-							use="required" />
-						<xs:attribute
-							name="priority"
-							type="xs:string"
-							use="required" />
-						<xs:attribute
-							name="timeToLive"
-							type="xs:string"
-							use="required" />
-						<xs:attribute
-							name="initialContext"
-							type="xs:string"
-							use="required" />
-						<xs:attribute
-							name="providerUrl"
-							type="xs:string"
-							use="required" />
-					</xs:complexType>
-				</xs:element>
 			</xs:sequence>
 			<xs:attribute
 				name="applicationId"
@@ -3067,8 +3008,8 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:NCName">
-						<!-- not used any more any ways.... let us wait for some one to ask...
-							<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old
+						<!-- not used any more any ways.... let us wait for some one to ask... 
+							<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old 
 							log4J uses log4j-1.2.17.jar</xs:documentation></xs:annotation></xs:enumeration> -->
 						<xs:enumeration value="log4j">
 							<xs:annotation>
@@ -3467,11 +3408,11 @@
 				name="filter"
 				type="filter" />
 			<xs:element
-				name="jmsSend"
-				type="jmsSend" />
+				name="jmsConsumer"
+				type="jmsProcessor" />
 			<xs:element
-				name="jmsReceive"
-				type="jmsReceive" />				
+				name="jmsProducer"
+				type="jmsProcessor" />
 			<xs:element
 				name="jumpTo"
 				type="jumpTo" />
@@ -3536,4 +3477,188 @@
 				type="synchronizer" />
 		</xs:choice>
 	</xs:group>
+	<xs:element name="jmsConnector">
+		<xs:annotation>
+			<xs:documentation>Parameters to use a JMS provider like
+			</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:attribute
+				name="connectionFactory"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>JNDI name for the connection factory object that
+						is set up by the admin
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="providerUrl"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>Optional. Typically set for testing. Defaults to
+						admin settings in the factory
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="initialContext"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>Optional. Defaults to current context
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="jmsQueue">
+		<xs:attribute
+			name="queueName"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>Required for request ueue. Temp queue is used for
+					response if name is not specified.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="messageFormat"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>If the response message has values for more than
+					one fields
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="fieldName"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>content of the message is associated with this
+					field in service context
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="fields"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>Comma separated list of field names that form the
+					message. Use this if you do not want to create a record.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="extractAll"
+			type="booleanType"
+		>
+			<xs:annotation>
+				<xs:documentation>trust the producer and extract all data from
+					message.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>data structure of the message. Used for
+					formatting/extracting/validating
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="messageExtractor"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>custom java class that extracts fields from
+					message into service context. This class should implement
+					MessageExtractor interface
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="messageFormatter"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>custom java class that creates the message from
+					service context. This class shoudl implement MessageFormatter
+					interface
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<!-- we would liek to get away with our random id than users specifying 
+			one <xs:attribute name="correlationId" type="xs:string" > <xs:annotation> 
+			<xs:documentation>in case your existing design allows a fixed-correlation 
+			id with no clash. Default is to use a random correlation id </xs:documentation> 
+			</xs:annotation> </xs:attribute> -->
+	</xs:complexType>
+
+	<xs:simpleType name="jmsMessageFormat">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="singleField">
+				<xs:annotation>
+					<xs:documentation>Value of a single field. Could be primitive value
+						or a java object.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="fixedWidthText">
+				<xs:annotation>
+					<xs:documentation>field values are of fixed widths. Like a
+						flat-file row
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="commaSeparatedText">
+				<xs:annotation>
+					<xs:documentation>field values are comma separated
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="json">
+				<xs:annotation>
+					<xs:documentation>json format</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="xmlAttributes">
+				<xs:annotation>
+					<xs:documentation>xml with field values as attributes
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="xmlElements">
+				<xs:annotation>
+					<xs:documentation>xml with field values as elements
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="formData">
+				<xs:annotation>
+					<xs:documentation>like an http request data body on form submit
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="yaml">
+				<xs:annotation>
+					<xs:documentation>yaml
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
 </xs:schema>
