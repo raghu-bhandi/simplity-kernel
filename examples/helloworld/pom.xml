@@ -15,7 +15,9 @@
 	<name>helloworld Maven Webapp</name>
 	<url>http://maven.apache.org</url>
 	<properties>
-			<dbpath>D:/temp/hw</dbpath>	
+		<dbpath>D:/temp/hw</dbpath>
+		<resourcespath>src/main/resources/dbscripts/h2</resourcespath>
+		<anotherService>http://localhost:8080/helloworld/a._s?_serviceName=helloworld</anotherService>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -53,6 +55,12 @@
 	</dependencies>
 	<build>
 		<finalName>helloworld</finalName>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<testResources>
 			<testResource>
 				<directory>${project.basedir}/src/main/resources</directory>
@@ -71,9 +79,7 @@
 						</goals>
 						<configuration>
 							<srcFiles>
-								<srcFile>${resourcespath}/dbscripts/h2/schema.sql</srcFile>
-								<srcFile>${resourcespath}/dbscripts/h2/data.sql</srcFile>
-								<srcFile>${resourcespath}/dbscripts/h2/views.sql</srcFile>
+								<srcFile>${resourcespath}/schema.sql</srcFile>
 							</srcFiles>
 						</configuration>
 					</execution>

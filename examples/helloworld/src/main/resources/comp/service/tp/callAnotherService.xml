@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="callAnotherService"
+	dbAccessType="none">
+	<actions>
+		<httpClient httpMethod="GET" urlString="${anotherService}" contentType="application/json"></httpClient>
+	</actions>
+	<outputData fieldNames="hello1"></outputData>
+</service>
