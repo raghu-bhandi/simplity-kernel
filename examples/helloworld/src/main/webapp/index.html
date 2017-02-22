@@ -6,6 +6,8 @@
 </head>
 <body>
 <div id="hellotag"></div>
+
+<button onclick="callRest()">Invoke Rest Call</button>
 </body>
 <script src="js/simplity-min.js"></script>
 <script type="text/javascript">
@@ -15,6 +17,10 @@ function onSuccess(response){
 }
 function onError(response){
 	console.log(response);
+}
+
+function callRest(){
+	Simplity.getResponse("callAnotherService",null,onSuccess,onError);
 }
 </script>
 </html>

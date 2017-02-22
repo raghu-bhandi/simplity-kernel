@@ -2,9 +2,20 @@
 <service
 	xmlns="http://www.simplity.org/schema"
 	name="callAnotherService"
-	dbAccessType="none">
+	dbAccessType="none"
+>
 	<actions>
-		<httpClient httpMethod="GET" urlString="${anotherService}" contentType="application/json"></httpClient>
+		<httpClient
+			httpMethod="GET"
+			urlString="http://localhost:8080/helloworld/a._s?_serviceName=helloworld"
+			contentType="application/json"
+			responseFieldName="hello"
+		></httpClient>
+		<log names="hello"/>
+		<setValue
+			fieldName="hello"
+			expression="concat('from callAnotherService: ',hello)"
+		></setValue>
 	</actions>
-	<outputData fieldNames="hello1"></outputData>
+	<outputData fieldNames="hello"></outputData>
 </service>
