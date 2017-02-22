@@ -6,5 +6,5 @@
 	<actions>
 		<setValue fieldName="hello" fieldValue="Hello World!" ></setValue>		
 	</actions>
-	<outputData fieldNames="hello"></outputData>
+	<outputData fieldNames="hello1"></outputData>
 </service>

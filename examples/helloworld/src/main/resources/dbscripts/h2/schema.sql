@@ -1,0 +1,7 @@
+DROP TABLE hw IF EXISTS;
+
+
+CREATE TABLE hw (
+  id         INTEGER IDENTITY PRIMARY KEY,
+  greeting VARCHAR(30),
+);

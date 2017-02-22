@@ -3,6 +3,6 @@
   <testCases>
     <testCase serviceName="helloworld" testCaseName="helloworldtest">
     <outputJson><![CDATA[ {"hello":"Hello World!","_messages":[]}]]></outputJson>
-    </testCase>  
+    </testCase>
   </testCases>
 </testRun>

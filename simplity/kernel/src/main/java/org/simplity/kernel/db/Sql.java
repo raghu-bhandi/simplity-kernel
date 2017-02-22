@@ -320,9 +320,16 @@ public class Sql implements Component {
 			if (this.preparedStatement == null) {
 				ctx.addError("preparedStatement is required.");
 				count++;
+				return count;
 			}
 
-			int nbrParams = this.preparedStatement.split("?").length - 1;
+			if(!preparedStatement.contains("?")){
+				ctx.addError("preparedStatement does not have any parameters");
+				count++;
+				return count;				
+			}
+			
+			int nbrParams = this.preparedStatement.length() - this.preparedStatement.replace("?", "").length();
 
 			if (this.inputParameters != null) {
 				if (nbrParams != this.inputParameters.length) {

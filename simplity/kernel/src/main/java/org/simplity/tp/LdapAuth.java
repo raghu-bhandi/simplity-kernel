@@ -22,34 +22,16 @@
 
 package org.simplity.tp;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
-import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.Tracer;
-import org.simplity.kernel.comp.ComponentManager;
-import org.simplity.kernel.data.DataSheet;
-import org.simplity.kernel.db.DbDriver;
-import org.simplity.kernel.dm.Record;
-import org.simplity.kernel.util.TextUtil;
+import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
-import org.simplity.service.ServiceInterface;
 import org.simplity.service.ServiceProtocol;
 
 /**
@@ -63,19 +45,11 @@ public class LdapAuth extends Action {
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
-		// Set up the environment for creating the initial context
-		Hashtable<String, Object> env = new Hashtable<String, Object>();
-		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, providerUrl);
-
-		// Authenticate with user and password
-		env.put(Context.SECURITY_AUTHENTICATION, "simple");
-		env.put(Context.SECURITY_PRINCIPAL, ctx.getTextValue(ServiceProtocol.USER_ID));
-		env.put(Context.SECURITY_CREDENTIALS, ctx.getTextValue(ServiceProtocol.USER_TOKEN));
-
 		try {
+			String prinicpal = ctx.getTextValue(ServiceProtocol.USER_ID);
+			String credentials = ctx.getTextValue(ServiceProtocol.USER_TOKEN);
 			// Create initial context
-			DirContext ldapCtx = new InitialDirContext(env);
+			DirContext ldapCtx = LdapAgent.getInitialDirContext(prinicpal,credentials);
 			ldapCtx.getEnvironment();
 
 			// Close the context when we're done

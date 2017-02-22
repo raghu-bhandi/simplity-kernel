@@ -37,6 +37,8 @@ import org.simplity.kernel.file.FileBasedAssistant;
 import org.simplity.kernel.jms.JmsAgent;
 import org.simplity.kernel.jms.JmsParms;
 import org.simplity.kernel.jms.JmsSetup;
+import org.simplity.kernel.ldap.LdapAgent;
+import org.simplity.kernel.ldap.LdapConfig;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
@@ -199,6 +201,11 @@ public class Application {
 	 * Configure the JMS Setup for the application
 	 */
 	JmsSetup jmsSetup;
+	
+	/**
+	 * Configure the LDAP Setup for the application
+	 */
+	LdapConfig ldapConfig;
 	/**
 	 * Simplity provides a rudimentary, folder-based system that can be used for
 	 * storing and retrieving attachments. If you want to use that, provide the
@@ -324,8 +331,19 @@ public class Application {
 		/*
 		 * Setup JMS Agent
 		 */
+		if(this.jmsSetup!=null)
 		try {
 			JmsAgent.initialSetup(this.jmsSetup);
+		} catch (Exception e) {
+			msgs.add("Error while setting up JmsAgent." + e.getMessage()
+					+ " Application will not work properly.");
+		}
+		/*
+		 * Setup LDAP Agent
+		 */
+		if(this.ldapConfig!=null)
+		try {
+			LdapAgent.initialSetup(this.ldapConfig);
 		} catch (Exception e) {
 			msgs.add("Error while setting up JmsAgent." + e.getMessage()
 					+ " Application will not work properly.");
