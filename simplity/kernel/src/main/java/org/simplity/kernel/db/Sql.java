@@ -106,6 +106,9 @@ public class Sql implements Component {
 	 */
 	@Override
 	public String getQualifiedName() {
+		if(this.moduleName == null){
+			return this.name;
+		}
 		return this.moduleName + '.' + this.name;
 	}
 
@@ -323,12 +326,12 @@ public class Sql implements Component {
 				return count;
 			}
 
-			if(!preparedStatement.contains("?")){
+			if(!this.preparedStatement.contains("?")){
 				ctx.addError("preparedStatement does not have any parameters");
 				count++;
-				return count;				
+				return count;
 			}
-			
+
 			int nbrParams = this.preparedStatement.length() - this.preparedStatement.replace("?", "").length();
 
 			if (this.inputParameters != null) {
