@@ -10,10 +10,6 @@
 	<version>1.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>simplity</name>
-	<properties>
-		<maven.compiler.source>1.7</maven.compiler.source>
-		<maven.compiler.target>1.7</maven.compiler.target>
-	</properties>
 	<scm>
 		<developerConnection>scm:git:http://infygit/encore/simplity/tree/master</developerConnection>
 	</scm>

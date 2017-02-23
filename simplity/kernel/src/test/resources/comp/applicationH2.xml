@@ -13,15 +13,4 @@
 			schemaName="TESTSCHEMA"
 			connectionString="jdbc:h2:~/simplitykernel/db/classicmodels;" />
 	</schemaDetails>
-	<jmsSetup
-		jmss=""
-		acknowledgeMode=""
-		transacted=""
-		persistent=""
-		providerUrl=""
-		connectionFactory=""
-		initialContext=""
-		priority=""
-		destinationName=""
-		timeToLive="" />
 </application>

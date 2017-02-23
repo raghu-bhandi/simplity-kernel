@@ -6,6 +6,10 @@
   <version>1.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>simplity-all</name>
+  <properties>
+	<maven.compiler.source>1.6</maven.compiler.source>
+	<maven.compiler.target>1.6</maven.compiler.target>
+  </properties>
   <scm>
   	<developerConnection>scm:git:https://github.com/simplity/simplity/tree/master/simplity</developerConnection>
   </scm>

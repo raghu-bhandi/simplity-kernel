@@ -26,6 +26,7 @@ import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.tp.ComplexLogicInterface;
 
@@ -44,7 +45,7 @@ public class FilterOwners implements ComplexLogicInterface {
 	 * ServiceContext, org.simplity.kernel.db.DbDriver)
 	 */
 	@Override
-	public int execute(ServiceContext ctx, DbDriver driver) {
+	public Value execute(ServiceContext ctx, DbDriver driver) {
 		/*
 		 * get rows from table owners using corresponding record
 		 */
@@ -60,6 +61,6 @@ public class FilterOwners implements ComplexLogicInterface {
 			Record pets = ComponentManager.getRecord(PETS);
 			pets.filterForParents(ds, driver, PETS, false, ctx);
 		}
-		return nbrRows;
+		return Value.newIntegerValue(nbrRows);
 	}
 }
