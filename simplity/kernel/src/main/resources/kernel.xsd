@@ -1960,7 +1960,7 @@
 		</xs:attribute>
 	</xs:complexType>
 
-	<xs:complexType name="jmsConsumer">
+	<xs:complexType name="jmsProcessor">
 		<xs:all>
 			<xs:element
 				name="requestQueue"
@@ -1979,22 +1979,6 @@
 				type="actions" />
 		</xs:all>
 
-		<xs:attributeGroup ref="actionAttributes" />
-	</xs:complexType>
-
-	<xs:complexType name="jmsproducer">
-		<xs:all>
-			<xs:element
-				name="requestQueue"
-				type="jmsQueue"
-				minOccurs="1"
-				maxOccurs="1" />
-			<xs:element
-				name="responseQueue"
-				minOccurs="0"
-				maxOccurs="1"
-				type="jmsQueue" />
-		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
 
@@ -3435,10 +3419,10 @@
 				type="filter" />
 			<xs:element
 				name="jmsConsumer"
-				type="jmsConsumer" />
+				type="jmsProcessor" />
 			<xs:element
 				name="jmsProducer"
-				type="jmsProducer" />
+				type="jmsProcessor" />
 			<xs:element
 				name="jumpTo"
 				type="jumpTo" />
