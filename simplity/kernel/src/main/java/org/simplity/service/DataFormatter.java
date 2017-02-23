@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 simplity.org
+ * Copyright (c) 2017 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,28 +20,23 @@
  * SOFTWARE.
  */
 
-package org.simplity.tp;
+package org.simplity.service;
 
 /**
+ * utility to take data elements from a service context and format them as a
+ * text
+ *
  * @author simplity.org
  *
  */
-public enum MessageContentType {
+public interface DataFormatter {
 	/**
-	 * message has fields that occupy pre-determined number of chars. Similar to
-	 * flat-file
+	 * pick values for data elements from service contact and format a text that
+	 * can be used to transport this
+	 *
+	 * @param ctx
+	 *            service context
+	 * @return serialized/formatted text
 	 */
-	FIXED_WIDTH_STRING
-	/**
-	 * JSONtext with field and value
-	 */
-	, JSON
-	/**
-	 * xml with name and value
-	 */
-	, XML
-	/**
-	 * arbitrary object
-	 */
-	, OBJECT;
+	public String format(ServiceContext ctx);
 }

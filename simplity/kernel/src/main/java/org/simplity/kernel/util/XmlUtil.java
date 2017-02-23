@@ -156,12 +156,19 @@ public class XmlUtil {
 	 *
 	 * @param object
 	 *            instance to which the data from xml is to be loaded to
+	 * @return true if all OK. false if the resource is not laoded
 	 * @throws XmlParseException
 	 */
-	public static void xmlToObject(InputStream stream, Object object)
+	public static boolean xmlToObject(InputStream stream, Object object)
 			throws XmlParseException {
-		Element rootElement = getDocument(stream).getDocumentElement();
-		elementToObject(rootElement, object);
+		try{
+			Element rootElement = getDocument(stream).getDocumentElement();
+			elementToObject(rootElement, object);
+			return true;
+		}catch(Exception e){
+			Tracer.trace("Error while reading resource " + e.getMessage());
+			return false;
+		}
 	}
 
 	/**

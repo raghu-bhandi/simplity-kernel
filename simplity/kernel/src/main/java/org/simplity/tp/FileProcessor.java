@@ -90,7 +90,7 @@ public class FileProcessor extends Block {
 	@Override
 	public void getReady(int idx) {
 		super.getReady(idx);
-		this.filter = TextUtil.getFIleNameFilter(this.fileNamePattern);
+		this.filter = TextUtil.getFileNameFilter(this.fileNamePattern);
 		this.inbox = new File(this.inFolderName);
 	}
 

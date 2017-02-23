@@ -24,6 +24,7 @@ package org.simplity.tp;
 import java.util.Date;
 import java.util.Map;
 
+import org.simplity.jms.MessageClient;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.db.DbClientInterface;
@@ -38,7 +39,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class BlockWorker implements DbClientInterface {
+public class BlockWorker implements DbClientInterface, MessageClient {
 
 	/**
 	 * field name with which result of an action is available in service context
@@ -60,6 +61,12 @@ public class BlockWorker implements DbClientInterface {
 	private final ServiceContext ctx;
 
 	/**
+	 * db driver that this is initialized with. Used for JMS
+	 */
+	private final DbDriver initialDriver;
+
+	private boolean keepGoing = true;
+	/**
 	 *
 	 * @param actions
 	 * @param indexedActions
@@ -70,6 +77,22 @@ public class BlockWorker implements DbClientInterface {
 		this.actions = actions;
 		this.indexedActions = indexedActions;
 		this.ctx = ctx;
+		this.initialDriver = null;
+	}
+
+	/**
+	 *
+	 * @param actions
+	 * @param indexedActions
+	 * @param ctx
+	 * @param driver
+	 */
+	public BlockWorker(Action[] actions, Map<String, Integer> indexedActions,
+			ServiceContext ctx, DbDriver driver) {
+		this.actions = actions;
+		this.indexedActions = indexedActions;
+		this.ctx = ctx;
+		this.initialDriver = driver;
 	}
 
 	@Override
@@ -149,5 +172,25 @@ public class BlockWorker implements DbClientInterface {
 			currentIdx++;
 		}
 		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.jms.MessageClient#process(org.simplity.service.ServiceContext)
+	 */
+	@Override
+	public boolean process(ServiceContext sameCtxComingBack) {
+		JumpSignal signal = this.execute(this.initialDriver);
+		if(signal == JumpSignal.STOP){
+			this.keepGoing = false;
+		}
+		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.jms.MessageClient#toContinue()
+	 */
+	@Override
+	public boolean toContinue() {
+		return this.keepGoing;
 	}
 }
