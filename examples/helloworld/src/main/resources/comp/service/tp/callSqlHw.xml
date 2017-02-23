@@ -3,7 +3,13 @@
 	xmlns="http://www.simplity.org/schema"
 	name="callSqlHw"
 	dbAccessType="readWrite">
+	<inputData>
+		<inputFields>
+			<inputField dataType="_number" name="id"/>
+		</inputFields>
+	</inputData>
 	<actions>
-		<executeSql sqlName="hw.hw"/>		
+		<readWithSql sqlName="hw.hw" outputSheetName="outrec"></readWithSql>	
 	</actions>
+	<outputData dataSheets="outrec"></outputData>
 </service>

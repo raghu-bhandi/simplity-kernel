@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sql
-	name="hw"
-	moduleName="hw"
-	sqlType="singleSelect"
-	xmlns="http://www.simplity.org/schema"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.simplity.org/schema http://www.simplity.org/schema "
->
-<inputParameters><sqlParameter dataType="_text" name="a"/></inputParameters>
-<preparedStatement>select * from HelloWorld where a=?</preparedStatement>
-<outputParameters>
-<sqlParameter dataType="_number" name="id"/>
-<sqlParameter dataType="_text" name="greeting"/>
+<sql name="hw" moduleName="hw" sqlType="singleSelect"
+	xmlns="http://www.simplity.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.simplity.org/schema http://www.simplity.org/schema ">
+	<inputParameters>
+		<sqlParameter dataType="_text" name="id" />
+	</inputParameters>
+	<preparedStatement>select * from hw where id=?</preparedStatement>
+	<outputParameters>
+		<sqlParameter dataType="_number" name="id" />
+		<sqlParameter dataType="_text" name="greeting" />
 
-</outputParameters>
+	</outputParameters>
 </sql>

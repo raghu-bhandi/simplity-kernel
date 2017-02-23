@@ -6,6 +6,6 @@
 	loggingFramework="log4j"
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
-	connectionString="jdbc:h2:file:D:/temp/hw;user=sa;"
+	connectionString="jdbc:h2:file:${project.build.directory}/${dbpath};user=sa;"
 >
 </application>
