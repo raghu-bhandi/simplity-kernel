@@ -44,6 +44,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MapDetails;
 import org.simplity.kernel.Tracer;
@@ -58,7 +59,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXParseException;
 
-import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
+
 
 /***
  * Utility that binds xml to object graph. A simple substitute to JAXB. We use
@@ -130,7 +131,6 @@ import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
  * </myDataType>
  * </pre>
  */
-@SuppressWarnings("restriction")
 public class XmlUtil {
 	private static final String DEFAULT_MAP_KEY = "name";
 	private static final String TRUE_VALUE = "true";
