@@ -27,7 +27,9 @@ import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import javax.jms.Destination;
 import javax.jms.JMSException;
+import javax.jms.MapMessage;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -131,9 +133,21 @@ public class JmsQueue {
 	public void consume(ServiceContext ctx, MessageClient processor,
 			Session session, JmsQueue responseQ) {
 		MessageConsumer consumer = null;
+		MessageProducer producer = null;
+
 		try {
+			/*
+			 * an empty producer may not hurt!!
+			 */
+			producer = session.createProducer(null);
 			Queue request = session.createQueue(this.queueName);
 			consumer = session.createConsumer(request, this.messageSelector);
+			Queue response = null;
+			if (responseQ != null) {
+				if (responseQ.queueName != null) {
+					response = session.createQueue(responseQ.queueName);
+				}
+			}
 			while (processor.toContinue()) {
 				Message msg = consumer.receive();
 				if (msg == null) {
@@ -147,7 +161,26 @@ public class JmsQueue {
 				boolean allOk = false;
 				try {
 					this.extractMessage(msg, ctx);
+					Destination reply = msg.getJMSReplyTo();
+					String corId = msg.getJMSCorrelationID();
+					if (reply == null) {
+						reply = response;
+					}
 					allOk = processor.process(ctx);
+					if (reply != null) {
+						Message respMsg = null;
+						if (responseQ == null) {
+							Tracer.trace(
+									"No responseQ , and hence blank message is used for response");
+							respMsg = session.createMessage();
+						} else {
+							respMsg = responseQ.createMessage(session, ctx);
+						}
+						if (corId != null) {
+							respMsg.setJMSCorrelationID(corId);
+						}
+						producer.send(reply, respMsg);
+					}
 				} catch (Exception e) {
 					Tracer.trace("Message processor threw an excpetion "
 							+ e.getMessage());
@@ -169,6 +202,13 @@ public class JmsQueue {
 			if (consumer != null) {
 				try {
 					consumer.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+			if (producer != null) {
+				try {
+					producer.close();
 				} catch (Exception ignore) {
 					//
 				}
@@ -261,45 +301,39 @@ public class JmsQueue {
 	 */
 	private Message createMessage(Session session, ServiceContext ctx)
 			throws JMSException {
-		Message message = null;
 		if (this.dataFormatter != null) {
 			String text = this.dataFormatter.format(ctx);
-			message = session.createTextMessage(text);
-			return message;
+			return session.createTextMessage(text);
 		}
 
 		if (this.messageBodyType == null) {
 			/*
 			 * properties are used for transporting data
 			 */
-			message = session.createMessage();
-			if (this.fieldNames != null && this.fieldNames.length > 0) {
-				for (String nam : this.fieldNames) {
-					Value val = ctx.getValue(nam);
-					if (Value.isNull(val)) {
-						Tracer.trace("No value found for " + nam + " in service context. Data not added to message");
-					}else{
-						message.setObjectProperty(nam, val.toObject());
-					}
-				}
-				return message;
-			}
-
-			if (this.recordName != null) {
+			Message message = session.createMessage();
+			if (this.fieldNames != null) {
+				this.setHeaderFields(message, ctx, this.fieldNames);
+			} else if (this.recordName != null) {
 				Record record = ComponentManager.getRecord(this.recordName);
-				for (String nam : record.getFieldNames()) {
-					Value val = ctx.getValue(nam);
-					if (Value.isNull(val)) {
-						Tracer.trace("No value found for " + nam + " in service context. Data not added to message");
-					}else{
-						message.setObjectProperty(nam, val.toObject());
-					}
-				}
-				return message;
+				this.setHeaderFields(message, ctx, record.getFieldNames());
+			} else {
+				Tracer.trace(
+						"No fields specified to be added to the message.");
 			}
+			return message;
+		}
 
-			Tracer.trace(
-					"No fields specified to be added to teh message. No data added to message.");
+		if (this.messageBodyType == MessageBodyType.MAP) {
+			MapMessage message = session.createMapMessage();
+			if (this.fieldNames != null) {
+				this.setMapFields(message, ctx, this.fieldNames);
+			} else if (this.recordName != null) {
+				Record record = ComponentManager.getRecord(this.recordName);
+				this.setMapFields(message, ctx, record.getFieldNames());
+			} else {
+				Tracer.trace(
+						"No fields specified to be added Map.");
+			}
 			return message;
 		}
 
@@ -322,41 +356,43 @@ public class JmsQueue {
 					+ object.getClass().getName()
 					+ " as object for message. This class must be serializable.");
 		}
+
+		TextMessage message = session.createTextMessage();
 		String text = null;
+		if(this.bodyFieldName != null){
+			text = ctx.getTextValue(this.bodyFieldName);
+			if(text == null){
+				Tracer.trace("No value found for body text with field name " + this.bodyFieldName + ". Data not set.");
+			}else{
+				message.setText(text);
+			}
+			return message;
+		}
+
 		switch (this.messageBodyType) {
 		case COMMA_SEPARATED:
+			text = this.formatComma(ctx);
 			break;
 		case COMMA_SEPARATED_PAIRS:
+			text = this.formatCommaPairs(ctx);
 			break;
 		case FIXED_WIDTH:
+			text = this.formatFixed(ctx);
 			break;
 		case FORM_DATA:
+			text = this.formatFOrmData(ctx);
 			break;
 		case JSON:
-			break;
-		case MAP:
-			break;
-		case OBJECT:
-			// this is not reachable by design
-			break;
-		case TEXT:
-			if (this.bodyFieldName == null) {
-				throw new ApplicationError(
-						"field name not specified to receive body of the message");
-			}
-			text = ctx.getTextValue(this.bodyFieldName);
-			if (text == null) {
-				Tracer.trace("Service context has no value for field "
-						+ this.bodyFieldName
-						+ " and hence no data is assigned to message");
-				return session.createTextMessage();
-			}
+			text = this.formatJson(ctx);
 			break;
 		case XML_ATTRIBUTES:
+			text = this.formatXmlAtts(ctx);
 			break;
 		case XML_ELEMENTS:
+			text = this.formatXmlElements(ctx);
 			break;
 		case YAML:
+			text = this.formatYaml(ctx);
 			break;
 		default:
 			break;
@@ -366,7 +402,89 @@ public class JmsQueue {
 					+ this.messageBodyType
 					+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
 		}
-		return session.createTextMessage(text);
+		message.setText(text);
+		return message;
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatYaml(ServiceContext ctx) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatXmlElements(ServiceContext ctx) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatXmlAtts(ServiceContext ctx) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatJson(ServiceContext ctx) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatFOrmData(ServiceContext ctx) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatFixed(ServiceContext ctx) {
+		Record record = ComponentManager.getRecord(this.recordName);
+		String[] names = record.getFieldNames();
+		Value[] values = ctx.getValues(names);
+		return record.formatFixedLine(values);
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatCommaPairs(ServiceContext ctx) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatComma(ServiceContext ctx) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
 	}
 
 	/**
@@ -395,109 +513,336 @@ public class JmsQueue {
 			 * properties are used for transporting data
 			 */
 			if (this.extractAll) {
-				@SuppressWarnings("unchecked")
-				Enumeration<String> names = message.getPropertyNames();
-				while (true) {
-					try {
-						String nam = names.nextElement();
-						Object val = message.getObjectProperty(nam);
-						if (val != null) {
-							ctx.setValue(nam, Value.parseObject(val));
-						}
-					} catch (NoSuchElementException e) {
-						/*
-						 * unfortunately we have to live with this old-styled
-						 * exception for a normal event!!!
-						 */
-						return;
-					}
-				}
-			}
-
-			if (this.fieldNames != null && this.fieldNames.length > 0) {
-				for (String nam : this.fieldNames) {
-					Object val = message.getObjectProperty(nam);
-					if (val != null) {
-						ctx.setValue(nam, Value.parseObject(val));
-					}
-				}
-				return;
-			}
-
-			if (this.recordName != null) {
+				this.extractAllFromHeader(message, ctx);
+			} else if (this.fieldNames != null && this.fieldNames.length > 0) {
+				this.extractHeaderFields(message, ctx, this.fieldNames);
+			} else if (this.recordName != null) {
 				Record record = ComponentManager.getRecord(this.recordName);
-				for (String nam : record.getFieldNames()) {
-					Object val = message.getObjectProperty(nam);
-					if (val != null) {
-						ctx.setValue(nam, Value.parseObject(val));
-					}
-				}
-				return;
-			}
+				this.extractHeaderFields(message, ctx, record.getFieldNames());
+			} else {
 
-			Tracer.trace(
-					"No fields specified to be extracted from the message. Nothing extracted. ");
+				Tracer.trace(
+						"No fields specified to be extracted from the message. Nothing extracted. ");
+			}
 			return;
 		}
+		/*
+		 * we use three types of message body. TEXT, MAP and OBJECT
+		 */
+		if (this.messageBodyType == MessageBodyType.OBJECT) {
+			if (message instanceof ObjectMessage == false) {
+				Tracer.trace("We expected a ObjectMessage but got "
+						+ message.getClass().getSimpleName()
+						+ ". No object extracted.");
+				return;
+			}
+			Object object = ((ObjectMessage) message).getObject();
+			if (object == null) {
+				Tracer.trace("Messaage object is null. No object extracted.");
+			} else if (this.bodyFieldName == null) {
+				Tracer.trace(
+						"bodyFieldName not set, and hence the object of instance "
+								+ object.getClass().getName() + "  " + object
+								+ " not added to context.");
+			} else {
+				ctx.setObject(this.bodyFieldName, object);
+			}
+			return;
+		}
+
+		if (this.messageBodyType == MessageBodyType.MAP) {
+			if (message instanceof MapMessage == false) {
+				Tracer.trace("We expected a MapMessage but got "
+						+ message.getClass().getSimpleName()
+						+ ". No data extracted.");
+				return;
+			}
+			MapMessage msg = (MapMessage) message;
+			if (this.extractAll) {
+				this.extractAllFromMap(ctx, msg);
+			} else if (this.fieldNames != null) {
+				this.extractMapFields(ctx, msg, this.fieldNames);
+			} else if (this.recordName != null) {
+				Record record = ComponentManager.getRecord(this.recordName);
+				this.extractMapFields(ctx, msg, record.getFieldNames());
+			} else {
+				Tracer.trace(
+						"No directive to extract any fields from this MapMessage.");
+			}
+			return;
+
+		}
+
+		if (message instanceof TextMessage == false) {
+			Tracer.trace("We expected a TextMessage but got "
+					+ message.getClass().getSimpleName()
+					+ ". No data extracted.");
+			return;
+		}
+
+		String text = ((TextMessage) message).getText();
+		if (text == null) {
+			Tracer.trace("Messaage text is null. No data extracted.");
+		} else if (this.bodyFieldName != null) {
+			ctx.setTextValue(this.bodyFieldName, text);
+		} else {
+			this.extractFromText(ctx, text);
+		}
+	}
+
+	/**
+	 * complex case wher
+	 *
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractFromText(ServiceContext ctx, String text) {
 		switch (this.messageBodyType) {
 		case COMMA_SEPARATED:
-			break;
+			this.extractComma(ctx, text);
+			return;
 		case COMMA_SEPARATED_PAIRS:
-			break;
+			this.extractCommaPairs(ctx, text);
+			return;
 		case FIXED_WIDTH:
-			break;
+			this.extractFixed(ctx, text);
+			return;
 		case FORM_DATA:
-			break;
+			this.extractFormData(ctx, text);
+			return;
 		case JSON:
-			break;
-		case MAP:
-			break;
-		case OBJECT:
-			if (this.bodyFieldName == null) {
-				throw new ApplicationError(
-						"field name not specified to receive body of the message as an object");
-			}
-			if (message instanceof ObjectMessage == false) {
-				throw new ApplicationError(
-						"Expected a ObjectMessage on the queue " + this.queueName + " but received a message of type " + message.getClass().getSimpleName());
-			}
-			Object obj = ((ObjectMessage) message).getObject();
-			if(obj == null){
-				Tracer.trace("ObjectMessage had a null value. Object not extracted");
-			}else{
-				ctx.setObject(this.bodyFieldName, obj);
-			}
+			this.extractJson(ctx, text);
 			return;
-		case TEXT:
-			if (this.bodyFieldName == null) {
-				throw new ApplicationError(
-						"field name not specified to receive body of the message");
-			}
-			if (message instanceof TextMessage == false) {
-				throw new ApplicationError(
-						"Expected a TextMessage on the queue " + this.queueName + " but received a message of type " + message.getClass().getSimpleName());
-			}
-			String txt = ((TextMessage) message).getText();
-			if(txt == null){
-				Tracer.trace("TextMessage had a null value. Text not extracted");
-			}else{
-				ctx.setValue(this.bodyFieldName, Value.parseValue(txt));
-			}
-			return;
-
 		case XML_ATTRIBUTES:
-			break;
+			this.extractXml(ctx, text);
+			return;
 		case XML_ELEMENTS:
-			break;
+			this.extractXml(ctx, text);
+			return;
 		case YAML:
-			break;
+			this.extractYaml(ctx, text);
+			return;
 		default:
 			break;
-
 		}
 		throw new ApplicationError("Sorry. Body Messaage Type of "
 				+ this.messageBodyType
 				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractYaml(ServiceContext ctx, String text) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+
+	}
+
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractXml(ServiceContext ctx, String text) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractJson(ServiceContext ctx, String text) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractFormData(ServiceContext ctx, String text) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractFixed(ServiceContext ctx, String text) {
+		Record record = ComponentManager.getRecord(this.recordName);
+		Value[] values = record.parseRow(text, null);
+		this.fillCtx(ctx, record.getFieldNames(), values);
+	}
+
+	/**
+	 *
+	 * @param ctx
+	 * @param names
+	 * @param values
+	 */
+	private void fillCtx(ServiceContext ctx, String[] names, Value[] values){
+		int i = 0;
+		for(Value value : values){
+			String name = names[i];
+			i++;
+			if(Value.isNull(value)){
+				Tracer.trace("Field " + name + " is null. Not added to context.");
+			}else{
+				ctx.setValue(name, value);
+			}
+		}
+	}
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractCommaPairs(ServiceContext ctx, String text) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractComma(ServiceContext ctx, String text) {
+		throw new ApplicationError("Sorry. Body Messaage Type of "
+				+ this.messageBodyType
+				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+	}
+
+	/**
+	 * @param ctx
+	 * @param message
+	 * @param names
+	 * @throws JMSException
+	 */
+	private void extractMapFields(ServiceContext ctx, MapMessage message,
+			String[] names) throws JMSException {
+		for (String nam : names) {
+			Object val = message.getObject(nam);
+			if (val != null) {
+				ctx.setValue(nam, Value.parseObject(val));
+			}
+		}
+	}
+
+	/**
+	 * @param ctx
+	 * @param message
+	 * @throws JMSException
+	 */
+	private void extractAllFromMap(ServiceContext ctx, MapMessage message)
+			throws JMSException {
+		@SuppressWarnings("unchecked")
+		Enumeration<String> names = message.getMapNames();
+		while (true) {
+			try {
+				String nam = names.nextElement();
+				Object val = message.getObject(nam);
+				if (val != null) {
+					ctx.setValue(nam, Value.parseObject(val));
+				}
+			} catch (NoSuchElementException e) {
+				/*
+				 * unfortunately we have to live with this old-styled
+				 * exception for a normal event!!!
+				 */
+				return;
+			}
+		}
+	}
+
+	/**
+	 * @param message
+	 * @param ctx
+	 * @throws JMSException
+	 */
+	private void extractAllFromHeader(Message message, ServiceContext ctx)
+			throws JMSException {
+		@SuppressWarnings("unchecked")
+		Enumeration<String> names = message.getPropertyNames();
+		while (true) {
+			try {
+				String nam = names.nextElement();
+				Object val = message.getObjectProperty(nam);
+				if (val != null) {
+					ctx.setValue(nam, Value.parseObject(val));
+				}
+			} catch (NoSuchElementException e) {
+				/*
+				 * unfortunately we have to live with this old-styled
+				 * exception for a normal event!!!
+				 */
+				return;
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param message
+	 * @param ctx
+	 * @param names
+	 * @throws JMSException
+	 */
+	private void extractHeaderFields(Message message, ServiceContext ctx,
+			String[] names) throws JMSException {
+		for (String nam : names) {
+			Object val = message.getObjectProperty(nam);
+			if (val != null) {
+				ctx.setValue(nam, Value.parseObject(val));
+			}
+		}
+
+	}
+
+	/**
+	 *
+	 * @param message
+	 * @param ctx
+	 * @param names
+	 * @throws JMSException
+	 */
+	private void setHeaderFields(Message message, ServiceContext ctx,
+			String[] names) throws JMSException {
+		for (String nam : names) {
+			Value val = ctx.getValue(nam);
+			if (val == null) {
+				Tracer.trace("No value for " + nam
+						+ ". Value not set to message header.");
+			} else {
+				message.setObjectProperty(nam, val.toObject());
+			}
+		}
+
+	}
+
+	/**
+	 *
+	 * @param message
+	 * @param ctx
+	 * @param names
+	 * @throws JMSException
+	 */
+	private void setMapFields(MapMessage message, ServiceContext ctx,
+			String[] names) throws JMSException {
+		for (String nam : names) {
+			Value val = ctx.getValue(nam);
+			if (val == null) {
+				Tracer.trace("No value for " + nam + ". Value not set to Map.");
+			} else {
+				message.setObject(nam, val.toObject());
+			}
+		}
 
 	}
 
