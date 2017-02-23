@@ -2,20 +2,12 @@ package org.simplity.kernel.ldap;
 
 import java.util.Hashtable;
 
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
-import javax.naming.Context;
-import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.jms.JmsSetup;
 
 public class LdapAgent {
 	private static String factory;
@@ -40,7 +32,7 @@ public class LdapAgent {
 			localCredentials = credentials;
 		}
 		DirContext ctx = null;
-		Hashtable env = new Hashtable();
+		Hashtable<String, Object> env = new Hashtable<String, Object>();
 		env.put("java.naming.factory.initial", factory);
 		env.put("java.naming.provider.url", ldapurl);
 		env.put("java.naming.security.authentication", authentication);

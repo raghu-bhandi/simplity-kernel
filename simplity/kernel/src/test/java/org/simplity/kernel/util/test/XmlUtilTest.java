@@ -17,7 +17,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.simplity.kernel.Message;
 import org.simplity.kernel.db.StoredProcedure;
-import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.tp.Service;
 

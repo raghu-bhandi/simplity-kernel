@@ -50,7 +50,7 @@ import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 public class SmtpMail extends Action {
-	
+
 	String fromId;
 	String toIds;
 	String ccIds;
@@ -60,7 +60,7 @@ public class SmtpMail extends Action {
 
 	String filekey;
 	String filename;
-	
+
 	public SmtpMail() {
 	}
 
@@ -92,11 +92,14 @@ public class SmtpMail extends Action {
 		Session session = Session.getInstance(props, null);
 		try {
 			sendEmail(session, mail);
-		} catch (UnsupportedEncodingException | MessagingException e) {
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
-		return Value.newBooleanValue(true);	
+		return Value.newBooleanValue(true);
 	}
+
 	Properties props = new Properties();
 
 	private void sendEmail(Session session, Mail mail) throws MessagingException, UnsupportedEncodingException {
@@ -116,7 +119,7 @@ public class SmtpMail extends Action {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-//		Transport.send(msg);
+		// Transport.send(msg);
 	}
 
 	private void setContent(MimeMessage msg, String content, MailAttachement attachment) throws MessagingException {
@@ -138,37 +141,38 @@ public class SmtpMail extends Action {
 	}
 
 	private static byte[] serialize(Object obj) throws IOException {
-		try (ByteArrayOutputStream b = new ByteArrayOutputStream()) {
-			try (ObjectOutputStream o = new ObjectOutputStream(b)) {
-				o.writeObject(obj);
-			}
-			return b.toByteArray();
-		}
+
+		ByteArrayOutputStream b = new ByteArrayOutputStream();
+
+		ObjectOutputStream o = new ObjectOutputStream(b);
+		o.writeObject(obj);
+
+		return b.toByteArray();
 	}
+}
 
-	public class Mail implements Serializable {
-		private static final long serialVersionUID = -4314888435710523295L;
+class Mail implements Serializable {
+	private static final long serialVersionUID = -4314888435710523295L;
 
-		public String fromId;
-		public String toIds;
-		public String ccIds;
-		public String bccIds;
-		public String subject;
-		public String content;
-		public MailAttachement attachment;
-	}
+	public String fromId;
+	public String toIds;
+	public String ccIds;
+	public String bccIds;
+	public String subject;
+	public String content;
+	public MailAttachement attachment;
+}
 
-	public class MailAttachement implements Serializable {
+class MailAttachement implements Serializable {
 
-		private static final long serialVersionUID = 8189730674999834850L;
+	private static final long serialVersionUID = 8189730674999834850L;
 
-		public String filekey;
-		public String filename;
+	public String filekey;
+	public String filename;
 
-		public boolean isEmpty() {
-			if (filekey == null || filekey.isEmpty())
-				return true;
-			return false;
-		}
+	public boolean isEmpty() {
+		if (filekey == null || filekey.isEmpty())
+			return true;
+		return false;
 	}
 }

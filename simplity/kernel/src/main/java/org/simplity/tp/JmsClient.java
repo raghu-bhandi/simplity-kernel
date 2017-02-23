@@ -24,8 +24,6 @@ package org.simplity.tp;
 
 import java.util.UUID;
 
-import javax.jms.Destination;
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
@@ -33,8 +31,6 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.jms.JmsConnector;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;

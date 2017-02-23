@@ -35,7 +35,6 @@ import org.simplity.json.JSONObject;
 import org.simplity.json.XML;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.db.DbAccessType;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;

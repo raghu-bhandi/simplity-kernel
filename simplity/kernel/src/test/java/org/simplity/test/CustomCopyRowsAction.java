@@ -13,7 +13,6 @@ public class CustomCopyRowsAction implements LogicInterface{
 	@Override
 	public Value execute(ServiceContext ctx) {
 		DataSheet fromSheet = null;
-		DataSheet toSheet = null;
 		try {
 			fromSheet = TestUtils.loadDS("weekendBoxOffice");
 		} catch (IOException e) {

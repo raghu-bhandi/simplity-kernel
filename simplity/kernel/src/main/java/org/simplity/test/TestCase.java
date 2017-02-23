@@ -286,7 +286,6 @@ public class TestCase {
 	 * @param vtx
 	 * @return number of errors detected
 	 */
-	@SuppressWarnings("unused")
 	public int validate(ValidationContext vtx) {
 		int nbr = 0;
 		if (this.inputJson != null) {

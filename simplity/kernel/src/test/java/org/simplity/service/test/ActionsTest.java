@@ -2,7 +2,6 @@ package org.simplity.service.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,7 +35,6 @@ import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.comp.ComponentType;
-import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;

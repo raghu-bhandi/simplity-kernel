@@ -474,7 +474,6 @@ public class HttpAgent {
 		 * we have to suppress this warning as it is an external call that we
 		 * have no control over
 		 */
-		@SuppressWarnings("unchecked")
 		Map<String, String[]> fields = req.getParameterMap();
 		if (fields != null) {
 			for (Map.Entry<String, String[]> entry : fields.entrySet()) {
@@ -688,6 +687,7 @@ public class HttpAgent {
 				ObjectInputStream stream = new ObjectInputStream(
 						new FileInputStream(file));
 				obj = stream.readObject();
+				stream.close();
 			} catch (Exception e) {
 				if (exceptionListener != null) {
 					exceptionListener.listen(null, e);

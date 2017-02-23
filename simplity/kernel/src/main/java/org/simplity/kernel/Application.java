@@ -34,9 +34,6 @@ import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.DbVendor;
 import org.simplity.kernel.db.SchemaDetail;
 import org.simplity.kernel.file.FileBasedAssistant;
-import org.simplity.kernel.jms.JmsAgent;
-import org.simplity.kernel.jms.JmsParms;
-import org.simplity.kernel.jms.JmsSetup;
 import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.ldap.LdapConfig;
 import org.simplity.kernel.util.JsonUtil;
@@ -197,11 +194,7 @@ public class Application {
 	 */
 	SchemaDetail[] schemaDetails;
 
-	/**
-	 * Configure the JMS Setup for the application
-	 */
-	JmsSetup jmsSetup;
-	
+
 	/**
 	 * Configure the LDAP Setup for the application
 	 */
@@ -327,17 +320,7 @@ public class Application {
 			msgs.add("Error while setting up DbDriver. " + e.getMessage()
 					+ " Application will not work properly.");
 		}
-		
-		/*
-		 * Setup JMS Agent
-		 */
-		if(this.jmsSetup!=null)
-		try {
-			JmsAgent.initialSetup(this.jmsSetup);
-		} catch (Exception e) {
-			msgs.add("Error while setting up JmsAgent." + e.getMessage()
-					+ " Application will not work properly.");
-		}
+
 		/*
 		 * Setup LDAP Agent
 		 */

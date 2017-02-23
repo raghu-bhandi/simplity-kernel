@@ -23,10 +23,10 @@
 package org.simplity.kernel.util.test;
 
 import static org.junit.Assert.assertEquals;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.simplity.json.JSONException;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.DynamicSheet;
 import org.simplity.kernel.expr.Expression;
@@ -115,8 +115,6 @@ public class ExpressionTest {
 		for (int i = 0; i < ExpressionTest.integralExpressions.length; i++) {
 			String text = ExpressionTest.integralExpressions[i];
 			long result = ExpressionTest.integralResults[i];
-			String msg = "";
-
 			Expression expr = new Expression(text);
 			Value value = expr.evaluate(data);
 			assertEquals(result, value.toInteger());

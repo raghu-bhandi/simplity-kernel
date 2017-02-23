@@ -28,9 +28,6 @@ import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 
 import org.simplity.kernel.Messages;
@@ -171,9 +168,7 @@ public class ServiceSubmitter implements Runnable {
 				lock = channel.tryLock();
 				lock.release();
 				channel.close();
-
-				Path path = Paths.get(file.getAbsolutePath());
-				Files.move(path, path.resolveSibling(file.getName() + ".bak"));
+				file.renameTo(new File(file.getName()+".bak"));
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

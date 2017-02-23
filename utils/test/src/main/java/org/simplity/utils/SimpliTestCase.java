@@ -76,9 +76,7 @@ public class SimpliTestCase extends TestCase {
 		String[][] report = ctx.getReport();
 
 		for (int i = 0; i < report.length; i++) {
-			String serviceName = report[i][0];
 			String testCaseName = report[i][1];
-			String millis = report[i][2];
 			String cleared = report[i][3];
 			String errorMessage = report[i][4];
 			if (cleared.equals("false")) {

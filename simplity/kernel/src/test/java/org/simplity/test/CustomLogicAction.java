@@ -2,7 +2,6 @@ package org.simplity.test;
 
 import java.io.IOException;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;

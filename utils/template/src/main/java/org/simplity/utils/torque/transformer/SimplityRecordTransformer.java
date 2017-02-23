@@ -9,23 +9,14 @@ import org.apache.torque.generator.control.ControllerState;
 import org.apache.torque.generator.source.SourceElement;
 import org.apache.torque.generator.source.transform.SourceTransformer;
 import org.apache.torque.generator.source.transform.SourceTransformerException;
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.dm.Record;
-import org.simplity.kernel.dt.DataTypeSuggester;
 import org.simplity.kernel.util.XmlUtil;
-import org.simplity.kernel.value.BooleanValue;
-import org.simplity.kernel.value.Value;
 
 public class SimplityRecordTransformer implements SourceTransformer {
-	/** Default database name if none is set. */
-	private static final String DEFAULT_DATABASE_NAME = "default";
-
 	public SourceElement transform(SourceElement toTransformRoot, ControllerState controllerState)
 			throws SourceTransformerException {
-		DataTypeSuggester suggester = new DataTypeSuggester();
 		List<SourceElement> tables = toTransformRoot.getChildren("table");
-		SourceElement root = new SourceElement("root");
 		for (int i = 1; i < tables.size(); i++) {
 			String recordName = tables.get(i).getAttribute("name").toString();
 			Record record = new Record();

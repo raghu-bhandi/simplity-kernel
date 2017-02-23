@@ -6,7 +6,7 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:dt="http://www.simplity.org/custom"
 >
-	<xs:import namespace="http://www.simplity.org/custom"></xs:import>
+	<xs:import namespace="http://www.simplity.org/custom" schemaLocation="custom.xsd"></xs:import>
 	<!-- data types are organized in one or more files, but not one per file. 
 		hence we have a wrapper element <dataTypes> with another wrapper element 
 		called <dataTypes> for the collection. -->
@@ -1983,13 +1983,6 @@
 	</xs:complexType>
 
 	<xs:complexType name="jumpTo">
-		<xs:sequence>
-			<xs:element
-				name="actions"
-				minOccurs="1"
-				maxOccurs="1"
-				type="actions" />
-		</xs:sequence>
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
 			name="toAction"

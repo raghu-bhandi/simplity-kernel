@@ -28,9 +28,6 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -143,8 +140,7 @@ public class FileProcessor extends Block {
 			BlockWorker worker = new BlockWorker(this.actions,
 					this.indexedActions, ctx);
 			worker.execute(driver);
-			Path path = Paths.get(file.getAbsolutePath());
-			Files.move(path, path.resolveSibling(file.getName() + ".bak"));
+			file.renameTo(new File(file.getName()+".bak"));
 			return true;
 		} catch (Exception e) {
 			Tracer.trace("Error while processing file " + file.getName() + ". "

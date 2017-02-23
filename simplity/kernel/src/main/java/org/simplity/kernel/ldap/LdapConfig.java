@@ -1,13 +1,5 @@
 package org.simplity.kernel.ldap;
 
-import java.util.Hashtable;
-
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-
-import org.simplity.kernel.ApplicationError;
-
 public class LdapConfig {
 
     public static final String INITIAL_CONTEXT_FACTORY = "com.sun.jndi.ldap.LdapCtxFactory";

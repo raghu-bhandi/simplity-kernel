@@ -3,7 +3,6 @@ package org.simplity.examples;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.simplity.http.Serve;
 import org.simplity.kernel.Application;
 

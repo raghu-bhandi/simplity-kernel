@@ -15,37 +15,39 @@ import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.dm.FieldType;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.util.XmlUtil;
+import org.simplity.kernel.value.ValueType;
 import org.simplity.utils.utils.Utils;
 
 public class SimplityRecordContent extends OutletImpl {
 	public SimplityRecordContent(QualifiedName name) {
 		super(name);
 	}
+
 	@Override
 	public OutletResult execute(ControllerState controllerState) throws GeneratorException {
 		SourceElement root = controllerState.getSourceElement();
-		Record record = new Record(); 
+		Record record = new Record();
 		String recordName = root.getAttribute("name").toString();
 		record.setQualifiedName(Utils.toCamelCase(recordName));
 		record.setTableName(recordName);
-		
-		Map<String,List<ForeignKey>> foreignKeyList = new HashMap();
+
+		Map<String, List<ForeignKey>> foreignKeyList = new HashMap<String, List<ForeignKey>>();
 		List<SourceElement> foreignKeys = root.getChildren("foreign-key");
-		for(SourceElement foreignKey:foreignKeys){
+		for (SourceElement foreignKey : foreignKeys) {
 			String foreignTable = foreignKey.getAttribute("foreignTable").toString();
 			List<SourceElement> references = foreignKey.getChildren("reference");
-			for(SourceElement reference:references){
-				ForeignKey fk = new ForeignKey(foreignTable,reference.getAttribute("foreign").toString());
+			for (SourceElement reference : references) {
+				ForeignKey fk = new ForeignKey(foreignTable, reference.getAttribute("foreign").toString());
 				String local = reference.getAttribute("local").toString();
-				List fkList = foreignKeyList.get(local);
-				if(fkList==null){
+				List<ForeignKey> fkList = foreignKeyList.get(local);
+				if (fkList == null) {
 					fkList = new ArrayList<ForeignKey>();
 				}
 				fkList.add(fk);
-				foreignKeyList.put(local,fkList );				
+				foreignKeyList.put(local, fkList);
 			}
 		}
-		
+
 		List<SourceElement> columns = root.getChildren("column");
 		Field[] fields = new Field[columns.size()];
 		for (int j = 0; j < fields.length; j++) {
@@ -57,38 +59,29 @@ public class SimplityRecordContent extends OutletImpl {
 			field.setColumnName(nam);
 			String sqlTypeName = column.getAttribute("type").toString();
 			field.setSqlTypeName(sqlTypeName);
-			field.setDataType(getDataType(sqlTypeName));
-			if(column.getAttribute("primaryKey")!=null){
+			field.setDataType(ValueType.valueOf(sqlTypeName).getDefaultDataType());
+			if (column.getAttribute("primaryKey") != null) {
 				field.setFieldType(FieldType.PRIMARY_KEY);
 			}
 
-			//set the reference details
-			List fkList = new ArrayList<ForeignKey>();
-			if((fkList=foreignKeyList.get(nam))!=null){
+			// set the reference details
+			List<ForeignKey> fkList = new ArrayList<ForeignKey>();
+			if ((fkList = foreignKeyList.get(nam)) != null) {
 				field.setFieldType(FieldType.FOREIGN_KEY);
-				ForeignKey fk = (ForeignKey)(fkList.get(0));
+				ForeignKey fk = (ForeignKey) (fkList.get(0));
 				field.setReferredRecord(Utils.toCamelCase(fk.foreignTable));
-				field.setReferredField(Utils.toCamelCase(fk.foreignKey));				
+				field.setReferredField(Utils.toCamelCase(fk.foreignKey));
 			}
 
 		}
 		record.setFields(fields);
-		return new OutletResult(XmlUtil.objectToXmlString(record));		
+		return new OutletResult(XmlUtil.objectToXmlString(record));
 	}
-	private String getDataType(String sqlTypeName) {
-		switch (sqlTypeName) {
-		case "INTEGER":
-			return "_number";
-		case "DATE":
-			return "date";			
-		default:
-		    return "_text";
-		}
-	}
-	
-	class ForeignKey{
+
+	class ForeignKey {
 		String foreignTable;
 		String foreignKey;
+
 		public ForeignKey(String foreignTable, String foreignKey) {
 			super();
 			this.foreignTable = foreignTable;

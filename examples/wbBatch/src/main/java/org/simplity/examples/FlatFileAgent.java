@@ -215,8 +215,8 @@ public class FlatFileAgent implements Runnable {
 	private void processFiles() {
 		try {
 			for (File file : this.inbox.listFiles(filter)) {
-				FileChannel channel = new RandomAccessFile(file, "rw")
-						.getChannel();
+				RandomAccessFile raf = new RandomAccessFile(file, "rw");
+				FileChannel channel = raf.getChannel();
 				try {
 					FileLock lock = channel.tryLock();
 					lock.release();
@@ -247,6 +247,7 @@ public class FlatFileAgent implements Runnable {
 					 */
 					continue;
 				}
+				raf.close();
 			}
 		} catch (Exception e) {
 			Tracer.trace(e, "Error while working on the folder");

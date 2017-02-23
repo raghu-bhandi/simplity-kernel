@@ -24,10 +24,8 @@ package org.simplity.tp;
 
 import java.util.Hashtable;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 
 import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.value.Value;
