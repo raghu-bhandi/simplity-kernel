@@ -3540,32 +3540,43 @@
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
-			name="messageFormat"
-			type="xs:string"
+			name="messageBodyType"
+			type="jmsMessageFormat"
 		>
 			<xs:annotation>
-				<xs:documentation>If the response message has values for more than
-					one fields
+				<xs:documentation>If the message body is used for transporting data,
+					how is it formatted?
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
-			name="fieldName"
+			name="bodyFieldName"
 			type="xs:string"
 		>
 			<xs:annotation>
-				<xs:documentation>content of the message is associated with this
-					field in service context
+				<xs:documentation>field name that is used to extract message body
+					into, or for preparing it. Valid if messsageBody is used.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
-			name="fields"
+			name="fieldNames"
 			type="xs:string"
 		>
 			<xs:annotation>
-				<xs:documentation>Comma separated list of field names that form the
-					message. Use this if you do not want to create a record.
+				<xs:documentation>Comma separated list of field names that being
+					transported (either as formatted text in message body, or as header
+					parametersm)
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>data structure to be used for either formatting
+					message body, or header setting/getting header paremeters
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -3576,16 +3587,6 @@
 			<xs:annotation>
 				<xs:documentation>trust the producer and extract all data from
 					message.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-		>
-			<xs:annotation>
-				<xs:documentation>data structure of the message. Used for
-					formatting/extracting/validating
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -3611,32 +3612,45 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-		<!-- we would liek to get away with our random id than users specifying 
-			one <xs:attribute name="correlationId" type="xs:string" > <xs:annotation> 
-			<xs:documentation>in case your existing design allows a fixed-correlation 
-			id with no clash. Default is to use a random correlation id </xs:documentation> 
-			</xs:annotation> </xs:attribute> -->
+
+		<xs:attribute
+			name="messageType"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>in case this attribute is used for the queue and
+					being used by your application
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:simpleType name="jmsMessageFormat">
 		<xs:restriction base="xs:string">
-			<xs:enumeration value="singleField">
+			<xs:enumeration value="text">
 				<xs:annotation>
-					<xs:documentation>Value of a single field. Could be primitive value
-						or a java object.
+					<xs:documentation>Value of a single field. Any primitive value in
+						text representation or a java object.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
-			<xs:enumeration value="fixedWidthText">
+			<xs:enumeration value="fixedWidth">
 				<xs:annotation>
-					<xs:documentation>field values are of fixed widths. Like a
-						flat-file row
+					<xs:documentation>predefined sequence of fields each with
+						predefined width
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
-			<xs:enumeration value="commaSeparatedText">
+			<xs:enumeration value="commaSeparated">
 				<xs:annotation>
-					<xs:documentation>field values are comma separated
+					<xs:documentation>predefined sequence of field values separated by
+						comma
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="commaSeparatedPairs">
+				<xs:annotation>
+					<xs:documentation>comma separated pairs of name=value
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
@@ -3663,12 +3677,9 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
-			<xs:enumeration value="yaml">
-				<xs:annotation>
-					<xs:documentation>yaml
-					</xs:documentation>
-				</xs:annotation>
-			</xs:enumeration>
+			<xs:enumeration value="yaml" />
+			<xs:enumeration value="object" />
+			<xs:enumeration value="map" />
 		</xs:restriction>
 	</xs:simpleType>
 </xs:schema>

@@ -20,13 +20,14 @@
  * SOFTWARE.
  */
 
-package org.simplity.kernel.jms;
+package org.simplity.jms;
 
 import java.util.Hashtable;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
+import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -40,7 +41,7 @@ import org.simplity.kernel.ApplicationError;
  * @author simplity.org
  *
  */
-public class JmsConnector {
+public class Connector {
 
 	/**
 	 * we use just one connection for our entire application
@@ -48,7 +49,7 @@ public class JmsConnector {
 	private static Connection connection;
 
 	/*
-	 * set-up parameters loaded at Applicaiton level
+	 * set-up parameters loaded at Application level
 	 */
 	/**
 	 * initial context jndi name, or null to get default set by admin
@@ -65,8 +66,11 @@ public class JmsConnector {
 	 */
 	String connectionFactory;
 
+	String sessionPool;
+
 	/**
 	 * initial setup. Called by Application on startup
+	 *
 	 * @throws NamingException
 	 * @throws JMSException
 	 *
@@ -80,11 +84,12 @@ public class JmsConnector {
 		 */
 		Context ctx;
 		/*
-		 * initial context and provider url may be set explicitly (typically for testing) or may be already set by the App Server
+		 * initial context and provider url may be set explicitly (typically for
+		 * testing) or may be already set by the App Server
 		 */
-		if(this.initialContext == null || this.providerUrl == null){
+		if (this.initialContext == null || this.providerUrl == null) {
 			ctx = new InitialContext();
-		}else{
+		} else {
 			/*
 			 * push these parameters to the context
 			 */
@@ -97,19 +102,41 @@ public class JmsConnector {
 		/*
 		 * get a connection from the factory that is set by admin
 		 */
-		connection  = ((ConnectionFactory)ctx.lookup(this.connectionFactory)).createConnection();
+		connection = ((ConnectionFactory) ctx.lookup(this.connectionFactory))
+				.createConnection();
 	}
 
-
 	/**
-	 * get a JMS connection
+	 * get a JMS connection. And, please, please do not close() it or abandon it. Do return it once you are done. I am dependent on
+	 * your discipline at this time to avoid memory leakage
+	 *
 	 * @return connection
 	 */
-	public static Connection getConnection(){
+	public static Session getSession() {
 		if (connection == null) {
 			throw new ApplicationError(
 					"JMS is not set up for this application, or an effort to do so has failed.");
 		}
-		return connection;
+		try {
+			return connection.createSession(true, 0);
+		} catch (JMSException e) {
+			throw new ApplicationError(e,
+					"Error while creating a JMS session.");
+		}
+	}
+
+	/**
+	 * return the session once you are done.
+	 * @param session
+	 */
+	public void returnSession(Session session) {
+		if (session == null) {
+			return;
+		}
+		try {
+			session.close();
+		} catch (Exception ignore) {
+			// playing it safe
+		}
 	}
 }

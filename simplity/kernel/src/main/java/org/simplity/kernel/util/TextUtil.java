@@ -506,7 +506,7 @@ public class TextUtil {
 	 * @return a fileNameFIlter that can be used to filter file names from a
 	 *         folder
 	 */
-	public static FilenameFilter getFIleNameFilter(String pattern) {
+	public static FilenameFilter getFileNameFilter(String pattern) {
 		return new MyFileFilter(pattern);
 	}
 }
