@@ -334,6 +334,17 @@ public class CommonData implements CommonDataInterface {
 		return this.allFields.entrySet();
 	}
 
+
+	@Override
+	public Value[] getValues(String[] names) {
+		Value[] values = new Value[names.length];
+		int i = 0;
+		for(String name : names){
+			values[i++] = this.allFields.get(name);
+		}
+		return values;
+	}
+
 	/**
 	 * Way to pass an object to subsequent action
 	 *

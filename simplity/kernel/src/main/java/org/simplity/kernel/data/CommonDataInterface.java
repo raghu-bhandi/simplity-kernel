@@ -23,6 +23,8 @@ package org.simplity.kernel.data;
 
 import java.util.Date;
 
+import org.simplity.kernel.value.Value;
+
 /**
  * Default generic data structure that can be used as memory organization for
  * implementing any logic. for example implementing a service. created for
@@ -192,4 +194,10 @@ public interface CommonDataInterface extends FieldsInterface {
 	 */
 	public void setBooleanValue(String fieldName, boolean value);
 
+	/**
+	 * get an array of values for the names
+	 * @param names non-null names
+	 * @return array of values. an element is null if no value is found for the field
+	 */
+	public Value[] getValues(String[] names);
 }

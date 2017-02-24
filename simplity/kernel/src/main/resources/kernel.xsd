@@ -6,7 +6,10 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
 	xmlns:dt="http://www.simplity.org/custom"
 >
-	<xs:import namespace="http://www.simplity.org/custom" schemaLocation="custom.xsd"></xs:import>
+	<xs:import
+		namespace="http://www.simplity.org/custom"
+		schemaLocation="custom.xsd"
+	></xs:import>
 	<!-- data types are organized in one or more files, but not one per file. 
 		hence we have a wrapper element <dataTypes> with another wrapper element 
 		called <dataTypes> for the collection. -->
@@ -1813,15 +1816,15 @@
 			<xs:enumeration value="PUT" />
 			<xs:enumeration value="POST" />
 		</xs:restriction>
-	</xs:simpleType>	
+	</xs:simpleType>
 	<xs:simpleType name="contentTypetype">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="application/json" />
 			<xs:enumeration value="application/xml" />
 			<xs:enumeration value="text/html" />
 		</xs:restriction>
-	</xs:simpleType>	
-		
+	</xs:simpleType>
+
 	<xs:complexType name="httpClient">
 		<xs:all>
 			<xs:element
@@ -3593,6 +3596,17 @@
 			<xs:annotation>
 				<xs:documentation>data structure to be used for either formatting
 					message body, or header setting/getting header paremeters
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="nameValueSheetName"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>Special case where name-value pairs are organized
+					in a data sheet as two columns. First column is name and second is
+					value. This structure allows repeting names.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>

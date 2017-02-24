@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Writer;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -431,18 +430,35 @@ public class Record implements Component {
 	}
 
 	/**
-	 * to avoid confusion, we do not have a method called setName.
+	 * to avoid confusion, we do not have a method called setName. name is
+	 * split, if required into module name and name
 	 *
-	 * @return void
+	 * @param nam
+	 *            qualified name
+	 *
 	 */
-	public void setQualifiedName(String name) {
-		this.name = name;
+	public void setQualifiedName(String nam) {
+		int idx = nam.lastIndexOf('.');
+		if (idx == -1) {
+			this.name = nam;
+			return;
+		}
+		this.moduleName = nam.substring(0, idx);
+		this.name = nam.substring(idx + 1);
 	}
 
+	/**
+	 *
+	 * @param moduleName
+	 */
 	public void setModuleName(String moduleName) {
 		this.moduleName = moduleName;
 	}
 
+	/**
+	 *
+	 * @param tableName
+	 */
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 	}
@@ -3264,6 +3280,10 @@ public class Record implements Component {
 		return this.tableName;
 	}
 
+	/**
+	 *
+	 * @param fields
+	 */
 	public void setFields(Field[] fields) {
 		this.fields = fields;
 	}
@@ -3292,7 +3312,7 @@ public class Record implements Component {
 		try {
 			int n = ds.length();
 			for (int i = 0; i < n; i++) {
-				this.writeFields(writer, ds.getRow(i));
+				writer.write(this.formatFixedLine(ds.getRow(i)));
 				if (toWriteLine) {
 					writer.newLine();
 				}
@@ -3318,39 +3338,60 @@ public class Record implements Component {
 		return widths;
 	}
 
-	private void writeFields(Writer writer, Value[] row) throws IOException {
+	/**
+	 * create a fixed length text
+	 *
+	 * @param row
+	 *            values in the right order and length corresponding to the
+	 *            fields in this record
+	 * @return fixed width text representation of supplied values for a row of
+	 *         this record
+	 */
+	public String formatFixedLine(Value[] row) {
+		StringBuilder sbf = new StringBuilder();
 		for (int i = 0; i < row.length; i++) {
 			Field field = this.fields[i];
-			String txt = field.getDataType().formatValue(row[i]);
+			Value value = row[i];
+			String txt;
+			if (Value.isNull(value)) {
+				txt = "";
+			} else {
+				txt = field.getDataType().formatValue(value);
+			}
 			int m = txt.length();
 			int n = field.fieldWidth;
 			if (m > n) {
-				writer.write(txt.substring(0, n));
+				sbf.append(txt.substring(0, n));
 				Tracer.trace(
 						"Value " + txt + " is wider than the alotted width of "
 								+ n + " characters and hence is truncated");
 				continue;
 			}
-			writer.write(txt);
+			sbf.append(txt);
 			if (m < n) {
 				while (m++ < n) {
-					writer.write(' ');
+					sbf.append(' ');
 				}
 			}
 		}
+		return sbf.toString();
 	}
 
 	/**
 	 * reads fixed-width rows from a stream into a data sheet.
 	 *
 	 * @param reader
-	 * @param errors errors list to which any parse error is added. Field in error is treated as not given
+	 * @param errors
+	 *            errors list to which any parse error is added. Field in error
+	 *            is treated as not given
 	 * @param toReadLine
 	 *            true if the file contains new-line markers, false if there are
 	 *            no chars between rows.
-	 * @return dataSheet. Null in case of any parse error, in which case error message/s would have been added to errors.
+	 * @return dataSheet. Null in case of any parse error, in which case error
+	 *         message/s would have been added to errors.
 	 */
-	public DataSheet fromFlatFile(BufferedReader reader, List<FormattedMessage> errors, boolean toReadLine) {
+	public DataSheet fromFlatFile(BufferedReader reader,
+			List<FormattedMessage> errors, boolean toReadLine) {
 		if (this.recordLength == 0) {
 			throw new ApplicationError("Record " + this.getQualifiedName()
 					+ " is not designed for a flat file");
@@ -3374,8 +3415,9 @@ public class Record implements Component {
 				//
 			}
 		}
-		if(errors.size() > nbr){
-			Tracer.trace("Errors detected while parsing a flat file. Data sheet not created.");
+		if (errors.size() > nbr) {
+			Tracer.trace(
+					"Errors detected while parsing a flat file. Data sheet not created.");
 			return null;
 		}
 		return ds;
