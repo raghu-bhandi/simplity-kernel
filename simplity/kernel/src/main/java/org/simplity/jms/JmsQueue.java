@@ -38,12 +38,18 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
+import org.simplity.json.JSONObject;
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.dm.Record;
+import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
 import org.simplity.service.DataExtractor;
 import org.simplity.service.DataFormatter;
 import org.simplity.service.ServiceContext;
@@ -56,6 +62,9 @@ import org.simplity.service.ServiceContext;
  */
 public class JmsQueue {
 
+	private static final char EQUAL = '=';
+	private static final char COMMA = ',';
+	private static final String COMA = ",";
 	/**
 	 * name of the queue (destination) used for requesting a service
 	 */
@@ -97,6 +106,13 @@ public class JmsQueue {
 	String messageExtractor;
 
 	/**
+	 * sheet name with two columns, first one name, second one value, both text.
+	 * bodyMessageType must e set to COMMA_SEPARATED_PAIRS. Consumer extracts
+	 * into this sheet, while producer formats the text using data in this
+	 * sheet
+	 */
+	String nameValueSheetName;
+	/**
 	 * subset of messages that we are interested. As per JMS selector syntax.
 	 */
 	String messageSelector;
@@ -137,17 +153,27 @@ public class JmsQueue {
 
 		try {
 			/*
-			 * an empty producer may not hurt!!
+			 * We may not use producer at all, but an empty producer does not
+			 * hurt as much as creating it repeatedly..
 			 */
 			producer = session.createProducer(null);
+
 			Queue request = session.createQueue(this.queueName);
 			consumer = session.createConsumer(request, this.messageSelector);
+			/*
+			 * default response q is decided by queueName, but may be
+			 * over-ridden my incoming message.Let us keep this default one
+			 * handy
+			 */
 			Queue response = null;
 			if (responseQ != null) {
 				if (responseQ.queueName != null) {
 					response = session.createQueue(responseQ.queueName);
 				}
 			}
+			/*
+			 * seemingly infinite loop starts...
+			 */
 			while (processor.toContinue()) {
 				Message msg = consumer.receive();
 				if (msg == null) {
@@ -159,21 +185,39 @@ public class JmsQueue {
 					break;
 				}
 				boolean allOk = false;
+				/*
+				 * let exception in one message not affect the over-all process
+				 */
 				try {
+					/*
+					 * data content of message is extracted into ctx
+					 */
 					this.extractMessage(msg, ctx);
+					/*
+					 * is the requester asking us to respond on a specific
+					 * queue?
+					 */
 					Destination reply = msg.getJMSReplyTo();
+					/*
+					 * and the all important correlation id for the requester to
+					 * select the message back
+					 */
 					String corId = msg.getJMSCorrelationID();
 					if (reply == null) {
 						reply = response;
 					}
+
 					allOk = processor.process(ctx);
 					if (reply != null) {
 						Message respMsg = null;
 						if (responseQ == null) {
 							Tracer.trace(
-									"No responseQ , and hence blank message is used for response");
+									"No response is specified for this consumer, but producer is asking for a reply. Sending a blank message");
 							respMsg = session.createMessage();
 						} else {
+							/*
+							 * prepare a reply based on specification
+							 */
 							respMsg = responseQ.createMessage(session, ctx);
 						}
 						if (corId != null) {
@@ -182,7 +226,7 @@ public class JmsQueue {
 						producer.send(reply, respMsg);
 					}
 				} catch (Exception e) {
-					Tracer.trace("Message processor threw an excpetion "
+					Tracer.trace("Message processor threw an excpetion. "
 							+ e.getMessage());
 				}
 				if (allOk) {
@@ -234,10 +278,18 @@ public class JmsQueue {
 		MessageConsumer consumer = null;
 		Queue response = null;
 		String corId = null;
+
 		try {
 			Queue request = session.createQueue(this.queueName);
 			producer = session.createProducer(request);
+			/*
+			 * create a message with data from ctx
+			 */
 			Message msg = this.createMessage(session, ctx);
+
+			/*
+			 * should we ask for a return message?
+			 */
 			if (responseQ != null) {
 				if (responseQ.queueName == null) {
 					response = session.createTemporaryQueue();
@@ -317,8 +369,7 @@ public class JmsQueue {
 				Record record = ComponentManager.getRecord(this.recordName);
 				this.setHeaderFields(message, ctx, record.getFieldNames());
 			} else {
-				Tracer.trace(
-						"No fields specified to be added to the message.");
+				Tracer.trace("No fields specified to be added to the message.");
 			}
 			return message;
 		}
@@ -331,8 +382,7 @@ public class JmsQueue {
 				Record record = ComponentManager.getRecord(this.recordName);
 				this.setMapFields(message, ctx, record.getFieldNames());
 			} else {
-				Tracer.trace(
-						"No fields specified to be added Map.");
+				Tracer.trace("No fields specified to be added Map.");
 			}
 			return message;
 		}
@@ -357,18 +407,30 @@ public class JmsQueue {
 					+ " as object for message. This class must be serializable.");
 		}
 
+		/*
+		 * so, it is a TextMessage. Our task is to create the text to be set to
+		 * the message body
+		 */
 		TextMessage message = session.createTextMessage();
 		String text = null;
-		if(this.bodyFieldName != null){
+
+		if (this.bodyFieldName != null) {
+			/*
+			 * simplest of our task. text is readily available in this field.
+			 */
 			text = ctx.getTextValue(this.bodyFieldName);
-			if(text == null){
-				Tracer.trace("No value found for body text with field name " + this.bodyFieldName + ". Data not set.");
-			}else{
+			if (text == null) {
+				Tracer.trace("No value found for body text with field name "
+						+ this.bodyFieldName + ". Data not set.");
+			} else {
 				message.setText(text);
 			}
 			return message;
 		}
 
+		/*
+		 * format the text based on the data format specification
+		 */
 		switch (this.messageBodyType) {
 		case COMMA_SEPARATED:
 			text = this.formatComma(ctx);
@@ -380,7 +442,7 @@ public class JmsQueue {
 			text = this.formatFixed(ctx);
 			break;
 		case FORM_DATA:
-			text = this.formatFOrmData(ctx);
+			text = this.formatFormData(ctx);
 			break;
 		case JSON:
 			text = this.formatJson(ctx);
@@ -395,9 +457,6 @@ public class JmsQueue {
 			text = this.formatYaml(ctx);
 			break;
 		default:
-			break;
-		}
-		if (text == null) {
 			throw new ApplicationError("Sorry. Body Messaage Type of "
 					+ this.messageBodyType
 					+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
@@ -441,16 +500,20 @@ public class JmsQueue {
 	 * @return
 	 */
 	private String formatJson(ServiceContext ctx) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+		String[] names = this.fieldNames;
+		if (names == null) {
+			names = ComponentManager.getRecord(this.recordName).getFieldNames();
+		}
+		JSONWriter writer = new JSONWriter();
+		JsonUtil.addAttributes(writer, names, ctx);
+		return writer.toString();
 	}
 
 	/**
 	 * @param ctx
 	 * @return
 	 */
-	private String formatFOrmData(ServiceContext ctx) {
+	private String formatFormData(ServiceContext ctx) {
 		throw new ApplicationError("Sorry. Body Messaage Type of "
 				+ this.messageBodyType
 				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
@@ -472,9 +535,50 @@ public class JmsQueue {
 	 * @return
 	 */
 	private String formatCommaPairs(ServiceContext ctx) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+		if(this.nameValueSheetName != null){
+			return this.formatFromSheet(ctx);
+		}
+		String[][] data = this.getNamesAndValues(ctx);
+		String[] names = data[0];
+		String[] values = data[1];
+		int i = 0;
+		StringBuilder sbf = new StringBuilder();
+		for (String name : names) {
+			sbf.append(name).append(EQUAL).append(values[i]).append(COMMA);
+			i++;
+		}
+		sbf.setLength(sbf.length() - 1);
+		return sbf.toString();
+	}
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatFromSheet(ServiceContext ctx) {
+		DataSheet sheet = ctx.getDataSheet(this.nameValueSheetName);
+		if(sheet == null){
+			Tracer.trace("No data sheet named " + this.nameValueSheetName + ". No data added to message.");
+			return null;
+		}
+
+		int nbr = sheet.length();
+		if(nbr == 0){
+			Tracer.trace("Data sheet named " + this.nameValueSheetName + " is found, but it is empty. No data added to message.");
+			return null;
+		}
+
+		if(sheet.width() != 2){
+			Tracer.trace("Data sheet named " + this.nameValueSheetName + " is to have just two columns, first one for name and second one for value. " + sheet.width() + " columns found.");
+			return null;
+		}
+		StringBuilder sbf = new StringBuilder();
+		for(int i = 0; i < nbr; i++){
+			Value[] row = sheet.getRow(i);
+			sbf.append(row[0].toString()).append(EQUAL).append(row[1]).append(COMMA);
+		}
+		sbf.setLength(sbf.length() - 1);
+		return sbf.toString();
 	}
 
 	/**
@@ -482,9 +586,37 @@ public class JmsQueue {
 	 * @return
 	 */
 	private String formatComma(ServiceContext ctx) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+		String[][] data = this.getNamesAndValues(ctx);
+		String[] values = data[1];
+		StringBuilder sbf = new StringBuilder();
+		for (String value : values) {
+			sbf.append(value).append(COMMA);
+		}
+		sbf.setLength(sbf.length() - 1);
+		return sbf.toString();
+	}
+
+	private String[] getNames() {
+		if (this.fieldNames != null) {
+			return this.fieldNames;
+		}
+		return ComponentManager.getRecord(this.recordName).getFieldNames();
+	}
+
+	private String[][] getNamesAndValues(ServiceContext ctx) {
+		String[] names = this.getNames();
+		String[] values = new String[names.length];
+		int i = 0;
+		for (String name : names) {
+			String val = ctx.getTextValue(name);
+			if (val == null) {
+				val = "";
+			}
+			values[i] = val;
+			i++;
+		}
+		String[][] result = { names, values };
+		return result;
 	}
 
 	/**
@@ -656,9 +788,13 @@ public class JmsQueue {
 	 * @param text
 	 */
 	private void extractJson(ServiceContext ctx, String text) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+		JSONObject json = new JSONObject(text);
+		if (this.extractAll) {
+			JsonUtil.extractAll(json, ctx);
+			return;
+		}
+		String[] names = this.getNames();
+		JsonUtil.extractFields(json, names, ctx);
 	}
 
 	/**
@@ -687,26 +823,61 @@ public class JmsQueue {
 	 * @param names
 	 * @param values
 	 */
-	private void fillCtx(ServiceContext ctx, String[] names, Value[] values){
+	private void fillCtx(ServiceContext ctx, String[] names, Value[] values) {
 		int i = 0;
-		for(Value value : values){
+		for (Value value : values) {
 			String name = names[i];
-			i++;
-			if(Value.isNull(value)){
-				Tracer.trace("Field " + name + " is null. Not added to context.");
-			}else{
+			if (Value.isNull(value)) {
+				Tracer.trace(
+						"Field " + name + " is null. Not added to context.");
+			} else {
 				ctx.setValue(name, value);
 			}
+			i++;
 		}
 	}
+
 	/**
 	 * @param ctx
 	 * @param text
 	 */
 	private void extractCommaPairs(ServiceContext ctx, String text) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+		if(this.nameValueSheetName != null){
+			this.extractToSheet(ctx, text);
+		}
+		String[] parts = text.split(COMA);
+		for (String part : parts) {
+			String[] pair = part.split("=");
+			if (pair.length == 2) {
+				ctx.setValue(pair[0].trim(), Value.parseValue(pair[1].trim()));
+			} else {
+				Tracer.trace("Improper value-pair format " + part
+						+ ". Part skipped");
+			}
+		}
+	}
+
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractToSheet(ServiceContext ctx, String text) {
+		String[] parts = text.split(COMA);
+		String[] columnNames = {"name", "value"};
+		ValueType[] columnValueTypes = {ValueType.TEXT, ValueType.TEXT};
+		DataSheet sheet = new MultiRowsSheet(columnNames, columnValueTypes);
+		for (String part : parts) {
+			String[] pair = part.split("=");
+			if (pair.length == 2) {
+				Value name = Value.newTextValue(pair[0].trim());
+				Value val = Value.newTextValue(pair[1].trim());
+				Value[] row = {name, val};
+				sheet.addRow(row);
+			} else {
+				Tracer.trace("Improper value-pair format " + part
+						+ ". Part skipped");
+			}
+		}
 	}
 
 	/**
@@ -714,9 +885,20 @@ public class JmsQueue {
 	 * @param text
 	 */
 	private void extractComma(ServiceContext ctx, String text) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
+		String[] names = this.getNames();
+		String[] parts = text.split(COMA);
+		if (names.length != parts.length) {
+			Tracer.trace("We expected " + names.length
+					+ " fields in the message but got " + parts.length
+					+ " values. No data extracted.");
+			return;
+		}
+
+		int i = 0;
+		for (String part : parts) {
+			ctx.setValue(names[i], Value.parseValue(part.trim()));
+			i++;
+		}
 	}
 
 	/**

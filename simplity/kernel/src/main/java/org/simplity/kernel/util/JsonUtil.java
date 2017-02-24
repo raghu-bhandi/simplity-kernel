@@ -412,6 +412,24 @@ public class JsonUtil {
 
 	/**
 	 * @param json
+	 * @param names
+	 * @param ctx
+	 * @return number of fields added
+	 */
+	public static int extractFields(JSONObject json, String[] names, FieldsInterface ctx) {
+		int result = 0;
+		for (String name : names) {
+			Object val = json.opt(name);
+			if(val != null){
+				ctx.setValue(name, Value.parseObject(val));
+				result++;
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @param json
 	 * @param fields
 	 * @param ctx
 	 * @param errors
