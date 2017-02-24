@@ -4,7 +4,7 @@
 	name="helloworld"
 	dbAccessType="none">
 	<actions>
-		<setValue fieldName="hello" fieldValue="Hello World!" ></setValue>		
+		<setValue fieldName="hello" fieldValue="Hello World!" ></setValue>
 	</actions>
 	<outputData fieldNames="hello"></outputData>
 </service>

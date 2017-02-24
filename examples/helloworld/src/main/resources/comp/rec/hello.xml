@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record
+	name="hello"
+	xmlns="http://www.simplity.org/schema"
+	forFixedWidthRow="true"
+	recordType="structure"
+>
+	<fields>
+		<field
+			name="id"
+			dataType="_number"
+			fieldWidth="2" 
+			isRequired="true"/>
+		<field
+			name="greeting"
+			dataType="_text"
+			fieldWidth="13" 
+			isRequired="true"/>
+	</fields>
+</record>

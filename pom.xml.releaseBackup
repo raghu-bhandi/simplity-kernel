@@ -9,7 +9,6 @@
 
   <scm>
   	<developerConnection>scm:git:https://github.com/simplity/simplity/tree/master/simplity</developerConnection>
-    <tag>all-1.2-SNAPSHOT</tag>
   </scm>
   <build>
   	<plugins>

@@ -8,6 +8,7 @@
 <div id="hellotag"></div>
 
 <button onclick="callRest()">Invoke Rest Call</button>
+<button onclick="callFile()">Invoke File Processor</button>
 </body>
 <script src="js/simplity-min.js"></script>
 <script type="text/javascript">
@@ -21,6 +22,9 @@ function onError(response){
 
 function callRest(){
 	Simplity.getResponse("callAnotherService",null,onSuccess,onError);
+}
+function callFile(){
+	Simplity.getResponse("fileProcessing",null,onSuccess,onError);
 }
 </script>
 </html>

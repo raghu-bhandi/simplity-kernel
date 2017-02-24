@@ -14,7 +14,6 @@ public class HelloWorldTest extends SimpliTestCase{
 	
 	public void testHello(){		
 		servicetest = "helloworldtestrun";	
-		
 	}
 	
 

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="fileProcessing"
+	dbAccessType="none"
+>
+	<actions>
+		<fileProcessor
+			fileNamePattern="txt01.txt"
+			inFolderName="${basedir}/file"
+			recordName="hello"
+			archivalExtension=".bak"
+			sheetName="readfile"
+		>
+			<actions>
+				<loop dataSheetName="readfile">				
+					<actions>
+						<setValue actionName="concat" fieldName="hello" expression="concat('fileprocessed: ',readfile.greeting)"></setValue>
+					</actions>
+				</loop>
+			</actions>
+		</fileProcessor>
+	</actions>
+	<outputData fieldNames="hello"></outputData>
+</service>

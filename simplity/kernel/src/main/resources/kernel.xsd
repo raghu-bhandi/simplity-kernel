@@ -3036,7 +3036,7 @@
 					<xs:restriction base="xs:NCName">
 						<!-- not used any more any ways.... let us wait for some one to ask... 
 							<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old 
-							log4J uses log4j-1.2.17.jar</xs:documentation></xs:annotation></xs:enumeration> -->
+							log4J uses log4j-1.2-SNAPSHOT.17.jar</xs:documentation></xs:annotation></xs:enumeration> -->
 						<xs:enumeration value="log4j">
 							<xs:annotation>
 								<xs:documentation>Version 2.* of log4J. uses log4j-api-2.7.jar
@@ -3046,7 +3046,7 @@
 						<xs:enumeration value="commonsLogging">
 							<xs:annotation>
 								<xs:documentation>Also known as JCL, uses
-									commons-logging-1.2.jar
+									commons-logging-1.2-SNAPSHOT.jar
 								</xs:documentation>
 							</xs:annotation>
 						</xs:enumeration>
