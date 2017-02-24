@@ -1982,7 +1982,7 @@
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
 
-	<xs:complexType name="jmsproducer">
+	<xs:complexType name="jmsProducer">
 		<xs:all>
 			<xs:element
 				name="requestQueue"
