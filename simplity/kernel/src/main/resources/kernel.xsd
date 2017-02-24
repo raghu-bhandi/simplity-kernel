@@ -1577,6 +1577,29 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+	<xs:complexType name="addRow">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="sheetName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>datasheet to which the row is to be added
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>record format which will used by the added row
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>				
+	</xs:complexType>
 	<xs:complexType name="addMessage">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1824,7 +1847,6 @@
 			<xs:enumeration value="text/html" />
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:complexType name="httpClient">
 		<xs:all>
 			<xs:element
@@ -1962,7 +1984,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="jmsConsumer">
 		<xs:all>
 			<xs:element
@@ -1981,10 +2002,8 @@
 				maxOccurs="1"
 				type="actions" />
 		</xs:all>
-
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
-
 	<xs:complexType name="jmsProducer">
 		<xs:all>
 			<xs:element
@@ -2000,7 +2019,6 @@
 		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
-
 	<xs:complexType name="jumpTo">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2463,7 +2481,7 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="fileNamePattern"
+				name="inFileNamePattern"
 				type="xs:string"
 				use="required"
 			>
@@ -2485,7 +2503,7 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="recordName"
+				name="inRecordName"
 				type="xs:string"
 				use="required"
 			>
@@ -2496,7 +2514,7 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="sheetName"
+				name="inSheetName"
 				type="xs:string"
 			>
 				<xs:annotation>
@@ -2517,6 +2535,36 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="outFolderName"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>Output folder to write out the outdata sheets
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="outRecordName"
+				type="xs:string"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>Qualified name of record that describes the
+						contents of the out file-row.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="outSheetName"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>The datasheet to which the output is processed and written out
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>			
 		</xs:complexType>
 	</xs:element>
 	<xs:complexType name="restClient">
@@ -3412,6 +3460,9 @@
 				name="addColumn"
 				type="addColumn" />
 			<xs:element
+				name="addRow"
+				type="addRow" />				
+			<xs:element
 				name="addMessage"
 				type="addMessage" />
 			<xs:element
@@ -3546,7 +3597,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:complexType name="jmsQueue">
 		<xs:attribute
 			name="queueName"
@@ -3642,7 +3692,6 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-
 		<xs:attribute
 			name="messageType"
 			type="xs:string"
@@ -3654,7 +3703,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:simpleType name="jmsMessageFormat">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="text">

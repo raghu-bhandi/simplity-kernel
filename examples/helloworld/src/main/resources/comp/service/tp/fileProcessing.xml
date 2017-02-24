@@ -6,20 +6,25 @@
 >
 	<actions>
 		<fileProcessor
-			fileNamePattern="txt01.txt"
-			inFolderName="${basedir}/file"
-			recordName="hello"
+			inFileNamePattern="txt01.txt"
+			inFolderName="${basedir}/infile"
+			inRecordName="hello"
 			archivalExtension=".bak"
-			sheetName="readfile"
+			inSheetName="readfile"
+			outFolderName="${basedir}/outfile"
+			outRecordName="adios"
+			outSheetName="farewell"
 		>
 			<actions>
-				<loop dataSheetName="readfile">				
+				<loop dataSheetName="readfile" columnsToCopyAsFields="*">				
 					<actions>
-						<setValue actionName="concat" fieldName="hello" expression="concat('fileprocessed: ',readfile.greeting)"></setValue>
+						<setValue fieldName="farewell" fieldValue="adios"></setValue>
+						<addRow sheetName="farewell" recordName="adios"/>
+						<log names="farewell"/>
 					</actions>
 				</loop>
 			</actions>
 		</fileProcessor>
 	</actions>
-	<outputData fieldNames="hello"></outputData>
+	<outputData dataSheets="farewell"></outputData>
 </service>

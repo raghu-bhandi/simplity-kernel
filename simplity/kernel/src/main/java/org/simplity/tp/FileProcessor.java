@@ -23,11 +23,14 @@
 package org.simplity.tp;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,9 +54,13 @@ public class FileProcessor extends Block {
 	 */
 	String inFolderName;
 	/**
+	 * folder in which we look for files to process
+	 */
+	String outFolderName;	
+	/**
 	 * example *.txt
 	 */
-	String fileNamePattern;
+	String inFileNamePattern;
 	/**
 	 * example .bak. Note that we do not remove existing extension, but append
 	 * it
@@ -62,15 +69,26 @@ public class FileProcessor extends Block {
 	/**
 	 * record that describes the structure of this file
 	 */
-	String recordName;
+	String inRecordName;
+	/**
+	 * record that describes the structure of this file
+	 */
+	String outRecordName;
 
 	/**
 	 * if we expect multiple rows of this record, or if you want the single row
 	 * to be extracted to a data sheet. If this is not specified, we extract the
 	 * first/only row as fields into service context
 	 */
-	String sheetName;
+	String inSheetName;
 
+	/**
+	 * if we expect multiple rows of this record, or if you want the single row
+	 * to be extracted to a data sheet. If this is not specified, we extract the
+	 * first/only row as fields into service context
+	 */
+	String outSheetName;
+	
 	/**
 	 * Are there end-of-line markers in this file (could be LF or CR/LF )
 	 */
@@ -81,6 +99,8 @@ public class FileProcessor extends Block {
 	private FilenameFilter filter;
 
 	private File inbox;
+	
+	private File outbox;
 
 	/*
 	 * (non-Javadoc)
@@ -90,8 +110,12 @@ public class FileProcessor extends Block {
 	@Override
 	public void getReady(int idx) {
 		super.getReady(idx);
-		this.filter = TextUtil.getFileNameFilter(this.fileNamePattern);
+		this.filter = TextUtil.getFileNameFilter(this.inFileNamePattern);
 		this.inbox = new File(this.inFolderName);
+		if (this.outFolderName != null)
+			this.outbox = new File(this.outFolderName);
+		else
+			this.outbox = null;
 	}
 
 	/*
@@ -121,9 +145,10 @@ public class FileProcessor extends Block {
 	private boolean processOneFile(File file, ServiceContext ctx,
 			DbDriver driver) {
 		BufferedReader reader = null;
+		BufferedWriter writer = null;
 		try {
 			Tracer.trace("Processing " + file.getAbsolutePath() + "....");
-			Record record = ComponentManager.getRecord(this.recordName);
+			Record record = ComponentManager.getRecord(this.inRecordName);
 			FileInputStream ins = new FileInputStream(file);
 			reader = new BufferedReader(new InputStreamReader(ins));
 			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
@@ -131,16 +156,35 @@ public class FileProcessor extends Block {
 					this.fileHasEndOfLineChars);
 			reader.close();
 
+			if(this.outbox!=null){
+				Record outRecord = ComponentManager.getRecord(this.outRecordName);
+				DataSheet outDs = outRecord.createSheet(false, false);
+				ctx.putDataSheet(this.outSheetName, outDs);				
+			}			
+			
+			
 			if (errors.size() > 0) {
 				ctx.addMessages(errors);
 				return false;
 			}
 
-			ctx.putDataSheet(this.sheetName, ds);
+			ctx.putDataSheet(this.inSheetName, ds);
+			
 			BlockWorker worker = new BlockWorker(this.actions,
 					this.indexedActions, ctx);
 			worker.execute(driver);
-			file.renameTo(new File(file.getName()+".bak"));
+			file.renameTo(new File(file.getName()+".bak"));		
+
+			if(this.outbox!=null){
+				String outpath = this.outbox.getAbsolutePath().concat(java.io.File.separator).concat(file.getName());
+				File outFile = new File(outpath);
+				FileOutputStream fo = new FileOutputStream(outFile);
+				writer = new BufferedWriter(new OutputStreamWriter(fo));
+				DataSheet outds = ctx.getDataSheet(this.outSheetName);
+				Record outRecord = ComponentManager.getRecord(this.outRecordName);
+				outRecord.toFlatFile(writer, outds, false);
+				writer.flush();
+			}
 			return true;
 		} catch (Exception e) {
 			Tracer.trace("Error while processing file " + file.getName() + ". "
@@ -151,6 +195,13 @@ public class FileProcessor extends Block {
 			if (reader != null) {
 				try {
 					reader.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+			if(writer!=null){
+				try {
+					writer.close();
 				} catch (Exception ignore) {
 					//
 				}
