@@ -3,12 +3,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.simplity</groupId>
   <artifactId>all</artifactId>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2</version>
   <packaging>pom</packaging>
   <name>simplity-all</name>
 
   <scm>
   	<developerConnection>scm:git:https://github.com/simplity/simplity/tree/master/simplity</developerConnection>
+    <tag>all-1.2</tag>
   </scm>
   <build>
   	<plugins>
