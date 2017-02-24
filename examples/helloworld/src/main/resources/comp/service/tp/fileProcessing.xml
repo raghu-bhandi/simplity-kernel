@@ -15,7 +15,7 @@
 			<actions>
 				<loop dataSheetName="readfile">				
 					<actions>
-						<setValue actionName="concat" fieldName="hello" expression="concat('fileprocessed: ',readfile.greeting)"></setValue>
+						<setValue actionName="concat" fieldName="hello" expression="modifydata(readfile.id,readfile.greeting)"></setValue>
 					</actions>
 				</loop>
 			</actions>
