@@ -66,6 +66,7 @@ public class AddRow extends Action {
 				value = Value.parseValue(value.toString(), vt);
 			}
 			row[i] = value;
+			i++;
 		}
 		sheet.addRow(row);
 		return Value.VALUE_TRUE;
