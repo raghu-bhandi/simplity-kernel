@@ -48,8 +48,11 @@ import org.simplity.tp.Service;
  *
  */
 public class ValidationContext {
+	/*
+	 * header for message and observations
+	 */
 	private static String[] MSG_HDR = { "compType", "compName",
-			"errorMessage" };
+			"message" };
 	private static String[] REF_HDR = { "compType", "compName", "refType",
 			"refName" };
 	private static String[] COMP_HDR = { "compType", "compName", "nbrErrors" };
@@ -68,6 +71,12 @@ public class ValidationContext {
 	 */
 	private List<String[]> allRefs = new ArrayList<String[]>();
 
+	/**
+	 * accumulated unusual cases. These are not unusual settings, that have to
+	 * be reviewed to ensure that it is indeed by design, and not by error or
+	 * omission
+	 */
+	private List<String[]> AllObservations = new ArrayList<String[]>();
 	/**
 	 * state : name of component that has begun validating
 	 */
@@ -157,6 +166,24 @@ public class ValidationContext {
 		}
 		String[] row = { this.currentType, this.currentCompName, error };
 		this.allMessages.add(row);
+		this.currentErrors++;
+	}
+
+	/**
+	 * Report an unusual setting that is not an error, but perhaps requires some
+	 * ones review to confirm that this is indeed by design and not by error or
+	 * omission
+	 *
+	 * @param observation
+	 */
+	public void reportUnusualSetting(String observation) {
+		if (this.currentType == null) {
+			throw new ApplicationError(
+					"Message being added without a call to startValidation(). "
+							+ observation);
+		}
+		String[] row = { this.currentType, this.currentCompName, observation };
+		this.AllObservations.add(row);
 		this.currentErrors++;
 	}
 

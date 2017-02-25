@@ -30,6 +30,7 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.Sql;
+import org.simplity.kernel.db.SqlType;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -81,9 +82,10 @@ public class ExecuteSql extends DbAction {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
-	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
+	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.
+	 * ValidationContext
 	 * , org.simplity.tp.Service)
 	 */
 	@Override
@@ -92,11 +94,17 @@ public class ExecuteSql extends DbAction {
 		if (this.sqlName == null) {
 			ctx.addError("Sql name is required for ExecuteSql action");
 			count++;
-		}
-		Sql sql = ComponentManager.getSqlOrNull(this.sqlName);
-		if (sql == null) {
-			ctx.addError("Sql " + this.sqlName + " is not defined");
-			count++;
+		} else {
+			Sql sql = ComponentManager.getSqlOrNull(this.sqlName);
+			if (sql == null) {
+				ctx.addError("Sql " + this.sqlName + " is not defined");
+				count++;
+			} else if (sql.getSqlType() != SqlType.UPDATE) {
+				ctx.addError("Sql " + this.sqlName
+						+ " is designed for extracting data. It is not meant to be executed.");
+				count++;
+
+			}
 		}
 		ctx.addReference(ComponentType.SQL, this.sqlName);
 

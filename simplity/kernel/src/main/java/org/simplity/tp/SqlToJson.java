@@ -22,16 +22,13 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.Tracer;
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.Sql;
-import org.simplity.kernel.db.SqlType;
-import org.simplity.kernel.dm.Record;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -41,73 +38,26 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class ReadWithSql extends DbAction {
+public class SqlToJson extends DbAction {
 
 	/**
 	 * fully qualified sql name
 	 */
 	String sqlName;
-	/**
-	 * input sheet name
-	 */
-	String inputSheetName;
-	/**
-	 * output sheet name
-	 */
-	String outputSheetName;
 
-	/**
-	 * any other child records to be read for this record?
-	 */
-	RelatedRecord[] childRecords;
+	String jsonName;
 
-	/**
-	 * should child records for this filter/record be filtered automatically?
-	 */
-	boolean cascadeFilterForChildren;
+	boolean useCompactFormat;
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
 		Sql sql = ComponentManager.getSql(this.sqlName);
-		DataSheet outSheet = null;
-		if (this.inputSheetName == null) {
-			outSheet = sql.extract(ctx, driver);
-		} else {
-			DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
-			if (inSheet == null) {
-				Tracer.trace("Read Action " + this.actionName
-						+ " did not execute because input sheet "
-						+ this.inputSheetName + " is not found.");
-				return 0;
-			}
-			outSheet = sql.extract(inSheet, driver);
-		}
-		/*
-		 * did we get any data at all?
-		 */
-		int nbrRows = outSheet.length();
-		if (this.outputSheetName == null) {
-			if (nbrRows > 0) {
-				ctx.copyFrom(outSheet);
-			}
-		} else {
-			/*
-			 * we would put an empty sheet. That is the design, not a bug
-			 */
-			ctx.putDataSheet(this.outputSheetName, outSheet);
-		}
-
-		/*
-		 * be a responsible parent :-)
-		 */
-		if (this.childRecords != null && nbrRows > 0) {
-			for (RelatedRecord rr : this.childRecords) {
-				Record record = ComponentManager.getRecord(rr.recordName);
-				record.filterForParents(outSheet, driver, rr.sheetName,
-						this.cascadeFilterForChildren, ctx);
-			}
-		}
-		return nbrRows;
+		JSONWriter writer = new JSONWriter();
+		writer.object().key(this.jsonName).array();
+		sql.sqlToJson(ctx, driver, this.useCompactFormat, writer);
+		writer.endArray().endObject();
+		ctx.setObject(this.jsonName, writer.toString());
+		return 1;
 	}
 
 	@Override
@@ -131,20 +81,6 @@ public class ReadWithSql extends DbAction {
 			count++;
 		} else {
 			ctx.addReference(ComponentType.SQL, this.sqlName);
-			Sql sql = ComponentManager.getSqlOrNull(this.sqlName);
-			if(sql == null){
-				ctx.addError("sql " + this.sqlName + " is not defined.");
-				count++;
-			}else if(sql.getSqlType() == SqlType.UPDATE){
-				ctx.addError("sql " + this.sqlName + " is designed for update. It cannot be used to read data.");
-				count++;
-			}
-		}
-
-		if (this.childRecords != null) {
-			for (RelatedRecord rec : this.childRecords) {
-				count += rec.validate(ctx);
-			}
 		}
 
 		return count;

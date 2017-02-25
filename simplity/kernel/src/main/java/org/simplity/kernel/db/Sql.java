@@ -22,6 +22,7 @@
  */
 package org.simplity.kernel.db;
 
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.comp.Component;
 import org.simplity.kernel.comp.ComponentManager;
@@ -106,7 +107,7 @@ public class Sql implements Component {
 	 */
 	@Override
 	public String getQualifiedName() {
-		if(this.moduleName == null){
+		if (this.moduleName == null) {
 			return this.name;
 		}
 		return this.moduleName + '.' + this.name;
@@ -277,23 +278,11 @@ public class Sql implements Component {
 	@Override
 	public void getReady() {
 		if (this.inputParameters != null) {
-			if (this.inputRecordName != null) {
-				throw new ApplicationError("Sql " + this.getQualifiedName()
-						+ " specifies both inpuParameters and inputRecord.");
-			}
 			for (SqlParameter parm : this.inputParameters) {
 				parm.getReady();
 			}
 		}
 		if (this.outputParameters != null) {
-			if (this.sqlType == SqlType.UPDATE) {
-				throw new ApplicationError("Sql " + this.getQualifiedName()
-						+ " is defined as an update sql but it specifies output parameters.");
-			}
-			if (this.outputRecordName != null) {
-				throw new ApplicationError("Sql " + this.getQualifiedName()
-						+ " specifies both outputParameters and outputFields.");
-			}
 			int nbr = this.outputParameters.length;
 			this.outputNames = new String[nbr];
 			this.outputTypes = new ValueType[nbr];
@@ -303,10 +292,6 @@ public class Sql implements Component {
 				this.outputNames[i] = parm.name;
 				this.outputTypes[i] = parm.getValueType();
 			}
-		} else if (this.sqlType != SqlType.UPDATE
-				&& this.outputRecordName == null) {
-			throw new ApplicationError("Sql " + this.getQualifiedName()
-					+ " is designed to extract data, but no outputParameters or outputRecord defined.");
 		}
 	}
 
@@ -326,13 +311,14 @@ public class Sql implements Component {
 				return count;
 			}
 
-			if(!this.preparedStatement.contains("?")){
+			if (!this.preparedStatement.contains("?")) {
 				ctx.addError("preparedStatement does not have any parameters");
 				count++;
 				return count;
 			}
 
-			int nbrParams = this.preparedStatement.length() - this.preparedStatement.replace("?", "").length();
+			int nbrParams = this.preparedStatement.length()
+					- this.preparedStatement.replace("?", "").length();
 
 			if (this.inputParameters != null) {
 				if (nbrParams != this.inputParameters.length) {
@@ -402,4 +388,47 @@ public class Sql implements Component {
 			ctx.endValidation();
 		}
 	}
+
+	/**
+	 * @return the sqlType
+	 */
+	public SqlType getSqlType() {
+		return this.sqlType;
+	}
+	/**
+	 * Create a elements of a josn array directly from the output of this sql
+	 *
+	 * @param inData
+	 *            source of values for inut fields
+	 * @param driver
+	 * @param useCompactFormat
+	 *            if true, a header array is written first with column names,
+	 *            followed by an array of values for each row. If false, an
+	 *            object is written for each row.
+	 * @param writer
+	 */
+	public void sqlToJson(FieldsInterface inData, DbDriver driver,
+			boolean useCompactFormat, JSONWriter writer) {
+		Value[] values = this.getInputValues(inData);
+		String[] names = this.outputNames;
+		ValueType[] types = this.outputTypes;
+		if (names == null) {
+			Record record = ComponentManager.getRecord(this.outputRecordName);
+			names = record.getFieldNames();
+			types = record.getValueTypes();
+		}
+		/*
+		 * in compact form, we write a header row values
+		 */
+		if (useCompactFormat == false) {
+			writer.array();
+			for (String nam : names) {
+				writer.value(nam);
+			}
+			writer.endArray();
+			names = null;
+		}
+		driver.sqlToJson(this.preparedStatement, values, types, names, writer);
+	}
+
 }

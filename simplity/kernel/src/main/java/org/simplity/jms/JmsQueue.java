@@ -535,7 +535,7 @@ public class JmsQueue {
 	 * @return
 	 */
 	private String formatCommaPairs(ServiceContext ctx) {
-		if(this.nameValueSheetName != null){
+		if (this.nameValueSheetName != null) {
 			return this.formatFromSheet(ctx);
 		}
 		String[][] data = this.getNamesAndValues(ctx);
@@ -557,25 +557,30 @@ public class JmsQueue {
 	 */
 	private String formatFromSheet(ServiceContext ctx) {
 		DataSheet sheet = ctx.getDataSheet(this.nameValueSheetName);
-		if(sheet == null){
-			Tracer.trace("No data sheet named " + this.nameValueSheetName + ". No data added to message.");
+		if (sheet == null) {
+			Tracer.trace("No data sheet named " + this.nameValueSheetName
+					+ ". No data added to message.");
 			return null;
 		}
 
 		int nbr = sheet.length();
-		if(nbr == 0){
-			Tracer.trace("Data sheet named " + this.nameValueSheetName + " is found, but it is empty. No data added to message.");
+		if (nbr == 0) {
+			Tracer.trace("Data sheet named " + this.nameValueSheetName
+					+ " is found, but it is empty. No data added to message.");
 			return null;
 		}
 
-		if(sheet.width() != 2){
-			Tracer.trace("Data sheet named " + this.nameValueSheetName + " is to have just two columns, first one for name and second one for value. " + sheet.width() + " columns found.");
+		if (sheet.width() != 2) {
+			Tracer.trace("Data sheet named " + this.nameValueSheetName
+					+ " is to have just two columns, first one for name and second one for value. "
+					+ sheet.width() + " columns found.");
 			return null;
 		}
 		StringBuilder sbf = new StringBuilder();
-		for(int i = 0; i < nbr; i++){
+		for (int i = 0; i < nbr; i++) {
 			Value[] row = sheet.getRow(i);
-			sbf.append(row[0].toString()).append(EQUAL).append(row[1]).append(COMMA);
+			sbf.append(row[0].toString()).append(EQUAL).append(row[1])
+					.append(COMMA);
 		}
 		sbf.setLength(sbf.length() - 1);
 		return sbf.toString();
@@ -842,7 +847,7 @@ public class JmsQueue {
 	 * @param text
 	 */
 	private void extractCommaPairs(ServiceContext ctx, String text) {
-		if(this.nameValueSheetName != null){
+		if (this.nameValueSheetName != null) {
 			this.extractToSheet(ctx, text);
 		}
 		String[] parts = text.split(COMA);
@@ -863,15 +868,15 @@ public class JmsQueue {
 	 */
 	private void extractToSheet(ServiceContext ctx, String text) {
 		String[] parts = text.split(COMA);
-		String[] columnNames = {"name", "value"};
-		ValueType[] columnValueTypes = {ValueType.TEXT, ValueType.TEXT};
+		String[] columnNames = { "name", "value" };
+		ValueType[] columnValueTypes = { ValueType.TEXT, ValueType.TEXT };
 		DataSheet sheet = new MultiRowsSheet(columnNames, columnValueTypes);
 		for (String part : parts) {
 			String[] pair = part.split("=");
 			if (pair.length == 2) {
 				Value name = Value.newTextValue(pair[0].trim());
 				Value val = Value.newTextValue(pair[1].trim());
-				Value[] row = {name, val};
+				Value[] row = { name, val };
 				sheet.addRow(row);
 			} else {
 				Tracer.trace("Improper value-pair format " + part
@@ -1032,6 +1037,15 @@ public class JmsQueue {
 	 * open shop and be ready for a repeated use
 	 */
 	public void getReady() {
+		/*
+		 * avoid repeated check for empty array
+		 */
+		if (this.fieldNames != null && this.fieldNames.length == 0) {
+			this.fieldNames = null;
+		}
+		/*
+		 * cache object instance
+		 */
 		if (this.messageExtractor != null) {
 			try {
 				this.dataExtractor = (DataExtractor) Class
@@ -1043,6 +1057,9 @@ public class JmsQueue {
 			}
 		}
 
+		/*
+		 * cache object instance
+		 */
 		if (this.messageFormatter != null) {
 			try {
 				this.dataFormatter = (DataFormatter) Class
@@ -1070,8 +1087,122 @@ public class JmsQueue {
 	 *            validation context
 	 * @return number of errors detected
 	 */
-	public int validate(ValidationContext vtx) {
-		// TODO : add all validation rules here
-		return 0;
+	public int validate(ValidationContext vtx, boolean forProducer) {
+		int count = 0;
+		/*
+		 * fieldNames and recordName are two ways to specify list if fields
+		 */
+		boolean fieldListSpecified = this.recordName != null
+				|| (this.fieldNames != null && this.fieldNames.length > 0);
+		/*
+		 * fieldName is required if we are set/get message body directly from
+		 * one field rather than constructing it from other fields, or
+		 * extracting it to other fields
+		 */
+		boolean fieldNameRequired = this.messageBodyType == MessageBodyType.TEXT
+				|| this.messageBodyType == MessageBodyType.OBJECT;
+
+		/*
+		 * message body is formatted if body is used, but not for a specific field
+		 */
+		boolean toBeFormatted = !fieldNameRequired
+				&& this.messageBodyType != null;
+
+		/*
+		 * now let is start our role as an auditor - find anything unusual :-)
+		 */
+		if (this.bodyFieldName == null) {
+			if (fieldNameRequired) {
+				vtx.addError(
+						"messageBodyType=text/object requires bodyFieldName to which this text/object is to be assigned from/to");
+				count++;
+			}
+		} else {
+			if (!fieldNameRequired) {
+				vtx.reportUnusualSetting(
+						"bodyFieldName is used for messageBodyType of object and text only. It is ignored otherwise.");
+			}
+		}
+		/*
+		 * custom extractor
+		 */
+		if(this.messageExtractor != null){
+			if(forProducer){
+				vtx.reportUnusualSetting(
+						"messageExtractor is used when the queue is used for consuming/reading message.");
+			}else{
+				if(fieldListSpecified){
+					vtx.reportUnusualSetting(
+							"messageExtractor is used for extrating data. fieldNames, and reordName settings are ignored.");
+				}
+			}
+			if(this.messageBodyType != MessageBodyType.TEXT){
+				vtx.reportUnusualSetting(
+						"messageExtractor is used when the message body usage is text. this.messageBodyType is set to " + this.messageBodyType + ". we will ignore this setting and assume text body.");
+			}
+		}
+
+		/*
+		 * custom formatter
+		 */
+		if(this.messageFormatter != null){
+			if(!forProducer){
+				vtx.reportUnusualSetting(
+						"messageFormatter is used when message is to be created/produced. Setting ignored");
+			}else{
+				if(fieldListSpecified){
+					vtx.reportUnusualSetting(
+							"messageFormatter is used for formatting message body. fieldNames, and reordName settings are ignored.");
+				}
+			}
+			if(this.messageBodyType != MessageBodyType.TEXT){
+				vtx.reportUnusualSetting(
+						"messageFormatter is used when the message body usage is text. this.messageBodyType is set to " + this.messageBodyType + ". we will ignore this setting and assume text body.");
+			}
+		}
+
+		/*
+		 * record name is required for fixed-width
+		 */
+		if (this.recordName == null) {
+			if (this.messageBodyType == MessageBodyType.FIXED_WIDTH) {
+				vtx.addError("messageBodyType=fixedWidth requires recordName");
+				count++;
+			}
+		} else {
+			if (fieldNameRequired) {
+				vtx.reportUnusualSetting(
+						"recordName is ignored for message body type of text/object.");
+			}
+		}
+
+		/*
+		 * no data specification?
+		 */
+		if (fieldNameRequired == false && fieldListSpecified == false) {
+			if (forProducer) {
+				vtx.reportUnusualSetting(
+						"No fields/records specified. Message is designed to carry no data.");
+			} else if (!this.extractAll) {
+				vtx.reportUnusualSetting(
+						"No fields/records specified, and extractAll is set to false. Message consumer is not looking for any data in this message.");
+			}
+		}
+
+		if (this.bodyFieldName == null) {
+			if (this.messageBodyType == MessageBodyType.OBJECT
+					|| this.messageBodyType == MessageBodyType.TEXT) {
+				vtx.addError(
+						"messageBodyType=object or text requires bodyFieldName to which the body object/text is to be assigned to.");
+				count++;
+			}
+		}
+
+		if(this.extractAll && forProducer){
+			vtx.reportUnusualSetting(
+					"extractAll is not relevant when the queue is used to produce/send message. Attribute ignored.");
+		}
+
+		return count;
 	}
 }

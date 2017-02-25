@@ -108,9 +108,18 @@ public class JmsProducer extends Action {
 	@Override
 	public int validate(ValidationContext vtx, Service service) {
 		int count = super.validate(vtx, service);
-		count += this.requestQueue.validate(vtx);
+		if(this.requestQueue == null){
+			vtx.addError("requestQueue is required");
+			count++;
+		}else{
+			if(this.requestQueue.getQueueName() == null){
+				vtx.addError("queName is required for requestQueue");
+				count++;
+			}
+			count += this.requestQueue.validate(vtx, true);
+		}
 		if(this.responseQueue != null){
-			count += this.responseQueue.validate(vtx);
+			count += this.responseQueue.validate(vtx, false);
 		}
 		return count;
 	}

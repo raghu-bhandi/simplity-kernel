@@ -112,10 +112,9 @@ public class FileProcessor extends Block {
 		super.getReady(idx);
 		this.filter = TextUtil.getFileNameFilter(this.inFileNamePattern);
 		this.inbox = new File(this.inFolderName);
-		if (this.outFolderName != null)
+		if (this.outFolderName != null){
 			this.outbox = new File(this.outFolderName);
-		else
-			this.outbox = null;
+		}
 	}
 
 	/*
@@ -126,7 +125,7 @@ public class FileProcessor extends Block {
 	 */
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		Tracer.trace("GOing to process files in folder " + this.inFolderName
+		Tracer.trace("Going to process files in folder " + this.inFolderName
 				+ " that exists = " + this.inbox.exists());
 		int nbrFiles = 0;
 		for (File file : this.inbox.listFiles(this.filter)) {

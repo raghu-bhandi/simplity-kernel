@@ -40,6 +40,7 @@ import java.util.Map;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
@@ -1872,4 +1873,91 @@ public class DbDriver {
 	public DbAccessType getAccessType() {
 		return this.accessType;
 	}
+
+	/**
+	 * extract data directly from a sql into json. Important to initialize
+	 * writer and write before/after this call to ensure you have a valid json.
+	 *
+	 * @param sql
+	 *            prepared statement to be used to extract data from database
+	 * @param values
+	 *            to be used for the parameters in the prepared statement
+	 * @param types
+	 *            value types of the output row, in that order. Ensure that the
+	 *            result set has the out put exactly in this order
+	 * @param names
+	 *            names for each output column. If this is supplied, each row is
+	 *            written as an object with each field as key-value. If this is
+	 *            null, then each row is written as an array of values.
+	 * @param writer
+	 *            json writer. This method is going to write 0 or more arrays
+	 *            into this writer.
+	 */
+	@SuppressWarnings("resource")
+	public void sqlToJson(String sql, Value[] values, ValueType[] types,
+			String[] names, JSONWriter writer) {
+		PreparedStatement stmt = null;
+		try {
+			stmt = this.connection.prepareStatement(sql);
+			if (values != null) {
+				this.setParams(stmt, values);
+			}
+			if (names == null) {
+				this.writeAllToJson(stmt, types, writer);
+			} else {
+				this.writeAllToJson(stmt, types, names, writer);
+			}
+
+		} catch (SQLException e) {
+			throw new ApplicationError(e, "Sql Error while extracting data ");
+		} finally {
+			this.closeStatment(stmt);
+		}
+	}
+
+	/**
+	 *
+	 * @param stmt
+	 * @param outputTypes
+	 * @param writer
+	 * @throws SQLException
+	 */
+	private void writeAllToJson(PreparedStatement stmt, ValueType[] types,
+			JSONWriter writer) throws SQLException {
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			writer.array();
+			int i = 1;
+			for (ValueType typ : types) {
+				writer.value(typ.extractFromRs(rs, i));
+				i++;
+			}
+			writer.endArray();
+		}
+		rs.close();
+	}
+
+	/**
+	 *
+	 * @param stmt
+	 * @param outputTypes
+	 * @param writer
+	 * @throws SQLException
+	 */
+	private void writeAllToJson(PreparedStatement stmt, ValueType[] types,
+			String[] names, JSONWriter writer) throws SQLException {
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			writer.object();
+			int i = 0;
+			for (ValueType typ : types) {
+				writer.key(names[i]);
+				i++;
+				writer.value(typ.extractFromRs(rs, i));
+			}
+			writer.endObject();
+		}
+		rs.close();
+	}
+
 }

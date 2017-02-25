@@ -3483,4 +3483,155 @@ public class Record implements Component {
 		return values;
 	}
 
+	/**
+	 * @param inRecord
+	 *            record to be used to input filter fields
+	 * @param inData
+	 *            that has the values for filter fields
+	 * @param driver
+	 * @param useCompactFormat
+	 *            json compact format is an array of arrays of data, with first
+	 *            row as header. Otherwise, each row is an object
+	 * @param writer
+	 *            json writer to which we will output 0 or more objects or
+	 *            arrays. (Caller should have started an array. and shoudl end
+	 *            array after this call
+	 *
+	 */
+	public void filterToJson(Record inRecord, FieldsInterface inData,
+			DbDriver driver, boolean useCompactFormat, JSONWriter writer) {
+		/*
+		 * we have to create where clause with ? and corresponding values[]
+		 */
+		SqlAndValues temp = this.foo(inData, inRecord);
+		String[] names = this.getFieldNames();
+		/*
+		 * in compact form, we write a header row values
+		 */
+		if (useCompactFormat == false) {
+			writer.array();
+			for (String nam : names) {
+				writer.value(nam);
+			}
+			writer.endArray();
+			names = null;
+		}
+		driver.sqlToJson(temp.sql, temp.values, this.getValueTypes(), names,
+				writer);
+	}
+
+	/**
+	 * worker method to create a prepared statement and corresponding values for
+	 * filter method
+	 *
+	 * @param inData
+	 * @param inRecord
+	 * @return struct that as both sql and values
+	 */
+	private SqlAndValues foo(FieldsInterface inData, Record inRecord) {
+		StringBuilder sql = new StringBuilder(this.filterSql);
+		List<Value> filterValues = new ArrayList<Value>();
+		boolean firstTime = true;
+		for (Field field : inRecord.fields) {
+			String fieldName = field.name;
+			Value value = inData.getValue(fieldName);
+			if (Value.isNull(value) || value.toString().isEmpty()) {
+				continue;
+			}
+			if (firstTime) {
+				firstTime = false;
+			} else {
+				sql.append(" AND ");
+			}
+
+			FilterCondition condition = FilterCondition.Equal;
+			Value otherValue = inData
+					.getValue(fieldName + ServiceProtocol.COMPARATOR_SUFFIX);
+			if (otherValue != null && otherValue.isUnknown() == false) {
+				condition = FilterCondition.parse(otherValue.toText());
+			}
+
+			/**
+			 * handle the special case of in-list
+			 */
+			if (condition == FilterCondition.In) {
+				Value[] values = Value.parse(value.toString().split(","),
+						field.getValueType());
+				/*
+				 * we are supposed to have validated this at the input gate...
+				 * but playing it safe
+				 */
+				if (values == null) {
+					throw new ApplicationError(
+							value + " is not a valid comma separated list for field "
+									+ field.name);
+				}
+				sql.append(field.columnName).append(" in (?");
+				filterValues.add(values[0]);
+				for (int i = 1; i < values.length; i++) {
+					sql.append(",?");
+					filterValues.add(values[i]);
+				}
+				sql.append(") ");
+				continue;
+			}
+
+			if (condition == FilterCondition.Like) {
+				value = Value.newTextValue(Record.PERCENT
+						+ DbDriver.escapeForLike(value.toString())
+						+ Record.PERCENT);
+			} else if (condition == FilterCondition.StartsWith) {
+				value = Value
+						.newTextValue(DbDriver.escapeForLike(value.toString())
+								+ Record.PERCENT);
+			}
+
+			sql.append(field.columnName).append(condition.getSql()).append("?");
+			filterValues.add(value);
+
+			if (condition == FilterCondition.Between) {
+				otherValue = inData
+						.getValue(fieldName + ServiceProtocol.TO_FIELD_SUFFIX);
+				if (otherValue == null || otherValue.isUnknown()) {
+					throw new ApplicationError(
+							"To value not supplied for field " + this.name
+									+ " for filtering");
+				}
+				sql.append(" AND ?");
+				filterValues.add(otherValue);
+			}
+		}
+		Value[] values;
+		if (firstTime) {
+			/*
+			 * no conditions..
+			 */
+			if (this.okToSelectAll == false) {
+				throw new ApplicationError("Record " + this.name
+						+ " is likely to contain large number of records, and hence we do not allow select-all operation");
+			}
+			sql.append(" 1 = 1 ");
+			values = new Value[0];
+		} else {
+			values = filterValues.toArray(new Value[0]);
+		}
+		/*
+		 * is there sort order?
+		 */
+		Value sorts = inData.getValue(ServiceProtocol.SORT_COLUMN_NAME);
+		if (sorts != null) {
+			sql.append(" ORDER BY ").append(sorts.toString());
+		}
+		return new SqlAndValues(sql.toString(), values);
+	}
+}
+
+class SqlAndValues {
+	final String sql;
+	final Value[] values;
+
+	SqlAndValues(String sql, Value[] values) {
+		this.sql = sql;
+		this.values = values;
+	}
 }

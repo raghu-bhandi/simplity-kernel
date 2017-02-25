@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2015 EXILANT Technologies Private Limited (www.exilant.com)
- * Copyright (c) 2016 simplity.org
+ * Copyright (c) 2017 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,39 +21,24 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.comp.ComponentManager;
-import org.simplity.kernel.data.AlreadyIteratingException;
 import org.simplity.kernel.data.DataSheet;
-import org.simplity.kernel.data.DataSheetIterator;
-import org.simplity.kernel.data.Fields;
-import org.simplity.kernel.dm.Field;
-import org.simplity.kernel.dm.Record;
-import org.simplity.kernel.expr.Expression;
-import org.simplity.kernel.expr.InvalidOperationException;
-import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.service.ServiceContext;
 
 /**
- * add a column to a data sheet.
+ * add a row to a data sheet using fields from the context.
  *
- * @author admin
+ * @author org.simplity
  *
  */
 public class AddRow extends Action {
 
 	/**
-	 * sheet to which we want to add a column
+	 * sheet to which row is to be added
 	 */
 	String sheetName;
-
-	/**
-	 * name of column to be added
-	 */
-	String recordName;
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
@@ -62,23 +46,28 @@ public class AddRow extends Action {
 		if (sheet == null) {
 			return Value.VALUE_FALSE;
 		}
-		Record record = ComponentManager.getRecord(this.recordName);
-
-		if (this.recordName != null) {
-			Field[] fields = record.getFields();
-			Value[] row = new Value[fields.length];
-			for (int i = 0; i < fields.length; i++) {
-				Value value = null;
-				String fieldName = fields[i].getName();
-				if (fieldName != null) {
-					value = ctx.getValue(fieldName);
-				} else {
-					value = Value.parseValue(fieldName, fields[i].getValueType());
-				}
-				row[i] = value;
+		String[] names = sheet.getColumnNames();
+		Value[] row = new Value[names.length];
+		ValueType[] types = sheet.getValueTypes();
+		int i = 0;
+		for (String name : names) {
+			Value value = ctx.getValue(name);
+			ValueType vt = types[i];
+			if (value == null) {
+				value = Value.newUnknownValue(vt);
+			} else if (value.getValueType() != vt) {
+				/*
+				 * should we reject this value? Let us be tolerant to possible
+				 * compatible types
+				 */
+				Tracer.trace("Found a value of type " + value.getValueType()
+						+ " for column " + name + " while we were expecting "
+						+ vt + ". We will try to convert.");
+				value = Value.parseValue(value.toString(), vt);
 			}
-			sheet.addRow(row);
+			row[i] = value;
 		}
+		sheet.addRow(row);
 		return Value.VALUE_TRUE;
 	}
 }
