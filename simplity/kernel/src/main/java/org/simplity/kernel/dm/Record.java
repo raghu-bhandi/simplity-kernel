@@ -500,7 +500,7 @@ public class Record implements Component {
 	 */
 	public DataSheet createSheet(String[] colNames, boolean forSingleRow,
 			boolean addActionColumn) {
-		ValueType[] types = new ValueType[colNames.length];
+		Field[] subset = new Field[colNames.length];
 		int i = 0;
 		for (String colName : colNames) {
 			Field field = this.indexedFields.get(colName);
@@ -508,13 +508,14 @@ public class Record implements Component {
 				throw new ApplicationError("Record " + this.getQualifiedName()
 						+ " has no field named " + colName);
 			}
-			types[i] = field.getValueType();
+			subset[i] = field;
 			i++;
 		}
+
 		if (forSingleRow) {
-			return new SingleRowSheet(colNames, types);
+			return new SingleRowSheet(subset);
 		}
-		return new MultiRowsSheet(colNames, types);
+		return new MultiRowsSheet(subset);
 	}
 
 	/**
@@ -3384,14 +3385,11 @@ public class Record implements Component {
 	 * @param errors
 	 *            errors list to which any parse error is added. Field in error
 	 *            is treated as not given
-	 * @param toReadLine
-	 *            true if the file contains new-line markers, false if there are
-	 *            no chars between rows.
 	 * @return dataSheet. Null in case of any parse error, in which case error
 	 *         message/s would have been added to errors.
 	 */
 	public DataSheet fromFlatFile(BufferedReader reader,
-			List<FormattedMessage> errors, boolean toReadLine) {
+			List<FormattedMessage> errors) {
 		if (this.recordLength == 0) {
 			throw new ApplicationError("Record " + this.getQualifiedName()
 					+ " is not designed for a flat file");
@@ -3399,11 +3397,7 @@ public class Record implements Component {
 		DataSheet ds = this.createSheet(false, false);
 		int nbr = errors.size();
 		try {
-			if (toReadLine) {
-				this.fromFileWithLineSep(reader, ds, errors);
-			} else {
-				this.fromFileNoLineSep(reader, ds, errors);
-			}
+				this.fromFile(reader, ds, errors);
 		} catch (IOException e) {
 			throw new ApplicationError(e,
 					" error while reading a flat file for record "
@@ -3423,7 +3417,7 @@ public class Record implements Component {
 		return ds;
 	}
 
-	private void fromFileWithLineSep(BufferedReader reader, DataSheet ds,
+	private void fromFile(BufferedReader reader, DataSheet ds,
 			List<FormattedMessage> errors) throws IOException {
 		while (true) {
 			String lineText = reader.readLine();
@@ -3437,25 +3431,9 @@ public class Record implements Component {
 		}
 	}
 
-	private void fromFileNoLineSep(BufferedReader reader, DataSheet ds,
-			List<FormattedMessage> errors) throws IOException {
-		char[] line = new char[this.recordLength];
-		while (true) {
-			int n = reader.read(line);
-			if (n == -1) {
-				return;
-			}
-			if (n != line.length) {
-				this.throwInvalidLengthError(n);
-			}
-			ds.addRow(this.parseRow(new String(line), errors));
-		}
-
-	}
-
 	private void throwInvalidLengthError(int n) {
 		throw new ApplicationError(
-				"Flat file being read has " + n + " characters in a line while "
+				"Flat file being read has " + n + " characters in a line whiel "
 						+ this.recordLength + " chars expected.");
 
 	}

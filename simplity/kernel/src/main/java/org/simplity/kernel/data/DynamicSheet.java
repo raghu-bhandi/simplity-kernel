@@ -193,7 +193,7 @@ public class DynamicSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.data.DataSheet#trace()
 	 */
 	@Override
@@ -206,7 +206,7 @@ public class DynamicSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.data.DataSheet#appendRows(org.simplity.kernel.data.
 	 * DataSheet)
@@ -240,5 +240,25 @@ public class DynamicSheet implements DataSheet {
 		Tracer.trace("We did not find column " + columnName
 				+ " in this dynamic sheet");
 		return -1;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.data.DataSheet#toSerializedText(org.simplity.kernel.data.DataSerializationType)
+	 */
+	@Override
+	public String toSerializedText(DataSerializationType serializationType) {
+		throw new ApplicationError("Sorry, serialization is not yet implemented for Dynamic sheet");
+		//TODO to be built
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.data.DataSheet#fromSerializedText(java.lang.String, org.simplity.kernel.data.DataSerializationType, boolean)
+	 */
+	@Override
+	public void fromSerializedText(String text,
+			DataSerializationType serializationType,
+			boolean replaceExistingRows) {
+		throw new ApplicationError("Sorry, de-serialization is not yet implemented for Dynamic sheet");
+		//TODO to be built
 	}
 }

@@ -939,10 +939,10 @@ public class Field {
 	public void setSqlTypeName(String sqlTypeName) {
 		this.sqlTypeName = sqlTypeName;
 	}
-	
+
 	public void setFieldType(FieldType fieldType) {
 		this.fieldType = fieldType;
-		
+
 	}
 
 	public void setNullable(boolean isNullable) {
@@ -958,7 +958,7 @@ public class Field {
 	}
 
 	public String getReferredRecord() {
-		return referredRecord;
+		return this.referredRecord;
 	}
 
 	public void setReferredRecord(String referredRecord) {
@@ -966,10 +966,24 @@ public class Field {
 	}
 
 	public String getReferredField() {
-		return referredField;
+		return this.referredField;
 	}
 
 	public void setReferredField(String referredField) {
 		this.referredField = referredField;
+	}
+
+	/**
+	 * @return the fieldWidth to be used for fixed-width formatting
+	 */
+	public int getFieldWidth() {
+		return this.fieldWidth;
+	}
+
+	/**
+	 * @param fieldWidth to be used for a fixed-width formatting
+	 */
+	public void setFieldWidth(int fieldWidth) {
+		this.fieldWidth = fieldWidth;
 	}
 }

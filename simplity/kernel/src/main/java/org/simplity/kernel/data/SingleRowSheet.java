@@ -50,7 +50,7 @@ public class SingleRowSheet implements DataSheet {
 	private String[] columnNames;
 	private ValueType[] valueTypes;
 	private final Map<String, Value> fieldValues = new HashMap<String, Value>();
-
+	private int[] columnWidths;
 	/**
 	 * create a sheet that does not have fixed fields. fields are added as and
 	 * when values are added.
@@ -73,12 +73,27 @@ public class SingleRowSheet implements DataSheet {
 		this.columnNames = new String[n];
 		this.valueTypes = new ValueType[n];
 		n = 0;
+		/*
+		 * do we have field widths?. Small optimization because a very small minority of records will have this.
+		 */
 		for (Field field : fields) {
 			this.columnNames[n] = field.getName();
 			this.valueTypes[n] = field.getValueType();
 			n++;
 		}
 		this.setUnknownValues();
+		/*
+		 * do we have field widths?.
+		 * we did not put this inside the loop with an if becuase this is a very very very rare case.
+		 */
+		if(fields[0].getFieldWidth() != 0){
+			this.columnWidths = new int[fields.length];
+			n = 0;
+			for (Field field : fields) {
+				this.columnWidths[n] = field.getFieldWidth();
+				n++;
+			}
+		}
 	}
 
 	/**
@@ -276,7 +291,7 @@ public class SingleRowSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.data.DataSheet#trace()
 	 */
 	@Override
@@ -294,7 +309,7 @@ public class SingleRowSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.kernel.data.DataSheet#appendRows(org.simplity.kernel.data.
 	 * DataSheet)
@@ -307,7 +322,7 @@ public class SingleRowSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.data.DataSheet#addColumn(java.lang.String,
 	 * org.simplity.kernel.value.Value)
 	 */
@@ -319,7 +334,7 @@ public class SingleRowSheet implements DataSheet {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.kernel.data.DataSheet#getColIdx(java.lang.String)
 	 */
 	@Override
@@ -334,5 +349,41 @@ public class SingleRowSheet implements DataSheet {
 		Tracer.trace("We did not find column " + columnName
 				+ " in this single-row sheet");
 		return -1;
+	}
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.data.DataSheet#toSerializedText(org.simplity.kernel.data.DataSerializationType)
+	 */
+	@Override
+	public String toSerializedText(DataSerializationType serializationType) {
+		throw new ApplicationError("Sorry, serialization is not yet implemented for Single row sheet");
+		//TODO to be built
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.data.DataSheet#fromSerializedText(java.lang.String, org.simplity.kernel.data.DataSerializationType, boolean)
+	 */
+	@Override
+	public void fromSerializedText(String text,
+			DataSerializationType serializationType,
+			boolean replaceExistingRows) {
+		throw new ApplicationError("Sorry, de-serialization is not yet implemented for Single row sheet");
+		//TODO to be built
+	}
+	/**
+	 * if this is used for serialization into fixed-width test, we need this
+	 * @param widths
+	 */
+	public void setWidths(int[] widths){
+		if(widths.length != this.width()){
+			throw new ApplicationError("Design error : data sheet has " + this.width() + " columns but " + widths.length +" values are supplied for width.");
+		}
+		this.columnWidths=widths;
+	}
+
+	/**
+	 * @return widths of columns in case this used for fixed-width fomtting
+	 */
+	public int[] getWidths(){
+		return this.columnWidths;
 	}
 }

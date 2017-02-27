@@ -38,16 +38,14 @@ import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
-import org.simplity.json.JSONObject;
-import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.data.DataSerializationType;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.dm.Record;
-import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.service.DataExtractor;
@@ -74,7 +72,7 @@ public class JmsQueue {
 	 * transport data.
 	 * How the body of the message is used to transport data.
 	 */
-	MessageBodyType messageBodyType;
+	DataSerializationType messageBodyType;
 	/**
 	 * field that is associated with body. Entire body is
 	 * assigned-to/retrieved-from this field
@@ -374,7 +372,7 @@ public class JmsQueue {
 			return message;
 		}
 
-		if (this.messageBodyType == MessageBodyType.MAP) {
+		if (this.messageBodyType == DataSerializationType.MAP) {
 			MapMessage message = session.createMapMessage();
 			if (this.fieldNames != null) {
 				this.setMapFields(message, ctx, this.fieldNames);
@@ -387,7 +385,7 @@ public class JmsQueue {
 			return message;
 		}
 
-		if (this.messageBodyType == MessageBodyType.OBJECT) {
+		if (this.messageBodyType == DataSerializationType.OBJECT) {
 			if (this.bodyFieldName == null) {
 				throw new ApplicationError(
 						"bodyFieldName is not specified for messaage body when messageBodyType is set to object");
@@ -428,127 +426,19 @@ public class JmsQueue {
 			return message;
 		}
 
-		/*
-		 * format the text based on the data format specification
-		 */
-		switch (this.messageBodyType) {
-		case COMMA_SEPARATED:
-			text = this.formatComma(ctx);
-			break;
-		case COMMA_SEPARATED_PAIRS:
-			text = this.formatCommaPairs(ctx);
-			break;
-		case FIXED_WIDTH:
-			text = this.formatFixed(ctx);
-			break;
-		case FORM_DATA:
-			text = this.formatFormData(ctx);
-			break;
-		case JSON:
-			text = this.formatJson(ctx);
-			break;
-		case XML_ATTRIBUTES:
-			text = this.formatXmlAtts(ctx);
-			break;
-		case XML_ELEMENTS:
-			text = this.formatXmlElements(ctx);
-			break;
-		case YAML:
-			text = this.formatYaml(ctx);
-			break;
-		default:
-			throw new ApplicationError("Sorry. Body Messaage Type of "
-					+ this.messageBodyType
-					+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
+		if (this.recordName != null) {
+			Record record = ComponentManager.getRecord(this.recordName);
+			message.setText(this.messageBodyType.serializeFields(ctx,
+					record.getFields()));
+			return message;
 		}
-		message.setText(text);
-		return message;
-	}
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatYaml(ServiceContext ctx) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
-	}
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatXmlElements(ServiceContext ctx) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
-	}
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatXmlAtts(ServiceContext ctx) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
-	}
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatJson(ServiceContext ctx) {
-		String[] names = this.fieldNames;
-		if (names == null) {
-			names = ComponentManager.getRecord(this.recordName).getFieldNames();
+		if (this.fieldNames != null) {
+			message.setText(this.messageBodyType.serializeFields(ctx,
+					this.fieldNames));
+			return message;
 		}
-		JSONWriter writer = new JSONWriter();
-		JsonUtil.addAttributes(writer, names, ctx);
-		return writer.toString();
-	}
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatFormData(ServiceContext ctx) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to create data for a JMS message. Use alternative method as of now");
-	}
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatFixed(ServiceContext ctx) {
-		Record record = ComponentManager.getRecord(this.recordName);
-		String[] names = record.getFieldNames();
-		Value[] values = ctx.getValues(names);
-		return record.formatFixedLine(values);
-	}
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatCommaPairs(ServiceContext ctx) {
-		if (this.nameValueSheetName != null) {
-			return this.formatFromSheet(ctx);
-		}
-		String[][] data = this.getNamesAndValues(ctx);
-		String[] names = data[0];
-		String[] values = data[1];
-		int i = 0;
-		StringBuilder sbf = new StringBuilder();
-		for (String name : names) {
-			sbf.append(name).append(EQUAL).append(values[i]).append(COMMA);
-			i++;
-		}
-		sbf.setLength(sbf.length() - 1);
-		return sbf.toString();
+		throw new ApplicationError(
+				"Record or field details are required for creating message");
 	}
 
 	/**
@@ -581,21 +471,6 @@ public class JmsQueue {
 			Value[] row = sheet.getRow(i);
 			sbf.append(row[0].toString()).append(EQUAL).append(row[1])
 					.append(COMMA);
-		}
-		sbf.setLength(sbf.length() - 1);
-		return sbf.toString();
-	}
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatComma(ServiceContext ctx) {
-		String[][] data = this.getNamesAndValues(ctx);
-		String[] values = data[1];
-		StringBuilder sbf = new StringBuilder();
-		for (String value : values) {
-			sbf.append(value).append(COMMA);
 		}
 		sbf.setLength(sbf.length() - 1);
 		return sbf.toString();
@@ -666,7 +541,7 @@ public class JmsQueue {
 		/*
 		 * we use three types of message body. TEXT, MAP and OBJECT
 		 */
-		if (this.messageBodyType == MessageBodyType.OBJECT) {
+		if (this.messageBodyType == DataSerializationType.OBJECT) {
 			if (message instanceof ObjectMessage == false) {
 				Tracer.trace("We expected a ObjectMessage but got "
 						+ message.getClass().getSimpleName()
@@ -687,7 +562,7 @@ public class JmsQueue {
 			return;
 		}
 
-		if (this.messageBodyType == MessageBodyType.MAP) {
+		if (this.messageBodyType == DataSerializationType.MAP) {
 			if (message instanceof MapMessage == false) {
 				Tracer.trace("We expected a MapMessage but got "
 						+ message.getClass().getSimpleName()
@@ -720,106 +595,19 @@ public class JmsQueue {
 		String text = ((TextMessage) message).getText();
 		if (text == null) {
 			Tracer.trace("Messaage text is null. No data extracted.");
-		} else if (this.bodyFieldName != null) {
+			return;
+		}
+		if (this.bodyFieldName != null) {
 			ctx.setTextValue(this.bodyFieldName, text);
-		} else {
-			this.extractFromText(ctx, text);
-		}
-	}
-
-	/**
-	 * complex case wher
-	 *
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractFromText(ServiceContext ctx, String text) {
-		switch (this.messageBodyType) {
-		case COMMA_SEPARATED:
-			this.extractComma(ctx, text);
-			return;
-		case COMMA_SEPARATED_PAIRS:
-			this.extractCommaPairs(ctx, text);
-			return;
-		case FIXED_WIDTH:
-			this.extractFixed(ctx, text);
-			return;
-		case FORM_DATA:
-			this.extractFormData(ctx, text);
-			return;
-		case JSON:
-			this.extractJson(ctx, text);
-			return;
-		case XML_ATTRIBUTES:
-			this.extractXml(ctx, text);
-			return;
-		case XML_ELEMENTS:
-			this.extractXml(ctx, text);
-			return;
-		case YAML:
-			this.extractYaml(ctx, text);
-			return;
-		default:
-			break;
-		}
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
-	}
-
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractYaml(ServiceContext ctx, String text) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
-
-	}
-
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractXml(ServiceContext ctx, String text) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
-	}
-
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractJson(ServiceContext ctx, String text) {
-		JSONObject json = new JSONObject(text);
-		if (this.extractAll) {
-			JsonUtil.extractAll(json, ctx);
 			return;
 		}
-		String[] names = this.getNames();
-		JsonUtil.extractFields(json, names, ctx);
-	}
-
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractFormData(ServiceContext ctx, String text) {
-		throw new ApplicationError("Sorry. Body Messaage Type of "
-				+ this.messageBodyType
-				+ " is not yet implemented to exract data from a message.. Use alternative method as of now");
-	}
-
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractFixed(ServiceContext ctx, String text) {
-		Record record = ComponentManager.getRecord(this.recordName);
-		Value[] values = record.parseRow(text, null);
-		this.fillCtx(ctx, record.getFieldNames(), values);
+		if (this.recordName != null) {
+			Record record = ComponentManager.getRecord(this.recordName);
+			this.messageBodyType.parseFields(text, ctx, record.getFields());
+			return;
+		}
+		this.messageBodyType.parseFields(text, ctx, this.fieldNames, null);
+		return;
 	}
 
 	/**
@@ -846,26 +634,6 @@ public class JmsQueue {
 	 * @param ctx
 	 * @param text
 	 */
-	private void extractCommaPairs(ServiceContext ctx, String text) {
-		if (this.nameValueSheetName != null) {
-			this.extractToSheet(ctx, text);
-		}
-		String[] parts = text.split(COMA);
-		for (String part : parts) {
-			String[] pair = part.split("=");
-			if (pair.length == 2) {
-				ctx.setValue(pair[0].trim(), Value.parseValue(pair[1].trim()));
-			} else {
-				Tracer.trace("Improper value-pair format " + part
-						+ ". Part skipped");
-			}
-		}
-	}
-
-	/**
-	 * @param ctx
-	 * @param text
-	 */
 	private void extractToSheet(ServiceContext ctx, String text) {
 		String[] parts = text.split(COMA);
 		String[] columnNames = { "name", "value" };
@@ -882,27 +650,6 @@ public class JmsQueue {
 				Tracer.trace("Improper value-pair format " + part
 						+ ". Part skipped");
 			}
-		}
-	}
-
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractComma(ServiceContext ctx, String text) {
-		String[] names = this.getNames();
-		String[] parts = text.split(COMA);
-		if (names.length != parts.length) {
-			Tracer.trace("We expected " + names.length
-					+ " fields in the message but got " + parts.length
-					+ " values. No data extracted.");
-			return;
-		}
-
-		int i = 0;
-		for (String part : parts) {
-			ctx.setValue(names[i], Value.parseValue(part.trim()));
-			i++;
 		}
 	}
 
@@ -1085,6 +832,7 @@ public class JmsQueue {
 	 *
 	 * @param vtx
 	 *            validation context
+	 * @param forProducer
 	 * @return number of errors detected
 	 */
 	public int validate(ValidationContext vtx, boolean forProducer) {
@@ -1099,14 +847,8 @@ public class JmsQueue {
 		 * one field rather than constructing it from other fields, or
 		 * extracting it to other fields
 		 */
-		boolean fieldNameRequired = this.messageBodyType == MessageBodyType.TEXT
-				|| this.messageBodyType == MessageBodyType.OBJECT;
-
-		/*
-		 * message body is formatted if body is used, but not for a specific field
-		 */
-		boolean toBeFormatted = !fieldNameRequired
-				&& this.messageBodyType != null;
+		boolean fieldNameRequired = this.messageBodyType == DataSerializationType.TEXT
+				|| this.messageBodyType == DataSerializationType.OBJECT;
 
 		/*
 		 * now let is start our role as an auditor - find anything unusual :-)
@@ -1126,38 +868,42 @@ public class JmsQueue {
 		/*
 		 * custom extractor
 		 */
-		if(this.messageExtractor != null){
-			if(forProducer){
+		if (this.messageExtractor != null) {
+			if (forProducer) {
 				vtx.reportUnusualSetting(
 						"messageExtractor is used when the queue is used for consuming/reading message.");
-			}else{
-				if(fieldListSpecified){
+			} else {
+				if (fieldListSpecified) {
 					vtx.reportUnusualSetting(
 							"messageExtractor is used for extrating data. fieldNames, and reordName settings are ignored.");
 				}
 			}
-			if(this.messageBodyType != MessageBodyType.TEXT){
+			if (this.messageBodyType != DataSerializationType.TEXT) {
 				vtx.reportUnusualSetting(
-						"messageExtractor is used when the message body usage is text. this.messageBodyType is set to " + this.messageBodyType + ". we will ignore this setting and assume text body.");
+						"messageExtractor is used when the message body usage is text. this.messageBodyType is set to "
+								+ this.messageBodyType
+								+ ". we will ignore this setting and assume text body.");
 			}
 		}
 
 		/*
 		 * custom formatter
 		 */
-		if(this.messageFormatter != null){
-			if(!forProducer){
+		if (this.messageFormatter != null) {
+			if (!forProducer) {
 				vtx.reportUnusualSetting(
 						"messageFormatter is used when message is to be created/produced. Setting ignored");
-			}else{
-				if(fieldListSpecified){
+			} else {
+				if (fieldListSpecified) {
 					vtx.reportUnusualSetting(
 							"messageFormatter is used for formatting message body. fieldNames, and reordName settings are ignored.");
 				}
 			}
-			if(this.messageBodyType != MessageBodyType.TEXT){
+			if (this.messageBodyType != DataSerializationType.TEXT) {
 				vtx.reportUnusualSetting(
-						"messageFormatter is used when the message body usage is text. this.messageBodyType is set to " + this.messageBodyType + ". we will ignore this setting and assume text body.");
+						"messageFormatter is used when the message body usage is text. this.messageBodyType is set to "
+								+ this.messageBodyType
+								+ ". we will ignore this setting and assume text body.");
 			}
 		}
 
@@ -1165,7 +911,7 @@ public class JmsQueue {
 		 * record name is required for fixed-width
 		 */
 		if (this.recordName == null) {
-			if (this.messageBodyType == MessageBodyType.FIXED_WIDTH) {
+			if (this.messageBodyType == DataSerializationType.FIXED_WIDTH) {
 				vtx.addError("messageBodyType=fixedWidth requires recordName");
 				count++;
 			}
@@ -1190,19 +936,103 @@ public class JmsQueue {
 		}
 
 		if (this.bodyFieldName == null) {
-			if (this.messageBodyType == MessageBodyType.OBJECT
-					|| this.messageBodyType == MessageBodyType.TEXT) {
+			if (this.messageBodyType == DataSerializationType.OBJECT
+					|| this.messageBodyType == DataSerializationType.TEXT) {
 				vtx.addError(
 						"messageBodyType=object or text requires bodyFieldName to which the body object/text is to be assigned to.");
 				count++;
 			}
 		}
 
-		if(this.extractAll && forProducer){
+		if (this.extractAll && forProducer) {
 			vtx.reportUnusualSetting(
 					"extractAll is not relevant when the queue is used to produce/send message. Attribute ignored.");
 		}
 
 		return count;
+	}
+
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatCommaPairs(ServiceContext ctx) {
+		if (this.nameValueSheetName != null) {
+			return this.formatFromSheet(ctx);
+		}
+		String[][] data = this.getNamesAndValues(ctx);
+		String[] names = data[0];
+		String[] values = data[1];
+		int i = 0;
+		StringBuilder sbf = new StringBuilder();
+		for (String name : names) {
+			sbf.append(name).append(EQUAL).append(values[i]).append(COMMA);
+			i++;
+		}
+		sbf.setLength(sbf.length() - 1);
+		return sbf.toString();
+	}
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private String formatComma(ServiceContext ctx) {
+		String[][] data = this.getNamesAndValues(ctx);
+		String[] values = data[1];
+		StringBuilder sbf = new StringBuilder();
+		for (String value : values) {
+			sbf.append(value).append(COMMA);
+		}
+		sbf.setLength(sbf.length() - 1);
+		return sbf.toString();
+	}
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractComma(ServiceContext ctx, String text) {
+		String[] names = this.getNames();
+		String[] parts = text.split(COMA);
+		if (names.length != parts.length) {
+			Tracer.trace("We expected " + names.length
+					+ " fields in the message but got " + parts.length
+					+ " values. No data extracted.");
+			return;
+		}
+
+		int i = 0;
+		for (String part : parts) {
+			ctx.setValue(names[i], Value.parseValue(part.trim()));
+			i++;
+		}
+	}
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractFixed(ServiceContext ctx, String text) {
+		Record record = ComponentManager.getRecord(this.recordName);
+		Value[] values = record.parseRow(text, null);
+		this.fillCtx(ctx, record.getFieldNames(), values);
+	}
+	/**
+	 * @param ctx
+	 * @param text
+	 */
+	private void extractCommaPairs(ServiceContext ctx, String text) {
+		if (this.nameValueSheetName != null) {
+			this.extractToSheet(ctx, text);
+		}
+		String[] parts = text.split(COMA);
+		for (String part : parts) {
+			String[] pair = part.split("=");
+			if (pair.length == 2) {
+				ctx.setValue(pair[0].trim(), Value.parseValue(pair[1].trim()));
+			} else {
+				Tracer.trace("Improper value-pair format " + part
+						+ ". Part skipped");
+			}
+		}
 	}
 }

@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2016 simplity.org
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -95,9 +95,9 @@ public interface DataSheet extends FieldsInterface, Iterable<FieldsInterface> {
 	/**
 	 *
 	 * @param columnName
-	 * 		columnName
+	 *            columnName
 	 * @param zeroBasedRowNumber
-	 * 		zeroBasedRowNumber
+	 *            zeroBasedRowNumber
 	 * @return get value of a column from a given row
 	 */
 	public Value getColumnValue(String columnName, int zeroBasedRowNumber);
@@ -106,17 +106,18 @@ public interface DataSheet extends FieldsInterface, Iterable<FieldsInterface> {
 	 * set value for a column
 	 *
 	 * @param columnName
-	 * 			columnName
-	 * @param zeroBasedRowNumber	
-	 * 			zeroBasedRowNumber
+	 *            columnName
+	 * @param zeroBasedRowNumber
+	 *            zeroBasedRowNumber
 	 * @param value
-	 * 			value
+	 *            value
 	 */
-	public void setColumnValue(String columnName, int zeroBasedRowNumber, Value value);
+	public void setColumnValue(String columnName, int zeroBasedRowNumber,
+			Value value);
 
 	/**
 	 * @param columnName
-	 * 		columnName
+	 *            columnName
 	 * @return array of column values
 	 */
 	public Value[] getColumnValues(String columnName);
@@ -127,14 +128,15 @@ public interface DataSheet extends FieldsInterface, Iterable<FieldsInterface> {
 	 * extend arrays. Use with caution.
 	 *
 	 * @param columnName
-	 * 			columnName
+	 *            columnName
 	 * @param columnType
-	 * 			columnType
+	 *            columnType
 	 * @param columnValues
 	 *            optional. if non-null, its length MUST match the number of
 	 *            rows in the data sheet
 	 */
-	public void addColumn(String columnName, ValueType columnType, Value[] columnValues);
+	public void addColumn(String columnName, ValueType columnType,
+			Value[] columnValues);
 
 	/**
 	 * @param rowIdx
@@ -154,7 +156,7 @@ public interface DataSheet extends FieldsInterface, Iterable<FieldsInterface> {
 	 * value types in the order of columns do not match
 	 *
 	 * @param sheet
-	 * 		sheet
+	 *            sheet
 	 * @return number of rows copied
 	 */
 	public int appendRows(DataSheet sheet);
@@ -163,16 +165,16 @@ public interface DataSheet extends FieldsInterface, Iterable<FieldsInterface> {
 	 * add a column, but the column value is same for all rows.
 	 *
 	 * @param columnName
-	 * 			columnName
+	 *            columnName
 	 * @param value
-	 * 			value
+	 *            value
 	 */
 	public void addColumn(String columnName, Value value);
 
 	/**
-	 * 
+	 *
 	 * @param columnName
-	 * 		columnName
+	 *            columnName
 	 * @return 0 based column index of this column, -1 if no such column
 	 */
 	public int getColIdx(String columnName);
@@ -181,4 +183,24 @@ public interface DataSheet extends FieldsInterface, Iterable<FieldsInterface> {
 	 * @return list of all rows in this sheet
 	 */
 	List<Value[]> getAllRows();
+
+	/**
+	 * Data is likely to be transported across domains/layers, specially in the
+	 * micro-services architecture and multi-domain designs.
+	 * serialize this data sheet into text as per the format
+	 *
+	 * @param serializationType
+	 * @return text that is convenient to transport across domains
+	 */
+	public String toSerializedText(DataSerializationType serializationType);
+
+	/**
+	 * de-serialize and extract data into this sheet
+	 * @param text
+	 * @param serializationType
+	 * @param replaceExistingRows
+	 */
+	public void fromSerializedText(String text,
+			DataSerializationType serializationType,
+			boolean replaceExistingRows);
 }

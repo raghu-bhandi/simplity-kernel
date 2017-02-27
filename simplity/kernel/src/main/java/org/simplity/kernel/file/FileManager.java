@@ -61,6 +61,7 @@ public class FileManager {
 	 */
 	private static final char FOLDER_CHAR = '/';
 	private static final String FOLDER_STR = "/";
+	private static final long MAX_SIZE = 10 * 1024 * 1024;
 
 	private static ServletContext myContext = null;
 
@@ -89,15 +90,16 @@ public class FileManager {
 	public static String[] getResources(String parentFolder) {
 		String[] empty = new String[0];
 		List<String> resources = new ArrayList<String>();
-		if(new File(parentFolder).exists())
-			addAllResourcesWithFs(parentFolder, resources);		
+		if (new File(parentFolder).exists()) {
+			addAllResourcesWithFs(parentFolder, resources);
+		}
 		return resources.toArray(empty);
 	}
 
 	private static void addAllResourcesWithCtx(String parentFolder,
 			List<String> resources) {
-		Set<String> paths = myContext.getResourcePaths(FOLDER_CHAR
-				+ parentFolder);
+		Set<String> paths = myContext
+				.getResourcePaths(FOLDER_CHAR + parentFolder);
 		if (paths == null) {
 			return;
 		}
@@ -114,8 +116,8 @@ public class FileManager {
 			List<String> resources) {
 		File file = new File(parentFolder);
 		if (file.exists() == false) {
-			Tracer.trace("Unusual that " + parentFolder
-					+ " is not a valid path.");
+			Tracer.trace(
+					"Unusual that " + parentFolder + " is not a valid path.");
 			return;
 		}
 		String[] files = file.list();
@@ -297,8 +299,8 @@ public class FileManager {
 				return file;
 			}
 		}
-		throw new ApplicationError("Unable to create a temp file even after "
-				+ MAX_TRY);
+		throw new ApplicationError(
+				"Unable to create a temp file even after " + MAX_TRY);
 	}
 
 	/**
@@ -389,5 +391,65 @@ public class FileManager {
 		for (int n = in.read(buffer); n > 0; n = in.read(buffer)) {
 			out.write(buffer, 0, n);
 		}
+	}
+
+	/**
+	 * if the file is small, why the fuss. Just get it as string as UTF-8
+	 *
+	 * @param file
+	 * @return file content as UTF-8 text
+	 */
+	public static String readFile(File file) {
+		InputStream is = null;
+		try {
+			is = new FileInputStream(file);
+			long len = file.length();
+			if (len > MAX_SIZE) {
+				throw new IOException("File " + file.getAbsolutePath()
+						+ " too large, was " + len + " bytes.");
+			}
+			byte[] bytes = new byte[(int) len];
+			is.read(bytes);
+			return new String(bytes, "UTF-8");
+		} catch (Exception e) {
+			throw new ApplicationError(e,
+					"Error while reading file " + file.getAbsolutePath());
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
+	}
+
+	/**
+	 * if the file is small, why the fuss. Just get it as string as UTF-8
+	 *
+	 * @param file
+	 * @param text file content to be written as  UTF-8
+	 */
+	public static void writeFile(File file, String text) {
+		OutputStream os = null;
+		try {
+			byte[] bytes = text.getBytes("UTF-8");
+			os = new FileOutputStream(file);
+			os.write(bytes);
+			os.flush();
+		} catch (Exception e) {
+			throw new ApplicationError(e,
+					"Error while reading file " + file.getAbsolutePath());
+		} finally {
+			if (os != null) {
+				try {
+					os.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
+
 	}
 }

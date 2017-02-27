@@ -63,6 +63,7 @@ public class MultiRowsSheet implements DataSheet {
 	 * we expect calls to getColoumnValue etc.. Should we lazy-populate this?
 	 */
 	private Map<String, Integer> columnIndexes = new HashMap<String, Integer>();
+	private int[] columnWidths;
 
 	/**
 	 * create a data sheet from raw data with columns parsed as per types
@@ -224,6 +225,18 @@ public class MultiRowsSheet implements DataSheet {
 			this.columnValueTypes[n] = field.getValueType();
 			this.columnIndexes.put(fieldName, new Integer(n));
 			n++;
+		}
+		/*
+		 * do we have field widths?.
+		 * we did not put this inside the loop with an if becuase this is a very very very rare case.
+		 */
+		if(fields[0].getFieldWidth() != 0){
+			this.columnWidths = new int[fields.length];
+			n = 0;
+			for (Field field : fields) {
+				this.columnWidths[n] = field.getFieldWidth();
+				n++;
+			}
 		}
 	}
 
@@ -569,5 +582,42 @@ public class MultiRowsSheet implements DataSheet {
 		Tracer.trace("We did not find column " + columnName
 				+ " in this multi-row sheet");
 		return -1;
+	}
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.data.DataSheet#toSerializedText(org.simplity.kernel.data.DataSerializationType)
+	 */
+	@Override
+	public String toSerializedText(DataSerializationType serializationType) {
+		throw new ApplicationError("Sorry, serialization is not yet implemented for Dynamic sheet");
+		//TODO to be built
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.kernel.data.DataSheet#fromSerializedText(java.lang.String, org.simplity.kernel.data.DataSerializationType, boolean)
+	 */
+	@Override
+	public void fromSerializedText(String text,
+			DataSerializationType serializationType,
+			boolean replaceExistingRows) {
+		throw new ApplicationError("Sorry, de-serialization is not yet implemented for Dynamic sheet");
+		//TODO to be built
+	}
+
+	/**
+	 * if this is used for serialization into fixed-width test, we need this
+	 * @param widths
+	 */
+	public void setWidths(int[] widths){
+		if(widths.length != this.width()){
+			throw new ApplicationError("Design error : data sheet has " + this.width() + " columns but " + widths.length +" values are supplied for width.");
+		}
+		this.columnWidths=widths;
+	}
+
+	/**
+	 * @return widths of columns in case this used for fixed-width fomtting
+	 */
+	public int[] getWidths(){
+		return this.columnWidths;
 	}
 }

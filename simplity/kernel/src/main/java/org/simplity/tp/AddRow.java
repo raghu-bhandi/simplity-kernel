@@ -54,16 +54,22 @@ public class AddRow extends Action {
 			Value value = ctx.getValue(name);
 			ValueType vt = types[i];
 			if (value == null) {
+				/*
+				 * We prefer to avoid java null for obvious reasons
+				 */
 				value = Value.newUnknownValue(vt);
 			} else if (value.getValueType() != vt) {
 				/*
-				 * should we reject this value? Let us be tolerant to possible
-				 * compatible types
+				 * should we reject this value? possible that it is text but has valid number in it!!
 				 */
+				String txt = value.toString();
 				Tracer.trace("Found a value of type " + value.getValueType()
 						+ " for column " + name + " while we were expecting "
-						+ vt + ". We will try to convert.");
-				value = Value.parseValue(value.toString(), vt);
+						+ vt + ". We will try to convert it.");
+				value = Value.parseValue(txt, vt);
+				if(value == null){
+					Tracer.trace("Unable to convert " + txt + " to type " + vt + " . setting column to  NullValue" );
+				}
 			}
 			row[i] = value;
 			i++;
