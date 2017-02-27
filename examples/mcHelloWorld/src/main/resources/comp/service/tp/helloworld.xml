@@ -4,22 +4,6 @@
 	<actions>
 		<setValue actionName="1" fieldName="hello"
 			fieldValue="Hello World! from simplity"></setValue>
-		<subService actionName="2" serviceName="anotherservice"
-			executeOnCondition="" />
-		<loop>
-			<actions>
-				<read recordName="samplerec" outputSheetName="singleRec"></read>
-
-				<readWithSql actionName="l1" sqlName="" outputSheetName="OSheet"></readWithSql>
-
-				<logic className="com.infosys.LogicSample" executeOnCondition="l1.response" />
-			</actions>
-		</loop>
-		<setValue fieldName="abc" fieldValue="{id:'123'}"></setValue>
-		<httpClient httpMethod="POST" urlString="${url}"
-			contentType="JSON" requestFieldName="abc" responseFieldName="jsonresponse"></httpClient>
-		<log names="jsonresponse"></log>
-
 	</actions>
 	<outputData fieldNames="hello"></outputData>
 </service>

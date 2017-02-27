@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.simplity.http.HttpAgent;
+import org.simplity.http.Serve;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -93,6 +94,7 @@ public class Application {
 		}
 
 		if (msg == null) {
+			Serve.updateStartupStatus(true);
 			return true;
 		}
 
@@ -430,6 +432,7 @@ public class Application {
 		 * programmer is unable to figure out
 		 */
 		System.out.println(Tracer.stopAccumulation());
+
 		return result;
 	}
 

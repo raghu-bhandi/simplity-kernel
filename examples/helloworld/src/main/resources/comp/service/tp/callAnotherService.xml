@@ -4,7 +4,13 @@
 	name="callAnotherService"
 	dbAccessType="none"
 >
+<inputData>
+	<inputFields>
+		<inputField dataType="_text" name="data"/>
+	</inputFields>
+</inputData>
 	<actions>
+		<log names="data"/>
 		<httpClient
 			httpMethod="GET"
 			urlString="http://localhost:8080/helloworld/a._s?_serviceName=helloworld"
