@@ -3455,7 +3455,7 @@ public class Record implements Component {
 
 	private void throwInvalidLengthError(int n) {
 		throw new ApplicationError(
-				"Flat file being read has " + n + " characters in a line whiel "
+				"Flat file being read has " + n + " characters in a line while "
 						+ this.recordLength + " chars expected.");
 
 	}

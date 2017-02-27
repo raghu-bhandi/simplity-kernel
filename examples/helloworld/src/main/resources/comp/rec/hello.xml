@@ -14,7 +14,7 @@
 		<field
 			name="greeting"
 			dataType="_text"
-			fieldWidth="13" 
+			fieldWidth="15" 
 			isRequired="true"/>
 	</fields>
 </record>

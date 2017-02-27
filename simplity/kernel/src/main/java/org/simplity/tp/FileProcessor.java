@@ -94,8 +94,12 @@ public class FileProcessor extends Block {
 	 */
 	boolean fileHasEndOfLineChars;
 	/**
-	 * filter corresponding to the input file
+	 * Should the output be written in line
 	 */
+	boolean toWriteLine;
+	/**
+	 * filter corresponding to the input file
+	 */	
 	private FilenameFilter filter;
 
 	private File inbox;
@@ -181,7 +185,7 @@ public class FileProcessor extends Block {
 				writer = new BufferedWriter(new OutputStreamWriter(fo));
 				DataSheet outds = ctx.getDataSheet(this.outSheetName);
 				Record outRecord = ComponentManager.getRecord(this.outRecordName);
-				outRecord.toFlatFile(writer, outds, false);
+				outRecord.toFlatFile(writer, outds, this.toWriteLine);
 				writer.flush();
 			}
 			return true;

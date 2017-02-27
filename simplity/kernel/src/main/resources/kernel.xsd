@@ -1589,16 +1589,6 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-		<xs:attribute
-			name="recordName"
-			type="xs:string"
-			use="required"
-		>
-			<xs:annotation>
-				<xs:documentation>record format which will used by the added row
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>				
 	</xs:complexType>
 	<xs:complexType name="addMessage">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -2530,11 +2520,21 @@
 				type="booleanType"
 			>
 				<xs:annotation>
-					<xs:documentation>Does the file follw the convention of end-of-line
+					<xs:documentation>Does the file follow the convention of end-of-line
 						for the o/s, like new-line in Unix, or CR-LF in windows?
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="toWriteLine"
+				type="booleanType"
+			>
+				<xs:annotation>
+					<xs:documentation>Does the output need to be written in lines?
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			
 			<xs:attribute
 				name="outFolderName"
 				type="xs:string"
@@ -2561,10 +2561,11 @@
 				type="xs:string"
 			>
 				<xs:annotation>
-					<xs:documentation>The datasheet to which the output is processed and written out
+					<xs:documentation>The datasheet to which the output is processed
+						and written out
 					</xs:documentation>
 				</xs:annotation>
-			</xs:attribute>			
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 	<xs:complexType name="restClient">
@@ -3461,7 +3462,7 @@
 				type="addColumn" />
 			<xs:element
 				name="addRow"
-				type="addRow" />				
+				type="addRow" />
 			<xs:element
 				name="addMessage"
 				type="addMessage" />

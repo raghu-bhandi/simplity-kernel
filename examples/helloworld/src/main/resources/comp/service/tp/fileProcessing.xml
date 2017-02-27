@@ -9,17 +9,20 @@
 			inFileNamePattern="txt01.txt"
 			inFolderName="${basedir}/infile"
 			inRecordName="hello"
+			fileHasEndOfLineChars="true"
 			archivalExtension=".bak"
 			inSheetName="readfile"
 			outFolderName="${basedir}/outfile"
 			outRecordName="adios"
 			outSheetName="farewell"
+			toWriteLine="true"
+			
 		>
 			<actions>
 				<loop dataSheetName="readfile" columnsToCopyAsFields="*">				
 					<actions>
 						<setValue fieldName="farewell" fieldValue="adios"></setValue>
-						<addRow sheetName="farewell" recordName="adios"/>
+						<addRow sheetName="farewell"/>
 						<log names="farewell"/>
 					</actions>
 				</loop>
