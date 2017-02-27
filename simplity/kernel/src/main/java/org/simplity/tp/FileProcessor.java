@@ -26,8 +26,10 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
+import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSerializationType;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.db.DbDriver;
@@ -102,23 +104,6 @@ public class FileProcessor extends Block {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.simplity.tp.Action#getReady(int)
-	 */
-	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
-		this.filter = TextUtil.getFileNameFilter(this.inFileNamePattern);
-		this.inbox = new File(this.inFolderName);
-		if (this.outFolderName != null) {
-			this.outbox = new File(this.outFolderName);
-		} else {
-			this.outbox = null;
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
 	 * @see org.simplity.tp.Action#delegate(org.simplity.service.ServiceContext,
 	 * org.simplity.kernel.db.DbDriver)
 	 */
@@ -185,9 +170,67 @@ public class FileProcessor extends Block {
 			FileManager.writeFile(new File(outpath), outText);
 			return true;
 		}catch(Exception e){
-			Tracer.trace("Error while processing file " + file.getName() + ". "
-					+ e.getMessage());
-			return false;
+			throw new ApplicationError(e, "Error while processing file " +file.getAbsolutePath());
 		}
+	}
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.tp.Action#getReady(int)
+	 */
+	@Override
+	public void getReady(int idx) {
+		super.getReady(idx);
+		this.filter = TextUtil.getFileNameFilter(this.inFileNamePattern);
+		this.inbox = new File(this.inFolderName);
+		if (this.outFolderName != null) {
+			this.outbox = new File(this.outFolderName);
+		} else {
+			this.outbox = null;
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.tp.Block#validate(org.simplity.kernel.comp.ValidationContext, org.simplity.tp.Service)
+	 */
+	@Override
+	public int validate(ValidationContext vtx, Service service) {
+		int count = 0;
+		count = super.validate(vtx, service);
+		if(this.inFolderName == null){
+			vtx.addError("inFolderName is required for file processor");
+			count++;
+		}
+		if(this.inFileNamePattern == null){
+			vtx.addError("inFileNamePattern is required for file processor");
+			count++;
+		}
+		if(this.inDataFormat == null){
+			vtx.addError("inDataFormat is required for file processor");
+			count++;
+		}
+		if(this.inSheetName == null){
+			vtx.addError("inSheetName is required for file processor");
+			count++;
+		}
+		if(this.inRecordName == null){
+			vtx.addError("inRecordName is required for file processor");
+			count++;
+		}
+		if(this.outFolderName != null){
+			if(this.outDataFormat == null){
+				vtx.addError("outDataFormat is required when outFolderName is specified");
+				count++;
+			}
+			if(this.outSheetName == null){
+				vtx.addError("outSheetName is required when outFolderName is specified");
+				count++;
+			}
+			if(this.outRecordName == null){
+				vtx.addError("outRecordName is required when outFolderName is specified");
+				count++;
+			}
+		}
+		return count;
 	}
 }

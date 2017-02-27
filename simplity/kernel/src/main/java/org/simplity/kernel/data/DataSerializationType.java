@@ -94,9 +94,8 @@ public enum DataSerializationType {
 		@Override
 		public String serializeFields(FieldsInterface fieldValues, Field[] fields) {
 			Value[] values = new Value[fields.length];
-			int i = 0;
-			for(Field field : fields){
-				values[i] = fieldValues.getValue(field.getName());
+			for(int i = 0; i < fields.length; i++){
+				values[i] = fieldValues.getValue(fields[i].getName());
 			}
 			StringBuilder sbf = new StringBuilder();
 			this.format(values, fields, sbf);
@@ -123,14 +122,12 @@ public enum DataSerializationType {
 			}
 			int nbrFields = 0;
 			Value[] values = this.extract(rowText, widths, null);
-			int i = 0;
-			for (String name : names) {
+			for (int i = 0; i < names.length; i++) {
 				Value value = values[i];
 				if (value != null) {
-					inData.setValue(name, value);
+					inData.setValue(names[i], value);
 					nbrFields++;
 				}
-				i++;
 			}
 			return nbrFields;
 		}
@@ -144,40 +141,14 @@ public enum DataSerializationType {
 			}
 			int nbrFields = 0;
 			Value[] values = this.extract(rowText, fields);
-			int i = 0;
-			for (Field field : fields) {
+			for (int i = 0; i < fields.length; i++) {
 				Value value = values[i];
 				if (value != null) {
-					inData.setValue(field.getName(), value);
+					inData.setValue(fields[i].getName(), value);
 					nbrFields++;
 				}
-				i++;
 			}
 			return nbrFields;
-		}
-
-		@Override
-		public MultiRowsSheet parseRows(String text, String[] names,
-				int[] widths) {
-			if (names == null || widths == null || names.length == 0
-					|| names.length != widths.length) {
-				this.fieldNameRequired();
-				return null;
-			}
-			String[] texts = text.split(NL);
-			Value[] values = this.extract(texts[0], widths, null);
-			ValueType[] types = new ValueType[values.length];
-			for (int i = 0; i < types.length; i++) {
-				Value value = values[i];
-				types[i] = value == null ? ValueType.TEXT
-						: value.getValueType();
-			}
-			MultiRowsSheet sheet = new MultiRowsSheet(names, types);
-			sheet.addRow(values);
-			for (int i = 1; i < texts.length; i++) {
-				sheet.addRow(this.extract(texts[i], widths, null));
-			}
-			return sheet;
 		}
 
 		@Override
@@ -188,7 +159,7 @@ public enum DataSerializationType {
 			}
 			String[] texts = text.split(NL);
 			MultiRowsSheet sheet = new MultiRowsSheet(fields);
-			for (int i = 1; i < texts.length; i++) {
+			for (int i = 0; i < texts.length; i++) {
 				sheet.addRow(this.extract(texts[i], fields));
 			}
 			return sheet;
@@ -208,8 +179,8 @@ public enum DataSerializationType {
 		 * @param sbf
 		 */
 		private void format(Value[] values, Field[] fields, StringBuilder sbf) {
-			int i = 0;
-			for (Value value : values) {
+			for ( int i = 0; i < values.length;i++) {
+				Value value = values[i];
 				Field field = fields[i];
 				String txt;
 				if (Value.isNull(value)) {
@@ -237,10 +208,10 @@ public enum DataSerializationType {
 
 		private Value[] extract(String rowText, int[] widths,
 				ValueType[] types) {
-			int i = 0;
 			int startAt = 0;
 			Value[] values = new Value[widths.length];
-			for (int width : widths) {
+			for (int i = 0; i < widths.length; i++) {
+				int width = widths[i];
 				int endAt = startAt + width;
 				String text = rowText.substring(startAt, endAt);
 				if (types == null) {
@@ -248,20 +219,24 @@ public enum DataSerializationType {
 				} else {
 					values[i] = Value.parseValue(text, types[i]);
 				}
-				i++;
 			}
 			return values;
 		}
 
 		private Value[] extract(String rowText, Field[] fields) {
-			int i = 0;
+
 			int startAt = 0;
 			Value[] values = new Value[fields.length];
-			for (Field field : fields) {
+			for (int i = 0; i  < fields.length; i++) {
+				Field field = fields[i];
 				int endAt = startAt + field.getFieldWidth();
 				String text = rowText.substring(startAt, endAt);
-				values[i] = field.getDataType().parseValue(text);
-				i++;
+				Value value  = field.getDataType().parseValue(text);
+				if(value == null){
+					throw new ApplicationError(text + " is not a valid data for data type " +field.getDataType().getName());
+				}
+				values[i] = value;
+				startAt = endAt;
 			}
 			return values;
 		}
@@ -275,9 +250,9 @@ public enum DataSerializationType {
 		@Override
 		public String serializeFields(FieldsInterface fieldValues, String[] names) {
 			Value[] values = new Value[names.length];
-			int i = 0;
-			for(String name :names){
-				values[i] = fieldValues.getValue(name);
+
+			for(int i = 0; i < names.length;i++){
+				values[i] = fieldValues.getValue(names[i]);
 			}
 			StringBuilder sbf = new StringBuilder();
 			this.format(values, sbf);
@@ -287,9 +262,8 @@ public enum DataSerializationType {
 		@Override
 		public String serializeFields(FieldsInterface fieldValues, Field[] fields) {
 			Value[] values = new Value[fields.length];
-			int i = 0;
-			for(Field field : fields){
-				values[i] = fieldValues.getValue(field.getName());
+			for(int i = 0; i < fields.length;i++){
+				values[i] = fieldValues.getValue(fields[i].getName());
 			}
 			StringBuilder sbf = new StringBuilder();
 			this.format(values, fields, sbf);
@@ -325,14 +299,13 @@ public enum DataSerializationType {
 			}
 			int nbrFields = 0;
 			Value[] values = this.extract(rowText, (ValueType[]) null);
-			int i = 0;
-			for (String name : names) {
+
+			for (int i = 0; i < names.length; i++) {
 				Value value = values[i];
 				if (value != null) {
-					inData.setValue(name, value);
+					inData.setValue(names[i], value);
 					nbrFields++;
 				}
-				i++;
 			}
 			return nbrFields;
 		}
@@ -346,21 +319,18 @@ public enum DataSerializationType {
 			}
 			int nbrFields = 0;
 			Value[] values = this.extract(rowText, fields);
-			int i = 0;
-			for (Field field : fields) {
+			for (int i = 0; i < fields.length; i++) {
 				Value value = values[i];
 				if (value != null) {
-					inData.setValue(field.getName(), value);
+					inData.setValue(fields[i].getName(), value);
 					nbrFields++;
 				}
-				i++;
 			}
 			return nbrFields;
 		}
 
 		@Override
-		public MultiRowsSheet parseRows(String text, String[] names,
-				int[] widths) {
+		public MultiRowsSheet parseRows(String text, String[] names) {
 			if (names == null || names.length == 0) {
 				this.fieldNameRequired();
 				return null;
@@ -389,7 +359,7 @@ public enum DataSerializationType {
 			}
 			String[] texts = text.split(NL);
 			MultiRowsSheet sheet = new MultiRowsSheet(fields);
-			for (int i = 1; i < texts.length; i++) {
+			for (int i = 0; i < texts.length; i++) {
 				sheet.addRow(this.extract(texts[i], fields));
 			}
 			return sheet;
@@ -409,11 +379,9 @@ public enum DataSerializationType {
 		}
 
 		private void format(Value[] values, Field[] fields, StringBuilder sbf) {
-			int i = 0;
-			for (Value value : values) {
-				sbf.append(fields[i].getDataType().formatValue(value));
+			for (int i = 0; i < values.length;i++) {
+				sbf.append(fields[i].getDataType().formatValue(values[i]));
 				sbf.append(COMMA);
-				i++;
 			}
 			sbf.setLength(sbf.length() - 1);
 		}
@@ -425,15 +393,13 @@ public enum DataSerializationType {
 						+ " comma separated values but we are expecting "
 						+ types.length + ".");
 			}
-			int i = 0;
 			Value[] values = new Value[texts.length];
-			for (String text : texts) {
+			for (int i = 0; i < texts.length; i++) {
 				if (types == null) {
-					values[i] = Value.parseValue(text);
+					values[i] = Value.parseValue(texts[i]);
 				} else {
-					values[i] = Value.parseValue(text, types[i]);
+					values[i] = Value.parseValue(texts[i], types[i]);
 				}
-				i++;
 			}
 			return values;
 		}
@@ -445,11 +411,12 @@ public enum DataSerializationType {
 						+ " comma separated values but we are expecting "
 						+ fields.length + ".");
 			}
-			int i = 0;
 			Value[] values = new Value[texts.length];
-			for (String text : texts) {
-				values[i] = fields[i].getDataType().parseValue(text);
-				i++;
+			for (int i = 0; i < texts.length; i++) {
+				values[i] = fields[i].getDataType().parseValue(texts[i]);
+				if(fields[i].getDataType().getValueType() == ValueType.DATE){
+					Tracer.trace("text =" + texts[i] + " value = " +values[i] + "data type = " + fields[i].getDataType().formatValue(values[i]));
+				}
 			}
 			return values;
 		}
@@ -463,18 +430,35 @@ public enum DataSerializationType {
 			JSONWriter writer = new JSONWriter();
 			writer.object();
 			for(String name : names){
-				writer.key(name).value(fieldValues.getValue(name));
+				writer.key(name);
+				Value value = fieldValues.getValue(name);
+
+				if(Value.isNull(value)){
+					writer.value(null);
+				}else{
+					writer.value(value.toObject());
+				}
 			}
+			writer.object();
 			return writer.toString();
 		}
 
 		@Override
 		public String serializeFields(FieldsInterface fieldValues, Field[] fields) {
 			JSONWriter writer = new JSONWriter();
+			writer.object();
 			for(Field field : fields){
 				String name = field.getName();
-				writer.key(name).value(fieldValues.getValue(name));
+				writer.key(name);
+				Value value = fieldValues.getValue(name);
+
+				if(Value.isNull(value)){
+					writer.value(null);
+				}else{
+					writer.value(value.toObject());
+				}
 			}
+			writer.endObject();
 			return writer.toString();
 		}
 
@@ -483,11 +467,17 @@ public enum DataSerializationType {
 			JSONWriter writer = new JSONWriter();
 			writer.array();
 			for (Value[] row : values) {
-				int i = 0;
-				for(String name : names){
-					writer.key(name).value(row[i]);
-					i++;
+				writer.object();
+				for(int i = 0; i < names.length; i++){
+					writer.key(names[i]);
+					Value value = row[i];
+					if(Value.isNull(value)){
+						writer.value(null);
+					}else{
+						writer.value(value.toObject());
+					}
 				}
+				writer.endObject();
 			}
 			return writer.toString();
 		}
@@ -497,11 +487,17 @@ public enum DataSerializationType {
 			JSONWriter writer = new JSONWriter();
 			writer.array();
 			for (Value[] row : values) {
-				int i = 0;
-				for(Field field : fields){
-					writer.key(field.getName()).value(row[i]);
-					i++;
+				writer.object();
+				for(int i = 0; i < fields.length; i++){
+					writer.key(fields[i].getName());
+					Value value = row[i];
+					if(Value.isNull(value)){
+						writer.value(null);
+					}else{
+						writer.value(value.toObject());
+					}
 				}
+				writer.endObject();
 			}
 			return writer.toString();
 		}
@@ -542,8 +538,7 @@ public enum DataSerializationType {
 		}
 
 		@Override
-		public MultiRowsSheet parseRows(String text, String[] names,
-				int[] widths) {
+		public MultiRowsSheet parseRows(String text, String[] names) {
 			JSONArray json = new JSONArray(text);
 			Value[] values = this.extract((JSONObject)json.opt(0), names);
 			ValueType[] types = new ValueType[values.length];
@@ -574,27 +569,23 @@ public enum DataSerializationType {
 
 
 		private Value[] extract(JSONObject json, String names[]) {
-			int i = 0;
 			Value[] values = new Value[names.length];
-			for (String name : names) {
-				Object obj = json.opt(name);
+			for (int i = 0; i < names.length; i++) {
+				Object obj = json.opt(names[i]);
 				if (obj != null) {
 					values[i] = Value.parseObject(obj);
 				}
-				i++;
 			}
 			return values;
 		}
 
 		private Value[] extract(JSONObject json, Field fields[]) {
-			int i = 0;
 			Value[] values = new Value[fields.length];
-			for (Field field : fields) {
-				Object obj = json.opt(field.getName());
+			for (int i = 0; i < fields.length; i++) {
+				Object obj = json.opt(fields[i].getName());
 				if (obj != null) {
 					values[i] = Value.parseObject(obj);
 				}
-				i++;
 			}
 			return values;
 		}
@@ -615,8 +606,6 @@ public enum DataSerializationType {
 	protected static final String NL = System.getProperty("line.separator");
 	protected static final char COMMA = ',';
 	protected static final String COMMA_STR = ",";
-	protected static final char EQL = ',';
-	protected static final String EQL_STR = ",";
 
 	/**
 	 * serialize set of key-value pairs
@@ -705,11 +694,9 @@ public enum DataSerializationType {
 	 *            serialized text from which to extract data
 	 * @param names
 	 *            field names. null if this is not relevant or not required
-	 * @param widths
-	 *            widths of fields. null if this is not relevant
 	 * @return data sheet into which dat is extracted
 	 */
-	public MultiRowsSheet parseRows(String text, String[] names, int[] widths) {
+	public MultiRowsSheet parseRows(String text, String[] names) {
 		this.notSupported("de-serialization with key-value pairs");
 		return null;
 	}

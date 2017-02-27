@@ -25,6 +25,7 @@ package org.simplity.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 
@@ -80,6 +81,17 @@ public class JavaAgent {
 		inData.setPayLoad(pl);
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		Tracer.trace(outData.getTrace());
+		/*
+		 * typical java agents may not even have the discipline to see output.
+		 * We are better off tracing the error messages as well
+		 */
+		FormattedMessage[] msgs = outData.getMessages();
+		if(msgs != null && msgs.length > 0){
+			Tracer.trace("**** Server returned with following messages ***");
+			for(FormattedMessage msg : msgs){
+				Tracer.trace(msg.messageType + " : " + msg.text);
+			}
+		}
 		return outData.getResponseJson();
 	}
 
@@ -105,7 +117,8 @@ public class JavaAgent {
 			 */
 			Object uid = outData.get(ServiceProtocol.USER_ID);
 			if (uid == null) {
-				Tracer.trace("Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
+				Tracer.trace(
+						"Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
 				return false;
 			}
 
@@ -124,6 +137,14 @@ public class JavaAgent {
 		return true;
 	}
 
+	/**
+	 * logout from this session
+	 */
+	public void logout(){
+		ServiceData inData = new ServiceData(this.userId, null);
+		this.setSessionData(inData);
+		ServiceAgent.getAgent().logout(inData);
+	}
 	/**
 	 * save session data from output data
 	 *

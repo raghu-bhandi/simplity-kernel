@@ -1585,7 +1585,7 @@
 			use="required"
 		>
 			<xs:annotation>
-				<xs:documentation>datasheet to which the row is to be added
+				<xs:documentation>data sheet to which the row is to be added
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1837,6 +1837,7 @@
 			<xs:enumeration value="text/html" />
 		</xs:restriction>
 	</xs:simpleType>
+
 	<xs:complexType name="httpClient">
 		<xs:all>
 			<xs:element
@@ -1974,6 +1975,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:complexType name="jmsConsumer">
 		<xs:all>
 			<xs:element
@@ -1992,8 +1994,10 @@
 				maxOccurs="1"
 				type="actions" />
 		</xs:all>
+
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
+
 	<xs:complexType name="jmsProducer">
 		<xs:all>
 			<xs:element
@@ -2009,6 +2013,7 @@
 		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
+
 	<xs:complexType name="jumpTo">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2516,39 +2521,17 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="fileHasEndOfLineChars"
-				type="booleanType"
-			>
-				<xs:annotation>
-					<xs:documentation>Does the file follow the convention of end-of-line
-						for the o/s, like new-line in Unix, or CR-LF in windows?
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="toWriteLine"
-				type="booleanType"
-			>
-				<xs:annotation>
-					<xs:documentation>Does the output need to be written in lines?
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			
-			<xs:attribute
 				name="outFolderName"
 				type="xs:string"
-				use="required"
 			>
 				<xs:annotation>
-					<xs:documentation>Output folder to write out the outdata sheets
+					<xs:documentation>Output folder to write out the outdata sheet
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
 				name="outRecordName"
 				type="xs:string"
-				use="required"
 			>
 				<xs:annotation>
 					<xs:documentation>Qualified name of record that describes the
@@ -2561,8 +2544,28 @@
 				type="xs:string"
 			>
 				<xs:annotation>
-					<xs:documentation>The datasheet to which the output is processed
+					<xs:documentation>The data sheet to which the output is processed
 						and written out
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="inDataFormat"
+				type="dataSerializationType"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>in what format is data received in the file?
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="outDataFormat"
+				type="dataSerializationType"
+			>
+				<xs:annotation>
+					<xs:documentation>if data has to be written out to a file, in what
+						format do we write?
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -3598,6 +3601,7 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+
 	<xs:complexType name="jmsQueue">
 		<xs:attribute
 			name="queueName"
@@ -3611,7 +3615,7 @@
 		</xs:attribute>
 		<xs:attribute
 			name="messageBodyType"
-			type="jmsMessageFormat"
+			type="dataSerializationType"
 		>
 			<xs:annotation>
 				<xs:documentation>If the message body is used for transporting data,
@@ -3693,6 +3697,7 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+
 		<xs:attribute
 			name="messageType"
 			type="xs:string"
@@ -3704,7 +3709,8 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-	<xs:simpleType name="jmsMessageFormat">
+
+	<xs:simpleType name="dataSerializationType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="text">
 				<xs:annotation>
@@ -3727,36 +3733,17 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
-			<xs:enumeration value="commaSeparatedPairs">
-				<xs:annotation>
-					<xs:documentation>comma separated pairs of name=value
-					</xs:documentation>
-				</xs:annotation>
-			</xs:enumeration>
 			<xs:enumeration value="json">
 				<xs:annotation>
 					<xs:documentation>json format</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
-			<xs:enumeration value="xmlAttributes">
+			<xs:enumeration value="xml">
 				<xs:annotation>
 					<xs:documentation>xml with field values as attributes
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
-			<xs:enumeration value="xmlElements">
-				<xs:annotation>
-					<xs:documentation>xml with field values as elements
-					</xs:documentation>
-				</xs:annotation>
-			</xs:enumeration>
-			<xs:enumeration value="formData">
-				<xs:annotation>
-					<xs:documentation>like an http request data body on form submit
-					</xs:documentation>
-				</xs:annotation>
-			</xs:enumeration>
-			<xs:enumeration value="yaml" />
 			<xs:enumeration value="object" />
 			<xs:enumeration value="map" />
 		</xs:restriction>
