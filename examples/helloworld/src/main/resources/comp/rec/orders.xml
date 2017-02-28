@@ -1,12 +1,56 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<record name="orders" recordType="storage" tableName="ORDERS" xmlns="http://www.simplity.org/schema">
-<fields>
-<field columnName="ORD_NUM" dataType="_decimal" fieldType="primaryKey" name="ordNum" sqlTypeName="DECIMAL"/>
-<field columnName="ORD_AMOUNT" dataType="_decimal" fieldType="data" name="ordAmount" sqlTypeName="DECIMAL"/>
-<field columnName="ADVANCE_AMOUNT" dataType="_decimal" fieldType="data" name="advanceAmount" sqlTypeName="DECIMAL"/>
-<field columnName="ORD_DATE" dataType="_dateTime" fieldType="data" name="ordDate" sqlTypeName="DATE"/>
-<field columnName="CUST_CODE" dataType="_text" fieldType="foreignKey" name="custCode" referredField="custCode" referredRecord="customer" sqlTypeName="VARCHAR"/>
-<field columnName="AGENT_CODE" dataType="_text" fieldType="foreignKey" name="agentCode" referredField="agentCode" referredRecord="agents" sqlTypeName="CHAR"/>
-<field columnName="ORD_DESCRIPTION" dataType="_text" fieldType="data" name="ordDescription" sqlTypeName="VARCHAR"/>
-</fields>
+<record
+	name="orders"
+	recordType="storage"
+	tableName="ORDERS"
+	xmlns="http://www.simplity.org/schema"
+>
+	<fields>
+		<field
+			columnName="ORD_NUM"
+			dataType="_decimal"
+			fieldType="primaryKey"
+			name="ordNum"
+			sqlTypeName="DECIMAL" />
+		<field
+			columnName="ORD_AMOUNT"
+			dataType="_decimal"
+			fieldType="data"
+			name="ordAmount"
+			sqlTypeName="DECIMAL" />
+		<field
+			columnName="ADVANCE_AMOUNT"
+			dataType="_decimal"
+			fieldType="data"
+			name="advanceAmount"
+			sqlTypeName="DECIMAL" />
+		<field
+			columnName="ORD_DATE"
+			dataType="_dateTime"
+			fieldType="data"
+			name="ordDate"
+			sqlTypeName="DATE" />
+		<field
+			columnName="CUST_CODE"
+			dataType="_text"
+			fieldType="foreignKey"
+			name="custCode"
+			referredField="custCode"
+			referredRecord="customer"
+			sqlTypeName="VARCHAR" />
+		<field
+			columnName="AGENT_CODE"
+			dataType="_text"
+			fieldType="parentKey"
+			name="agentCode"
+			referredField="agentCode"
+			referredRecord="agents"
+			sqlTypeName="CHAR" />
+		<field
+			columnName="ORD_DESCRIPTION"
+			dataType="_text"
+			fieldType="data"
+			name="ordDescription"
+			sqlTypeName="VARCHAR" />
+	</fields>
 </record>

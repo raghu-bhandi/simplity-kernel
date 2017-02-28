@@ -15,7 +15,7 @@
 			inFileNamePattern=".*\.txt"
 			archivalExtension=".bak"
 			inRecordName="fixed"
-			outSheetName="orders"
+			inSheetName="orders"
 			actionName="fileProcessor"
 		>
 			<actions>

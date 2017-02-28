@@ -6,9 +6,20 @@
 </head>
 <body>
 <div id="response"></div>
+</br>
+</br>
 <button onclick="callRest()">Invoke Rest Call</button>
+</br>
+</br>
 <button onclick="callFile()">Invoke File Processor</button>
-<button onclick="callFilter()">Invoke DB Lookup</button>
+</br>
+</br>
+<button onclick="callAgents()">Invoke DB Lookup - Agents</button>
+</br>
+</br>
+<button onclick="callCustomer()">Invoke DB Lookup - Customers</button>
+</br>
+</br>
 </body>
 <script src="js/simplity-min.js"></script>
 <script type="text/javascript">
@@ -26,7 +37,10 @@ function callRest(){
 function callFile(){
 	Simplity.getResponse("fileProcessing",null,onSuccess,onError);
 }
-function callFilter(){
+function callAgents(){
+	Simplity.getResponse("filter_agents",null,onSuccess,onError);
+}
+function callCustomer(){
 	Simplity.getResponse("filter_customer",null,onSuccess,onError);
 }
 </script>

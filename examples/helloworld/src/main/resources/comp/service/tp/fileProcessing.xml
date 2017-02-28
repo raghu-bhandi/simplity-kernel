@@ -6,17 +6,15 @@
 >
 	<actions>
 		<fileProcessor
+			inDataFormat="text"
 			inFileNamePattern="txt01.txt"
 			inFolderName="${basedir}/infile"
 			inRecordName="hello"
-			fileHasEndOfLineChars="true"
 			archivalExtension=".bak"
 			inSheetName="readfile"
 			outFolderName="${basedir}/outfile"
 			outRecordName="adios"
-			outSheetName="farewell"
-			toWriteLine="true"
-			
+			outSheetName="farewell"			
 		>
 			<actions>
 				<loop dataSheetName="readfile" columnsToCopyAsFields="*">				

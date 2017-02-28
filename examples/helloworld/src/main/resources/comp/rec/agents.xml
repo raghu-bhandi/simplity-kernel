@@ -5,6 +5,7 @@
 	tableName="AGENTS"
 	xmlns="http://www.simplity.org/schema"
 	okToSelectAll="true"
+	childrenToBeRead="customer,orders"
 >
 	<fields>
 		<field

@@ -13,7 +13,7 @@
 			inRecordName="fixed"
 			inFolderName="c:/temp/test/in"
 			archivalExtension=".bak"
-			outSheetName="orders"			
+			inSheetName="orders"			
 		>
 			<actions>
 				<setValue
