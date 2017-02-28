@@ -10,7 +10,7 @@
 >
 	<actions>
 		<fileProcessor
-			inDataFormat="text"
+			inDataFormat="fixedWidth"
 			inFolderName="c:/temp/test/in2"
 			inFileNamePattern=".*\.txt"
 			archivalExtension=".bak"

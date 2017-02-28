@@ -11,7 +11,7 @@
 	<actions>
 		<fileProcessor
 			actionName="fileProcessor"
-			inDataFormat="text"
+			inDataFormat="fixedWidth"
 			inFolderName="c:/temp/test/in1"
 			inFileNamePattern=".*\.txt"
 			archivalExtension=".bak"

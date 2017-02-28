@@ -32,7 +32,7 @@
 			sqlTypeName="DATE" />
 		<field
 			columnName="CUST_CODE"
-			dataType="_text"
+			dataType="text6"
 			fieldType="foreignKey"
 			name="custCode"
 			referredField="custCode"
@@ -40,7 +40,7 @@
 			sqlTypeName="VARCHAR" />
 		<field
 			columnName="AGENT_CODE"
-			dataType="_text"
+			dataType="text6"
 			fieldType="parentKey"
 			name="agentCode"
 			referredField="agentCode"
@@ -48,7 +48,7 @@
 			sqlTypeName="CHAR" />
 		<field
 			columnName="ORD_DESCRIPTION"
-			dataType="_text"
+			dataType="text60"
 			fieldType="data"
 			name="ordDescription"
 			sqlTypeName="VARCHAR" />

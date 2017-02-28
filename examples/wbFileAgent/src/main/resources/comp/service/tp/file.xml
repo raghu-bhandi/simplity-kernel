@@ -8,7 +8,7 @@
 	<actions>
 		<fileProcessor
 			actionName="fileProcessor"
-			inDataFormat="text"
+			inDataFormat="fixedWidth"
 			inFileNamePattern=".*\.txt"
 			inRecordName="fixed"
 			inFolderName="c:/temp/test/in"

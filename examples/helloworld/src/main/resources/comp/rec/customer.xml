@@ -9,31 +9,31 @@
 	<fields>
 		<field
 			columnName="CUST_CODE"
-			dataType="_text"
+			dataType="text6"
 			fieldType="primaryKey"
 			name="custCode"
 			sqlTypeName="VARCHAR" />
 		<field
 			columnName="CUST_NAME"
-			dataType="_text"
+			dataType="text40"
 			fieldType="data"
 			name="custName"
 			sqlTypeName="VARCHAR" />
 		<field
 			columnName="CUST_CITY"
-			dataType="_text"
+			dataType="text35"
 			fieldType="data"
 			name="custCity"
 			sqlTypeName="CHAR" />
 		<field
 			columnName="WORKING_AREA"
-			dataType="_text"
+			dataType="text35"
 			fieldType="data"
 			name="workingArea"
 			sqlTypeName="VARCHAR" />
 		<field
 			columnName="CUST_COUNTRY"
-			dataType="_text"
+			dataType="text20"
 			fieldType="data"
 			name="custCountry"
 			sqlTypeName="VARCHAR" />
@@ -69,13 +69,13 @@
 			sqlTypeName="DECIMAL" />
 		<field
 			columnName="PHONE_NO"
-			dataType="_text"
+			dataType="text17"
 			fieldType="data"
 			name="phoneNo"
 			sqlTypeName="VARCHAR" />
 		<field
 			columnName="AGENT_CODE"
-			dataType="_text"
+			dataType="text6"
 			fieldType="parentKey"
 			name="agentCode"
 			referredField="agentCode"

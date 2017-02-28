@@ -6,12 +6,13 @@
 >
 	<actions>
 		<fileProcessor
-			inDataFormat="text"
+			inDataFormat="fixedWidth"
 			inFileNamePattern="txt01.txt"
 			inFolderName="${basedir}/infile"
 			inRecordName="hello"
 			archivalExtension=".bak"
 			inSheetName="readfile"
+			outDataFormat="fixedWidth"
 			outFolderName="${basedir}/outfile"
 			outRecordName="adios"
 			outSheetName="farewell"			

@@ -10,19 +10,19 @@
 	<fields>
 		<field
 			columnName="AGENT_CODE"
-			dataType="_text"
+			dataType="text6"
 			fieldType="primaryKey"						
 			name="agentCode"
 			sqlTypeName="CHAR" />
 		<field
 			columnName="AGENT_NAME"
-			dataType="_text"
+			dataType="text40"
 			fieldType="data"
 			name="agentName"
 			sqlTypeName="CHAR" />
 		<field
 			columnName="WORKING_AREA"
-			dataType="_text"
+			dataType="text35"
 			fieldType="data"
 			name="workingArea"
 			sqlTypeName="CHAR" />
@@ -34,13 +34,13 @@
 			sqlTypeName="DECIMAL" />
 		<field
 			columnName="PHONE_NO"
-			dataType="_text"
+			dataType="text15"
 			fieldType="data"
 			name="phoneNo"
 			sqlTypeName="CHAR" />
 		<field
 			columnName="COUNTRY"
-			dataType="_text"
+			dataType="text25"
 			fieldType="data"
 			name="country"
 			sqlTypeName="VARCHAR" />

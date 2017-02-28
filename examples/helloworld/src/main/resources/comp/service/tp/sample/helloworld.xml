@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="sample.helloworld"
+	dbAccessType="none">
+	<actions>
+		<setValue fieldName="hello" fieldValue="Hello World!" ></setValue>
+	</actions>
+	<outputData fieldNames="hello"></outputData>
+</service>

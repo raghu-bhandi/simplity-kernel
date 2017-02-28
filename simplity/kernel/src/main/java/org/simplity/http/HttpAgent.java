@@ -192,6 +192,9 @@ public class HttpAgent {
 			if (serviceName == null) {
 				serviceName = req.getParameter(ServiceProtocol.SERVICE_NAME);
 			}
+			if(serviceName==null){
+				serviceName = (String) req.getAttribute(ServiceProtocol.SERVICE_NAME);
+			}
 		}
 
 		long startedAt = new Date().getTime();
