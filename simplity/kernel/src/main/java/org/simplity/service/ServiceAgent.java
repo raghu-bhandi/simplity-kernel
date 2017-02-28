@@ -279,8 +279,6 @@ public class ServiceAgent {
 				boolean hasErrors = response != null && response.hasErrors();
 				if (hasErrors) {
 					Tracer.trace(serviceName + " returned with errors.");
-					//TO-DO may need to refactor 
-					throw new ApplicationError(Tracer.stopAccumulation());
 				} else {
 					Tracer.trace(serviceName + " responded with all OK signal");
 				}

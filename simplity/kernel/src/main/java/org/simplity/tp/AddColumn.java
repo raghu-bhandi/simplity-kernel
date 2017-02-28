@@ -80,12 +80,12 @@ public class AddColumn extends Action {
 		if (this.columnValue != null) {
 			Value value = null;
 			String fieldName = TextUtil.getFieldName(this.columnName);
-			if (fieldName != null) {
-				/*
-				 * it is a field name
-				 */
-				value = ctx.getValue(fieldName);
-			} else {
+				if (fieldName != null) {
+					/*
+					 * it is a field name
+					 */
+					value = ctx.getValue(fieldName);
+				} else {
 				/*
 				 * it is a constant
 				 */
@@ -103,7 +103,7 @@ public class AddColumn extends Action {
 		}
 		try {
 			int nbrRows = sheet.length();
-			if (nbrRows == 0 || this.columnValue == null) {
+			if (nbrRows == 0) {
 				sheet.addColumn(this.columnName, this.columnValueType, null);
 				return Value.VALUE_TRUE;
 			}
