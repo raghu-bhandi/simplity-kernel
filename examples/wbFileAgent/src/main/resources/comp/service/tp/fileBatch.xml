@@ -10,13 +10,13 @@
 >
 	<actions>
 		<fileProcessor
-			inFolderName="c:/temp/test/in1"
-			fileNamePattern=".*\.txt"
-			archivalExtension=".bak"
-			recordName="fixed"
-			sheetName="orders"
 			actionName="fileProcessor"
-			fileHasEndOfLineChars="true"
+			inDataFormat="text"
+			inFolderName="c:/temp/test/in1"
+			inFileNamePattern=".*\.txt"
+			archivalExtension=".bak"
+			inRecordName="fixed"
+			outSheetName="orders"
 		>
 			<actions>
 				<setValue

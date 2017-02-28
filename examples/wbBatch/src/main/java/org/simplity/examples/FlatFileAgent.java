@@ -264,7 +264,7 @@ public class FlatFileAgent implements Runnable {
 		FileReader fr = new FileReader(file);
 		BufferedReader reader = new BufferedReader(fr);
 		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
-		DataSheet ds = record.fromFlatFile(reader, errors, true);
+		DataSheet ds = record.fromFlatFile(reader, errors);
 		if (errors.size() > 0) {
 			/*
 			 * process error. msg is a data structure with details for I18N as

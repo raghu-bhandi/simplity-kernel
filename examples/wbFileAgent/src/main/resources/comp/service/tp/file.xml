@@ -7,13 +7,13 @@
 >
 	<actions>
 		<fileProcessor
-			inFolderName="c:/temp/test/in"
-			fileNamePattern=".*\.txt"
-			archivalExtension=".bak"
-			recordName="fixed"
-			sheetName="orders"
 			actionName="fileProcessor"
-			fileHasEndOfLineChars="true"
+			inDataFormat="text"
+			inFileNamePattern=".*\.txt"
+			inRecordName="fixed"
+			inFolderName="c:/temp/test/in"
+			archivalExtension=".bak"
+			outSheetName="orders"			
 		>
 			<actions>
 				<setValue
@@ -39,14 +39,12 @@
 						<setValue
 							fieldName="bool"
 							expression="!orders.bool" />
-						<log names="date" />
 						<setValue
 							fieldName="date"
 							expression="date + 100" />
 						<log names="date" />
 					</actions>
 				</loop>
-				<log names="number" />
 			</actions>
 		</fileProcessor>
 	</actions>

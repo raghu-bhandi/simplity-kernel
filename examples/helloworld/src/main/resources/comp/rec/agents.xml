@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	name="agents"
+	recordType="storage"
+	tableName="AGENTS"
+	xmlns="http://www.simplity.org/schema"
+	okToSelectAll="true"
+>
+	<fields>
+		<field
+			columnName="AGENT_CODE"
+			dataType="_text"
+			fieldType="primaryKey"						
+			name="agentCode"
+			sqlTypeName="CHAR" />
+		<field
+			columnName="AGENT_NAME"
+			dataType="_text"
+			fieldType="data"
+			name="agentName"
+			sqlTypeName="CHAR" />
+		<field
+			columnName="WORKING_AREA"
+			dataType="_text"
+			fieldType="data"
+			name="workingArea"
+			sqlTypeName="CHAR" />
+		<field
+			columnName="COMMISSION"
+			dataType="_decimal"
+			fieldType="data"
+			name="commission"
+			sqlTypeName="DECIMAL" />
+		<field
+			columnName="PHONE_NO"
+			dataType="_text"
+			fieldType="data"
+			name="phoneNo"
+			sqlTypeName="CHAR" />
+		<field
+			columnName="COUNTRY"
+			dataType="_text"
+			fieldType="data"
+			name="country"
+			sqlTypeName="VARCHAR" />
+	</fields>
+</record>

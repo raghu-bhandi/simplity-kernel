@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	name="customer"
+	recordType="storage"
+	tableName="CUSTOMER"
+	xmlns="http://www.simplity.org/schema"
+	okToSelectAll="true"
+	childrenToBeRead="agents"
+>
+	<fields>
+		<field
+			columnName="CUST_CODE"
+			dataType="_text"
+			fieldType="primaryKey"
+			name="custCode"
+			sqlTypeName="VARCHAR" />
+		<field
+			columnName="CUST_NAME"
+			dataType="_text"
+			fieldType="data"
+			name="custName"
+			sqlTypeName="VARCHAR" />
+		<field
+			columnName="CUST_CITY"
+			dataType="_text"
+			fieldType="data"
+			name="custCity"
+			sqlTypeName="CHAR" />
+		<field
+			columnName="WORKING_AREA"
+			dataType="_text"
+			fieldType="data"
+			name="workingArea"
+			sqlTypeName="VARCHAR" />
+		<field
+			columnName="CUST_COUNTRY"
+			dataType="_text"
+			fieldType="data"
+			name="custCountry"
+			sqlTypeName="VARCHAR" />
+		<field
+			columnName="GRADE"
+			dataType="_decimal"
+			fieldType="data"
+			name="grade"
+			sqlTypeName="DECIMAL" />
+		<field
+			columnName="OPENING_AMT"
+			dataType="_decimal"
+			fieldType="data"
+			name="openingAmt"
+			sqlTypeName="DECIMAL" />
+		<field
+			columnName="RECEIVE_AMT"
+			dataType="_decimal"
+			fieldType="data"
+			name="receiveAmt"
+			sqlTypeName="DECIMAL" />
+		<field
+			columnName="PAYMENT_AMT"
+			dataType="_decimal"
+			fieldType="data"
+			name="paymentAmt"
+			sqlTypeName="DECIMAL" />
+		<field
+			columnName="OUTSTANDING_AMT"
+			dataType="_decimal"
+			fieldType="data"
+			name="outstandingAmt"
+			sqlTypeName="DECIMAL" />
+		<field
+			columnName="PHONE_NO"
+			dataType="_text"
+			fieldType="data"
+			name="phoneNo"
+			sqlTypeName="VARCHAR" />
+		<field
+			columnName="AGENT_CODE"
+			dataType="_text"
+			fieldType="parentKey"
+			name="agentCode"
+			referredField="agentCode"
+			referredRecord="agents"
+			sqlTypeName="CHAR" />
+	</fields>
+</record>

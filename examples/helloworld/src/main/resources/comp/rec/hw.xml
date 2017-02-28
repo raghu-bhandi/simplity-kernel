@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record name="hw" recordType="storage" tableName="HW" xmlns="http://www.simplity.org/schema">
+<fields>
+<field columnName="ID" fieldType="primaryKey" name="id" sqlTypeName="INTEGER"/>
+<field columnName="GREETING" dataType="_text" fieldType="data" name="greeting" sqlTypeName="VARCHAR"/>
+</fields>
+</record>

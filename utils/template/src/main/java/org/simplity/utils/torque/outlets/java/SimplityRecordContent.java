@@ -59,15 +59,22 @@ public class SimplityRecordContent extends OutletImpl {
 			field.setColumnName(nam);
 			String sqlTypeName = column.getAttribute("type").toString();
 			field.setSqlTypeName(sqlTypeName);
-			field.setDataType(ValueType.valueOf(sqlTypeName).getDefaultDataType());
+			String dataType = null;
+			try{
+				dataType = ValueType.getValueType(sqlTypeName).getDefaultDataType();			
+			}catch(NullPointerException e){
+				if(sqlTypeName.equals("CHAR")){
+					dataType="_text";
+				}
+			}
+			field.setDataType(dataType);
 			if (column.getAttribute("primaryKey") != null) {
 				field.setFieldType(FieldType.PRIMARY_KEY);
 			}
-
 			// set the reference details
 			List<ForeignKey> fkList = new ArrayList<ForeignKey>();
 			if ((fkList = foreignKeyList.get(nam)) != null) {
-				field.setFieldType(FieldType.FOREIGN_KEY);
+				field.setFieldType(FieldType.PARENT_KEY);
 				ForeignKey fk = (ForeignKey) (fkList.get(0));
 				field.setReferredRecord(Utils.toCamelCase(fk.foreignTable));
 				field.setReferredField(Utils.toCamelCase(fk.foreignKey));

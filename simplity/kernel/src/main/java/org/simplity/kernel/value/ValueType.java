@@ -56,8 +56,7 @@ public enum ValueType {
 		}
 
 		@Override
-		public Value extractFromRs(ResultSet resultSet, int posn)
-				throws SQLException {
+		public Value extractFromRs(ResultSet resultSet, int posn) throws SQLException {
 			/*
 			 * written for text. others override this
 			 */
@@ -69,8 +68,7 @@ public enum ValueType {
 		}
 
 		@Override
-		public Value extractFromSp(CallableStatement stmt, int posn)
-				throws SQLException {
+		public Value extractFromSp(CallableStatement stmt, int posn) throws SQLException {
 			/*
 			 * written for text. others override this
 			 */
@@ -91,8 +89,7 @@ public enum ValueType {
 	 */
 	INTEGER(Types.BIGINT, "BIGINT", "_number") {
 		@Override
-		public Value extractFromRs(ResultSet resultSet, int idx)
-				throws SQLException {
+		public Value extractFromRs(ResultSet resultSet, int idx) throws SQLException {
 			long val = resultSet.getLong(idx);
 			if (resultSet.wasNull()) {
 				return Value.newUnknownValue(INTEGER);
@@ -101,8 +98,7 @@ public enum ValueType {
 		}
 
 		@Override
-		public Value extractFromSp(CallableStatement stmt, int idx)
-				throws SQLException {
+		public Value extractFromSp(CallableStatement stmt, int idx) throws SQLException {
 			long val = stmt.getLong(idx);
 			if (stmt.wasNull()) {
 				return Value.newUnknownValue(INTEGER);
@@ -148,8 +144,7 @@ public enum ValueType {
 	 */
 	DECIMAL(Types.DECIMAL, "DECIMAL", "_decimal") {
 		@Override
-		public Value extractFromRs(ResultSet resultSet, int idx)
-				throws SQLException {
+		public Value extractFromRs(ResultSet resultSet, int idx) throws SQLException {
 			double val = resultSet.getDouble(idx);
 			if (resultSet.wasNull()) {
 				return Value.newUnknownValue(DECIMAL);
@@ -158,8 +153,7 @@ public enum ValueType {
 		}
 
 		@Override
-		public Value extractFromSp(CallableStatement stmt, int idx)
-				throws SQLException {
+		public Value extractFromSp(CallableStatement stmt, int idx) throws SQLException {
 			double val = stmt.getDouble(idx);
 			if (stmt.wasNull()) {
 				return Value.newUnknownValue(DECIMAL);
@@ -206,8 +200,7 @@ public enum ValueType {
 	 */
 	BOOLEAN(Types.BOOLEAN, "BOOLEAN", "_boolean") {
 		@Override
-		public Value extractFromRs(ResultSet resultSet, int idx)
-				throws SQLException {
+		public Value extractFromRs(ResultSet resultSet, int idx) throws SQLException {
 			Object obj = resultSet.getObject(idx);
 			if (resultSet.wasNull()) {
 				return Value.newUnknownValue(BOOLEAN);
@@ -222,8 +215,7 @@ public enum ValueType {
 		}
 
 		@Override
-		public Value extractFromSp(CallableStatement stmt, int idx)
-				throws SQLException {
+		public Value extractFromSp(CallableStatement stmt, int idx) throws SQLException {
 			Object obj = stmt.getObject(idx);
 			if (stmt.wasNull()) {
 				return Value.newUnknownValue(BOOLEAN);
@@ -285,8 +277,7 @@ public enum ValueType {
 	 */
 	DATE(Types.DATE, "DATE", "_dateTime") {
 		@Override
-		public Value extractFromRs(ResultSet resultSet, int idx)
-				throws SQLException {
+		public Value extractFromRs(ResultSet resultSet, int idx) throws SQLException {
 			Timestamp val = resultSet.getTimestamp(idx);
 			if (resultSet.wasNull()) {
 				return Value.newUnknownValue(DATE);
@@ -295,8 +286,7 @@ public enum ValueType {
 		}
 
 		@Override
-		public Value extractFromSp(CallableStatement stmt, int idx)
-				throws SQLException {
+		public Value extractFromSp(CallableStatement stmt, int idx) throws SQLException {
 			Timestamp val = stmt.getTimestamp(idx);
 			if (stmt.wasNull()) {
 				return Value.newUnknownValue(DATE);
@@ -312,8 +302,7 @@ public enum ValueType {
 		@Override
 		public Value fromObject(Object dbObject) {
 			if (dbObject instanceof java.util.Date) {
-				return Value
-						.newDateValue(((java.util.Date) dbObject).getTime());
+				return Value.newDateValue(((java.util.Date) dbObject).getTime());
 			}
 			String val = dbObject.toString();
 			java.util.Date date = DateUtil.parseDateWithOptionalTime(val);
@@ -365,8 +354,7 @@ public enum ValueType {
 		 * int)
 		 */
 		@Override
-		public Value extractFromRs(ResultSet resultSet, int posn)
-				throws SQLException {
+		public Value extractFromRs(ResultSet resultSet, int posn) throws SQLException {
 			Clob clob = resultSet.getClob(posn);
 			if (resultSet.wasNull()) {
 				clob = null;
@@ -375,8 +363,7 @@ public enum ValueType {
 		}
 
 		@Override
-		public Value extractFromSp(CallableStatement stmt, int posn)
-				throws SQLException {
+		public Value extractFromSp(CallableStatement stmt, int posn) throws SQLException {
 			Clob clob = stmt.getClob(posn);
 			if (stmt.wasNull()) {
 				clob = null;
@@ -400,8 +387,7 @@ public enum ValueType {
 			try {
 				File file = FileManager.createTempFile(reader);
 				if (file == null) {
-					throw new ApplicationError(
-							"Unable to save clob value to a tmp storage.");
+					throw new ApplicationError("Unable to save clob value to a tmp storage.");
 				}
 				return Value.newClobValue(file.getName());
 			} finally {
@@ -425,8 +411,7 @@ public enum ValueType {
 		}
 
 		@Override
-		public Value extractFromRs(ResultSet resultSet, int posn)
-				throws SQLException {
+		public Value extractFromRs(ResultSet resultSet, int posn) throws SQLException {
 			Blob blob = resultSet.getBlob(posn);
 			if (resultSet.wasNull()) {
 				return this.saveIt(null);
@@ -435,8 +420,7 @@ public enum ValueType {
 		}
 
 		@Override
-		public Value extractFromSp(CallableStatement stmt, int posn)
-				throws SQLException {
+		public Value extractFromSp(CallableStatement stmt, int posn) throws SQLException {
 			Blob blob = stmt.getBlob(posn);
 			if (stmt.wasNull()) {
 				return this.saveIt(null);
@@ -460,8 +444,7 @@ public enum ValueType {
 			try {
 				File file = FileManager.createTempFile(stream);
 				if (file == null) {
-					throw new ApplicationError(
-							"Unable to save blob value to a tmp storage.");
+					throw new ApplicationError("Unable to save blob value to a tmp storage.");
 				}
 				return Value.newBlobValue(file.getName());
 			} finally {
@@ -478,21 +461,18 @@ public enum ValueType {
 	 */
 	TIMESTAMP(Types.TIMESTAMP, "TIMESTAMP", "_timestamp") {
 		@Override
-		public Value extractFromRs(ResultSet resultSet, int idx)
-				throws SQLException {
+		public Value extractFromRs(ResultSet resultSet, int idx) throws SQLException {
 			Timestamp ts = resultSet.getTimestamp(idx);
 			if (resultSet.wasNull()) {
 				return Value.newUnknownValue(INTEGER);
 			}
-			Tracer.trace("Extracted a time stamp " + ts + " and nanos = "
-					+ ts.getNanos());
+			Tracer.trace("Extracted a time stamp " + ts + " and nanos = " + ts.getNanos());
 			long val = ts.getTime() * 1000 + ts.getNanos();
 			return Value.newIntegerValue(val);
 		}
 
 		@Override
-		public Value extractFromSp(CallableStatement stmt, int idx)
-				throws SQLException {
+		public Value extractFromSp(CallableStatement stmt, int idx) throws SQLException {
 			Timestamp ts = stmt.getTimestamp(idx);
 			if (stmt.wasNull()) {
 				return Value.newUnknownValue(INTEGER);
@@ -565,8 +545,7 @@ public enum ValueType {
 	 * @return value
 	 * @throws SQLException
 	 */
-	public abstract Value extractFromRs(ResultSet resultSet, int posn)
-			throws SQLException;
+	public abstract Value extractFromRs(ResultSet resultSet, int posn) throws SQLException;
 
 	/**
 	 * extracts the value from result set at the current index
@@ -576,8 +555,7 @@ public enum ValueType {
 	 * @return value
 	 * @throws SQLException
 	 */
-	public abstract Value extractFromSp(CallableStatement stmt, int posn)
-			throws SQLException;
+	public abstract Value extractFromSp(CallableStatement stmt, int posn) throws SQLException;
 
 	/**
 	 * registers return type of a stored procedure
@@ -586,8 +564,7 @@ public enum ValueType {
 	 * @param posn
 	 * @throws SQLException
 	 */
-	public void registerForSp(CallableStatement statement, int posn)
-			throws SQLException {
+	public void registerForSp(CallableStatement statement, int posn) throws SQLException {
 		statement.registerOutParameter(posn, this.sqlType);
 	}
 
@@ -612,8 +589,7 @@ public enum ValueType {
 	 * @return value list for the array object
 	 */
 	public Value[] toValues(Object[] arr) {
-		Tracer.trace("Going to convert " + arr.length + " objects into "
-				+ this.name());
+		Tracer.trace("Going to convert " + arr.length + " objects into " + this.name());
 		int n = arr.length;
 		Value[] result = new Value[n];
 		for (int i = 0; i < n; i++) {
@@ -631,8 +607,7 @@ public enum ValueType {
 	 */
 	public Value parseObject(Object object) {
 		if (object == null) {
-			Tracer.trace("Parse Object received null for type "
-					+ this.name()
+			Tracer.trace("Parse Object received null for type " + this.name()
 					+ ". Client may receive null or empty string depending on the setting.");
 			return Value.newUnknownValue(this);
 		}
@@ -641,8 +616,10 @@ public enum ValueType {
 
 	/**
 	 * parse/convert object instance to specific value
+	 * 
 	 * @param dbObject
-	 * @return value. null if dbObject is not the right object for this value type.
+	 * @return value. null if dbObject is not the right object for this value
+	 *         type.
 	 */
 	public abstract Value fromObject(Object dbObject);
 
@@ -658,5 +635,17 @@ public enum ValueType {
 	 */
 	public String getDefaultDataType() {
 		return this.defaultDataType;
+	}
+
+	/**
+	 * @return the ValueType name based on SQL Type
+	 */
+	public static ValueType getValueType(String sqlType) {
+		for(ValueType value:ValueType.values()){
+			if(value.getSqlTypeText().equals(sqlType)){
+				return value;
+			}
+		};
+		return null;
 	}
 }

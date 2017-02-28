@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <functions xmlns="http://www.simplity.org/schema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.simplity.org/schema http://www.simplity.org/schema ">
   <components>
-    <entry className="com.infosys.ExpressionEval" name="modifydata"/>
+    <entry className="helloworld.ExpressionEval" name="modifydata"/>
   </components>
 </functions>
