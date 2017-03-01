@@ -133,11 +133,13 @@ public class FileProcessor extends Block {
 			String inText = FileManager.readFile(file);
 			DataSheet ds = this.inDataFormat.parseRows(inText,
 					record.getFields());
-
+			DataSheet outDs = null;
+			Record outRecord = null;
+			
 			ctx.putDataSheet(this.inSheetName, ds);
 			if (this.outSheetName != null) {
-				Record outRecord = ComponentManager.getRecord(this.outRecordName);
-				DataSheet outDs = outRecord.createSheet(false, false);
+				outRecord = ComponentManager.getRecord(this.outRecordName);
+				outDs = outRecord.createSheet(false, false);
 				ctx.putDataSheet(this.outSheetName, outDs);	
 			}
 			BlockWorker worker = new BlockWorker(this.actions,
@@ -148,17 +150,17 @@ public class FileProcessor extends Block {
 			if (this.outbox == null) {
 				return true;
 			}
-
+			outDs = ctx.getDataSheet(this.outSheetName);
 			
 			String outText = null;
 
-			Value[][] values = ds.getAllRows().toArray(new Value[0][]);
+			Value[][] values = outDs.getAllRows().toArray(new Value[0][]);
 			if (this.outRecordName == null) {
 				outText = this.outDataFormat.serializeRows(values,
-						ds.getColumnNames());
+						outDs.getColumnNames());
 			} else {
 				outText = this.outDataFormat.serializeRows(values,
-						record.getFields());
+						outRecord.getFields());
 			}
 			String outpath = this.outbox.getAbsolutePath()
 					.concat(java.io.File.separator)

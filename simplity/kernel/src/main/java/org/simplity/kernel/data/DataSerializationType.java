@@ -107,7 +107,7 @@ public enum DataSerializationType {
 			StringBuilder sbf = new StringBuilder();
 			for (Value[] row : values) {
 				this.format(row, fields, sbf);
-				sbf.append(NL);
+				sbf.append(System.getProperty("line.separator"));
 			}
 			return sbf.toString();
 		}
@@ -603,7 +603,7 @@ public enum DataSerializationType {
 	 */
 	,MAP;
 
-	protected static final String NL = System.getProperty("line.separator");
+	protected static final String NL = "\\r?\\n";
 	protected static final char COMMA = ',';
 	protected static final String COMMA_STR = ",";
 

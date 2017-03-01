@@ -1,2 +1,2 @@
-1 Good Morning   
-2 Good Afternoon 
+1 adios          adios     
+2 adios          adios     

@@ -19,6 +19,7 @@
 			outSheetName="farewell"			
 		>
 			<actions>
+			<log names="readfile"/>
 				<loop dataSheetName="readfile" columnsToCopyAsFields="*">				
 					<actions>
 						<setValue fieldName="farewell" fieldValue="adios"></setValue>
