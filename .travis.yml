@@ -1,4 +1,7 @@
-language: java
-script:
-- cd simplity
-- mvn test
+language: generic # don't install any environment
+
+script: bash ./deploy.sh
+env:
+  global:
+  - ENCRYPTION_LABEL: "57b40fd44bcf"
+  - COMMIT_AUTHOR_EMAIL: "archetana@gmail.com"
