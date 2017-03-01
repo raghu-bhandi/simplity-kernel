@@ -1,1 +1,4 @@
-mvn install
+-language: java
+ -script:
+ -- cd simplity
+ -- mvn test 
