@@ -135,7 +135,11 @@ public class FileProcessor extends Block {
 					record.getFields());
 
 			ctx.putDataSheet(this.inSheetName, ds);
-
+			if (this.outSheetName != null) {
+				Record outRecord = ComponentManager.getRecord(this.outRecordName);
+				DataSheet outDs = outRecord.createSheet(false, false);
+				ctx.putDataSheet(this.outSheetName, outDs);	
+			}
 			BlockWorker worker = new BlockWorker(this.actions,
 					this.indexedActions, ctx);
 			worker.execute(driver);
@@ -144,18 +148,10 @@ public class FileProcessor extends Block {
 			if (this.outbox == null) {
 				return true;
 			}
-			ds = ctx.getDataSheet(this.outSheetName);
+
+			
 			String outText = null;
-			if (ds == null) {
-				Tracer.trace("Service context has no data sheet named "
-						+ this.outSheetName + ". Output file not written");
-				return true;
-			}
-			if (ds.length() == 0) {
-					Tracer.trace("Data sheet " + this.outSheetName
-							+ " has no data.");
-					return true;
-			}
+
 			Value[][] values = ds.getAllRows().toArray(new Value[0][]);
 			if (this.outRecordName == null) {
 				outText = this.outDataFormat.serializeRows(values,

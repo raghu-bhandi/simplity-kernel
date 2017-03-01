@@ -5,6 +5,7 @@
 	dbAccessType="none"
 >
 	<actions>
+
 		<fileProcessor
 			inDataFormat="fixedWidth"
 			inFileNamePattern="txt01.txt"
@@ -22,7 +23,7 @@
 					<actions>
 						<setValue fieldName="farewell" fieldValue="adios"></setValue>
 						<addRow sheetName="farewell"/>
-						<log names="farewell"/>
+						<log actionName="log123" names="farewell"/>
 					</actions>
 				</loop>
 			</actions>

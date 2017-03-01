@@ -57,15 +57,16 @@ public class Tracer {
 
 	/**
 	 * start accumulation of trace. Once started, traces are accumulated, but
-	 * not written to the underlying logger. If you do no t stop, the reports
+	 * not written to the underlying logger. If you do not stop, the reports
 	 * will be lost into thin air.
 	 *
 	 * @return existing accumulated text, if it was on, empty string otherwise
 	 */
 	public static String startAccumulation() {
-		StringBuilder sbf = Tracer.tracedText.get();
-		Tracer.tracedText.set(new StringBuilder());
-		return sbf == null ? Tracer.EMPTY : sbf.toString();
+//		StringBuilder sbf = Tracer.tracedText.get();
+//		Tracer.tracedText.set(new StringBuilder());
+//		return sbf == null ? Tracer.EMPTY : sbf.toString();
+		return null;
 	}
 
 	/**
@@ -79,9 +80,10 @@ public class Tracer {
 	 * @return existing accumulated text, if it was on, empty string otherwise
 	 */
 	public static String startAccumulation(String trace) {
-		StringBuilder sbf = Tracer.tracedText.get();
-		Tracer.tracedText.set(new StringBuilder(trace));
-		return sbf == null ? Tracer.EMPTY : sbf.toString();
+//		StringBuilder sbf = Tracer.tracedText.get();
+//		Tracer.tracedText.set(new StringBuilder(trace));
+//		return sbf == null ? Tracer.EMPTY : sbf.toString();
+		return null;
 	}
 
 	/**
