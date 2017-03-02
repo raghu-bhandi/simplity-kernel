@@ -9,7 +9,7 @@
 		<field
 			columnName="VET_ID"
 			dataType="_number"
-			fieldType="foreignKey"
+			fieldType="parentKey"
 			name="vetId"
 			referredField="id"
 			referredRecord="vets"
@@ -19,7 +19,7 @@
 			dataType="_number"
 			fieldType="foreignKey"
 			name="specialtyId"
-			referredField="id"
+			referredField="specialtyId"
 			referredRecord="specialties"
 			sqlTypeName="INTEGER" />
 	</fields>

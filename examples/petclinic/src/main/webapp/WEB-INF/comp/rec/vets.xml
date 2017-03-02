@@ -4,13 +4,15 @@
 	recordType="storage"
 	tableName="VETS"
 	xmlns="http://www.simplity.org/schema"
+	okToSelectAll="true"
+	childrenToBeRead="vetSpecialtiesDetails"
 >
 	<fields>
 		<field
 			columnName="ID"
 			dataType="_number"
 			fieldType="primaryKey"
-			name="id"
+			name="vetId"
 			sqlTypeName="INTEGER" />
 		<field
 			columnName="FIRST_NAME"

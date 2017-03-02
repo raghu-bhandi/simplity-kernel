@@ -10,13 +10,13 @@
 			columnName="ID"
 			dataType="_number"
 			fieldType="primaryKey"
-			name="id"
+			name="specialtyId"
 			sqlTypeName="INTEGER" />
 		<field
 			columnName="NAME"
 			dataType="text80"
 			fieldType="data"
-			name="name"
+			name="specialty"
 			sqlTypeName="VARCHAR" />
 	</fields>
 </record>

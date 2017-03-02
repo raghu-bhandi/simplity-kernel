@@ -6,13 +6,15 @@
 	okToSelectAll="true"
 	keyToBeGenerated="true"
 	xmlns="http://www.simplity.org/schema"
+	childrenToBeRead="petDetails"
+	childrenToBeSaved="pets"
 >
 	<fields>
 		<field
 			columnName="ID"
 			dataType="_number"
 			fieldType="primaryKey"
-			name="id"
+			name="ownerId"
 			sqlTypeName="INTEGER" />
 		<field
 			columnName="FIRST_NAME"

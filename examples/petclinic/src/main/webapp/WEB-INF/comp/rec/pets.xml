@@ -11,34 +11,34 @@
 			columnName="ID"
 			dataType="_number"
 			fieldType="primaryKey"
-			name="id"
+			name="petId"
 			sqlTypeName="INTEGER" />
 		<field
 			columnName="NAME"
 			dataType="name"
 			fieldType="data"
-			name="name"
+			name="petName"
 			sqlTypeName="VARCHAR" />
 		<field
 			columnName="BIRTH_DATE"
 			dataType="date"
 			fieldType="data"
-			name="birthDate"
+			name="petDob"
 			sqlTypeName="DATE" />
 		<field
 			columnName="TYPE_ID"
 			dataType="_number"
 			fieldType="foreignKey"
-			name="typeId"
-			referredField="id"
-			referredRecord="types"
+			name="petTypeId"
+			referredField="petTypeId"
+			referredRecord="petTypes"
 			sqlTypeName="INTEGER" />
 		<field
 			columnName="OWNER_ID"
 			dataType="_number"
-			fieldType="foreignKey"
+			fieldType="parentKey"
 			name="ownerId"
-			referredField="id"
+			referredField="ownerId"
 			referredRecord="owners"
 			sqlTypeName="INTEGER" />
 	</fields>

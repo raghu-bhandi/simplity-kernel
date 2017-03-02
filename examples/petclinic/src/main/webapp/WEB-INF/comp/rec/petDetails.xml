@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
-	name="petDetails"
-	recordType="storage"
-	tableName="PET_DETAILS"
 	xmlns="http://www.simplity.org/schema"
+	name="petDetails"
+	tableName="PET_DETAILS"
+	recordType="view"
+	defaultRefRecord="pets"	
+	childrenToBeRead="visits"
 >
 	<fields>
 		<field
 			columnName="PET_ID"
 			dataType="_number"
-			fieldType="data"
+			fieldType="primaryKey"
 			name="petId"
 			sqlTypeName="INTEGER" />
 		<field
@@ -22,23 +24,25 @@
 			columnName="BIRTH_DATE"
 			dataType="date"
 			fieldType="data"
-			name="birthDate"
+			name="petDob"
 			sqlTypeName="DATE" />
 		<field
 			columnName="TYPE_ID"
 			dataType="_number"
 			fieldType="data"
-			name="typeId"
+			name="petTypeId"
 			sqlTypeName="INTEGER" />
 		<field
 			columnName="OWNER_ID"
 			dataType="_number"
-			fieldType="data"
+			fieldType="parentKey"
+			referredRecord="owners"
 			name="ownerId"
 			sqlTypeName="INTEGER" />
 		<field
 			columnName="PET_TYPE"
 			dataType="text80"
+			referredRecord="petTypes"
 			fieldType="data"
 			name="petType"
 			sqlTypeName="VARCHAR" />
@@ -47,12 +51,14 @@
 			dataType="name"
 			fieldType="data"
 			name="firstName"
-			sqlTypeName="VARCHAR" />
+			sqlTypeName="VARCHAR"
+			referredRecord="owners"/>
 		<field
 			columnName="LAST_NAME"
 			dataType="name"
 			fieldType="data"
 			name="lastName"
-			sqlTypeName="VARCHAR" />
+			sqlTypeName="VARCHAR"
+			referredRecord="owners" />
 	</fields>
 </record>

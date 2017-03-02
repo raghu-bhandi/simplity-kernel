@@ -11,14 +11,14 @@
 			columnName="ID"
 			dataType="_number"
 			fieldType="primaryKey"
-			name="id"
+			name="visitId"
 			sqlTypeName="INTEGER" />
 		<field
 			columnName="PET_ID"
 			dataType="_number"
-			fieldType="foreignKey"
+			fieldType="parentKey"
 			name="petId"
-			referredField="id"
+			referredField="petId"
 			referredRecord="pets"
 			sqlTypeName="INTEGER" />
 		<field
@@ -31,7 +31,7 @@
 			columnName="DESCRIPTION"
 			dataType="description"
 			fieldType="data"
-			name="description"
+			name="visitDescription"
 			sqlTypeName="VARCHAR" />
 	</fields>
 </record>
