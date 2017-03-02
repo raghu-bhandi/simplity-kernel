@@ -38,6 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.simplity.json.JSONWriter;
+import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.ClientCacheManager;
 import org.simplity.kernel.FormattedMessage;
@@ -48,7 +49,6 @@ import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.CircularLifo;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
-import org.simplity.service.ExceptionListener;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceProtocol;
@@ -153,11 +153,6 @@ public class HttpAgent {
 	 * accumulated traces to be streamed to client when requested.
 	 */
 	private static boolean tracesToBeCached;
-	/**
-	 * any exception thrown by service may need to be reported to a central
-	 * system.
-	 */
-	private static ExceptionListener exceptionListener;
 
 	/**
 	 * serve this service. Main entrance to the server from an http client.
@@ -186,14 +181,14 @@ public class HttpAgent {
 		HttpSession session = req.getSession(true);
 		boolean isGet = GET.equals(req.getMethod());
 		/*
-		 * serviceName is a parameter in GET mode, and CSRF would be in session
+		 * serviceName is a parameter in GET mode
 		 */
 		if (isGet) {
 			if (serviceName == null) {
 				serviceName = req.getParameter(ServiceProtocol.SERVICE_NAME);
 			}
-			if(serviceName==null){
-				serviceName = (String) req.getAttribute(ServiceProtocol.SERVICE_NAME);
+			if (serviceName == null) {
+				serviceName = (String)req.getAttribute(ServiceProtocol.SERVICE_NAME);
 			}
 		}
 
@@ -266,12 +261,7 @@ public class HttpAgent {
 				}
 			} catch (Exception e) {
 				Tracer.trace(e, "Internal error");
-				if (exceptionListener != null) {
-					exceptionListener.listen(inData, e);
-					Tracer.trace("listener notified");
-				} else {
-					Tracer.trace("No listener to notify support team");
-				}
+				Application.getExceptionListener().listen(inData, e);
 				message = INTERNAL_ERROR;
 			}
 		} while (false);
@@ -499,12 +489,10 @@ public class HttpAgent {
 	 *            if true, traces are also saved into a circular buffer that can
 	 *            be delivered to the client
 	 */
-	public static void setUp(Value autoUserId, ClientCacheManager cacher,
-			ExceptionListener listener, boolean cacheTraces) {
+	public static void setUp(Value autoUserId, ClientCacheManager cacher, boolean cacheTraces) {
 		autoLoginUserId = autoUserId;
 		httpCacheManager = cacher;
 		tracesToBeCached = cacheTraces;
-		exceptionListener = listener;
 
 	}
 
@@ -692,20 +680,14 @@ public class HttpAgent {
 				obj = stream.readObject();
 				stream.close();
 			} catch (Exception e) {
-				if (exceptionListener != null) {
-					exceptionListener.listen(null, e);
-				}
+				Application.getExceptionListener().listen(null, e);
 				message = INTERNAL_ERROR;
 				break;
 			}
 			if (obj instanceof ServiceData == false) {
 				String text = "Temp file is expected to contain an object instance of ServiceData but we found "
 						+ obj.getClass().getName();
-				if (exceptionListener != null) {
-					exceptionListener.listen(null, new ApplicationError(text));
-				} else {
-					Tracer.trace(text);
-				}
+				Application.getExceptionListener().listen(null, new ApplicationError(text));
 				message = INTERNAL_ERROR;
 				break;
 			}

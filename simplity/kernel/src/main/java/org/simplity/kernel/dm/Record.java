@@ -52,8 +52,10 @@ import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataPurpose;
+import org.simplity.kernel.data.DataSerializationType;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
+import org.simplity.kernel.data.FlatFileRowType;
 import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.data.SingleRowSheet;
 import org.simplity.kernel.db.DbDriver;
@@ -3601,6 +3603,77 @@ public class Record implements Component {
 			sql.append(" ORDER BY ").append(sorts.toString());
 		}
 		return new SqlAndValues(sql.toString(), values);
+	}
+
+	/**
+	 * format a row based on values in the fields collection
+	 * @param outDataFormat
+	 * @param fieldValues
+	 * @return text that serializes data as per the format
+	 */
+	public String formatFlatRow(FlatFileRowType outDataFormat, FieldsInterface fieldValues) {
+		if(outDataFormat == FlatFileRowType.FIXED_WIDTH){
+			return DataSerializationType.FIXED_WIDTH.serializeFields(fieldValues, this.getFields());
+		}
+		if(outDataFormat == FlatFileRowType.COMMA_SEPARATED){
+			return DataSerializationType.COMMA_SEPARATED.serializeFields(fieldValues, this.getFields());
+		}
+		return null;
+	}
+
+	/**
+	 * @param inText
+	 * @param inDataFormat
+	 * @param fieldValues
+	 * @param errors
+	 */
+	public void extractFromFlatRow(String inText, FlatFileRowType inDataFormat,
+			FieldsInterface fieldValues, List<FormattedMessage> errors) {
+		/*
+		 * split input into individual tex valyes
+		 */
+		String[] inputTexts;
+		if(inDataFormat == FlatFileRowType.FIXED_WIDTH){
+			inputTexts = this.splitFixedWidthInput(inText);
+		}else{
+			inputTexts = inText.split(",");
+			if(inputTexts.length != this.fields.length){
+				throw new ApplicationError("Comma separated input row has " + inputTexts.length + " fields but the record " + this.name + " has " + this.fields.length + " fields");
+			}
+		}
+		/*
+		 * validate and extract
+		 */
+		for(int i = 0; i < this.fields.length; i++){
+			Field field = this.fields[i];
+			String text = inputTexts[i];
+			Value value = field.parseField(text, errors, false, this.name);
+			fieldValues.setValue(field.name, value);
+		}
+	}
+
+	/**
+	 * split fixed-width row text into its field texts
+	 * @param inText
+	 * @return
+	 */
+	private String[] splitFixedWidthInput(String inText){
+		String[] texts = new String[this.fields.length];
+		int beginIdx = 0;
+		for(int i = 0; i < texts.length; i++){
+			int width = this.fields[i].fieldWidth;
+			int endIdx = beginIdx + width;
+			try{
+			texts[i] = inText.substring(beginIdx, endIdx);
+			}catch(Exception e){
+				throw new ApplicationError("fixed-width input row has " + inText.length() + " chracters. This is inadequate for record " + this.name);
+			}
+			beginIdx = endIdx;
+		}
+		if(beginIdx < inText.length()){
+			throw new ApplicationError("fixed-width input row has " + inText.length() + " chracters. Record " + this.name + " is designed to get " + beginIdx + " characters.");
+		}
+		return texts;
 	}
 }
 

@@ -22,14 +22,11 @@
 
 package org.simplity.service;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.util.Date;
 
+import org.simplity.kernel.Application;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 
@@ -43,7 +40,6 @@ public class ServiceSubmitter implements Runnable {
 	private final ServiceData inData;
 	private final ServiceInterface service;
 	private final ObjectOutputStream outStream;
-	private final ExceptionListener listener;
 
 	private boolean timeToWindup = false;
 
@@ -53,15 +49,13 @@ public class ServiceSubmitter implements Runnable {
 	 * @param inData
 	 * @param service
 	 * @param outStream
-	 * @param listener
 	 *
 	 */
 	public ServiceSubmitter(ServiceData inData, ServiceInterface service,
-			ObjectOutputStream outStream, ExceptionListener listener) {
+			ObjectOutputStream outStream) {
 		this.inData = inData;
 		this.service = service;
 		this.outStream = outStream;
-		this.listener = listener;
 
 	}
 
@@ -112,14 +106,11 @@ public class ServiceSubmitter implements Runnable {
 		try {
 			outData = this.service.respond(this.inData);
 		} catch (Exception e) {
-			if (this.listener != null) {
-				this.listener.listen(this.inData, e);
-			}
+			Application.getExceptionListener().listen(this.inData, e);
 			outData = new ServiceData(this.inData.getUserId(), serviceName);
-			Tracer.trace(e,
-					"Service " + serviceName + " resulted in fatal error");
-			outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR,
-					e.getMessage()));
+			Tracer.trace(e, "Service " + serviceName + " resulted in fatal error");
+			outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e
+					.getMessage()));
 		}
 		String trace = Tracer.stopAccumulation();
 		/*
@@ -153,40 +144,6 @@ public class ServiceSubmitter implements Runnable {
 				this.outStream.close();
 			} catch (Exception ignore) {
 				//
-			}
-		}
-
-	}
-
-	public static void main(String[] args) {
-		FileChannel channel = null;
-		FileLock lock = null;
-		try {
-			File folder = new File("c:/temp/test/in");
-			for (File file : folder.listFiles()) {
-				channel = new RandomAccessFile(file, "rw").getChannel();
-				lock = channel.tryLock();
-				lock.release();
-				channel.close();
-				file.renameTo(new File(file.getName()+".bak"));
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}finally{
-			if(lock != null){
-				try {
-					lock.release();
-				} catch (Exception ignore) {
-					// TODO Auto-generated catch block
-				}
-			}
-			if(channel != null){
-				try {
-					channel.close();
-				} catch (Exception ignore) {
-					// TODO Auto-generated catch block
-				}
 			}
 		}
 	}

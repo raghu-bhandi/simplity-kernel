@@ -182,6 +182,15 @@ public class ServiceContext extends CommonData {
 	}
 
 	/**
+	 * sreset/remove all messages
+	 *
+	 */
+	public void resetMessages() {
+		this.messages.clear();
+		this.nbrErrors = 0;
+	}
+
+	/**
 	 *
 	 * @return userId for whom this context is created
 	 */
