@@ -12,9 +12,9 @@
 			<version>1.3.171</version>
 		</dependency>
 		<dependency>
-			<groupId>com.infosys.qreuse.torque.simplity</groupId>
+			<groupId>org.simplity.utils</groupId>
 			<artifactId>template</artifactId>
-			<version>0.0.1</version>
+			<version>1.2-SNAPSHOT</version>
 		</dependency>
 		<build>
 			<plugins>
@@ -62,4 +62,4 @@
 		
 - To generate the records use the command "mvn test"
 
-- Generated records are present under "target/generated-schema" folder.
+- Generated records are present under "target/generated-sources" folder.
