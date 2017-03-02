@@ -7,28 +7,26 @@
 	<actions>
 
 		<fileProcessor
-			inDataFormat="fixedWidth"
-			inFileNamePattern="txt01.txt"
 			inFolderName="${basedir}/infile"
+			inFileNamePattern="txt01.txt"
+			inDataFormat="fixedWidth"
 			inRecordName="hello"
-			archivalExtension=".bak"
-			inSheetName="readfile"
-			outDataFormat="fixedWidth"
+
 			outFolderName="${basedir}/outfile"
+			outFileName="{name}.{ext}"
+			outDataFormat="fixedWidth"
 			outRecordName="adios"
-			outSheetName="farewell"			
+
+			renameInFileTo="{name}.{ext}.bak"
 		>
 			<actions>
-			<log names="readfile"/>
-				<loop dataSheetName="readfile" columnsToCopyAsFields="*">				
-					<actions>
-						<setValue fieldName="farewell" fieldValue="adios"></setValue>
-						<addRow sheetName="farewell"/>
-						<log actionName="log123" names="farewell"/>
-					</actions>
-				</loop>
+				<setValue
+					fieldName="farewell"
+					fieldValue="adios" />
+				<log
+					actionName="log123"
+					names="farewell" />
 			</actions>
 		</fileProcessor>
 	</actions>
-	<outputData dataSheets="farewell"></outputData>
 </service>

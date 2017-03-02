@@ -39,6 +39,7 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.FlatFileRowType;
+import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.expr.Expression;
@@ -101,12 +102,12 @@ public class FileProcessor extends Block {
 	/**
 	 * What action do we take in case the input row fails data-type validation?
 	 */
-	//Action actionOnInvalidInputRow;
+	Action actionOnInvalidInputRow;
 
 	/**
 	 * action to be executed of the row processing generates error
 	 */
-	//Action actionOnErrorWhileProcessing;
+	Action actionOnErrorWhileProcessing;
 
 	/**
 	 * is there a conditional based on which we have to decide whether to write
@@ -183,18 +184,19 @@ public class FileProcessor extends Block {
 				errors.clear();
 				record.extractFromFlatRow(inText, this.inDataFormat, ctx, errors);
 				/*
-				 * above method validates input as per data type specification. Was there any trouble?
+				 * above method validates input as per data type specification.
+				 * Was there any trouble?
 				 */
-//				if (errors.size() > 0) {
-//					if (this.actionOnInvalidInputRow == null) {
-//						Tracer.trace(
-//								"Invalid row received as input. Row is not processed.");
-//					}else{
-//						ctx.addMessages(errors);
-//						this.actionOnInvalidInputRow.act(ctx, driver);
-//					}
-//					continue;
-//				}
+				if (errors.size() > 0) {
+					if (this.actionOnInvalidInputRow == null) {
+						Tracer.trace(
+								"Invalid row received as input. Row is not processed.");
+					} else {
+						ctx.addMessages(errors);
+						this.actionOnInvalidInputRow.act(ctx, driver);
+					}
+					continue;
+				}
 				/*
 				 * now that the input is fine, let us process the row
 				 */
@@ -202,15 +204,15 @@ public class FileProcessor extends Block {
 				/*
 				 * any trouble while processing?
 				 */
-//				if (ctx.isInError()) {
-//					if (this.actionOnErrorWhileProcessing == null) {
-//						Tracer.trace(
-//								"Invalid row received as input. Row is not processed.");
-//					}else{
-//						this.actionOnErrorWhileProcessing.act(ctx, driver);
-//					}
-//					continue;
-//				}
+				if (ctx.isInError()) {
+					if (this.actionOnErrorWhileProcessing == null) {
+						Tracer.trace(
+								"Invalid row received as input. Row is not processed.");
+					} else {
+						this.actionOnErrorWhileProcessing.act(ctx, driver);
+					}
+					continue;
+				}
 				/*
 				 * are we to write output row?
 				 */
@@ -232,11 +234,12 @@ public class FileProcessor extends Block {
 			 */
 			reader.close();
 			if (this.renameInFileTo != null) {
-				String arcName = this.inFolderName + TextUtil.getFileName(this.renameInFileTo, inName);
+				String arcName = this.inFolderName + TextUtil.getFileName(
+						this.renameInFileTo, inName);
 				Tracer.trace("Renaming to " + arcName);
 				file.renameTo(new File(arcName));
-			}else if(this.deleteInFileAfterProcessing){
-				if(file.delete() == false){
+			} else if (this.deleteInFileAfterProcessing) {
+				if (file.delete() == false) {
 					throw new ApplicationError("Unable to delete file " + file.getPath());
 				}
 			}
@@ -271,12 +274,12 @@ public class FileProcessor extends Block {
 	@Override
 	public void getReady(int idx) {
 		super.getReady(idx);
-//		if(this.actionOnErrorWhileProcessing != null){
-//			this.actionOnErrorWhileProcessing.getReady(0);
-//		}
-//		if(this.actionOnInvalidInputRow != null){
-//			this.actionOnInvalidInputRow.getReady(0);
-//		}
+		if (this.actionOnErrorWhileProcessing != null) {
+			this.actionOnErrorWhileProcessing.getReady(0);
+		}
+		if (this.actionOnInvalidInputRow != null) {
+			this.actionOnInvalidInputRow.getReady(0);
+		}
 		this.filter = TextUtil.getFileNameFilter(this.inFileNamePattern);
 		this.inbox = new File(this.inFolderName);
 		if (this.inFolderName != null && this.inFolderName.endsWith("/") == false) {
@@ -334,12 +337,52 @@ public class FileProcessor extends Block {
 		if (this.renameInFileTo == null) {
 			if (this.deleteInFileAfterProcessing == false) {
 				vtx.reportUnusualSetting(
-						"Input file is neither delated, nor renamed. This may result in the file being processed again.");
+						"Input file is neither deleted, nor renamed. This may result in the file being processed again.");
 			}
 		} else if (this.deleteInFileAfterProcessing) {
 			vtx.reportUnusualSetting(
 					"since rename is specified, we ignore delete directive.");
 		}
+		/*
+		 * If db updates re involved, file-processor requires that the service
+		 * delegates commits to sub-service
+		 */
+		if (this.dbAccess == DbAccessType.READ_WRITE) {
+			count += this.validateDbAccess(service, vtx);
+		}
 		return count;
 	}
+
+	private int validateDbAccess(Service service, ValidationContext vtx) {
+		int count = 0;
+		/*
+		 * There must be one sub-service action that manages its own
+		 * transaction, and rest of the actions should not do any updates
+		 */
+		if (service.dbAccessType != DbAccessType.SUB_SERVICE) {
+			vtx.addError(
+					"File-processor is designed to update data base. Service should delegate transaction processing to sub-service.");
+			count++;
+		}
+		if(this.actionOnErrorWhileProcessing.getDataAccessType().updatesDb()){
+			if(this.actionOnErrorWhileProcessing instanceof SubService == false){
+				vtx.addError("actionOnErrorWhileProcessing is designed for db update. For such a requirement, you should convert this to a subService action.");
+				count++;
+			}
+		}
+		if(this.actionOnInvalidInputRow.getDataAccessType().updatesDb()){
+			if(this.actionOnInvalidInputRow instanceof SubService == false){
+				vtx.addError("actionOnInvalidInputRow is designed for db update. For such a requirement, you should convert this to a subService action.");
+				count++;
+			}
+		}
+		for(Action action : this.actions){
+			if(action instanceof SubService == false && action.getDataAccessType().updatesDb()){
+				vtx.addError("actions of a file-processor is designed for a bb update. You should re-factor this into sub-service so that the db updates can be managed within  separate transaction.");
+				count++;
+			}
+		}
+		return count;
+	}
+
 }

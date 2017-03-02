@@ -3630,15 +3630,22 @@ public class Record implements Component {
 	public void extractFromFlatRow(String inText, FlatFileRowType inDataFormat,
 			FieldsInterface fieldValues, List<FormattedMessage> errors) {
 		/*
-		 * split input into individual tex valyes
+		 * split input into individual text values
 		 */
 		String[] inputTexts;
 		if(inDataFormat == FlatFileRowType.FIXED_WIDTH){
-			inputTexts = this.splitFixedWidthInput(inText);
+			inputTexts = this.splitFixedWidthInput(inText, errors);
+			if(inputTexts == null){
+				/*
+				 * error: message already added by called method
+				 */
+				return;
+			}
 		}else{
 			inputTexts = inText.split(",");
 			if(inputTexts.length != this.fields.length){
-				throw new ApplicationError("Comma separated input row has " + inputTexts.length + " fields but the record " + this.name + " has " + this.fields.length + " fields");
+				errors.add(new FormattedMessage("kernel.invalidInputStream", inText));
+				return;
 			}
 		}
 		/*
@@ -3657,7 +3664,7 @@ public class Record implements Component {
 	 * @param inText
 	 * @return
 	 */
-	private String[] splitFixedWidthInput(String inText){
+	private String[] splitFixedWidthInput(String inText, List<FormattedMessage> errors){
 		String[] texts = new String[this.fields.length];
 		int beginIdx = 0;
 		for(int i = 0; i < texts.length; i++){
@@ -3666,12 +3673,14 @@ public class Record implements Component {
 			try{
 			texts[i] = inText.substring(beginIdx, endIdx);
 			}catch(Exception e){
-				throw new ApplicationError("fixed-width input row has " + inText.length() + " chracters. This is inadequate for record " + this.name);
+				errors.add(new FormattedMessage("kernel.invalidInputStream", "fixed-width input row has " + inText.length() + " chracters. This is inadequate for record " + this.name));
+				return null;
 			}
 			beginIdx = endIdx;
 		}
 		if(beginIdx < inText.length()){
-			throw new ApplicationError("fixed-width input row has " + inText.length() + " chracters. Record " + this.name + " is designed to get " + beginIdx + " characters.");
+			errors.add(new FormattedMessage("kernel.invalidInputStream","fixed-width input row has " + inText.length() + " chracters. Record " + this.name + " is designed to get " + beginIdx + " characters."));
+			return null;
 		}
 		return texts;
 	}

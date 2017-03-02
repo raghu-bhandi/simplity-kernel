@@ -517,23 +517,6 @@ public class DbDriver {
 	 * @return connection
 	 */
 	static Connection getConnection(DbAccessType acType, String schema) {
-		/*
-		 * set sch to an upper-cased schema, but only if it is non-null and
-		 * different from default schema
-		 */
-		String sch = null;
-		if (schema != null) {
-			sch = schema.toUpperCase();
-			if (sch.equals(defaultSchema)) {
-				Tracer.trace("service is asking for schema " + schema
-						+ " but that is the default. default connection used");
-				sch = null;
-			} else {
-				Tracer.trace(
-						"Going to open a non-default connection for schema "
-								+ schema);
-			}
-		}
 		Connection con = null;
 		Exception err = null;
 		try {
@@ -612,13 +595,13 @@ public class DbDriver {
 			return ds.getConnection();
 
 		}
+		/*
+		 * old-fashioned application :-(
+		 */
 		if (connectionString == null) {
 			throw new ApplicationError(
 					"Database should be initialized properly before any operation can be done.");
 		}
-		/*
-		 * old-fashioned application :-(
-		 */
 		if (sch == null) {
 			return DriverManager.getConnection(connectionString);
 		}
