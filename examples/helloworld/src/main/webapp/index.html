@@ -20,6 +20,7 @@
 <button onclick="callCustomer()">Invoke DB Lookup - Customers</button>
 </br>
 </br>
+<button onclick="invokeCustomServlet()">Invoke Custom Servlet</button>
 </body>
 <script src="js/simplity-min.js"></script>
 <script type="text/javascript">
@@ -42,6 +43,16 @@ function callAgents(){
 }
 function callCustomer(){
 	Simplity.getResponse("filter_customer",null,onSuccess,onError);
+}
+function invokeCustomServlet(){
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+	    if (this.readyState == 4 && this.status == 200) {
+	    	document.getElementById("response").innerHTML = JSON.stringify(response);
+	    }
+	};
+	xhttp.open("GET", "\processFile", true);
+	xhttp.send();
 }
 </script>
 </html>

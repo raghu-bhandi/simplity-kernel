@@ -28,6 +28,10 @@
 		<servlet-name>f</servlet-name>
 		<servlet-class>org.simplity.http.Stream</servlet-class>
 	</servlet>
+		<servlet>
+		<servlet-name>processFile</servlet-name>
+		<servlet-class>helloworld.SampleServiceInvocation</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>s</servlet-name>
 		<url-pattern>*._s</url-pattern>
@@ -44,6 +48,10 @@
 		<servlet-name>f</servlet-name>
 		<url-pattern>*._f</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>processFile</servlet-name>
+		<url-pattern>/processFile</url-pattern>
+	</servlet-mapping>	
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>

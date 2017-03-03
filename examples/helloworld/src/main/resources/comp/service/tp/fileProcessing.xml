@@ -5,28 +5,28 @@
 	dbAccessType="none"
 >
 	<actions>
-
 		<fileProcessor
 			inFolderName="${basedir}/infile"
 			inFileNamePattern="txt01.txt"
 			inDataFormat="fixedWidth"
 			inRecordName="hello"
-
 			outFolderName="${basedir}/outfile"
 			outFileName="{name}.{ext}"
 			outDataFormat="fixedWidth"
 			outRecordName="adios"
-
 			renameInFileTo="{name}.{ext}.bak"
 		>
 			<actions>
 				<setValue
 					fieldName="farewell"
 					fieldValue="adios" />
+				<addMessage messageName="custom.hello" />
 				<log
 					actionName="log123"
 					names="farewell" />
 			</actions>
 		</fileProcessor>
 	</actions>
+	<outputData fieldNames="farewell">
+	</outputData>
 </service>
