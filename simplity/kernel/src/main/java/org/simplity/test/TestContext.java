@@ -131,7 +131,7 @@ public class TestContext {
 			throw new ApplicationError(
 					"TestContext has to be started before running");
 		}
-		return this.serviceAgent.serve(serviceName, input);
+		return this.serviceAgent.serve(serviceName, input).getResponseJson();
 	}
 
 	/**

@@ -14,17 +14,17 @@
 			outFileName="{name}.{ext}"
 			outDataFormat="fixedWidth"
 			outRecordName="adios"
-			renameInFileTo="{name}.{ext}.bak"
+			renameInFileTo="{name}.{ext}.bak"						
 		>
-			<actions>
-				<setValue
-					fieldName="farewell"
-					fieldValue="adios" />
-				<addMessage messageName="custom.hello" />
-				<log
-					actionName="log123"
-					names="farewell" />
-			</actions>
+		<actionOnInvalidInputRow>
+			<log actionName="invalidInputRow" names="errorRow,error"/>
+		</actionOnInvalidInputRow>
+		<actionOnErrorWhileProcessing>
+			<log actionName="invalidprocessing" names="errorRow,error"/>
+		</actionOnErrorWhileProcessing>
+		<actions>
+			<log actionName="allOK" names="greeting,id"/>
+		</actions>
 		</fileProcessor>
 	</actions>
 	<outputData fieldNames="farewell">

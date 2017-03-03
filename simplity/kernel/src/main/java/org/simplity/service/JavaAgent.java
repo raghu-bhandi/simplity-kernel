@@ -71,7 +71,7 @@ public class JavaAgent {
 	 *            request parameters for the service
 	 * @return response from the service
 	 */
-	public String serve(String serviceName, String payLoad) {
+	public ServiceData serve(String serviceName, String payLoad) {
 		ServiceData inData = new ServiceData(this.userId, serviceName);
 		this.setSessionData(inData);
 		String pl = payLoad;
@@ -92,7 +92,7 @@ public class JavaAgent {
 				Tracer.trace(msg.messageType + " : " + msg.text);
 			}
 		}
-		return outData.getResponseJson();
+		return outData;
 	}
 
 	private boolean login(String loginId, String pwd) {

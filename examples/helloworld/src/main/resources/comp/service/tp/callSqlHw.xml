@@ -9,7 +9,9 @@
 		</inputFields>
 	</inputData>
 	<actions>
-		<readWithSql sqlName="hw.hw" outputSheetName="outrec"></readWithSql>	
+		<readWithSql sqlName="hw.hw" outputSheetName="outrec">
+		
+		</readWithSql>	
 	</actions>
 	<outputData dataSheets="outrec"></outputData>
 </service>

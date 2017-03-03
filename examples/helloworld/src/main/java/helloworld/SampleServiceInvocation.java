@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.service.JavaAgent;
+import org.simplity.service.ServiceData;
 
 public class SampleServiceInvocation extends HttpServlet {
 
@@ -17,13 +18,12 @@ public class SampleServiceInvocation extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		JavaAgent ja = new JavaAgent().getAgent("100", null);
-		String outdata = ja.serve("fileprocessing", null);
-		System.out.println(outdata);
-		PrintWriter writer = resp.getWriter();
-		writer.write(outdata);
-		writer.flush();
-		writer.close();
+		ServiceData outdata = ja.serve("fileprocessing", null);
 		
+		PrintWriter writer = resp.getWriter();
+		writer.write(outdata.getPayLoad());
+		writer.flush();
+		writer.close();		
 	}
 
 }

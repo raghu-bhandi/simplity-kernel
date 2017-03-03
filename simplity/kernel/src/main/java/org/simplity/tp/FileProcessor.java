@@ -187,12 +187,14 @@ public class FileProcessor extends Block {
 				 * above method validates input as per data type specification.
 				 * Was there any trouble?
 				 */
-				if (errors.size() > 0) {
+				if (errors.size() > 0) { 
 					if (this.actionOnInvalidInputRow == null) {
 						Tracer.trace(
 								"Invalid row received as input. Row is not processed.");
 					} else {
 						ctx.addMessages(errors);
+						ctx.setTextValue("errorRow", inText);
+						ctx.putDataSheet("error", ctx.getMessagesAsDS());
 						this.actionOnInvalidInputRow.act(ctx, driver);
 					}
 					continue;
@@ -209,6 +211,8 @@ public class FileProcessor extends Block {
 						Tracer.trace(
 								"Invalid row received as input. Row is not processed.");
 					} else {
+						ctx.setTextValue("errorRow", inText);
+						ctx.putDataSheet("error", ctx.getMessagesAsDS());
 						this.actionOnErrorWhileProcessing.act(ctx, driver);
 					}
 					continue;

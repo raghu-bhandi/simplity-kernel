@@ -3673,13 +3673,13 @@ public class Record implements Component {
 			try{
 			texts[i] = inText.substring(beginIdx, endIdx);
 			}catch(Exception e){
-				errors.add(new FormattedMessage("kernel.invalidInputStream", "fixed-width input row has " + inText.length() + " chracters. This is inadequate for record " + this.name));
+				errors.add(new FormattedMessage("kernel.invalidInputStream", "fixed-width input row has " + inText.length() + " characters. This is inadequate for record " + this.name));
 				return null;
 			}
 			beginIdx = endIdx;
 		}
 		if(beginIdx < inText.length()){
-			errors.add(new FormattedMessage("kernel.invalidInputStream","fixed-width input row has " + inText.length() + " chracters. Record " + this.name + " is designed to get " + beginIdx + " characters."));
+			errors.add(new FormattedMessage("kernel.invalidInputStream","fixed-width input row has " + inText.length() + " characters. Record " + this.name + " is designed to get " + beginIdx + " characters."));
 			return null;
 		}
 		return texts;

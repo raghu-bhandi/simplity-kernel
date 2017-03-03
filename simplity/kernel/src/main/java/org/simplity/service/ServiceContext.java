@@ -35,6 +35,7 @@ import org.simplity.kernel.Messages;
 import org.simplity.kernel.data.CommonData;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
+import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 
@@ -180,7 +181,29 @@ public class ServiceContext extends CommonData {
 	public Collection<FormattedMessage> getMessages() {
 		return this.messages;
 	}
+	/**
+	 * get all messages as a DataSheet
+	 *
+	 * @return messages
+	 */
+	public DataSheet getMessagesAsDS() {
+		Collection<FormattedMessage> msgs = this.getMessages();		
+		Value[][] data = new Value[4][msgs.size()] ;
+		
+		String[] columnNames = {"name","text","messageType","fieldName"};
+		int i = 0;
+		for(FormattedMessage msg: this.getMessages()){
+			data[0][i] = Value.newTextValue(msg.name);
+			data[1][i] = Value.newTextValue(msg.text);
+			data[2][i] = Value.newTextValue(msg.messageType.name());
+			data[3][i] =  Value.newTextValue(msg.fieldName);
+			i++;
+		}
+		
+		return new MultiRowsSheet(columnNames,data);
 
+	}
+	
 	/**
 	 * sreset/remove all messages
 	 *
