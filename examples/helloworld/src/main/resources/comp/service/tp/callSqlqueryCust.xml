@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="callSqlqueryCust"
+	dbAccessType="readOnly">
+	<inputData>
+		<inputFields>
+			<inputField dataType="_text" name="custCode"/>
+		</inputFields>
+	</inputData>
+	<actions>
+		<readWithSql sqlName="hw.queryCust" outputSheetName="custRec"></readWithSql>	
+	</actions>
+	<outputData dataSheets="custRec"></outputData>
+</service>

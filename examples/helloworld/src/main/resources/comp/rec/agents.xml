@@ -4,7 +4,7 @@
 	recordType="storage"
 	tableName="AGENTS"
 	xmlns="http://www.simplity.org/schema"
-	okToSelectAll="true"
+	okToSelectAll="true" 
 	childrenToBeRead="customer,orders"
 >
 	<fields>

@@ -20,6 +20,9 @@
 <button onclick="callCustomer()">Invoke DB Lookup - Customers</button>
 </br>
 </br>
+<button onclick="callSQL()">Call SQL</button>
+</br>
+</br>
 <button onclick="invokeCustomServlet()">Invoke Custom Servlet</button>
 </body>
 <script src="js/simplity-min.js"></script>
@@ -39,10 +42,16 @@ function callFile(){
 	Simplity.getResponse("fileProcessing",null,onSuccess,onError);
 }
 function callAgents(){
-	Simplity.getResponse("filter_agents",null,onSuccess,onError);
+	var data = "{'fieldName':'commission','commission':0.15,'commissionOperator':'<'}";
+	Simplity.getResponse("filter_agents",data,onSuccess,onError);
 }
 function callCustomer(){
 	Simplity.getResponse("filter_customer",null,onSuccess,onError);
+}
+
+function callSQL(){
+	var data = "{'custCode':'C00013'}"
+	Simplity.getResponse("callSqlqueryCust",data,onSuccess,onError);
 }
 function invokeCustomServlet(){
 	var xhttp = new XMLHttpRequest();

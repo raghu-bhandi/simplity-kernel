@@ -5,7 +5,7 @@
 	xmlns="http://www.simplity.org/schema"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"	
 >
-   <actions>
+   <actions>   
     <filter filterRecordName="agents" outputSheetName="agents">
     	<childRecords>
     		<relatedRecord sheetName="customers" recordName="customer"/>
