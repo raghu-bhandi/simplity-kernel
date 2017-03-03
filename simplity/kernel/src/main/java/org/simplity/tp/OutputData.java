@@ -36,6 +36,7 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.ResponseWriter;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceProtocol;
@@ -49,6 +50,16 @@ import org.simplity.service.ServiceProtocol;
 
 public class OutputData {
 
+	static final String EMPTY_RESPONSE = "{\"" + ServiceProtocol.REQUEST_STATUS + "\":\"" + ServiceProtocol.STATUS_OK + "\"}";
+	/**
+	 * no need to extract data for response. This field has the response text ready
+	 */
+	String responseTextFieldName;
+	boolean justOutputEveryThing;
+	/**
+	 * get response from the writer in service context
+	 */
+	boolean outputFromWriter;
 	/**
 	 * comma separated list of fields to be output.
 	 */
@@ -96,6 +107,33 @@ public class OutputData {
 	 * @param outData
 	 */
 	public void setResponse(ServiceContext ctx, ServiceData outData) {
+		if(this.outputFromWriter){
+			Tracer.trace("Picking up response from writer");
+			ResponseWriter writer = ctx.getWriter();
+			writer.key("junk").value(100);
+			writer.key(ServiceProtocol.REQUEST_STATUS).value(ServiceProtocol.STATUS_OK);
+			writer.end();
+			outData.setPayLoad(writer.getResponse());
+			return;
+		}
+		if (this.responseTextFieldName != null) {
+			/*
+			 * service is supposed to have kept response ready for us
+			 */
+			Object obj = ctx.getObject(this.responseTextFieldName);
+			if (obj == null) {
+				obj = ctx.getValue(this.responseTextFieldName);
+			}
+			if (obj == null) {
+				Tracer.trace("We expected a ready response in service context with name " + this.responseTextFieldName
+						+ " . We are sorry that we could not locate it, and we are sending an empty response.");
+				outData.setPayLoad(EMPTY_RESPONSE);
+			} else {
+				outData.setPayLoad(obj.toString());
+			}
+			return;
+		}
+
 
 		/*
 		 * extract attachments if required
@@ -193,6 +231,54 @@ public class OutputData {
 			}
 		}
 	}
+
+	void onServiceStart(ServiceContext ctx){
+		if(this.outputFromWriter){
+			Tracer.trace("Started Writer for this service");
+			ResponseWriter writer = new JSONWriter();
+			writer.init();
+			ctx.setWriter(writer);
+		}
+	}
+	/**
+	 * output all fields, and sheets, except session fields
+	 *
+	 * @param ctx
+	 * @param response
+	 * @param inData
+	 */
+	protected void setPayload(ServiceContext ctx, ServiceData response,
+			ServiceData inData) {
+		if(this.outputFromWriter){
+			Tracer.trace("Picking up response from writer");
+			ResponseWriter writer = ctx.getWriter();
+			writer.key(ServiceProtocol.REQUEST_STATUS).value(ServiceProtocol.STATUS_OK);
+			writer.end();
+			response.setPayLoad(writer.getResponse());
+			return;
+		}
+
+		JSONWriter writer = new JSONWriter();
+		writer.object();
+
+		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
+			String fieldName = entry.getKey();
+			/*
+			 * write this, but only if it didn't come as session field
+			 */
+			if (inData.get(fieldName) == null) {
+				writer.key(fieldName);
+				writer.value(entry.getValue().toObject());
+			}
+		}
+		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
+			writer.key(entry.getKey());
+			JsonUtil.sheetToJson(writer, entry.getValue(), null, false);
+		}
+		writer.endObject();
+		response.setPayLoad(writer.toString());
+	}
+
 
 	/**
 	 * get ready for a long-haul service :-)

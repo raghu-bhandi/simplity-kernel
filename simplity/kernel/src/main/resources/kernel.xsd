@@ -1386,6 +1386,30 @@
 						</xs:annotation>
 					</xs:attribute>
 					<xs:attribute
+						name="listOfLinkColumnsInThisSheet"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Special case where parent-child link is based
+								on more than one columns. This is typically for tables with
+								composite primary keys. This is a comma separated list of names.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="listOfLinkClumnsInParentSheet"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Special case where parent-child link is based
+								on more than one columns. This is typically for tables with
+								composite primary keys. This is a comma separated list of names.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
 						name="arrayNames"
 						type="xs:string"
 						use="optional"

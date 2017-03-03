@@ -67,6 +67,7 @@ import org.simplity.kernel.value.BooleanValue;
 import org.simplity.kernel.value.IntegerValue;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.simplity.service.ResponseWriter;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
 import org.simplity.tp.InputRecord;
@@ -332,6 +333,8 @@ public class Record implements Component {
 	 * length of record in case forFixedWidthRow = true
 	 */
 	private int recordLength;
+
+	private String primaryKeyNames;
 	/*
 	 * methods for ComponentInterface
 	 */
@@ -1820,8 +1823,7 @@ public class Record implements Component {
 			}
 			FieldType ft = field.getFieldType();
 			if (ft == FieldType.PRIMARY_KEY) {
-				this.checkDuplicateError(this.primaryKeyField);
-				this.primaryKeyField = field;
+				this.checkPrimaryKey(field);
 			} else if (ft == FieldType.PARENT_KEY) {
 				this.checkDuplicateError(this.parentKeyField);
 				this.parentKeyField = field;
@@ -1883,6 +1885,18 @@ public class Record implements Component {
 				+ savedField.fieldType.name()
 				+ ". This feature is not supported");
 
+	}
+
+	private void checkPrimaryKey(Field field) {
+		if (this.primaryKeyField == null) {
+			this.primaryKeyField = field;
+			return;
+		}
+		Tracer.trace("This table has multiple columns for primary key");
+		if(this.primaryKeyNames == null){
+			this.primaryKeyNames = this.primaryKeyField.name;
+		}
+		this.primaryKeyNames += ',' + field.name;
 	}
 
 	/**
@@ -3479,16 +3493,16 @@ public class Record implements Component {
 	 *
 	 */
 	public void filterToJson(Record inRecord, FieldsInterface inData,
-			DbDriver driver, boolean useCompactFormat, JSONWriter writer) {
+			DbDriver driver, boolean useCompactFormat, ResponseWriter writer) {
 		/*
 		 * we have to create where clause with ? and corresponding values[]
 		 */
-		SqlAndValues temp = this.foo(inData, inRecord);
+		SqlAndValues temp = this.getSqlAndValues(inData, inRecord);
 		String[] names = this.getFieldNames();
 		/*
 		 * in compact form, we write a header row values
 		 */
-		if (useCompactFormat == false) {
+		if (useCompactFormat) {
 			writer.array();
 			for (String nam : names) {
 				writer.value(nam);
@@ -3508,7 +3522,7 @@ public class Record implements Component {
 	 * @param inRecord
 	 * @return struct that as both sql and values
 	 */
-	private SqlAndValues foo(FieldsInterface inData, Record inRecord) {
+	private SqlAndValues getSqlAndValues(FieldsInterface inData, Record inRecord) {
 		StringBuilder sql = new StringBuilder(this.filterSql);
 		List<Value> filterValues = new ArrayList<Value>();
 		boolean firstTime = true;
@@ -3665,22 +3679,17 @@ public class Record implements Component {
 	 * @return
 	 */
 	private String[] splitFixedWidthInput(String inText, List<FormattedMessage> errors){
+		if(this.recordLength != inText.length()){
+			errors.add(new FormattedMessage("kernel.invalidInputStream", "fixed-width input row has " + inText.length() + " chracters while this record " + this.name + " is designed for " + this.recordLength + " characters"));
+			return null;
+		}
 		String[] texts = new String[this.fields.length];
 		int beginIdx = 0;
 		for(int i = 0; i < texts.length; i++){
 			int width = this.fields[i].fieldWidth;
 			int endIdx = beginIdx + width;
-			try{
 			texts[i] = inText.substring(beginIdx, endIdx);
-			}catch(Exception e){
-				errors.add(new FormattedMessage("kernel.invalidInputStream", "fixed-width input row has " + inText.length() + " chracters. This is inadequate for record " + this.name));
-				return null;
-			}
 			beginIdx = endIdx;
-		}
-		if(beginIdx < inText.length()){
-			errors.add(new FormattedMessage("kernel.invalidInputStream","fixed-width input row has " + inText.length() + " chracters. Record " + this.name + " is designed to get " + beginIdx + " characters."));
-			return null;
 		}
 		return texts;
 	}

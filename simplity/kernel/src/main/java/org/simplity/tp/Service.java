@@ -26,11 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.simplity.json.JSONObject;
-import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
@@ -45,7 +42,6 @@ import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dt.DataType;
-import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -111,11 +107,6 @@ public class Service implements ServiceInterface {
 	DbAccessType dbAccessType;
 
 	/**
-	 * do not parse the request text. Just set it to this field. Service will
-	 * take care of that
-	 */
-	String requestTextFieldName;
-	/**
 	 * input fields/grids for this service. not valid if requestTextFieldName is
 	 * specified
 	 */
@@ -129,11 +120,6 @@ public class Service implements ServiceInterface {
 	 * copy output records from another service
 	 */
 	String referredServiceForOutput;
-
-	/**
-	 * use this field as response
-	 */
-	String responseTextFieldName;
 
 	/**
 	 * schema name, different from the default schema, to be used specifically
@@ -179,14 +165,6 @@ public class Service implements ServiceInterface {
 	 * flag to avoid repeated getReady() calls
 	 */
 	private boolean gotReady;
-	/*
-	 * two directives that we would love to re-factor... we are worried that
-	 * programmers would love this because of less work, and create
-	 * vulnerabilities. hence these two flags are still private and used only
-	 * internally
-	 */
-	private boolean justInputEveryThing;
-	private boolean justOutputEveryThing;
 
 	/*
 	 * instance of className to be used as body of this service
@@ -251,7 +229,9 @@ public class Service implements ServiceInterface {
 		 * let us proceed if all OK
 		 */
 		if (ctx.isInError() == false) {
-
+			if(this.outputData != null){
+				this.outputData.onServiceStart(ctx);
+			}
 			/*
 			 * all set to start with actions
 			 */
@@ -298,13 +278,9 @@ public class Service implements ServiceInterface {
 		 * telling the bad news is left to the Client Agent :-)
 		 */
 		if (nbrErrors == 0) {
-			if (this.justOutputEveryThing) {
-				this.setPayload(ctx, response, inData);
-			} else {
-				this.prepareResponse(ctx, response);
-				if (this.inputData != null) {
-					this.inputData.cleanup(ctx);
-				}
+			this.prepareResponse(ctx, response);
+			if (this.inputData != null) {
+				this.inputData.cleanup(ctx);
 			}
 			if (this.canBeCachedByFields != null) {
 				response.setCacheForInput(this.canBeCachedByFields);
@@ -318,29 +294,13 @@ public class Service implements ServiceInterface {
 			Tracer.trace("No input received from client");
 			return;
 		}
-		if (this.requestTextFieldName != null) {
-			ctx.setObject(this.requestTextFieldName, requestText);
-			Tracer.trace(
-					"Request text is not parsed but set as object value of "
-							+ this.requestTextFieldName);
-			return;
-		}
-		String jsonText = requestText.trim();
-		if (jsonText.isEmpty()) {
-			jsonText = "{}";
-		}
-		JSONObject json = new JSONObject(jsonText);
-		if (this.justInputEveryThing) {
-			JsonUtil.extractAll(json, ctx);
-			return;
-		}
-
 		if (this.inputData == null) {
+			Tracer.trace("We received input data, but this service is designed not to make us of input.");
 			return;
 		}
 
 		try {
-			this.inputData.extractFromJson(json, ctx);
+			this.inputData.extractFromJson(requestText, ctx);
 		} catch (Exception e) {
 			ctx.addMessage(Messages.INVALID_DATA,
 					"Invalid input data format. " + e.getMessage());
@@ -348,61 +308,15 @@ public class Service implements ServiceInterface {
 	}
 
 	protected void prepareResponse(ServiceContext ctx, ServiceData response) {
-		if (this.responseTextFieldName != null) {
-			/*
-			 * service is supposed to have kept response ready for us
-			 */
-			Object obj = ctx.getObject(this.responseTextFieldName);
-			if (obj == null) {
-				obj = ctx.getValue(this.responseTextFieldName);
-			}
-			if (obj == null) {
-				Tracer.trace("Service " + this.name + " failed to set field "
-						+ this.responseTextFieldName
-						+ " to a response text. We will send no response");
-			} else {
-				response.setPayLoad(obj.toString());
-			}
-			return;
-		}
-
-		if (this.outputData != null) {
+		if (this.outputData == null) {
+			Tracer.trace(
+					"Service " + this.name + " is designed to send no response.");
+			response.setPayLoad(OutputData.EMPTY_RESPONSE);
+		}else{
 			this.outputData.setResponse(ctx, response);
-			return;
 		}
 
-		Tracer.trace(
-				"Service " + this.name + " is designed to send no response.");
 
-	}
-
-	/**
-	 * output all fields, and sheets, except session fields
-	 *
-	 * @param ctx
-	 * @param response
-	 * @param inData
-	 */
-	protected void setPayload(ServiceContext ctx, ServiceData response,
-			ServiceData inData) {
-		JSONWriter writer = new JSONWriter();
-		writer.object();
-		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
-			String fieldName = entry.getKey();
-			/*
-			 * write this, but only if it didn't come as session field
-			 */
-			if (inData.get(fieldName) == null) {
-				writer.key(fieldName);
-				writer.value(entry.getValue().toObject());
-			}
-		}
-		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
-			writer.key(entry.getKey());
-			JsonUtil.sheetToJson(writer, entry.getValue(), null, false);
-		}
-		writer.endObject();
-		response.setPayLoad(writer.toString());
 	}
 
 	@Override
@@ -449,36 +363,6 @@ public class Service implements ServiceInterface {
 				}
 				this.indexedActions.put(action.getName(), new Integer(i));
 				i++;
-			}
-		}
-		if (this.requestTextFieldName != null) {
-			Tracer.trace("Service " + this.name
-					+ " is designed to manage its own input. Request string coming from client will be set to field "
-					+ this.requestTextFieldName);
-			if (this.inputData != null) {
-				Tracer.trace(
-						"dataInput specification would be ignored because requestTextFieldName is set to "
-								+ this.requestTextFieldName);
-			}
-		} else {
-			if (this.inputData == null) {
-				Tracer.trace("Service " + this.name
-						+ " is designed to take no inputs");
-			}
-		}
-		if (this.responseTextFieldName != null) {
-			Tracer.trace("Service " + this.name
-					+ " is designed to manage its own output. Response string would be picked up from field "
-					+ this.responseTextFieldName);
-			if (this.outputData != null) {
-				Tracer.trace(
-						"output data specification would be ignored as responseTextFieldName is set to "
-								+ this.responseTextFieldName);
-			}
-		} else {
-			if (this.outputData == null) {
-				Tracer.trace("WARNING : Service " + this.name
-						+ " is designed to send no response. This is unusual, but not an error");
 			}
 		}
 		/*
@@ -594,20 +478,26 @@ public class Service implements ServiceInterface {
 		inData.inputRecords = inRecs;
 		service.inputData = inData;
 
+		Action action;
+		OutputData outData = new OutputData();
+		service.outputData = outData;
 		/*
-		 * one filter action
+		 * if we have to read children, we use filter action, else we use filterToJson
 		 */
-		Action action = new Filter(record);
+		if(record.getChildrenToOutput() == null){
+			action = new FilterToJson(record);
+			outData.outputFromWriter = true;
+		}else{
+			action = new Filter(record);
+			OutputRecord[] outRecs = getOutputRecords(record);
+			outData.outputRecords = outRecs;
+		}
+		/*
+		 * one filter action.We use filterToJson
+		 */
 		Action[] actions = { action };
 		service.actions = actions;
 
-		/*
-		 * output as sheet, possibly child sheets as well
-		 */
-		OutputRecord[] outRecs = getOutputRecords(record);
-		OutputData outData = new OutputData();
-		outData.outputRecords = outRecs;
-		service.outputData = outData;
 
 		/*
 		 * getReady() is called by component manager any ways..
@@ -881,36 +771,29 @@ public class Service implements ServiceInterface {
 				}
 				return count;
 			}
-			int i = 0;
 			if (this.actions == null) {
 				ctx.addError("No actions.");
 				count++;
 			} else {
 				Set<String> addedSoFar = new HashSet<String>();
-				i = 1;
+				int actionNbr = 0;
 				for (Action action : this.actions) {
+					actionNbr++;
 					if (action.actionName != null) {
 						if (addedSoFar.add(action.actionName) == false) {
 							ctx.addError("Duplicate action name "
-									+ action.actionName + " at " + i);
+									+ action.actionName + " at " + actionNbr);
 							count++;
 						}
 					}
 					count += action.validate(ctx, this);
-					i++;
 				}
 			}
 
-			i = 0;
-			if (this.requestTextFieldName != null) {
-				i++;
-			}
-			if (this.inputData != null) {
-				count += this.inputData.validate(ctx);
-				i++;
-			}
 			if (this.referredServiceForInput != null) {
-				i++;
+				if(this.inputData != null){
+					ctx.reportUnusualSetting("referredServiceForInput is used, and hence inputData element is ignored");
+				}
 				ServiceInterface service = ComponentManager
 						.getServiceOrNull(this.referredServiceForInput);
 				if (service == null) {
@@ -920,21 +803,11 @@ public class Service implements ServiceInterface {
 					count++;
 				}
 			}
-			if (i > 1) {
-				ctx.addError(
-						"More than one input specifications. Use one of dataInput, requestTextFieldName or referredServiceForInput.");
-				count++;
-			}
-			i = 0;
-			if (this.responseTextFieldName != null) {
-				i++;
-			}
-			if (this.outputData != null) {
-				count += this.outputData.validate(ctx);
-				i++;
-			}
+
 			if (this.referredServiceForOutput != null) {
-				i++;
+				if(this.outputData != null){
+					ctx.reportUnusualSetting("referredServiceForOutput is used, and hence outputData element is ignored");
+				}
 				ServiceInterface service = ComponentManager
 						.getServiceOrNull(this.referredServiceForOutput);
 				if (service == null) {
@@ -944,11 +817,7 @@ public class Service implements ServiceInterface {
 					count++;
 				}
 			}
-			if (i > 1) {
-				ctx.addError(
-						"More than one output specifications. Use one of dataOutput, responseTextFieldName or referredServiceForOutput.");
-				count++;
-			}
+
 			if (this.schemaName != null
 					&& DbDriver.isSchmeaDefined(this.schemaName) == false) {
 				ctx.addError("schemaName is set to " + this.schemaName
@@ -1065,8 +934,12 @@ public class Service implements ServiceInterface {
 		 * add that to the interface, so that any service has to tell what input
 		 * it expects. Till such time, here is a dirty short-cut
 		 */
-		service.justInputEveryThing = true;
-		service.justOutputEveryThing = true;
+		InputData inputData = new InputData();
+		inputData.justInputEveryThing = true;
+		OutputData outputData = new OutputData();
+		outputData.justOutputEveryThing = true;
+		service.inputData = inputData;
+		service.outputData = outputData;
 		Action[] act = { action };
 		service.actions = act;
 		return service;
