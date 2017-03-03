@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
-	name="vetSpecialties"
+	name="vetSpecialtiesDetails"
 	recordType="storage"
-	tableName="VET_SPECIALTIES"
+	tableName="VET_SPECIALTIES_DETAILS"
 	xmlns="http://www.simplity.org/schema"
 >
 	<fields>
@@ -10,17 +10,21 @@
 			columnName="VET_ID"
 			dataType="_number"
 			fieldType="parentKey"
-			name="vetId"
-			referredField="id"
 			referredRecord="vets"
+			referredField="vetId"
+			name="vetId"
 			sqlTypeName="INTEGER" />
 		<field
 			columnName="SPECIALTY_ID"
 			dataType="_number"
-			fieldType="foreignKey"
+			fieldType="data"
 			name="specialtyId"
-			referredField="specialtyId"
-			referredRecord="specialties"
 			sqlTypeName="INTEGER" />
+		<field
+			columnName="SPECIALTY"
+			dataType="text80"
+			fieldType="data"
+			name="specialty"
+			sqlTypeName="VARCHAR" />
 	</fields>
 </record>

@@ -4,6 +4,10 @@
   <welcome-file-list>
     <welcome-file>welcome.html</welcome-file>
   </welcome-file-list>
+  <context-param>
+  <param-name>comp-folder</param-name>
+  <param-value>/comp</param-value>
+  </context-param>
   <servlet>
     <servlet-name>Startup</servlet-name>
     <servlet-class>org.simplity.http.Startup</servlet-class>

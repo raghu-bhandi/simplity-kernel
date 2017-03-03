@@ -7,6 +7,6 @@
 	autoLoginUserId="111"
 	dbVendor="h2" 
 	dbDriverClassName="org.h2.Driver" 
-	connectionString="jdbc:h2:file:D:/temp/petclinic;user=sa;"
+	connectionString="jdbc:h2:file:${project.build.directory}/petclinic;user=sa;"
 	loggingFramework="log4j">
 </application>
