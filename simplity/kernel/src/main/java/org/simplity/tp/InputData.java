@@ -28,6 +28,7 @@ import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
@@ -41,8 +42,26 @@ import org.simplity.service.ServiceProtocol;
 
 public class InputData {
 
+	/**
+	 * do not parse the request text. Just set it to this field. Service will
+	 * take care of that
+	 */
+	String setInputToFieldName;
+
+	/**
+	 * No specification. Trust the client and extract whatever is input
+	 */
+	boolean justInputEveryThing;
+
+	/**
+	 * fields to be extracted from input
+	 */
+
 	InputField[] inputFields;
 
+	/**
+	 * data sheets to be extracted from input
+	 */
 	InputRecord[] inputRecords;
 
 	/**
@@ -60,12 +79,30 @@ public class InputData {
 	/**
 	 * extract and validate data from input service data into service context
 	 *
-	 * @param json
-	 *            input
+	 * @param inputText text
+	 *            non-null pay-load received from client
 	 * @param ctx
 	 *            into which data is to be extracted to
 	 */
-	public void extractFromJson(JSONObject json, ServiceContext ctx) {
+	public void extractFromJson(String inputText, ServiceContext ctx) {
+		String jsonText = inputText.trim();
+		if (jsonText.isEmpty()) {
+			jsonText = "{}";
+		}
+		if (this.setInputToFieldName != null) {
+			ctx.setTextValue(this.setInputToFieldName, jsonText);
+			Tracer.trace(
+					"Request text is not parsed but set as object value of "
+							+ this.setInputToFieldName);
+			return;
+		}
+
+		JSONObject json = new JSONObject(jsonText);
+		if (this.justInputEveryThing) {
+			JsonUtil.extractAll(json, ctx);
+			return;
+		}
+
 		int n = 0;
 		if (this.inputFields != null) {
 			for (InputField field : this.inputFields) {

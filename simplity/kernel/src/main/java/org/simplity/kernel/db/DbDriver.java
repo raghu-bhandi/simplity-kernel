@@ -40,7 +40,6 @@ import java.util.Map;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
-import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
@@ -50,6 +49,7 @@ import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.value.IntegerValue;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.simplity.service.ResponseWriter;
 import org.simplity.service.ServiceContext;
 
 import oracle.jdbc.driver.OracleConnection;
@@ -1878,7 +1878,7 @@ public class DbDriver {
 	 */
 	@SuppressWarnings("resource")
 	public void sqlToJson(String sql, Value[] values, ValueType[] types,
-			String[] names, JSONWriter writer) {
+			String[] names, ResponseWriter writer) {
 		PreparedStatement stmt = null;
 		try {
 			stmt = this.connection.prepareStatement(sql);
@@ -1906,7 +1906,7 @@ public class DbDriver {
 	 * @throws SQLException
 	 */
 	private void writeAllToJson(PreparedStatement stmt, ValueType[] types,
-			JSONWriter writer) throws SQLException {
+			ResponseWriter writer) throws SQLException {
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			writer.array();
@@ -1928,7 +1928,7 @@ public class DbDriver {
 	 * @throws SQLException
 	 */
 	private void writeAllToJson(PreparedStatement stmt, ValueType[] types,
-			String[] names, JSONWriter writer) throws SQLException {
+			String[] names, ResponseWriter writer) throws SQLException {
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			writer.object();

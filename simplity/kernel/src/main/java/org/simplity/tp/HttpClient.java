@@ -162,11 +162,10 @@ public class HttpClient extends Action {
 			responseText = this.getHttpResponse(txt, ctx);
 		}
 		if (this.isJson) {
-			JSONObject json = new JSONObject(responseText);
 			if (this.responseData != null) {
-				this.responseData.extractFromJson(json, ctx);
+				this.responseData.extractFromJson(responseText, ctx);
 			} else {
-				JsonUtil.extractAll(json, ctx);
+				JsonUtil.extractAll(new JSONObject(responseText), ctx);
 			}
 		} else if (this.isXml) {
 			if (this.responseData != null) {

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.simplity.json.JSONWriter;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Messages;
@@ -60,6 +61,11 @@ public class ServiceContext extends CommonData {
 	private final Value userId;
 	private List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
 	private int nbrErrors = 0;
+
+	/**
+	 * writer that can be used by actions to write directly to the response
+	 */
+	private ResponseWriter responseWriter;
 
 	/**
 	 * @param serviceName
@@ -287,5 +293,25 @@ public class ServiceContext extends CommonData {
 			return 0;
 		}
 		return ds.length();
+	}
+
+	/**
+	 * set a default response writer to the context
+	 * @param writer
+	 */
+	public void setWriter(ResponseWriter writer) {
+		this.responseWriter = writer;
+
+	}
+	/**
+	 * @return writer, never null
+	 */
+	public ResponseWriter getWriter() {
+		if(this.responseWriter == null){
+			this.setWriter(new JSONWriter());
+			this.responseWriter.init();
+		}
+		return this.responseWriter;
+
 	}
 }

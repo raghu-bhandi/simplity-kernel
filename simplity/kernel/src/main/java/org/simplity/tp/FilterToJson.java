@@ -21,12 +21,12 @@
  */
 package org.simplity.tp;
 
-import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
+import org.simplity.service.ResponseWriter;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -53,10 +53,21 @@ public class FilterToJson extends DbAction {
 	 * of json would come down.
 	 */
 	boolean useCompactFormat;
+
+	String outputSheetName;
+
 	/**
-	 * name with which the josn is to be sent to client. json would be of the form {jsonName:[]}
+	 * get a default filterAction for a record, possibly with child rows
+	 *
+	 * @param record
 	 */
-	String jsonName;
+	public FilterToJson(Record record) {
+		this.actionName = "filter_" + record.getSimpleName();
+		String recordName = record.getQualifiedName();
+		this.filterRecordName = recordName;
+		this.outputRecordName = recordName;
+		this.outputSheetName = record.getDefaultSheetName();
+	}
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
@@ -65,11 +76,10 @@ public class FilterToJson extends DbAction {
 		if (this.outputRecordName != null) {
 			outRecord = ComponentManager.getRecord(this.outputRecordName);
 		}
-		JSONWriter writer = new JSONWriter();
-		writer.object().key(this.jsonName).array();
+		ResponseWriter writer = ctx.getWriter();
+		writer.key(this.outputSheetName).array();
 		outRecord.filterToJson(record, ctx, driver, this.useCompactFormat, writer);
-		writer.endArray().endObject();
-		ctx.setObject(this.jsonName, writer.toString());
+		writer.endArray();
 		return 1;
 	}
 
