@@ -120,8 +120,7 @@ public class TextUtil {
 		StringBuilder buffer = new StringBuilder(parts[0].toLowerCase());
 		for (int i = 1; i < parts.length; i++) {
 			String part = parts[i];
-			buffer.append(part.charAt(0))
-					.append(part.substring(1).toLowerCase());
+			buffer.append(part.charAt(0)).append(part.substring(1).toLowerCase());
 		}
 		return buffer.toString();
 	}
@@ -150,8 +149,7 @@ public class TextUtil {
 	 *             if any issue with parsing the text into appropriate type
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static Object parse(String text, Class type)
-			throws XmlParseException {
+	public static Object parse(String text, Class type) throws XmlParseException {
 		String value = text.trim();
 		if (type.equals(String.class)) {
 			return value;
@@ -198,8 +196,8 @@ public class TextUtil {
 			Class<?> eleType = type.getComponentType();
 			if (ReflectUtil.isValueType(eleType)) {
 				return parseArray(eleType, value);
-			} else if (eleType.isArray()
-					&& ReflectUtil.isValueType(eleType.getComponentType())) {
+			} else if (eleType.isArray() && ReflectUtil.isValueType(eleType
+					.getComponentType())) {
 				/*
 				 * 2-d array of values?
 				 */
@@ -215,8 +213,7 @@ public class TextUtil {
 		} else if (type.equals(Date.class)) {
 			Date date = DateUtil.parseDate(value);
 			if (date == null) {
-				throw new XmlParseException(
-						value + " is not in yyyy-mm-dd format");
+				throw new XmlParseException(value + " is not in yyyy-mm-dd format");
 			}
 			return date;
 		} else if (type.equals(Pattern.class)) {
@@ -383,8 +380,7 @@ public class TextUtil {
 		}
 		if (name.charAt(0) == DOLLAR) {
 			char c = name.charAt(1);
-			if ((c >= LOWER_A && c <= LOWER_Z) || (c >= A && c <= Z)
-					|| c == UNDERSCORE) {
+			if ((c >= LOWER_A && c <= LOWER_Z) || (c >= A && c <= Z) || c == UNDERSCORE) {
 				return name.substring(1);
 			}
 		}
@@ -464,8 +460,7 @@ public class TextUtil {
 			int fieldStart = matcher.start();
 			sbf.append(textWithFieldNames.substring(idx, fieldStart));
 			idx = matcher.end();
-			String fieldName = textWithFieldNames.substring(fieldStart + 2,
-					idx - 1);
+			String fieldName = textWithFieldNames.substring(fieldStart + 2, idx - 1);
 			Value value = fieldValues.getValue(fieldName);
 			if (Value.isNull(value) == false) {
 				sbf.append(value.toString());
@@ -509,6 +504,47 @@ public class TextUtil {
 	public static FilenameFilter getFileNameFilter(String pattern) {
 		return new MyFileFilter(pattern);
 	}
+
+	/**
+	 * replace place holders in name pattern. {name} is replaced with the file
+	 * name while {ext} is replaced with file extension. Note that extension
+	 * does not include '.'
+	 * example
+	 *
+	 * <pre>
+	 * with inName = a.txt
+	 * {name}.out -> a.out
+	 * {name}.{ext}.out -> a.txt.out
+	 * b{ext} ->bout
+	 *
+	 * with inName = a
+	 * {name}.out -> a.out
+	 * {name}.{ext}.out -> a..out
+	 * b{ext} ->b
+	 * </pre>
+	 *
+	 * @param pattern
+	 * @param inName
+	 * @return file name after replacing place-holders, if any
+	 */
+
+	public static String getFileName(String pattern, String inName) {
+		int idx = pattern.indexOf('{');
+		if (idx == -1) {
+			return pattern;
+		}
+		String inFile = inName;
+		String inExtn = "";
+		idx = inName.lastIndexOf('.');
+		if (idx != -1) {
+			inFile = inName.substring(0, idx);
+			inExtn = inName.substring(idx + 1);
+		}
+		String result = pattern.replaceAll("\\{name\\}", inFile);
+		result = result.replaceAll("\\{ext\\}", inExtn);
+		return result;
+	}
+
 }
 
 class MyFileFilter implements FilenameFilter {

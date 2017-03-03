@@ -45,7 +45,6 @@ public class AddMessage extends Action {
 	/**
 	 * should we stop this service in case the message added is of type error.
 	 */
-	boolean stopIfMessageTypeIsError;
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {

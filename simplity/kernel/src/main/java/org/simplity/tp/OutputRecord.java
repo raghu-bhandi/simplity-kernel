@@ -73,7 +73,20 @@ public class OutputRecord {
 	String linkColumnInParentSheet;
 
 	/**
-	 * if this is a data structure and not a data sheet, output its first row as an object
+	 * in case the linking key is a compound key with more than one column.
+	 * This is a separate attribute because this is rare, and we want to keep
+	 * the comon case simple
+	 */
+	String[] listOfLinkColumnsInThisSheet;
+	/**
+	 * in case the linking key is a compound key with more than one column.
+	 * This is a separate attribute because this is rare, and we want to keep
+	 * the comon case simple
+	 */
+	String[] listOfLinkClumnsInParentSheet;
+	/**
+	 * if this is a data structure and not a data sheet, output its first row as
+	 * an object
 	 */
 	boolean outputAsObject;
 	/*
@@ -89,7 +102,7 @@ public class OutputRecord {
 	/**
 	 * keep a pointer to parent in case we need to delegate some work back
 	 */
-	private OutputData myParenData;
+	private OutputData myParentData;
 
 	/**
 	 * default constructor
@@ -117,8 +130,8 @@ public class OutputRecord {
 	 * @param childColName
 	 * @param parentColName
 	 */
-	public OutputRecord(String sheetName, String parentSheetName,
-			String childColName, String parentColName) {
+	public OutputRecord(String sheetName, String parentSheetName, String childColName,
+			String parentColName) {
 		this.sheetName = sheetName;
 		this.parentSheetName = parentSheetName;
 		this.linkColumnInThisSheet = childColName;
@@ -154,8 +167,8 @@ public class OutputRecord {
 			Object obj = ctx.getObject(this.sheetName);
 			writer.key(this.sheetName);
 			if (obj == null) {
-				Tracer.trace("No Object found for complex structure "
-						+ this.sheetName + ". Null sent to client");
+				Tracer.trace("No Object found for complex structure " + this.sheetName
+						+ ". Null sent to client");
 			}
 			writer.value(obj);
 			return;
@@ -197,10 +210,9 @@ public class OutputRecord {
 		DataSheet sheet = ctx.getDataSheet(this.sheetName);
 		if (sheet == null) {
 			if (this.fields != null) {
-				if (this.myParenData.okToOutputFieldsFromRecord(this.fields)) {
+				if (this.myParentData.okToOutputFieldsFromRecord(this.fields)) {
 					Tracer.trace("Service context has no sheet with name "
-							+ this.sheetName
-							+ " for output. We try and output fields.");
+							+ this.sheetName + " for output. We try and output fields.");
 					this.fieldsToJson(writer, this.fields, ctx);
 				} else {
 					Tracer.trace("Service context has no sheet with name "
@@ -248,34 +260,34 @@ public class OutputRecord {
 			Tracer.trace("Sheet " + this.sheetName + " has no data to output");
 			return null;
 		}
-		/*
-		 * get field names for this sheet
-		 */
-		String[] fieldNames = mySheet.getColumnNames();
 
 		/*
-		 * get data grouped and indexed by link key value
+		 * organize rows of this sheet into groups (list) of rows per unique key
 		 */
-		int myIdx = mySheet.getColIdx(this.linkColumnInThisSheet);
-		if (myIdx == -1) {
-			throw new ApplicationError(this.linkColumnInThisSheet
-					+ " is not a valid column in sheet " + this.sheetName);
-		}
 		Map<String, List<Value[]>> map = new HashMap<String, List<Value[]>>();
-		for (Value[] row : mySheet.getAllRows()) {
-			String key = row[myIdx].toString();
-			List<Value[]> rows = map.get(key);
-			if (rows == null) {
-				rows = new ArrayList<Value[]>();
-				map.put(key, rows);
+		this.putChildRows(map, mySheet);
+
+		/*
+		 * parent index..
+		 */
+		int parentIdx = 0;
+		int[] indexes = null;
+		if (this.listOfLinkClumnsInParentSheet == null) {
+			parentIdx = parentSheet.getColIdx(this.linkColumnInParentSheet);
+			if (parentIdx == -1) {
+				throw new ApplicationError("Link column " + this.linkColumnInParentSheet
+						+ " is not found in parent sheet.");
 			}
-			rows.add(row);
-		}
-		int parentIdx = parentSheet.getColIdx(this.linkColumnInParentSheet);
-		if (parentIdx == -1) {
-			throw new ApplicationError(
-					"Link column " + this.linkColumnInParentSheet
+		} else {
+			indexes = new int[this.listOfLinkClumnsInParentSheet.length];
+			for (int i = 0; i < indexes.length; i++) {
+				String colName = this.listOfLinkClumnsInParentSheet[i];
+				int idx = parentSheet.getColIdx(colName);
+				if (idx == -1) {
+					throw new ApplicationError("Link column " + colName
 							+ " is not found in parent sheet.");
+				}
+			}
 		}
 		/*
 		 * is this child a parent?
@@ -288,8 +300,60 @@ public class OutputRecord {
 				children[i++] = child.getHierarchicalSheet(mySheet, ctx);
 			}
 		}
-		return new HierarchicalSheet(this.sheetName, fieldNames, map,
-				parentIdx, children);
+		return new HierarchicalSheet(this.sheetName, mySheet.getColumnNames(), map, children,
+				parentIdx, indexes);
+	}
+
+	/**
+	 * @param map
+	 * @param mySheet
+	 */
+	private void putChildRows(Map<String, List<Value[]>> map, DataSheet mySheet) {
+		/*
+		 * get data grouped and indexed by link key value
+		 */
+		int myIdx = 0;
+		int[] indexes = null;
+		/*
+		 * single key?
+		 */
+		if (this.listOfLinkColumnsInThisSheet == null) {
+			myIdx = mySheet.getColIdx(this.linkColumnInThisSheet);
+			if (myIdx == -1) {
+				throw new ApplicationError(this.linkColumnInThisSheet
+						+ " is not a valid column in sheet " + this.sheetName);
+			}
+		} else {
+			/*
+			 * array of columns as key.
+			 */
+			int nbrKeys = this.linkColumnInThisSheet.length();
+			indexes = new int[nbrKeys];
+			for (int i = 0; i < indexes.length; i++) {
+				String colName = this.listOfLinkColumnsInThisSheet[i];
+				int idx = mySheet.getColIdx(colName);
+				if (idx == -1) {
+					throw new ApplicationError(colName
+							+ " is not a valid column in sheet " + this.sheetName);
+				}
+				indexes[i] = idx;
+			}
+		}
+		for (Value[] row : mySheet.getAllRows()) {
+			String key;
+			if (indexes == null) {
+				key = row[myIdx].toString();
+			} else {
+				key = HierarchicalSheet.getKey(row, indexes);
+			}
+
+			List<Value[]> rows = map.get(key);
+			if (rows == null) {
+				rows = new ArrayList<Value[]>();
+				map.put(key, rows);
+			}
+			rows.add(row);
+		}
 	}
 
 	/**
@@ -298,7 +362,7 @@ public class OutputRecord {
 	 * @param parenData
 	 */
 	public void getReady(OutputData parenData) {
-		this.myParenData = parenData;
+		this.myParentData = parenData;
 		if (this.recordName == null) {
 			if (this.sheetName == null) {
 				throw new ApplicationError(
@@ -311,8 +375,7 @@ public class OutputRecord {
 			} else {
 				this.fields = record.getFields();
 				if (this.fields == null) {
-					Tracer.trace("Record " + this.recordName
-							+ " yielded no fields");
+					Tracer.trace("Record " + this.recordName + " yielded no fields");
 				}
 			}
 		}

@@ -101,6 +101,7 @@ public abstract class Action {
 	private int serviceIdx;
 
 	private boolean requiresPostProcessing;
+
 	/**
 	 * main method called by service.
 	 *
@@ -123,25 +124,25 @@ public abstract class Action {
 				}
 			} catch (Exception e) {
 				throw new ApplicationError("Action " + this.actionName
-						+ " has an executOnCondition="
-						+ this.executeOnCondition.toString()
-						+ " that is invalid. \nError : " + e.getMessage());
+						+ " has an executOnCondition=" + this.executeOnCondition
+								.toString() + " that is invalid. \nError : " + e
+										.getMessage());
 			}
 		}
-		if (this.executeIfNoRowsInSheet != null
-				&& ctx.nbrRowsInSheet(this.executeIfNoRowsInSheet) > 0) {
+		if (this.executeIfNoRowsInSheet != null && ctx.nbrRowsInSheet(
+				this.executeIfNoRowsInSheet) > 0) {
 			return null;
 		}
-		if (this.executeIfRowsInSheet != null
-				&& ctx.nbrRowsInSheet(this.executeIfRowsInSheet) == 0) {
+		if (this.executeIfRowsInSheet != null && ctx.nbrRowsInSheet(
+				this.executeIfRowsInSheet) == 0) {
 			return null;
 		}
 		Value result = this.delegate(ctx, driver);
-		if(this.requiresPostProcessing == false){
+		if (this.requiresPostProcessing == false) {
 			return result;
 		}
 		boolean ok = Value.intepretAsBoolean(result);
-		if(ok){
+		if (ok) {
 			if (this.actionNameOnSuccess != null) {
 				return Value.newTextValue(this.actionNameOnSuccess);
 			}
@@ -160,13 +161,13 @@ public abstract class Action {
 		if (this.failureMessageName != null) {
 			MessageType msgType = ctx.addMessage(this.failureMessageName,
 					this.failureMessageParameters);
-			if (msgType == MessageType.ERROR
-					&& this.stopIfMessageTypeIsError) {
+			if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
 				return Service.STOP_VALUE;
 			}
 		}
 		return result;
 	}
+
 	/**
 	 * This is the intermediate method that can be implemented by actions that
 	 * actually use db driver. We provide a default delegate that does not use
@@ -220,19 +221,55 @@ public abstract class Action {
 		if (this.actionName == null) {
 			this.actionName = ACTION_NAME_PREFIX + this.serviceIdx;
 		}
-		this.requiresPostProcessing = this.actionNameOnFailure != null || this.actionNameOnSuccess != null || this.failureMessageName != null || this.successMessageName != null;
+		this.requiresPostProcessing = this.actionNameOnFailure != null
+				|| this.actionNameOnSuccess != null || this.failureMessageName != null
+				|| this.successMessageName != null;
 
 	}
 
 	/**
 	 * validate this action
 	 *
-	 * @param ctx
+	 * @param vtx
 	 * @param service
 	 *            parent service
 	 * @return number of errors added to the list
 	 */
-	public int validate(ValidationContext ctx, Service service) {
+	public int validate(ValidationContext vtx, Service service) {
+		DbAccessType acc = this.getDataAccessType() ;
+		/*
+		 * level 0 ; no db access
+		 */
+		if(acc == null || acc == DbAccessType.NONE){
+			return 0;
+		}
+
+		DbAccessType serviceAcc = service.dbAccessType;
+		if(serviceAcc == null || serviceAcc == DbAccessType.NONE ){
+			vtx.addError("action " + this.actionName + " requires db access, but service specifies no db-access. Review dbAccessType of service.");
+			return 1;
+		}
+
+		/*
+		 * level 1 : read only
+		 */
+		if(acc.updatesDb() == false){
+			return 0;
+		}
+		/*
+		 * level 2 : this action updates db
+		 */
+		if(serviceAcc == DbAccessType.SUB_SERVICE){
+			if(this instanceof SubService){
+			return 0;
+			}
+			vtx.addError("action " + this.actionName + " does db update. Enclosing service has dbAccess=subService. This is not right. Re-factor into sub-services for proper transactin boundaries.");
+			return 1;
+		}
+		if(serviceAcc == DbAccessType.READ_ONLY){
+			vtx.addError("action " + this.actionName + " requires db updates, but servic specifies read-only.");
+			return 1;
+		}
 		return 0;
 	}
 }

@@ -56,6 +56,18 @@ import org.simplity.service.ServiceInterface;
 public class Application {
 
 	/**
+	 * any exception thrown by service may need to be reported to a central
+	 * system.
+	 */
+	private static ExceptionListener currentExceptionListener = new DefaultExceptionListener();;
+
+	/**
+	 * @return exception listener for this application
+	 */
+	public static ExceptionListener getExceptionListener(){
+		return currentExceptionListener;
+	}
+	/**
 	 * name of configuration file, including extension
 	 */
 	public static final String CONFIG_FILE_NAME = "application.xml";
@@ -99,21 +111,8 @@ public class Application {
 		}
 
 		ApplicationError e = new ApplicationError(msg);
-		/**
-		 * try and pipe exception to the listener..
-		 */
-		ExceptionListener listener = new DefaultExceptionListener();
-		if (app.exceptionListener != null) {
-			try {
-				listener = (ExceptionListener) Class
-						.forName(app.exceptionListener).newInstance();
-			} catch (Exception ignore) {
-				// we just tried
-			}
-		}
-		if(listener != null){
-			listener.listen(null, e);
-		}
+		currentExceptionListener.listen(null, e);
+
 		throw e;
 	}
 
@@ -252,7 +251,7 @@ public class Application {
 	public String configure() {
 		List<String> msgs = new ArrayList<String>();
 		Tracer.startAccumulation();
-		
+
 		if (this.traceWrapper != null) {
 			try {
 				TraceWrapper wrapper = (TraceWrapper) Class
@@ -300,15 +299,12 @@ public class Application {
 			try {
 				listener = (ExceptionListener) Class
 						.forName(this.exceptionListener).newInstance();
-
+				currentExceptionListener = listener;
 			} catch (Exception e) {
 				msgs.add(this.exceptionListener
 						+ " could not be used to instantiate an exception listener. "
 						+ e.getMessage() + " We will work with default listener");
 			}
-		}
-		if(listener == null){
-			listener = new DefaultExceptionListener();
 		}
 
 		/*
@@ -326,14 +322,15 @@ public class Application {
 		/*
 		 * Setup LDAP Agent
 		 */
-		if(this.ldapConfig!=null)
-		try {
-			LdapAgent.initialSetup(this.ldapConfig);
-		} catch (Exception e) {
-			msgs.add("Error while setting up JmsAgent." + e.getMessage()
-					+ " Application will not work properly.");
+		if(this.ldapConfig!=null) {
+			try {
+				LdapAgent.initialSetup(this.ldapConfig);
+			} catch (Exception e) {
+				msgs.add("Error while setting up JmsAgent." + e.getMessage()
+						+ " Application will not work properly.");
+			}
 		}
-		
+
 		/*
 		 * in production, we cache components as they are loaded, but in development we prefer to load the latest
 		 */
@@ -384,7 +381,7 @@ public class Application {
 		/*
 		 * initialize service agent
 		 */
-		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard, listener);
+		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard);
 
 		/*
 		 * initialize http-agent. In rare cases, a project may not use httpAgent, but it is not so much of an issue if the agent is all dressed-up but no work :-)
@@ -413,7 +410,7 @@ public class Application {
 				uid = Value.newTextValue(this.autoLoginUserId);
 			}
 		}
-		HttpAgent.setUp(uid, cacher, listener, this.sendTraceToClient);
+		HttpAgent.setUp(uid, cacher, this.sendTraceToClient);
 		String result = null;
 		if (msgs.size() > 0) {
 			/*

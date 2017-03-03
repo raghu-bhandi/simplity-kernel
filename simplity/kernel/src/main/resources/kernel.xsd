@@ -2455,13 +2455,46 @@
 	</xs:complexType>
 	<xs:element name="fileProcessor">
 		<xs:complexType>
-			<xs:choice>
+			<xs:all>
 				<xs:element
 					name="actions"
 					type="actions"
 					minOccurs="1"
-					maxOccurs="1" />
-			</xs:choice>
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>Actions that are executed for each row in the
+							input file
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element
+					name="actionOnInvalidInputRow"
+					type="anAction"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>An action that is invoked if the input row fails
+							data-type validation
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+
+				<xs:element
+					name="actionOnErrorWhileProcessing"
+					type="anAction"
+					maxOccurs="1"
+					minOccurs="0"
+				>
+					<xs:annotation>
+						<xs:documentation>An action that is invoked if an error was
+							flagged by the processing logic
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+
+			</xs:all>
 			<xs:attributeGroup ref="actionAttributes" />
 			<xs:attribute
 				name="inFolderName"
@@ -2487,17 +2520,6 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="archivalExtension"
-				type="xs:string"
-				use="required"
-			>
-				<xs:annotation>
-					<xs:documentation>this is appended to the processed file name to
-						rename it. For example ".bak"
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
 				name="inRecordName"
 				type="xs:string"
 				use="required"
@@ -2509,14 +2531,12 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="inSheetName"
-				type="xs:string"
+				name="inDataFormat"
+				type="flatFileType"
+				use="required"
 			>
 				<xs:annotation>
-					<xs:documentation>If this file has more than one row of data, or if
-						the data is to be extracted into a single row, here is the name of
-						the data sheet. If this is null, first/only row of data is
-						extracted as fields into service context
+					<xs:documentation>in what format is data received in the file?
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2526,6 +2546,30 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Output folder to write out the outdata sheet
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="conditionForOutput"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>Is there a possibility tht you write a subset of
+						records to output? If so, use this boolean expression. Output row
+						is written only if the expression evaluates to true
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="outFileName"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>if we are to create an output file. file name
+						can
+						contain parts of input file name as part of it. example if input
+						file name is a.txt {name}{ext}.out will translate to a.txt.out and
+						{name}.out will translate to a.out
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2540,32 +2584,32 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="outSheetName"
-				type="xs:string"
-			>
-				<xs:annotation>
-					<xs:documentation>The data sheet to which the output is processed
-						and written out
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="inDataFormat"
-				type="dataSerializationType"
-				use="required"
-			>
-				<xs:annotation>
-					<xs:documentation>in what format is data received in the file?
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
 				name="outDataFormat"
-				type="dataSerializationType"
+				type="flatFileType"
 			>
 				<xs:annotation>
 					<xs:documentation>if data has to be written out to a file, in what
 						format do we write?
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="renameInFileTo"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>after processing, should the in-file be renamed,
+						so that it wouldn't be processed again.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="deleteInFileAfterProcessing"
+				type="booleanType"
+			>
+				<xs:annotation>
+					<xs:documentation>Should the input file be deleted after
+						processing? Not relevant if rename option is used.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -3709,6 +3753,25 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
+	<xs:simpleType name="flatFileType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="fixedWidth">
+				<xs:annotation>
+					<xs:documentation>predefined sequence of fields each with
+						predefined width
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="commaSeparated">
+				<xs:annotation>
+					<xs:documentation>predefined sequence of field values separated by
+						comma
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
 
 	<xs:simpleType name="dataSerializationType">
 		<xs:restriction base="xs:string">

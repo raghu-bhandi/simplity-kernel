@@ -66,7 +66,7 @@ public class Tracer {
 //		StringBuilder sbf = Tracer.tracedText.get();
 //		Tracer.tracedText.set(new StringBuilder());
 //		return sbf == null ? Tracer.EMPTY : sbf.toString();
-		return null;
+		return Tracer.EMPTY;
 	}
 
 	/**
@@ -81,9 +81,9 @@ public class Tracer {
 	 */
 	public static String startAccumulation(String trace) {
 //		StringBuilder sbf = Tracer.tracedText.get();
-//		Tracer.tracedText.set(new StringBuilder(trace));
+		Tracer.tracedText.set(new StringBuilder(trace));
 //		return sbf == null ? Tracer.EMPTY : sbf.toString();
-		return null;
+		return Tracer.EMPTY;
 	}
 
 	/**
@@ -105,9 +105,10 @@ public class Tracer {
 	 * @return accumulated report, empty string if nothing is accumulated
 	 */
 	public static String stopAccumulation() {
-		StringBuilder sbf = Tracer.tracedText.get();
-		Tracer.tracedText.remove();
-		return sbf == null ? Tracer.EMPTY : sbf.toString();
+		//StringBuilder sbf = Tracer.tracedText.get();
+		//Tracer.tracedText.remove();
+		//return sbf == null ? Tracer.EMPTY : sbf.toString();
+		return Tracer.EMPTY;
 	}
 
 	/**

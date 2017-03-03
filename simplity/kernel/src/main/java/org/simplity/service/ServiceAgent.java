@@ -28,6 +28,7 @@ import java.io.ObjectOutputStream;
 import java.util.Date;
 
 import org.simplity.json.JSONWriter;
+import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
@@ -62,13 +63,11 @@ public class ServiceAgent {
 	 * @param logout
 	 * @param cacher
 	 * @param guard
-	 * @param listener
 	 */
 	public static void setUp(boolean userIdIsNumber, String login,
-			String logout, ServiceCacheManager cacher, AccessController guard,
-			ExceptionListener listener) {
+			String logout, ServiceCacheManager cacher, AccessController guard) {
 		instance = new ServiceAgent(userIdIsNumber, login, logout, cacher,
-				guard, listener);
+				guard);
 	}
 
 	/**
@@ -103,11 +102,6 @@ public class ServiceAgent {
 	 */
 	private final ServiceCacheManager cacheManager;
 	/**
-	 * any exception thrown by service may need to be reported to a central
-	 * system.
-	 */
-	private final ExceptionListener exceptionListener;
-	/**
 	 * registered access control class
 	 */
 	private final AccessController securityManager;
@@ -116,13 +110,11 @@ public class ServiceAgent {
 	 * We create an immutable instance fully equipped with all plug-ins
 	 */
 	private ServiceAgent(boolean userIdIsNumber, String login, String logout,
-			ServiceCacheManager cacher, AccessController guard,
-			ExceptionListener listener) {
+			ServiceCacheManager cacher, AccessController guard) {
 		this.numericUserId = userIdIsNumber;
 		this.loginService = login;
 		this.logoutService = logout;
 		this.cacheManager = cacher;
-		this.exceptionListener = listener;
 		this.securityManager = guard;
 	}
 
@@ -286,9 +278,7 @@ public class ServiceAgent {
 					this.cacheManager.cache(inputData, response);
 				}
 			} catch (Exception e) {
-				if (this.exceptionListener != null) {
-					this.exceptionListener.listen(inputData, e);
-				}
+				Application.getExceptionListener().listen(inputData, e);
 				Tracer.trace(e, "Exception thrown by service " + serviceName);
 				response = this.defaultResponse(inputData);
 				response.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR,
@@ -328,7 +318,7 @@ public class ServiceAgent {
 		JSONWriter writer = new JSONWriter();
 		writer.object().key(ServiceProtocol.HEADER_FILE_TOKEN).value(token).endObject();
 		outData.setPayLoad(writer.toString());
-		ServiceSubmitter submitter = new ServiceSubmitter(inData, service, stream, this.exceptionListener);
+		ServiceSubmitter submitter = new ServiceSubmitter(inData, service, stream);
 		Thread thread = new Thread(submitter);
 		thread.start();
 

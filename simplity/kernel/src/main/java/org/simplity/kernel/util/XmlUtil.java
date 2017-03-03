@@ -768,6 +768,7 @@ public class XmlUtil {
 				return elementToSubclass((Element) element, field,
 						field.getType(), parentObject);
 			}
+			element = element.getNextSibling();
 		}
 		return null;
 	}
@@ -809,9 +810,7 @@ public class XmlUtil {
 				 * we take package name either from annotation on the field or
 				 * from the reference type
 				 */
-				className = packageName + '.'
-						+ elementName.substring(0, 1).toUpperCase()
-						+ elementName.substring(1);
+				className = packageName + '.' + TextUtil.nameToClassName(elementName);
 				thisObject = Class.forName(className).newInstance();
 			}
 			elementToObject(element, thisObject);
@@ -939,8 +938,7 @@ public class XmlUtil {
 		String eleName = object.getClass().getSimpleName();
 		eleName = eleName.substring(0, 1).toLowerCase() + eleName.substring(1);
 		try {
-			Document doc = DocumentBuilderFactory.newInstance()
-					.newDocumentBuilder().newDocument();
+			Document doc = docFactory.newDocumentBuilder().newDocument();
 			Element ele = doc.createElementNS("http://www.simplity.org/schema",
 					eleName);
 			objectToEle(object, doc, ele);
