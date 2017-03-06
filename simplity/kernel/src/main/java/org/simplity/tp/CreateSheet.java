@@ -25,10 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.db.DbAccessType;
+import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -58,7 +61,7 @@ public class CreateSheet extends Action {
 	/**
 	 * record name for creating an empty sheet
 	 */
-	String recordName; 
+	String recordName;
 	/*
 	 * very small optimization
 	 */
@@ -66,23 +69,35 @@ public class CreateSheet extends Action {
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
-		/*
-		 * parse rows into a collection
-		 */
-		List<Value[]> allValues = new ArrayList<Value[]>();
-		for (int i = 1; i < this.data.length; i++) {
-			allValues.add(this.parseRow(this.data[i], ctx));
+		if (!(this.data == null || this.data.length == 0 || this.data[0].length == 0)) {
+			/*
+			 * parse rows into a collection
+			 */
+			List<Value[]> allValues = new ArrayList<Value[]>();
+			for (int i = 1; i < this.data.length; i++) {
+				allValues.add(this.parseRow(this.data[i], ctx));
+			}
+			/*
+			 * it is possible that the sheet is improper
+			 */
+			try {
+				MultiRowsSheet sheet = new MultiRowsSheet(this.data[0], allValues);
+				sheet.validate();
+				ctx.putDataSheet(this.sheetName, sheet);
+			} catch (Exception e) {
+				throw new ApplicationError(e, " Error while creating data sheet.");
+			}
+
+		} else {
+			try {
+				Record rec = ComponentManager.getRecord(this.recordName);
+				DataSheet sheet = rec.createSheet(false, false);
+				ctx.putDataSheet(this.sheetName, sheet);
+			} catch (Exception e) {
+				throw new ApplicationError(e, " Error while creating data sheet.");
+			}
 		}
-		/*
-		 * it is possible that the sheet is improper
-		 */
-		try {
-			MultiRowsSheet sheet = new MultiRowsSheet(this.data[0], allValues);
-			sheet.validate();
-			ctx.putDataSheet(this.sheetName, sheet);
-		} catch (Exception e) {
-			throw new ApplicationError(e, " Error while creating data sheet.");
-		}
+
 		return this.returnValue;
 	}
 
@@ -143,8 +158,8 @@ public class CreateSheet extends Action {
 		if (this.sheetName == null) {
 			ctx.addError("sheetName is required for createSheet action.");
 			nbr++;
-		}		
-		if(recordName==null && (this.data == null || this.data.length == 0 || this.data[0].length == 0)){
+		}
+		if (recordName == null && (this.data == null || this.data.length == 0 || this.data[0].length == 0)) {
 			ctx.addError("either the recordName or data had to be provided");
 			nbr++;
 			return nbr;
@@ -152,29 +167,32 @@ public class CreateSheet extends Action {
 		/*
 		 * every row should have same number of rows.
 		 */
-		int n = this.data[0].length;
-		for (int i = 1; i < this.data.length; i++) {
-			String[] arr = this.data[i];
-			if (arr.length != n) {
-				ctx.addError("Each row in data is to have same number of columns as the header. we have header with "
-						+ n + " columns, but data row " + i + " has " + arr.length + " columns.");
-				nbr++;
-			}
-			/*
-			 * validate whether cell content is valid
-			 */
-			for (int j = 0; j < arr.length; j++) {
-				String cell = arr[j];
+		if (!(this.data == null || this.data.length == 0 || this.data[0].length == 0)) {
+			int n = this.data[0].length;
+			for (int i = 1; i < this.data.length; i++) {
+				String[] arr = this.data[i];
+				if (arr.length != n) {
+					ctx.addError(
+							"Each row in data is to have same number of columns as the header. we have header with " + n
+									+ " columns, but data row " + i + " has " + arr.length + " columns.");
+					nbr++;
+				}
 				/*
-				 * value could be a fieldName like $customerName
+				 * validate whether cell content is valid
 				 */
-				String fldName = TextUtil.getFieldName(cell);
-				if (fldName == null) {
-					Value val = Value.parseValue(cell);
-					if (val == null) {
-						ctx.addError("Cell at row " + i + " and column (1 based) " + (j + 1)
-								+ " has an invalid value of " + cell);
-						nbr++;
+				for (int j = 0; j < arr.length; j++) {
+					String cell = arr[j];
+					/*
+					 * value could be a fieldName like $customerName
+					 */
+					String fldName = TextUtil.getFieldName(cell);
+					if (fldName == null) {
+						Value val = Value.parseValue(cell);
+						if (val == null) {
+							ctx.addError("Cell at row " + i + " and column (1 based) " + (j + 1)
+									+ " has an invalid value of " + cell);
+							nbr++;
+						}
 					}
 				}
 			}
@@ -190,6 +208,9 @@ public class CreateSheet extends Action {
 	@Override
 	public void getReady(int idx) {
 		super.getReady(idx);
-		this.returnValue = Value.newIntegerValue(this.data.length - 1);
+		if (!(this.data == null || this.data.length == 0 || this.data[0].length == 0))
+			this.returnValue = Value.newIntegerValue(this.data.length - 1);
+		else
+			this.returnValue = Value.newIntegerValue(0);
 	}
 }
