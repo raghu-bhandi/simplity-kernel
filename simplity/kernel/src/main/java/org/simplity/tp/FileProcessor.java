@@ -38,6 +38,8 @@ import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.FlatFileRowType;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
@@ -188,13 +190,11 @@ public class FileProcessor extends Block {
 				 * Was there any trouble?
 				 */
 				if (errors.size() > 0) { 
+					collectErrors(ctx, inText, errors);
 					if (this.actionOnInvalidInputRow == null) {
 						Tracer.trace(
 								"Invalid row received as input. Row is not processed.");
 					} else {
-						ctx.addMessages(errors);
-						ctx.setTextValue("errorRow", inText);
-						ctx.putDataSheet("error", ctx.getMessagesAsDS());
 						this.actionOnInvalidInputRow.act(ctx, driver);
 					}
 					continue;
@@ -207,12 +207,11 @@ public class FileProcessor extends Block {
 				 * any trouble while processing?
 				 */
 				if (ctx.isInError()) {
-					if (this.actionOnErrorWhileProcessing == null) {
+					collectErrors(ctx, inText, errors);
+					if (this.actionOnErrorWhileProcessing == null) {				
 						Tracer.trace(
 								"Invalid row received as input. Row is not processed.");
 					} else {
-						ctx.setTextValue("errorRow", inText);
-						ctx.putDataSheet("error", ctx.getMessagesAsDS());
 						this.actionOnErrorWhileProcessing.act(ctx, driver);
 					}
 					continue;
@@ -267,6 +266,20 @@ public class FileProcessor extends Block {
 					//
 				}
 			}
+		}
+	}
+
+	private void collectErrors(ServiceContext ctx, String inText, List<FormattedMessage> errors) {
+		ctx.addMessages(errors);
+		DataSheet tempErrorSheet = ctx.getMessagesAsDS();
+		tempErrorSheet.addColumn("errorRow", Value.newTextValue(inText));
+		
+		DataSheet errorSheet = ctx.getDataSheet("error");
+		if(errorSheet!=null){											
+			errorSheet.appendRows(tempErrorSheet);
+		}							
+		else{
+			ctx.putDataSheet("error", tempErrorSheet);
 		}
 	}
 
