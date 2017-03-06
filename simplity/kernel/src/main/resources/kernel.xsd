@@ -1707,9 +1707,20 @@
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>The record name for creating an empty sheet,
+				either the data or the recordName needs to be specified.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>		
+		<xs:attribute
 			name="data"
 			type="xs:string"
-			use="required"
+			use="optional"
 		>
 			<xs:annotation>
 				<xs:documentation> Of the form

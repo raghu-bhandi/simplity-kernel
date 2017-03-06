@@ -55,7 +55,10 @@ public class CreateSheet extends Action {
 	 *
 	 */
 	String[][] data;
-
+	/**
+	 * record name for creating an empty sheet
+	 */
+	String recordName; 
 	/*
 	 * very small optimization
 	 */
@@ -108,17 +111,13 @@ public class CreateSheet extends Action {
 			if (fldName == null) {
 				value = Value.parseValue(cell);
 				if (value == null) {
-					throw new ApplicationError(
-							"data for createSheet action has an invalid cell value of "
-									+ cell);
+					throw new ApplicationError("data for createSheet action has an invalid cell value of " + cell);
 				}
 			} else {
 				value = fields.getValue(fldName);
 				if (value == null) {
-					throw new ApplicationError(
-							"Field "
-									+ fldName
-									+ " not found in fields collection. This is expected as a value for a cell for createSheet action.");
+					throw new ApplicationError("Field " + fldName
+							+ " not found in fields collection. This is expected as a value for a cell for createSheet action.");
 				}
 			}
 			values[idx] = value;
@@ -135,9 +134,8 @@ public class CreateSheet extends Action {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
+	 * @see org.simplity.tp.Action#validate(org.simplity.kernel.comp.
+	 * ValidationContext , org.simplity.tp.Service)
 	 */
 	@Override
 	public int validate(ValidationContext ctx, Service service) {
@@ -145,10 +143,9 @@ public class CreateSheet extends Action {
 		if (this.sheetName == null) {
 			ctx.addError("sheetName is required for createSheet action.");
 			nbr++;
-		}
-		if (this.data == null || this.data.length == 0
-				|| this.data[0].length == 0) {
-			ctx.addError("data is required for createSheet action.");
+		}		
+		if(recordName==null && (this.data == null || this.data.length == 0 || this.data[0].length == 0)){
+			ctx.addError("either the recordName or data had to be provided");
 			nbr++;
 			return nbr;
 		}
@@ -160,11 +157,7 @@ public class CreateSheet extends Action {
 			String[] arr = this.data[i];
 			if (arr.length != n) {
 				ctx.addError("Each row in data is to have same number of columns as the header. we have header with "
-						+ n
-						+ " columns, but data row "
-						+ i
-						+ " has "
-						+ arr.length + " columns.");
+						+ n + " columns, but data row " + i + " has " + arr.length + " columns.");
 				nbr++;
 			}
 			/*
@@ -179,8 +172,7 @@ public class CreateSheet extends Action {
 				if (fldName == null) {
 					Value val = Value.parseValue(cell);
 					if (val == null) {
-						ctx.addError("Cell at row " + i
-								+ " and column (1 based) " + (j + 1)
+						ctx.addError("Cell at row " + i + " and column (1 based) " + (j + 1)
 								+ " has an invalid value of " + cell);
 						nbr++;
 					}
