@@ -77,51 +77,43 @@ public class HttpAgent {
 	/**
 	 * message to be sent to client if there is any internal error
 	 */
-	public static final FormattedMessage INTERNAL_ERROR = new FormattedMessage(
-			"internalError", MessageType.ERROR,
+	public static final FormattedMessage INTERNAL_ERROR = new FormattedMessage("internalError", MessageType.ERROR,
 			"We are sorry. There was an internal error on server. Support team has been notified.");
 	/**
 	 * message to be sent to client if this request requires a login and the
 	 * user has not logged in
 	 */
-	public static final FormattedMessage NO_LOGIN = new FormattedMessage(
-			"notLoggedIn", MessageType.ERROR,
+	public static final FormattedMessage NO_LOGIN = new FormattedMessage("notLoggedIn", MessageType.ERROR,
 			"You are not logged into the server, or server may have logged-you out as a safety measure after a period of no activity.");
 	/**
 	 * message to be sent to client if data text was not in order.
 	 */
-	public static final FormattedMessage DATA_ERROR = new FormattedMessage(
-			"invalidDataFormat", MessageType.ERROR,
+	public static final FormattedMessage DATA_ERROR = new FormattedMessage("invalidDataFormat", MessageType.ERROR,
 			"Data text sent from client is not formatted properly. Unable to extract data from the text.");
 	/**
 	 * message to be used when client has not specified a service
 	 */
-	public static final FormattedMessage NO_SERVICE = new FormattedMessage(
-			"noService", MessageType.ERROR,
+	public static final FormattedMessage NO_SERVICE = new FormattedMessage("noService", MessageType.ERROR,
 			"No service name was specified for this request.");
 
 	/**
 	 * message to be used when client's request for login has failed
 	 */
-	public static final FormattedMessage LOGIN_FAILED = new FormattedMessage(
-			"loginFailed", MessageType.ERROR,
+	public static final FormattedMessage LOGIN_FAILED = new FormattedMessage("loginFailed", MessageType.ERROR,
 			"Invalid Credentials. Login failed.");
 
 	/**
 	 * no token from client
 	 */
-	public static final FormattedMessage NO_TOKEN = new FormattedMessage(
-			"noToken", MessageType.ERROR,
+	public static final FormattedMessage NO_TOKEN = new FormattedMessage("noToken", MessageType.ERROR,
 			"A valid token for the bckground job is required to get its response.");
 
 	/**
 	 * response is not yet available for this token
 	 */
-	public static final FormattedMessage NO_RESPONSE = new FormattedMessage(
-			"noResponse", MessageType.INFO,
+	public static final FormattedMessage NO_RESPONSE = new FormattedMessage("noResponse", MessageType.INFO,
 			"No response yet from the background job.");
-	private static final String STILL_PENDING_PREFIX = "{\""
-			+ ServiceProtocol.HEADER_FILE_TOKEN + "\":\"";
+	private static final String STILL_PENDING_PREFIX = "{\"" + ServiceProtocol.HEADER_FILE_TOKEN + "\":\"";
 	private static final String STILL_PENDING_SUFFIX = "\"}";
 	/**
 	 * parameter name with which userId is to be saved in session. made this
@@ -167,30 +159,23 @@ public class HttpAgent {
 	 *             IO exception
 	 *
 	 */
-	public static void serve(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+
+	private static boolean restUrlParsing;
+
+	public static void serve(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		String fileToken = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
 		if (fileToken != null) {
-			Tracer.trace(
-					"Checking for pending service with token " + fileToken);
+			Tracer.trace("Checking for pending service with token " + fileToken);
 			getPendingResponse(req, resp, fileToken);
 			return;
 		}
-		String serviceName = req.getHeader(ServiceProtocol.SERVICE_NAME);
 		HttpSession session = req.getSession(true);
 		boolean isGet = GET.equals(req.getMethod());
 		/*
-		 * serviceName is a parameter in GET mode
+		 * get the service name
 		 */
-		if (isGet) {
-			if (serviceName == null) {
-				serviceName = req.getParameter(ServiceProtocol.SERVICE_NAME);
-			}
-			if (serviceName == null) {
-				serviceName = (String)req.getAttribute(ServiceProtocol.SERVICE_NAME);
-			}
-		}
+		String serviceName = getServiceName(req);
 
 		long startedAt = new Date().getTime();
 		long elapsed = 0;
@@ -235,9 +220,7 @@ public class HttpAgent {
 				 * we are forced to check payload for the time being for some
 				 * safety
 				 */
-				if (payLoad == null || payLoad.isEmpty()
-						|| payLoad.equals("undefined")
-						|| payLoad.equals("null")) {
+				if (payLoad == null || payLoad.isEmpty() || payLoad.equals("undefined") || payLoad.equals("null")) {
 					payLoad = "{}";
 				}
 				inData.setPayLoad(payLoad);
@@ -290,19 +273,15 @@ public class HttpAgent {
 			 * all OK
 			 */
 			response = outData.getPayLoad();
-			Tracer.trace(
-					"Service succeeded and has "
-							+ (response == null ? "no "
-									: (response.length()) + " chars ")
-							+ " payload");
+			Tracer.trace("Service succeeded and has " + (response == null ? "no " : (response.length()) + " chars ")
+					+ " payload");
 		}
 		writeResponse(resp, response);
 		String trace = Tracer.stopAccumulation();
 		if (outData != null) {
 			String serverTrace = outData.getTrace();
 			if (serverTrace != null) {
-				trace = "---- Web Tier Trace ---\n" + trace
-						+ "\n------ App Tier Trace ----\n" + serverTrace;
+				trace = "---- Web Tier Trace ---\n" + trace + "\n------ App Tier Trace ----\n" + serverTrace;
 			}
 		}
 		if (tracesToBeCached) {
@@ -311,6 +290,26 @@ public class HttpAgent {
 		String uid = userId == null ? "unknown" : userId.toString();
 		ServiceLogger.pushTraceToLog(serviceName, uid, (int) elapsed, trace);
 
+	}
+
+	private static String getServiceName(HttpServletRequest req) {
+		String serviceName = null;
+		if (restUrlParsing) {
+			String pathUrl;
+			if ((pathUrl = req.getPathInfo()) != null) {
+				serviceName = pathUrl.substring(1).replace("/", ".");
+			}
+		}
+		if (serviceName == null) {
+			serviceName = req.getHeader(ServiceProtocol.SERVICE_NAME);
+		}
+		if (serviceName == null) {
+			serviceName = req.getParameter(ServiceProtocol.SERVICE_NAME);
+		}
+		if (serviceName == null) {
+			serviceName = (String) req.getAttribute(ServiceProtocol.SERVICE_NAME);
+		}
+		return serviceName;
 	}
 
 	/**
@@ -355,16 +354,14 @@ public class HttpAgent {
 	 * @return token for this session that needs to be supplied for any service
 	 *         under this sessions. null implies that we could not login.
 	 */
-	public static String login(String loginId, String securityToken,
-			HttpSession session) {
+	public static String login(String loginId, String securityToken, HttpSession session) {
 		/*
 		 * ask serviceAgent to login.
 		 */
 		ServiceData inData = new ServiceData();
 		inData.put(ServiceProtocol.USER_ID, Value.newTextValue(loginId));
 		if (securityToken != null) {
-			inData.put(ServiceProtocol.USER_TOKEN,
-					Value.newTextValue(securityToken));
+			inData.put(ServiceProtocol.USER_TOKEN, Value.newTextValue(securityToken));
 		}
 		inData.setPayLoad("{}");
 		ServiceData outData = ServiceAgent.getAgent().login(inData);
@@ -419,8 +416,7 @@ public class HttpAgent {
 		}
 		ServiceData inData = createServiceData(session);
 		if (inData == null) {
-			Tracer.trace(
-					"No active session found, and hence logout not called");
+			Tracer.trace("No active session found, and hence logout not called");
 			return;
 		}
 		if (timedOut) {
@@ -489,10 +485,12 @@ public class HttpAgent {
 	 *            if true, traces are also saved into a circular buffer that can
 	 *            be delivered to the client
 	 */
-	public static void setUp(Value autoUserId, ClientCacheManager cacher, boolean cacheTraces) {
+	public static void setUp(Value autoUserId, ClientCacheManager cacher, boolean cacheTraces,
+			boolean restUrlParsingbool) {
 		autoLoginUserId = autoUserId;
 		httpCacheManager = cacher;
 		tracesToBeCached = cacheTraces;
+		restUrlParsing = restUrlParsingbool;
 
 	}
 
@@ -522,11 +520,9 @@ public class HttpAgent {
 		}
 
 		@SuppressWarnings("unchecked")
-		Map<String, Object> sessionData = (Map<String, Object>) session
-				.getAttribute(SESSION_NAME_FOR_MAP);
+		Map<String, Object> sessionData = (Map<String, Object>) session.getAttribute(SESSION_NAME_FOR_MAP);
 		if (sessionData == null) {
-			throw new ApplicationError(
-					"Unexpected situation. UserId is located in session, but not map");
+			throw new ApplicationError("Unexpected situation. UserId is located in session, but not map");
 		}
 		ServiceData data = new ServiceData(userId, null);
 		for (Map.Entry<String, Object> entry : sessionData.entrySet()) {
@@ -560,12 +556,10 @@ public class HttpAgent {
 	 */
 	private static void setSessionData(HttpSession session, ServiceData data) {
 		@SuppressWarnings("unchecked")
-		Map<String, Object> sessionData = (Map<String, Object>) session
-				.getAttribute(SESSION_NAME_FOR_MAP);
+		Map<String, Object> sessionData = (Map<String, Object>) session.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
-			Tracer.trace(
-					"Unexpected situation. setSession invoked with no active session. Action ignored");
+			Tracer.trace("Unexpected situation. setSession invoked with no active session. Action ignored");
 		} else {
 			for (String key : data.getFieldNames()) {
 				sessionData.put(key, data.get(key));
@@ -584,8 +578,7 @@ public class HttpAgent {
 	 * @return map of global fields that is maintained by Simplity. Any
 	 *         parameter in this map is made available to every service request
 	 */
-	public static Map<String, Object> newSession(HttpSession session,
-			Value userId) {
+	public static Map<String, Object> newSession(HttpSession session, Value userId) {
 
 		Map<String, Object> sessionData = new HashMap<String, Object>();
 		session.setAttribute(SESSION_NAME_FOR_USER_ID, userId);
@@ -614,8 +607,7 @@ public class HttpAgent {
 	 * @param serviceName
 	 * @param session
 	 */
-	public static void invalidateCache(String serviceName,
-			HttpSession session) {
+	public static void invalidateCache(String serviceName, HttpSession session) {
 		if (httpCacheManager != null) {
 			httpCacheManager.invalidate(serviceName, session);
 		}
@@ -630,8 +622,7 @@ public class HttpAgent {
 	private static void cacheTraces(HttpSession session, String trace) {
 		Object obj = session.getAttribute(HttpAgent.CACHED_TRACES);
 		if (obj == null) {
-			Tracer.trace(
-					"Unexpected absence of trace buffer in session. Client will not get traces.");
+			Tracer.trace("Unexpected absence of trace buffer in session. Client will not get traces.");
 			return;
 		}
 		@SuppressWarnings("unchecked")
@@ -657,8 +648,7 @@ public class HttpAgent {
 	 *             IO exception
 	 *
 	 */
-	public static void getPendingResponse(HttpServletRequest req,
-			HttpServletResponse resp, String fileToken)
+	public static void getPendingResponse(HttpServletRequest req, HttpServletResponse resp, String fileToken)
 			throws ServletException, IOException {
 
 		FormattedMessage message = null;
@@ -675,8 +665,7 @@ public class HttpAgent {
 			}
 			Object obj = null;
 			try {
-				ObjectInputStream stream = new ObjectInputStream(
-						new FileInputStream(file));
+				ObjectInputStream stream = new ObjectInputStream(new FileInputStream(file));
 				obj = stream.readObject();
 				stream.close();
 			} catch (Exception e) {
@@ -726,16 +715,15 @@ public class HttpAgent {
 	 * @param payLoad
 	 * @throws IOException
 	 */
-	private static void writeResponse(HttpServletResponse resp, String payLoad)
-			throws IOException {
+	private static void writeResponse(HttpServletResponse resp, String payLoad) throws IOException {
 		resp.setContentType("text/json");
 		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 		resp.setDateHeader("Expires", 0);
 		Writer writer = resp.getWriter();
-		if(payLoad == null || payLoad.isEmpty()){
+		if (payLoad == null || payLoad.isEmpty()) {
 			writer.write("{}");
-		}else{
-		writer.write(payLoad);
+		} else {
+			writer.write(payLoad);
 		}
 		writer.close();
 	}

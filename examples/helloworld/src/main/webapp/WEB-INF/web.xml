@@ -37,6 +37,10 @@
 		<url-pattern>*._s</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
+		<servlet-name>s</servlet-name>
+		<url-pattern>/rest/*</url-pattern>
+	</servlet-mapping>	
+	<servlet-mapping>
 		<servlet-name>i</servlet-name>
 		<url-pattern>*._i</url-pattern>
 	</servlet-mapping>

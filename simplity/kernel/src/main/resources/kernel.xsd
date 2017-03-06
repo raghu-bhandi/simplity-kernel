@@ -1861,7 +1861,6 @@
 			<xs:enumeration value="text/html" />
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:complexType name="httpClient">
 		<xs:all>
 			<xs:element
@@ -1999,7 +1998,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="jmsConsumer">
 		<xs:all>
 			<xs:element
@@ -2018,10 +2016,8 @@
 				maxOccurs="1"
 				type="actions" />
 		</xs:all>
-
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
-
 	<xs:complexType name="jmsProducer">
 		<xs:all>
 			<xs:element
@@ -2037,7 +2033,6 @@
 		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
-
 	<xs:complexType name="jumpTo">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2504,7 +2499,6 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-
 				<xs:element
 					name="actionOnErrorWhileProcessing"
 					type="anAction"
@@ -2517,7 +2511,6 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-
 			</xs:all>
 			<xs:attributeGroup ref="actionAttributes" />
 			<xs:attribute
@@ -2589,8 +2582,7 @@
 				type="xs:string"
 			>
 				<xs:annotation>
-					<xs:documentation>if we are to create an output file. file name
-						can
+					<xs:documentation>if we are to create an output file. file name can
 						contain parts of input file name as part of it. example if input
 						file name is a.txt {name}{ext}.out will translate to a.txt.out and
 						{name}.out will translate to a.out
@@ -3191,6 +3183,17 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
+			<xs:attribute
+				name="restUrlParsing"
+				type="xs:boolean"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>The URL can follow a rest call pattern to call
+						the the particular service
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 	<!-- Test case. we systematically develop elements bottom-up for this.. -->
@@ -3669,7 +3672,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:complexType name="jmsQueue">
 		<xs:attribute
 			name="queueName"
@@ -3765,7 +3767,6 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-
 		<xs:attribute
 			name="messageType"
 			type="xs:string"
@@ -3777,7 +3778,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:simpleType name="flatFileType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="fixedWidth">
@@ -3796,7 +3796,6 @@
 			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:simpleType name="dataSerializationType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="text">

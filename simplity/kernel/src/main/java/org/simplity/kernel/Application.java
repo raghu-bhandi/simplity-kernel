@@ -243,11 +243,15 @@ public class Application {
 	 */
 	String clientCacheManager;
 	/**
+	 * Enable Rest URL parsing
+	 */
+	String restUrlParsing;
+	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
 	 * servlet in a web-app
 	 * @return null if all OK. Else message that described why we could not succeed.
-	 */
+	 */	
 	public String configure() {
 		List<String> msgs = new ArrayList<String>();
 		Tracer.startAccumulation();
@@ -410,7 +414,7 @@ public class Application {
 				uid = Value.newTextValue(this.autoLoginUserId);
 			}
 		}
-		HttpAgent.setUp(uid, cacher, this.sendTraceToClient);
+		HttpAgent.setUp(uid, cacher, this.sendTraceToClient,Boolean.valueOf(this.restUrlParsing));
 		String result = null;
 		if (msgs.size() > 0) {
 			/*
