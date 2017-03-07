@@ -66,6 +66,10 @@ public class FormattedMessage implements Jsonable {
 	 * run-time values that may have to be inserted into the message
 	 */
 	public String[] values;
+	/**
+	 * capture other related data
+	 */
+	public String data;
 
 	/**
 	 * we require these three fields that can not be changed afterwards. Other
@@ -101,12 +105,10 @@ public class FormattedMessage implements Jsonable {
 	 */
 	public FormattedMessage(String messageName, String... params) {
 
-		Message msg = (Message) ComponentType.MSG
-				.getComponentOrNull(messageName);
+		Message msg = (Message) ComponentType.MSG.getComponentOrNull(messageName);
 		if (msg == null) {
 			this.name = messageName;
-			this.text = messageName
-					+ " : description for this message is not found.";
+			this.text = messageName + " : description for this message is not found.";
 			this.messageType = MessageType.WARNING;
 			Tracer.trace("Missing message : " + messageName);
 		} else {
@@ -132,8 +134,8 @@ public class FormattedMessage implements Jsonable {
 	 * @param params
 	 *            additional parameters for the message
 	 */
-	public FormattedMessage(String msgName, String tableName, String fieldName,
-			String otherFieldName, int rowNumber, String... params) {
+	public FormattedMessage(String msgName, String tableName, String fieldName, String otherFieldName, int rowNumber,
+			String... params) {
 		this(msgName, params);
 		this.tableName = tableName;
 		this.fieldName = fieldName;
@@ -144,8 +146,8 @@ public class FormattedMessage implements Jsonable {
 
 	@Override
 	public void writeJsonValue(JSONWriter writer) {
-		writer.object().key("name").value(this.name).key("text")
-		.value(this.text).key("messageType").value(this.messageType);
+		writer.object().key("name").value(this.name).key("text").value(this.text).key("messageType")
+				.value(this.messageType);
 		if (this.fieldName != null) {
 			writer.key("fieldName").value(this.fieldName);
 		}

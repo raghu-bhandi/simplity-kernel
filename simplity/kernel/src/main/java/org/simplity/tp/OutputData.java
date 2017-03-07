@@ -50,9 +50,11 @@ import org.simplity.service.ServiceProtocol;
 
 public class OutputData {
 
-	static final String EMPTY_RESPONSE = "{\"" + ServiceProtocol.REQUEST_STATUS + "\":\"" + ServiceProtocol.STATUS_OK + "\"}";
+	static final String EMPTY_RESPONSE = "{\"" + ServiceProtocol.REQUEST_STATUS + "\":\"" + ServiceProtocol.STATUS_OK
+			+ "\"}";
 	/**
-	 * no need to extract data for response. This field has the response text ready
+	 * no need to extract data for response. This field has the response text
+	 * ready
 	 */
 	String responseTextFieldName;
 	boolean justOutputEveryThing;
@@ -107,7 +109,7 @@ public class OutputData {
 	 * @param outData
 	 */
 	public void setResponse(ServiceContext ctx, ServiceData outData) {
-		if(this.outputFromWriter){
+		if (this.outputFromWriter) {
 			Tracer.trace("Picking up response from writer");
 			ResponseWriter writer = ctx.getWriter();
 			writer.key("junk").value(100);
@@ -134,7 +136,6 @@ public class OutputData {
 			return;
 		}
 
-
 		/*
 		 * extract attachments if required
 		 */
@@ -160,6 +161,7 @@ public class OutputData {
 				outData.put(f, val);
 			}
 		}
+		this.prepareOutData(outData, ctx);
 
 		/*
 		 * response
@@ -182,6 +184,45 @@ public class OutputData {
 		outData.setPayLoad(writer.toString());
 	}
 
+	private void prepareOutData(ServiceData outData, ServiceContext ctx) {
+		if (this.fieldNames != null) {
+			for (String fieldName : this.fieldNames) {
+				outData.put(fieldName, ctx.getValue(fieldName));
+			}
+		}
+
+		if (this.dataSheets != null) {
+			for (String sheetName : this.dataSheets) {
+				DataSheet sheet = ctx.getDataSheet(sheetName);
+				if (sheet == null) {
+					Tracer.trace("Service context has no sheet with name " + sheetName + " for output.");
+				} else {
+					outData.put(sheetName, ctx.getDataSheet(sheetName));
+				}
+			}
+		}
+		if (this.outputRecords != null) {
+			for (OutputRecord rec : this.outputRecords) {
+				outData.put(rec.sheetName, ctx.getDataSheet(rec.sheetName));
+			}
+		}
+		if (this.arrayNames != null) {
+			for (String arrayName : this.arrayNames) {
+				DataSheet sheet = ctx.getDataSheet(arrayName);
+				if (sheet == null) {
+					Value value = ctx.getValue(arrayName);
+					if (value == null) {
+						Tracer.trace("Service context has no sheet with name " + arrayName + " for output.");
+						continue;
+					}
+					outData.put(arrayName, ctx.getValue(arrayName));
+				} else {
+					outData.put(arrayName, sheet);
+				}
+			}
+		}
+	}
+
 	/**
 	 * write data to the json writer based on this spec, and data available in
 	 * the context
@@ -200,8 +241,7 @@ public class OutputData {
 			for (String sheetName : this.dataSheets) {
 				DataSheet sheet = ctx.getDataSheet(sheetName);
 				if (sheet == null) {
-					Tracer.trace("Service context has no sheet with name "
-							+ sheetName + " for output.");
+					Tracer.trace("Service context has no sheet with name " + sheetName + " for output.");
 				} else {
 					writer.key(sheetName);
 					JsonUtil.sheetToJson(writer, sheet, null, false);
@@ -213,15 +253,14 @@ public class OutputData {
 				rec.toJson(writer, ctx);
 			}
 		}
-		if(this.arrayNames != null){
-			for(String arrayName : this.arrayNames){
+		if (this.arrayNames != null) {
+			for (String arrayName : this.arrayNames) {
 				DataSheet sheet = ctx.getDataSheet(arrayName);
 				if (sheet == null) {
 					Value value = ctx.getValue(arrayName);
-					if(value == null){
-					Tracer.trace("Service context has no sheet with name "
-							+ arrayName + " for output.");
-					continue;
+					if (value == null) {
+						Tracer.trace("Service context has no sheet with name " + arrayName + " for output.");
+						continue;
 					}
 					writer.key(arrayName).array().value(value).endArray();
 				} else {
@@ -232,14 +271,15 @@ public class OutputData {
 		}
 	}
 
-	void onServiceStart(ServiceContext ctx){
-		if(this.outputFromWriter){
+	void onServiceStart(ServiceContext ctx) {
+		if (this.outputFromWriter) {
 			Tracer.trace("Started Writer for this service");
 			ResponseWriter writer = new JSONWriter();
 			writer.init();
 			ctx.setWriter(writer);
 		}
 	}
+
 	/**
 	 * output all fields, and sheets, except session fields
 	 *
@@ -247,9 +287,8 @@ public class OutputData {
 	 * @param response
 	 * @param inData
 	 */
-	protected void setPayload(ServiceContext ctx, ServiceData response,
-			ServiceData inData) {
-		if(this.outputFromWriter){
+	protected void setPayload(ServiceContext ctx, ServiceData response, ServiceData inData) {
+		if (this.outputFromWriter) {
 			Tracer.trace("Picking up response from writer");
 			ResponseWriter writer = ctx.getWriter();
 			writer.key(ServiceProtocol.REQUEST_STATUS).value(ServiceProtocol.STATUS_OK);
@@ -278,7 +317,6 @@ public class OutputData {
 		writer.endObject();
 		response.setPayLoad(writer.toString());
 	}
-
 
 	/**
 	 * get ready for a long-haul service :-)
@@ -347,10 +385,8 @@ public class OutputData {
 		 * are there children still looking for parents?
 		 */
 		if (nbrChildren != 0) {
-			throw new ApplicationError(
-					"Please check parentSheetName attribute for inputRecords. We found "
-							+ nbrChildren
-							+ " sheets with missing parent sheets!!");
+			throw new ApplicationError("Please check parentSheetName attribute for inputRecords. We found "
+					+ nbrChildren + " sheets with missing parent sheets!!");
 		}
 	}
 
@@ -369,8 +405,7 @@ public class OutputData {
 			Set<String> keys = new HashSet<String>();
 			for (String key : this.fieldNames) {
 				if (keys.add(key) == false) {
-					ctx.addError(
-							key + " is a duplicate field name for output.");
+					ctx.addError(key + " is a duplicate field name for output.");
 					count++;
 				}
 			}
@@ -382,8 +417,7 @@ public class OutputData {
 			Set<String> keys = new HashSet<String>();
 			for (String key : this.dataSheets) {
 				if (keys.add(key) == false) {
-					ctx.addError(key
-							+ " is a duplicate data sheet name for output.");
+					ctx.addError(key + " is a duplicate data sheet name for output.");
 					count++;
 				}
 			}
@@ -424,8 +458,7 @@ public class OutputData {
 	/**
 	 * @return
 	 */
-	private int validateParent(OutputRecord outRec,
-			Map<String, OutputRecord> allSheets, ValidationContext ctx) {
+	private int validateParent(OutputRecord outRec, Map<String, OutputRecord> allSheets, ValidationContext ctx) {
 		/*
 		 * check for existence of parent, as well
 		 */
@@ -438,8 +471,7 @@ public class OutputData {
 			 * do we have the parent?
 			 */
 			if (rec == null) {
-				ctx.addError("output sheet " + sheet + " uses parentSheetName="
-						+ parent
+				ctx.addError("output sheet " + sheet + " uses parentSheetName=" + parent
 						+ " but that sheet name is not used in any outputRecord. Note that all sheets that aprticipate iin parent-child relationship must be defined using outputRecord elements.");
 				return 1;
 			}
@@ -447,8 +479,7 @@ public class OutputData {
 			 * are we cycling in a circle?
 			 */
 			if (parents.add(parent) == false) {
-				ctx.addError("output record with sheetName=" + sheet
-						+ " has its parentSheetName set to " + parent
+				ctx.addError("output record with sheetName=" + sheet + " has its parentSheetName set to " + parent
 						+ ". This is creating a cyclical child-parent relationship.");
 				return 1;
 			}
@@ -471,8 +502,7 @@ public class OutputData {
 	 * @return
 	 */
 	boolean okToOutputFieldsFromRecord(Field[] fields) {
-		if (this.fieldNames == null || this.fieldNames.length == 0
-				|| fields == null || fields.length == 0) {
+		if (this.fieldNames == null || this.fieldNames.length == 0 || fields == null || fields.length == 0) {
 			return true;
 		}
 		Set<String> allNames = new HashSet<String>(this.fieldNames.length);

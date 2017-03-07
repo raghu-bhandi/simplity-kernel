@@ -30,6 +30,8 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.simplity.kernel.Application;
@@ -41,6 +43,7 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.FlatFileRowType;
+import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
@@ -69,8 +72,8 @@ public class FileProcessor extends Block {
 	/**
 	 * if we are to create an output file. file name can contain parts of input
 	 * file name as part of it. example if input file name is a.txt
-	 * {name}{ext}.out will translate to a.txt.out and {fileName}.out
-	 * will translate to a.out
+	 * {name}{ext}.out will translate to a.txt.out and {fileName}.out will
+	 * translate to a.out
 	 */
 	String outFileName;
 
@@ -132,8 +135,7 @@ public class FileProcessor extends Block {
 	 */
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		Tracer.trace("Going to process files in folder " + this.inFolderName
-				+ " that exists = " + this.inbox.exists());
+		Tracer.trace("Going to process files in folder " + this.inFolderName + " that exists = " + this.inbox.exists());
 		int nbrFiles = 0;
 		Record record = ComponentManager.getRecord(this.inRecordName);
 		Record outRecord = null;
@@ -154,8 +156,8 @@ public class FileProcessor extends Block {
 	 * @param file
 	 * @throws IOException
 	 */
-	private boolean processOneFile(File file, ServiceContext ctx, DbDriver driver,
-			Record record, Record outRecord, BlockWorker worker) {
+	private boolean processOneFile(File file, ServiceContext ctx, DbDriver driver, Record record, Record outRecord,
+			BlockWorker worker) {
 
 		BufferedReader reader = null;
 		BufferedWriter writer = null;
@@ -177,11 +179,12 @@ public class FileProcessor extends Block {
 			 * per row. However, error status is reset because we manage
 			 * transactions at row level
 			 */
+			List<FormattedMessage> earlierMessages = new ArrayList<FormattedMessage>(ctx.getMessages());
 			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
 			while ((inText = reader.readLine()) != null) {
 				/*
 				 * Absolved of all past sins. Start life afresh :-)
-				 */
+				 **/				
 				ctx.resetMessages();
 				errors.clear();
 				record.extractFromFlatRow(inText, this.inDataFormat, ctx, errors);
@@ -189,11 +192,16 @@ public class FileProcessor extends Block {
 				 * above method validates input as per data type specification.
 				 * Was there any trouble?
 				 */
-				if (errors.size() > 0) { 
-					collectErrors(ctx, inText, errors);
+				if (errors.size() > 0) {
+					for(FormattedMessage error:errors){
+						error.data = inText;
+					}
+					List<FormattedMessage> errorsCopy = new ArrayList<FormattedMessage>(errors);
+					earlierMessages.addAll(errorsCopy);
+					ctx.setTextValue("invalidInputRow", inText);
+
 					if (this.actionOnInvalidInputRow == null) {
-						Tracer.trace(
-								"Invalid row received as input. Row is not processed.");
+						Tracer.trace("Invalid row received as input. Row is not processed.");
 					} else {
 						this.actionOnInvalidInputRow.act(ctx, driver);
 					}
@@ -207,23 +215,29 @@ public class FileProcessor extends Block {
 				 * any trouble while processing?
 				 */
 				if (ctx.isInError()) {
-					collectErrors(ctx, inText, errors);
-					if (this.actionOnErrorWhileProcessing == null) {				
-						Tracer.trace(
-								"Invalid row received as input. Row is not processed.");
+					ctx.setTextValue("errorWhileProcessingRow", inText);
+					if (this.actionOnErrorWhileProcessing == null) {
+						Tracer.trace("Invalid row received as input. Row is not processed.");
 					} else {
 						this.actionOnErrorWhileProcessing.act(ctx, driver);
 					}
 					continue;
 				}
 				/*
+				 * re-populate the messages
+				 */
+				{
+					List<FormattedMessage> errorsCopy = new ArrayList<FormattedMessage>(ctx.getMessages());
+					earlierMessages.addAll(errorsCopy);
+				}
+
+				/*
 				 * are we to write output row?
 				 */
 				if (writer != null) {
 					if (this.conditionForOutput != null) {
 						if (this.conditionForOutput.evaluate(ctx).toBoolean() == false) {
-							Tracer.trace(
-									"Output not written because the condition for the same is not satisfied.");
+							Tracer.trace("Output not written because the condition for the same is not satisfied.");
 							continue;
 						}
 					}
@@ -232,13 +246,14 @@ public class FileProcessor extends Block {
 					writer.newLine();
 				}
 			}
+			ctx.resetMessages();
+			ctx.addMessages(earlierMessages);
 			/*
 			 * important to close the stream before trying to delete/rename
 			 */
 			reader.close();
 			if (this.renameInFileTo != null) {
-				String arcName = this.inFolderName + TextUtil.getFileName(
-						this.renameInFileTo, inName);
+				String arcName = this.inFolderName + TextUtil.getFileName(this.renameInFileTo, inName);
 				Tracer.trace("Renaming to " + arcName);
 				file.renameTo(new File(arcName));
 			} else if (this.deleteInFileAfterProcessing) {
@@ -269,19 +284,6 @@ public class FileProcessor extends Block {
 		}
 	}
 
-	private void collectErrors(ServiceContext ctx, String inText, List<FormattedMessage> errors) {
-		ctx.addMessages(errors);
-		DataSheet tempErrorSheet = ctx.getMessagesAsDS();
-		tempErrorSheet.addColumn("errorRow", Value.newTextValue(inText));
-		
-		DataSheet errorSheet = ctx.getDataSheet("error");
-		if(errorSheet!=null){											
-			errorSheet.appendRows(tempErrorSheet);
-		}							
-		else{
-			ctx.putDataSheet("error", tempErrorSheet);
-		}
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -346,8 +348,7 @@ public class FileProcessor extends Block {
 				vtx.addError("outFileName is required when outFolderName is specified");
 				count++;
 			}
-		} else if (this.outDataFormat != null || this.outRecordName != null
-				|| this.outFileName != null) {
+		} else if (this.outDataFormat != null || this.outRecordName != null || this.outFileName != null) {
 			vtx.reportUnusualSetting(
 					"Since outFolderName is not specified, no output is going to be written, and other output related attributes are ignored.");
 		}
@@ -357,8 +358,7 @@ public class FileProcessor extends Block {
 						"Input file is neither deleted, nor renamed. This may result in the file being processed again.");
 			}
 		} else if (this.deleteInFileAfterProcessing) {
-			vtx.reportUnusualSetting(
-					"since rename is specified, we ignore delete directive.");
+			vtx.reportUnusualSetting("since rename is specified, we ignore delete directive.");
 		}
 		/*
 		 * If db updates re involved, file-processor requires that the service
@@ -381,21 +381,24 @@ public class FileProcessor extends Block {
 					"File-processor is designed to update data base. Service should delegate transaction processing to sub-service.");
 			count++;
 		}
-		if(this.actionOnErrorWhileProcessing.getDataAccessType().updatesDb()){
-			if(this.actionOnErrorWhileProcessing instanceof SubService == false){
-				vtx.addError("actionOnErrorWhileProcessing is designed for db update. For such a requirement, you should convert this to a subService action.");
+		if (this.actionOnErrorWhileProcessing.getDataAccessType().updatesDb()) {
+			if (this.actionOnErrorWhileProcessing instanceof SubService == false) {
+				vtx.addError(
+						"actionOnErrorWhileProcessing is designed for db update. For such a requirement, you should convert this to a subService action.");
 				count++;
 			}
 		}
-		if(this.actionOnInvalidInputRow.getDataAccessType().updatesDb()){
-			if(this.actionOnInvalidInputRow instanceof SubService == false){
-				vtx.addError("actionOnInvalidInputRow is designed for db update. For such a requirement, you should convert this to a subService action.");
+		if (this.actionOnInvalidInputRow.getDataAccessType().updatesDb()) {
+			if (this.actionOnInvalidInputRow instanceof SubService == false) {
+				vtx.addError(
+						"actionOnInvalidInputRow is designed for db update. For such a requirement, you should convert this to a subService action.");
 				count++;
 			}
 		}
-		for(Action action : this.actions){
-			if(action instanceof SubService == false && action.getDataAccessType().updatesDb()){
-				vtx.addError("actions of a file-processor is designed for a bb update. You should re-factor this into sub-service so that the db updates can be managed within  separate transaction.");
+		for (Action action : this.actions) {
+			if (action instanceof SubService == false && action.getDataAccessType().updatesDb()) {
+				vtx.addError(
+						"actions of a file-processor is designed for a bb update. You should re-factor this into sub-service so that the db updates can be managed within  separate transaction.");
 				count++;
 			}
 		}

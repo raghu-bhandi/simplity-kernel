@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.kernel.data.DataSheet;
 import org.simplity.service.JavaAgent;
 import org.simplity.service.ServiceData;
 
@@ -20,8 +21,11 @@ public class SampleServiceInvocation extends HttpServlet {
 		JavaAgent ja = new JavaAgent().getAgent("100", null);
 		ServiceData outdata = ja.serve("fileprocessing", null);
 		
+		DataSheet a = ((DataSheet)outdata.get("error"));
+		
 		PrintWriter writer = resp.getWriter();
 		writer.write(outdata.getPayLoad());
+		
 		writer.flush();
 		writer.close();		
 	}

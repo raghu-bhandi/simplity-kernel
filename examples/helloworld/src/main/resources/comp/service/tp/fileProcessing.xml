@@ -5,6 +5,7 @@
 	dbAccessType="none"
 >
 	<actions>
+		<createSheet sheetName="collect" recordName="hello"/>
 		<fileProcessor
 			inFolderName="${basedir}/infile"
 			inFileNamePattern="txt01.txt"
@@ -13,20 +14,18 @@
 			outFolderName="${basedir}/outfile"
 			outFileName="{name}.{ext}"
 			outDataFormat="fixedWidth"
-			outRecordName="adios"
-			renameInFileTo="{name}.{ext}.bak"						
+			outRecordName="adios"					
 		>
 		<actionOnInvalidInputRow>
-			<log actionName="invalidInputRow" names="errorRow,error"/>
+			<log names="invalidInputRow"/>
 		</actionOnInvalidInputRow>
 		<actionOnErrorWhileProcessing>
-			<log actionName="invalidprocessing" names="errorRow,error"/>
+			<log names="errorWhileProcessingRow"/>
 		</actionOnErrorWhileProcessing>
 		<actions>
-			<log actionName="allOK" names="greeting,id"/>
+			<addRow sheetName="collect"/>
 		</actions>
 		</fileProcessor>
 	</actions>
-	<outputData fieldNames="farewell">
-	</outputData>
+	<outputData dataSheets="collect"></outputData>
 </service>

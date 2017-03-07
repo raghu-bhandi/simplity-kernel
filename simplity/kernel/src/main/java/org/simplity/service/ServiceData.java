@@ -249,6 +249,19 @@ public class ServiceData implements Serializable {
 			this.nbrErrors++;
 		}
 	}
+	/**
+	 * add list of messages.
+	 *
+	 * @param msg
+	 */
+	public void addMessages(List<FormattedMessage> msgs) {
+		this.messages.addAll((msgs));
+		for(FormattedMessage msg:msgs){
+			if (msg.messageType == MessageType.ERROR) {
+				this.nbrErrors++;
+			}			
+		}
+	}
 
 	/**
 	 * do we have errors?

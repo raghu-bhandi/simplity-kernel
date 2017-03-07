@@ -184,7 +184,7 @@ public class ServiceContext extends CommonData {
 	 *
 	 * @return messages
 	 */
-	public Collection<FormattedMessage> getMessages() {
+	public List<FormattedMessage> getMessages() {
 		return this.messages;
 	}
 	/**
