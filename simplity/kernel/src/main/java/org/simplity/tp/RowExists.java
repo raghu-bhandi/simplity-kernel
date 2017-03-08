@@ -45,16 +45,17 @@ public class RowExists extends Action {
 
 	/**
 	 * specify the field that has the value for the key. Defaults to key
-	 * specified in record
+	 * specified in record. In case the primary is a composite key, then this
+	 * feature is not applicable. Field names are always taken from record.
 	 */
 	String fieldName;
 
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
 		Record record = ComponentManager.getRecord(this.recordName);
-		boolean result = record.rowExistsForKey(ctx, this.fieldName, driver,
-				ctx.getUserId());
-		if(result){
+		boolean result = record.rowExistsForKey(ctx, this.fieldName, driver, ctx
+				.getUserId());
+		if (result) {
 			return Value.VALUE_TRUE;
 		}
 		return Value.VALUE_FALSE;

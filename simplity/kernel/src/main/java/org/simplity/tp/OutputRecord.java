@@ -38,7 +38,6 @@ import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
-import org.simplity.service.ServiceData;
 
 /**
  * represents a record/row/table that is used as input/output of a service
@@ -84,7 +83,7 @@ public class OutputRecord {
 	 * This is a separate attribute because this is rare, and we want to keep
 	 * the comon case simple
 	 */
-	String[] listOfLinkClumnsInParentSheet;
+	String[] listOfLinkColumnsInParentSheet;
 	/**
 	 * if this is a data structure and not a data sheet, output its first row as
 	 * an object
@@ -137,6 +136,27 @@ public class OutputRecord {
 		this.parentSheetName = parentSheetName;
 		this.linkColumnInThisSheet = childColName;
 		this.linkColumnInParentSheet = parentColName;
+	}
+
+	/**
+	 * create output record for a child sheet
+	 *
+	 * @param sheetName
+	 * @param parentSheetName
+	 * @param childColNames
+	 * @param parentColNames
+	 */
+	public OutputRecord(String sheetName, String parentSheetName, String[] childColNames,
+			String[] parentColNames) {
+		this.sheetName = sheetName;
+		this.parentSheetName = parentSheetName;
+		if(childColNames.length == 0){
+			this.linkColumnInThisSheet = childColNames[0];
+			this.linkColumnInParentSheet = parentColNames[0];
+		}else{
+			this.listOfLinkColumnsInThisSheet = childColNames;
+			this.listOfLinkColumnsInParentSheet = parentColNames;
+		}
 	}
 
 	/**
@@ -273,21 +293,22 @@ public class OutputRecord {
 		 */
 		int parentIdx = 0;
 		int[] indexes = null;
-		if (this.listOfLinkClumnsInParentSheet == null) {
+		if (this.listOfLinkColumnsInParentSheet == null) {
 			parentIdx = parentSheet.getColIdx(this.linkColumnInParentSheet);
 			if (parentIdx == -1) {
 				throw new ApplicationError("Link column " + this.linkColumnInParentSheet
 						+ " is not found in parent sheet.");
 			}
 		} else {
-			indexes = new int[this.listOfLinkClumnsInParentSheet.length];
+			indexes = new int[this.listOfLinkColumnsInParentSheet.length];
 			for (int i = 0; i < indexes.length; i++) {
-				String colName = this.listOfLinkClumnsInParentSheet[i];
+				String colName = this.listOfLinkColumnsInParentSheet[i];
 				int idx = parentSheet.getColIdx(colName);
 				if (idx == -1) {
 					throw new ApplicationError("Link column " + colName
 							+ " is not found in parent sheet.");
 				}
+				indexes[i] = idx;
 			}
 		}
 		/*
@@ -328,7 +349,7 @@ public class OutputRecord {
 			/*
 			 * array of columns as key.
 			 */
-			int nbrKeys = this.linkColumnInThisSheet.length();
+			int nbrKeys = this.listOfLinkColumnsInThisSheet.length;
 			indexes = new int[nbrKeys];
 			for (int i = 0; i < indexes.length; i++) {
 				String colName = this.listOfLinkColumnsInThisSheet[i];
@@ -389,5 +410,4 @@ public class OutputRecord {
 	int validate(ValidationContext ctx) {
 		return 0;
 	}
-
 }

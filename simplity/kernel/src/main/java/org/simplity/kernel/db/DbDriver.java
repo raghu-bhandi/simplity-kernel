@@ -1879,6 +1879,12 @@ public class DbDriver {
 	@SuppressWarnings("resource")
 	public void sqlToJson(String sql, Value[] values, ValueType[] types,
 			String[] names, ResponseWriter writer) {
+		if (traceSqls) {
+			this.traceSql(sql, values);
+			if (this.connection == null) {
+				return;
+			}
+		}
 		PreparedStatement stmt = null;
 		try {
 			stmt = this.connection.prepareStatement(sql);

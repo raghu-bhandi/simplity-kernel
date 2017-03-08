@@ -106,9 +106,10 @@ public class ReplaceAttachment extends DbAction {
 				ctx.addError(this.attachmentFieldName
 						+ " is defined an an attachmentField, but this field is not defined in this record");
 			}
-			if (record.getPrimaryKeyName() == null) {
-				ctx.addError("Record " + this.recordName
-						+ " has not defined a primary key, and hence can not be used for replaceAttachment action.");
+			Field[] keyFields = record.getPrimaryKeyFields();
+			if(keyFields == null || keyFields.length > 1) {
+				ctx.addError("Record " + this.recordName + " has " + (keyFields == null ? "not defined a primary key." : "defined a primary key with more than one columns.")
+						+ ". Our designe require sthat this record defines a single primary key.");
 			}
 		} else {
 			count++;
@@ -129,7 +130,7 @@ public class ReplaceAttachment extends DbAction {
 
 	private void createSqls() {
 		Record record = ComponentManager.getRecord(this.recordName);
-		this.keyFieldName = record.getPrimaryKeyName();
+		this.keyFieldName = record.getPrimaryKeyFields()[0].getName();
 
 		String tableName = record.getTableName();
 		String attColName = record.getField(this.attachmentFieldName)

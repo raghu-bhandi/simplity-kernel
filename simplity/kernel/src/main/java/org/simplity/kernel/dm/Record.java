@@ -21,11 +21,8 @@
  */
 package org.simplity.kernel.dm;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Array;
 import java.sql.Connection;
@@ -100,6 +97,7 @@ public class Record implements Component {
 	private static final char COMMA = ',';
 	private static final char PARAM = '?';
 	private static final char EQUAL = '=';
+	private static final String EQUAL_PARAM = "=?";
 	private static final char PERCENT = '%';
 	private static final String TABLE_ACTION_FIELD_NAME = ServiceProtocol.TABLE_ACTION_FIELD_NAME;
 
@@ -263,14 +261,6 @@ public class Record implements Component {
 	/*
 	 * standard fields are cached
 	 */
-	/**
-	 * primary key of this record
-	 */
-	private Field primaryKeyField;
-	/**
-	 * field in this record that links to parent record
-	 */
-	private Field parentKeyField;
 	private Field modifiedStampField;
 	private Field modifiedUserField;
 	private Field createdUserField;
@@ -311,13 +301,23 @@ public class Record implements Component {
 	private String deleteSql;
 
 	/**
-	 * we skip few standard fields while updating s row. Keeping this count
-	 * simplifies code
+	 * sql to be used for a list action
 	 */
 	private String listSql;
+	/**
+	 * value types of fields selected for list action
+	 */
 	private ValueType[] valueListTypes;
+	/**
+	 * value type of key used in list action
+	 */
 	private ValueType valueListKeyType;
+
+	/**
+	 * sql to be used for a suggestion action
+	 */
 	private String suggestSql;
+
 	/**
 	 * sequence of oracle if required
 	 */
@@ -334,7 +334,27 @@ public class Record implements Component {
 	 */
 	private int recordLength;
 
-	private String primaryKeyNames;
+	/**
+	 * in case the primary is a composite key : with more than one fields, then
+	 * we keep all of them in an array. This is null if we have a single key. We
+	 * have designed it that way to keep the single key case as simple as
+	 * possible
+	 */
+	private Field[] allPrimaryKeys;
+
+	/**
+	 * parent key, in case parent has composite primary key
+	 */
+	private Field[] allParentKeys;
+
+	/**
+	 * " WHERE key1=?,key2=?
+	 */
+	private String primaryWhereClause;
+
+	private int nbrUpdateFields;
+
+	private int nbrInsertFields;
 	/*
 	 * methods for ComponentInterface
 	 */
@@ -366,13 +386,10 @@ public class Record implements Component {
 	}
 
 	/**
-	 * @return name of the primary key, null if there is no primary key
+	 * @return array of primary key fields.
 	 */
-	public String getPrimaryKeyName() {
-		if (this.primaryKeyField == null) {
-			return null;
-		}
-		return this.primaryKeyField.name;
+	public Field[] getPrimaryKeyFields() {
+		return this.allPrimaryKeys;
 	}
 
 	/**
@@ -479,8 +496,7 @@ public class Record implements Component {
 	 *
 	 * @return an empty sheet ready to receive data
 	 */
-	public DataSheet createSheet(boolean forSingleRow,
-			boolean addActionColumn) {
+	public DataSheet createSheet(boolean forSingleRow, boolean addActionColumn) {
 		Field[] sheetFeilds = this.fields;
 		if (addActionColumn) {
 			sheetFeilds = this.getFieldsWithSave();
@@ -541,7 +557,7 @@ public class Record implements Component {
 	 */
 	public int readMany(DataSheet inSheet, DataSheet outSheet, DbDriver driver,
 			Value userId) {
-		if (this.primaryKeyField == null) {
+		if (this.allPrimaryKeys == null) {
 			throw new ApplicationError("Record " + this.name
 					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
 		}
@@ -552,19 +568,57 @@ public class Record implements Component {
 
 		boolean singleRow = nbrRows == 1;
 		if (singleRow) {
-			Value[] values = {
-					inSheet.getColumnValue(this.primaryKeyField.getName(), 0) };
-			return driver.extractFromSql(this.readSql, values, outSheet,
-					singleRow);
+			Value[] values = this.getPrimaryValues(inSheet, 0);
+			if (values == null) {
+				Tracer.trace(
+						"Primary key value not available and hence no read operation.");
+				return 0;
+			}
+			return driver.extractFromSql(this.readSql, values, outSheet, singleRow);
 		}
+
 		Value[][] values = new Value[nbrRows][];
 		for (int i = 0; i < nbrRows; i++) {
-			Value value = inSheet.getColumnValue(this.primaryKeyField.getName(),
-					i);
-			Value[] vals = { value };
+			Value[] vals = this.getPrimaryValues(inSheet, i);
+			if (vals == null) {
+				Tracer.trace(
+						"Primary key value not available and hence no read operation.");
+				return 0;
+			}
 			values[i] = vals;
 		}
 		return driver.extractFromSql(this.readSql, values, outSheet);
+	}
+
+	private Value[] getPrimaryValues(DataSheet inSheet, int idx) {
+		Value[] values = new Value[this.allPrimaryKeys.length];
+		for (int i = 0; i < this.allPrimaryKeys.length; i++) {
+			Value value = inSheet.getColumnValue(this.allPrimaryKeys[i].name, idx);
+			if (Value.isNull(value)) {
+				return null;
+			}
+			values[i] = value;
+		}
+		return values;
+	}
+
+	private Value[] getPrimaryValues(FieldsInterface inFields, boolean includeTimeStamp) {
+		Value[] values;
+		int nbr = this.allPrimaryKeys.length;
+		if (includeTimeStamp && this.useTimestampForConcurrency) {
+			values = new Value[nbr + 1];
+			values[nbr] = inFields.getValue(this.modifiedStampField.name);
+		}else{
+			values = new Value[nbr];
+		}
+		for (int i = 0; i < this.allPrimaryKeys.length; i++) {
+			Value value = inFields.getValue(this.allPrimaryKeys[i].name);
+			if (Value.isNull(value)) {
+				return null;
+			}
+			values[i] = value;
+		}
+		return values;
 	}
 
 	/**
@@ -582,20 +636,19 @@ public class Record implements Component {
 	 *            based on user. Not used as of now
 	 * @return number of rows extracted
 	 */
-	public int readOne(FieldsInterface inData, DataSheet outData,
-			DbDriver driver, Value userId) {
-		if (this.primaryKeyField == null) {
+	public int readOne(FieldsInterface inData, DataSheet outData, DbDriver driver,
+			Value userId) {
+		if (this.allPrimaryKeys == null) {
 			Tracer.trace("Record " + this.name
 					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
 			return 0;
 		}
-		Value value = inData.getValue(this.primaryKeyField.getName());
-		if (Value.isNull(value)) {
+		Value[] values = this.getPrimaryValues(inData, false);
+		if (values == null) {
 			Tracer.trace(
 					"Value for primary key not present, and hence no read operation.");
 			return 0;
 		}
-		Value[] values = { value };
 		return driver.extractFromSql(this.readSql, values, outData, true);
 	}
 
@@ -611,25 +664,32 @@ public class Record implements Component {
 	 */
 	public boolean rowExistsForKey(FieldsInterface inData, String keyFieldName,
 			DbDriver driver, Value userId) {
-		if (this.primaryKeyField == null) {
+		if (this.allPrimaryKeys == null) {
 			Tracer.trace("Record " + this.name
 					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
 			this.noPrimaryKey();
 			return false;
 		}
-		String keyName;
-		if (keyFieldName == null) {
-			keyName = this.primaryKeyField.name;
+		Value[] values;
+		if (keyFieldName != null) {
+			if (this.allPrimaryKeys.length > 1) {
+				Tracer.trace(
+						"There are more than one primary keys, and hence supplied name keyFieldName of "
+								+ keyFieldName + " is ognored");
+				values = this.getPrimaryValues(inData, false);
+			} else {
+				Value value = inData.getValue(keyFieldName);
+				if (Value.isNull(value)) {
+					Tracer.trace("Primary key field " + keyFieldName
+							+ " has no value, and hence no read operation.");
+					return false;
+				}
+				values = new Value[1];
+				values[0] = value;
+			}
 		} else {
-			keyName = keyFieldName;
+			values = this.getPrimaryValues(inData, false);
 		}
-		Value value = inData.getValue(keyName);
-		if (Value.isNull(value)) {
-			Tracer.trace("Primary key field " + keyName
-					+ " has no value, and hence no read operation.");
-			return false;
-		}
-		Value[] values = { value };
 		return driver.hasResult(this.readSql, values);
 	}
 
@@ -647,8 +707,8 @@ public class Record implements Component {
 	 * @param driver
 	 * @return data sheet, possible with retrieved rows
 	 */
-	public DataSheet filter(Record inputRecord, FieldsInterface inData,
-			DbDriver driver, Value userId) {
+	public DataSheet filter(Record inputRecord, FieldsInterface inData, DbDriver driver,
+			Value userId) {
 		DataSheet result = this.createSheet(false, false);
 		/*
 		 * we have to create where clause with ? and corresponding values[]
@@ -669,8 +729,8 @@ public class Record implements Component {
 			}
 
 			FilterCondition condition = FilterCondition.Equal;
-			Value otherValue = inData
-					.getValue(fieldName + ServiceProtocol.COMPARATOR_SUFFIX);
+			Value otherValue = inData.getValue(fieldName
+					+ ServiceProtocol.COMPARATOR_SUFFIX);
 			if (otherValue != null && otherValue.isUnknown() == false) {
 				condition = FilterCondition.parse(otherValue.toText());
 			}
@@ -679,16 +739,16 @@ public class Record implements Component {
 			 * handle the special case of in-list
 			 */
 			if (condition == FilterCondition.In) {
-				Value[] values = Value.parse(value.toString().split(","),
-						field.getValueType());
+				Value[] values = Value.parse(value.toString().split(","), field
+						.getValueType());
 				/*
 				 * we are supposed to have validated this at the input gate...
 				 * but playing it safe
 				 */
 				if (values == null) {
-					throw new ApplicationError(
-							value + " is not a valid comma separated list for field "
-									+ field.name);
+					throw new ApplicationError(value
+							+ " is not a valid comma separated list for field "
+							+ field.name);
 				}
 				sql.append(field.columnName).append(" in (?");
 				filterValues.add(values[0]);
@@ -701,25 +761,21 @@ public class Record implements Component {
 			}
 
 			if (condition == FilterCondition.Like) {
-				value = Value.newTextValue(Record.PERCENT
-						+ DbDriver.escapeForLike(value.toString())
-						+ Record.PERCENT);
+				value = Value.newTextValue(Record.PERCENT + DbDriver.escapeForLike(value
+						.toString()) + Record.PERCENT);
 			} else if (condition == FilterCondition.StartsWith) {
-				value = Value
-						.newTextValue(DbDriver.escapeForLike(value.toString())
-								+ Record.PERCENT);
+				value = Value.newTextValue(DbDriver.escapeForLike(value.toString())
+						+ Record.PERCENT);
 			}
 
 			sql.append(field.columnName).append(condition.getSql()).append("?");
 			filterValues.add(value);
 
 			if (condition == FilterCondition.Between) {
-				otherValue = inData
-						.getValue(fieldName + ServiceProtocol.TO_FIELD_SUFFIX);
+				otherValue = inData.getValue(fieldName + ServiceProtocol.TO_FIELD_SUFFIX);
 				if (otherValue == null || otherValue.isUnknown()) {
-					throw new ApplicationError(
-							"To value not supplied for field " + this.name
-									+ " for filtering");
+					throw new ApplicationError("To value not supplied for field "
+							+ this.name + " for filtering");
 				}
 				sql.append(" AND ?");
 				filterValues.add(otherValue);
@@ -765,15 +821,16 @@ public class Record implements Component {
 	 * @return number of rows saved. -1 in case of batch, and the driver is
 	 *         unable to count the saved rows
 	 */
-	public SaveActionType saveOne(FieldsInterface row, DbDriver driver,
-			Value userId, boolean treatSqlErrorAsNoResult) {
+	public SaveActionType saveOne(FieldsInterface row, DbDriver driver, Value userId,
+			boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
 			this.notWritable();
 		}
 
-		if (this.primaryKeyField == null) {
+		if (this.allPrimaryKeys == null) {
 			this.noPrimaryKey();
 		}
+		Field pkey = this.allPrimaryKeys[0];
 		Value[] values = new Value[this.fields.length];
 		/*
 		 * modified user field, even if sent by client, must be over-ridden
@@ -797,7 +854,7 @@ public class Record implements Component {
 			/*
 			 * is the key supplied?
 			 */
-			Value keyValue = row.getValue(this.primaryKeyField.name);
+			Value keyValue = row.getValue(pkey.name);
 			if (this.keyToBeGenerated) {
 				if (Value.isNull(keyValue)) {
 					saveAction = SaveActionType.ADD;
@@ -819,22 +876,19 @@ public class Record implements Component {
 			values = this.getInsertValues(row, userId);
 			if (this.keyToBeGenerated) {
 				long[] generatedKeys = new long[1];
-				String[] generatedColumns = { this.primaryKeyField.columnName };
+				String[] generatedColumns = { pkey.columnName };
 				driver.insertAndGetKeys(this.insertSql, values, generatedKeys,
 						generatedColumns, treatSqlErrorAsNoResult);
-				row.setValue(this.primaryKeyField.name,
-						Value.newIntegerValue(generatedKeys[0]));
+				row.setValue(pkey.name, Value.newIntegerValue(generatedKeys[0]));
 			} else {
-				driver.executeSql(this.insertSql, values,
-						treatSqlErrorAsNoResult);
+				driver.executeSql(this.insertSql, values, treatSqlErrorAsNoResult);
 			}
 		} else if (saveAction == SaveActionType.DELETE) {
-			values = this.getDeleteValues(row);
+			values = this.getPrimaryValues(row, true);
 			driver.executeSql(this.deleteSql, values, treatSqlErrorAsNoResult);
 		} else {
 			values = this.getUpdateValues(row, userId);
-			if (driver.executeSql(this.updateSql, values,
-					treatSqlErrorAsNoResult) == 0) {
+			if (driver.executeSql(this.updateSql, values, treatSqlErrorAsNoResult) == 0) {
 				throw new ApplicationError(
 						"Data was changed by some one else while you were editing it. Please cancel this operation and redo it with latest data.");
 			}
@@ -855,16 +909,15 @@ public class Record implements Component {
 	 * @return number of rows saved. -1 in case of batch, and the driver is
 	 *         unable to count the saved rows
 	 */
-	public SaveActionType[] saveMany(DataSheet inSheet, DbDriver driver,
-			Value userId, boolean treatSqlErrorAsNoResult) {
+	public SaveActionType[] saveMany(DataSheet inSheet, DbDriver driver, Value userId,
+			boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
 			this.notWritable();
 		}
 		SaveActionType[] result = new SaveActionType[inSheet.length()];
 		int rowIdx = 0;
 		for (FieldsInterface row : inSheet) {
-			result[rowIdx] = this.saveOne(row, driver, userId,
-					treatSqlErrorAsNoResult);
+			result[rowIdx] = this.saveOne(row, driver, userId, treatSqlErrorAsNoResult);
 			rowIdx++;
 		}
 		return result;
@@ -888,19 +941,13 @@ public class Record implements Component {
 		if (this.readOnly) {
 			this.notWritable();
 		}
-		if (this.parentKeyField == null) {
+		if (this.allParentKeys == null) {
 			this.noParent();
-		}
-		Value parentKey = parentRow.getValue(this.parentKeyField.referredField);
-		if (parentKey == null) {
-			Tracer.trace(
-					"Parent key value is null, and hence no save with parent operation");
-			return 0;
 		}
 		/*
 		 * for security/safety, we copy parent key into data
 		 */
-		inSheet.addColumn(this.parentKeyField.name, parentKey);
+		this.copyParentKeys(parentRow, inSheet);
 		for (FieldsInterface row : inSheet) {
 			this.saveOne(row, driver, userId, false);
 		}
@@ -917,11 +964,10 @@ public class Record implements Component {
 		/*
 		 * we may not fill all fields, but let us handle that exception later
 		 */
-		int nbrFields = this.fields.length;
-		Value[] values = new Value[nbrFields];
+		Value[] values = new Value[this.nbrInsertFields];
 		int valueIdx = 0;
 		for (Field field : this.fields) {
-			if (field.doNotInsert()) {
+			if (field.canInsert() == false) {
 				continue;
 			}
 			if (field.fieldType == FieldType.CREATED_BY_USER
@@ -942,12 +988,6 @@ public class Record implements Component {
 			}
 			valueIdx++;
 		}
-		/*
-		 * did we skip some values?
-		 */
-		if (nbrFields != valueIdx) {
-			values = this.chopValues(values, valueIdx);
-		}
 		return values;
 	}
 
@@ -958,18 +998,18 @@ public class Record implements Component {
 	 * @return
 	 */
 	private Value[] getUpdateValues(FieldsInterface row, Value userId) {
-		int nbrFields = this.fields.length;
+		int nbrValues = this.nbrUpdateFields + this.allPrimaryKeys.length;
 		/*
 		 * we need an extra field for concurrency check
 		 */
 		if (this.useTimestampForConcurrency) {
-			nbrFields++;
+			nbrValues++;
 		}
 
-		Value[] values = new Value[nbrFields];
+		Value[] values = new Value[nbrValues];
 		int valueIdx = 0;
 		for (Field field : this.fields) {
-			if (field.doNotUpdate()) {
+			if (field.canUpdate() == false) {
 				continue;
 			}
 			if (field.fieldType == FieldType.MODIFIED_BY_USER) {
@@ -989,36 +1029,9 @@ public class Record implements Component {
 			}
 			valueIdx++;
 		}
-		values[valueIdx++] = row.getValue(this.primaryKeyField.name);
-		if (this.useTimestampForConcurrency) {
-			values[valueIdx++] = row.getValue(this.modifiedStampField.name);
+		for (Value value : this.getPrimaryValues(row, true)) {
+			values[valueIdx++] = value;
 		}
-		/*
-		 * did we skip some values?
-		 */
-		if (nbrFields != valueIdx) {
-			values = this.chopValues(values, valueIdx);
-		}
-		return values;
-	}
-
-	/**
-	 * create a values row for a delete sql
-	 *
-	 * @param inSheet
-	 * @param rowIdx
-	 * @return
-	 */
-	private Value[] getDeleteValues(FieldsInterface row) {
-		Value keyValue = row.getValue(this.primaryKeyField.name);
-
-		if (this.useTimestampForConcurrency == false) {
-			Value[] values = { keyValue };
-			return values;
-		}
-		Value stampValue = row.getValue(this.modifiedStampField.name);
-		Value[] values = { keyValue, stampValue };
-
 		return values;
 	}
 
@@ -1058,8 +1071,8 @@ public class Record implements Component {
 					treatSqlErrorAsNoResult);
 		}
 		long[] generatedKeys = new long[nbrRows];
-		int result = this.insertWorker(driver, this.insertSql, allValues,
-				generatedKeys, treatSqlErrorAsNoResult);
+		int result = this.insertWorker(driver, this.insertSql, allValues, generatedKeys,
+				treatSqlErrorAsNoResult);
 		if (result > 0 && generatedKeys[0] != 0) {
 			this.addKeyColumn(inSheet, generatedKeys);
 		}
@@ -1088,17 +1101,19 @@ public class Record implements Component {
 			return this.executeWorker(driver, this.insertSql, allValues,
 					treatSqlErrorAsNoResult);
 		}
+		/*
+		 * try to get generated keys and set it/them
+		 */
 		long[] generatedKeys = new long[1];
-		int result = this.insertWorker(driver, this.insertSql, allValues,
-				generatedKeys, treatSqlErrorAsNoResult);
+		int result = this.insertWorker(driver, this.insertSql, allValues, generatedKeys,
+				treatSqlErrorAsNoResult);
 		if (result > 0) {
 			/*
 			 * generated key feature may not be available with some rdb vendor
 			 */
 			long key = generatedKeys[0];
 			if (key > 0) {
-				inData.setValue(this.primaryKeyField.name,
-						Value.newIntegerValue(key));
+				inData.setValue(this.allPrimaryKeys[0].name, Value.newIntegerValue(key));
 			}
 		}
 		return result;
@@ -1108,7 +1123,8 @@ public class Record implements Component {
 	 * insert row/s
 	 *
 	 * @param inSheet
-	 *            to be inserted along with this parent
+	 *            data for this record to be inserted inserted after its parent
+	 *            got inserted
 	 * @param parentRow
 	 *            fields/row that has the parent key
 	 *
@@ -1122,19 +1138,15 @@ public class Record implements Component {
 		if (this.readOnly) {
 			this.notWritable();
 		}
-		if (this.parentKeyField == null) {
+		if (this.allParentKeys == null) {
 			this.noParent();
 		}
-		Value parentKey = parentRow.getValue(this.parentKeyField.referredField);
-		if (parentKey == null) {
-			Tracer.trace(
-					"Parent key is not available, and hence no insert with parent operation");
-			return 0;
-		}
+
 		/*
 		 * for security/safety, we copy parent key into data
 		 */
-		inSheet.addColumn(this.parentKeyField.name, parentKey);
+		this.copyParentKeys(parentRow, inSheet);
+
 		int nbrRows = inSheet.length();
 		Value[][] allValues = new Value[nbrRows][];
 		int rowIdx = 0;
@@ -1145,9 +1157,11 @@ public class Record implements Component {
 		if (this.keyToBeGenerated == false) {
 			return this.executeWorker(driver, this.insertSql, allValues, false);
 		}
+		/*
+		 * generated key is t be retrieved
+		 */
 		long[] keys = new long[nbrRows];
-		int result = this.insertWorker(driver, this.insertSql, allValues, keys,
-				false);
+		int result = this.insertWorker(driver, this.insertSql, allValues, keys, false);
 		if (keys[0] != 0) {
 			this.addKeyColumn(inSheet, keys);
 		}
@@ -1167,7 +1181,7 @@ public class Record implements Component {
 		for (long key : keys) {
 			values[i++] = Value.newIntegerValue(key);
 		}
-		inSheet.addColumn(this.primaryKeyField.name, ValueType.INTEGER, values);
+		inSheet.addColumn(this.allPrimaryKeys[0].name, ValueType.INTEGER, values);
 	}
 
 	/**
@@ -1178,17 +1192,41 @@ public class Record implements Component {
 	 * @param sheet
 	 *            to which we have to copy the key values
 	 */
-	public void copyParentKey(FieldsInterface inData, DataSheet sheet) {
-		String fieldName = this.parentKeyField.name;
-		String parentKeyName = this.parentKeyField.referredField;
-		Value parentKey = inData.getValue(parentKeyName);
-		if (Value.isNull(parentKey)) {
-			Tracer.trace("No value found for parent key field "
-					+ this.parentKeyField.referredField
-					+ " and hence no column is going to be added to child table");
-			return;
+	private void copyParentKeys(FieldsInterface inData, DataSheet sheet) {
+		for (Field field : this.allParentKeys) {
+			String fieldName = field.name;
+			String parentKeyName = field.referredField;
+			Value parentKey = inData.getValue(parentKeyName);
+			if (Value.isNull(parentKey)) {
+				Tracer.trace("No value found for parent key field " + parentKeyName
+						+ " and hence no column is going to be added to child table");
+				return;
+			}
+			sheet.addColumn(fieldName, parentKey);
 		}
-		sheet.addColumn(fieldName, parentKey);
+	}
+
+	/**
+	 * get parent key values
+	 *
+	 * @param inData
+	 *            row/fields that has the parent key
+	 * @param sheet
+	 *            to which we have to copy the key values
+	 */
+	private Value[] getParentValues(FieldsInterface inData) {
+		Value[] values = new Value[this.allParentKeys.length];
+		for (int i = 0; i < this.allParentKeys.length; i++) {
+			Field field = this.allParentKeys[i];
+			Value value = inData.getValue(field.referredField);
+			if (Value.isNull(value)) {
+				Tracer.trace("No value found for parent key field " + field.referredField
+						+ " and hence no column is going to be added to child table");
+				return null;
+			}
+			values[i] = value;
+		}
+		return values;
 	}
 
 	/**
@@ -1207,7 +1245,7 @@ public class Record implements Component {
 		if (this.readOnly) {
 			this.notWritable();
 		}
-		if (this.primaryKeyField == null) {
+		if (this.allPrimaryKeys == null) {
 			this.noPrimaryKey();
 		}
 		int nbrRows = inSheet.length();
@@ -1244,7 +1282,7 @@ public class Record implements Component {
 		if (this.readOnly) {
 			this.notWritable();
 		}
-		if (this.primaryKeyField == null) {
+		if (this.allPrimaryKeys == null) {
 			this.noPrimaryKey();
 		}
 		Value[][] allValues = new Value[1][];
@@ -1268,7 +1306,7 @@ public class Record implements Component {
 		if (this.readOnly) {
 			this.notWritable();
 		}
-		if (this.primaryKeyField == null) {
+		if (this.allPrimaryKeys == null) {
 			this.noPrimaryKey();
 		}
 		int nbrRows = inSheet.length();
@@ -1282,7 +1320,7 @@ public class Record implements Component {
 		Value[][] allValues = new Value[nbrRows][];
 		nbrRows = 0;
 		for (FieldsInterface row : inSheet) {
-			allValues[nbrRows++] = this.getDeleteValues(row);
+			allValues[nbrRows++] = this.getPrimaryValues(row, true);
 		}
 		return this.executeWorker(driver, this.deleteSql, allValues,
 				treatSqlErrorAsNoResult);
@@ -1303,11 +1341,11 @@ public class Record implements Component {
 		if (this.readOnly) {
 			this.notWritable();
 		}
-		if (this.primaryKeyField == null) {
+		if (this.allPrimaryKeys == null) {
 			this.noPrimaryKey();
 		}
 		Value[][] allValues = new Value[1][];
-		allValues[0] = this.getDeleteValues(inData);
+		allValues[0] = this.getPrimaryValues(inData, true);
 		return this.executeWorker(driver, this.deleteSql, allValues,
 				treatSqlErrorAsNoResult);
 	}
@@ -1323,13 +1361,12 @@ public class Record implements Component {
 	}
 
 	private void noPrimaryKey() {
-		throw new ApplicationError(
-				"Update/Delete operations are not possible for Record "
-						+ this.name + " as it does not define a primary key.");
+		throw new ApplicationError("Update/Delete operations are not possible for Record "
+				+ this.name + " as it does not define a primary key.");
 	}
 
 	/**
-	 * update all fields, except of course the ones that are not to be.
+	 * delete child rows for this record when its parent is deleted.
 	 *
 	 * @param parentRow
 	 *            from where we pick up parent key.
@@ -1343,20 +1380,23 @@ public class Record implements Component {
 		if (this.readOnly) {
 			this.notWritable();
 		}
-		if (this.parentKeyField == null) {
+		if (this.allParentKeys == null) {
 			this.noParent();
 		}
-		String parentName = this.parentKeyField.referredField;
-		Value value = parentRow.getValue(parentName);
-		if (Value.isNull(value)) {
+		Value[] values = this.getParentValues(parentRow);
+		if (values == null) {
 			Tracer.trace(
 					"Delete with parent has nothing to delete as parent key is null");
 			return 0;
 		}
-		Value[] values = { value };
-		String sql = "DELETE FROM " + this.tableName + " WHERE "
-				+ this.parentKeyField.columnName + "=?";
-		return driver.executeSql(sql, values, false);
+		StringBuilder sql = new StringBuilder("DELETE FROM ");
+		sql.append(this.tableName).append(" WHERE ").append(this.getParentWhereClause());
+		if (this.allParentKeys.length > 1) {
+			for (int i = 1; i < this.allParentKeys.length; i++) {
+				sql.append(" AND " + this.allParentKeys[i].columnName + EQUAL_PARAM);
+			}
+		}
+		return driver.executeSql(sql.toString(), values, false);
 	}
 
 	private int executeWorker(DbDriver driver, String sql, Value[][] values,
@@ -1364,8 +1404,7 @@ public class Record implements Component {
 		if (values.length == 1) {
 			return driver.executeSql(sql, values[0], treatSqlErrorAsNoResult);
 		}
-		int[] counts = driver.executeBatch(sql, values,
-				treatSqlErrorAsNoResult);
+		int[] counts = driver.executeBatch(sql, values, treatSqlErrorAsNoResult);
 		int result = 0;
 		for (int n : counts) {
 			if (n < 0) {
@@ -1378,17 +1417,16 @@ public class Record implements Component {
 
 	private int insertWorker(DbDriver driver, String sql, Value[][] values,
 			long[] generatedKeys, boolean treatSqlErrorAsNoResult) {
-		String[] keyNames = { this.primaryKeyField.columnName };
+		String[] keyNames = { this.allPrimaryKeys[0].columnName };
 		if (values.length == 1) {
-			return driver.insertAndGetKeys(sql, values[0], generatedKeys,
-					keyNames, treatSqlErrorAsNoResult);
+			return driver.insertAndGetKeys(sql, values[0], generatedKeys, keyNames,
+					treatSqlErrorAsNoResult);
 		}
 		if (generatedKeys != null) {
 			Tracer.trace(
 					"Generated key retrieval is NOT supported for batch. Keys for child table are to be retrieved automatically");
 		}
-		int[] counts = driver.executeBatch(sql, values,
-				treatSqlErrorAsNoResult);
+		int[] counts = driver.executeBatch(sql, values, treatSqlErrorAsNoResult);
 		int result = 0;
 		for (int n : counts) {
 			if (n < 0) {
@@ -1410,12 +1448,12 @@ public class Record implements Component {
 	 * @return number of rows saved. -1 in case of batch, and the driver is
 	 *         unable to count the saved rows
 	 */
-	public int selectiveUpdate(FieldsInterface inData, DbDriver driver,
-			Value userId, boolean treatSqlErrorAsNoResult) {
+	public int selectiveUpdate(FieldsInterface inData, DbDriver driver, Value userId,
+			boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
 			this.notWritable();
 		}
-		if (this.primaryKeyField == null) {
+		if (this.allPrimaryKeys == null) {
 			this.noPrimaryKey();
 		}
 		/*
@@ -1428,7 +1466,7 @@ public class Record implements Component {
 		update.append(this.tableName).append(" SET ");
 		for (Field field : this.fields) {
 			Value value = null;
-			if (field.doNotUpdate()) {
+			if (field.canUpdate() == false) {
 				continue;
 			}
 			if (field.fieldType == FieldType.MODIFIED_BY_USER) {
@@ -1440,28 +1478,35 @@ public class Record implements Component {
 				if (valueIdx != 0) {
 					update.append(Record.COMMA);
 				}
-				update.append(field.columnName).append(Record.EQUAL)
-						.append(Record.PARAM);
+				update.append(field.columnName).append(Record.EQUAL_PARAM);
 				values[valueIdx++] = value;
 			}
 		}
-		update.append(" WHERE ").append(this.primaryKeyField.columnName)
-				.append(Record.EQUAL).append(Record.PARAM);
-		values[valueIdx++] = inData.getValue(this.primaryKeyField.name);
-
+		update.append(this.primaryWhereClause);
 		if (this.modifiedStampField != null) {
-			update.append(" AND ").append(this.modifiedStampField.columnName)
-					.append(Record.EQUAL).append(Record.PARAM);
-			values[valueIdx++] = inData.getValue(this.modifiedStampField.name);
+			update.append(" AND ").append(this.modifiedStampField.columnName).append(
+					Record.EQUAL_PARAM);
 		}
+		/*
+		 * append values for primary keys and timestamp
+		 */
+		Value[] whereValues = this.getPrimaryValues(inData, true);
+		if (whereValues == null) {
+			Tracer.trace(
+					"Primary keys not available and hence update operaiton aborted.");
+			return 0;
+		}
+		for (Value value : whereValues) {
+			values[valueIdx++] = value;
+		}
+
 		/*
 		 * did we skip some values?
 		 */
 		if (nbrFields != valueIdx) {
 			values = this.chopValues(values, valueIdx);
 		}
-		return driver.executeSql(this.updateSql, values,
-				treatSqlErrorAsNoResult);
+		return driver.executeSql(this.updateSql, values, treatSqlErrorAsNoResult);
 	}
 
 	private Value[] chopValues(Value[] values, int nbrsToRetain) {
@@ -1490,13 +1535,11 @@ public class Record implements Component {
 		}
 		int nbrRows = inSheet.length();
 		if (nbrRows == 1) {
-			return this.selectiveUpdate(inSheet, driver, userId,
-					treatSqlErrorAsNoResult);
+			return this.selectiveUpdate(inSheet, driver, userId, treatSqlErrorAsNoResult);
 		}
 		nbrRows = 0;
 		for (FieldsInterface row : inSheet) {
-			nbrRows += this.selectiveUpdate(row, driver, userId,
-					treatSqlErrorAsNoResult);
+			nbrRows += this.selectiveUpdate(row, driver, userId, treatSqlErrorAsNoResult);
 		}
 		return nbrRows;
 	}
@@ -1511,37 +1554,18 @@ public class Record implements Component {
 	 * @param cascadeFilter
 	 * @param ctx
 	 */
-	public void filterForParents(DataSheet parentData, DbDriver driver,
-			String sheetName, boolean cascadeFilter, ServiceContext ctx) {
+	public void filterForParents(DataSheet parentData, DbDriver driver, String sheetName,
+			boolean cascadeFilter, ServiceContext ctx) {
 		DataSheet result = this.createSheet(false, false);
 		int n = parentData.length();
 		if (n == 0) {
 			return;
 		}
-		String keyName = this.parentKeyField.referredField;
-		StringBuilder sbf = new StringBuilder(this.filterSql);
-		sbf.append(this.parentKeyField.columnName);
-		Value[] values = parentData.getColumnValues(keyName);
-		Tracer.trace("There are " + n + " rows in parent sheet. column "
-				+ keyName + " has " + values.length
-				+ " values with first value=" + values[0]
-				+ ". We are going to read child rows for them using record "
-				+ this.name);
-		/*
-		 * for single key we use where key = ?
-		 *
-		 * for multiple, we use where key in (?,?,....)
-		 */
-		if (n == 1) {
-			sbf.append("=?");
+		if (this.allParentKeys.length > 1) {
+			this.filterForMultiParentKeys(parentData, driver, result);
 		} else {
-			sbf.append(" IN (?");
-			for (int i = 1; i < n; i++) {
-				sbf.append(",?");
-			}
-			sbf.append(')');
+			this.filterForSingleParentKey(parentData, driver, result);
 		}
-		driver.extractFromSql(sbf.toString(), values, result, false);
 		String sn = sheetName;
 		if (sn == null) {
 			sn = this.getDefaultSheetName();
@@ -1551,6 +1575,57 @@ public class Record implements Component {
 		if (result.length() > 0 && cascadeFilter) {
 			this.filterChildRecords(result, driver, ctx);
 		}
+	}
+
+	/**
+	 * @param parentData
+	 * @param driver
+	 * @param result
+	 */
+	private void filterForSingleParentKey(DataSheet parentData, DbDriver driver,
+			DataSheet result) {
+		String keyName = this.allParentKeys[0].referredField;
+		int n = parentData.length();
+		Value[] values = parentData.getColumnValues(keyName);
+		StringBuilder sbf = new StringBuilder(this.filterSql);
+		sbf.append(this.allParentKeys[0].columnName);
+		/*
+		 * for single key we use where key = ?
+		 *
+		 * for multiple, we use where key in (?,?,....)
+		 */
+		if (n == 1) {
+			sbf.append(EQUAL_PARAM);
+		} else {
+			sbf.append(" IN (?");
+			for (int i = 1; i < n; i++) {
+				sbf.append(",?");
+			}
+			sbf.append(')');
+		}
+		driver.extractFromSql(sbf.toString(), values, result, false);
+	}
+
+	/**
+	 * read rows from this record for a given parent record
+	 *
+	 * @param parentData
+	 *            rows for parent
+	 * @param driver
+	 * @param sheetName
+	 * @param cascadeFilter
+	 * @param ctx
+	 */
+	private void filterForMultiParentKeys(DataSheet parentData, DbDriver driver,
+			DataSheet outSheet) {
+		String sql = this.filterSql + this.getParentWhereClause();
+		int nbrRows = parentData.length();
+		Value[][] allValues = new Value[nbrRows][];
+		int idx = 0;
+		for (FieldsInterface prentRow : parentData) {
+			allValues[idx++] = this.getParentValues(prentRow);
+		}
+		driver.extractFromSql(sql, allValues, outSheet);
 	}
 
 	/**
@@ -1568,33 +1643,35 @@ public class Record implements Component {
 		}
 		for (String childName : this.childrenToBeRead) {
 			Record cr = ComponentManager.getRecord(childName);
-			cr.filterForParents(parentSheet, driver, cr.getDefaultSheetName(),
-					true, ctx);
+			cr.filterForParents(parentSheet, driver, cr.getDefaultSheetName(), true, ctx);
 		}
 	}
 
 	/**
 	 * read rows from this record for a given parent record
 	 *
-	 * @param parentKey
+	 * @param parentData
 	 *
 	 * @param driver
 	 * @return sheet that contains rows from this record for the parent rows
 	 */
-	public DataSheet filterForAParent(Value parentKey, DbDriver driver) {
+	public DataSheet filterForAParent(FieldsInterface parentData, DbDriver driver) {
 		DataSheet result = this.createSheet(false, false);
-		Value[] values = { parentKey };
-		StringBuilder sbf = new StringBuilder(this.filterSql);
-		sbf.append(this.parentKeyField.columnName).append("=?");
-		driver.extractFromSql(sbf.toString(), values, result, false);
+		Value[] values = this.getParentValues(parentData);
+		String sql = this.filterSql + this.getParentWhereClause();
+		driver.extractFromSql(sql, values, result, false);
 		return result;
 	}
 
-	/*
-	 * code after this point relates to getReady(). we have violated our norm,
-	 * and defined a field also at this point, for grouping them into getready()
-	 * block
-	 */
+	private String getParentWhereClause() {
+		StringBuilder sbf = new StringBuilder();
+		sbf.append(this.allParentKeys[0].columnName).append(EQUAL_PARAM);
+		for (int i = 1; i < this.allParentKeys.length; i++) {
+			sbf.append(" AND ").append(this.allParentKeys[i].columnName).append(
+					EQUAL_PARAM);
+		}
+		return sbf.toString();
+	}
 
 	/*
 	 * we have a possible issue with referred records. If A refers to B and B
@@ -1683,8 +1760,8 @@ public class Record implements Component {
 				int nbr = history.pendingOnes.size();
 				for (int i = 0; i < nbr; i++) {
 
-					sbf.append(i).append(": ")
-							.append(history.pendingOnes.get(i)).append('\n');
+					sbf.append(i).append(": ").append(history.pendingOnes.get(i)).append(
+							'\n');
 				}
 				sbf.append(nbr).append(": ").append(recordName).append('\n');
 				sbf.append('}');
@@ -1726,8 +1803,8 @@ public class Record implements Component {
 			int nbr = history.pendingOnes.size();
 			for (int i = 0; i < nbr; i++) {
 
-				sbf.append(i).append(". ").append(history.pendingOnes.get(i))
-						.append('\n');
+				sbf.append(i).append(". ").append(history.pendingOnes.get(i)).append(
+						'\n');
 			}
 			sbf.append(nbr).append(". ").append(recName).append('\n');
 			sbf.append('}');
@@ -1772,8 +1849,8 @@ public class Record implements Component {
 					ValueType.TEXT);
 		}
 		if (this.fields == null) {
-			throw new ApplicationError(
-					"Record " + this.getQualifiedName() + " has no fields.");
+			throw new ApplicationError("Record " + this.getQualifiedName()
+					+ " has no fields.");
 		}
 		if (this.tableName == null) {
 			this.tableName = this.name;
@@ -1789,9 +1866,9 @@ public class Record implements Component {
 			if (DbDriver.generatorNameRequired()) {
 				if (this.sequenceName == null) {
 					this.sequence = this.tableName + DEFAULT_SEQ_SUFFIX;
-					Tracer.trace("sequence not specified for table "
-							+ this.tableName + ". default sequence name  "
-							+ this.sequence + " is assumed.");
+					Tracer.trace("sequence not specified for table " + this.tableName
+							+ ". default sequence name  " + this.sequence
+							+ " is assumed.");
 				} else {
 					this.sequence = this.sequenceName + ".NEXTVAL";
 				}
@@ -1806,40 +1883,51 @@ public class Record implements Component {
 			refRecord = this.getRefRecord(this.defaultRefRecord);
 		}
 		this.fieldNames = new String[this.fields.length];
-
+		int nbrPrimaries = 0;
+		int nbrParents = 0;
 		for (int i = 0; i < this.fields.length; i++) {
 			Field field = this.fields[i];
 			if (this.forFixedWidthRow) {
 				this.recordLength += field.fieldWidth;
 			}
-			field.getReady(this, refRecord,
-					this.recordType == RecordUsageType.VIEW);
+			field.getReady(this, refRecord, this.recordType == RecordUsageType.VIEW);
 			String fName = field.name;
 			this.fieldNames[i] = fName;
 			this.indexedFields.put(fName, field);
-			if (!this.hasInterFieldValidations
-					&& field.hasInterFieldValidations()) {
+			if (!this.hasInterFieldValidations && field.hasInterFieldValidations()) {
 				this.hasInterFieldValidations = true;
 			}
 			FieldType ft = field.getFieldType();
-			if (ft == FieldType.PRIMARY_KEY) {
-				this.checkPrimaryKey(field);
-			} else if (ft == FieldType.PARENT_KEY) {
-				this.checkDuplicateError(this.parentKeyField);
-				this.parentKeyField = field;
-			} else if (ft == FieldType.MODIFIED_TIME_STAMP) {
+			if (FieldType.isPrimaryKey(ft)) {
+				nbrPrimaries++;
+			}
+			if (FieldType.isParentKey(ft)) {
+				nbrParents++;
+			}
+			if (ft == FieldType.MODIFIED_TIME_STAMP) {
 				this.checkDuplicateError(this.modifiedStampField);
 				this.modifiedStampField = field;
 			} else if (ft == FieldType.CREATED_BY_USER) {
 				this.checkDuplicateError(this.createdUserField);
 				this.createdUserField = field;
+			} else if (ft == FieldType.MODIFIED_BY_USER) {
+				this.checkDuplicateError(this.modifiedUserField);
+				this.modifiedUserField = field;
 			} else if (ft == FieldType.RECORD || ft == FieldType.RECORD_ARRAY
 					|| ft == FieldType.VALUE_ARRAY) {
 				this.isComplexStruct = true;
 			}
-
 		}
 
+		/*
+		 * because of possible composite keys, we save keys in arrays
+		 */
+		if (nbrPrimaries > 0) {
+			this.setPrimaryKeys(nbrPrimaries);
+		}
+		if (nbrParents > 0) {
+			this.setParentKeys(nbrParents);
+		}
 		/*
 		 * are we ok for concurrency check?
 		 */
@@ -1859,20 +1947,54 @@ public class Record implements Component {
 		if (this.defaultSheetName == null) {
 			this.defaultSheetName = this.name;
 		}
+
+		if(this.allPrimaryKeys != null){
+			this.setPrimaryWhere();
+		}
+		/*
+		 * get ready with sqls for reading
+		 */
 		this.createReadSqls();
+
+		/*
+		 * is this record writable?
+		 */
 		if (this.readOnly == false) {
 			this.createWriteSqls();
 		}
-		if (this.listFieldName != null) {
-			this.setListSql();
-		}
-		if (this.suggestionKeyName != null) {
-			this.setSuggestSql();
-		}
+
 		/*
 		 * we have successfully loaded. remove this record from stack.
 		 */
 		this.recordGotReady(originator);
+	}
+
+	/**
+	 * @param nbrParents
+	 */
+	private void setParentKeys(int nbrParents) {
+		this.allParentKeys = new Field[nbrParents];
+		int idx = 0;
+		for (Field field : this.fields) {
+			if (FieldType.isParentKey(field.fieldType)) {
+				this.allParentKeys[idx] = field;
+				idx++;
+			}
+		}
+	}
+
+	/**
+	 * @param nbrPrimaries
+	 */
+	private void setPrimaryKeys(int nbrPrimaries) {
+		this.allPrimaryKeys = new Field[nbrPrimaries];
+		int idx = 0;
+		for (Field field : this.fields) {
+			if (FieldType.isPrimaryKey(field.fieldType)) {
+				this.allPrimaryKeys[idx] = field;
+				idx++;
+			}
+		}
 	}
 
 	private void checkDuplicateError(Field savedField) {
@@ -1881,22 +2003,55 @@ public class Record implements Component {
 		}
 
 		throw new ApplicationError("Record " + this.getQualifiedName()
-				+ " defines more than one field with field type "
-				+ savedField.fieldType.name()
-				+ ". This feature is not supported");
-
+				+ " defines more than one field with field type " + savedField.fieldType
+						.name() + ". This feature is not supported");
 	}
 
-	private void checkPrimaryKey(Field field) {
-		if (this.primaryKeyField == null) {
-			this.primaryKeyField = field;
-			return;
+	/**
+	 * Create read and filter sqls
+	 */
+	private void createReadSqls() {
+
+		/*
+		 * start with read sqls
+		 */
+		StringBuilder select = new StringBuilder("SELECT ");
+
+		boolean isFirstField = true;
+		for (Field field : this.fields) {
+			if (isFirstField) {
+				isFirstField = false;
+			} else {
+				select.append(Record.COMMA);
+			}
+			select.append(field.columnName).append(" \"").append(field.name).append('"');
 		}
-		Tracer.trace("This table has multiple columns for primary key");
-		if(this.primaryKeyNames == null){
-			this.primaryKeyNames = this.primaryKeyField.name;
+
+		select.append(" FROM ").append(this.tableName);
+
+		/*
+		 * filter sql stops at where. Actual where clauses will be added at run
+		 * time
+		 */
+		String selectText = select.toString();
+		this.filterSql = selectText + " WHERE ";
+
+		/*
+		 * read is applicable if there is primary key
+		 */
+		if (this.allPrimaryKeys != null) {
+			/*
+			 * where clause is common across different sqls..
+			 */
+			this.readSql = selectText + this.primaryWhereClause;
 		}
-		this.primaryKeyNames += ',' + field.name;
+
+		if (this.listFieldName != null) {
+			this.setListSql();
+		}
+		if (this.suggestionKeyName != null) {
+			this.setSuggestSql();
+		}
 	}
 
 	/**
@@ -1916,15 +2071,14 @@ public class Record implements Component {
 
 		StringBuilder update = new StringBuilder("UPDATE ");
 		update.append(this.tableName).append(" SET ");
-		// Field stampField = null;
+
 		boolean firstInsertField = true;
 		boolean firstUpdatableField = true;
 		for (Field field : this.fields) {
 			/*
 			 * some fields are not updatable
 			 */
-			if (field.doNotUpdate() == false
-					|| field.fieldType == FieldType.MODIFIED_TIME_STAMP) {
+			if (field.canUpdate() || field.fieldType == FieldType.MODIFIED_TIME_STAMP) {
 				if (firstUpdatableField) {
 					firstUpdatableField = false;
 				} else {
@@ -1932,17 +2086,17 @@ public class Record implements Component {
 				}
 				update.append(field.columnName).append(Record.EQUAL);
 				if (field.fieldType == FieldType.MODIFIED_TIME_STAMP) {
-					// stampField = field;
 					update.append(timeStamp);
 				} else {
 					update.append(Record.PARAM);
+					this.nbrUpdateFields++;
 				}
 			}
 			FieldType fieldType = field.fieldType;
 			/*
 			 * if primary key is managed by rdbms, we do not bother about it?
 			 */
-			if (fieldType == FieldType.PRIMARY_KEY && this.keyToBeGenerated
+			if (FieldType.isPrimaryKey(fieldType) && this.keyToBeGenerated
 					&& this.sequence == null) {
 				continue;
 			}
@@ -1959,11 +2113,11 @@ public class Record implements Component {
 			if (field.fieldType == FieldType.MODIFIED_TIME_STAMP
 					|| field.fieldType == FieldType.CREATED_TIME_STAMP) {
 				vals.append(timeStamp);
-			} else if (fieldType == FieldType.PRIMARY_KEY
-					&& this.keyToBeGenerated) {
+			} else if (FieldType.isPrimaryKey(fieldType) && this.keyToBeGenerated) {
 				vals.append(this.sequence);
 			} else {
 				vals.append(Record.PARAM);
+				this.nbrInsertFields++;
 			}
 		}
 		/*
@@ -1976,43 +2130,26 @@ public class Record implements Component {
 		 * where clause of delete and update are same, but they are valid only
 		 * if we have a primary key
 		 */
-		if (this.primaryKeyField != null) {
-			StringBuilder where = new StringBuilder(" WHERE ");
-			where.append(this.primaryKeyField.columnName).append(Record.EQUAL)
-					.append(Record.PARAM);
-
-			if (this.useTimestampForConcurrency) {
-				where.append(" AND ").append(this.modifiedStampField.columnName)
-						.append("=?");
-			}
-			this.deleteSql = "DELETE FROM " + this.tableName + where;
-			this.updateSql = update.append(where).toString();
+		if (this.allPrimaryKeys != null) {
+			this.updateSql = update.append(this.primaryWhereClause).toString();
+			this.deleteSql = "DELETE FROM " + this.tableName + this.primaryWhereClause;
 		}
-
 	}
 
-	/**
-	 * Create read and filter sqls
-	 */
-	private void createReadSqls() {
-		StringBuilder select = new StringBuilder("SELECT ");
+	private void setPrimaryWhere() {
+		StringBuilder where = new StringBuilder(" WHERE ");
 
-		boolean isFirstField = true;
-		for (Field field : this.fields) {
-			if (isFirstField) {
-				isFirstField = false;
+		boolean firstTime = true;
+		for (Field field : this.allPrimaryKeys) {
+			if (firstTime) {
+				firstTime = false;
 			} else {
-				select.append(Record.COMMA);
+				where.append(" AND ");
 			}
-			select.append(field.columnName).append(" \"").append(field.name)
-					.append('"');
+			where.append(field.columnName).append(Record.EQUAL).append(Record.PARAM);
 		}
-		select.append(" FROM ").append(this.tableName).append(" WHERE ");
-		this.filterSql = select.toString();
-		if (this.primaryKeyField != null) {
-			this.readSql = this.filterSql + this.primaryKeyField.columnName
-					+ EQUAL + PARAM;
-		}
+
+		this.primaryWhereClause = where.toString();
 	}
 
 	private void setListSql() {
@@ -2023,24 +2160,32 @@ public class Record implements Component {
 		}
 		StringBuilder sbf = new StringBuilder();
 		sbf.append("SELECT ");
-		if (this.primaryKeyField != null && field != this.primaryKeyField) {
-			sbf.append(this.primaryKeyField.columnName).append(" id,");
-			this.valueListTypes = new ValueType[2];
-			this.valueListTypes[0] = this.primaryKeyField.getValueType();
-			this.valueListTypes[1] = field.getValueType();
-		} else {
+		/*
+		 * if this record has no primary key at all, or the listFieldName itself
+		 * is the key, then we are to select just the lustField.
+		 */
+		if (this.allPrimaryKeys == null || this.listFieldName.equals(
+				this.allPrimaryKeys[0].name)) {
 			this.valueListTypes = new ValueType[1];
 			this.valueListTypes[0] = field.getValueType();
+		} else {
+			/*
+			 * we have to select the primary key and the list field
+			 */
+			Field keyField = this.allPrimaryKeys[0];
+			sbf.append(keyField.columnName).append(" id,");
+			this.valueListTypes = new ValueType[2];
+			this.valueListTypes[0] = keyField.getValueType();
+			this.valueListTypes[1] = field.getValueType();
 		}
-		sbf.append(field.columnName).append(" value from ")
-				.append(this.tableName);
+		sbf.append(field.columnName).append(" value from ").append(this.tableName);
 		if (this.listGroupKeyName != null) {
 			field = this.getField(this.listGroupKeyName);
 			if (field == null) {
 				this.invalidFieldName(this.listGroupKeyName);
 				return;
 			}
-			sbf.append(" WHERE ").append(field.columnName).append("=?");
+			sbf.append(" WHERE ").append(field.columnName).append(EQUAL_PARAM);
 			this.valueListKeyType = field.getValueType();
 		}
 		this.listSql = sbf.toString();
@@ -2068,8 +2213,8 @@ public class Record implements Component {
 			sbf.append(f.columnName).append(' ').append(f.name).append(COMMA);
 		}
 		sbf.setLength(sbf.length() - 1);
-		sbf.append(" from ").append(this.tableName).append(" WHERE ")
-				.append(field.columnName).append(" LIKE ?");
+		sbf.append(" from ").append(this.tableName).append(" WHERE ").append(
+				field.columnName).append(" LIKE ?");
 		this.suggestSql = sbf.toString();
 	}
 
@@ -2110,16 +2255,15 @@ public class Record implements Component {
 	 * @param userId
 	 * @return sheet that has the data
 	 */
-	public DataSheet suggest(String keyValue, boolean matchStarting,
-			DbDriver driver, Value userId) {
+	public DataSheet suggest(String keyValue, boolean matchStarting, DbDriver driver,
+			Value userId) {
 		String text = keyValue + DbDriver.LIKE_ANY;
 		if (!matchStarting) {
 			text = DbDriver.LIKE_ANY + text;
 		}
 		Value[] values = new Value[1];
 		values[0] = Value.newTextValue(text);
-		DataSheet sheet = this.createSheet(this.suggestionOutputNames, false,
-				false);
+		DataSheet sheet = this.createSheet(this.suggestionOutputNames, false, false);
 		driver.extractFromSql(this.suggestSql, values, sheet, false);
 		return sheet;
 	}
@@ -2149,14 +2293,9 @@ public class Record implements Component {
 	 * @param fieldName
 	 */
 	private void invalidFieldName(String fieldName) {
-		throw new ApplicationError(
-				fieldName + " is specified as a field in record " + this.name
-						+ " but that field is not defined.");
+		throw new ApplicationError(fieldName + " is specified as a field in record "
+				+ this.name + " but that field is not defined.");
 	}
-
-	/*
-	 * **********************************************
-	 */
 
 	/**
 	 * extract and validate a data sheet
@@ -2221,8 +2360,8 @@ public class Record implements Component {
 				Field field = fieldsToExtract[j];
 				int map = indexes[j];
 				String textValue = map == -1 ? "" : inputRow[map];
-				Value value = field.parseField(textValue, errors,
-						fieldsAreOptional, this.name);
+				Value value = field.parseField(textValue, errors, fieldsAreOptional,
+						this.name);
 				if (value == null) {
 					value = Value.newUnknownValue(field.getValueType());
 				}
@@ -2255,33 +2394,30 @@ public class Record implements Component {
 	 * @param saveActionExpected
 	 * @return number of fields extracted
 	 */
-	public int extractFields(Map<String, String> inData,
-			String[] namesToExtract, FieldsInterface extractedValues,
-			List<FormattedMessage> errors, DataPurpose purpose,
-			boolean saveActionExpected) {
+	public int extractFields(Map<String, String> inData, String[] namesToExtract,
+			FieldsInterface extractedValues, List<FormattedMessage> errors,
+			DataPurpose purpose, boolean saveActionExpected) {
 		/*
 		 * is the caller providing a list of fields? else we use all
 		 */
-		Field[] fieldsToExtract = this.getFieldsToBeExtracted(namesToExtract,
-				purpose, saveActionExpected);
+		Field[] fieldsToExtract = this.getFieldsToBeExtracted(namesToExtract, purpose,
+				saveActionExpected);
 		if (purpose == DataPurpose.FILTER) {
 			Tracer.trace("Extracting filter fields");
-			return this.extractFilterFields(inData, extractedValues,
-					fieldsToExtract, errors);
+			return this.extractFilterFields(inData, extractedValues, fieldsToExtract,
+					errors);
 		}
 		int result = 0;
 		boolean fieldsAreOptional = purpose == DataPurpose.SUBSET;
 		for (Field field : fieldsToExtract) {
 			String text = inData.get(field.name);
-			Value value = field.parseField(text, errors, fieldsAreOptional,
-					this.name);
+			Value value = field.parseField(text, errors, fieldsAreOptional, this.name);
 			if (value != null) {
 				extractedValues.setValue(field.name, value);
 				result++;
 			}
 		}
-		if (this.hasInterFieldValidations && fieldsAreOptional == false
-				&& result > 1) {
+		if (this.hasInterFieldValidations && fieldsAreOptional == false && result > 1) {
 			for (Field field : fieldsToExtract) {
 				field.validateInterfield(extractedValues, errors, this.name);
 			}
@@ -2312,8 +2448,7 @@ public class Record implements Component {
 					if (s.equals(TABLE_ACTION_FIELD_NAME)) {
 						field = TABLE_ACTION_FIELD;
 					} else {
-						throw new ApplicationError(s
-								+ " is not a valid fields in Record "
+						throw new ApplicationError(s + " is not a valid fields in Record "
 								+ this.name + ". Field can not be extracted.");
 					}
 				}
@@ -2323,11 +2458,10 @@ public class Record implements Component {
 			return result;
 		}
 		/*
-		 * now that the option is with us, we pick fields based on options
+		 * we pick fields based on specific purpose
 		 */
 		if (purpose == DataPurpose.READ) {
-			Field[] result = { this.primaryKeyField };
-			return result;
+			return this.allPrimaryKeys;
 		}
 		if (extractSaveAction == false) {
 			return this.fields;
@@ -2356,8 +2490,7 @@ public class Record implements Component {
 			List<FormattedMessage> errors) {
 		int result = 0;
 		for (Field field : fieldsToExtract) {
-			result += field.parseFilter(inData, extractedValues, errors,
-					this.name);
+			result += field.parseFilter(inData, extractedValues, errors, this.name);
 		}
 		/*
 		 * some additional fields for filter, like sort
@@ -2368,8 +2501,8 @@ public class Record implements Component {
 		String fieldName = ServiceProtocol.SORT_COLUMN_NAME;
 		String textValue = inData.get(fieldName);
 		if (textValue != null) {
-			Value value = ComponentManager.getDataType(DataType.ENTITY_LIST)
-					.parseValue(textValue);
+			Value value = ComponentManager.getDataType(DataType.ENTITY_LIST).parseValue(
+					textValue);
 			if (value == null) {
 				errors.add(new FormattedMessage(Messages.INVALID_ENTITY_LIST,
 						this.defaultSheetName, fieldName, null, 0));
@@ -2382,10 +2515,9 @@ public class Record implements Component {
 		textValue = inData.get(fieldName);
 		if (textValue != null) {
 			textValue = textValue.toLowerCase();
-			if (textValue.equals(ServiceProtocol.SORT_ORDER_ASC)
-					|| textValue.equals(ServiceProtocol.SORT_ORDER_DESC)) {
-				extractedValues.setValue(fieldName,
-						Value.newTextValue(textValue));
+			if (textValue.equals(ServiceProtocol.SORT_ORDER_ASC) || textValue.equals(
+					ServiceProtocol.SORT_ORDER_DESC)) {
+				extractedValues.setValue(fieldName, Value.newTextValue(textValue));
 			} else {
 				errors.add(new FormattedMessage(Messages.INVALID_SORT_ORDER,
 						this.defaultSheetName, fieldName, null, 0));
@@ -2438,30 +2570,69 @@ public class Record implements Component {
 	 *
 	 * @param recs
 	 *            list to which output records are to be added
-	 * @param parentSheetName
-	 * @param parentKey
 	 */
-	public void addOutputRecords(List<OutputRecord> recs,
-			String parentSheetName, String parentKey) {
-		if (parentSheetName == null) {
-			recs.add(new OutputRecord(this));
-		} else {
-			recs.add(new OutputRecord(this.defaultSheetName, parentSheetName,
-					this.parentKeyField.getName(), parentKey));
-		}
+	public void addOutputRecords(List<OutputRecord> recs) {
+		/*
+		 * of course, this record is to be output.
+		 */
+		recs.add(new OutputRecord(this));
+
 		if (this.childrenToBeRead == null) {
 			return;
 		}
-		if (this.primaryKeyField == null) {
+
+		/*
+		 * children can be output, but only if we have links...
+		 */
+		if (this.allPrimaryKeys == null) {
 			Tracer.trace("Record " + this.getQualifiedName()
 					+ " has defined childrenToBeRead=" + this.childrenToBeRead
 					+ " but it has not defined a primary key.");
 			return;
 		}
+
 		for (String child : this.childrenToBeRead) {
 			Record cr = ComponentManager.getRecord(child);
-			cr.addOutputRecords(recs, this.getDefaultSheetName(),
-					this.primaryKeyField.name);
+			cr.ChildOutputRecords(recs, this);
+		}
+	}
+
+	/**
+	 *
+	 * @param recs
+	 *            list to which output records are to be added
+	 * @param parentSheetName
+	 * @param parentKey
+	 */
+	private void ChildOutputRecords(List<OutputRecord> recs, Record parentRec) {
+		String sheetName = parentRec.getDefaultSheetName();
+		Field[] parentKeys = parentRec.allPrimaryKeys;
+		Field[] refKeys = this.allParentKeys;
+		if (parentKeys == null || refKeys == null
+				|| parentKeys.length != refKeys.length) {
+			throw new ApplicationError("Parent record " + parentRec.getQualifiedName()
+					+ " defines number of children to be read . This would work only if this record defines key field(s) and the child records define corresponding links using parentKeyFields");
+		}
+		int nbr = parentKeys.length;
+		if (nbr == 1) {
+			recs.add(new OutputRecord(this.defaultSheetName, sheetName, refKeys[0].name,
+					parentKeys[0].name));
+
+		} else {
+			String[] pk = new String[nbr];
+			String[] rk = new String[nbr];
+			for (int i = 0; i < pk.length; i++) {
+				pk[i] = parentKeys[i].name;
+				rk[i] = refKeys[i].name;
+			}
+			recs.add(new OutputRecord(this.defaultSheetName, sheetName, rk, pk));
+		}
+		if (this.childrenToBeRead == null) {
+			return;
+		}
+		for (String child : this.childrenToBeRead) {
+			Record cr = ComponentManager.getRecord(child);
+			cr.ChildOutputRecords(recs, this);
 		}
 	}
 
@@ -2473,12 +2644,11 @@ public class Record implements Component {
 	 */
 	public InputRecord getInputRecord(String parentSheetName) {
 		if (parentSheetName == null) {
-			return new InputRecord(this.getQualifiedName(),
-					this.defaultSheetName);
+			return new InputRecord(this.getQualifiedName(), this.defaultSheetName);
 		}
 		return new InputRecord(this.getQualifiedName(), this.defaultSheetName,
-				parentSheetName, this.parentKeyField.name,
-				this.parentKeyField.referredField);
+				parentSheetName, this.allParentKeys[0].name,
+				this.allParentKeys[0].referredField);
 	}
 
 	/**
@@ -2528,18 +2698,16 @@ public class Record implements Component {
 			/*
 			 * reference to other records
 			 */
-			count += ctx.checkRecordExistence(this.defaultRefRecord,
-					"defaultRefRecord", false);
+			count += ctx.checkRecordExistence(this.defaultRefRecord, "defaultRefRecord",
+					false);
 			if (this.childrenToBeRead != null) {
 				for (String child : this.childrenToBeRead) {
-					count += ctx.checkRecordExistence(child, "childRecord",
-							true);
+					count += ctx.checkRecordExistence(child, "childRecord", true);
 				}
 			}
 			if (this.childrenToBeSaved != null) {
 				for (String child : this.childrenToBeSaved) {
-					count += ctx.checkRecordExistence(child, "childRecord",
-							true);
+					count += ctx.checkRecordExistence(child, "childRecord", true);
 				}
 			}
 			/*
@@ -2561,7 +2729,7 @@ public class Record implements Component {
 							+ " should specify fieldWidth since the record is designed for a fixed-width row.");
 					count++;
 				}
-				if (field.fieldType == FieldType.PRIMARY_KEY) {
+				if (FieldType.isPrimaryKey(field.fieldType)) {
 					pkey = field;
 					nbrKeys++;
 				}
@@ -2602,8 +2770,7 @@ public class Record implements Component {
 							"keyToBeGenerated is set to true, but primary key is a composite of more than one fields.");
 					count++;
 				} else {
-					DataType dt = ComponentManager
-							.getDataTypeOrNull(pkey.dataType);
+					DataType dt = ComponentManager.getDataTypeOrNull(pkey.dataType);
 					if (dt != null && dt.getValueType() != ValueType.INTEGER) {
 						ctx.addError(
 								"keyToBeGenerated is set to true, but primary key field is of value type "
@@ -2627,8 +2794,7 @@ public class Record implements Component {
 						.getValueType() != ValueType.TIMESTAMP) {
 					ctx.addError(
 							"useTimestampForConcurrency=true, but the timestamp field "
-									+ this.modifiedStampField.name
-									+ " is defined as "
+									+ this.modifiedStampField.name + " is defined as "
 									+ this.modifiedStampField.getValueType()
 									+ ". It should be defined as a timestamp.");
 					count++;
@@ -2666,8 +2832,8 @@ public class Record implements Component {
 			if (this.recordType != RecordUsageType.STRUCTURE) {
 				count += this.validateTable(columnMap, ctx);
 			}
-			if (this.schemaName != null
-					&& DbDriver.isSchmeaDefined(this.schemaName) == false) {
+			if (this.schemaName != null && DbDriver.isSchmeaDefined(
+					this.schemaName) == false) {
 				ctx.addError("schemaName is set to " + this.schemaName
 						+ " but it is not defined as one of additional schema names in application.xml");
 			}
@@ -2677,8 +2843,7 @@ public class Record implements Component {
 		}
 	}
 
-	private int validateTable(Map<String, Field> columnMap,
-			ValidationContext ctx) {
+	private int validateTable(Map<String, Field> columnMap, ValidationContext ctx) {
 		String nam = this.tableName;
 		if (nam == null) {
 			nam = this.name;
@@ -2711,15 +2876,13 @@ public class Record implements Component {
 				continue;
 			}
 			if (field.dataType != null) {
-				DataType dt = ComponentManager
-						.getDataTypeOrNull(field.dataType);
+				DataType dt = ComponentManager.getDataTypeOrNull(field.dataType);
 				if (dt != null && dt.getValueType() == ValueType.TEXT) {
 					int len = (int) ((IntegerValue) row[5]).getLong();
 					int dtLen = dt.getMaxLength();
 					if (dtLen > len) {
-						ctx.addError("Field " + field.name
-								+ " allows a length of " + dtLen
-								+ " but db allows a max of " + len + " chars");
+						ctx.addError("Field " + field.name + " allows a length of "
+								+ dtLen + " but db allows a max of " + len + " chars");
 					}
 				}
 			}
@@ -2791,8 +2954,7 @@ public class Record implements Component {
 								+ childObject.getClass().getSimpleName());
 				return null;
 			}
-			structs[i] = this.createStructForSp((JSONObject) childObject, con,
-					ctx, null);
+			structs[i] = this.createStructForSp((JSONObject) childObject, con, ctx, null);
 
 		}
 		return DbDriver.createStructArray(con, structs, sqlTypeName);
@@ -2809,8 +2971,8 @@ public class Record implements Component {
 	 *         parameter
 	 * @throws SQLException
 	 */
-	public Struct createStructForSp(JSONObject json, Connection con,
-			ServiceContext ctx, String sqlTypeName) throws SQLException {
+	public Struct createStructForSp(JSONObject json, Connection con, ServiceContext ctx,
+			String sqlTypeName) throws SQLException {
 		List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
 		int nbrFields = this.fields.length;
 		Object[] data = new Object[nbrFields];
@@ -2831,9 +2993,8 @@ public class Record implements Component {
 									+ " is expected to be an array of values."));
 					continue;
 				}
-				Value[] arr = field.parseArray(
-						JsonUtil.toObjectArray((JSONArray) obj), errors,
-						this.name);
+				Value[] arr = field.parseArray(JsonUtil.toObjectArray((JSONArray) obj),
+						errors, this.name);
 				data[i] = DbDriver.createArray(con, arr, field.sqlTypeName);
 				continue;
 			}
@@ -2848,10 +3009,9 @@ public class Record implements Component {
 									+ " is expected to be an objects."));
 					continue;
 				}
-				Record childRecord = ComponentManager
-						.getRecord(field.referredRecord);
-				data[i] = childRecord.createStructForSp((JSONObject) obj, con,
-						ctx, field.sqlTypeName);
+				Record childRecord = ComponentManager.getRecord(field.referredRecord);
+				data[i] = childRecord.createStructForSp((JSONObject) obj, con, ctx,
+						field.sqlTypeName);
 				continue;
 			}
 
@@ -2865,10 +3025,9 @@ public class Record implements Component {
 									+ " is expected to be an array of objects."));
 					continue;
 				}
-				Record childRecord = ComponentManager
-						.getRecord(field.referredRecord);
-				data[i] = childRecord.createStructArrayForSp((JSONArray) obj,
-						con, ctx, field.sqlTypeName);
+				Record childRecord = ComponentManager.getRecord(field.referredRecord);
+				data[i] = childRecord.createStructArrayForSp((JSONArray) obj, con, ctx,
+						field.sqlTypeName);
 				continue;
 			}
 			/*
@@ -2952,8 +3111,7 @@ public class Record implements Component {
 			 */
 			if (field.fieldType == FieldType.VALUE_ARRAY) {
 				if (obj instanceof Object[] == false) {
-					throw this.getAppError(-1, field,
-							" is an array of primitives ", obj);
+					throw this.getAppError(-1, field, " is an array of primitives ", obj);
 				}
 				json.put(field.name, obj);
 				continue;
@@ -2965,11 +3123,9 @@ public class Record implements Component {
 			if (field.fieldType == FieldType.RECORD) {
 				if (obj instanceof Object[] == false) {
 					throw this.getAppError(-1, field,
-							" is a record that expects an array of objects ",
-							obj);
+							" is a record that expects an array of objects ", obj);
 				}
-				Record childRecord = ComponentManager
-						.getRecord(field.referredRecord);
+				Record childRecord = ComponentManager.getRecord(field.referredRecord);
 				json.put(field.name, childRecord.toJsonObject((Object[]) obj));
 				continue;
 			}
@@ -2983,8 +3139,7 @@ public class Record implements Component {
 							" is an array record that expects an array of array of objects ",
 							obj);
 				}
-				Record childRecord = ComponentManager
-						.getRecord(field.referredRecord);
+				Record childRecord = ComponentManager.getRecord(field.referredRecord);
 				json.put(field.name, childRecord.toJsonArray((Object[][]) obj));
 				continue;
 			}
@@ -2996,24 +3151,22 @@ public class Record implements Component {
 		return json;
 	}
 
-	private ApplicationError getAppError(int nbr, Field field, String txt,
-			Object value) {
+	private ApplicationError getAppError(int nbr, Field field, String txt, Object value) {
 		StringBuilder sbf = new StringBuilder();
 		sbf.append(
 				"Error while creating JSON from output of stored procedure using record ")
 				.append(this.getQualifiedName()).append(". ");
 		if (txt == null) {
-			sbf.append("We expect an array of objects with "
-					+ this.fields.length + " elements but we got ");
+			sbf.append("We expect an array of objects with " + this.fields.length
+					+ " elements but we got ");
 			if (nbr != -1) {
 				sbf.append(nbr).append(" elements.");
 			} else {
 				sbf.append(" an instance of " + value.getClass().getName());
 			}
 		} else {
-			sbf.append("Field ").append(field.name).append(txt)
-					.append(" but we got an instance of")
-					.append(value.getClass().getName());
+			sbf.append("Field ").append(field.name).append(txt).append(
+					" but we got an instance of").append(value.getClass().getName());
 		}
 		return new ApplicationError(sbf.toString());
 	}
@@ -3071,8 +3224,7 @@ public class Record implements Component {
 			 */
 			if (field.fieldType == FieldType.VALUE_ARRAY) {
 				if (obj instanceof Array == false) {
-					throw this.getAppError(-1, field,
-							" is an array of primitives ", obj);
+					throw this.getAppError(-1, field, " is an array of primitives ", obj);
 				}
 				writer.array();
 				for (Object val : (Object[]) ((Array) obj).getArray()) {
@@ -3087,11 +3239,9 @@ public class Record implements Component {
 			 */
 			if (field.fieldType == FieldType.RECORD) {
 				if (obj instanceof Struct == false) {
-					throw this.getAppError(-1, field,
-							" is an array of records ", obj);
+					throw this.getAppError(-1, field, " is an array of records ", obj);
 				}
-				Record childRecord = ComponentManager
-						.getRecord(field.referredRecord);
+				Record childRecord = ComponentManager.getRecord(field.referredRecord);
 				childRecord.toJsonObjectFromStruct((Struct) obj, writer);
 				continue;
 			}
@@ -3107,8 +3257,7 @@ public class Record implements Component {
 									+ " is an of record for which we expect an array of object arrays. But we got "
 									+ obj.getClass().getName());
 				}
-				Record childRecord = ComponentManager
-						.getRecord(field.referredRecord);
+				Record childRecord = ComponentManager.getRecord(field.referredRecord);
 				Object[] array = (Object[]) ((Array) obj).getArray();
 				childRecord.toJsonArrayFromStruct(array, writer);
 				continue;
@@ -3152,9 +3301,9 @@ public class Record implements Component {
 	 *            data type suggester
 	 * @return default record component for a table from rdbms
 	 */
-	public static Record createFromTable(String schemaName,
-			String qualifiedName, String tableName,
-			DbToJavaNameConversion conversion, DataTypeSuggester suggester) {
+	public static Record createFromTable(String schemaName, String qualifiedName,
+			String tableName, DbToJavaNameConversion conversion,
+			DataTypeSuggester suggester) {
 		DataSheet columns = DbDriver.getTableColumns(schemaName, tableName);
 		if (columns == null) {
 			String msg = "No table in db with name " + tableName;
@@ -3192,8 +3341,7 @@ public class Record implements Component {
 			int sqlType = (int) ((IntegerValue) row[3]).getLong();
 			int len = (int) ((IntegerValue) row[5]).getLong();
 			int nbrDecimals = (int) ((IntegerValue) row[6]).getLong();
-			field.dataType = suggester.suggest(sqlType, sqlTypeName, len,
-					nbrDecimals);
+			field.dataType = suggester.suggest(sqlType, sqlTypeName, len, nbrDecimals);
 			field.isNullable = ((BooleanValue) row[8]).getBoolean();
 			field.isRequired = !field.isNullable;
 		}
@@ -3213,8 +3361,7 @@ public class Record implements Component {
 	 *            how do we form record/field names table/column
 	 * @return number of records saved
 	 */
-	public static int createAllRecords(File folder,
-			DbToJavaNameConversion conversion) {
+	public static int createAllRecords(File folder, DbToJavaNameConversion conversion) {
 		if (folder.exists() == false) {
 			folder.mkdirs();
 			Tracer.trace("Folder created for path " + folder.getAbsolutePath());
@@ -3249,12 +3396,11 @@ public class Record implements Component {
 				recordName = conversion.toJavaName(tableName);
 			}
 
-			Record record = Record.createFromTable(schemaName, recordName,
-					tableName, conversion, suggester);
+			Record record = Record.createFromTable(schemaName, recordName, tableName,
+					conversion, suggester);
 			if (record == null) {
 				Tracer.trace("Record " + recordName
-						+ " could not be generated from table/view "
-						+ tableName);
+						+ " could not be generated from table/view " + tableName);
 				continue;
 			}
 			if (row[2].equals("VIEW")) {
@@ -3272,9 +3418,8 @@ public class Record implements Component {
 					nbrTables++;
 				}
 			} catch (Exception e) {
-				Tracer.trace(e,
-						"Record " + recordName + " generated from table/view "
-								+ tableName + " but could not be saved. ");
+				Tracer.trace(e, "Record " + recordName + " generated from table/view "
+						+ tableName + " but could not be saved. ");
 				continue;
 			} finally {
 				if (out != null) {
@@ -3306,155 +3451,6 @@ public class Record implements Component {
 	}
 
 	/**
-	 * write contents of a data sheet to a flat-file
-	 *
-	 * @param writer
-	 * @param ds
-	 * @param toWriteLine
-	 */
-	public void toFlatFile(BufferedWriter writer, DataSheet ds,
-			boolean toWriteLine) {
-		if (this.recordLength == 0) {
-			throw new ApplicationError("Record " + this.getQualifiedName()
-					+ " is not designed for a flat file");
-		}
-
-		if (this.fields.length != ds.width()) {
-			throw new ApplicationError(
-					"supplied data sheet is not created using record "
-							+ this.getQualifiedName()
-							+ " and it can not be used to write to a flat-file");
-		}
-
-		try {
-			int n = ds.length();
-			for (int i = 0; i < n; i++) {
-				writer.write(this.formatFixedLine(ds.getRow(i)));
-				if (toWriteLine) {
-					writer.newLine();
-				}
-			}
-		} catch (IOException e) {
-			throw new ApplicationError(e,
-					"Error while writing fixed-width rows for record "
-							+ this.getQualifiedName());
-		}
-	}
-
-	/**
-	 * get widths of fields. Meaningful only if this record is designed for
-	 * fixed widths with each field specifying its widths
-	 *
-	 * @return array of widths of fields, in that order
-	 */
-	public int[] getFieldWidths() {
-		int[] widths = new int[this.fields.length];
-		for (int i = 0; i < widths.length; i++) {
-			widths[i] = this.fields[i].fieldWidth;
-		}
-		return widths;
-	}
-
-	/**
-	 * create a fixed length text
-	 *
-	 * @param row
-	 *            values in the right order and length corresponding to the
-	 *            fields in this record
-	 * @return fixed width text representation of supplied values for a row of
-	 *         this record
-	 */
-	public String formatFixedLine(Value[] row) {
-		StringBuilder sbf = new StringBuilder();
-		for (int i = 0; i < row.length; i++) {
-			Field field = this.fields[i];
-			Value value = row[i];
-			String txt;
-			if (Value.isNull(value)) {
-				txt = "";
-			} else {
-				txt = field.getDataType().formatValue(value);
-			}
-			int m = txt.length();
-			int n = field.fieldWidth;
-			if (m > n) {
-				sbf.append(txt.substring(0, n));
-				Tracer.trace(
-						"Value " + txt + " is wider than the alotted width of "
-								+ n + " characters and hence is truncated");
-				continue;
-			}
-			sbf.append(txt);
-			if (m < n) {
-				while (m++ < n) {
-					sbf.append(' ');
-				}
-			}
-		}
-		return sbf.toString();
-	}
-
-	/**
-	 * reads fixed-width rows from a stream into a data sheet.
-	 *
-	 * @param reader
-	 * @param errors
-	 *            errors list to which any parse error is added. Field in error
-	 *            is treated as not given
-	 * @return dataSheet. Null in case of any parse error, in which case error
-	 *         message/s would have been added to errors.
-	 */
-	public DataSheet fromFlatFile(BufferedReader reader,
-			List<FormattedMessage> errors) {
-		if (this.recordLength == 0) {
-			throw new ApplicationError("Record " + this.getQualifiedName()
-					+ " is not designed for a flat file");
-		}
-		DataSheet ds = this.createSheet(false, false);
-		int nbr = errors.size();
-		try {
-				this.fromFile(reader, ds, errors);
-		} catch (IOException e) {
-			throw new ApplicationError(e,
-					" error while reading a flat file for record "
-							+ this.getQualifiedName());
-		} finally {
-			try {
-				reader.close();
-			} catch (Exception ignore) {
-				//
-			}
-		}
-		if (errors.size() > nbr) {
-			Tracer.trace(
-					"Errors detected while parsing a flat file. Data sheet not created.");
-			return null;
-		}
-		return ds;
-	}
-
-	private void fromFile(BufferedReader reader, DataSheet ds,
-			List<FormattedMessage> errors) throws IOException {
-		while (true) {
-			String lineText = reader.readLine();
-			if (lineText == null) {
-				return;
-			}
-			if (lineText.length() != this.recordLength) {
-				this.throwInvalidLengthError(lineText.length());
-			}
-			ds.addRow(this.parseRow(lineText, errors));
-		}
-	}
-
-	private void throwInvalidLengthError(int n) {
-		throw new ApplicationError(
-				"Flat file being read has " + n + " characters in a line whiel "
-						+ this.recordLength + " chars expected.");
-
-	}
-
-	/**
 	 * parses a fixed length text into values for fields.
 	 *
 	 * @param rowText
@@ -3468,8 +3464,8 @@ public class Record implements Component {
 		for (Field field : this.fields) {
 			int endAt = startAt + field.fieldWidth;
 			String text = rowText.substring(startAt, endAt);
-			values[idx] = field.parseField(text, errors, false,
-					this.getDefaultSheetName());
+			values[idx] = field.parseField(text, errors, false, this
+					.getDefaultSheetName());
 			idx++;
 			startAt = endAt;
 		}
@@ -3492,8 +3488,8 @@ public class Record implements Component {
 	 *            array after this call
 	 *
 	 */
-	public void filterToJson(Record inRecord, FieldsInterface inData,
-			DbDriver driver, boolean useCompactFormat, ResponseWriter writer) {
+	public void filterToJson(Record inRecord, FieldsInterface inData, DbDriver driver,
+			boolean useCompactFormat, ResponseWriter writer) {
 		/*
 		 * we have to create where clause with ? and corresponding values[]
 		 */
@@ -3510,8 +3506,7 @@ public class Record implements Component {
 			writer.endArray();
 			names = null;
 		}
-		driver.sqlToJson(temp.sql, temp.values, this.getValueTypes(), names,
-				writer);
+		driver.sqlToJson(temp.sql, temp.values, this.getValueTypes(), names, writer);
 	}
 
 	/**
@@ -3520,7 +3515,7 @@ public class Record implements Component {
 	 *
 	 * @param inData
 	 * @param inRecord
-	 * @return struct that as both sql and values
+	 * @return struct that has both sql and values
 	 */
 	private SqlAndValues getSqlAndValues(FieldsInterface inData, Record inRecord) {
 		StringBuilder sql = new StringBuilder(this.filterSql);
@@ -3539,8 +3534,8 @@ public class Record implements Component {
 			}
 
 			FilterCondition condition = FilterCondition.Equal;
-			Value otherValue = inData
-					.getValue(fieldName + ServiceProtocol.COMPARATOR_SUFFIX);
+			Value otherValue = inData.getValue(fieldName
+					+ ServiceProtocol.COMPARATOR_SUFFIX);
 			if (otherValue != null && otherValue.isUnknown() == false) {
 				condition = FilterCondition.parse(otherValue.toText());
 			}
@@ -3549,16 +3544,16 @@ public class Record implements Component {
 			 * handle the special case of in-list
 			 */
 			if (condition == FilterCondition.In) {
-				Value[] values = Value.parse(value.toString().split(","),
-						field.getValueType());
+				Value[] values = Value.parse(value.toString().split(","), field
+						.getValueType());
 				/*
 				 * we are supposed to have validated this at the input gate...
 				 * but playing it safe
 				 */
 				if (values == null) {
-					throw new ApplicationError(
-							value + " is not a valid comma separated list for field "
-									+ field.name);
+					throw new ApplicationError(value
+							+ " is not a valid comma separated list for field "
+							+ field.name);
 				}
 				sql.append(field.columnName).append(" in (?");
 				filterValues.add(values[0]);
@@ -3571,25 +3566,21 @@ public class Record implements Component {
 			}
 
 			if (condition == FilterCondition.Like) {
-				value = Value.newTextValue(Record.PERCENT
-						+ DbDriver.escapeForLike(value.toString())
-						+ Record.PERCENT);
+				value = Value.newTextValue(Record.PERCENT + DbDriver.escapeForLike(value
+						.toString()) + Record.PERCENT);
 			} else if (condition == FilterCondition.StartsWith) {
-				value = Value
-						.newTextValue(DbDriver.escapeForLike(value.toString())
-								+ Record.PERCENT);
+				value = Value.newTextValue(DbDriver.escapeForLike(value.toString())
+						+ Record.PERCENT);
 			}
 
 			sql.append(field.columnName).append(condition.getSql()).append("?");
 			filterValues.add(value);
 
 			if (condition == FilterCondition.Between) {
-				otherValue = inData
-						.getValue(fieldName + ServiceProtocol.TO_FIELD_SUFFIX);
+				otherValue = inData.getValue(fieldName + ServiceProtocol.TO_FIELD_SUFFIX);
 				if (otherValue == null || otherValue.isUnknown()) {
-					throw new ApplicationError(
-							"To value not supplied for field " + this.name
-									+ " for filtering");
+					throw new ApplicationError("To value not supplied for field "
+							+ this.name + " for filtering");
 				}
 				sql.append(" AND ?");
 				filterValues.add(otherValue);
@@ -3621,16 +3612,20 @@ public class Record implements Component {
 
 	/**
 	 * format a row based on values in the fields collection
+	 *
 	 * @param outDataFormat
 	 * @param fieldValues
 	 * @return text that serializes data as per the format
 	 */
-	public String formatFlatRow(FlatFileRowType outDataFormat, FieldsInterface fieldValues) {
-		if(outDataFormat == FlatFileRowType.FIXED_WIDTH){
-			return DataSerializationType.FIXED_WIDTH.serializeFields(fieldValues, this.getFields());
+	public String formatFlatRow(FlatFileRowType outDataFormat,
+			FieldsInterface fieldValues) {
+		if (outDataFormat == FlatFileRowType.FIXED_WIDTH) {
+			return DataSerializationType.FIXED_WIDTH.serializeFields(fieldValues, this
+					.getFields());
 		}
-		if(outDataFormat == FlatFileRowType.COMMA_SEPARATED){
-			return DataSerializationType.COMMA_SEPARATED.serializeFields(fieldValues, this.getFields());
+		if (outDataFormat == FlatFileRowType.COMMA_SEPARATED) {
+			return DataSerializationType.COMMA_SEPARATED.serializeFields(fieldValues, this
+					.getFields());
 		}
 		return null;
 	}
@@ -3647,27 +3642,25 @@ public class Record implements Component {
 		 * split input into individual text values
 		 */
 		String[] inputTexts;
-		if(inDataFormat == FlatFileRowType.FIXED_WIDTH){
+		if (inDataFormat == FlatFileRowType.FIXED_WIDTH) {
 			inputTexts = this.splitFixedWidthInput(inText, errors);
-			if(inputTexts == null){
+			if (inputTexts == null) {
 				/*
 				 * error: message already added by called method
 				 */
 				return;
 			}
-		}else{
+		} else {
 			inputTexts = inText.split(",");
-			if(inputTexts.length != this.fields.length){
-				FormattedMessage msg= new FormattedMessage("kernel.invalidInputStream", inText);
-				msg.values[0]=inText;
-				errors.add(msg);
+			if (inputTexts.length != this.fields.length) {
+				errors.add(new FormattedMessage("kernel.invalidInputStream", inText));
 				return;
 			}
 		}
 		/*
 		 * validate and extract
 		 */
-		for(int i = 0; i < this.fields.length; i++){
+		for (int i = 0; i < this.fields.length; i++) {
 			Field field = this.fields[i];
 			String text = inputTexts[i];
 			Value value = field.parseField(text, errors, false, this.name);
@@ -3677,19 +3670,21 @@ public class Record implements Component {
 
 	/**
 	 * split fixed-width row text into its field texts
+	 *
 	 * @param inText
 	 * @return
 	 */
-	private String[] splitFixedWidthInput(String inText, List<FormattedMessage> errors){
-		if(this.recordLength != inText.length()){
-			FormattedMessage msg = new FormattedMessage("kernel.invalidInputStream", "fixed-width input row has " + inText.length() + " chracters while this record " + this.name + " is designed for " + this.recordLength + " characters");
-			msg.values[0]=inText;
-			errors.add(msg);
+	private String[] splitFixedWidthInput(String inText, List<FormattedMessage> errors) {
+		if (this.recordLength != inText.length()) {
+			errors.add(new FormattedMessage("kernel.invalidInputStream",
+					"fixed-width input row has " + inText.length()
+							+ " chracters while this record " + this.name
+							+ " is designed for " + this.recordLength + " characters"));
 			return null;
 		}
 		String[] texts = new String[this.fields.length];
 		int beginIdx = 0;
-		for(int i = 0; i < texts.length; i++){
+		for (int i = 0; i < texts.length; i++) {
 			int width = this.fields[i].fieldWidth;
 			int endIdx = beginIdx + width;
 			texts[i] = inText.substring(beginIdx, endIdx);
