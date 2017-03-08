@@ -2,7 +2,7 @@
 <service
 	xmlns="http://www.simplity.org/schema"
 	name="callSqlHw"
-	dbAccessType="none">
+	dbAccessType="readOnly">
 	<inputData>
 		<inputFields>
 			<inputField dataType="_number" name="id"/>

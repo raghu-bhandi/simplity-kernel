@@ -24,7 +24,8 @@ public class SampleServiceInvocation extends HttpServlet {
 		DataSheet a = ((DataSheet)outdata.get("error"));
 		
 		PrintWriter writer = resp.getWriter();
-		writer.write(outdata.getPayLoad());
+		if(outdata.getPayLoad()!=null)
+			writer.write(outdata.getPayLoad());
 		
 		writer.flush();
 		writer.close();		

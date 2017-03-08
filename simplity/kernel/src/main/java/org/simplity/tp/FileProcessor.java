@@ -65,6 +65,10 @@ public class FileProcessor extends Block {
 	 */
 	String inFileNamePattern;
 	/**
+	 * parsed inFileNamePattern
+	 */
+	private String parsedInFileNamePattern;
+	/**
 	 * if we are to create an output file. file name can contain parts of input
 	 * file name as part of it. example if input file name is a.txt
 	 * {name}{ext}.out will translate to a.txt.out and {fileName}.out will
@@ -131,6 +135,12 @@ public class FileProcessor extends Block {
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
 		Tracer.trace("Going to process files in folder " + this.inFolderName + " that exists = " + this.inbox.exists());
+		
+		if(this.inFileNamePattern.startsWith("$")){
+				this.parsedInFileNamePattern = ctx.getValue(this.parsedInFileNamePattern).toText();	
+		}
+		
+		this.filter = TextUtil.getFileNameFilter(this.parsedInFileNamePattern);
 		int nbrFiles = 0;
 		Record record = ComponentManager.getRecord(this.inRecordName);
 		Record outRecord = null;
@@ -189,7 +199,7 @@ public class FileProcessor extends Block {
 				 */
 				if (errors.size() > 0) {
 					for(FormattedMessage error:errors){
-						error.values[0] = inText;
+						error.addData(inText);
 					}
 					List<FormattedMessage> errorsCopy = new ArrayList<FormattedMessage>(errors);
 					earlierMessages.addAll(errorsCopy);
@@ -288,13 +298,19 @@ public class FileProcessor extends Block {
 	@Override
 	public void getReady(int idx) {
 		super.getReady(idx);
+		
+		this.parsedInFileNamePattern = TextUtil.getFieldName(this.inFileNamePattern);
+		if(this.parsedInFileNamePattern==null){
+			this.parsedInFileNamePattern = this.inFileNamePattern;
+		}
+		
 		if (this.actionOnErrorWhileProcessing != null) {
 			this.actionOnErrorWhileProcessing.getReady(0);
 		}
 		if (this.actionOnInvalidInputRow != null) {
 			this.actionOnInvalidInputRow.getReady(0);
 		}
-		this.filter = TextUtil.getFileNameFilter(this.inFileNamePattern);
+				
 		this.inbox = new File(this.inFolderName);
 		if (this.inFolderName != null && this.inFolderName.endsWith("/") == false) {
 			this.inFolderName += '/';
@@ -318,7 +334,7 @@ public class FileProcessor extends Block {
 			vtx.addError("inFolderName is required for file processor");
 			count++;
 		}
-		if (this.inFileNamePattern == null) {
+		if (this.parsedInFileNamePattern == null) {
 			vtx.addError("inFileNamePattern is required for file processor");
 			count++;
 		}

@@ -21,6 +21,9 @@
  */
 package org.simplity.kernel;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.simplity.json.JSONWriter;
 import org.simplity.json.Jsonable;
 import org.simplity.kernel.comp.ComponentType;
@@ -67,6 +70,10 @@ public class FormattedMessage implements Jsonable {
 	 */
 	public String[] values;
 
+	/**
+	 * custom data used by various actions
+	 */
+	public String[] data;
 	/**
 	 * we require these three fields that can not be changed afterwards. Other
 	 * attributes can be optionally set
@@ -115,7 +122,7 @@ public class FormattedMessage implements Jsonable {
 		}
 	}
 
-	/**
+		/**
 	 *
 	 * @param msgName
 	 *            message name
@@ -165,5 +172,17 @@ public class FormattedMessage implements Jsonable {
 			writer.endArray();
 		}
 		writer.endObject();
+	}
+	
+	public void addData(String data){
+		if(this.data==null){
+			this.data = new String[1];
+			this.data[0] = data;
+			return;
+		}
+		String[] tempData = Arrays.copyOf(this.data, this.data.length+1);
+		tempData[this.data.length] = data;
+		this.data = tempData;
+		return;		
 	}
 }

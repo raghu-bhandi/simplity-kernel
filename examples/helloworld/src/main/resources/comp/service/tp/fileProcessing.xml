@@ -5,6 +5,7 @@
 	dbAccessType="none"
 >
 	<actions>
+		<setValue fieldName="inputfilename" fieldValue="txt01.txt"></setValue>
 		<createSheet sheetName="collect" recordName="hello"/>
 		<fileProcessor
 			inFolderName="${basedir}/infile"
