@@ -3195,7 +3195,7 @@
 				</xs:simpleType>
 			</xs:attribute>
 			<xs:attribute
-				name="restUrlParsing"
+				name="parseUrlAsRest"
 				type="xs:boolean"
 				use="optional"
 			>

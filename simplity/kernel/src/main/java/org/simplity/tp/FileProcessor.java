@@ -30,8 +30,6 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.simplity.kernel.Application;
@@ -40,10 +38,7 @@ import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.data.DataSheet;
-import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.FlatFileRowType;
-import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
@@ -194,7 +189,7 @@ public class FileProcessor extends Block {
 				 */
 				if (errors.size() > 0) {
 					for(FormattedMessage error:errors){
-						error.data = inText;
+						error.values[0] = inText;
 					}
 					List<FormattedMessage> errorsCopy = new ArrayList<FormattedMessage>(errors);
 					earlierMessages.addAll(errorsCopy);

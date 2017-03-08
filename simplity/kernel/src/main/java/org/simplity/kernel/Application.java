@@ -245,7 +245,7 @@ public class Application {
 	/**
 	 * Enable Rest URL parsing
 	 */
-	String restUrlParsing;
+	boolean parseUrlAsRest;
 	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
@@ -414,7 +414,7 @@ public class Application {
 				uid = Value.newTextValue(this.autoLoginUserId);
 			}
 		}
-		HttpAgent.setUp(uid, cacher, this.sendTraceToClient,Boolean.valueOf(this.restUrlParsing));
+		HttpAgent.setUp(uid, cacher, this.sendTraceToClient,Boolean.valueOf(this.parseUrlAsRest));
 		String result = null;
 		if (msgs.size() > 0) {
 			/*

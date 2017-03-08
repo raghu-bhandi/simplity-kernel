@@ -66,10 +66,6 @@ public class FormattedMessage implements Jsonable {
 	 * run-time values that may have to be inserted into the message
 	 */
 	public String[] values;
-	/**
-	 * capture other related data
-	 */
-	public String data;
 
 	/**
 	 * we require these three fields that can not be changed afterwards. Other
