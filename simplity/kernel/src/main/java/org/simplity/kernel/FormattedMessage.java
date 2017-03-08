@@ -171,6 +171,14 @@ public class FormattedMessage implements Jsonable {
 			}
 			writer.endArray();
 		}
+		if (this.data != null) {
+			writer.key("data");
+			writer.array();
+			for (String val : this.data) {
+				writer.value(val);
+			}
+			writer.endArray();
+		}
 		writer.endObject();
 	}
 	

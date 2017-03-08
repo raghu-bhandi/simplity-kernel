@@ -321,6 +321,7 @@ public class ServiceData implements Serializable {
 				.value(ServiceProtocol.STATUS_ERROR);
 		writer.key(ServiceProtocol.MESSAGES);
 		JsonUtil.addObject(writer, this.getMessages());
+		writer.endObject();
 		return writer.toString();
 	}
 }

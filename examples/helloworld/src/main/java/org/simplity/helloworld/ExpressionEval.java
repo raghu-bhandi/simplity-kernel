@@ -1,4 +1,4 @@
-package helloworld;
+package org.simplity.helloworld;
 
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.fn.AbstractFunction;

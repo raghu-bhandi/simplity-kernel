@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	moduleName="fileactions"
+	xmlns="http://www.simplity.org/schema"
+	name="fileProcessing"
+	dbAccessType="none"
+>
+	<actions>
+		<setValue
+			fieldName="inputfilename"
+			fieldValue="txt01.txt"
+		></setValue>
+		<createSheet
+			sheetName="collect"
+			recordName="files.hello" />
+		<fileProcessor
+			inFolderName="${basedir}/infile"
+			inFileNamePattern="txt01.txt"
+			inDataFormat="fixedWidth"
+			inRecordName="files.hello"
+			outFolderName="${basedir}/outfile"
+			outFileName="{name}.{ext}"
+			outDataFormat="fixedWidth"
+			outRecordName="files.adios"
+		>
+			<actionOnInvalidInputRow>
+				<log names="invalidInputRow" />
+			</actionOnInvalidInputRow>
+			<actionOnErrorWhileProcessing>
+				<log names="errorWhileProcessingRow" />
+			</actionOnErrorWhileProcessing>
+			<actions>
+				<addRow sheetName="collect" />
+			</actions>
+		</fileProcessor>
+	</actions>
+	<outputData dataSheets="collect"></outputData>
+</service>

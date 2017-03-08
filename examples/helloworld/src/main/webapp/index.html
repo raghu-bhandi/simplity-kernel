@@ -32,32 +32,32 @@ function onSuccess(response){
 	document.getElementById("response").innerHTML = JSON.stringify(response);
 }
 function onError(response){
-	console.log(response);
+	document.getElementById("response").innerHTML = JSON.stringify(response);
 }
 
 function callRest(){
-	Simplity.getResponse("callAnotherService",null,onSuccess,onError);
+	Simplity.getResponse("rest.callAnotherService",null,onSuccess,onError);
 }
 function callFile(){
-	Simplity.getResponse("fileProcessing",null,onSuccess,onError);
+	Simplity.getResponse("fileactions.fileProcessing",null,onSuccess,onError);
 }
 function callAgents(){
 	var data = "{'fieldName':'commission','commission':0.15,'commissionOperator':'<'}";
-	Simplity.getResponse("filter_agents",data,onSuccess,onError);
+	Simplity.getResponse("filter_tables.agents",data,onSuccess,onError);
 }
 function callCustomer(){
-	Simplity.getResponse("filter_customer",null,onSuccess,onError);
+	Simplity.getResponse("filter_tables.customer",null,onSuccess,onError);
 }
 
 function callSQL(){
 	var data = "{'custCode':'C00013'}"
-	Simplity.getResponse("callSqlqueryCust",data,onSuccess,onError);
+	Simplity.getResponse("dbactions.callSqlqueryCust",data,onSuccess,onError);
 }
 function invokeCustomServlet(){
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 	    if (this.readyState == 4 && this.status == 200) {
-	    	document.getElementById("response").innerHTML = JSON.stringify(response);
+	    	document.getElementById("response").innerHTML = JSON.stringify(this.response);
 	    }
 	};
 	xhttp.open("GET", "\processFile", true);

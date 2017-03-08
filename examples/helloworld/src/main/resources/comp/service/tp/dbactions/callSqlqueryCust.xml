@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <service
+	moduleName="dbactions"
 	xmlns="http://www.simplity.org/schema"
 	name="callSqlqueryCust"
-	dbAccessType="readOnly">
+	dbAccessType="readOnly"
+>
 	<inputData>
 		<inputFields>
-			<inputField dataType="_text" name="custCode"/>
+			<inputField
+				dataType="_text"
+				name="custCode" />
 		</inputFields>
 	</inputData>
 	<actions>
-		<readWithSql sqlName="hw.queryCust" outputSheetName="custRec"></readWithSql>	
+		<readWithSql
+			sqlName="queryCust"
+			outputSheetName="custRec"
+		></readWithSql>
 	</actions>
 	<outputData dataSheets="custRec"></outputData>
 </service>

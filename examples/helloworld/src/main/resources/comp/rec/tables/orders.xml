@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
+	moduleName="tables"
 	name="orders"
 	recordType="storage"
 	tableName="ORDERS"
@@ -36,7 +37,7 @@
 			fieldType="foreignKey"
 			name="custCode"
 			referredField="custCode"
-			referredRecord="customer"
+			referredRecord="tables.customer"
 			sqlTypeName="VARCHAR" />
 		<field
 			columnName="AGENT_CODE"
@@ -44,7 +45,7 @@
 			fieldType="parentKey"
 			name="agentCode"
 			referredField="agentCode"
-			referredRecord="agents"
+			referredRecord="tables.agents"
 			sqlTypeName="CHAR" />
 		<field
 			columnName="ORD_DESCRIPTION"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <service
-	moduleName="sample"
+	moduleName="rest"
 	xmlns="http://www.simplity.org/schema"
 	name="helloworld"
 	dbAccessType="none"
