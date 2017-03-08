@@ -88,6 +88,9 @@ public class Read extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+		if(driver==null){
+			throw new ApplicationError("Read requires the service dbAccessType to be set to read-write or read-only");
+		}
 		Record record = ComponentManager.getRecord(this.recordName);
 		DataSheet inSheet = null;
 		int result = 0;

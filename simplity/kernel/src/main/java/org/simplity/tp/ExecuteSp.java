@@ -65,6 +65,9 @@ public class ExecuteSp extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+		if(driver==null){
+			throw new ApplicationError("ExecuteSP requires the service dbAccessType to be set to read-write");
+		}
 		FieldsInterface inSheet = ctx;
 		FieldsInterface outSheet = ctx;
 

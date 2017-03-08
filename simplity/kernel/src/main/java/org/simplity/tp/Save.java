@@ -97,6 +97,9 @@ public class Save extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+		if(driver==null){
+			throw new ApplicationError("Save requires the service dbAccessType to be set to read-write");
+		}		
 		if (this.inputSheetName == null) {
 			return this.saveFromFields(ctx, driver);
 		}

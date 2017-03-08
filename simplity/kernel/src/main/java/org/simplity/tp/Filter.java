@@ -21,6 +21,7 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
@@ -91,6 +92,9 @@ public class Filter extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+		if(driver==null){
+			throw new ApplicationError("Filter requires the service dbAccessType to be set to read-write or read-only");
+		}
 		Record record = ComponentManager.getRecord(this.filterRecordName);
 		Record outRecord = record;
 		if (this.outputRecordName != null) {

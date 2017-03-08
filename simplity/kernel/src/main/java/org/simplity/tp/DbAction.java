@@ -106,6 +106,11 @@ public abstract class DbAction extends Action {
 	@Override
 	public int validate(ValidationContext ctx, Service service) {
 		int count = super.validate(ctx, service);
+		if(service.dbAccessType==DbAccessType.NONE){
+			ctx.addError("ReadWithSql requires DB access type in service to be either read-only or read-write.");
+			count++;
+		}		
+		
 		if (this.failureMessageName != null) {
 			ctx.addReference(ComponentType.MSG, this.failureMessageName);
 		}

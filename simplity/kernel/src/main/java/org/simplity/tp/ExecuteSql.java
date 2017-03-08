@@ -22,6 +22,7 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -60,6 +61,9 @@ public class ExecuteSql extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+		if (driver == null) {
+			throw new ApplicationError("ExecuteSQL requires the service dbAccessType to be set to read-write");
+		}
 		Sql sql = ComponentManager.getSql(this.sqlName);
 		if (this.inputSheetName == null) {
 			return sql.execute(ctx, driver, this.treatSqlErrorAsNoResult);
@@ -69,9 +73,8 @@ public class ExecuteSql extends DbAction {
 		if (inSheet != null) {
 			return sql.execute(inSheet, driver, this.treatSqlErrorAsNoResult);
 		}
-		Tracer.trace("Sql Save Action " + this.actionName
-				+ " did not execute because input sheet " + this.inputSheetName
-				+ " is not found.");
+		Tracer.trace("Sql Save Action " + this.actionName + " did not execute because input sheet "
+				+ this.inputSheetName + " is not found.");
 		return 0;
 	}
 
@@ -83,10 +86,8 @@ public class ExecuteSql extends DbAction {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.
-	 * ValidationContext
-	 * , org.simplity.tp.Service)
+	 * @see org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.
+	 * ValidationContext , org.simplity.tp.Service)
 	 */
 	@Override
 	public int validate(ValidationContext ctx, Service service) {
@@ -100,8 +101,8 @@ public class ExecuteSql extends DbAction {
 				ctx.addError("Sql " + this.sqlName + " is not defined");
 				count++;
 			} else if (sql.getSqlType() != SqlType.UPDATE) {
-				ctx.addError("Sql " + this.sqlName
-						+ " is designed for extracting data. It is not meant to be executed.");
+				ctx.addError(
+						"Sql " + this.sqlName + " is designed for extracting data. It is not meant to be executed.");
 				count++;
 
 			}

@@ -22,6 +22,7 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -59,6 +60,9 @@ public class ReadChildren extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+		if(driver==null){
+			throw new ApplicationError("ReadChildren requires the service dbAccessType to be set to read-write or read-only");
+		}
 		Record record = ComponentManager.getRecord(this.recordName);
 		Value parentKey = ctx.getValue(this.parentKeyFieldName);
 		if (Value.isNull(parentKey)) {
