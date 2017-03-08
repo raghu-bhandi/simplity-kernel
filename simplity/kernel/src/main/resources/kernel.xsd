@@ -284,6 +284,7 @@
 												<xs:enumeration value="data" />
 												<xs:enumeration value="primaryKey" />
 												<xs:enumeration value="parentKey" />
+												<xs:enumeration value="primaryAndParentKey" />
 												<xs:enumeration value="foreignKey" />
 												<xs:enumeration value="createdTimeStamp" />
 												<xs:enumeration value="modifiedTimeStamp" />
@@ -1251,6 +1252,30 @@
 						</xs:annotation>
 					</xs:attribute>
 					<xs:attribute
+						name="listOfLinkColumnsInThisSheet"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Special case where parent-child link is based
+								on more than one columns. This is typically for tables with
+								composite primary keys. This is a comma separated list of names.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="listOfLinkColumnsInParentSheet"
+						type="xs:string"
+						use="optional"
+					>
+						<xs:annotation>
+							<xs:documentation>Special case where parent-child link is based
+								on more than one columns. This is typically for tables with
+								composite primary keys. This is a comma separated list of names.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
 						name="description"
 						type="xs:string"
 						use="optional" />
@@ -1398,7 +1423,7 @@
 						</xs:annotation>
 					</xs:attribute>
 					<xs:attribute
-						name="listOfLinkClumnsInParentSheet"
+						name="listOfLinkColumnsInParentSheet"
 						type="xs:string"
 						use="optional"
 					>
@@ -1872,6 +1897,7 @@
 			<xs:enumeration value="text/html" />
 		</xs:restriction>
 	</xs:simpleType>
+
 	<xs:complexType name="httpClient">
 		<xs:all>
 			<xs:element
@@ -2009,6 +2035,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:complexType name="jmsConsumer">
 		<xs:all>
 			<xs:element
@@ -2027,8 +2054,10 @@
 				maxOccurs="1"
 				type="actions" />
 		</xs:all>
+
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
+
 	<xs:complexType name="jmsProducer">
 		<xs:all>
 			<xs:element
@@ -2044,6 +2073,7 @@
 		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
+
 	<xs:complexType name="jumpTo">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2510,6 +2540,7 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+
 				<xs:element
 					name="actionOnErrorWhileProcessing"
 					type="anAction"
@@ -2522,6 +2553,7 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+
 			</xs:all>
 			<xs:attributeGroup ref="actionAttributes" />
 			<xs:attribute
@@ -3196,7 +3228,7 @@
 			</xs:attribute>
 			<xs:attribute
 				name="parseUrlAsRest"
-				type="xs:boolean"
+				type="booleanType"
 				use="optional"
 			>
 				<xs:annotation>
@@ -3683,6 +3715,7 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+
 	<xs:complexType name="jmsQueue">
 		<xs:attribute
 			name="queueName"
@@ -3778,6 +3811,7 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+
 		<xs:attribute
 			name="messageType"
 			type="xs:string"
@@ -3789,6 +3823,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:simpleType name="flatFileType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="fixedWidth">
@@ -3807,6 +3842,7 @@
 			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
+
 	<xs:simpleType name="dataSerializationType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="text">

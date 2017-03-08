@@ -44,6 +44,10 @@ public enum FieldType {
 	, PARENT_KEY
 
 	/**
+	 * rare but useful setting when db designer uses composite keys
+	 */
+	,PRIMARY_AND_PARENT_KEY
+	/**
 	 * link to another table
 	 */
 	, FOREIGN_KEY
@@ -90,5 +94,19 @@ public enum FieldType {
 	 * this is array of child-records. Valid only for records that represent
 	 * data structure
 	 */
-	, RECORD_ARRAY
+	, RECORD_ARRAY;
+	/**
+	 * @param ft
+	 * @return true if the type is primary or primary as well as parent
+	 */
+	public static boolean isPrimaryKey(FieldType ft){
+		return ft == PRIMARY_KEY || ft == PRIMARY_AND_PARENT_KEY;
+	}
+	/**
+	 * @param ft
+	 * @return true if the type is parent key, or primary as well as parent
+	 */
+	public static boolean isParentKey(FieldType ft){
+		return ft == PARENT_KEY || ft == PRIMARY_AND_PARENT_KEY;
+	}
 }

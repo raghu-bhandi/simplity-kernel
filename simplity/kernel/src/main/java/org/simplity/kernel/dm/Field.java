@@ -69,6 +69,10 @@ public class Field {
 	 */
 	String dataType;
 
+	/**
+	 *
+	 * @param dataType
+	 */
 	public void setDataType(String dataType) {
 		this.dataType = dataType;
 	}
@@ -177,7 +181,6 @@ public class Field {
 	 * number of characters this field is taking-up
 	 */
 	int fieldWidth;
-	// Map<String, String> pageFieldAttributes = new HashMap<String, String>();
 	/*
 	 * fields that are cached for performance
 	 */
@@ -206,12 +209,13 @@ public class Field {
 	 */
 	private Field referredFieldCached;
 
-	/**
-	 * some standard fields can not be updated ..
+	/*
+	 * IMPORTANT : note that we are initializing these true as default
+	 * getReady() may change this to false
 	 */
-	private boolean doNotUpdate = false;
-	private boolean doNotInsert = false;
-	private boolean doNotExtract = false;
+	private boolean updateable = true;
+	private boolean insertable = true;
+	private boolean extractable = true;
 	// private boolean doNotShow = false;
 	private FieldDisplayType displayType = null;
 
@@ -229,8 +233,24 @@ public class Field {
 	 * @return false if this is one of the standard fields that are not to be
 	 *         touched retained once inserted
 	 */
-	boolean doNotUpdate() {
-		return this.doNotUpdate;
+	public boolean canUpdate() {
+		return this.updateable;
+	}
+
+	/**
+	 * @return false if this is one of the standard fields that are not to be
+	 *         touched retained once inserted
+	 */
+	public boolean canInsert() {
+		return this.insertable;
+	}
+
+	/**
+	 * @return false if this is one of the standard fields that are not to be
+	 *         touched retained once inserted
+	 */
+	public boolean canExtract() {
+		return this.extractable;
 	}
 
 	/**
@@ -282,8 +302,7 @@ public class Field {
 	 * @param recordName
 	 * @return number of fields extracted
 	 */
-	public int parseFilter(Map<String, String> inputValues,
-			FieldsInterface extratedFields,
+	public int parseFilter(Map<String, String> inputValues, FieldsInterface extratedFields,
 			List<FormattedMessage> validationErrors, String recordName) {
 
 		String textValue = inputValues.get(this.name);
@@ -307,18 +326,14 @@ public class Field {
 		 * handle the special case of in list
 		 */
 		if (FilterCondition.In == f) {
-			if (vt != ValueType.TEXT && vt != ValueType.INTEGER
-					&& vt != ValueType.DECIMAL) {
-				validationErrors.add(new FormattedMessage(
-						Messages.INVALID_VALUE, recordName, this.name, null, 0,
+			if (vt != ValueType.TEXT && vt != ValueType.INTEGER && vt != ValueType.DECIMAL) {
+				validationErrors.add(new FormattedMessage(Messages.INVALID_VALUE, recordName, this.name, null, 0,
 						" inList condition is valid for numeric and text fields only "));
 				return 0;
 			}
 			Value[] vals = Value.parse(textValue.split(","), vt);
 			if (vals == null) {
-				validationErrors
-						.add(new FormattedMessage(Messages.INVALID_VALUE,
-								recordName, this.name, null, 0));
+				validationErrors.add(new FormattedMessage(Messages.INVALID_VALUE, recordName, this.name, null, 0));
 				return 0;
 			}
 			extratedFields.setValue(this.name, Value.newTextValue(textValue));
@@ -334,14 +349,12 @@ public class Field {
 		 */
 		value = Value.parseValue(textValue, vt);
 		if (value == null) {
-			validationErrors.add(new FormattedMessage(Messages.INVALID_VALUE,
-					recordName, this.name, null, 0));
+			validationErrors.add(new FormattedMessage(Messages.INVALID_VALUE, recordName, this.name, null, 0));
 		} else {
 			extratedFields.setValue(this.name, value);
 		}
 		if (f == null) {
-			extratedFields.setValue(otherName,
-					Value.newTextValue(ServiceProtocol.EQUAL));
+			extratedFields.setValue(otherName, Value.newTextValue(ServiceProtocol.EQUAL));
 			return 0;
 		}
 		extratedFields.setValue(otherName, Value.newTextValue(otherValue));
@@ -355,8 +368,7 @@ public class Field {
 			value = Value.parseValue(textValue, vt);
 		}
 		if (value == null) {
-			validationErrors.add(new FormattedMessage(Messages.INVALID_VALUE,
-					recordName, otherName, null, 0));
+			validationErrors.add(new FormattedMessage(Messages.INVALID_VALUE, recordName, otherName, null, 0));
 		} else {
 			extratedFields.setValue(otherName, value);
 		}
@@ -373,9 +385,9 @@ public class Field {
 	 * @param recordName
 	 * @return parsed value. null if no input or input is in error.
 	 */
-	public Value parseField(String inputValue, List<FormattedMessage> errors,
-			boolean allFieldsAreOptional, String recordName) {
-		if (this.doNotExtract) {
+	public Value parseField(String inputValue, List<FormattedMessage> errors, boolean allFieldsAreOptional,
+			String recordName) {
+		if (this.extractable == false) {
 			return null;
 		}
 		String textValue = inputValue == null ? null : inputValue.trim();
@@ -387,8 +399,7 @@ public class Field {
 			if (this.isRequired == false || allFieldsAreOptional) {
 				return null;
 			}
-			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName,
-					this.name, null, 0));
+			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName, this.name, null, 0));
 			return null;
 		}
 		Value value = null;
@@ -398,8 +409,7 @@ public class Field {
 			value = this.dataTypeObject.parseValue(textValue);
 		}
 		if (value == null && errors != null) {
-			errors.add(new FormattedMessage(this.messageName, recordName,
-					this.name, null, 0));
+			errors.add(new FormattedMessage(this.messageName, recordName, this.name, null, 0));
 		}
 		return value;
 	}
@@ -414,9 +424,9 @@ public class Field {
 	 * @return parsed and validated value. Null if there is no value. Any
 	 *         validation error is added to errors
 	 */
-	public Value parseObject(Object inputValue, List<FormattedMessage> errors,
-			boolean allFieldsAreOptional, String recordName) {
-		if (this.doNotExtract) {
+	public Value parseObject(Object inputValue, List<FormattedMessage> errors, boolean allFieldsAreOptional,
+			String recordName) {
+		if (this.extractable == false) {
 			return null;
 		}
 
@@ -427,14 +437,12 @@ public class Field {
 			if (this.isRequired == false || allFieldsAreOptional) {
 				return null;
 			}
-			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName,
-					this.name, null, 0));
+			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName, this.name, null, 0));
 			return null;
 		}
 		Value value = this.dataTypeObject.getValueType().fromObject(inputValue);
 		if (value == null && errors != null) {
-			errors.add(new FormattedMessage(this.messageName, recordName,
-					this.name, null, 0));
+			errors.add(new FormattedMessage(this.messageName, recordName, this.name, null, 0));
 		}
 		return value;
 	}
@@ -449,13 +457,11 @@ public class Field {
 	 * @return parsed and validated value. Null if there is no value. Any
 	 *         validation error is added to errors
 	 */
-	public Value[] parseArray(Object[] values, List<FormattedMessage> errors,
-			String recordName) {
+	public Value[] parseArray(Object[] values, List<FormattedMessage> errors, String recordName) {
 
 		if (values == null || values.length == 0) {
 			if (this.isRequired) {
-				errors.add(new FormattedMessage(Messages.VALUE_REQUIRED,
-						recordName, this.name, null, 0));
+				errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName, this.name, null, 0));
 			}
 			return null;
 		}
@@ -469,8 +475,8 @@ public class Field {
 			if (value != null) {
 				value = this.dataTypeObject.validateValue(value);
 				if (value == null) {
-					errors.add(new FormattedMessage(Messages.INVALID_VALUE,
-							recordName, this.name, null, 0, val.toString()));
+					errors.add(new FormattedMessage(Messages.INVALID_VALUE, recordName, this.name, null, 0, val
+							.toString()));
 					continue;
 				}
 				result[i] = value;
@@ -486,8 +492,7 @@ public class Field {
 	 * @param validationErrors
 	 * @param recordName
 	 */
-	public void validateInterfield(FieldsInterface fields,
-			List<FormattedMessage> validationErrors, String recordName) {
+	public void validateInterfield(FieldsInterface fields, List<FormattedMessage> validationErrors, String recordName) {
 		if (this.hasInterFieldValidations == false) {
 			return;
 		}
@@ -500,9 +505,8 @@ public class Field {
 			if (this.basedOnField != null) {
 				Value basedValue = fields.getValue(this.basedOnField);
 				if (basedValue == null) {
-					validationErrors.add(new FormattedMessage(
-							Messages.INVALID_BASED_ON_FIELD, recordName,
-							this.name, this.basedOnField, 0));
+					validationErrors.add(new FormattedMessage(Messages.INVALID_BASED_ON_FIELD, recordName, this.name,
+							this.basedOnField, 0));
 				}
 			}
 			/*
@@ -512,8 +516,7 @@ public class Field {
 			if (this.otherField != null) {
 				Value otherValue = fields.getValue(this.basedOnField);
 				if (otherValue == null) {
-					validationErrors.add(new FormattedMessage(
-							Messages.INVALID_OTHER_FIELD, recordName, this.name,
+					validationErrors.add(new FormattedMessage(Messages.INVALID_OTHER_FIELD, recordName, this.name,
 							this.basedOnField, 0));
 				}
 			}
@@ -528,17 +531,14 @@ public class Field {
 			Value fromValue = fields.getValue(this.fromField);
 			if (fromValue != null) {
 				try {
-					result = (BooleanValue) BinaryOperator.Greater
-							.operate(fromValue, value);
+					result = (BooleanValue) BinaryOperator.Greater.operate(fromValue, value);
 				} catch (InvalidOperationException e) {
-					throw new ApplicationError("incompatible fields "
-							+ this.name + " and " + this.fromField
+					throw new ApplicationError("incompatible fields " + this.name + " and " + this.fromField
 							+ " are set as from-to fields");
 				}
 				if (result.getBoolean()) {
-					validationErrors
-							.add(new FormattedMessage(Messages.INVALID_FROM_TO,
-									recordName, this.fromField, this.name, 0));
+					validationErrors.add(new FormattedMessage(Messages.INVALID_FROM_TO, recordName, this.fromField,
+							this.name, 0));
 				}
 			}
 		}
@@ -549,17 +549,14 @@ public class Field {
 			Value toValue = fields.getValue(this.toField);
 			if (toValue != null) {
 				try {
-					result = (BooleanValue) BinaryOperator.Greater
-							.operate(value, toValue);
+					result = (BooleanValue) BinaryOperator.Greater.operate(value, toValue);
 				} catch (InvalidOperationException e) {
-					throw new ApplicationError("incompatible fields "
-							+ this.name + " and " + this.fromField
+					throw new ApplicationError("incompatible fields " + this.name + " and " + this.fromField
 							+ " are set as from-to fields");
 				}
 				if (result.getBoolean()) {
-					validationErrors
-							.add(new FormattedMessage(Messages.INVALID_FROM_TO,
-									recordName, this.name, this.toField, 0));
+					validationErrors.add(new FormattedMessage(Messages.INVALID_FROM_TO, recordName, this.name,
+							this.toField, 0));
 				}
 			}
 		}
@@ -567,10 +564,10 @@ public class Field {
 
 	/**
 	 *
-	 * to be called by parent record after adding all fields
+	 * to be called by record after adding all fields
 	 *
 	 */
-	void getReady(Record parentRecord, Record defRecord, boolean isView) {
+	void getReady(Record myRecord, Record defRecord, boolean isView) {
 		/*
 		 * set default type
 		 */
@@ -593,11 +590,10 @@ public class Field {
 		 * referred field. Note that both referredField and referredRecord are
 		 * optional, and we have to use default values
 		 */
-		if (this.fieldType != FieldType.RECORD
-				&& this.fieldType != FieldType.RECORD_ARRAY) {
+		if (this.fieldType != FieldType.RECORD && this.fieldType != FieldType.RECORD_ARRAY) {
 			Record ref = defRecord;
 			if (this.referredRecord != null) {
-				ref = parentRecord.getRefRecord(this.referredRecord);
+				ref = myRecord.getRefRecord(this.referredRecord);
 			}
 			if (ref != null && this.fieldType != FieldType.TEMP) {
 				if (this.referredRecord == null) {
@@ -608,10 +604,8 @@ public class Field {
 				}
 				this.referredFieldCached = ref.getField(this.referredField);
 				if (this.referredFieldCached == null) {
-					throw new ApplicationError("Field " + this.name
-							+ " in record " + parentRecord.getQualifiedName()
-							+ " refers to field " + this.referredField
-							+ " of record " + this.referredRecord
+					throw new ApplicationError("Field " + this.name + " in record " + myRecord.getQualifiedName()
+							+ " refers to field " + this.referredField + " of record " + this.referredRecord
 							+ ". Referred field is not found in the referred record.");
 				}
 				this.copyFromRefField();
@@ -633,18 +627,15 @@ public class Field {
 		}
 		this.dataTypeObject = ComponentManager.getDataType(this.dataType);
 
-		this.hasInterFieldValidations = this.fromField != null
-				|| this.toField != null || this.otherField != null
+		this.hasInterFieldValidations = this.fromField != null || this.toField != null || this.otherField != null
 				|| this.basedOnField != null;
 		/*
 		 * parse default value
 		 */
 		if (this.defaultValue != null) {
-			this.defaultValueObject = this.dataTypeObject
-					.parseValue(this.defaultValue);
+			this.defaultValueObject = this.dataTypeObject.parseValue(this.defaultValue);
 			if (this.defaultValueObject == null) {
-				throw new ApplicationError("Field " + this.name
-						+ " has an invalid default value of "
+				throw new ApplicationError("Field " + this.name + " has an invalid default value of "
 						+ this.defaultValue);
 			}
 		}
@@ -657,8 +648,7 @@ public class Field {
 				this.validValues = this.dataTypeObject.getValidValues();
 			}
 		} else {
-			this.validValues = Value.parseValueList(this.valueList,
-					this.dataTypeObject.getValueType());
+			this.validValues = Value.parseValueList(this.valueList, this.dataTypeObject.getValueType());
 		}
 		if (this.messageName == null) {
 			this.messageName = this.dataTypeObject.getMessageName();
@@ -666,41 +656,46 @@ public class Field {
 		if (this.description == null) {
 			this.description = this.dataTypeObject.getDescription();
 		}
-		/*
-		 * we either do not allow modification, or hard code values during
-		 * update/insert operations
-		 */
-		this.doNotUpdate = this.fieldType == FieldType.PRIMARY_KEY
-				|| this.fieldType == FieldType.PARENT_KEY
-				|| this.fieldType == FieldType.CREATED_BY_USER
-				|| this.fieldType == FieldType.CREATED_TIME_STAMP
-				|| this.fieldType == FieldType.MODIFIED_TIME_STAMP;
-		this.doNotInsert = this.fieldType == FieldType.CREATED_TIME_STAMP
-				|| this.fieldType == FieldType.MODIFIED_TIME_STAMP
-				|| (this.fieldType == FieldType.PRIMARY_KEY
-						&& parentRecord.keyToBeGenerated);
+		this.setAbles(myRecord);
+	}
 
-		// this.doNotShow = this.doNotInsert || this.fieldType ==
-		// FieldType.CREATED_BY_USER
-		// || this.fieldType == FieldType.MODIFIED_BY_USER;
-
-		/*
-		 * key field and modified stamps are always optional at field level.
-		 * They are checked at record level depending on the operation
-		 */
-		this.doNotExtract = this.fieldType == FieldType.CREATED_TIME_STAMP
-				|| this.fieldType == FieldType.MODIFIED_BY_USER
-				|| this.fieldType == FieldType.CREATED_BY_USER;
-
-		/*
-		 * some standard fields are optional
-		 */
-		if (this.isRequired) {
-			if (this.fieldType != FieldType.DATA
-					&& this.fieldType != FieldType.FOREIGN_KEY
-					&& this.fieldType != FieldType.PARENT_KEY) {
+	/**
+	 *
+	 */
+	private void setAbles(Record myRecord) {
+		switch (this.fieldType) {
+		case CREATED_BY_USER:
+			this.updateable = false;
+			this.extractable = false;
+			this.isRequired = false;
+			break;
+		case CREATED_TIME_STAMP:
+			this.insertable = false;
+			this.updateable = false;
+			this.extractable = false;
+			this.isRequired = false;
+			break;
+		case MODIFIED_BY_USER:
+			this.extractable = false;
+			break;
+		case MODIFIED_TIME_STAMP:
+			this.insertable = false;
+			this.updateable = false;
+			this.isRequired = false;
+			break;
+		case PARENT_KEY:
+			this.updateable = false;
+			break;
+		case PRIMARY_AND_PARENT_KEY:
+		case PRIMARY_KEY:
+			this.updateable = false;
+			if (myRecord.keyToBeGenerated) {
+				this.insertable = false;
 				this.isRequired = false;
 			}
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -731,13 +726,6 @@ public class Field {
 	 */
 	public FieldDisplayType getDisplayType() {
 		return this.displayType;
-	}
-
-	/**
-	 * @return
-	 */
-	boolean doNotInsert() {
-		return this.doNotInsert;
 	}
 
 	/**
@@ -789,9 +777,9 @@ public class Field {
 	 * @return value that is parsed. This could be the same as input, or
 	 *         modified based on some validation rules.
 	 */
-	public Value parse(Value inputValue, List<FormattedMessage> errors,
-			boolean allFieldsAreOptional, String recordName) {
-		if (this.doNotExtract) {
+	public Value parse(Value inputValue, List<FormattedMessage> errors, boolean allFieldsAreOptional,
+			String recordName) {
+		if (this.extractable == false) {
 			return null;
 		}
 
@@ -802,20 +790,18 @@ public class Field {
 			if (this.defaultValueObject != null) {
 				return this.defaultValueObject;
 			}
-			Tracer.trace("Record " + recordName + " field " + this.name
-					+ " is mandatory.");
-			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName,
-					this.name, null, 0));
+			Tracer.trace("Record " + recordName + " field " + this.name + " is mandatory.");
+			errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName, this.name, null, 0));
 			return null;
 		}
 		Value result = this.dataTypeObject.validateValue(inputValue);
 		if (result == null && errors != null) {
 			if (this.messageName != null) {
-				errors.add(new FormattedMessage(this.messageName, recordName,
-						this.name, null, 0, inputValue.toString()));
+				errors.add(new FormattedMessage(this.messageName, recordName, this.name, null, 0, inputValue
+						.toString()));
 			} else {
-				errors.add(new FormattedMessage(Messages.INVALID_DATA,
-						recordName, this.name, null, 0, this.description));
+				errors.add(new FormattedMessage(Messages.INVALID_DATA, recordName, this.name, null, 0,
+						this.description));
 			}
 		}
 		return result;
@@ -826,8 +812,7 @@ public class Field {
 	 * @param record
 	 * @return
 	 */
-	int validate(ValidationContext ctx, Record record,
-			Set<String> referredFields) {
+	int validate(ValidationContext ctx, Record record, Set<String> referredFields) {
 		int count = 0;
 		if (this.referredRecord != null) {
 			ctx.addReference(ComponentType.REC, this.referredRecord);
@@ -859,18 +844,15 @@ public class Field {
 			try {
 				DataType dt = ComponentManager.getDataTypeOrNull(this.dataType);
 				if (dt == null) {
-					ctx.addError("field " + this.name
-							+ " has an invalid data type of " + this.dataType);
+					ctx.addError("field " + this.name + " has an invalid data type of " + this.dataType);
 					count++;
 				}
 			} catch (Exception e) {
 				// means that the dt exists but it has errors while getting
 				// ready()
 			}
-			if (this.fieldType == FieldType.VALUE_ARRAY
-					&& this.sqlTypeName == null) {
-				ctx.addError("field " + this.name
-						+ " is an array of values. sqlTypeName is mandatory for this field");
+			if (this.fieldType == FieldType.VALUE_ARRAY && this.sqlTypeName == null) {
+				ctx.addError("field " + this.name + " is an array of values. sqlTypeName is mandatory for this field");
 				count++;
 			}
 			return count;
@@ -884,8 +866,7 @@ public class Field {
 			count++;
 		}
 		if (this.referredRecord == null) {
-			ctx.addError("field " + this.name
-					+ " represents a child-record, but referred record is not specified.");
+			ctx.addError("field " + this.name + " represents a child-record, but referred record is not specified.");
 			count++;
 		}
 		/*
@@ -896,11 +877,8 @@ public class Field {
 					+ " represents a child-record, but this record is not a data structure. child-record is valid only for data structures.");
 			count++;
 		}
-		if (this.fieldType == FieldType.RECORD_ARRAY
-				&& record.sqlStructName == null) {
-			ctx.addError("field " + this.name
-					+ " represents an array of child record "
-					+ this.referredRecord
+		if (this.fieldType == FieldType.RECORD_ARRAY && record.sqlStructName == null) {
+			ctx.addError("field " + this.name + " represents an array of child record " + this.referredRecord
 					+ ". But that child record has not defined a value for sqlStructName.");
 			count++;
 		}
@@ -924,51 +902,92 @@ public class Field {
 	 * @return true if data type is mandatory for this field, false otherwise
 	 */
 	public boolean requiresDataType() {
-		return this.fieldType != FieldType.RECORD
-				&& this.fieldType != FieldType.RECORD_ARRAY;
+		return this.fieldType != FieldType.RECORD && this.fieldType != FieldType.RECORD_ARRAY;
 	}
 
+	/**
+	 *
+	 * @param columnName
+	 */
 	public void setColumnName(String columnName) {
 		this.columnName = columnName;
 	}
 
+	/**
+	 *
+	 * @param name
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 *
+	 * @param sqlTypeName
+	 */
 	public void setSqlTypeName(String sqlTypeName) {
 		this.sqlTypeName = sqlTypeName;
 	}
 
+	/**
+	 *
+	 * @param fieldType
+	 */
 	public void setFieldType(FieldType fieldType) {
 		this.fieldType = fieldType;
-
 	}
 
+	/**
+	 *
+	 * @param isNullable
+	 */
 	public void setNullable(boolean isNullable) {
 		this.isNullable = isNullable;
 	}
 
+	/**
+	 *
+	 * @return is this field nullable
+	 */
 	public boolean isNullable() {
 		return this.isNullable;
 	}
 
+	/**
+	 *
+	 * @param isRequired
+	 */
 	public void setRequired(boolean isRequired) {
 		this.isRequired = isRequired;
 	}
 
+	/**
+	 * @return record of the field that this field refers to
+	 */
 	public String getReferredRecord() {
 		return this.referredRecord;
 	}
 
+	/**
+	 *
+	 * @param referredRecord
+	 */
 	public void setReferredRecord(String referredRecord) {
 		this.referredRecord = referredRecord;
 	}
 
+	/**
+	 *
+	 * @return field that this field refers to
+	 */
 	public String getReferredField() {
 		return this.referredField;
 	}
 
+	/**
+	 *
+	 * @param referredField
+	 */
 	public void setReferredField(String referredField) {
 		this.referredField = referredField;
 	}
@@ -981,7 +1000,8 @@ public class Field {
 	}
 
 	/**
-	 * @param fieldWidth to be used for a fixed-width formatting
+	 * @param fieldWidth
+	 *            to be used for a fixed-width formatting
 	 */
 	public void setFieldWidth(int fieldWidth) {
 		this.fieldWidth = fieldWidth;

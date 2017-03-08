@@ -492,9 +492,6 @@ public class Service implements ServiceInterface {
 			OutputRecord[] outRecs = getOutputRecords(record);
 			outData.outputRecords = outRecs;
 		}
-		/*
-		 * one filter action.We use filterToJson
-		 */
 		Action[] actions = { action };
 		service.actions = actions;
 
@@ -703,7 +700,7 @@ public class Service implements ServiceInterface {
 
 	protected static OutputRecord[] getOutputRecords(Record record) {
 		List<OutputRecord> recs = new ArrayList<OutputRecord>();
-		record.addOutputRecords(recs, null, null);
+		record.addOutputRecords(recs);
 		return recs.toArray(new OutputRecord[0]);
 	}
 

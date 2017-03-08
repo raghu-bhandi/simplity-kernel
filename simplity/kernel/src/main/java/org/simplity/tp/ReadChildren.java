@@ -23,7 +23,6 @@
 package org.simplity.tp;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -31,7 +30,6 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
-import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -53,27 +51,13 @@ public class ReadChildren extends DbAction {
 	 */
 	String outputSheetName;
 
-	/**
-	 * field from which value for parent key is to be used
-	 */
-	String parentKeyFieldName;
-
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
 		if(driver==null){
 			throw new ApplicationError("ReadChildren requires the service dbAccessType to be set to read-write or read-only");
 		}
 		Record record = ComponentManager.getRecord(this.recordName);
-		Value parentKey = ctx.getValue(this.parentKeyFieldName);
-		if (Value.isNull(parentKey)) {
-			Tracer.trace("ReadChildren action "
-					+ this.actionName
-					+ " specifies parentKeyFieldName="
-					+ this.parentKeyFieldName
-					+ " but no value found for that field in the context. Read assumed to be normal with no result.");
-			return 0;
-		}
-		DataSheet outSheet = record.filterForAParent(parentKey, driver);
+		DataSheet outSheet = record.filterForAParent(ctx, driver);
 		ctx.putDataSheet(this.outputSheetName, outSheet);
 		return outSheet.length();
 	}

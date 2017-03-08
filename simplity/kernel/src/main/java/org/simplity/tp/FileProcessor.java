@@ -334,7 +334,7 @@ public class FileProcessor extends Block {
 			vtx.addError("inFolderName is required for file processor");
 			count++;
 		}
-		if (this.parsedInFileNamePattern == null) {
+		if (this.inFileNamePattern == null) {
 			vtx.addError("inFileNamePattern is required for file processor");
 			count++;
 		}
