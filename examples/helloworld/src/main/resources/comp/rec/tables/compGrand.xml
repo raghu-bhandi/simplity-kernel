@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	moduleName="tables"
+	name="compGrand"
+	tableName="comp_grand"
+	okToSelectAll="true"
+	
+>
+	<fields>
+		<field
+			name="grandKeyText"
+			dataType="text50"
+			columnName="grand_key_text"
+			fieldType="primaryAndParentKey"
+			referredRecord="tables.compChild"
+			referredField="childKeyText" />
+		<field
+			name="grandKeyNbr"
+			dataType="_number"
+			columnName="grand_key_nbr"
+			fieldType="primaryAndParentKey"
+			referredRecord="tables.compChild"
+			referredField="childKeyNbr" />
+		<field
+			name="grandKeyDateTime"
+			dataType="_dateTime"
+			columnName="grand_key_date_time"
+			fieldType="primaryAndParentKey"
+			referredRecord="tables.compChild"
+			referredField="childKeyDateTime" />
+		<field
+			name="grandKey2Text"
+			dataType="text50"
+			columnName="grand_key2_text"
+			fieldType="primaryKey"
+			/>
+		<field
+			name="grandText"
+			columnName="grand_text"
+			dataType="text50"
+			isRequired="true"/>
+	</fields>
+</record>

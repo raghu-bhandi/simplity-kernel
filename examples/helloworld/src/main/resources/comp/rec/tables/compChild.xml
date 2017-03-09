@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	moduleName="tables"
+	name="compChild"
+	tableName="comp_child"
+	okToSelectAll="true"
+	childrenToBeRead="tables.compGrand"
+>
+	<fields>
+		<field
+			name="childKeyText"
+			dataType="text50"
+			columnName="child_key_text"
+			fieldType="primaryAndParentKey"
+			referredRecord="tables.compParent"
+			referredField="parentKeyText" />
+		<field
+			name="childKeyNbr"
+			dataType="_number"
+			columnName="child_key_nbr"
+			fieldType="primaryAndParentKey"
+			referredRecord="tables.compParent"
+			referredField="parentKeyNbr" />
+		<field
+			name="childKeyDateTime"
+			dataType="_dateTime"
+			columnName="child_key_date_time"
+			fieldType="primaryKey" />
+		<field
+			name="childText"
+			columnName="child_text"
+			dataType="text25"
+			isRequired="true"/>
+		<field
+			name="childModifiedAt"
+			columnName="child_modified_at"
+			dataType="_dateTime"
+			fieldType="modifiedTimeStamp" />
+	</fields>
+</record>

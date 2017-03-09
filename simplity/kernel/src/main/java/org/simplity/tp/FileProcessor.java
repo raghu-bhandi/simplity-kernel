@@ -122,7 +122,6 @@ public class FileProcessor extends Block {
 	/**
 	 * filter corresponding to the input file
 	 */
-	private FilenameFilter filter;
 
 	private File inbox;
 
@@ -140,7 +139,7 @@ public class FileProcessor extends Block {
 				this.parsedInFileNamePattern = ctx.getValue(this.parsedInFileNamePattern).toText();	
 		}
 		
-		this.filter = TextUtil.getFileNameFilter(this.parsedInFileNamePattern);
+		FilenameFilter filter = TextUtil.getFileNameFilter(this.parsedInFileNamePattern);
 		int nbrFiles = 0;
 		Record record = ComponentManager.getRecord(this.inRecordName);
 		Record outRecord = null;
@@ -148,7 +147,7 @@ public class FileProcessor extends Block {
 			outRecord = ComponentManager.getRecord(this.outRecordName);
 		}
 		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
-		for (File file : this.inbox.listFiles(this.filter)) {
+		for (File file : this.inbox.listFiles(filter)) {
 			Tracer.trace("File " + file.getAbsolutePath());
 			if (this.processOneFile(file, ctx, driver, record, outRecord, worker)) {
 				nbrFiles++;

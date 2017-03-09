@@ -12,6 +12,9 @@
 			name="text6"
 			maxLength="6" />
 		<textDataType
+			name="text50"
+			maxLength="50" />
+		<textDataType
 			name="text40"
 			maxLength="40" />
 		<textDataType
@@ -35,6 +38,9 @@
 		<textDataType
 			name="text60"
 			maxLength="60" />
-
+		<textDataType
+			name="name"
+			maxLength="60" />
+		<timestampDataType name="_timestamp" />
 	</components>
 </dataTypes>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	xmlns="http://www.simplity.org/schema"
+	moduleName="tables"
+	name="compParent"
+	tableName="comp_parent"
+	okToSelectAll="true"
+	childrenToBeRead="tables.compChild"
+	childrenToBeSaved="tables.compChild"
+>
+	<fields>
+		<field
+			name="parentKeyText"
+			dataType="text50"
+			columnName="parent_key_text"
+			fieldType="primaryKey" />
+		<field
+			name="parentKeyNbr"
+			dataType="_number"
+			columnName="parent_key_nbr"
+			fieldType="primaryKey" />
+		<field
+			name="text"
+			dataType="text25"
+			isRequired="true" />
+		<field
+			name="nullableText"
+			dataType="text50"
+			isNullable="true" />
+		<field
+			name="createdUser"
+			dataType="text25"
+			columnName="created_user"
+			fieldType="createdByUser" />
+		<field
+			name="createdAt"
+			columnName="created_at"
+			dataType="_timestamp"
+			fieldType="createdTimeStamp" />
+		<field
+			name="modifiedUser"
+			columnName="modified_user"
+			dataType="text25"
+			fieldType="modifiedByUser" />
+		<field
+			name="modifiedAt"
+			columnName="modified_at"
+			dataType="_timestamp"
+			fieldType="modifiedTimeStamp" />
+	</fields>
+</record>
