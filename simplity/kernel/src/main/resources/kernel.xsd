@@ -979,30 +979,6 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="responseTextFieldName"
-				type="xs:NCName"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>Special case where service has created a text to
-						be sent to client as response. Specify the field name. Once this
-						field name is specified, OutputData specification is ignored
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="requestTextFieldName"
-				type="xs:NCName"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>Field to which request text is to be set to.
-						InputData specification is ignored, and no data is extracted be
-						sent to client as response. Specify the field name.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
 				name="schemaName"
 				type="xs:NCName"
 				use="optional"
@@ -1035,7 +1011,7 @@
 	</xs:element>
 	<xs:complexType name="inputData">
 		<xs:sequence
-			minOccurs="1"
+			minOccurs="0"
 			maxOccurs="2"
 		>
 			<xs:element
@@ -1070,6 +1046,33 @@
 			<xs:annotation>
 				<xs:documentation>Refer to attachmentFields. This is for columns in
 					sheet. use sheetName.columnName to qualify.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="setInputToFieldName"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>Name of the field to which the pay-load is
+					assigned to. If this feature is used, pay-load is not parsed at
+					all,
+					but simply assigned to the field as it is. It is assumed that
+					the
+					service actions will take care of it
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="justInputEveryThing"
+			type="booleanType"
+		>
+			<xs:annotation>
+				<xs:documentation>Never use this if you are accepting input from an
+					external source like an http call. Input is parsed with no
+					validation. Data value types are guessed based on the content. To
+					be used typically by utility services, and NEVER by a business
+					service
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1156,6 +1159,32 @@
 					as value. If sheet is not found, but a value is found in fields
 					collection, then we send an array with just one element of that
 					value.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="responseTextFieldName"
+			type="xs:string"
+		>
+			<xs:annotation>
+				<xs:documentation>
+					Use this feature is the service has already
+					prepared a pay-load.
+					Content of this field is used as pay-load.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="justOutputEveryThing"
+			type="booleanType"
+		>
+			<xs:annotation>
+				<xs:documentation>
+					Do not use this for any business service. To be
+					used for testing
+					purposes, and by utility services. all values,
+					arrays and data
+					sheet are written out as paylaod
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1677,6 +1706,23 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
+	<xs:element name="block">
+		<xs:complexType>
+			<xs:sequence
+				minOccurs="1"
+				maxOccurs="1"
+			>
+				<xs:element
+					name="actions"
+					type="actions"
+					minOccurs="1"
+					maxOccurs="1" />
+			</xs:sequence>
+			<xs:attributeGroup ref="actionAttributes" />
+		</xs:complexType>
+
+	</xs:element>
 	<xs:complexType name="copyRows">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -1738,7 +1784,7 @@
 		>
 			<xs:annotation>
 				<xs:documentation>The record name for creating an empty sheet,
-				either the data or the recordName needs to be specified.
+					either the data or the recordName needs to be specified.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>		
@@ -3534,6 +3580,18 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="nbrAssertions"
+				type="xs:int"
+			>
+				<xs:annotation>
+					<xs:documentation>How many assertions are you making in this test
+						case? That is how many test conditions are getting verified in
+						this test case? This is used for reporting results after running a
+						series of tests. Default is 1.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="testRun">
@@ -3583,6 +3641,7 @@
 			<xs:element
 				name="addMessage"
 				type="addMessage" />
+			<xs:element ref="block" />
 			<xs:element
 				name="complexLogic"
 				type="logic" />
