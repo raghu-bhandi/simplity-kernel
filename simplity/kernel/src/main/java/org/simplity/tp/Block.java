@@ -28,15 +28,24 @@ import java.util.Map;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
+import org.simplity.kernel.db.DbDriver;
+import org.simplity.kernel.value.Value;
+import org.simplity.service.ServiceContext;
 
 /**
  * abstract action that manages a block of actions
  * @author simplity.org
  *
  */
-public abstract class Block extends Action{
+public class Block extends Action{
 	/**
-	 * actions that are to be performed for each row of the data sheet
+	 * default constructor
+	 */
+	public Block(){
+		//
+	}
+	/**
+	 * actions of this block
 	 */
 	Action[] actions;
 
@@ -51,6 +60,20 @@ public abstract class Block extends Action{
 	public DbAccessType getDataAccessType() {
 		return this.dbAccess;
 	}
+	@Override
+	protected Value delegate(ServiceContext ctx, DbDriver driver) {
+		BlockWorker actionBlock = new BlockWorker(this.actions,
+				this.indexedActions, ctx);
+		JumpSignal signal = actionBlock.execute(driver);
+		if (signal == JumpSignal.STOP) {
+			return Value.VALUE_FALSE;
+		}
+		if (signal == JumpSignal.BREAK) {
+			return Value.VALUE_TRUE;
+		}
+		return Value.VALUE_TRUE;
+	}
+
 
 	@Override
 	public void getReady(int idx) {

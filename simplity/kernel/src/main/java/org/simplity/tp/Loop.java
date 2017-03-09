@@ -127,7 +127,7 @@ public class Loop extends Block {
 		DataSheet ds = ctx.getDataSheet(this.dataSheetName);
 		if (ds == null) {
 			Tracer.trace("Data Sheet " + this.dataSheetName
-					+ " not found in teh context. Loop action has no work.");
+					+ " not found in the context. Loop action has no work.");
 			return Value.VALUE_TRUE;
 		}
 		if (ds.length() == 0) {
