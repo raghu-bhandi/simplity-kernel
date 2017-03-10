@@ -22,7 +22,6 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -61,9 +60,6 @@ public class ExecuteSql extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		if (driver == null) {
-			throw new ApplicationError("ExecuteSQL requires the service dbAccessType to be set to read-write");
-		}
 		Sql sql = ComponentManager.getSql(this.sqlName);
 		if (this.inputSheetName == null) {
 			return sql.execute(ctx, driver, this.treatSqlErrorAsNoResult);
@@ -86,8 +82,10 @@ public class ExecuteSql extends DbAction {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.
-	 * ValidationContext , org.simplity.tp.Service)
+	 * @see
+	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.
+	 * ValidationContext
+	 * , org.simplity.tp.Service)
 	 */
 	@Override
 	public int validate(ValidationContext ctx, Service service) {

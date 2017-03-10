@@ -154,12 +154,13 @@ public class CreateSheet extends Action {
 	 */
 	@Override
 	public int validate(ValidationContext ctx, Service service) {
-		int nbr = 0;
+
+		int nbr = super.validate(ctx, service);
 		if (this.sheetName == null) {
 			ctx.addError("sheetName is required for createSheet action.");
 			nbr++;
 		}
-		if (recordName == null && (this.data == null || this.data.length == 0 || this.data[0].length == 0)) {
+		if (this.recordName == null && (this.data == null || this.data.length == 0 || this.data[0].length == 0)) {
 			ctx.addError("either the recordName or data had to be provided");
 			nbr++;
 			return nbr;
@@ -208,9 +209,10 @@ public class CreateSheet extends Action {
 	@Override
 	public void getReady(int idx) {
 		super.getReady(idx);
-		if (!(this.data == null || this.data.length == 0 || this.data[0].length == 0))
+		if (!(this.data == null || this.data.length == 0 || this.data[0].length == 0)) {
 			this.returnValue = Value.newIntegerValue(this.data.length - 1);
-		else
+		} else {
 			this.returnValue = Value.newIntegerValue(0);
+		}
 	}
 }

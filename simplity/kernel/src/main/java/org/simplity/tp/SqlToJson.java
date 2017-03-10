@@ -23,7 +23,6 @@
 package org.simplity.tp;
 
 import org.simplity.json.JSONWriter;
-import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -52,9 +51,6 @@ public class SqlToJson extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		if(driver==null){
-			throw new ApplicationError("SqlToJson requires the service dbAccessType to be set to read-write");
-		}
 		Sql sql = ComponentManager.getSql(this.sqlName);
 		JSONWriter writer = new JSONWriter();
 		writer.object().key(this.jsonName).array();

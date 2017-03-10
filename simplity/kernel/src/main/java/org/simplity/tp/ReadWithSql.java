@@ -22,7 +22,6 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -69,9 +68,6 @@ public class ReadWithSql extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		if(driver==null){
-			throw new ApplicationError("ReadWithSql requires the service dbAccessType to be set to read-write or read-only");
-		}
 		Sql sql = ComponentManager.getSql(this.sqlName);
 		DataSheet outSheet = null;
 		if (this.inputSheetName == null) {
