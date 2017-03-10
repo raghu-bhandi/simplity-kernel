@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record name="student" 
+		tableName="student"
+		keyToBeGenerated="false"
+		okToSelectAll="true"
+		recordType="storage" 
+		readOnly="false"				
+        xmlns="http://www.simplity.org/schema">
+  <fields>
+    <field name="id" dataType="_number"/>
+    <field name="name" dataType="_text"/>
+    <field name="address" dataType="_text"/>
+  </fields>
+</record>

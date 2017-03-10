@@ -11,22 +11,23 @@
 			inFolderName="${basedir}/infile"
 			inFileNamePattern="txt01.txt"
 			inDataFormat="fixedWidth"
-			inRecordName="hello"
+			inRecordName="fixed"
 			outFolderName="${basedir}/outfile"
 			outFileName="{name}.{ext}"
 			outDataFormat="fixedWidth"
-			outRecordName="adios"					
+			outRecordName="fixed"					
 		>
 		<actionOnInvalidInputRow>
-			<log names="invalidInputRow"/>
+				<subService serviceName="processErrorRow"/>
 		</actionOnInvalidInputRow>
 		<actionOnErrorWhileProcessing>
-			<log names="errorWhileProcessingRow"/>
+			<subService serviceName="processErrorRow"/>
 		</actionOnErrorWhileProcessing>
-		<actions>
-			<addRow sheetName="collect"/>
-		</actions>
+			<actions>
+				<subService serviceName="insertRows"/>
+			</actions>
 		</fileProcessor>
+		<log names="messages"/>
 	</actions>
 	<outputData dataSheets="collect"></outputData>
 </service>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service xmlns="http://www.simplity.org/schema" name="processErrorRow"
+	dbAccessType="subService">
+	<actions>
+		<logic className="helloworld.ProcessErrorRows"/>
+	</actions>
+</service>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service xmlns="http://www.simplity.org/schema" name="insertRows"
+	dbAccessType="subService">
+	<actions>
+		<log actionName="allOK" names="id,name,address" />
+		<save saveAction="add" recordName="student" actionName="saveAction"></save>
+	</actions>
+</service>
