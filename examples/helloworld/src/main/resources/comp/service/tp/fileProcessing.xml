@@ -6,10 +6,10 @@
 >
 	<actions>
 		<setValue fieldName="inputfilename" fieldValue="txt01.txt"></setValue>
-		<createSheet sheetName="collect" recordName="hello"/>
+		<createSheet sheetName="collect" recordName="fixed"/>
 		<fileProcessor
 			inFolderName="${basedir}/infile"
-			inFileNamePattern="txt01.txt"
+			inFileNamePattern="$inputfilename"
 			inDataFormat="fixedWidth"
 			inRecordName="fixed"
 			outFolderName="${basedir}/outfile"
@@ -27,7 +27,6 @@
 				<subService serviceName="insertRows"/>
 			</actions>
 		</fileProcessor>
-		<log names="messages"/>
 	</actions>
 	<outputData dataSheets="collect"></outputData>
 </service>
