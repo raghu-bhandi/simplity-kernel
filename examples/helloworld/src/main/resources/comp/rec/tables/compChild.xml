@@ -1,41 +1,47 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
-	xmlns="http://www.simplity.org/schema"
-	moduleName="tables"
 	name="compChild"
-	tableName="comp_child"
+	recordType="storage"
+	moduleName="tables"
+	tableName="COMP_CHILD"
+	xmlns="http://www.simplity.org/schema"
 	okToSelectAll="true"
 	childrenToBeRead="tables.compGrand"
 >
 	<fields>
 		<field
 			name="childKeyText"
+			columnName="CHILD_KEY_TEXT"
 			dataType="text50"
-			columnName="child_key_text"
 			fieldType="primaryAndParentKey"
+			sqlTypeName="VARCHAR"
 			referredRecord="tables.compParent"
 			referredField="parentKeyText" />
 		<field
-			name="childKeyNbr"
-			dataType="_number"
-			columnName="child_key_nbr"
+			columnName="CHILD_KEY_NBR"
+			dataType="_decimal"
 			fieldType="primaryAndParentKey"
+			name="childKeyNbr"
+			sqlTypeName="DECIMAL"
 			referredRecord="tables.compParent"
 			referredField="parentKeyNbr" />
 		<field
+			columnName="CHILD_KEY_DATE_TIME"
+			dataType="_dateTime"
+			fieldType="primaryKey"
 			name="childKeyDateTime"
-			dataType="_dateTime"
-			columnName="child_key_date_time"
-			fieldType="primaryKey" />
+			sqlTypeName="DATE" />
 		<field
-			name="childText"
-			columnName="child_text"
+			columnName="CHILD_TEXT"
 			dataType="text25"
-			isRequired="true"/>
+			fieldType="data"
+			name="childText"
+			sqlTypeName="VARCHAR" />
 		<field
-			name="childModifiedAt"
-			columnName="child_modified_at"
+			columnName="CHILD_MODIFIED_AT"
 			dataType="_dateTime"
-			fieldType="modifiedTimeStamp" />
+			fieldType="modifiedTimeStamp"
+			name="childModifiedAt"
+			sqlTypeName="TIMESTAMP" />
 	</fields>
 </record>

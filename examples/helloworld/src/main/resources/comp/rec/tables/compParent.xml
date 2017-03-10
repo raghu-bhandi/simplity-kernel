@@ -3,7 +3,7 @@
 	xmlns="http://www.simplity.org/schema"
 	moduleName="tables"
 	name="compParent"
-	tableName="comp_parent"
+	tableName="COMP_PARENT"
 	okToSelectAll="true"
 	childrenToBeRead="tables.compChild"
 	childrenToBeSaved="tables.compChild"
@@ -12,39 +12,41 @@
 		<field
 			name="parentKeyText"
 			dataType="text50"
-			columnName="parent_key_text"
+			columnName="PARENT_KEY_TEXT"
 			fieldType="primaryKey" />
 		<field
 			name="parentKeyNbr"
 			dataType="_number"
-			columnName="parent_key_nbr"
+			columnName="PARENT_KEY_NBR"
 			fieldType="primaryKey" />
 		<field
 			name="text"
 			dataType="text25"
+			columnName="TEXT"
 			isRequired="true" />
 		<field
 			name="nullableText"
 			dataType="text50"
-			isNullable="true" />
+			isNullable="true" 
+			columnName="NULLABLETEXT"/>
 		<field
 			name="createdUser"
 			dataType="text25"
-			columnName="created_user"
+			columnName="CREATED_USER"
 			fieldType="createdByUser" />
 		<field
 			name="createdAt"
-			columnName="created_at"
+			columnName="CREATED_AT"
 			dataType="_timestamp"
 			fieldType="createdTimeStamp" />
 		<field
 			name="modifiedUser"
-			columnName="modified_user"
+			columnName="MODIFIED_USER"
 			dataType="text25"
 			fieldType="modifiedByUser" />
 		<field
 			name="modifiedAt"
-			columnName="modified_at"
+			columnName="MODIFIED_AT"
 			dataType="_timestamp"
 			fieldType="modifiedTimeStamp" />
 	</fields>

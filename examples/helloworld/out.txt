@@ -1,0 +1,2225 @@
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building helloworld Maven Webapp 1.2-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- properties-maven-plugin:1.0-alpha-2:read-project-properties (default) @ helloworld ---
+[INFO] 
+[INFO] --- sql-maven-plugin:1.5:execute (create-db) @ helloworld ---
+[INFO] Executing file: C:\Users\chetana_shanbhag\AppData\Local\Temp\schema.1047287428sql
+[INFO] 99 of 99 SQL statements executed successfully
+[INFO] 
+[INFO] --- torque-maven-plugin:4.0:generate (generate-schema-from-jdbc) @ helloworld ---
+INFO  org.apache.torque.generator.control.Controller - readConfiguration() : Starting to read configuration files
+INFO  org.apache.torque.generator.control.Controller - readConfiguration() : Configuration read.
+INFO  org.apache.torque.generator.control.Controller - Processing output torque.simplity
+INFO  org.apache.torque.generator.control.Controller - Processing source JdbcMetadataSource using url jdbc:h2:file:D:\Workspace\simplity\simplity\examples\helloworld\target/hw
+INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\simplity\simplity\examples\helloworld\target\generated-sources\agents.xml
+
+Gong to create an element for a Record
+
+Field suggestionKeyName has no value.
+
+Field recordType has a primitive value of STORAGE
+
+Field childrenToBeRead has no value.
+
+Field sqlStructName has no value.
+
+Field moduleName has no value.
+
+Field defaultRefRecord has no value.
+
+Field defaultSheetName has no value.
+
+Field readOnly has a primitive value of false
+
+Field childrenToBeSaved has no value.
+
+Field listGroupKeyName has no value.
+
+Field okToCacheList has a primitive value of false
+
+Field keyToBeGenerated has a primitive value of false
+
+Field schemaName has no value.
+
+Field sequenceName has no value.
+
+Field suggestionOutputNames has no value.
+
+Field tableName has a primitive value of AGENTS
+
+Field okToSelectAll has a primitive value of false
+
+Field forFixedWidthRow has a primitive value of false
+
+Field useTimestampForConcurrency has a primitive value of false
+
+Field name has a primitive value of agents
+
+Field listFieldName has no value.
+
+Field fields is an array with a length = 6
+
+field fields is added as an element and not as an attribute
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of agentCode
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of CHAR
+
+Field columnName has a primitive value of AGENT_CODE
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of agentName
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of CHAR
+
+Field columnName has a primitive value of AGENT_NAME
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of workingArea
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of CHAR
+
+Field columnName has a primitive value of WORKING_AREA
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of commission
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of COMMISSION
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of phoneNo
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of CHAR
+
+Field columnName has a primitive value of PHONE_NO
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of country
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of COUNTRY
+INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\simplity\simplity\examples\helloworld\target\generated-sources\compChild.xml
+
+Gong to create an element for a Record
+
+Field suggestionKeyName has no value.
+
+Field recordType has a primitive value of STORAGE
+
+Field childrenToBeRead has no value.
+
+Field sqlStructName has no value.
+
+Field moduleName has no value.
+
+Field defaultRefRecord has no value.
+
+Field defaultSheetName has no value.
+
+Field readOnly has a primitive value of false
+
+Field childrenToBeSaved has no value.
+
+Field listGroupKeyName has no value.
+
+Field okToCacheList has a primitive value of false
+
+Field keyToBeGenerated has a primitive value of false
+
+Field schemaName has no value.
+
+Field sequenceName has no value.
+
+Field suggestionOutputNames has no value.
+
+Field tableName has a primitive value of COMP_CHILD
+
+Field okToSelectAll has a primitive value of false
+
+Field forFixedWidthRow has a primitive value of false
+
+Field useTimestampForConcurrency has a primitive value of false
+
+Field name has a primitive value of compChild
+
+Field listFieldName has no value.
+
+Field fields is an array with a length = 5
+
+field fields is added as an element and not as an attribute
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of childKeyText
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of CHILD_KEY_TEXT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of childKeyNbr
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of CHILD_KEY_NBR
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _dateTime
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of childKeyDateTime
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of DATE
+
+Field columnName has a primitive value of CHILD_KEY_DATE_TIME
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of childText
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of CHILD_TEXT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _timestamp
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of childModifiedAt
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of TIMESTAMP
+
+Field columnName has a primitive value of CHILD_MODIFIED_AT
+INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\simplity\simplity\examples\helloworld\target\generated-sources\compGrand.xml
+
+Gong to create an element for a Record
+
+Field suggestionKeyName has no value.
+
+Field recordType has a primitive value of STORAGE
+
+Field childrenToBeRead has no value.
+
+Field sqlStructName has no value.
+
+Field moduleName has no value.
+
+Field defaultRefRecord has no value.
+
+Field defaultSheetName has no value.
+
+Field readOnly has a primitive value of false
+
+Field childrenToBeSaved has no value.
+
+Field listGroupKeyName has no value.
+
+Field okToCacheList has a primitive value of false
+
+Field keyToBeGenerated has a primitive value of false
+
+Field schemaName has no value.
+
+Field sequenceName has no value.
+
+Field suggestionOutputNames has no value.
+
+Field tableName has a primitive value of COMP_GRAND
+
+Field okToSelectAll has a primitive value of false
+
+Field forFixedWidthRow has a primitive value of false
+
+Field useTimestampForConcurrency has a primitive value of false
+
+Field name has a primitive value of compGrand
+
+Field listFieldName has no value.
+
+Field fields is an array with a length = 5
+
+field fields is added as an element and not as an attribute
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of grandKeyText
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of GRAND_KEY_TEXT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of grandKeyNbr
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of GRAND_KEY_NBR
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _dateTime
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of grandKeyDateTime
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of DATE
+
+Field columnName has a primitive value of GRAND_KEY_DATE_TIME
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of grandKey2Text
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of GRAND_KEY2_TEXT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of grandText
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of GRAND_TEXT
+INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\simplity\simplity\examples\helloworld\target\generated-sources\compParent.xml
+
+Gong to create an element for a Record
+
+Field suggestionKeyName has no value.
+
+Field recordType has a primitive value of STORAGE
+
+Field childrenToBeRead has no value.
+
+Field sqlStructName has no value.
+
+Field moduleName has no value.
+
+Field defaultRefRecord has no value.
+
+Field defaultSheetName has no value.
+
+Field readOnly has a primitive value of false
+
+Field childrenToBeSaved has no value.
+
+Field listGroupKeyName has no value.
+
+Field okToCacheList has a primitive value of false
+
+Field keyToBeGenerated has a primitive value of false
+
+Field schemaName has no value.
+
+Field sequenceName has no value.
+
+Field suggestionOutputNames has no value.
+
+Field tableName has a primitive value of COMP_PARENT
+
+Field okToSelectAll has a primitive value of false
+
+Field forFixedWidthRow has a primitive value of false
+
+Field useTimestampForConcurrency has a primitive value of false
+
+Field name has a primitive value of compParent
+
+Field listFieldName has no value.
+
+Field fields is an array with a length = 8
+
+field fields is added as an element and not as an attribute
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of parentKeyText
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of PARENT_KEY_TEXT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of parentKeyNbr
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of PARENT_KEY_NBR
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of createdUser
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of CREATED_USER
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _timestamp
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of createdAt
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of TIMESTAMP
+
+Field columnName has a primitive value of CREATED_AT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of modifiedUser
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of MODIFIED_USER
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _timestamp
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of modifiedAt
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of TIMESTAMP
+
+Field columnName has a primitive value of MODIFIED_AT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of nullabletext
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of NULLABLETEXT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of text
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of TEXT
+INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\simplity\simplity\examples\helloworld\target\generated-sources\customer.xml
+
+Gong to create an element for a Record
+
+Field suggestionKeyName has no value.
+
+Field recordType has a primitive value of STORAGE
+
+Field childrenToBeRead has no value.
+
+Field sqlStructName has no value.
+
+Field moduleName has no value.
+
+Field defaultRefRecord has no value.
+
+Field defaultSheetName has no value.
+
+Field readOnly has a primitive value of false
+
+Field childrenToBeSaved has no value.
+
+Field listGroupKeyName has no value.
+
+Field okToCacheList has a primitive value of false
+
+Field keyToBeGenerated has a primitive value of false
+
+Field schemaName has no value.
+
+Field sequenceName has no value.
+
+Field suggestionOutputNames has no value.
+
+Field tableName has a primitive value of CUSTOMER
+
+Field okToSelectAll has a primitive value of false
+
+Field forFixedWidthRow has a primitive value of false
+
+Field useTimestampForConcurrency has a primitive value of false
+
+Field name has a primitive value of customer
+
+Field listFieldName has no value.
+
+Field fields is an array with a length = 12
+
+field fields is added as an element and not as an attribute
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of custCode
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of CUST_CODE
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of custName
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of CUST_NAME
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of custCity
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of CHAR
+
+Field columnName has a primitive value of CUST_CITY
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of workingArea
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of WORKING_AREA
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of custCountry
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of CUST_COUNTRY
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of grade
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of GRADE
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of openingAmt
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of OPENING_AMT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of receiveAmt
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of RECEIVE_AMT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of paymentAmt
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of PAYMENT_AMT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of outstandingAmt
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of OUTSTANDING_AMT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of phoneNo
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of PHONE_NO
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has a primitive value of agentCode
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has a primitive value of agents
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of agentCode
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PARENT_KEY
+
+Field sqlTypeName has a primitive value of CHAR
+
+Field columnName has a primitive value of AGENT_CODE
+INFO  org.apache.torque.generator.control.Controller - Start generation of File D:\Workspace\simplity\simplity\examples\helloworld\target\generated-sources\orders.xml
+
+Gong to create an element for a Record
+
+Field suggestionKeyName has no value.
+
+Field recordType has a primitive value of STORAGE
+
+Field childrenToBeRead has no value.
+
+Field sqlStructName has no value.
+
+Field moduleName has no value.
+
+Field defaultRefRecord has no value.
+
+Field defaultSheetName has no value.
+
+Field readOnly has a primitive value of false
+
+Field childrenToBeSaved has no value.
+
+Field listGroupKeyName has no value.
+
+Field okToCacheList has a primitive value of false
+
+Field keyToBeGenerated has a primitive value of false
+
+Field schemaName has no value.
+
+Field sequenceName has no value.
+
+Field suggestionOutputNames has no value.
+
+Field tableName has a primitive value of ORDERS
+
+Field okToSelectAll has a primitive value of false
+
+Field forFixedWidthRow has a primitive value of false
+
+Field useTimestampForConcurrency has a primitive value of false
+
+Field name has a primitive value of orders
+
+Field listFieldName has no value.
+
+Field fields is an array with a length = 7
+
+field fields is added as an element and not as an attribute
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of ordNum
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PRIMARY_KEY
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of ORD_NUM
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of ordAmount
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of ORD_AMOUNT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _decimal
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of advanceAmount
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of DECIMAL
+
+Field columnName has a primitive value of ADVANCE_AMOUNT
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _dateTime
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of ordDate
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of DATE
+
+Field columnName has a primitive value of ORD_DATE
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has a primitive value of custCode
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has a primitive value of customer
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of custCode
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PARENT_KEY
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of CUST_CODE
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has a primitive value of agentCode
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has a primitive value of agents
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of agentCode
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of PARENT_KEY
+
+Field sqlTypeName has a primitive value of CHAR
+
+Field columnName has a primitive value of AGENT_CODE
+
+Gong to create an element for a Field
+
+Field messageName has no value.
+
+Field fieldWidth has a primitive value of 0
+
+Field isRequired has a primitive value of false
+
+Field basedOnField has no value.
+
+Field referredField has no value.
+
+Field defaultValue has no value.
+
+Field dataType has a primitive value of _text
+
+Field description has no value.
+
+Field label has no value.
+
+Field referredRecord has no value.
+
+Field otherField has no value.
+
+Field isNullable has a primitive value of false
+
+Field valueList has no value.
+
+Field toField has no value.
+
+Field name has a primitive value of ordDescription
+
+Field fromField has no value.
+
+Field fieldType has a primitive value of DATA
+
+Field sqlTypeName has a primitive value of VARCHAR
+
+Field columnName has a primitive value of ORD_DESCRIPTION
+[INFO] Generation successful
+[INFO] outputDirPath D:\Workspace\simplity\simplity\examples\helloworld\src\main\generated-java for outputDirUsageMap with key modifiable does not exist, ignoring this outputDirUsageMap entry
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:resources (default-resources) @ helloworld ---
+[WARNING] File encoding has not been set, using platform encoding Cp1252, i.e. build is platform dependent!
+[WARNING] Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] Copying 26 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:compile (default-compile) @ helloworld ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.6:testResources (default-testResources) @ helloworld ---
+[WARNING] File encoding has not been set, using platform encoding Cp1252, i.e. build is platform dependent!
+[WARNING] Using platform encoding (Cp1252 actually) to copy filtered resources, i.e. build is platform dependent!
+[INFO] Copying 26 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.1:testCompile (default-testCompile) @ helloworld ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ helloworld ---
+[INFO] Surefire report directory: D:\Workspace\simplity\simplity\examples\helloworld\target\surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running org.simplity.examples.HelloWorldTest
+
+Bootstrapping with /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp
+
+component folder set to /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/
+
+0 java class names loaded as services.
+
+Going to load components from /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/dt/custom.xml
+
+Going to load components from /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/dt/kernel.xml
+
+22 DataType loaded.
+
+Going to load components from /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/msg/custom.xml
+
+Going to load components from /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/msg/kernel.xml
+
+21 Message loaded.
+
+Going to load components from /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/fn/modifydata.xml
+
+1 Function loaded.
+
+components pre-loaded
+
+dbVendor is set to H2
+
+Driver class name org.h2.Driver invoked successfully
+
+Database connection for H2 established successfully using a valid connection string. Default schema is PUBLIC
+
+Logging framework is set to LOG4J. Will try to locate the right class and connect to it.
+2017-03-10 12:13:24,841 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Service logs successfully diverted to the logging framework LOG4J
+
+2017-03-10 12:13:24,850 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Web Agent is given a green signal by Startup to start serving.
+2017-03-10 12:13:24,852 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+No login service is attached. we use a dummy login.
+2017-03-10 12:13:24,853 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+we cleared userId=100 with no authentication whatsoever.
+2017-03-10 12:13:24,859 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to load components from /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/msg/custom.xml for validation
+2017-03-10 12:13:24,861 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to load components from /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/msg/kernel.xml for validation
+2017-03-10 12:13:24,866 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to load components from /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/dt/custom.xml for validation
+2017-03-10 12:13:24,869 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to load components from /D:/Workspace/simplity/simplity/examples/helloworld/target/test-classes/comp/dt/kernel.xml for validation
+2017-03-10 12:13:24,976 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to close a connection of type READ_ONLY with allOK = true
+2017-03-10 12:13:25,053 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to close a connection of type READ_ONLY with allOK = true
+2017-03-10 12:13:25,115 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to close a connection of type READ_ONLY with allOK = true
+2017-03-10 12:13:25,185 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to close a connection of type READ_ONLY with allOK = true
+2017-03-10 12:13:25,242 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to close a connection of type READ_ONLY with allOK = true
+2017-03-10 12:13:25,299 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to close a connection of type READ_ONLY with allOK = true
+2017-03-10 12:13:25,374 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Input Json : null
+2017-03-10 12:13:25,374 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Trying to generate service helloworld on-the-fly
+2017-03-10 12:13:25,376 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Invoking service helloworld
+2017-03-10 12:13:25,379 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+We received input data, but this service is designed not to make us of input.
+2017-03-10 12:13:25,381 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Action _a0 finished with result=Hello World! in 0 ms
+2017-03-10 12:13:25,388 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+helloworld responded with all OK signal
+2017-03-10 12:13:25,389 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+
+2017-03-10 12:13:25,391 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Output JSON : {"hello":"Hello World!","_messages":[]}
+2017-03-10 12:13:25,392 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Input Json : null
+2017-03-10 12:13:25,393 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Trying to generate service dbactions.callFilterRec on-the-fly
+2017-03-10 12:13:25,396 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Invoking service dbactions.callFilterRec
+2017-03-10 12:13:25,396 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+We received input data, but this service is designed not to make us of input.
+2017-03-10 12:13:25,440 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+12 rows extracted.
+2017-03-10 12:13:25,449 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+25 rows extracted.
+2017-03-10 12:13:25,449 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Action _a0 finished with result=12 in 13 ms
+2017-03-10 12:13:25,462 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Action _a1 finished with result=1 in 13 ms
+2017-03-10 12:13:25,463 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Values at log action _a2
+2017-03-10 12:13:25,464 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+(Multi rows Sheet) has 12 rows and 7 columns.
+2017-03-10 12:13:25,465 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Header 	agentCode	agentName	workingArea	commission	phoneNo	country	mixedCol
+
+Row 1 :	A007	Ramasundar	Bangalore	0.15	077-25814763		A007Ramasundar
+Row 2 :	A003	Alex	London	0.13	075-12458969		A003Alex
+Row 3 :	A008	Alford	New York	0.12	044-25874365		A008Alford
+Row 4 :	A011	Ravi Kumar	Bangalore	0.15	077-45625874		A011Ravi Kumar
+Row 5 :	A010	Santakumar	Chennai	0.14	007-22388644		A010Santakumar
+Row 6 :	A012	Lucida	San Jose	0.12	044-52981425		A012Lucida
+Row 7 :	A005	Anderson	Brisban	0.13	045-21447739		A005Anderson
+Row 8 :	A001	Subbarao	Bangalore	0.14	077-12346674		A001Subbarao
+Row 9 :	A002	Mukesh	Mumbai	0.11	029-12358964		A002Mukesh
+Row 10 :	A006	McDen	London	0.15	078-22255588		A006McDen
+Row 11 :	A004	Ivan	Torento	0.15	008-22544166		A004Ivan
+Row 12 :	A009	Benjamin	Hampshair	0.11	008-22536178		A009Benjamin
+2017-03-10 12:13:25,466 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Action _a2 finished with result=1 in 3 ms
+2017-03-10 12:13:25,466 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to close a connection of type READ_ONLY with allOK = true
+2017-03-10 12:13:25,520 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+dbactions.callFilterRec responded with all OK signal
+2017-03-10 12:13:25,520 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+
+2017-03-10 12:13:25,522 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Output JSON : {"agents":[{"agentCode":"A007","agentName":"Ramasundar","workingArea":"Bangalore","commission":0.15,"phoneNo":"077-25814763","country":"","mixedCol":"A007Ramasundar"},{"agentCode":"A003","agentName":"Alex","workingArea":"London","commission":0.13,"phoneNo":"075-12458969","country":"","mixedCol":"A003Alex"},{"agentCode":"A008","agentName":"Alford","workingArea":"New York","commission":0.12,"phoneNo":"044-25874365","country":"","mixedCol":"A008Alford"},{"agentCode":"A011","agentName":"Ravi Kumar","workingArea":"Bangalore","commission":0.15,"phoneNo":"077-45625874","country":"","mixedCol":"A011Ravi Kumar"},{"agentCode":"A010","agentName":"Santakumar","workingArea":"Chennai","commission":0.14,"phoneNo":"007-22388644","country":"","mixedCol":"A010Santakumar"},{"agentCode":"A012","agentName":"Lucida","workingArea":"San Jose","commission":0.12,"phoneNo":"044-52981425","country":"","mixedCol":"A012Lucida"},{"agentCode":"A005","agentName":"Anderson","workingArea":"Brisban","commission":0.13,"phoneNo":"045-21447739","country":"","mixedCol":"A005Anderson"},{"agentCode":"A001","agentName":"Subbarao","workingArea":"Bangalore","commission":0.14,"phoneNo":"077-12346674","country":"","mixedCol":"A001Subbarao"},{"agentCode":"A002","agentName":"Mukesh","workingArea":"Mumbai","commission":0.11,"phoneNo":"029-12358964","country":"","mixedCol":"A002Mukesh"},{"agentCode":"A006","agentName":"McDen","workingArea":"London","commission":0.15,"phoneNo":"078-22255588","country":"","mixedCol":"A006McDen"},{"agentCode":"A004","agentName":"Ivan","workingArea":"Torento","commission":0.15,"phoneNo":"008-22544166","country":"","mixedCol":"A004Ivan"},{"agentCode":"A009","agentName":"Benjamin","workingArea":"Hampshair","commission":0.11,"phoneNo":"008-22536178","country":"","mixedCol":"A009Benjamin"}],"_messages":[]}
+2017-03-10 12:13:25,524 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Input Json : {'custCode':'C00013'}
+2017-03-10 12:13:25,524 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Trying to generate service dbactions.callSqlqueryCust on-the-fly
+2017-03-10 12:13:25,527 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Invoking service dbactions.callSqlqueryCust
+2017-03-10 12:13:25,527 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+1 fields extracted for input
+2017-03-10 12:13:25,576 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+1 rows extracted.
+2017-03-10 12:13:25,576 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Action _a0 finished with result=1 in 6 ms
+2017-03-10 12:13:25,576 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Going to close a connection of type READ_ONLY with allOK = true
+2017-03-10 12:13:25,590 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+dbactions.callSqlqueryCust responded with all OK signal
+2017-03-10 12:13:25,590 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+
+2017-03-10 12:13:25,591 INFO  [main] kernel.Log4JWorker (ServiceLogger.java:210) - 
+Output JSON : {"custRec":[{"custName":"Holmes","agentName":"Alex"}],"_messages":[]}
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.728 sec
+
+Results :
+
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] 
+[INFO] --- maven-war-plugin:2.2:war (default-war) @ helloworld ---
+[INFO] Packaging webapp
+[INFO] Assembling webapp [helloworld] in [D:\Workspace\simplity\simplity\examples\helloworld\target\helloworld]
+[INFO] Processing war project
+[INFO] Copying webapp resources [D:\Workspace\simplity\simplity\examples\helloworld\src\main\webapp]
+[INFO] Webapp assembled in [157 msecs]
+[INFO] Building war: D:\Workspace\simplity\simplity\examples\helloworld\target\helloworld.war
+[INFO] WEB-INF\web.xml already added, skipping
+[INFO] 
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ helloworld ---
+[INFO] Installing D:\Workspace\simplity\simplity\examples\helloworld\target\helloworld.war to D:\Repo\.m2\org\simplity\examples\helloworld\1.2-SNAPSHOT\helloworld-1.2-SNAPSHOT.war
+[INFO] Installing D:\Workspace\simplity\simplity\examples\helloworld\pom.xml to D:\Repo\.m2\org\simplity\examples\helloworld\1.2-SNAPSHOT\helloworld-1.2-SNAPSHOT.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 6.913 s
+[INFO] Finished at: 2017-03-10T12:13:26+05:30
+[INFO] Final Memory: 17M/246M
+[INFO] ------------------------------------------------------------------------
