@@ -112,6 +112,10 @@ public class TestCase {
 	String testClassName;
 
 	/**
+	 * how many assertions are you making in this test case? This is meant for reporting purposes
+	 */
+	int nbrAssertions = 1;
+	/**
 	 * run this test and report result to the context
 	 *
 	 * @param ctx
@@ -176,6 +180,7 @@ public class TestCase {
 		 * are we expecting a specific json?
 		 */
 		if (this.outputJson != null) {
+			Tracer.trace("Output specified is " + this.outputJson);
 			JSONObject expected = new JSONObject(this.outputJson);
 			/*
 			 * we assert expected attributes, but not bother if there are
@@ -348,15 +353,13 @@ public class TestCase {
 	 * @return
 	 */
 	String getInput(TestContext ctx) {
-		if (this.inputFields == null && this.inputItems == null) {
-			return this.inputJson;
-		}
 		JSONObject json;
 		if (this.inputJson == null) {
 			json = new JSONObject();
 		} else {
 			json = new JSONObject(this.inputJson);
 		}
+
 		if (this.inputItems != null) {
 			for (InputItem item : this.inputItems) {
 				item.setInputValues(json, ctx);
