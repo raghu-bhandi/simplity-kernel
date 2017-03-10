@@ -150,7 +150,7 @@ public class FormattedMessage implements Jsonable {
 	@Override
 	public void writeJsonValue(JSONWriter writer) {
 		writer.object().key("name").value(this.name).key("text").value(this.text).key("messageType")
-				.value(this.messageType);
+				.value(this.messageType).key("data").value(this.data);
 		if (this.fieldName != null) {
 			writer.key("fieldName").value(this.fieldName);
 		}

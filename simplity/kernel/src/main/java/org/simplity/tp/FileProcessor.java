@@ -184,7 +184,6 @@ public class FileProcessor extends Block {
 			 * per row. However, error status is reset because we manage
 			 * transactions at row level
 			 */
-			List<FormattedMessage> earlierMessages = new ArrayList<FormattedMessage>(ctx.getMessages());
 			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
 			while ((inText = reader.readLine()) != null) {
 				/*
@@ -201,15 +200,14 @@ public class FileProcessor extends Block {
 					for(FormattedMessage error:errors){
 						error.addData(inText);
 					}
-					List<FormattedMessage> errorsCopy = new ArrayList<FormattedMessage>(errors);
-					earlierMessages.addAll(errorsCopy);
-					ctx.setTextValue("invalidInputRow", inText);
+					ctx.addMessages(errors);
 
 					if (this.actionOnInvalidInputRow == null) {
 						Tracer.trace("Invalid row received as input. Row is not processed.");
 					} else {
 						this.actionOnInvalidInputRow.act(ctx, driver);
 					}
+					ctx.resetMessages();
 					continue;
 				}
 				/*
@@ -229,14 +227,6 @@ public class FileProcessor extends Block {
 					continue;
 				}
 				/*
-				 * re-populate the messages
-				 */
-				{
-					List<FormattedMessage> errorsCopy = new ArrayList<FormattedMessage>(ctx.getMessages());
-					earlierMessages.addAll(errorsCopy);
-				}
-
-				/*
 				 * are we to write output row?
 				 */
 				if (writer != null) {
@@ -251,8 +241,6 @@ public class FileProcessor extends Block {
 					writer.newLine();
 				}
 			}
-			ctx.resetMessages();
-			ctx.addMessages(earlierMessages);
 			/*
 			 * important to close the stream before trying to delete/rename
 			 */
