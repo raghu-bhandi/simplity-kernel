@@ -1,6 +1,7 @@
 package org.simplity.helloworld;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -68,11 +69,23 @@ public class Serve extends HttpServlet {
 				return;
 			}
 		}
-		try {
-			String pathUrl;
+		try {			
 			String serviceName = null;
-			if ((pathUrl = req.getPathInfo()) != null) {
-				serviceName = pathUrl.substring(1).replace("/", ".");
+			String[] tokens;
+			if (req.getPathInfo() != null) {
+				tokens = req.getPathInfo().split("/");
+				for(int i=tokens.length-1;i>=0;i--){
+					if(i==tokens.length-2){
+						serviceName = req.getMethod().toLowerCase().concat(".").concat(serviceName);
+					}
+					if(!tokens[i].isEmpty()){
+						if(serviceName!=null)
+							serviceName = tokens[i].concat(".").concat(serviceName);
+						else{
+							serviceName = tokens[i];
+						}
+					}
+				}				
 			}
 			HttpAgent.serve(req, resp, serviceName);
 		} catch (Exception e) {

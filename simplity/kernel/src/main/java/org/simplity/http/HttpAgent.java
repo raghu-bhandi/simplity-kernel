@@ -304,7 +304,7 @@ public class HttpAgent {
 		/*
 		 * get the service name
 		 */
-		if(serviceName!=null){
+		if(serviceName==null){
 			serviceName = getServiceName(req);
 		}
 

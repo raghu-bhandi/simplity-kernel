@@ -17,6 +17,10 @@
 		<servlet-class>org.simplity.http.Serve</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>r</servlet-name>
+		<servlet-class>org.simplity.helloworld.Serve</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>i</servlet-name>
 		<servlet-class>org.simplity.http.DefaultLogin</servlet-class>
 	</servlet>
@@ -37,7 +41,7 @@
 		<url-pattern>*._s</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>s</servlet-name>
+		<servlet-name>r</servlet-name>
 		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>

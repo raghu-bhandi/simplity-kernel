@@ -3,7 +3,7 @@
 	xmlns="http://www.simplity.org/schema"
 	moduleName="fileactions"
 	name="fileProcessing"
-	dbAccessType="subService"
+	dbAccessType="subService" 
 >
 	<actions>
 		<setValue fieldName="inputfilename" fieldValue="txt01.txt"></setValue>
