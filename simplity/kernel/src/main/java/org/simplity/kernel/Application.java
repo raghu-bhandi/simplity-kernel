@@ -64,9 +64,10 @@ public class Application {
 	/**
 	 * @return exception listener for this application
 	 */
-	public static ExceptionListener getExceptionListener(){
+	public static ExceptionListener getExceptionListener() {
 		return currentExceptionListener;
 	}
+
 	/**
 	 * name of configuration file, including extension
 	 */
@@ -84,7 +85,7 @@ public class Application {
 	 *             resources
 	 */
 	public static boolean bootStrap(String componentFolder) throws Exception {
-		if(!(new File(componentFolder).exists())){
+		if (!(new File(componentFolder).exists())) {
 			componentFolder = Thread.currentThread().getContextClassLoader().getResource(componentFolder).getPath();
 		}
 		Tracer.trace("Bootstrapping with " + componentFolder);
@@ -94,10 +95,8 @@ public class Application {
 			componentFolder = ComponentType.setComponentFolder(componentFolder);
 			XmlUtil.xmlToObject(componentFolder + CONFIG_FILE_NAME, app);
 			if (app.applicationId == null) {
-				msg = "Unable to load the configuration component "
-								+ CONFIG_FILE_NAME
-								+ ". This file is expected to be inside folder "
-								+ componentFolder;
+				msg = "Unable to load the configuration component " + CONFIG_FILE_NAME
+						+ ". This file is expected to be inside folder " + componentFolder;
 			} else {
 				msg = app.configure();
 			}
@@ -195,7 +194,6 @@ public class Application {
 	 */
 	SchemaDetail[] schemaDetails;
 
-
 	/**
 	 * Configure the LDAP Setup for the application
 	 */
@@ -242,30 +240,26 @@ public class Application {
 	 * definition inside http sessions.
 	 */
 	String clientCacheManager;
-	/**
-	 * Enable Rest URL parsing
-	 */
-	boolean parseUrlAsRest;
+
 	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
 	 * servlet in a web-app
-	 * @return null if all OK. Else message that described why we could not succeed.
-	 */	
+	 * 
+	 * @return null if all OK. Else message that described why we could not
+	 *         succeed.
+	 */
 	public String configure() {
 		List<String> msgs = new ArrayList<String>();
 		Tracer.startAccumulation();
 
 		if (this.traceWrapper != null) {
 			try {
-				TraceWrapper wrapper = (TraceWrapper) Class
-						.forName(this.traceWrapper).newInstance();
+				TraceWrapper wrapper = (TraceWrapper) Class.forName(this.traceWrapper).newInstance();
 				ServiceLogger.setWrapper(wrapper);
 
 			} catch (Exception e) {
-				msgs.add(this.traceWrapper
-						+ " could not be used to instantiate a Trace Wrapper. "
-						+ e.getMessage()
+				msgs.add(this.traceWrapper + " could not be used to instantiate a Trace Wrapper. " + e.getMessage()
 						+ " We will work with a default wrapper");
 			}
 		}
@@ -273,40 +267,32 @@ public class Application {
 		ServiceCacheManager casher = null;
 		if (this.serviceCacheManager != null) {
 			try {
-				casher = (ServiceCacheManager) Class
-						.forName(this.serviceCacheManager).newInstance();
+				casher = (ServiceCacheManager) Class.forName(this.serviceCacheManager).newInstance();
 
 			} catch (Exception e) {
-				msgs.add(this.serviceCacheManager
-						+ " could not be used to instantiate a cache manager. "
-						+ e.getMessage()
-						+ " We will work with no cache manager");
+				msgs.add(this.serviceCacheManager + " could not be used to instantiate a cache manager. "
+						+ e.getMessage() + " We will work with no cache manager");
 			}
 		}
 
 		AccessController gard = null;
 		if (this.accessController != null) {
 			try {
-				gard = (AccessController) Class.forName(this.accessController)
-						.newInstance();
+				gard = (AccessController) Class.forName(this.accessController).newInstance();
 
 			} catch (Exception e) {
-				msgs.add(this.accessController
-						+ " could not be used to instantiate access controller. "
-						+ e.getMessage()
-						+ " We will work with no cache manager");
+				msgs.add(this.accessController + " could not be used to instantiate access controller. "
+						+ e.getMessage() + " We will work with no cache manager");
 			}
 		}
 
 		ExceptionListener listener = null;
 		if (this.exceptionListener != null) {
 			try {
-				listener = (ExceptionListener) Class
-						.forName(this.exceptionListener).newInstance();
+				listener = (ExceptionListener) Class.forName(this.exceptionListener).newInstance();
 				currentExceptionListener = listener;
 			} catch (Exception e) {
-				msgs.add(this.exceptionListener
-						+ " could not be used to instantiate an exception listener. "
+				msgs.add(this.exceptionListener + " could not be used to instantiate an exception listener. "
 						+ e.getMessage() + " We will work with default listener");
 			}
 		}
@@ -315,28 +301,26 @@ public class Application {
 		 * Set up db driver.
 		 */
 		try {
-			DbDriver.initialSetup(this.dbVendor, this.dataSourceName,
-					this.dbDriverClassName, this.connectionString, this.logSqls,
-					this.schemaDetails);
+			DbDriver.initialSetup(this.dbVendor, this.dataSourceName, this.dbDriverClassName, this.connectionString,
+					this.logSqls, this.schemaDetails);
 		} catch (Exception e) {
-			msgs.add("Error while setting up DbDriver. " + e.getMessage()
-					+ " Application will not work properly.");
+			msgs.add("Error while setting up DbDriver. " + e.getMessage() + " Application will not work properly.");
 		}
 
 		/*
 		 * Setup LDAP Agent
 		 */
-		if(this.ldapConfig!=null) {
+		if (this.ldapConfig != null) {
 			try {
 				LdapAgent.initialSetup(this.ldapConfig);
 			} catch (Exception e) {
-				msgs.add("Error while setting up JmsAgent." + e.getMessage()
-						+ " Application will not work properly.");
+				msgs.add("Error while setting up JmsAgent." + e.getMessage() + " Application will not work properly.");
 			}
 		}
 
 		/*
-		 * in production, we cache components as they are loaded, but in development we prefer to load the latest
+		 * in production, we cache components as they are loaded, but in
+		 * development we prefer to load the latest
 		 */
 		if (this.cacheComponents) {
 			ComponentType.startCaching();
@@ -350,11 +334,10 @@ public class Application {
 			ast = new FileBasedAssistant(this.attachmentsFolderPath);
 		} else if (this.attachmentAssistant != null) {
 			try {
-				ast = (AttachmentAssistant) Class
-						.forName(this.attachmentAssistant).newInstance();
+				ast = (AttachmentAssistant) Class.forName(this.attachmentAssistant).newInstance();
 			} catch (Exception e) {
-				msgs.add("Error while setting storage assistant based on class "
-						+ this.attachmentAssistant + ". " + e.getMessage());
+				msgs.add("Error while setting storage assistant based on class " + this.attachmentAssistant + ". "
+						+ e.getMessage());
 			}
 		}
 		if (ast != null) {
@@ -371,12 +354,10 @@ public class Application {
 					+ ". Will try to locate the right class and connect to it.");
 			try {
 				ServiceLogger.setLogger(this.loggingFramework);
-				Tracer.trace(
-						"Service logs successfully diverted to the logging framework "
-								+ this.loggingFramework);
+				Tracer.trace("Service logs successfully diverted to the logging framework " + this.loggingFramework);
 			} catch (Exception e) {
-				String msg = "Logging framework " + this.loggingFramework
-						+ " could not be initiated for logging. \n " + e.getMessage() +"\nAre you missing required jar file?. ";
+				String msg = "Logging framework " + this.loggingFramework + " could not be initiated for logging. \n "
+						+ e.getMessage() + "\nAre you missing required jar file?. ";
 				Tracer.trace(msg);
 				msgs.add(msg);
 			}
@@ -388,15 +369,18 @@ public class Application {
 		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard);
 
 		/*
-		 * initialize http-agent. In rare cases, a project may not use httpAgent, but it is not so much of an issue if the agent is all dressed-up but no work :-)
+		 * initialize http-agent. In rare cases, a project may not use
+		 * httpAgent, but it is not so much of an issue if the agent is all
+		 * dressed-up but no work :-)
 		 *
 		 */
 		ClientCacheManager cacher = null;
-		if(this.clientCacheManager != null){
-			try{
-			cacher = (ClientCacheManager)Class.forName(this.clientCacheManager).newInstance();
-			}catch(Exception e){
-				msgs.add("Error while creating a ClientCacheManager instance using class name " + this.clientCacheManager + ". " + e.getMessage());
+		if (this.clientCacheManager != null) {
+			try {
+				cacher = (ClientCacheManager) Class.forName(this.clientCacheManager).newInstance();
+			} catch (Exception e) {
+				msgs.add("Error while creating a ClientCacheManager instance using class name "
+						+ this.clientCacheManager + ". " + e.getMessage());
 			}
 		}
 
@@ -404,8 +388,7 @@ public class Application {
 		if (this.autoLoginUserId != null) {
 			if (this.userIdIsNumber) {
 				try {
-					uid = Value.newIntegerValue(
-							Integer.parseInt(this.autoLoginUserId));
+					uid = Value.newIntegerValue(Integer.parseInt(this.autoLoginUserId));
 				} catch (Exception e) {
 					msgs.add("autoLoginUserId is set to " + this.autoLoginUserId
 							+ " but it has to be a number because userIdIsNumber is set to true. Auto login is not enabled.");
@@ -414,7 +397,7 @@ public class Application {
 				uid = Value.newTextValue(this.autoLoginUserId);
 			}
 		}
-		HttpAgent.setUp(uid, cacher, this.sendTraceToClient,Boolean.valueOf(this.parseUrlAsRest));
+		HttpAgent.setUp(uid, cacher, this.sendTraceToClient);
 		String result = null;
 		if (msgs.size() > 0) {
 			/*
@@ -458,24 +441,19 @@ public class Application {
 		/*
 		 * check class references
 		 */
-		if (this.classInError(AccessController.class, this.accessController,
-				"accessControllerClassName", ctx)) {
+		if (this.classInError(AccessController.class, this.accessController, "accessControllerClassName", ctx)) {
 			count++;
 		}
-		if (this.classInError(ServiceCacheManager.class,
-				this.serviceCacheManager, "serviceCacheManager", ctx)) {
+		if (this.classInError(ServiceCacheManager.class, this.serviceCacheManager, "serviceCacheManager", ctx)) {
 			count++;
 		}
-		if (this.classInError(ExceptionListener.class, this.exceptionListener,
-				"exceptionListenerClassName", ctx)) {
+		if (this.classInError(ExceptionListener.class, this.exceptionListener, "exceptionListenerClassName", ctx)) {
 			count++;
 		}
-		if (this.classInError(AttachmentAssistant.class,
-				this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
+		if (this.classInError(AttachmentAssistant.class, this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
 			count++;
 		}
-		if (this.classInError(AttachmentAssistant.class, this.traceWrapper,
-				"traceWrapper", ctx)) {
+		if (this.classInError(AttachmentAssistant.class, this.traceWrapper, "traceWrapper", ctx)) {
 			count++;
 		}
 
@@ -492,8 +470,7 @@ public class Application {
 		if (this.attachmentsFolderPath != null) {
 			File file = new File(this.attachmentsFolderPath);
 			if (file.exists() == false) {
-				ctx.addError("attachmentsFolderPath is set to "
-						+ this.attachmentsFolderPath
+				ctx.addError("attachmentsFolderPath is set to " + this.attachmentsFolderPath
 						+ " but it is not a valid folder path.");
 				count++;
 			}
@@ -503,8 +480,7 @@ public class Application {
 			}
 		}
 
-		if (this.classInError(ClientCacheManager.class, this.clientCacheManager,
-				"clientCacheManager", ctx)) {
+		if (this.classInError(ClientCacheManager.class, this.clientCacheManager, "clientCacheManager", ctx)) {
 			count++;
 		}
 
@@ -524,8 +500,7 @@ public class Application {
 		if (serviceName == null) {
 			return false;
 		}
-		ServiceInterface service = ComponentManager
-				.getServiceOrNull(serviceName);
+		ServiceInterface service = ComponentManager.getServiceOrNull(serviceName);
 		if (service == null) {
 			ctx.addError(serviceName + " is not a valid service name.");
 			return true;
@@ -542,8 +517,7 @@ public class Application {
 	 * @param ctx
 	 * @return
 	 */
-	private boolean classInError(Class<?> klass, String className,
-			String attName, ValidationContext ctx) {
+	private boolean classInError(Class<?> klass, String className, String attName, ValidationContext ctx) {
 		if (className == null) {
 			return false;
 		}
@@ -553,16 +527,13 @@ public class Application {
 			if (klass.isInstance(obj)) {
 				return false;
 			}
-			ctx.addError(attName
-					+ " should be set to a class that implements/extends "
-					+ klass.getName() + ". " + className
-					+ " is valid class but it is not a suitable sub-class");
+			ctx.addError(attName + " should be set to a class that implements/extends " + klass.getName() + ". "
+					+ className + " is valid class but it is not a suitable sub-class");
 			return true;
 
 		} catch (Exception e) {
 			ctx.addError(attName + " is set to " + className
-					+ ". Error while using this class to instantiate an object. "
-					+ e.getMessage());
+					+ ". Error while using this class to instantiate an object. " + e.getMessage());
 			return true;
 		}
 	}
@@ -577,7 +548,7 @@ public class Application {
 	 * @param args
 	 *            comFolderName serviceName param1=value1 param2=value2 .....
 	 */
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		myTest(args);
 	}
 
@@ -599,8 +570,7 @@ public class Application {
 		try {
 			bootStrap(compPath);
 		} catch (Exception e) {
-			System.err.println(
-					"error while bootstrapping with compFolder=" + compPath);
+			System.err.println("error while bootstrapping with compFolder=" + compPath);
 			e.printStackTrace(System.err);
 			return;
 		}
@@ -631,13 +601,11 @@ public class Application {
 		System.out.println("service:" + serviceName);
 		System.out.println("request:" + json);
 
-		ServiceData inData = new ServiceData(Value.newTextValue(user),
-				serviceName);
+		ServiceData inData = new ServiceData(Value.newTextValue(user), serviceName);
 		inData.setPayLoad(json);
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		System.out.println("response :" + outData.getPayLoad());
-		System.out
-				.println("message :" + JsonUtil.toJson(outData.getMessages()));
+		System.out.println("message :" + JsonUtil.toJson(outData.getMessages()));
 		System.out.println("trace :" + outData.getTrace());
 
 	}

@@ -277,7 +277,7 @@ public class ValidationContext {
 	public int checkClassName(String className, Class<?> klass) {
 		try {
 			Class<?> cls = Class.forName(className);
-			if (cls.isAssignableFrom(klass) == false) {
+			if (klass.isAssignableFrom(cls) == false) {
 				this.addError(
 						className + " should implement " + klass.getName());
 				return 1;

@@ -3272,17 +3272,6 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
-			<xs:attribute
-				name="parseUrlAsRest"
-				type="booleanType"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>The URL can follow a rest call pattern to call
-						the the particular service
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 	<!-- Test case. we systematically develop elements bottom-up for this.. -->

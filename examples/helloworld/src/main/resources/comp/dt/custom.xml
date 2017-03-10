@@ -41,6 +41,12 @@
 		<textDataType
 			name="name"
 			maxLength="60" />
+		<textDataType
+			name="text100"
+			maxLength="100" />
+		<textDataType
+			name="text200"
+			maxLength="200" />						
 		<timestampDataType name="_timestamp" />
 	</components>
 </dataTypes>

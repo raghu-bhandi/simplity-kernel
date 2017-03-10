@@ -2,7 +2,10 @@
 <record
 	xmlns="http://www.simplity.org/schema"
 	name="fixed"
+	moduleName="files"
 	forFixedWidthRow="true"
+	recordType="structure"
+	
 >
 	<fields>
 		<field

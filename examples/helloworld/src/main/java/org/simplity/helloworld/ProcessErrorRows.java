@@ -1,7 +1,6 @@
 package org.simplity.helloworld;
 
 import java.util.List;
-
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;

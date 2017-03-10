@@ -3,7 +3,7 @@
 	xmlns="http://www.simplity.org/schema"
 	moduleName="fileactions"
 	name="fileProcessing"
-	dbAccessType="none"
+	dbAccessType="subService"
 >
 	<actions>
 		<setValue fieldName="inputfilename" fieldValue="txt01.txt"></setValue>
@@ -12,11 +12,11 @@
 			inFolderName="${basedir}/infile"
 			inFileNamePattern="$inputfilename"
 			inDataFormat="fixedWidth"
-			inRecordName="fixed"
+			inRecordName="files.fixed"
 			outFolderName="${basedir}/outfile"
 			outFileName="{name}.{ext}"
 			outDataFormat="fixedWidth"
-			outRecordName="fixed"					
+			outRecordName="files.fixed"					
 		>
 		<actionOnInvalidInputRow>
 				<subService serviceName="fileactions.processErrorRow"/>

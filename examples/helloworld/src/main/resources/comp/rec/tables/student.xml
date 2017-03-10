@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record
+	name="student"
+	moduleName="tables"
+	tableName="STUDENT"
+	keyToBeGenerated="false"
+	okToSelectAll="true"
+	recordType="storage"
+	readOnly="false"
+	xmlns="http://www.simplity.org/schema"
+>
+	<fields>
+		<field
+		    columnName="ID"
+			name="id"
+			dataType="_number"/>
+		<field
+		    columnName="NAME"
+			name="name"
+			dataType="text100" />
+		<field
+		    columnName="ADDRESS"
+			name="address"
+			dataType="text200" />
+	</fields>
+</record>

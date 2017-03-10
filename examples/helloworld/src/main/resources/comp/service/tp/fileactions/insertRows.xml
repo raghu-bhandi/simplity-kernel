@@ -2,9 +2,9 @@
 <service xmlns="http://www.simplity.org/schema" 
 	moduleName="fileactions"
 	name="insertRows"
-	dbAccessType="subService">
+	dbAccessType="readWrite">
 	<actions>
 		<log actionName="allOK" names="id,name,address" />
-		<save saveAction="add" recordName="student" actionName="saveAction"></save>
+		<save saveAction="add" recordName="tables.student" actionName="saveAction"></save>
 	</actions>
 </service>
