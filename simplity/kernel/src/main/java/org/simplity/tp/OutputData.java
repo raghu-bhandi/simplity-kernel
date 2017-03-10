@@ -168,7 +168,11 @@ public class OutputData {
 		 */
 		JSONWriter writer = new JSONWriter();
 		writer.object();
-		this.dataToJson(writer, ctx);
+		if (this.justOutputEveryThing) {
+			this.allDataToJson(writer, ctx);
+		} else {
+			this.dataToJson(writer, ctx);
+		}
 		/*
 		 * we also push non-error messages
 		 */
@@ -185,6 +189,10 @@ public class OutputData {
 	}
 
 	private void prepareOutData(ServiceData outData, ServiceContext ctx) {
+		if (this.justOutputEveryThing) {
+			this.copyAllToOutData(outData, ctx);
+			return;
+		}
 		if (this.fieldNames != null) {
 			for (String fieldName : this.fieldNames) {
 				outData.put(fieldName, ctx.getValue(fieldName));
@@ -220,6 +228,16 @@ public class OutputData {
 					outData.put(arrayName, sheet);
 				}
 			}
+		}
+	}
+
+	private void copyAllToOutData(ServiceData outData, ServiceContext ctx) {
+		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
+			outData.put(entry.getKey(), entry.getValue());
+		}
+
+		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
+			outData.put(entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -268,6 +286,22 @@ public class OutputData {
 					JsonUtil.sheetToArray(writer, sheet);
 				}
 			}
+		}
+	}
+
+	/**
+	 * @param writer
+	 * @param ctx
+	 */
+	private void allDataToJson(JSONWriter writer, ServiceContext ctx) {
+		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
+			writer.key(entry.getKey()).value(entry.getValue());
+		}
+
+		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
+			writer.key(entry.getKey());
+			DataSheet sheet = entry.getValue();
+			JsonUtil.sheetToJson(writer, sheet, null, false);
 		}
 	}
 

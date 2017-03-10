@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql
+	name="queryCust"
+	sqlType="singleSelect"
+	xmlns="http://www.simplity.org/schema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.simplity.org/schema http://www.simplity.org/schema "
+>
+	<inputParameters>
+		<sqlParameter
+			dataType="_text"
+			name="custCode" />
+	</inputParameters>
+	<preparedStatement>SELECT C.CUST_NAME, A.AGENT_NAME from AGENTS A JOIN
+		CUSTOMER C WHERE C.AGENT_CODE=A.AGENT_CODE AND C.CUST_CODE=?
+	</preparedStatement>
+	<outputParameters>
+		<sqlParameter
+			dataType="_text"
+			name="custName" />
+		<sqlParameter
+			dataType="_text"
+			name="agentName" />
+	</outputParameters>
+</sql>

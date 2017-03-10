@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
+	moduleName="tables"
 	name="agents"
 	recordType="storage"
 	tableName="AGENTS"
 	xmlns="http://www.simplity.org/schema"
 	okToSelectAll="true" 
-	childrenToBeRead="customer,orders"
+	childrenToBeRead="tables.customer,tables.orders"
 >
 	<fields>
 		<field

@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <service
-	moduleName="sample"
+	moduleName="restService"
 	xmlns="http://www.simplity.org/schema"
 	name="helloworld"
 	dbAccessType="none"
 >
+	<inputData>
+		<inputFields>
+			<inputField
+				dataType="_text"
+				name="a" />
+			<inputField
+				dataType="_text"
+				name="b" />
+		</inputFields>
+	</inputData>
 	<actions>
+		<log names="a,b" />
 		<setValue
 			fieldName="hello"
-			fieldValue="Hello World!"
+			fieldValue="froom within restService Hello World!"
 		></setValue>
 	</actions>
 	<outputData fieldNames="hello"></outputData>

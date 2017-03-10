@@ -1,14 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testRun testName="helloworldtestrun" xmlns="http://www.simplity.org/schema">
-  <testCases>
-    <testCase serviceName="helloworld" testCaseName="helloworldtest">
-    <outputJson><![CDATA[ {"hello":"Hello World!","_messages":[]}]]></outputJson>
-    </testCase>
-    <testCase serviceName="callSqlHw" testCaseName="callSqlHwtest">
-    <inputFields>
-    	<inputField fieldSelector="id" fieldValue="1"/>
-    </inputFields>
-    <outputJson><![CDATA[ {"outrec":[{"id":1,"greeting":"Good morning"}],"_messages":[]}]]></outputJson>
-    </testCase>
-  </testCases>
+<testRun
+	testName="helloworldtestrun"
+	xmlns="http://www.simplity.org/schema"
+>
+	<testCases>
+		<testCase
+			serviceName="helloworld"
+			testCaseName="helloworldtest"
+		>
+			<outputJson><![CDATA[ {"hello":"Hello World!","_messages":[]}]]></outputJson>
+		</testCase>
+		<testCase
+			serviceName="dbactions.callFilterRec"
+			testCaseName="callFilterRectest"
+		>
+			<outputLists>
+				<outputList
+					listSelector="agents"
+					maxRows="12"
+					minRows="12"
+				></outputList>
+			</outputLists>
+		</testCase>
+		<testCase
+			serviceName="dbactions.callSqlqueryCust"
+			testCaseName="callSqlqueryCustTest"
+		>
+		<inputJson><![CDATA[ {'custCode':'C00013'}]]></inputJson>
+		<outputItems>
+			<outputItem itemSelector="custRec.0">
+				<outputFields>
+					<outputField fieldSelector="custName" fieldValue="Holmes"/>
+				</outputFields>
+			</outputItem>
+		</outputItems>
+		</testCase>
+	</testCases>
 </testRun>

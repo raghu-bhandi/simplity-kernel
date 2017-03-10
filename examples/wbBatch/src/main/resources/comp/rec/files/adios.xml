@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <record
+	moduleName="files"
 	name="adios"
 	xmlns="http://www.simplity.org/schema"
 	forFixedWidthRow="true"
@@ -9,17 +10,17 @@
 		<field
 			name="id"
 			dataType="_number"
-			fieldWidth="2" 
-			isRequired="true"/>
+			fieldWidth="2"
+			isRequired="true" />
 		<field
 			name="greeting"
 			dataType="_text"
-			fieldWidth="15" 
-			isRequired="true"/>
+			fieldWidth="15"
+			isRequired="true" />
 		<field
 			name="farewell"
 			dataType="_text"
-			fieldWidth="10" 
-			isRequired="true"/>			
+			fieldWidth="10"
+			isRequired="true" />
 	</fields>
 </record>

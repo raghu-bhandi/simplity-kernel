@@ -1,4 +1,4 @@
-package helloworld;
+package org.simplity.helloworld;
 
 import java.util.List;
 

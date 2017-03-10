@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <record
+	moduleName="tables"
 	name="customer"
 	recordType="storage"
 	tableName="CUSTOMER"
@@ -79,7 +80,7 @@
 			fieldType="parentKey"
 			name="agentCode"
 			referredField="agentCode"
-			referredRecord="agents"
+			referredRecord="tables.agents"
 			sqlTypeName="CHAR" />
 	</fields>
 </record>

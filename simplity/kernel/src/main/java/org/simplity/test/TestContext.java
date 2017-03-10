@@ -135,6 +135,14 @@ public class TestContext {
 	}
 
 	/**
+	 * run a test run
+	 * @param testRun
+	 * @return number of failures
+	 */
+	public int runTest(TestRun testRun){
+		return testRun.run(this);
+	}
+	/**
 	 *
 	 * @param args
 	 * @throws Exception
@@ -144,7 +152,7 @@ public class TestContext {
 		Application.bootStrap(root);
 		TestContext ctx = new TestContext();
 		ctx.start("100", "abrakadabra");
-		TestRun testRun = ComponentManager.getTestRunOrNull("action.httpClient");
+		TestRun testRun = ComponentManager.getTestRunOrNull("service.input");
 		testRun.run(ctx);
 		JSONWriter writer = new JSONWriter();
 		writer.object();

@@ -30,7 +30,7 @@
 	</servlet>
 	<servlet>
 		<servlet-name>processFile</servlet-name>
-		<servlet-class>helloworld.SampleServiceInvocation</servlet-class>
+		<servlet-class>org.simplity.helloworld.SampleServiceInvocation</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>s</servlet-name>
