@@ -79,7 +79,7 @@ public class AddColumn extends Action {
 		}
 		if (this.columnValue != null) {
 			Value value = null;
-			String fieldName = TextUtil.getFieldName(this.columnName);
+			String fieldName = TextUtil.getFieldName(this.columnValue);
 				if (fieldName != null) {
 					/*
 					 * it is a field name
