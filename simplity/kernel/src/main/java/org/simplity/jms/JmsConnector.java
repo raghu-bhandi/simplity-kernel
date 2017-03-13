@@ -27,6 +27,7 @@ import java.util.Hashtable;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
+import javax.jms.QueueConnectionFactory;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -41,7 +42,7 @@ import org.simplity.kernel.ApplicationError;
  * @author simplity.org
  *
  */
-public class Connector {
+public class JmsConnector {
 
 	/**
 	 * we use just one connection for our entire application
@@ -102,7 +103,7 @@ public class Connector {
 		/*
 		 * get a connection from the factory that is set by admin
 		 */
-		connection = ((ConnectionFactory) ctx.lookup(this.connectionFactory))
+		connection = ((QueueConnectionFactory) ctx.lookup(this.connectionFactory))
 				.createConnection();
 	}
 
@@ -138,5 +139,16 @@ public class Connector {
 		} catch (Exception ignore) {
 			// playing it safe
 		}
+	}
+
+	public static void initialSetup(JmsConnector jmsConnector) {
+		try {
+			jmsConnector.getReady();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		} catch (NamingException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }

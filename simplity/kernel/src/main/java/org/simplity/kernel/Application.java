@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.simplity.http.HttpAgent;
 import org.simplity.http.Serve;
+import org.simplity.jms.JmsConnector;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -199,6 +200,10 @@ public class Application {
 	 */
 	LdapConfig ldapConfig;
 	/**
+	 * Configure the JMS Connection factory for the application
+	 */
+	JmsConnector jmsConnector;
+	/**
 	 * Simplity provides a rudimentary, folder-based system that can be used for
 	 * storing and retrieving attachments. If you want to use that, provide the
 	 * folder that is available for the server instance
@@ -306,7 +311,16 @@ public class Application {
 		} catch (Exception e) {
 			msgs.add("Error while setting up DbDriver. " + e.getMessage() + " Application will not work properly.");
 		}
-
+		/*
+		 * Setup JMS Connection factory
+		 */
+		if (this.jmsConnector != null) {
+			try {
+				JmsConnector.initialSetup(this.jmsConnector);
+			} catch (Exception e) {
+				msgs.add("Error while setting up JmsAgent." + e.getMessage() + " Application will not work properly.");
+			}
+		}
 		/*
 		 * Setup LDAP Agent
 		 */
@@ -314,7 +328,7 @@ public class Application {
 			try {
 				LdapAgent.initialSetup(this.ldapConfig);
 			} catch (Exception e) {
-				msgs.add("Error while setting up JmsAgent." + e.getMessage() + " Application will not work properly.");
+				msgs.add("Error while setting up LDAP." + e.getMessage() + " Application will not work properly.");
 			}
 		}
 

@@ -17,5 +17,6 @@
 		<module>wbBatch</module>
 		<module>wbFileAgent</module>
 		<module>petclinic</module>
-	</modules>
+    <module>jmsDemo</module>
+  </modules>
 </project>

@@ -24,7 +24,7 @@ package org.simplity.tp;
 
 import javax.jms.Session;
 
-import org.simplity.jms.Connector;
+import org.simplity.jms.JmsConnector;
 import org.simplity.jms.JmsQueue;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
@@ -58,7 +58,7 @@ public class JmsConsumer extends Block {
 		 */
 		Session session = null;
 		try {
-			session = Connector.getSession();
+			session = JmsConnector.getSession();
 			BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx, driver);
 			Tracer.trace("JMS session rolled back because the producer had an issue.");
 			this.requestQueue.consume(ctx, worker, session, this.responseQueue);

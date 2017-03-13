@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record
+	name="compChild"
+	recordType="storage"
+	moduleName="tables"
+	tableName="COMP_CHILD"
+	xmlns="http://www.simplity.org/schema"
+	okToSelectAll="true"
+	childrenToBeRead="tables.compGrand"
+>
+	<fields>
+		<field
+			name="childKeyText"
+			columnName="CHILD_KEY_TEXT"
+			dataType="text50"
+			fieldType="primaryAndParentKey"
+			sqlTypeName="VARCHAR"
+			referredRecord="tables.compParent"
+			referredField="parentKeyText" />
+		<field
+			columnName="CHILD_KEY_NBR"
+			dataType="_decimal"
+			fieldType="primaryAndParentKey"
+			name="childKeyNbr"
+			sqlTypeName="DECIMAL"
+			referredRecord="tables.compParent"
+			referredField="parentKeyNbr" />
+		<field
+			columnName="CHILD_KEY_DATE_TIME"
+			dataType="_dateTime"
+			fieldType="primaryKey"
+			name="childKeyDateTime"
+			sqlTypeName="DATE" />
+		<field
+			columnName="CHILD_TEXT"
+			dataType="text25"
+			fieldType="data"
+			name="childText"
+			sqlTypeName="VARCHAR" />
+		<field
+			columnName="CHILD_MODIFIED_AT"
+			dataType="_dateTime"
+			fieldType="modifiedTimeStamp"
+			name="childModifiedAt"
+			sqlTypeName="TIMESTAMP" />
+	</fields>
+</record>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="jmsProducer"
+	dbAccessType="none">
+	<actions>
+		<setValue fieldName="hello" fieldValue="Hello world"></setValue>
+		<jmsProducer>
+			<requestQueue queueName="Queue01" fieldNames="hello"/>
+		</jmsProducer>
+	</actions>
+</service>

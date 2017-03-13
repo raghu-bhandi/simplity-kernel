@@ -14,5 +14,6 @@
 		<module>archetype-partial</module>
 		<module>template</module>
 		<module>test</module>
-	</modules>
+    <module>swagger-doc</module>
+  </modules>
 </project>

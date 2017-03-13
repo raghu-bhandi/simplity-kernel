@@ -2,7 +2,6 @@
 <service dbAccessType="none" description="testDescription"
 	executeInBackground="true" moduleName="Testmodule" name="NCName"
 	referredServiceForInput="testserviceinput" referredServiceForOutput="testserviceoutput"
-	requestTextFieldName="NCName" responseTextFieldName="NCName"
 	schemaName="NCName" xmlns="http://www.simplity.org/schema">
 	<inputData>
 		<inputFields />

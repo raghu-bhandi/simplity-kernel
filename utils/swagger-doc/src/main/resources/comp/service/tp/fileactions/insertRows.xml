@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service xmlns="http://www.simplity.org/schema" 
+	moduleName="fileactions"
+	name="insertRows"
+	dbAccessType="readWrite">
+	<actions>
+		<log actionName="allOK" names="id,name,address" />
+		<save saveAction="add" recordName="tables.student" actionName="saveAction"></save>
+	</actions>
+</service>
