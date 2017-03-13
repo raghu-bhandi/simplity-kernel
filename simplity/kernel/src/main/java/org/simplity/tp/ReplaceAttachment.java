@@ -22,7 +22,6 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
@@ -63,9 +62,6 @@ public class ReplaceAttachment extends DbAction {
 	private String keyFieldName;
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		if(driver==null){
-			throw new ApplicationError("ReplaceAttachment requires the service dbAccessType to be set to read-write");
-		}
 		Value tokenValue = ctx.getValue(this.attachmentFieldName);
 		Value keyValue = ctx.getValue(this.keyFieldName);
 		Value[] values = { keyValue };

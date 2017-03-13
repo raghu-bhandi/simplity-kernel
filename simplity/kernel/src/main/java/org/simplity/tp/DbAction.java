@@ -47,7 +47,7 @@ public abstract class DbAction extends Action {
 	@Override
 	public Value delegate(ServiceContext ctx, DbDriver driver) {
 		int result = 0;
-		if (this.transactionIsDelegated(driver)) {
+		if (this.useNewDriver(driver)) {
 			/*
 			 * service has delegated transactions to its actions...
 			 * We have to directly deal with the driver for this
@@ -63,20 +63,21 @@ public abstract class DbAction extends Action {
 		return Value.newIntegerValue(result);
 	}
 
-	private boolean transactionIsDelegated(DbDriver driver){
+	private boolean useNewDriver(DbDriver driver){
 		/*
-		 * do we update?
+		 * read-only is always fine with called driver
 		 */
 		DbAccessType dat = this.getDataAccessType();
-		if ( dat == null || dat.updatesDb() == false){
+		if (dat == null || dat.updatesDb() == false){
 			return false;
 		}
 		/*
-		 * delegated if the driver can not update
+		 * is the driver equipped to do updates?
 		 */
 		if(driver == null){
 			return true;
 		}
+
 		dat = driver.getAccessType();
 		if(dat == null || dat.updatesDb() == false) {
 			return true;
@@ -106,11 +107,6 @@ public abstract class DbAction extends Action {
 	@Override
 	public int validate(ValidationContext ctx, Service service) {
 		int count = super.validate(ctx, service);
-		if(service.dbAccessType==DbAccessType.NONE){
-			ctx.addError("ReadWithSql requires DB access type in service to be either read-only or read-write.");
-			count++;
-		}		
-		
 		if (this.failureMessageName != null) {
 			ctx.addReference(ComponentType.MSG, this.failureMessageName);
 		}

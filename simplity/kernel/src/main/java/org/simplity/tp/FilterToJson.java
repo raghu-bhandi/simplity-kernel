@@ -21,7 +21,6 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
@@ -72,9 +71,6 @@ public class FilterToJson extends DbAction {
 
 	@Override
 	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		if(driver==null){
-			throw new ApplicationError("FilterToJson requires the service dbAccessType to be set to read-write or read-only");
-		}
 		Record record = ComponentManager.getRecord(this.filterRecordName);
 		Record outRecord = record;
 		if (this.outputRecordName != null) {

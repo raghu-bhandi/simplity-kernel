@@ -235,41 +235,7 @@ public abstract class Action {
 	 *            parent service
 	 * @return number of errors added to the list
 	 */
-	public int validate(ValidationContext vtx, Service service) {
-		DbAccessType acc = this.getDataAccessType() ;
-		/*
-		 * level 0 ; no db access
-		 */
-		if(acc == null || acc == DbAccessType.NONE){
-			return 0;
-		}
-
-		DbAccessType serviceAcc = service.dbAccessType;
-		if(serviceAcc == null || serviceAcc == DbAccessType.NONE ){
-			vtx.addError("action " + this.actionName + " requires db access, but service specifies no db-access. Review dbAccessType of service.");
-			return 1;
-		}
-
-		/*
-		 * level 1 : read only
-		 */
-		if(acc.updatesDb() == false){
-			return 0;
-		}
-		/*
-		 * level 2 : this action updates db
-		 */
-		if(serviceAcc == DbAccessType.SUB_SERVICE){
-			if(this instanceof SubService){
-			return 0;
-			}
-			vtx.addError("action " + this.actionName + " does db update. Enclosing service has dbAccess=subService. This is not right. Re-factor into sub-services for proper transactin boundaries.");
-			return 1;
-		}
-		if(serviceAcc == DbAccessType.READ_ONLY){
-			vtx.addError("action " + this.actionName + " requires db updates, but servic specifies read-only.");
-			return 1;
-		}
+	public int validate(ValidationContext vtx, Service service){
 		return 0;
 	}
 }

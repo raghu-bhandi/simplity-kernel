@@ -180,7 +180,6 @@ public class TestCase {
 		 * are we expecting a specific json?
 		 */
 		if (this.outputJson != null) {
-			Tracer.trace("Output specified is " + this.outputJson);
 			JSONObject expected = new JSONObject(this.outputJson);
 			/*
 			 * we assert expected attributes, but not bother if there are
@@ -291,6 +290,7 @@ public class TestCase {
 	 * @param vtx
 	 * @return number of errors detected
 	 */
+	@SuppressWarnings("unused")
 	public int validate(ValidationContext vtx) {
 		int nbr = 0;
 		if (this.inputJson != null) {
