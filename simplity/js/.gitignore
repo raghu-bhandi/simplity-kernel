@@ -1,3 +1,11 @@
+/.metadata/
+/RemoteSystemsTempFiles/
+/Servers/
+/.recommenders/
+/.settings/
+/javadocs/ 
 /target/
-.classpath
-.project
+.DS_Store
+.docx
+
+
