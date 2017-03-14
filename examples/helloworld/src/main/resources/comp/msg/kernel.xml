@@ -30,5 +30,6 @@
 	<message messageType="error" name="kernel.invalidDateTime" text="This is not a vlid date and time"/>
 	<message messageType="error" name="kernel.invalidNumber" text="This is not valid number"/>
 	<message messageType="error" name="kernel.invalidDecimal" text="This is not a valid decimal number"/>
+	<message messageType="warning" name="kernel.warning" text="$1"/>
     </components>
 </messages>

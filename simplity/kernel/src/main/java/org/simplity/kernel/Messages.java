@@ -108,6 +108,11 @@ public class Messages {
 	public static final String SUCCESS = "kernel.success";
 
 	/**
+	 *
+	 */
+	public static final String WARNING = "kernel.warning";
+
+	/**
 	 * client has sent an invalid attachment key. Client should send only the
 	 * key that it would have received after a successful upload of attachment
 	 */

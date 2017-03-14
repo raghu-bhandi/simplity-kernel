@@ -1179,7 +1179,6 @@ public class DbDriver {
 		int result = 0;
 		if (rs.next()) {
 			outSheet.addRow(getParams(rs, outSheet.getValueTypes()));
-
 			result = 1;
 		}
 		rs.close();

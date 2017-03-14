@@ -22,6 +22,7 @@
 package org.simplity.tp;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -99,6 +100,7 @@ public class Suggest extends DbAction {
 		DataSheet sheet = record.suggest(value.toString(), matchStarting,
 				driver, ctx.getUserId());
 		if (sheet == null) {
+			ctx.addMessage(Messages.WARNING, "No matching records");
 			return 0;
 		}
 		String sheetName = this.outputSheetName == null ? record

@@ -32,6 +32,7 @@ import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
 import org.simplity.service.ServiceContext;
+import org.simplity.kernel.Messages;
 
 /**
  * Read a row from a record, and possibly read relevant rows from related
@@ -108,6 +109,7 @@ public class Read extends DbAction {
 					.readMany(inSheet, outSheet, driver, ctx.getUserId());
 		}
 		if (result == 0) {
+			ctx.addMessage(Messages.WARNING, "No matching records");
 			return 0;
 		}
 		if (this.outputSheetName != null) {
@@ -115,9 +117,7 @@ public class Read extends DbAction {
 		} else {
 			ctx.copyFrom(outSheet);
 		}
-		if (result == 0) {
-			return 0;
-		}
+
 		if (this.childRecords != null) {
 			for (RelatedRecord rr : this.childRecords) {
 				Record cr = ComponentManager.getRecord(rr.recordName);

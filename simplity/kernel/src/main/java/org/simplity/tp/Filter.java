@@ -21,6 +21,7 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
@@ -116,6 +117,7 @@ public class Filter extends DbAction {
 		int result = outSheet.length();
 		if (this.outputSheetName == null) {
 			if (result == 0) {
+				ctx.addMessage(Messages.WARNING, "No matching records");
 				return 0;
 			}
 			ctx.copyFrom(outSheet);
