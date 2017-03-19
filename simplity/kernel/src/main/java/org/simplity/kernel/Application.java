@@ -25,6 +25,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.InitialContext;
+import javax.transaction.UserTransaction;
+
 import org.simplity.http.HttpAgent;
 import org.simplity.http.Serve;
 import org.simplity.jms.JmsConnector;
@@ -60,7 +63,22 @@ public class Application {
 	 * any exception thrown by service may need to be reported to a central
 	 * system.
 	 */
-	private static ExceptionListener currentExceptionListener = new DefaultExceptionListener();;
+	private static ExceptionListener currentExceptionListener = new DefaultExceptionListener();
+
+	/**
+	 * instance of a UserTransaction for JTA/JCA based transaction management
+	 */
+	private static Object userTransactionInstance;
+
+	/**
+	 * @return get a UserTrnsaction instance
+	 */
+	public static UserTransaction getUserTransaction() {
+		if (userTransactionInstance == null) {
+			throw new ApplicationError("Application is not set up for a JTA based user transaction");
+		}
+		return (UserTransaction) userTransactionInstance;
+	}
 
 	/**
 	 * @return exception listener for this application
@@ -78,14 +96,15 @@ public class Application {
 	 * get me the path for resourceFolder, and I will kick-start the engine for
 	 * your application.
 	 *
-	 * @param componentFolder
+	 * @param compFolder
 	 *            folder relative to applicationRoot
 	 * @return true if all OK. False in case of any set-up issue.
 	 * @throws Exception
 	 *             in case the root folder does not exist, or does not required
 	 *             resources
 	 */
-	public static boolean bootStrap(String componentFolder) throws Exception {
+	public static boolean bootStrap(String compFolder) throws Exception {
+		String componentFolder = compFolder;
 		if (!(new File(componentFolder).exists())) {
 			componentFolder = Thread.currentThread().getContextClassLoader().getResource(componentFolder).getPath();
 		}
@@ -200,10 +219,6 @@ public class Application {
 	 */
 	LdapConfig ldapConfig;
 	/**
-	 * Configure the JMS Connection factory for the application
-	 */
-	JmsConnector jmsConnector;
-	/**
 	 * Simplity provides a rudimentary, folder-based system that can be used for
 	 * storing and retrieving attachments. If you want to use that, provide the
 	 * folder that is available for the server instance
@@ -247,10 +262,25 @@ public class Application {
 	String clientCacheManager;
 
 	/**
+	 * jndi name for user transaction for using JTA based transactions
+	 */
+	String jtaUserTransaction;
+	/**
+	 * if JMS is used by this application, connection factory for local/session
+	 * managed operations
+	 */
+	String queueConnectionFactory;
+	/**
+	 * if JMS is used by this application, connection factory for JTA/JCA/XA
+	 * managed operations
+	 */
+	String xaQueueConnectionFactory;
+
+	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
 	 * servlet in a web-app
-	 * 
+	 *
 	 * @return null if all OK. Else message that described why we could not
 	 *         succeed.
 	 */
@@ -311,14 +341,28 @@ public class Application {
 		} catch (Exception e) {
 			msgs.add("Error while setting up DbDriver. " + e.getMessage() + " Application will not work properly.");
 		}
+
+		if (this.jtaUserTransaction != null) {
+			try {
+				userTransactionInstance = new InitialContext().lookup(this.jtaUserTransaction);
+				if (userTransactionInstance instanceof UserTransaction == false) {
+					msgs.add(this.jtaUserTransaction + " is located but it is not UserTransaction but "
+							+ userTransactionInstance.getClass().getName());
+				} else {
+					Tracer.trace("userTransactionInstance set to " + userTransactionInstance.getClass().getName());
+				}
+			} catch (Exception e) {
+				msgs.add("Error while instantiating UserTransaction using jndi name " + this.jtaUserTransaction + ". "
+						+ e.getMessage());
+			}
+		}
 		/*
 		 * Setup JMS Connection factory
 		 */
-		if (this.jmsConnector != null) {
-			try {
-				JmsConnector.initialSetup(this.jmsConnector);
-			} catch (Exception e) {
-				msgs.add("Error while setting up JmsAgent." + e.getMessage() + " Application will not work properly.");
+		if (this.queueConnectionFactory != null || this.xaQueueConnectionFactory != null) {
+			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory);
+			if (msg != null) {
+				msgs.add(msg);
 			}
 		}
 		/*

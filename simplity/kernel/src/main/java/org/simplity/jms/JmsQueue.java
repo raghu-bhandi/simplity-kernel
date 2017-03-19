@@ -37,17 +37,16 @@ import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.naming.InitialContext;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSerializationType;
-import org.simplity.kernel.data.DataSheet;
-import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.value.Value;
-import org.simplity.kernel.value.ValueType;
 import org.simplity.service.DataExtractor;
 import org.simplity.service.DataFormatter;
 import org.simplity.service.ServiceContext;
@@ -60,9 +59,6 @@ import org.simplity.service.ServiceContext;
  */
 public class JmsQueue {
 
-	private static final char EQUAL = '=';
-	private static final char COMMA = ',';
-	private static final String COMA = ",";
 	/**
 	 * name of the queue (destination) used for requesting a service
 	 */
@@ -128,6 +124,10 @@ public class JmsQueue {
 	 * object instance for re-use
 	 */
 	private DataExtractor dataExtractor;
+	/**
+	 * jms queue instance for this queue
+	 */
+	private Queue queue;
 
 	/**
 	 * consume a request queue, and optionally put a message on to the response
@@ -139,50 +139,52 @@ public class JmsQueue {
 	 *
 	 * @param processor
 	 *            object instance that is interested in processing the message
-	 * @param session
 	 * @param responseQ
 	 *            optional response queue to be used to respond back to the
 	 *            incoming message
+	 * @param consumeAll
+	 *            false means we will process (at most) one message. true means
+	 *            no such restrictions.
+	 * @param waitForMessage
+	 *            true means we will wait for at least the first message. If
+	 *            consumeAll is true, then we do not come-out till interrupted,
+	 *            or the queue closes
 	 */
-	public void consume(ServiceContext ctx, MessageClient processor,
-			Session session, JmsQueue responseQ) {
+	public void consume(ServiceContext ctx, MessageClient processor, JmsQueue responseQ, boolean consumeAll,
+			boolean waitForMessage) {
+
+		Session session = ctx.getJmsSession();
 		MessageConsumer consumer = null;
 		MessageProducer producer = null;
 
 		try {
+			consumer = session.createConsumer(this.queue, this.messageSelector);
+			String nam = this.queue.getQueueName();
+			Tracer.trace("Started consumer for queue " + nam);
 			/*
 			 * We may not use producer at all, but an empty producer does not
 			 * hurt as much as creating it repeatedly..
 			 */
 			producer = session.createProducer(null);
-
-			Queue request = session.createQueue(this.queueName);
-			consumer = session.createConsumer(request, this.messageSelector);
 			/*
-			 * default response q is decided by queueName, but may be
-			 * over-ridden my incoming message.Let us keep this default one
-			 * handy
+			 * wait 0 means blocking-wait, 1 means try and come out.
 			 */
-			Queue response = null;
-			if (responseQ != null) {
-				if (responseQ.queueName != null) {
-					response = session.createQueue(responseQ.queueName);
+			long wait = waitForMessage ? 0 : 1;
+			/*
+			 * loop for each message.
+			 */
+			do {
+				if(waitForMessage){
+					Tracer.trace("Looking/waiting for next message on " + nam);
 				}
-			}
-			/*
-			 * seemingly infinite loop starts...
-			 */
-			while (processor.toContinue()) {
-				Message msg = consumer.receive();
+				Message msg = consumer.receive(wait);
 				if (msg == null) {
-					Tracer.trace("Queue " + this.queueName
-							+ " has shutdown. Hence this consumer is also shutting down");
+					Tracer.trace("No message in " + this.queueName + ". Queue consumer will not continue;");
 					/*
 					 * queue is shut down
 					 */
 					break;
 				}
-				boolean allOk = false;
 				/*
 				 * let exception in one message not affect the over-all process
 				 */
@@ -195,18 +197,18 @@ public class JmsQueue {
 					 * is the requester asking us to respond on a specific
 					 * queue?
 					 */
-					Destination reply = msg.getJMSReplyTo();
+					Destination replyQ = msg.getJMSReplyTo();
 					/*
 					 * and the all important correlation id for the requester to
 					 * select the message back
 					 */
 					String corId = msg.getJMSCorrelationID();
-					if (reply == null) {
-						reply = response;
+					if (replyQ == null && responseQ != null) {
+						replyQ = responseQ.getQueue();
 					}
 
-					allOk = processor.process(ctx);
-					if (reply != null) {
+					processor.process(ctx);
+					if (replyQ != null) {
 						Message respMsg = null;
 						if (responseQ == null) {
 							Tracer.trace(
@@ -216,29 +218,22 @@ public class JmsQueue {
 							/*
 							 * prepare a reply based on specification
 							 */
-							respMsg = responseQ.createMessage(session, ctx);
+							respMsg = responseQ.createMessage(ctx);
 						}
 						if (corId != null) {
 							respMsg.setJMSCorrelationID(corId);
 						}
-						producer.send(reply, respMsg);
+						producer.send(replyQ, respMsg);
 					}
 				} catch (Exception e) {
-					Tracer.trace("Message processor threw an excpetion. "
-							+ e.getMessage());
+					ctx.addMessage(Messages.INTERNAL_ERROR, "Message processor threw an excpetion. " + e.getMessage());
 				}
-				if (allOk) {
-					session.commit();
-				} else {
-					Tracer.trace(
-							"Rolling back message as the processor crashed/returned a flase value");
-					session.rollback();
+				if(consumeAll == false){
+					break;
 				}
-			}
+			} while (processor.toContinue());
 		} catch (Exception e) {
-			throw new ApplicationError(e,
-					"Error while consuming and procesing JMS queue "
-							+ this.queueName);
+			throw new ApplicationError(e, "Error while consuming and procesing JMS queue " + this.queueName);
 
 		} finally {
 			if (consumer != null) {
@@ -264,26 +259,23 @@ public class JmsQueue {
 	 * @param ctx
 	 *            service context where this is all happening
 	 *
-	 * @param session
 	 * @param responseQ
 	 *            in case we are to get a response for this message-send
 	 *            operation
 	 * @return true if a message indeed was put on the queue. False otherwise
 	 */
-	public boolean produce(ServiceContext ctx, Session session,
-			JmsQueue responseQ) {
+	public boolean produce(ServiceContext ctx, JmsQueue responseQ) {
 		MessageProducer producer = null;
 		MessageConsumer consumer = null;
 		Queue response = null;
 		String corId = null;
-
+		Session session = ctx.getJmsSession();
 		try {
-			Queue request = session.createQueue(this.queueName);
-			producer = session.createProducer(request);
+			producer = session.createProducer(this.queue);
 			/*
 			 * create a message with data from ctx
 			 */
-			Message msg = this.createMessage(session, ctx);
+			Message msg = this.createMessage(ctx);
 
 			/*
 			 * should we ask for a return message?
@@ -293,10 +285,9 @@ public class JmsQueue {
 					response = session.createTemporaryQueue();
 					consumer = session.createConsumer(response);
 				} else {
-					response = session.createQueue(responseQ.getQueueName());
+					response = responseQ.getQueue();
 					corId = UUID.randomUUID().toString();
-					consumer = session.createConsumer(response,
-							"JMSCorrelationID='" + corId + '\'');
+					consumer = session.createConsumer(response, "JMSCorrelationID='" + corId + '\'');
 					msg.setJMSCorrelationID(corId);
 				}
 				msg.setJMSReplyTo(response);
@@ -314,16 +305,14 @@ public class JmsQueue {
 					/*
 					 * some issue in the queue
 					 */
-					Tracer.trace(
-							"Response message is null. Probably som eissue with the queue provider");
+					Tracer.trace("Response message is null. Probably some issue with the queue provider");
 					return false;
 				}
 				responseQ.extractMessage(message, ctx);
 			}
 			return true;
 		} catch (Exception e) {
-			Tracer.trace("Error while putting mesage on tp a queue. "
-					+ e.getMessage());
+			Tracer.trace("Error while putting mesage on tp a queue. " + e.getMessage());
 			return false;
 		} finally {
 			if (consumer != null) {
@@ -349,8 +338,8 @@ public class JmsQueue {
 	 * @return
 	 * @throws JMSException
 	 */
-	private Message createMessage(Session session, ServiceContext ctx)
-			throws JMSException {
+	private Message createMessage(ServiceContext ctx) throws JMSException {
+		Session session = ctx.getJmsSession();
 		if (this.dataFormatter != null) {
 			String text = this.dataFormatter.format(ctx);
 			return session.createTextMessage(text);
@@ -392,16 +381,14 @@ public class JmsQueue {
 			}
 			Object object = ctx.getObject(this.bodyFieldName);
 			if (object == null) {
-				Tracer.trace("Service context has no object named "
-						+ this.bodyFieldName
+				Tracer.trace("Service context has no object named " + this.bodyFieldName
 						+ ". No object assigned to message.");
 				return session.createObjectMessage();
 			}
 			if (object instanceof Serializable) {
 				return session.createObjectMessage((Serializable) object);
 			}
-			throw new ApplicationError("Service context has an instance of "
-					+ object.getClass().getName()
+			throw new ApplicationError("Service context has an instance of " + object.getClass().getName()
 					+ " as object for message. This class must be serializable.");
 		}
 
@@ -418,8 +405,7 @@ public class JmsQueue {
 			 */
 			text = ctx.getTextValue(this.bodyFieldName);
 			if (text == null) {
-				Tracer.trace("No value found for body text with field name "
-						+ this.bodyFieldName + ". Data not set.");
+				Tracer.trace("No value found for body text with field name " + this.bodyFieldName + ". Data not set.");
 			} else {
 				message.setText(text);
 			}
@@ -428,75 +414,14 @@ public class JmsQueue {
 
 		if (this.recordName != null) {
 			Record record = ComponentManager.getRecord(this.recordName);
-			message.setText(this.messageBodyType.serializeFields(ctx,
-					record.getFields()));
+			message.setText(this.messageBodyType.serializeFields(ctx, record.getFields()));
 			return message;
 		}
 		if (this.fieldNames != null) {
-			message.setText(this.messageBodyType.serializeFields(ctx,
-					this.fieldNames));
+			message.setText(this.messageBodyType.serializeFields(ctx, this.fieldNames));
 			return message;
 		}
-		throw new ApplicationError(
-				"Record or field details are required for creating message");
-	}
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatFromSheet(ServiceContext ctx) {
-		DataSheet sheet = ctx.getDataSheet(this.nameValueSheetName);
-		if (sheet == null) {
-			Tracer.trace("No data sheet named " + this.nameValueSheetName
-					+ ". No data added to message.");
-			return null;
-		}
-
-		int nbr = sheet.length();
-		if (nbr == 0) {
-			Tracer.trace("Data sheet named " + this.nameValueSheetName
-					+ " is found, but it is empty. No data added to message.");
-			return null;
-		}
-
-		if (sheet.width() != 2) {
-			Tracer.trace("Data sheet named " + this.nameValueSheetName
-					+ " is to have just two columns, first one for name and second one for value. "
-					+ sheet.width() + " columns found.");
-			return null;
-		}
-		StringBuilder sbf = new StringBuilder();
-		for (int i = 0; i < nbr; i++) {
-			Value[] row = sheet.getRow(i);
-			sbf.append(row[0].toString()).append(EQUAL).append(row[1])
-					.append(COMMA);
-		}
-		sbf.setLength(sbf.length() - 1);
-		return sbf.toString();
-	}
-
-	private String[] getNames() {
-		if (this.fieldNames != null) {
-			return this.fieldNames;
-		}
-		return ComponentManager.getRecord(this.recordName).getFieldNames();
-	}
-
-	private String[][] getNamesAndValues(ServiceContext ctx) {
-		String[] names = this.getNames();
-		String[] values = new String[names.length];
-		int i = 0;
-		for (String name : names) {
-			String val = ctx.getTextValue(name);
-			if (val == null) {
-				val = "";
-			}
-			values[i] = val;
-			i++;
-		}
-		String[][] result = { names, values };
-		return result;
+		throw new ApplicationError("Record or field details are required for creating message");
 	}
 
 	/**
@@ -505,14 +430,11 @@ public class JmsQueue {
 	 * @param ctx
 	 * @throws JMSException
 	 */
-	public void extractMessage(Message message, ServiceContext ctx)
-			throws JMSException {
+	public void extractMessage(Message message, ServiceContext ctx) throws JMSException {
 		if (this.dataExtractor != null) {
-			Tracer.trace("Using a custom class to extract data "
-					+ this.messageExtractor);
+			Tracer.trace("Using a custom class to extract data " + this.messageExtractor);
 			if (message instanceof TextMessage == false) {
-				throw new ApplicationError("Expecting a TextMessage on queue "
-						+ this.bodyFieldName + " but we got a "
+				throw new ApplicationError("Expecting a TextMessage on queue " + this.bodyFieldName + " but we got a "
 						+ message.getClass().getSimpleName());
 			}
 			String text = ((TextMessage) message).getText();
@@ -533,8 +455,7 @@ public class JmsQueue {
 				this.extractHeaderFields(message, ctx, record.getFieldNames());
 			} else {
 
-				Tracer.trace(
-						"No fields specified to be extracted from the message. Nothing extracted. ");
+				Tracer.trace("No fields specified to be extracted from the message. Nothing extracted. ");
 			}
 			return;
 		}
@@ -543,8 +464,7 @@ public class JmsQueue {
 		 */
 		if (this.messageBodyType == DataSerializationType.OBJECT) {
 			if (message instanceof ObjectMessage == false) {
-				Tracer.trace("We expected a ObjectMessage but got "
-						+ message.getClass().getSimpleName()
+				Tracer.trace("We expected a ObjectMessage but got " + message.getClass().getSimpleName()
 						+ ". No object extracted.");
 				return;
 			}
@@ -552,10 +472,8 @@ public class JmsQueue {
 			if (object == null) {
 				Tracer.trace("Messaage object is null. No object extracted.");
 			} else if (this.bodyFieldName == null) {
-				Tracer.trace(
-						"bodyFieldName not set, and hence the object of instance "
-								+ object.getClass().getName() + "  " + object
-								+ " not added to context.");
+				Tracer.trace("bodyFieldName not set, and hence the object of instance " + object.getClass().getName()
+						+ "  " + object + " not added to context.");
 			} else {
 				ctx.setObject(this.bodyFieldName, object);
 			}
@@ -564,8 +482,7 @@ public class JmsQueue {
 
 		if (this.messageBodyType == DataSerializationType.MAP) {
 			if (message instanceof MapMessage == false) {
-				Tracer.trace("We expected a MapMessage but got "
-						+ message.getClass().getSimpleName()
+				Tracer.trace("We expected a MapMessage but got " + message.getClass().getSimpleName()
 						+ ". No data extracted.");
 				return;
 			}
@@ -578,17 +495,15 @@ public class JmsQueue {
 				Record record = ComponentManager.getRecord(this.recordName);
 				this.extractMapFields(ctx, msg, record.getFieldNames());
 			} else {
-				Tracer.trace(
-						"No directive to extract any fields from this MapMessage.");
+				Tracer.trace("No directive to extract any fields from this MapMessage.");
 			}
 			return;
 
 		}
 
 		if (message instanceof TextMessage == false) {
-			Tracer.trace("We expected a TextMessage but got "
-					+ message.getClass().getSimpleName()
-					+ ". No data extracted.");
+			Tracer.trace(
+					"We expected a TextMessage but got " + message.getClass().getSimpleName() + ". No data extracted.");
 			return;
 		}
 
@@ -611,56 +526,12 @@ public class JmsQueue {
 	}
 
 	/**
-	 *
-	 * @param ctx
-	 * @param names
-	 * @param values
-	 */
-	private void fillCtx(ServiceContext ctx, String[] names, Value[] values) {
-		int i = 0;
-		for (Value value : values) {
-			String name = names[i];
-			if (Value.isNull(value)) {
-				Tracer.trace(
-						"Field " + name + " is null. Not added to context.");
-			} else {
-				ctx.setValue(name, value);
-			}
-			i++;
-		}
-	}
-
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractToSheet(ServiceContext ctx, String text) {
-		String[] parts = text.split(COMA);
-		String[] columnNames = { "name", "value" };
-		ValueType[] columnValueTypes = { ValueType.TEXT, ValueType.TEXT };
-		DataSheet sheet = new MultiRowsSheet(columnNames, columnValueTypes);
-		for (String part : parts) {
-			String[] pair = part.split("=");
-			if (pair.length == 2) {
-				Value name = Value.newTextValue(pair[0].trim());
-				Value val = Value.newTextValue(pair[1].trim());
-				Value[] row = { name, val };
-				sheet.addRow(row);
-			} else {
-				Tracer.trace("Improper value-pair format " + part
-						+ ". Part skipped");
-			}
-		}
-	}
-
-	/**
 	 * @param ctx
 	 * @param message
 	 * @param names
 	 * @throws JMSException
 	 */
-	private void extractMapFields(ServiceContext ctx, MapMessage message,
-			String[] names) throws JMSException {
+	private void extractMapFields(ServiceContext ctx, MapMessage message, String[] names) throws JMSException {
 		for (String nam : names) {
 			Object val = message.getObject(nam);
 			if (val != null) {
@@ -674,8 +545,7 @@ public class JmsQueue {
 	 * @param message
 	 * @throws JMSException
 	 */
-	private void extractAllFromMap(ServiceContext ctx, MapMessage message)
-			throws JMSException {
+	private void extractAllFromMap(ServiceContext ctx, MapMessage message) throws JMSException {
 		@SuppressWarnings("unchecked")
 		Enumeration<String> names = message.getMapNames();
 		while (true) {
@@ -700,8 +570,7 @@ public class JmsQueue {
 	 * @param ctx
 	 * @throws JMSException
 	 */
-	private void extractAllFromHeader(Message message, ServiceContext ctx)
-			throws JMSException {
+	private void extractAllFromHeader(Message message, ServiceContext ctx) throws JMSException {
 		@SuppressWarnings("unchecked")
 		Enumeration<String> names = message.getPropertyNames();
 		while (true) {
@@ -728,8 +597,7 @@ public class JmsQueue {
 	 * @param names
 	 * @throws JMSException
 	 */
-	private void extractHeaderFields(Message message, ServiceContext ctx,
-			String[] names) throws JMSException {
+	private void extractHeaderFields(Message message, ServiceContext ctx, String[] names) throws JMSException {
 		for (String nam : names) {
 			Object val = message.getObjectProperty(nam);
 			if (val != null) {
@@ -746,13 +614,11 @@ public class JmsQueue {
 	 * @param names
 	 * @throws JMSException
 	 */
-	private void setHeaderFields(Message message, ServiceContext ctx,
-			String[] names) throws JMSException {
+	private void setHeaderFields(Message message, ServiceContext ctx, String[] names) throws JMSException {
 		for (String nam : names) {
 			Value val = ctx.getValue(nam);
 			if (val == null) {
-				Tracer.trace("No value for " + nam
-						+ ". Value not set to message header.");
+				Tracer.trace("No value for " + nam + ". Value not set to message header.");
 			} else {
 				message.setObjectProperty(nam, val.toObject());
 			}
@@ -767,8 +633,7 @@ public class JmsQueue {
 	 * @param names
 	 * @throws JMSException
 	 */
-	private void setMapFields(MapMessage message, ServiceContext ctx,
-			String[] names) throws JMSException {
+	private void setMapFields(MapMessage message, ServiceContext ctx, String[] names) throws JMSException {
 		for (String nam : names) {
 			Value val = ctx.getValue(nam);
 			if (val == null) {
@@ -795,12 +660,10 @@ public class JmsQueue {
 		 */
 		if (this.messageExtractor != null) {
 			try {
-				this.dataExtractor = (DataExtractor) Class
-						.forName(this.messageExtractor).newInstance();
+				this.dataExtractor = (DataExtractor) Class.forName(this.messageExtractor).newInstance();
 			} catch (Exception e) {
 				throw new ApplicationError(e,
-						"Error while creating an instance of DataExtractor for "
-								+ this.messageExtractor);
+						"Error while creating an instance of DataExtractor for " + this.messageExtractor);
 			}
 		}
 
@@ -809,13 +672,17 @@ public class JmsQueue {
 		 */
 		if (this.messageFormatter != null) {
 			try {
-				this.dataFormatter = (DataFormatter) Class
-						.forName(this.messageFormatter).newInstance();
+				this.dataFormatter = (DataFormatter) Class.forName(this.messageFormatter).newInstance();
 			} catch (Exception e) {
 				throw new ApplicationError(e,
-						"Error while creating an instance of DataFormatter for "
-								+ this.messageFormatter);
+						"Error while creating an instance of DataFormatter for " + this.messageFormatter);
 			}
+		}
+		try {
+			this.queue = (Queue) new InitialContext().lookup(this.queueName);
+		} catch (Exception e) {
+			throw new ApplicationError("Jms queue name " + this.queueName
+					+ " could not be used as a JNDI name to locate a queue name. " + e.getMessage());
 		}
 	}
 
@@ -823,8 +690,8 @@ public class JmsQueue {
 	 *
 	 * @return name of this queue
 	 */
-	public String getQueueName() {
-		return this.queueName;
+	public Queue getQueue() {
+		return this.queue;
 	}
 
 	/**
@@ -840,8 +707,7 @@ public class JmsQueue {
 		/*
 		 * fieldNames and recordName are two ways to specify list if fields
 		 */
-		boolean fieldListSpecified = this.recordName != null
-				|| (this.fieldNames != null && this.fieldNames.length > 0);
+		boolean fieldListSpecified = this.recordName != null || (this.fieldNames != null && this.fieldNames.length > 0);
 		/*
 		 * fieldName is required if we are set/get message body directly from
 		 * one field rather than constructing it from other fields, or
@@ -881,8 +747,7 @@ public class JmsQueue {
 			if (this.messageBodyType != DataSerializationType.TEXT) {
 				vtx.reportUnusualSetting(
 						"messageExtractor is used when the message body usage is text. this.messageBodyType is set to "
-								+ this.messageBodyType
-								+ ". we will ignore this setting and assume text body.");
+								+ this.messageBodyType + ". we will ignore this setting and assume text body.");
 			}
 		}
 
@@ -902,8 +767,7 @@ public class JmsQueue {
 			if (this.messageBodyType != DataSerializationType.TEXT) {
 				vtx.reportUnusualSetting(
 						"messageFormatter is used when the message body usage is text. this.messageBodyType is set to "
-								+ this.messageBodyType
-								+ ". we will ignore this setting and assume text body.");
+								+ this.messageBodyType + ". we will ignore this setting and assume text body.");
 			}
 		}
 
@@ -917,8 +781,7 @@ public class JmsQueue {
 			}
 		} else {
 			if (fieldNameRequired) {
-				vtx.reportUnusualSetting(
-						"recordName is ignored for message body type of text/object.");
+				vtx.reportUnusualSetting("recordName is ignored for message body type of text/object.");
 			}
 		}
 
@@ -927,8 +790,7 @@ public class JmsQueue {
 		 */
 		if (fieldNameRequired == false && fieldListSpecified == false) {
 			if (forProducer) {
-				vtx.reportUnusualSetting(
-						"No fields/records specified. Message is designed to carry no data.");
+				vtx.reportUnusualSetting("No fields/records specified. Message is designed to carry no data.");
 			} else if (!this.extractAll) {
 				vtx.reportUnusualSetting(
 						"No fields/records specified, and extractAll is set to false. Message consumer is not looking for any data in this message.");
@@ -950,89 +812,5 @@ public class JmsQueue {
 		}
 
 		return count;
-	}
-
-
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatCommaPairs(ServiceContext ctx) {
-		if (this.nameValueSheetName != null) {
-			return this.formatFromSheet(ctx);
-		}
-		String[][] data = this.getNamesAndValues(ctx);
-		String[] names = data[0];
-		String[] values = data[1];
-		int i = 0;
-		StringBuilder sbf = new StringBuilder();
-		for (String name : names) {
-			sbf.append(name).append(EQUAL).append(values[i]).append(COMMA);
-			i++;
-		}
-		sbf.setLength(sbf.length() - 1);
-		return sbf.toString();
-	}
-	/**
-	 * @param ctx
-	 * @return
-	 */
-	private String formatComma(ServiceContext ctx) {
-		String[][] data = this.getNamesAndValues(ctx);
-		String[] values = data[1];
-		StringBuilder sbf = new StringBuilder();
-		for (String value : values) {
-			sbf.append(value).append(COMMA);
-		}
-		sbf.setLength(sbf.length() - 1);
-		return sbf.toString();
-	}
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractComma(ServiceContext ctx, String text) {
-		String[] names = this.getNames();
-		String[] parts = text.split(COMA);
-		if (names.length != parts.length) {
-			Tracer.trace("We expected " + names.length
-					+ " fields in the message but got " + parts.length
-					+ " values. No data extracted.");
-			return;
-		}
-
-		int i = 0;
-		for (String part : parts) {
-			ctx.setValue(names[i], Value.parseValue(part.trim()));
-			i++;
-		}
-	}
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractFixed(ServiceContext ctx, String text) {
-		Record record = ComponentManager.getRecord(this.recordName);
-		Value[] values = record.parseRow(text, null);
-		this.fillCtx(ctx, record.getFieldNames(), values);
-	}
-	/**
-	 * @param ctx
-	 * @param text
-	 */
-	private void extractCommaPairs(ServiceContext ctx, String text) {
-		if (this.nameValueSheetName != null) {
-			this.extractToSheet(ctx, text);
-		}
-		String[] parts = text.split(COMA);
-		for (String part : parts) {
-			String[] pair = part.split("=");
-			if (pair.length == 2) {
-				ctx.setValue(pair[0].trim(), Value.parseValue(pair[1].trim()));
-			} else {
-				Tracer.trace("Improper value-pair format " + part
-						+ ". Part skipped");
-			}
-		}
 	}
 }

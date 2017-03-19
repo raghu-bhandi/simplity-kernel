@@ -500,6 +500,7 @@ public class DbDriver {
 		}
 		if (con != null) {
 			closeConnection(con, accType, allOk);
+			con = null;
 		}
 		if (exception != null) {
 			String msg = "Error while executing a service. "
@@ -527,7 +528,14 @@ public class DbDriver {
 				} else {
 					con.setTransactionIsolation(
 							Connection.TRANSACTION_READ_COMMITTED);
-					con.setAutoCommit(acType == DbAccessType.AUTO_COMMIT);
+					/*
+					 * auto-commit method should not be invoked in case of Managed transactions
+					 */
+					if(acType == DbAccessType.READ_WRITE){
+						con.setAutoCommit(false);
+					}else if(acType == DbAccessType.AUTO_COMMIT){
+						con.setAutoCommit(false);
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -553,7 +561,6 @@ public class DbDriver {
 	/**
 	 * get a connection to the db
 	 *
-	 * @param acType
 	 * @param schema
 	 * @return connection
 	 * @throws SQLException
@@ -1179,6 +1186,7 @@ public class DbDriver {
 		int result = 0;
 		if (rs.next()) {
 			outSheet.addRow(getParams(rs, outSheet.getValueTypes()));
+
 			result = 1;
 		}
 		rs.close();

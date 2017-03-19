@@ -50,7 +50,7 @@ public class Startup extends HttpServlet {
 	/**
 	 * default resource folder relative to web-root.
 	 */
-	public static final String DEFAULT_FOLDER = "WEB-INF/comp/";
+	public static final String DEFAULT_FOLDER = "/WEB-INF/comp/";
 
 	@Override
 	public void init() throws ServletException {

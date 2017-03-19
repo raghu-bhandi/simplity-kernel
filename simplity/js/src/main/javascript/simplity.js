@@ -287,7 +287,7 @@ var POCOL = {
 	 * name of the object in page-specific script that has ready response object
 	 * for service indexed by serviceName
 	 */
-	LOCAL_RESPONSES : '_localResponses',
+	LOCAL_RESPONSES : '_localResponses'
 };
 /**
  * Simple way to get response from your service
@@ -1157,7 +1157,7 @@ var Simplity = (function() {
 	var TIMEOUT = 12000;
 
 	/**
-	 * function to be called wenever server retruns with a status of NO-LOGIN
+	 * function to be called whenever server returns with a status of NO-LOGIN
 	 */
 	var reloginFunction = null;
 	/**
@@ -1256,11 +1256,16 @@ var Simplity = (function() {
 	 *            failureFn optional. function that is invoked in case of any
 	 *            error. it is called with an array of message objects.
 	 *            Simplity.showMessages() is used as default.
+	 * @param {text}
+	 *            fileToken optional. To be used if we are trying to access
+	 *            pending response using a file token rather than getting
+	 *            response for a service
 	 */
-	var getResponse = function(serviceName, data, successFn, failureFn) {
+	var getResponse = function(serviceName, data, successFn, failureFn,
+			fileToken, forPendingService) {
 		successFn = successFn || pushDataToPage;
 		failureFn = failureFn || showMessages;
-		if (!serviceName) {
+		if (!serviceName && !fileToken) {
 			log('No service');
 			failureFn(createMessageArray('No serviceName specified'));
 			return;
@@ -1287,12 +1292,27 @@ var Simplity = (function() {
 			 * any issue with our web agent?
 			 */
 			if (xhr.status && xhr.status != 200) {
+				/*
+				 * special case of pending services
+				 */
+				if (forPendingService && xhr.status == 404) {
+					log('Pending request is still not ready.. will retry again..')
+					getPendingResponse(token, successFn, failureFn);
+					return;
+				}
 				log('HTTP error from server (non-200)\n' + xhr.responseText);
 				failureFn(createMessageArray('Server or the communication infrastructure has failed to respond.'));
 				return;
 			}
 			var st = json[POCOL.REQUEST_STATUS] || POCOL.STATUS_OK;
 			if (st == POCOL.STATUS_OK) {
+				var token = json[POCOL.FILE_TOKEN];
+				log(token + " is the token " + POCOL.FILE_TOKEN);
+				if (token) {
+					log('Service is pending on the server. We will collect the response later..')
+					getPendingResponse(token, successFn, failureFn);
+					return;
+				}
 				window[POCOL.LAST_JSON] = json;
 				log('Json saved as ' + POCOL.LAST_JSON);
 				successFn(json);
@@ -1320,14 +1340,28 @@ var Simplity = (function() {
 		try {
 			xhr.open(METHOD, URL, true);
 			xhr.timeout = TIMEOUT;
-			xhr.setRequestHeader("Content-Type", "text/html; charset=utf-8");
-			xhr.setRequestHeader(POCOL.SERVICE_NAME, serviceName);
+			if (fileToken) {
+				xhr.setRequestHeader(POCOL.FILE_TOKEN, fileToken);
+			} else {
+				xhr.setRequestHeader("Content-Type", "text/html; charset=utf-8");
+				xhr.setRequestHeader(POCOL.SERVICE_NAME, serviceName);
+			}
 			xhr.send(data);
 		} catch (e) {
 			log("error during xhr : " + e.message);
 			failureFn(createMessageArray('Unable to connect to server. Error : '
 					+ e.message));
 		}
+	};
+	/**
+	 * we have put this function outside getResponse function to avoid building
+	 * stack of object for subsequent calls
+	 */
+	var getPendingResponse = function(token, successFn, failureFn) {
+		log('Time-out set for token ' + token);
+		setTimeout(function() {
+			getResponse(null, null, successFn, failureFn, token, true);
+		}, 3000);
 	};
 
 	/**
@@ -1548,7 +1582,7 @@ var Simplity = (function() {
 				resp = xhr.response;
 			}
 			if (callbackFn) {
-				callbackFn(resp,fileName,fileType);
+				callbackFn(resp, fileName, fileType);
 			} else {
 				Simplity.message('We successfully downloaded file for key '
 						+ key + ' with content-type='
@@ -1578,7 +1612,7 @@ var Simplity = (function() {
 		}
 		try {
 			xhr.open('GET', FILE_URL + '?' + key, true);
-			if(fileName || fileType){
+			if (fileName || fileType) {
 				xhr.responseType = "blob";
 			}
 			xhr.send();
@@ -1593,22 +1627,22 @@ var Simplity = (function() {
 	 * prompt the user to download the file with file name
 	 * 
 	 */
-	var saveAsFile = function(contents,name, mime_type) {
-        mime_type = mime_type || "text/plain";
+	var saveAsFile = function(contents, name, mime_type) {
+		mime_type = mime_type || "text/plain";
 
-        var dlink = document.createElement('a');
-        dlink.download = name;
-        dlink.href = window.URL.createObjectURL(contents);
-        dlink.onclick = function(e) {
-            // revokeObjectURL needs a delay to work properly
-            var that = this;
-            setTimeout(function() {
-                window.URL.revokeObjectURL(that.href);
-            }, 1500);
-        };
+		var dlink = document.createElement('a');
+		dlink.download = name;
+		dlink.href = window.URL.createObjectURL(contents);
+		dlink.onclick = function(e) {
+			// revokeObjectURL needs a delay to work properly
+			var that = this;
+			setTimeout(function() {
+				window.URL.revokeObjectURL(that.href);
+			}, 1500);
+		};
 
-        dlink.click();
-        dlink.remove();
+		dlink.click();
+		dlink.remove();
 	};
 	/**
 	 * register a call-back function to be called whenever client detects that a
@@ -2168,6 +2202,10 @@ var Simplity = (function() {
 		/*
 		 * we are operating in local mode with no server
 		 */
+		if (!window.sessionStorage) {
+			alert("Sorry, your browser setting does not allow certain features when html is opened from file-system. Use a different browser, or see if you can enable sessionStorage feature using any setting options.")
+			return;
+		}
 		var text = sessionStorage[POCOL.LOCAL_STORAGE_NAME];
 		if (text) {
 			log('Session storage found in session');

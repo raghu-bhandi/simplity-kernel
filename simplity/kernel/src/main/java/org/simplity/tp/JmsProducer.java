@@ -22,31 +22,11 @@
 
 package org.simplity.tp;
 
-import javax.jms.JMSException;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSender;
-import javax.jms.QueueSession;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import org.simplity.jms.JmsConnector;
 import org.simplity.jms.JmsQueue;
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
-
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 
 /**
  * @author simplity.org
@@ -71,91 +51,16 @@ public class JmsProducer extends Action {
 	 */
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		/*
-		 *
-		 */
-		// Session session = null;
-		// boolean allOk = false;
-		// try {
-		// session = JmsConnector.getSession();
-		// allOk = this.requestQueue.produce(ctx, session, this.responseQueue);
-		// if(allOk){
-		// session.commit();
-		// }else{
-		// Tracer.trace("JMS session rolled back because the producer had an
-		// issue.");
-		// session.rollback();
-		// }
-		// } catch (Exception e) {
-		// Tracer.trace("Error while sending message.");
-		// if(session != null){
-		// try{
-		// session.rollback();
-		// }catch(Exception ignore){
-		// //
-		// }
-		// }
-		// } finally {
-		// if (session != null) {
-		// try {
-		// session.close();
-		// } catch (Exception ignore) {
-		// //
-		// }
-		// }
-		// }
-		;
-		try {
-			InitialContext initialContext = new InitialContext();
-
-			UserTransaction ut = (UserTransaction) initialContext.lookup("java:comp/UserTransaction");
-			ut.begin();
-			QueueConnectionFactory qcf = (QueueConnectionFactory) initialContext.lookup("jms/__defaultConnectionFactory");
-			Queue queue = (Queue) initialContext.lookup("jms/Queue01");
-			QueueConnection qc = qcf.createQueueConnection();
-
-			// arguments to createQueueSession are ignored
-			QueueSession queueSession = qc.createQueueSession(true, Session.SESSION_TRANSACTED);
-			QueueSender queueSender = queueSession.createSender(queue);
-
-			TextMessage textMessage = queueSession.createTextMessage("Hello world");
-			queueSender.send(textMessage);
-
-			ut.commit();
-		} catch (NamingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JMSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (RollbackException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (HeuristicMixedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (HeuristicRollbackException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NotSupportedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		boolean allOk = this.requestQueue.produce(ctx, this.responseQueue);
+		if (allOk) {
+			return Value.VALUE_TRUE;
 		}
-		return Value.VALUE_TRUE;
+		return Value.VALUE_FALSE;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.tp.Block#getReady(int)
 	 */
 	@Override
@@ -170,7 +75,7 @@ public class JmsProducer extends Action {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.simplity.tp.Block#validate(org.simplity.kernel.comp.
 	 * ValidationContext, org.simplity.tp.Service)
 	 */
@@ -181,7 +86,7 @@ public class JmsProducer extends Action {
 			vtx.addError("requestQueue is required");
 			count++;
 		} else {
-			if (this.requestQueue.getQueueName() == null) {
+			if (this.requestQueue.getQueue() == null) {
 				vtx.addError("queName is required for requestQueue");
 				count++;
 			}

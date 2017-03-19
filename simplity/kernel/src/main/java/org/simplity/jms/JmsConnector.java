@@ -22,22 +22,19 @@
 
 package org.simplity.jms;
 
-import java.util.Hashtable;
-
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
+import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Tracer;
 
 /**
- * Class that helps other classes that use JMS to get a connection to the JMS
- * provider (implementation). This is similar to DbDriver in its functionality
+ * class that manages to provide desired jmsSession for jms clients. This is
+ * similar to DbDriver in its functionality
  *
  * @author simplity.org
  *
@@ -45,110 +42,151 @@ import org.simplity.kernel.ApplicationError;
 public class JmsConnector {
 
 	/**
-	 * we use just one connection for our entire application
+	 * non-jta connection
 	 */
-	private static Connection connection;
-
-	/*
-	 * set-up parameters loaded at Application level
-	 */
-	/**
-	 * initial context jndi name, or null to get default set by admin
-	 */
-	String initialContext;
+	private static QueueConnectionFactory factory;
 
 	/**
-	 * null to use default set by admin.
+	 * for jta-managed connection
 	 */
-	String providerUrl;
-
-	/**
-	 * jndi name of connection factory
-	 */
-	String connectionFactory;
-
-	String sessionPool;
+	private static QueueConnectionFactory xaFactory;
 
 	/**
 	 * initial setup. Called by Application on startup
 	 *
-	 * @throws NamingException
-	 * @throws JMSException
+	 * @param queueConnectionFactory
+	 * @param xaQueueConnectionFactory
+	 * @return error message in case of error. null if all OK
 	 *
 	 * @throws ApplicationError
 	 *             : in case of any issue with the set-up
 	 */
-	public void getReady() throws JMSException, NamingException {
+	public static String setup(String queueConnectionFactory, String xaQueueConnectionFactory) {
 
-		/*
-		 * get JNDI naming context
-		 */
-		Context ctx;
-		/*
-		 * initial context and provider url may be set explicitly (typically for
-		 * testing) or may be already set by the App Server
-		 */
-		if (this.initialContext == null || this.providerUrl == null) {
-			ctx = new InitialContext();
-		} else {
-			/*
-			 * push these parameters to the context
-			 */
-			Hashtable<String, String> env = new Hashtable<String, String>();
-			env.put(Context.INITIAL_CONTEXT_FACTORY, this.initialContext);
-			env.put(Context.PROVIDER_URL, this.providerUrl);
-			ctx = new InitialContext(env);
+		try {
+			Context ctx = new InitialContext();
+			if (queueConnectionFactory != null) {
+				factory = (QueueConnectionFactory) ctx.lookup(queueConnectionFactory);
+				Tracer.trace("queueConnectionFactory successfully set to " + factory.getClass().getName());
+			}
+			if (xaQueueConnectionFactory != null) {
+				xaFactory = (QueueConnectionFactory) ctx.lookup(xaQueueConnectionFactory);
+				Tracer.trace("xaQueueConnectionFactory successfully set to " + xaFactory.getClass().getName());
+			}
+		} catch (Exception e) {
+			return e.getMessage();
 		}
-
-		/*
-		 * get a connection from the factory that is set by admin
-		 */
-		connection = ((QueueConnectionFactory) ctx.lookup(this.connectionFactory))
-				.createConnection();
+		return null;
 	}
 
 	/**
-	 * get a JMS connection. And, please, please do not close() it or abandon it. Do return it once you are done. I am dependent on
+	 * get a JMS connection. And, please, please do not close() it or abandon
+	 * it. Do return it once you are done. I am dependent on
 	 * your discipline at this time to avoid memory leakage
+	 *
+	 * @param jmsUsage
 	 *
 	 * @return connection
 	 */
-	public static Session getSession() {
-		if (connection == null) {
-			throw new ApplicationError(
-					"JMS is not set up for this application, or an effort to do so has failed.");
-		}
+	public static JmsConnector borrowConnector(JmsUsage jmsUsage) {
 		try {
-			return connection.createSession(true, 0);
-		} catch (JMSException e) {
-			throw new ApplicationError(e,
-					"Error while creating a JMS session.");
+			QueueConnection con = null;
+			boolean transacted = false;
+			QueueSession session = null;
+			if (jmsUsage == JmsUsage.EXTERNALLY_MANAGED) {
+				if (xaFactory == null) {
+					throw new ApplicationError("Application is not set up for JMS with JTA/JCA/XA");
+				}
+				con = xaFactory.createQueueConnection();
+			} else {
+				if (factory == null) {
+					throw new ApplicationError("Application is not set up for JMS local session managed operations");
+				}
+				con = factory.createQueueConnection();
+				if (jmsUsage == JmsUsage.SERVICE_MANAGED) {
+					transacted = true;
+				}
+			}
+			session = con.createQueueSession(transacted, Session.AUTO_ACKNOWLEDGE);
+			/*
+			 * not very well advertised.. but this method is a MUST for
+			 * consuming queues, though production works without that
+			 */
+			con.start();
+			return new JmsConnector(con, session, jmsUsage);
+		} catch (Exception e) {
+			throw new ApplicationError(e, "Error while creating jms session");
 		}
 	}
 
 	/**
-	 * return the session once you are done.
-	 * @param session
+	 *
+	 * @param connector
+	 * @param allOk
 	 */
-	public void returnSession(Session session) {
-		if (session == null) {
-			return;
+	public static void returnConnector(JmsConnector connector, boolean allOk) {
+		connector.close(allOk);
+	}
+
+	/**
+	 * jndi name of queueConnection factory non-JTA connection
+	 */
+	private final QueueConnection connection;
+
+	/**
+	 * jndi name of queueConnection factory non-JTA connection
+	 */
+	private final QueueSession session;
+
+	/**
+	 * usage for which this instance is created
+	 */
+	JmsUsage jmsUsage;
+
+	/**
+	 * @param con
+	 * @param session
+	 * @param jmsUsage
+	 */
+	private JmsConnector(QueueConnection con, QueueSession session, JmsUsage jmsUsage) {
+		this.connection = con;
+		this.session = session;
+		this.jmsUsage = jmsUsage;
+
+	}
+
+	private void close(boolean allOk) {
+		try {
+			if (this.jmsUsage == JmsUsage.SERVICE_MANAGED) {
+				if (allOk) {
+					Tracer.trace("Jms session committed.");
+					this.session.commit();
+				} else {
+					Tracer.trace("Jms session rolled-back.");
+					this.session.rollback();
+				}
+			} else {
+				Tracer.trace("non-transactional JMS session closed.");
+			}
+		} catch (Exception e) {
+			throw new ApplicationError(e, "error while closing jms conenction");
 		}
 		try {
-			session.close();
+			this.session.close();
 		} catch (Exception ignore) {
-			// playing it safe
+			//
+		}
+		try {
+			this.connection.close();
+		} catch (Exception ignore) {
+			//
 		}
 	}
 
-	public static void initialSetup(JmsConnector jmsConnector) {
-		try {
-			jmsConnector.getReady();
-		} catch (JMSException e) {
-			e.printStackTrace();
-		} catch (NamingException e) {
-			e.printStackTrace();
-		}
-		
+	/**
+	 * @return session associated with this connector
+	 */
+	public Session getSession() {
+		return this.session;
 	}
 }
