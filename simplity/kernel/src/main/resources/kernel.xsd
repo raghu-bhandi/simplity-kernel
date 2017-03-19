@@ -914,45 +914,21 @@
 				use="optional" />
 			<xs:attribute
 				name="dbAccessType"
-				use="required"
+				use="optional"
+				type="dbAccessType"
 			>
-				<xs:simpleType>
-					<xs:restriction base="xs:NCName">
-						<xs:enumeration value="none">
-							<xs:annotation>
-								<xs:documentation>No database usage</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-						<xs:enumeration value="readOnly">
-							<xs:annotation>
-								<xs:documentation>No updates to the database</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-						<xs:enumeration value="readWrite">
-							<xs:annotation>
-								<xs:documentation>database is updated as a single transaction.
-									It is committed or rolled back at the end of this service
-								</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-						<xs:enumeration value="autoCommit">
-							<xs:annotation>
-								<xs:documentation>Updates are made with no commit/roll back. Use
-									with caution because this violates the concept of a user
-									transaction.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-						<xs:enumeration value="subService">
-							<xs:annotation>
-								<xs:documentation>No database use by actions, except for
-									sub-service-actions. Each of the sub-service will manage its
-									own transaction.
-								</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-					</xs:restriction>
-				</xs:simpleType>
+			</xs:attribute>
+			<xs:attribute
+				name="jmsUsage"
+				use="optional"
+				type="jmsUsage"
+			>
+				<xs:annotation>
+					<xs:documentation>Use this ONLY IF you use any jms in your service,
+						either inside your java classes, or using JmsCOnsumer or
+						JmsProducer actions.
+					</xs:documentation>
+				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
 				name="referredServiceForInput"
@@ -1009,6 +985,85 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+
+	<xs:simpleType name="dbAccessType">
+		<xs:restriction base="xs:NCName">
+			<xs:enumeration value="none">
+				<xs:annotation>
+					<xs:documentation>No database usage</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="readOnly">
+				<xs:annotation>
+					<xs:documentation>No updates to the database</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="readWrite">
+				<xs:annotation>
+					<xs:documentation>database is updated as a single transaction.
+						It is
+						committed or rolled back at the end of this service
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="autoCommit">
+				<xs:annotation>
+					<xs:documentation>Updates are made with no commit/roll back. Use
+						with caution because this violates the concept of a user
+						transaction.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="subService">
+				<xs:annotation>
+					<xs:documentation>No database use by actions, except for
+						sub-service-actions. Each of the sub-service will manage its
+						own
+						transaction.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="external">
+				<xs:annotation>
+					<xs:documentation>we do read_write, but the transaction is
+						managed
+						externally, like JTA/JCA/XA
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="jmsUsage">
+		<xs:restriction base="xs:NCName">
+			<xs:enumeration value="notManaged">
+				<xs:annotation>
+					<xs:documentation>messaging activity is not managed under any
+						transaction management. Any message production/consumption is
+						auto-committed, and is not rolled-back in case of any error in the
+						service
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="serviceManaged">
+				<xs:annotation>
+					<xs:documentation>messaging activities are not committed till the
+						service succeeds. They re committed/rolled-back based on the
+						success/failure of the service. This setting along with
+						dbAccess=readWrite ensures that both JMS and Db are either
+						committed together, or rolled-back together readWrite.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+			<xs:enumeration value="externallyManaged">
+				<xs:annotation>
+					<xs:documentation>Transaction is managed by JTA/JCA/XA. Note that
+						dbAccess should also be set to external (if specified)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:enumeration>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:complexType name="inputData">
 		<xs:sequence
 			minOccurs="0"
@@ -1787,7 +1842,7 @@
 					either the data or the recordName needs to be specified.
 				</xs:documentation>
 			</xs:annotation>
-		</xs:attribute>		
+		</xs:attribute>
 		<xs:attribute
 			name="data"
 			type="xs:string"
@@ -2102,6 +2157,32 @@
 		</xs:all>
 
 		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="waitForMessage"
+			use="required"
+			type="booleanType"
+		>
+			<xs:annotation>
+				<xs:documentation> false means this action will come out if there is
+					no message. true means it will wait. depending on value of
+					consumeAll this may lead to this action working as a perpetual
+					listener on this queue
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="consumeAll"
+			use="required"
+			type="booleanType"
+		>
+			<xs:annotation>
+				<xs:documentation>false means we will process at most one message. 1
+					or zero depends on waitForMessage setting and state of the que.
+					true means we will process all the message available on the queue
+					first, and then wait depending on the other setting
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 
 	<xs:complexType name="jmsProducer">
@@ -3272,6 +3353,40 @@
 					</xs:restriction>
 				</xs:simpleType>
 			</xs:attribute>
+			<xs:attribute
+				name="queueConnectionFactory"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>JNDI name for jms connection factory for a
+						non-JTA/JCA/XA aware connection. For example
+						java:/ConnectionFactory for JBOSS.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="xaQueueConnectionFactory"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>JNDI name for jms connection factory for a
+						JTA/JCA/XA aware connection. For example java:/JmsXA for JBOSS.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="jtaUserTransaction"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>JNDI name for a UserTransaction instnce to manage
+						a JTA transaction. For example java:comp/UserTransaction in JBOSS
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 	<!-- Test case. we systematically develop elements bottom-up for this.. -->
@@ -3723,55 +3838,16 @@
 				type="synchronizer" />
 		</xs:choice>
 	</xs:group>
-	<xs:element name="jmsConnector">
-		<xs:annotation>
-			<xs:documentation>Parameters to use a JMS provider like
-			</xs:documentation>
-		</xs:annotation>
-		<xs:complexType>
-			<xs:attribute
-				name="connectionFactory"
-				type="xs:string"
-				use="required"
-			>
-				<xs:annotation>
-					<xs:documentation>JNDI name for the connection factory object that
-						is set up by the admin
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="providerUrl"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>Optional. Typically set for testing. Defaults to
-						admin settings in the factory
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="initialContext"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>Optional. Defaults to current context
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-		</xs:complexType>
-	</xs:element>
-
 	<xs:complexType name="jmsQueue">
 		<xs:attribute
 			name="queueName"
 			type="xs:string"
 		>
 			<xs:annotation>
-				<xs:documentation>Required for request ueue. Temp queue is used for
-					response if name is not specified.
+				<xs:documentation>JNDI name to locate the queue. Required for
+					request queue. Temp queue is used for
+					response if name is not
+					specified.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -3817,17 +3893,6 @@
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
-			name="nameValueSheetName"
-			type="xs:string"
-		>
-			<xs:annotation>
-				<xs:documentation>Special case where name-value pairs are organized
-					in a data sheet as two columns. First column is name and second is
-					value. This structure allows repeting names.
-				</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
-		<xs:attribute
 			name="extractAll"
 			type="booleanType"
 		>
@@ -3844,7 +3909,7 @@
 			<xs:annotation>
 				<xs:documentation>custom java class that extracts fields from
 					message into service context. This class should implement
-					MessageExtractor interface
+					DataExtractor interface
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
