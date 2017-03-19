@@ -22,7 +22,6 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -94,7 +93,7 @@ public class ReadWithSql extends DbAction {
 		} else {
 			/*
 			 * we would put an empty sheet. That is the design, not a bug
-			 */		
+			 */
 			ctx.putDataSheet(this.outputSheetName, outSheet);
 		}
 

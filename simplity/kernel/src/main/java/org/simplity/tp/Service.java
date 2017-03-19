@@ -504,6 +504,8 @@ public class Service implements ServiceInterface {
 		 * We have just one action : read action
 		 */
 		Action action = new Read(record);
+		action.failureMessageName = Messages.NO_ROWS;
+
 		Action[] actions = { action };
 		service.actions = actions;
 
@@ -558,6 +560,7 @@ public class Service implements ServiceInterface {
 			OutputRecord[] outRecs = getOutputRecords(record);
 			outData.outputRecords = outRecs;
 		}
+		action.failureMessageName = Messages.NO_ROWS;
 		Action[] actions = { action };
 		service.actions = actions;
 
@@ -595,6 +598,7 @@ public class Service implements ServiceInterface {
 		 * use a suggest action to do the job
 		 */
 		Action action = new Suggest(record);
+		action.failureMessageName = Messages.NO_ROWS;
 		Action[] actions = { action };
 		service.actions = actions;
 
@@ -692,6 +696,7 @@ public class Service implements ServiceInterface {
 		 * save action
 		 */
 		Save action = new Save(record, getChildRecords(record, false));
+		action.failureMessageName = Messages.NO_UPDATE;
 		Action[] actions = { action };
 		service.actions = actions;
 		/*

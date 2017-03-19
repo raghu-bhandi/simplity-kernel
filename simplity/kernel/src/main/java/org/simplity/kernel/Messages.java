@@ -108,9 +108,24 @@ public class Messages {
 	public static final String SUCCESS = "kernel.success";
 
 	/**
-	 *
+	 * warning
 	 */
 	public static final String WARNING = "kernel.warning";
+
+	/**
+	 * info
+	 */
+	public static final String INFO = "kernel.info";
+
+	/**
+	 * no rows were selected
+	 */
+	public static final String NO_ROWS = "kernel.noRows";
+
+	/**
+	 * no rows were inserted/updated
+	 */
+	public static final String NO_UPDATE = "kernel.noUpdate";
 
 	/**
 	 * client has sent an invalid attachment key. Client should send only the

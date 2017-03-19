@@ -1,38 +1,56 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<messages name="kernel"
-    xmlns="http://www.simplity.org/schema">
-    <!-- 
-    	messages used by kernel. These are defined as constants in Messages class.
-    	we have to ensure that this list and the ones declared in the class are in synch
-    	
-    	DO NOT MODIFY THIS FOR YOUR PROJECT.
-    	use myMessages.xml or create a new one for your messages.
-     -->
-    <components>
-	<message messageType="error" name="kernel.invalidValue" text="This value is not valid.  $1"/>
-	<message messageType="error" name="kernel.invalidData" text="This value is invalid. $1"/>
-	<message messageType="error" name="kernel.invalidField" text="This field has an invalid value. $1"/>
-	<message messageType="error" name="kernel.invalidComparator" text="This is not a valid comparator. $1"/>
-	<message messageType="error" name="kernel.invalidEntityList" text="This is not a valid list of names. $1"/>
-	<message messageType="error" name="kernel.valueRequired" text="Value is required. No value is entered."/>
-	<message messageType="error" name="kernel.invalidFromTo" text="To value can not be less than the from value."/>
-	<message messageType="error" name="kernel.invalidOtherField" text="Value is required for this field because of the value its related field has."/>
-	<message messageType="error" name="kernel.invalidSortOrder" text="Sort order shoudl be either asc or desc"/>
-	<message messageType="error" name="kernel.invalidBasedOnField" text="Value is required for this field because of the value its related field has."/>
-	<message messageType="error" name="kernel.internalError" text="We are sorry. There was an internal error detected and reported to the support team. You retry this transaction and see if the it goes through.\n@1"/>
-	<message messageType="error" name="kernal.invalidTableAction" text="add, modify, delete and save are the vaid actions."/>
-	<message messageType="error" name="kernel.invalidInputStream" text="Serialized data sent by the client is invalid"/>
-	<message messageType="error" name="kernel.noService" text="Service $1 is not served by this server."/>
+<dataTypes
+	name="kernel"
+	xmlns="http://www.simplity.org/schema"
+>
+	<!-- These are the data types that are defined and used internally by Simplity. 
+		DO NOT DELETE THESE. These are available in declaredDataTypes.xsd These serve 
+		as only quick-and-dirty types to kick-start your applicaiton. But you should 
+		look at other .xml files in this folder -->
+	<components>
+		<textDataType
+			name="_text"
+			maxLength="3000" />
+		<booleanDataType
+			name="_boolean"
+			description="0 for false and 1 for true" />
+		<dateDataType
+			name="_date"
+			maxDaysIntoFuture="730000"
+			maxDaysIntoPast="3650000" />
+		<dateDataType
+			name="_dateTime"
+			description="Date with time"
+			maxDaysIntoFuture="730000"
+			maxDaysIntoPast="3650000"
+			hasTime="true" />
 
-    <message messageType="error" name="kernel.invalidText" text="We accpet any character up to a max of 3000 of them."/>
-	<message messageType="error" name="kernel.invalidBoolean" text="1 for true and 0 for false."/>
-	<message messageType="error" name="kernel.invalidDate" text="This is not a vlid date. $1"/>
-	<message messageType="error" name="kernel.invalidDateTime" text="This is not a valid date and time. $1"/>
-	<message messageType="error" name="kernel.invalidNumber" text="This is not valid number. $1"/>
-	<message messageType="error" name="kernel.invalidDecimal" text="This is not a valid decimal number. $1"/>
-	<message messageType="error" name="kernel.invalidAttachmentKey" text="$1 is not a valid attachment key. On success of an upload, server returns a key to that attachment. Client needs to send that key."/>
-	<message messageType="success" name="kernel.success" text="$1"/>
-	<message messageType="warning" name="kernel.warning" text="$1"/>
-	<message messageType="info" name="kernel.info" text="$1"/>
-    </components>
-</messages>
+		<numericDataType
+			name="_number"
+			maxValue="99999999999999"
+			minValue="-99999999999999" />
+
+		<numericDataType
+			name="_decimal"
+			maxValue="99999999999999"
+			minValue="-99999999999999"
+			nbrFractionDigits="6" />
+		<textDataType
+			maxLength="100"
+			name="_entityName"
+			description="Name strats with alpha (_ is considered alpha) followed by alpha-numeric"
+			regex="[_a-zA-Z][\w.]*" />
+		<textDataType
+			maxLength="1000"
+			name="_entityList"
+			description="comma separated list of entityNames"
+			regex="[_a-zA-Z][\w.]{0,99}([\s]*,[\s]*[\w.]{1,100})*" />
+
+		<clobDataType
+			name="_clob"
+			description="CLOB data type as in RDBMS. However the field actually is a text-field in the sense that the field contains the text-key for the CLOB content" />
+		<blobDataType
+			name="_blob"
+			description="BLOB data type as in RDBMS. However the field actually is a text-field in the sense that the field contains the text-key for the BLOB content" />
+	</components>
+</dataTypes>
