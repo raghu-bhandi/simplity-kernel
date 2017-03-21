@@ -3994,4 +3994,127 @@
 			<xs:enumeration value="map" />
 		</xs:restriction>
 	</xs:simpleType>
+
+	<xs:element name="jobs">
+		<xs:complexType>
+		<xs:sequence>
+			<xs:element ref="job" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+			<xs:attribute
+				name="maxThreads"
+				use="required"
+				type="xs:int"
+			>
+				<xs:annotation>
+					<xs:documentation>maximum number of threads to be allocated to the
+						jobs. This is same as corePoolSize of java
+						ScheduledThreadPoolExecutor that we use below the carpet
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="threadFactory"
+				use="optional"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>fully qualifed class name of the thread pool
+						factory that you may have implemented to control the attributes of
+						thread
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="defaultUserId"
+				use="optional"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>userId to be used for running the jobs. Defults
+						to setting in Application.xml, or "100". Over-ridden by the
+						setting at job level.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="job">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element
+					name="inputJson"
+					type="xs:string"
+					maxOccurs="1"
+					minOccurs="0"
+				>
+					<xs:annotation>
+						<xs:documentation>Use a CDATA section to paste a formatted json
+							from your editor. This is the json that is suppied as input to
+							the service</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute
+				name="name"
+				use="required"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>unique name to identify this job
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="userId"
+				use="optional"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>userId to be used for running this job. Overrides
+						setting at jobs/application. Service is executed with thisuser as
+						logged-in user
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="serviceName"
+				use="required"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>qualified name of the service to be run as a job
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="runInterval"
+				use="optional"
+				type="xs:int"
+			>
+				<xs:annotation>
+					<xs:documentation>Use this if this is a batch service to be run
+						repeatedly. number of seconds between two runs start-to-start.
+						However, in case the current run takes longer, next run will wait
+						for this to complete before starting. keep it as 0 if this is a
+						lsitner/backgroud job that is run just once.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="nbrDedicatedThreads"
+				use="optional"
+				type="xs:int"
+			>
+				<xs:annotation>
+					<xs:documentation>use this if this is a listener/background job
+						that is run once. min value is 1. If more than 1 is specified, the
+						job is fired on that many threads simultneously, subject to
+						availablity of threads in this scheduler.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+
+	</xs:element>
 </xs:schema>
