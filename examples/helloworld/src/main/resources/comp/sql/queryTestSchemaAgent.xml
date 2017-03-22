@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql
+	name="queryTestSchemaAgent"
+	sqlType="singleSelect"
+	xmlns="http://www.simplity.org/schema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.simplity.org/schema http://www.simplity.org/schema "
+>
+	<inputParameters>
+		<sqlParameter dataType="_text" name="agentCode"/>
+	</inputParameters>
+	<preparedStatement>SELECT AGENT_NAME from AGENTS where AGENT_CODE = ?</preparedStatement>
+	<outputParameters>
+		<sqlParameter
+			dataType="_text"
+			name="agentName" />
+	</outputParameters>
+</sql>

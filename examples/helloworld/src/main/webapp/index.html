@@ -20,6 +20,12 @@
 <button onclick="callCustomer()">Invoke DB Lookup - Customers</button>
 </br>
 </br>
+<button onclick="callAgentsTestSchema()">Invoke DB Lookup - Agents from Another Schema</button>
+</br>
+</br>
+<button onclick="callSubservice()">Invoke DB Lookup - as Subservice with mixed schema</button>
+</br>
+</br>
 <button onclick="callSQL()">Call SQL</button>
 </br>
 </br>
@@ -44,6 +50,14 @@ function callFile(){
 function callAgents(){
 	var data = "{'fieldName':'commission','commission':0.15,'commissionOperator':'<'}";
 	Simplity.getResponse("filter_tables.agents",data,onSuccess,onError);
+}
+function callAgentsTestSchema(){
+	var data = "{'agentCode':'A007'}";
+	Simplity.getResponse("dbactions.callSqlqueryTestSchema",data,onSuccess,onError);
+}
+function callSubservice(){
+	var data = "{'agentCode':'A007','custCode':'C00013'}";
+	Simplity.getResponse("dbactions.callSqlquerySubService",data,onSuccess,onError);
 }
 function callCustomer(){
 	Simplity.getResponse("filter_tables.customer",null,onSuccess,onError);

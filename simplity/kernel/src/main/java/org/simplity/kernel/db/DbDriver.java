@@ -485,7 +485,7 @@ public class DbDriver {
 	public static boolean workWithDriver(DbClientInterface callBackObject,
 			DbAccessType accType, String schema) {
 		Connection con = null;
-		if (accType != DbAccessType.NONE) {
+		if (accType != DbAccessType.NONE && accType != DbAccessType.SUB_SERVICE) {
 			con = getConnection(accType, schema);
 		}
 		DbDriver driver = new DbDriver(con, accType);
@@ -516,7 +516,7 @@ public class DbDriver {
 	 * @param schema
 	 * @return connection
 	 */
-	static Connection getConnection(DbAccessType acType, String schema) {
+	public static Connection getConnection(DbAccessType acType, String schema) {
 		Connection con = null;
 		Exception err = null;
 		try {
@@ -622,7 +622,7 @@ public class DbDriver {
 	 * @param con
 	 * @param dbAccessType
 	 */
-	private DbDriver(Connection con, DbAccessType dbAccessType) {
+	public DbDriver(Connection con, DbAccessType dbAccessType) {
 		this.connection = con;
 		this.accessType = dbAccessType;
 	}

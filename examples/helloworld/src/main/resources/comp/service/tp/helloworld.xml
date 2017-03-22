@@ -3,9 +3,6 @@
 	xmlns="http://www.simplity.org/schema"
 	name="helloworld"
 	dbAccessType="none">
-	<swagger-doc>
-		
-	</swagger-doc>
 	<actions>
 		<setValue fieldName="hello" fieldValue="Hello World!" ></setValue>
 	</actions>

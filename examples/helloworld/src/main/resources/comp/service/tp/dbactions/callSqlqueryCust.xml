@@ -17,6 +17,7 @@
 			sqlName="queryCust"
 			outputSheetName="custRec"
 		></readWithSql>
+		<log names="custRec"/>
 	</actions>
 	<outputData dataSheets="custRec"></outputData>
 </service>

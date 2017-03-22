@@ -22,6 +22,7 @@
  */
 package org.simplity.tp;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -208,8 +209,8 @@ public class Service implements ServiceInterface {
 
 		ServiceContext ctx = new ServiceContext(this.name, inData.getUserId());
 		/*
-		 * copy values and data sheets sent by the client agent.
-		 * These are typically session-stored, but not necessarily that
+		 * copy values and data sheets sent by the client agent. These are
+		 * typically session-stored, but not necessarily that
 		 */
 		for (String key : inData.getFieldNames()) {
 			Object val = inData.get(key);
@@ -316,6 +317,13 @@ public class Service implements ServiceInterface {
 	@Override
 	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
 		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
+		if (driver.getAccessType().equals(DbAccessType.SUB_SERVICE)) {
+			Connection con = null;
+			if (dbAccessType != DbAccessType.NONE && dbAccessType != DbAccessType.SUB_SERVICE) {
+				con = DbDriver.getConnection(dbAccessType, schemaName);
+			}
+			driver = new DbDriver(con, dbAccessType);
+		}
 		boolean result = worker.workWithDriver(driver);
 		if (result) {
 			return Value.VALUE_TRUE;
@@ -395,9 +403,8 @@ public class Service implements ServiceInterface {
 			this.indexedActions.put(action.getName(), new Integer(i));
 			i++;
 			/*
-			 * programmers routinely forget to set the dbaccess type..
-			 * we think it is worth this run-time over-head to validate it
-			 * again
+			 * programmers routinely forget to set the dbaccess type.. we think
+			 * it is worth this run-time over-head to validate it again
 			 */
 			if (delegated && (action instanceof SubService)) {
 				continue;

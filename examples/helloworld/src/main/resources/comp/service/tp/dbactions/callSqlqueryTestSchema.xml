@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	moduleName="dbactions"
+	xmlns="http://www.simplity.org/schema"
+	name="callSqlqueryTestSchema"
+	schemaName="testSchema"
+	dbAccessType="readOnly"
+>
+<inputData>
+	<inputFields>
+		<inputField dataType="_text" name="agentCode"/>
+	</inputFields>
+</inputData>
+	<actions>
+		<readWithSql
+			sqlName="queryTestSchemaAgent"
+			outputSheetName="agents"
+		></readWithSql>
+		<log names="agents"/>
+	</actions>
+	<outputData dataSheets="agents"></outputData>
+</service>
