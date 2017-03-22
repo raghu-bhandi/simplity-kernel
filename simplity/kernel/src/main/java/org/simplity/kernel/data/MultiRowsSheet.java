@@ -45,9 +45,6 @@ import org.simplity.kernel.value.ValueType;
  */
 public class MultiRowsSheet implements DataSheet {
 
-	private static final char TAB = '\t';
-	private static final char NL = '\n';
-
 	/**
 	 * data is organized as a list (rows) of column values(array). This is
 	 * because we expect rows to be added dynamically, and not columns. Of
@@ -104,6 +101,28 @@ public class MultiRowsSheet implements DataSheet {
 	}
 
 	/**
+	 * create a data sheet with all text data using header row and data rows
+	 *
+	 * @param names
+	 *            columnNames
+	 * @param dataRows
+	 *            rows of text data, with a header row for column names. All
+	 *            columns are treated as text.
+	 *
+	 */
+	public MultiRowsSheet(String[] names, String[][] dataRows) {
+		ValueType[] types = new ValueType[names.length];
+		for (int i = 0; i < types.length; i++) {
+			types[i] = ValueType.TEXT;
+		}
+		this.columnValueTypes = types;
+		this.setColumnNames(names);
+		for (String[] row : dataRows) {
+			this.data.add(this.textToRow(row));
+		}
+	}
+
+	/**
 	 * create a table with structure but no data.
 	 *
 	 * @param columnNames
@@ -138,19 +157,15 @@ public class MultiRowsSheet implements DataSheet {
 			Set<String> set = new HashSet<String>();
 			for (String nam : this.columnNames) {
 				if (set.add(nam) == false) {
-					throw new ApplicationError(nam
-							+ " is a duplicate column in data sheet.");
+					throw new ApplicationError(nam + " is a duplicate column in data sheet.");
 				}
 			}
 		}
 		int n = this.columnNames.length;
 		for (Value[] row : this.data) {
 			if (row.length != n) {
-				throw new ApplicationError(
-						"Data sheet is to have same number of columns across all rows. found "
-								+ row.length
-								+ " columns in a row when header has " + n
-								+ " columns.");
+				throw new ApplicationError("Data sheet is to have same number of columns across all rows. found "
+						+ row.length + " columns in a row when header has " + n + " columns.");
 			}
 			int i = 0;
 			for (ValueType vt : this.columnValueTypes) {
@@ -173,9 +188,8 @@ public class MultiRowsSheet implements DataSheet {
 	public MultiRowsSheet(String[] columnNames, Value[][] columnValues) {
 		int nbrColumns = columnNames.length;
 		if (columnValues.length != nbrColumns) {
-			throw new ApplicationError("Data sheet can not be created because "
-					+ columnValues.length + " column values are supplied for "
-					+ nbrColumns + " columns.");
+			throw new ApplicationError("Data sheet can not be created because " + columnValues.length
+					+ " column values are supplied for " + nbrColumns + " columns.");
 		}
 		this.columnNames = columnNames;
 		this.columnValueTypes = new ValueType[nbrColumns];
@@ -199,11 +213,8 @@ public class MultiRowsSheet implements DataSheet {
 		for (int i = 0; i < nbrColumns; i++) {
 			Value[] vals = columnValues[i];
 			if (vals.length != nbrRows) {
-				throw new ApplicationError(
-						"Data sheet can not be created because column "
-								+ columnNames[i] + " has " + vals.length
-								+ " while the first column had " + nbrRows
-								+ " rows.");
+				throw new ApplicationError("Data sheet can not be created because column " + columnNames[i] + " has "
+						+ vals.length + " while the first column had " + nbrRows + " rows.");
 			}
 			this.columnIndexes.put(columnNames[i], new Integer(i));
 			this.columnValueTypes[i] = vals[0].getValueType();
@@ -228,9 +239,10 @@ public class MultiRowsSheet implements DataSheet {
 		}
 		/*
 		 * do we have field widths?.
-		 * we did not put this inside the loop with an if becuase this is a very very very rare case.
+		 * we did not put this inside the loop with an if becuase this is a very
+		 * very very rare case.
 		 */
-		if(fields[0].getFieldWidth() != 0){
+		if (fields[0].getFieldWidth() != 0) {
 			this.columnWidths = new int[fields.length];
 			n = 0;
 			for (Field field : fields) {
@@ -288,24 +300,20 @@ public class MultiRowsSheet implements DataSheet {
 			int idx = this.columnIndexes.get(columnName).intValue();
 			return this.data.get(zeroBasedRowNumber)[idx];
 		} catch (Exception e) {
-			Tracer.trace("Request to get value for column" + columnName
-					+ " and index " + zeroBasedRowNumber
+			Tracer.trace("Request to get value for column" + columnName + " and index " + zeroBasedRowNumber
 					+ " is not valid. going to return null");
 			return null;
 		}
 	}
 
 	@Override
-	public void setColumnValue(String columnName, int zeroBasedRowNumber,
-			Value value) {
+	public void setColumnValue(String columnName, int zeroBasedRowNumber, Value value) {
 		try {
 			int idx = this.columnIndexes.get(columnName).intValue();
 			this.data.get(zeroBasedRowNumber)[idx] = value;
 		} catch (Exception e) {
-			throw new ApplicationError(e,
-					"Request to set value  for column" + columnName
-					+ " and index " + zeroBasedRowNumber
-							+ " is not valid.");
+			throw new ApplicationError(e, "Request to set value  for column" + columnName + " and index "
+					+ zeroBasedRowNumber + " is not valid.");
 		}
 	}
 
@@ -362,8 +370,7 @@ public class MultiRowsSheet implements DataSheet {
 		int i = 0;
 		for (String columnName : this.columnNames) {
 			if (this.columnIndexes.containsKey(columnName)) {
-				throw new ApplicationError(
-						"Column names can not be duplicate in a data sheet.");
+				throw new ApplicationError("Column names can not be duplicate in a data sheet.");
 			}
 			this.columnIndexes.put(columnName, new Integer(i));
 			i++;
@@ -435,8 +442,7 @@ public class MultiRowsSheet implements DataSheet {
 			columnValues = new Value[nbr];
 		} else {
 			if (values.length != nbr) {
-				throw new ApplicationError("column " + columnName
-						+ " is being added with " + values.length
+				throw new ApplicationError("column " + columnName + " is being added with " + values.length
 						+ " values but the sheet has " + nbr + " rows.");
 			}
 			columnValues = values;
@@ -465,8 +471,7 @@ public class MultiRowsSheet implements DataSheet {
 		int idx = this.columnNames.length;
 		this.columnIndexes.put(columnName, new Integer(idx));
 		this.columnNames = ArrayUtil.extend(this.columnNames, columnName);
-		this.columnValueTypes = ArrayUtil.extend(this.columnValueTypes,
-				valueType);
+		this.columnValueTypes = ArrayUtil.extend(this.columnValueTypes, valueType);
 		int nbr = this.data.size();
 		for (int i = 0; i < nbr; i++) {
 			this.data.set(i, ArrayUtil.extend(this.data.get(i), values[i]));
@@ -481,11 +486,9 @@ public class MultiRowsSheet implements DataSheet {
 	@Override
 	public Set<Entry<String, Value>> getAllFields(int rowIdx) {
 		if (rowIdx > this.data.size()) {
-			throw new ApplicationError(
-					"A request is received to fetch a non-existing row in a data sheet");
+			throw new ApplicationError("A request is received to fetch a non-existing row in a data sheet");
 		}
-		Map<String, Value> fields = new HashMap<String, Value>(
-				this.columnNames.length);
+		Map<String, Value> fields = new HashMap<String, Value>(this.columnNames.length);
 		int i = 0;
 		Value[] row = this.data.get(rowIdx);
 		for (String fieldName : this.columnNames) {
@@ -501,24 +504,28 @@ public class MultiRowsSheet implements DataSheet {
 	 */
 	@Override
 	public void trace() {
-		Tracer.trace("(Multi rows Sheet) has " + this.length() + " rows and "
-				+ this.width() + " columns.");
-		StringBuilder sbf = new StringBuilder("Header ");
-		for (String nam : this.columnNames) {
-			sbf.append(TAB).append(nam);
-		}
-		sbf.append(NL);
-		int i = 0;
-		for (Value[] row : this.data) {
-			i++;
-			sbf.append(NL).append("Row ").append(i).append(" :");
-			for (Value val : row) {
-				sbf.append(TAB).append(val);
-			}
-		}
-		Tracer.trace(sbf.toString());
+		Tracer.trace(this.toString("\t", "\n"));
 	}
 
+	/**
+	 *
+	 * @param fieldSep
+	 * @param rowSep
+	 * @return a printable string for data in this sheet
+	 */
+	public String toString(String fieldSep, String rowSep){
+		StringBuilder sbf = new StringBuilder();
+		for (String nam : this.columnNames) {
+			sbf.append(nam).append(fieldSep);
+		}
+		for (Value[] row : this.data) {
+			sbf.append(rowSep);
+			for (Value val : row) {
+				sbf.append(val).append(fieldSep);
+			}
+		}
+		return sbf.toString();
+	}
 	/*
 	 * (non-Javadoc)
 	 *
@@ -539,18 +546,14 @@ public class MultiRowsSheet implements DataSheet {
 		ValueType[] toTypes = sheet.getValueTypes();
 		int nbrCols = fromTypes.length;
 		if (nbrCols != toTypes.length) {
-			throw new ApplicationError(
-					"AppendRows is not possible because from sheet has "
-							+ nbrCols + " columns while to sheet has "
-							+ toTypes.length + " columns");
+			throw new ApplicationError("AppendRows is not possible because from sheet has " + nbrCols
+					+ " columns while to sheet has " + toTypes.length + " columns");
 		}
 		int idx = 0;
 		for (ValueType toType : toTypes) {
 			if (toType.equals(fromTypes[idx]) == false) {
-				throw new ApplicationError(
-						"AppendRows is not possible because from and to sheets have "
-								+ nbrCols + " columns each, but column "
-								+ (++idx) + " are of different type.");
+				throw new ApplicationError("AppendRows is not possible because from and to sheets have " + nbrCols
+						+ " columns each, but column " + (++idx) + " are of different type.");
 			}
 			idx++;
 		}
@@ -579,45 +582,53 @@ public class MultiRowsSheet implements DataSheet {
 			}
 			i++;
 		}
-		Tracer.trace("We did not find column " + columnName
-				+ " in this multi-row sheet");
+		Tracer.trace("We did not find column " + columnName + " in this multi-row sheet");
 		return -1;
 	}
-	/* (non-Javadoc)
-	 * @see org.simplity.kernel.data.DataSheet#toSerializedText(org.simplity.kernel.data.DataSerializationType)
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.DataSheet#toSerializedText(org.simplity.kernel.
+	 * data.DataSerializationType)
 	 */
 	@Override
 	public String toSerializedText(DataSerializationType serializationType) {
 		throw new ApplicationError("Sorry, serialization is not yet implemented for Dynamic sheet");
-		//TODO to be built
+		// TODO to be built
 	}
 
-	/* (non-Javadoc)
-	 * @see org.simplity.kernel.data.DataSheet#fromSerializedText(java.lang.String, org.simplity.kernel.data.DataSerializationType, boolean)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.data.DataSheet#fromSerializedText(java.lang.String,
+	 * org.simplity.kernel.data.DataSerializationType, boolean)
 	 */
 	@Override
-	public void fromSerializedText(String text,
-			DataSerializationType serializationType,
-			boolean replaceExistingRows) {
+	public void fromSerializedText(String text, DataSerializationType serializationType, boolean replaceExistingRows) {
 		throw new ApplicationError("Sorry, de-serialization is not yet implemented for Dynamic sheet");
-		//TODO to be built
+		// TODO to be built
 	}
 
 	/**
 	 * if this is used for serialization into fixed-width test, we need this
+	 *
 	 * @param widths
 	 */
-	public void setWidths(int[] widths){
-		if(widths.length != this.width()){
-			throw new ApplicationError("Design error : data sheet has " + this.width() + " columns but " + widths.length +" values are supplied for width.");
+	public void setWidths(int[] widths) {
+		if (widths.length != this.width()) {
+			throw new ApplicationError("Design error : data sheet has " + this.width() + " columns but " + widths.length
+					+ " values are supplied for width.");
 		}
-		this.columnWidths=widths;
+		this.columnWidths = widths;
 	}
 
 	/**
 	 * @return widths of columns in case this used for fixed-width fomtting
 	 */
-	public int[] getWidths(){
+	public int[] getWidths() {
 		return this.columnWidths;
 	}
 }

@@ -273,4 +273,12 @@ public class ComponentManager {
 	public static TestRun getTestRunOrNull(String caseName) {
 		return (TestRun) ComponentType.TEST_RUN.getComponentOrNull(caseName);
 	}
+
+	/**
+	 *
+	 * @return component folder
+	 */
+	public static String getComponentFolder(){
+		return ComponentType.getComponentFolder();
+	}
 }

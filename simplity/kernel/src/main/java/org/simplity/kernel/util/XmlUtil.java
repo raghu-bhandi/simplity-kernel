@@ -816,7 +816,6 @@ public class XmlUtil {
 			elementToObject(element, thisObject);
 			return thisObject;
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new XmlParseException("error while parsing " + elementName
 					+ " element as a wrapped-element\n " + e.getMessage());
 		}

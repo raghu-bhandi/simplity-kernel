@@ -112,17 +112,17 @@ public class Synchronizer extends Action {
 	 * @see org.simplity.tp.Action#getReady(int)
 	 */
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		if (this.initialAction != null) {
-			this.initialAction.getReady(0);
+			this.initialAction.getReady(0, service);
 		}
 		if (this.finalAction != null) {
-			this.finalAction.getReady(0);
+			this.finalAction.getReady(0, service);
 		}
 		int i = 0;
 		for (Action action : this.actions) {
-			action.getReady(i++);
+			action.getReady(i++, service);
 		}
 	}
 

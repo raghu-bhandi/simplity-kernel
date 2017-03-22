@@ -577,14 +577,12 @@ public class ProcedureParameter {
 		return row;
 	}
 
-	/**
-	 * create a data sheet with the array of the only column in that
-	 *
-	 * @param array
-	 *            that is received from db
-	 * @return data sheet into which value is extracted
-	 * @throws SQLException
-	 */
+/**
+ *
+ * @param row
+ * @return data sheet with one column
+ * @throws SQLException
+ */
 	private DataSheet arrayToDs(Object[] row) throws SQLException {
 		String[] columnNames = { this.name };
 		ValueType vt = this.getValueType();

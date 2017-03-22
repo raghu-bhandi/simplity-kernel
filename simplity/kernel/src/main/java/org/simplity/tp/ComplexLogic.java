@@ -49,8 +49,8 @@ public class ComplexLogic extends Action {
 	private ComplexLogicInterface logic;
 
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		try {
 			this.logic = (ComplexLogicInterface) (Class.forName(this.className))
 					.newInstance();

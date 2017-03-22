@@ -70,8 +70,8 @@ public class JmsConsumer extends Block {
 	 * @see org.simplity.tp.Block#getReady(int)
 	 */
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		this.requestQueue.getReady();
 		if (this.responseQueue != null) {
 			this.responseQueue.getReady();

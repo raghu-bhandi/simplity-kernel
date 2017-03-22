@@ -135,11 +135,11 @@ public class FileProcessor extends Block {
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
 		Tracer.trace("Going to process files in folder " + this.inFolderName + " that exists = " + this.inbox.exists());
-		
+
 		if(this.inFileNamePattern.startsWith("$")){
-				this.parsedInFileNamePattern = ctx.getValue(this.parsedInFileNamePattern).toText();	
+				this.parsedInFileNamePattern = ctx.getValue(this.parsedInFileNamePattern).toText();
 		}
-		
+
 		this.filter = TextUtil.getFileNameFilter(this.parsedInFileNamePattern);
 		int nbrFiles = 0;
 		Record record = ComponentManager.getRecord(this.inRecordName);
@@ -188,7 +188,7 @@ public class FileProcessor extends Block {
 			while ((inText = reader.readLine()) != null) {
 				/*
 				 * Absolved of all past sins. Start life afresh :-)
-				 **/				
+				 **/
 				ctx.resetMessages();
 				errors.clear();
 				record.extractFromFlatRow(inText, this.inDataFormat, ctx, errors);
@@ -284,21 +284,21 @@ public class FileProcessor extends Block {
 	 * @see org.simplity.tp.Action#getReady(int)
 	 */
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
-		
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
+
 		this.parsedInFileNamePattern = TextUtil.getFieldName(this.inFileNamePattern);
 		if(this.parsedInFileNamePattern==null){
 			this.parsedInFileNamePattern = this.inFileNamePattern;
 		}
-		
+
 		if (this.actionOnErrorWhileProcessing != null) {
-			this.actionOnErrorWhileProcessing.getReady(0);
+			this.actionOnErrorWhileProcessing.getReady(0, service);
 		}
 		if (this.actionOnInvalidInputRow != null) {
-			this.actionOnInvalidInputRow.getReady(0);
+			this.actionOnInvalidInputRow.getReady(0, service);
 		}
-				
+
 		this.inbox = new File(this.inFolderName);
 		if (this.inFolderName != null && this.inFolderName.endsWith("/") == false) {
 			this.inFolderName += '/';

@@ -330,8 +330,8 @@ public class HttpClient extends Action {
 	 * @see org.simplity.tp.Action#getReady()
 	 */
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		this.urlParts = TextUtil.parseToParts(this.urlString);
 		if (this.proxyUserName != null
 				&& this.proxyUserName.charAt(0) == DOLLAR) {

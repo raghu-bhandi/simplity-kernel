@@ -305,15 +305,13 @@ public class ServiceAgent {
 		ServiceData outData = this.defaultResponse(inData);
 		ObjectOutputStream stream = null;
 		String token = null;
-		if(service.getBackgroundRunInterval() == 0){
-			File file = FileManager.createTempFile();
-			try {
-				stream = new ObjectOutputStream(new FileOutputStream(file));
-				token = file.getName();
-				inData.put(ServiceProtocol.HEADER_FILE_TOKEN, token);
-			} catch (Exception e) {
-				throw new ApplicationError(e, "Error while creating file for output from  bckground job");
-			}
+		File file = FileManager.createTempFile();
+		try {
+			stream = new ObjectOutputStream(new FileOutputStream(file));
+			token = file.getName();
+			inData.put(ServiceProtocol.HEADER_FILE_TOKEN, token);
+		} catch (Exception e) {
+			throw new ApplicationError(e, "Error while creating file for output from  bckground job");
 		}
 		JSONWriter writer = new JSONWriter();
 		writer.object().key(ServiceProtocol.HEADER_FILE_TOKEN).value(token).endObject();

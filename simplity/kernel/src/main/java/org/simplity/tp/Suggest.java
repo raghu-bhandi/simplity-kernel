@@ -113,8 +113,8 @@ public class Suggest extends DbAction {
 	}
 
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		if (this.recordName == null) {
 			throw new ApplicationError("Suggest action requires recordName");
 		}
@@ -125,7 +125,7 @@ public class Suggest extends DbAction {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
 	 * , org.simplity.tp.Service)

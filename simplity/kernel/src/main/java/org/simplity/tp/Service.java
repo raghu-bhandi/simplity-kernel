@@ -22,7 +22,6 @@
  */
 package org.simplity.tp;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -149,11 +148,6 @@ public class Service implements ServiceInterface {
 	boolean executeInBackground;
 
 	/**
-	 * if this is to be run in the background, should it be run every so many
-	 * seconds?
-	 */
-	int backgroundRunInterval;
-	/**
 	 * can the response from this service be cached? If so what are the input
 	 * fields that this response depends on? provide comma separated list of
 	 * field names. Null (default) implies that this service can not be cashed.
@@ -220,8 +214,8 @@ public class Service implements ServiceInterface {
 		ServiceContext ctx = new ServiceContext(this.name, inData.getUserId());
 
 		/*
-		 * copy values and data sheets sent by the client agent. These are
-		 * typically session-stored, but not necessarily that
+		 * copy values and data sheets sent by the client agent.
+		 * These are typically session-stored, but not necessarily that
 		 */
 		for (String key : inData.getFieldNames()) {
 			Object val = inData.get(key);
@@ -250,12 +244,36 @@ public class Service implements ServiceInterface {
 			this.outputData.onServiceStart(ctx);
 		}
 
+		/*
+		 * our service context is ready to execute this service now
+		 */
+		ApplicationError exception = this.executeService(ctx);
+
+		if (exception != null) {
+			throw exception;
+		}
+
+		return this.prepareResponse(ctx);
+	}
+
+	/**
+	 * execute this service carefully managing the resources. Ensure that there
+	 * is no leakage
+	 *
+	 * @param ctx service context
+	 * @return application error if the service generated one. null is all ok
+	 */
+	private ApplicationError executeService(ServiceContext ctx) {
+		/*
+		 * resources that need to be released without fail..
+		 */
 		JmsConnector jmsConnector = null;
 		UserTransaction userTransaciton = null;
+
 		ApplicationError exception = null;
 		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
 		/*
-		 * all set to start with actions
+		 * execute all actions
 		 */
 		try {
 			/*
@@ -310,12 +328,7 @@ public class Service implements ServiceInterface {
 				exception = new ApplicationError(e, "Error while commit/rollback of user transaction");
 			}
 		}
-
-		if (exception != null) {
-			throw exception;
-		}
-
-		return this.prepareResponse(ctx);
+		return exception;
 	}
 
 	/**
@@ -378,16 +391,31 @@ public class Service implements ServiceInterface {
 
 	}
 
-	@Override
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
-		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
-		if (driver.getAccessType().equals(DbAccessType.SUB_SERVICE)) {
-			Connection con = null;
-			if (dbAccessType != DbAccessType.NONE && dbAccessType != DbAccessType.SUB_SERVICE) {
-				con = DbDriver.getConnection(dbAccessType, schemaName);
+	private boolean needTransaction(){
+		if(this.dbAccessType != null){
+			if(this.dbAccessType.updatesDb()){
+				return true;
 			}
-			driver = new DbDriver(con, dbAccessType);
 		}
+		if(this.jmsUsage == JmsUsage.SERVICE_MANAGED || this.jmsUsage == JmsUsage.EXTERNALLY_MANAGED){
+			return true;
+		}
+		return false;
+	}
+	@Override
+	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction) {
+		/*
+		 * are we to manage our own transaction?
+		 */
+		if(useOwnDriverForTransaction && this.needTransaction()){
+			ApplicationError err = this.executeService(ctx);
+			if(err != null){
+				throw err;
+			}
+			return Value.VALUE_TRUE;
+		}
+
+		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
 		boolean result = worker.workWithDriver(driver);
 		if (result) {
 			return Value.VALUE_TRUE;
@@ -459,7 +487,7 @@ public class Service implements ServiceInterface {
 		int i = 0;
 		boolean delegated = this.dbAccessType == DbAccessType.SUB_SERVICE;
 		for (Action action : this.actions) {
-			action.getReady(i);
+			action.getReady(i, this);
 			if (this.indexedActions.containsKey(action.actionName)) {
 				throw new ApplicationError("Service " + this.name + " has duplicate action name " + action.actionName
 						+ " as its action nbr " + (i + 1));
@@ -467,8 +495,9 @@ public class Service implements ServiceInterface {
 			this.indexedActions.put(action.getName(), new Integer(i));
 			i++;
 			/*
-			 * programmers routinely forget to set the dbaccess type.. we think
-			 * it is worth this run-time over-head to validate it again
+			 * programmers routinely forget to set the dbaccess type..
+			 * we think it is worth this run-time over-head to validate it
+			 * again
 			 */
 			if (delegated && (action instanceof SubService)) {
 				continue;
@@ -1022,15 +1051,5 @@ public class Service implements ServiceInterface {
 		Action[] act = { action };
 		service.actions = act;
 		return service;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.service.ServiceInterface#getBackgroundRunInterval()
-	 */
-	@Override
-	public int getBackgroundRunInterval() {
-		return this.backgroundRunInterval;
 	}
 }

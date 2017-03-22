@@ -37,8 +37,8 @@ public class Logic extends Action {
 	private LogicInterface logic;
 
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		try {
 			this.logic = (LogicInterface) (Class.forName(this.className))
 					.newInstance();

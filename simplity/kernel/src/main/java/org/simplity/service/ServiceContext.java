@@ -42,6 +42,7 @@ import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
 
 /**
  * Context is created for an execution of a service. A service execution
@@ -197,12 +198,20 @@ public class ServiceContext extends CommonData {
 	 * @return messages
 	 */
 	public DataSheet getMessagesAsDS() {
-		Collection<FormattedMessage> msgs = this.getMessages();
-		Value[][] data = new Value[4][msgs.size()];
-
 		String[] columnNames = { "name", "text", "messageType", "fieldName" };
+		Collection<FormattedMessage> msgs = this.getMessages();
+		int nbr = msgs.size();
+		if( nbr == 0){
+			ValueType[] types = {ValueType.TEXT, ValueType.TEXT, ValueType.TEXT, ValueType.TEXT};
+			return new MultiRowsSheet(columnNames, types);
+		}
+		/*
+		 * data is by column
+		 */
+		Value[][] data = new Value[4][nbr];
+
 		int i = 0;
-		for (FormattedMessage msg : this.getMessages()) {
+		for (FormattedMessage msg : msgs) {
 			data[0][i] = Value.newTextValue(msg.name);
 			data[1][i] = Value.newTextValue(msg.text);
 			data[2][i] = Value.newTextValue(msg.messageType.name());

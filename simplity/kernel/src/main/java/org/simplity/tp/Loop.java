@@ -269,8 +269,8 @@ public class Loop extends Block {
 	}
 
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		/*
 		 * loop action may want the caller to stop. We use this facility
 		 */

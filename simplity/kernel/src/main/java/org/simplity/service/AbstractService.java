@@ -22,11 +22,14 @@
 
 package org.simplity.service;
 
-import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.FormattedMessage;
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
+import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
 
 /**
@@ -91,13 +94,42 @@ public abstract class AbstractService implements ServiceInterface {
 	 * (non-Javadoc)
 	 *
 	 * @see
-	 * org.simplity.service.ServiceInterface#executeAsAction(org.simplity.service
+	 * org.simplity.service.ServiceInterface#executeAsAction(org.simplity.
+	 * service
 	 * .ServiceContext, org.simplity.kernel.db.DbDriver)
 	 */
 	@Override
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
-		throw new ApplicationError(this.getSimpleName()
-				+ " is not designed to be run as an sub-service action.");
+	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction) {
+		Tracer.trace("Service " + this.getQualifiedName() + " is run as sub-service action..");
+		return Value.VALUE_TRUE;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ServiceInterface#respond(org.simplity.service.
+	 * ServiceData)
+	 */
+	@Override
+	public ServiceData respond(ServiceData inputData) {
+		/*
+		 * concrete classes should over-ride this. Instead of making this an
+		 * abstract method, we have given a default implementation that does
+		 * input-output. but no processing
+		 */
+		ServiceContext ctx = this.createDefaultContext(inputData, true);
+		/*
+		 * No dbDriver
+		 */
+		DbDriver driver = null;
+		/*
+		 * we can put our logic in executeAsAction so that this service is
+		 * available as service as well as sub-service
+		 */
+		this.executeAsAction(ctx, driver, false);
+
+		ServiceData outData = this.createDefaultOutput(ctx);
+		return outData;
 	}
 
 	/*
@@ -130,11 +162,55 @@ public abstract class AbstractService implements ServiceInterface {
 		return DbAccessType.NONE;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.simplity.service.ServiceInterface#getBackgroundRunInterval()
+	/**
+	 * extract all data coming in as they are..
+	 *
+	 * @param inData
+	 * @param extractPayloadAsWell
+	 * @return a service context with all default values loaded into it
 	 */
-	@Override
-	public int getBackgroundRunInterval() {
-		return 0;
+	protected ServiceContext createDefaultContext(ServiceData inData, boolean extractPayloadAsWell) {
+		ServiceContext ctx = new ServiceContext(this.getQualifiedName(), inData.getUserId());
+		/*
+		 * copy values and data sheets sent by the client agent.
+		 * These are typically session-stored, but not necessarily that
+		 */
+		for (String key : inData.getFieldNames()) {
+			Object val = inData.get(key);
+			if (val instanceof Value) {
+				ctx.setValue(key, (Value) val);
+			} else if (val instanceof DataSheet) {
+				ctx.putDataSheet(key, (DataSheet) val);
+			} else {
+				ctx.setObject(key, val);
+			}
+		}
+		if (extractPayloadAsWell == false) {
+			return ctx;
+		}
+
+		String payload = inData.getPayLoad();
+		if (payload == null) {
+			Tracer.trace("No input fromclient");
+			return ctx;
+		}
+
+		JsonUtil.extractAll(payload, ctx);
+		return ctx;
+	}
+
+	/**
+	 * default response is created with all data available in context
+	 *
+	 * @param ctx
+	 * @return output service data
+	 */
+	protected ServiceData createDefaultOutput(ServiceContext ctx) {
+		ServiceData outData = new ServiceData(ctx.getUserId(), this.getQualifiedName());
+		for (FormattedMessage msg : ctx.getMessages()) {
+			outData.addMessage(msg);
+		}
+		outData.setPayLoad(JsonUtil.outputAll(ctx));
+		return outData;
 	}
 }

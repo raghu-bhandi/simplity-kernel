@@ -123,18 +123,14 @@ public abstract class Action {
 					return null;
 				}
 			} catch (Exception e) {
-				throw new ApplicationError("Action " + this.actionName
-						+ " has an executOnCondition=" + this.executeOnCondition
-								.toString() + " that is invalid. \nError : " + e
-										.getMessage());
+				throw new ApplicationError("Action " + this.actionName + " has an executOnCondition="
+						+ this.executeOnCondition.toString() + " that is invalid. \nError : " + e.getMessage());
 			}
 		}
-		if (this.executeIfNoRowsInSheet != null && ctx.nbrRowsInSheet(
-				this.executeIfNoRowsInSheet) > 0) {
+		if (this.executeIfNoRowsInSheet != null && ctx.nbrRowsInSheet(this.executeIfNoRowsInSheet) > 0) {
 			return null;
 		}
-		if (this.executeIfRowsInSheet != null && ctx.nbrRowsInSheet(
-				this.executeIfRowsInSheet) == 0) {
+		if (this.executeIfRowsInSheet != null && ctx.nbrRowsInSheet(this.executeIfRowsInSheet) == 0) {
 			return null;
 		}
 		Value result = this.delegate(ctx, driver);
@@ -147,8 +143,7 @@ public abstract class Action {
 				return Value.newTextValue(this.actionNameOnSuccess);
 			}
 			if (this.successMessageName != null) {
-				MessageType msgType = ctx.addMessage(this.successMessageName,
-						this.successMessageParameters);
+				MessageType msgType = ctx.addMessage(this.successMessageName, this.successMessageParameters);
 				if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
 					return Service.STOP_VALUE;
 				}
@@ -159,8 +154,7 @@ public abstract class Action {
 			return Value.newTextValue(this.actionNameOnFailure);
 		}
 		if (this.failureMessageName != null) {
-			MessageType msgType = ctx.addMessage(this.failureMessageName,
-					this.failureMessageParameters);
+			MessageType msgType = ctx.addMessage(this.failureMessageName, this.failureMessageParameters);
 			if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
 				return Service.STOP_VALUE;
 			}
@@ -215,15 +209,16 @@ public abstract class Action {
 	 *
 	 * @param idx
 	 *            0 based index of actions in service
+	 * @param service
+	 *            to which this action belongs to
 	 */
-	public void getReady(int idx) {
+	public void getReady(int idx, Service service) {
 		this.serviceIdx = idx;
 		if (this.actionName == null) {
 			this.actionName = ACTION_NAME_PREFIX + this.serviceIdx;
 		}
-		this.requiresPostProcessing = this.actionNameOnFailure != null
-				|| this.actionNameOnSuccess != null || this.failureMessageName != null
-				|| this.successMessageName != null;
+		this.requiresPostProcessing = this.actionNameOnFailure != null || this.actionNameOnSuccess != null
+				|| this.failureMessageName != null || this.successMessageName != null;
 
 	}
 
@@ -235,7 +230,7 @@ public abstract class Action {
 	 *            parent service
 	 * @return number of errors added to the list
 	 */
-	public int validate(ValidationContext vtx, Service service){
+	public int validate(ValidationContext vtx, Service service) {
 		return 0;
 	}
 }

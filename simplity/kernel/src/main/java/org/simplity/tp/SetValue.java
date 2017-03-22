@@ -97,8 +97,8 @@ public class SetValue extends Action {
 	 * @see org.simplity.tp.Action#getReady()
 	 */
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		if (this.fieldValue != null) {
 			if (this.expression != null) {
 				throw new ApplicationError(

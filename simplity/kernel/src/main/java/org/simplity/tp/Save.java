@@ -258,8 +258,8 @@ public class Save extends DbAction {
 	}
 
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		if (this.childRecords != null) {
 			for (RelatedRecord rec : this.childRecords) {
 				rec.getReady();

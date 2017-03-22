@@ -80,9 +80,8 @@ public class JsonUtil {
 	 * @return data sheet. Null if no data found or the json is not well
 	 *         formated. was null. case the array is not well-formed
 	 */
-	public static DataSheet getSheet(JSONArray arr, Field[] inputFields,
-			List<FormattedMessage> errors, boolean allFieldsAreOptional,
-			String parentFieldName, Value parentValue) {
+	public static DataSheet getSheet(JSONArray arr, Field[] inputFields, List<FormattedMessage> errors,
+			boolean allFieldsAreOptional, String parentFieldName, Value parentValue) {
 		if (arr == null || arr.length() == 0) {
 			return null;
 		}
@@ -95,15 +94,13 @@ public class JsonUtil {
 			 */
 			JSONObject exampleObject = arr.optJSONObject(0);
 			if (exampleObject == null) {
-				Tracer.trace(
-						"Json array has its first object as null, and hence we abandoned parsing it.");
+				Tracer.trace("Json array has its first object as null, and hence we abandoned parsing it.");
 				return null;
 			}
 			fields = getFields(exampleObject, null, null);
 			if (parentFieldName != null) {
 				Field[] newFields = new Field[fields.length + 1];
-				newFields[0] = Field.getDefaultField(parentFieldName,
-						parentValue.getValueType());
+				newFields[0] = Field.getDefaultField(parentFieldName, parentValue.getValueType());
 				int j = 1;
 				for (Field field : fields) {
 					newFields[j] = field;
@@ -143,8 +140,7 @@ public class JsonUtil {
 				if (j == parentIdx) {
 					row[j] = parentValue;
 				} else {
-					row[j] = field.parseObject(val, errors,
-							allFieldsAreOptional, null);
+					row[j] = field.parseObject(val, errors, allFieldsAreOptional, null);
 				}
 				j++;
 			}
@@ -169,8 +165,7 @@ public class JsonUtil {
 	 * @return data sheet. Null if no data found. Throws ApplicationError on
 	 *         case the array is not well-formed
 	 */
-	public static DataSheet getChildSheet(JSONArray arr, String attName,
-			Field[] fields, List<FormattedMessage> errors,
+	public static DataSheet getChildSheet(JSONArray arr, String attName, Field[] fields, List<FormattedMessage> errors,
 			boolean allFieldsAreOptional) {
 		/*
 		 * arr corresponds to following json. We are to accumulate child rows
@@ -217,8 +212,7 @@ public class JsonUtil {
 				Value[] row = new Value[fields.length];
 				for (Field field : inputFields) {
 					Object val = obj.opt(field.getName());
-					row[j] = field.parseObject(val, errors,
-							allFieldsAreOptional, attName);
+					row[j] = field.parseObject(val, errors, allFieldsAreOptional, attName);
 					j++;
 				}
 				ds.addRow(row);
@@ -237,8 +231,8 @@ public class JsonUtil {
 	 *            if the data sheet is meant for an object/data structure and
 	 *            not an array of them. Only first row is used
 	 */
-	public static void sheetToJson(JSONWriter writer, DataSheet ds,
-			HierarchicalSheet[] childSheets, boolean outputAsObject) {
+	public static void sheetToJson(JSONWriter writer, DataSheet ds, HierarchicalSheet[] childSheets,
+			boolean outputAsObject) {
 		int nbrRows = 0;
 		int nbrCols = 0;
 		if (ds != null) {
@@ -320,8 +314,7 @@ public class JsonUtil {
 	 * @return array of fields in this object. additional att/val if supplied
 	 *         are added as the first one.
 	 */
-	public static Field[] getFields(JSONObject obj, String additionalAtt,
-			Object additionalVal) {
+	public static Field[] getFields(JSONObject obj, String additionalAtt, Object additionalVal) {
 		String[] names = JSONObject.getNames(obj);
 		int nbrCols = names.length;
 		int fieldIdx = 0;
@@ -333,8 +326,7 @@ public class JsonUtil {
 			nbrCols++;
 			fields = new Field[nbrCols];
 			Value val = Value.parseObject(additionalVal);
-			fields[fieldIdx] = Field.getDefaultField(additionalAtt,
-					val.getValueType());
+			fields[fieldIdx] = Field.getDefaultField(additionalAtt, val.getValueType());
 			fieldIdx = 1;
 		}
 		int nonAtts = 0;
@@ -376,25 +368,22 @@ public class JsonUtil {
 	 * @param allFieldsAreOptional
 	 * @return number of fields extracted
 	 */
-	public static int extractFields(JSONObject json, Field[] fields,
-			FieldsInterface ctx, List<FormattedMessage> errors,
+	public static int extractFields(JSONObject json, Field[] fields, FieldsInterface ctx, List<FormattedMessage> errors,
 			boolean allFieldsAreOptional) {
 		int result = 0;
 		for (Field field : fields) {
 			Object val = json.opt(field.getName());
 			Value value = null;
-			if(val == null){
+			if (val == null) {
 				/*
 				 * possible that this field is already extracted
 				 */
 				value = ctx.getValue(field.getName());
-			}else{
+			} else {
 				value = field.getValueType().parseObject(val);
 				if (value == null) {
-					errors.add(new FormattedMessage(Messages.INVALID_VALUE,
-							null, field.getName(), null, 0,
-							'\'' + val.toString() + "' is not a valid "
-									+ field.getValueType()));
+					errors.add(new FormattedMessage(Messages.INVALID_VALUE, null, field.getName(), null, 0,
+							'\'' + val.toString() + "' is not a valid " + field.getValueType()));
 					continue;
 				}
 			}
@@ -420,7 +409,7 @@ public class JsonUtil {
 		int result = 0;
 		for (String name : names) {
 			Object val = json.opt(name);
-			if(val != null){
+			if (val != null) {
 				ctx.setValue(name, Value.parseObject(val));
 				result++;
 			}
@@ -435,12 +424,11 @@ public class JsonUtil {
 	 * @param errors
 	 * @return number of fields extracted
 	 */
-	public static int extractFilterFields(JSONObject json, Field[] fields,
-			FieldsInterface ctx, List<FormattedMessage> errors) {
+	public static int extractFilterFields(JSONObject json, Field[] fields, FieldsInterface ctx,
+			List<FormattedMessage> errors) {
 		int result = 0;
 		for (Field field : fields) {
-			result += parseFilter(json, ctx, errors, field.getName(),
-					field.getValueType());
+			result += parseFilter(json, ctx, errors, field.getName(), field.getValueType());
 		}
 		/*
 		 * some additional fields for filter, like sort
@@ -451,11 +439,9 @@ public class JsonUtil {
 		String fieldName = ServiceProtocol.SORT_COLUMN_NAME;
 		String textValue = json.optString(fieldName, null);
 		if (textValue != null) {
-			Value value = ComponentManager.getDataType(DataType.ENTITY_LIST)
-					.parseValue(textValue);
+			Value value = ComponentManager.getDataType(DataType.ENTITY_LIST).parseValue(textValue);
 			if (value == null) {
-				errors.add(new FormattedMessage(Messages.INVALID_ENTITY_LIST,
-						null, fieldName, null, 0));
+				errors.add(new FormattedMessage(Messages.INVALID_ENTITY_LIST, null, fieldName, null, 0));
 			} else {
 				ctx.setValue(fieldName, value);
 			}
@@ -465,12 +451,10 @@ public class JsonUtil {
 		textValue = json.optString(fieldName, null);
 		if (textValue != null) {
 			textValue = textValue.toLowerCase();
-			if (textValue.equals(ServiceProtocol.SORT_ORDER_ASC)
-					|| textValue.equals(ServiceProtocol.SORT_ORDER_DESC)) {
+			if (textValue.equals(ServiceProtocol.SORT_ORDER_ASC) || textValue.equals(ServiceProtocol.SORT_ORDER_DESC)) {
 				ctx.setValue(fieldName, Value.newTextValue(textValue));
 			} else {
-				errors.add(new FormattedMessage(Messages.INVALID_SORT_ORDER,
-						null, fieldName, null, 0));
+				errors.add(new FormattedMessage(Messages.INVALID_SORT_ORDER, null, fieldName, null, 0));
 			}
 		}
 		return result;
@@ -486,10 +470,8 @@ public class JsonUtil {
 	 * @param recordName
 	 * @return number of fields extracted
 	 */
-	private static int parseFilter(JSONObject json,
-			FieldsInterface extratedFields,
-			List<FormattedMessage> validationErrors, String fieldName,
-			ValueType valueType) {
+	private static int parseFilter(JSONObject json, FieldsInterface extratedFields,
+			List<FormattedMessage> validationErrors, String fieldName, ValueType valueType) {
 
 		Object obj = json.opt(fieldName);
 		if (obj == null) {
@@ -505,19 +487,16 @@ public class JsonUtil {
 		 * filter field need not conform to data-type but it should be of the
 		 * same value type, except that IN_LIST is always text
 		 */
-		Value value = FilterCondition.In == f ? ValueType.TEXT.parseObject(obj)
-				: valueType.parseObject(obj);
+		Value value = FilterCondition.In == f ? ValueType.TEXT.parseObject(obj) : valueType.parseObject(obj);
 		if (value == null) {
 			if (validationErrors != null) {
-				validationErrors.add(new FormattedMessage(
-						Messages.INVALID_VALUE, null, fieldName, null, 0));
+				validationErrors.add(new FormattedMessage(Messages.INVALID_VALUE, null, fieldName, null, 0));
 			}
 		} else {
 			extratedFields.setValue(fieldName, value);
 		}
 		if (f == null) {
-			extratedFields.setValue(otherName,
-					Value.newTextValue(ServiceProtocol.EQUAL));
+			extratedFields.setValue(otherName, Value.newTextValue(ServiceProtocol.EQUAL));
 			return 1;
 		}
 		extratedFields.setValue(otherName, Value.newTextValue(otherValue));
@@ -532,13 +511,65 @@ public class JsonUtil {
 		}
 		if (value == null) {
 			if (validationErrors != null) {
-				validationErrors.add(new org.simplity.kernel.FormattedMessage(
-						Messages.INVALID_VALUE, null, otherName, null, 0));
+				validationErrors.add(
+						new org.simplity.kernel.FormattedMessage(Messages.INVALID_VALUE, null, otherName, null, 0));
 			}
 		} else {
 			extratedFields.setValue(otherName, value);
 		}
 		return 1;
+	}
+
+	/**
+	 * extract a simple json object (with fields and tables) into service
+	 * context
+	 *
+	 * @param jsonText
+	 * @param ctx
+	 */
+	public static void extractAll(String jsonText, ServiceContext ctx) {
+		JSONObject json = null;
+		try {
+			json = new JSONObject(jsonText);
+		} catch (Exception e) {
+			ctx.addMessage(Messages.INVALID_DATA, "Input json is invalid");
+			return;
+		}
+		extractAll(json, ctx);
+	}
+
+	/**
+	 * Create json string from all data from context
+	 * context
+	 *
+	 * @param ctx
+	 * @return jsonText
+	 */
+	public static String outputAll(ServiceContext ctx) {
+		JSONWriter writer = new JSONWriter();
+		writer.object();
+		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
+			writer.key(entry.getKey()).value(entry.getValue());
+		}
+
+		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
+			writer.key(entry.getKey());
+			DataSheet sheet = entry.getValue();
+			JsonUtil.sheetToJson(writer, sheet, null, false);
+		}
+		List<FormattedMessage> msgs = ctx.getMessages();
+		if(msgs.size() > 0){
+			writer.key(ServiceProtocol.MESSAGES);
+			JsonUtil.addObject(writer, msgs);
+		}
+		writer.key(ServiceProtocol.REQUEST_STATUS);
+		if(ctx.isInError()){
+		writer.value(ServiceProtocol.STATUS_ERROR);
+		}else{
+			writer.value(ServiceProtocol.STATUS_OK);
+		}
+		writer.endObject();
+		return writer.toString();
 	}
 
 	/**
@@ -552,14 +583,12 @@ public class JsonUtil {
 		for (String key : json.keySet()) {
 			JSONArray arr = json.optJSONArray(key);
 			if (arr != null) {
-				DataSheet sheet = JsonUtil.getSheet(arr, null, null, true, null,
-						null);
+				DataSheet sheet = JsonUtil.getSheet(arr, null, null, true, null, null);
 				if (sheet == null) {
 					Tracer.trace("Table " + key + " could not be extracted");
 				} else {
 					ctx.putDataSheet(key, sheet);
-					Tracer.trace("Table " + key + " extracted with "
-							+ sheet.length() + " rows");
+					Tracer.trace("Table " + key + " extracted with " + sheet.length() + " rows");
 				}
 				continue;
 			}
@@ -591,8 +620,8 @@ public class JsonUtil {
 	 * @param sheetName
 	 * @param parentSheetName
 	 */
-	public static void extractWithNoValidation(JSONObject json,
-			ServiceContext ctx, String sheetName, String parentSheetName) {
+	public static void extractWithNoValidation(JSONObject json, ServiceContext ctx, String sheetName,
+			String parentSheetName) {
 		DataSheet ds = null;
 		String arrName = null;
 		JSONArray arr = null;
@@ -614,8 +643,7 @@ public class JsonUtil {
 		if (arr == null) {
 			Tracer.trace("No data found for sheet " + arrName);
 		} else if (ds == null) {
-			Tracer.trace("Sheet " + arrName
-					+ " has only null data. Data not extracted");
+			Tracer.trace("Sheet " + arrName + " has only null data. Data not extracted");
 		} else {
 			ctx.putDataSheet(sheetName, ds);
 		}
@@ -626,8 +654,7 @@ public class JsonUtil {
 	 * @param fieldNames
 	 * @param ctx
 	 */
-	public static void addAttributes(JSONWriter writer, String[] fieldNames,
-			ServiceContext ctx) {
+	public static void addAttributes(JSONWriter writer, String[] fieldNames, ServiceContext ctx) {
 		for (String fieldName : fieldNames) {
 			Value value = ctx.getValue(fieldName);
 			if (value != null) {
@@ -659,8 +686,7 @@ public class JsonUtil {
 			((Jsonable) obj).writeJsonValue(writer);
 			return;
 		}
-		if (obj instanceof String || obj instanceof Number
-				|| obj instanceof Boolean || obj instanceof Date
+		if (obj instanceof String || obj instanceof Number || obj instanceof Boolean || obj instanceof Date
 				|| obj instanceof Enum) {
 			writer.value(obj);
 			return;
@@ -699,14 +725,12 @@ public class JsonUtil {
 		 * it is another object
 		 */
 		writer.object();
-		for (Map.Entry<String, java.lang.reflect.Field> entry : ReflectUtil
-				.getAllFields(obj).entrySet()) {
+		for (Map.Entry<String, java.lang.reflect.Field> entry : ReflectUtil.getAllFields(obj).entrySet()) {
 			writer.key(entry.getKey());
 			try {
 				addObject(writer, entry.getValue().get(obj));
 			} catch (Exception e) {
-				Tracer.trace("Unable to get value for object attribute "
-						+ entry.getKey() + ". null assumed");
+				Tracer.trace("Unable to get value for object attribute " + entry.getKey() + ". null assumed");
 				writer.value(null);
 			}
 		}
@@ -773,8 +797,7 @@ public class JsonUtil {
 				json.append("\\r");
 				break;
 			default:
-				if (c < ' ' || (c >= '\u0080' && c < '\u00a0')
-						|| (c >= '\u2000' && c < '\u2100')) {
+				if (c < ' ' || (c >= '\u0080' && c < '\u00a0') || (c >= '\u2000' && c < '\u2100')) {
 					json.append("\\u");
 					hhhh = Integer.toHexString(c);
 					json.append("0000", 0, 4 - hhhh.length());
@@ -846,8 +869,7 @@ public class JsonUtil {
 	 *
 	 * @return
 	 */
-	private static Object getValueWorker(String fieldSelector, Object json,
-			int option) {
+	private static Object getValueWorker(String fieldSelector, Object json, int option) {
 		/*
 		 * be considerate for careless-callers..
 		 */
@@ -876,8 +898,7 @@ public class JsonUtil {
 				String part = parts[i];
 				part = part.trim();
 				if (part.isEmpty()) {
-					throw new ApplicationError(fieldSelector
-							+ " is malformed for a qualified json field name.");
+					throw new ApplicationError(fieldSelector + " is malformed for a qualified json field name.");
 				}
 				int idx = parseIdx(part);
 				Object child = null;
@@ -886,8 +907,7 @@ public class JsonUtil {
 				if (result instanceof JSONObject) {
 					if (idx != -1) {
 						throw new ApplicationError(fieldSelector
-								+ " is not an appropriate selector. We encountered a non-object for attribute "
-								+ part);
+								+ " is not an appropriate selector. We encountered a non-object for attribute " + part);
 					}
 					resultObj = (JSONObject) result;
 					child = resultObj.opt(part);
@@ -939,16 +959,14 @@ public class JsonUtil {
 			}
 			return result;
 		} catch (NumberFormatException e) {
-			throw new ApplicationError(fieldSelector
-					+ " is malformed for a qualified json field name.");
+			throw new ApplicationError(fieldSelector + " is malformed for a qualified json field name.");
 		} catch (ClassCastException e) {
 			throw new ApplicationError(fieldSelector
 					+ " is used as an attribute-selector for a test case, but the json does not have the right structure for this pattern.");
 		} catch (ApplicationError e) {
 			throw e;
 		} catch (Exception e) {
-			throw new ApplicationError(e,
-					"Error while getting value for field " + fieldSelector);
+			throw new ApplicationError(e, "Error while getting value for field " + fieldSelector);
 		}
 	}
 
@@ -960,21 +978,15 @@ public class JsonUtil {
 	 * @param json
 	 * @param value
 	 */
-	public static void setValueWorker(String fieldSelector, Object json,
-			Object value) {
+	public static void setValueWorker(String fieldSelector, Object json, Object value) {
 		/*
 		 * special case of root object itself
 		 */
 		if (fieldSelector.equals(".")) {
-			if (value instanceof JSONObject == false
-					|| json instanceof JSONObject == false) {
-				Tracer.trace(
-						"We expected a JSONObjects for source and destination, but got "
-								+ json.getClass().getName()
-								+ " as object, and  "
-								+ (value == null ? "null"
-										: value.getClass().getName())
-								+ " as value");
+			if (value instanceof JSONObject == false || json instanceof JSONObject == false) {
+				Tracer.trace("We expected a JSONObjects for source and destination, but got "
+						+ json.getClass().getName() + " as object, and  "
+						+ (value == null ? "null" : value.getClass().getName()) + " as value");
 				return;
 			}
 			JSONObject objFrom = (JSONObject) value;

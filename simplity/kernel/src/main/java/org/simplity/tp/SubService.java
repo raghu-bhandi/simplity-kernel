@@ -23,6 +23,7 @@ package org.simplity.tp;
 
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -37,13 +38,25 @@ import org.simplity.service.ServiceInterface;
 public class SubService extends Action {
 	String serviceName;
 
+	private boolean transactionIsDelegated;
+
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
 		ServiceInterface service = ComponentManager
 				.getService(this.serviceName);
-		return service.executeAsAction(ctx, driver);
+		return service.executeAsAction(ctx, driver, this.transactionIsDelegated);
 	}
 
+	/* (non-Javadoc)
+	 * @see org.simplity.tp.Action#getReady(int)
+	 */
+	@Override
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
+		if(service.dbAccessType == DbAccessType.SUB_SERVICE){
+			this.transactionIsDelegated = true;
+		}
+	}
 	/*
 	 * (non-Javadoc)
 	 *

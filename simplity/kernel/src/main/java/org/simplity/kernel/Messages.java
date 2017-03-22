@@ -108,6 +108,10 @@ public class Messages {
 	public static final String SUCCESS = "kernel.success";
 
 	/**
+	 *
+	 */
+	public static final String ERROR = "kernel.error";
+	/**
 	 * warning
 	 */
 	public static final String WARNING = "kernel.warning";

@@ -44,7 +44,7 @@ public class HelloJavaDirect extends AbstractService {
 	 * .ServiceContext, org.simplity.kernel.db.DbDriver)
 	 */
 	@Override
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver) {
+	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean transactionIsDelegated) {
 		Value value = Value.newTextValue("Hellooooo directly from Java");
 		ctx.setValue("hello", value);
 		return value;

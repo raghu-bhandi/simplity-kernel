@@ -39,11 +39,15 @@ public interface ServiceInterface extends Component {
 	 *
 	 * @param ctx
 	 * @param driver
+	 * @param useOwnDriverForTransaction
+	 *            if true, supplied driver is for read-only. Parent service is
+	 *            not managing transactions, and this service should manage its
+	 *            transaction if needed
 	 * @return return 0 if this service did not do intended work. positive
 	 *         number if it did its work. This returned value is used as
 	 *         workDone for the action.
 	 */
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver);
+	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction);
 
 	/**
 	 * should the service be fired in the background (in a separate thread)?
@@ -73,17 +77,4 @@ public interface ServiceInterface extends Component {
 	 *         data meant for client-agent
 	 */
 	public ServiceData respond(ServiceData inputData);
-
-	/**
-	 * if this service is to be repeatedly run in the background every so many
-	 * seconds..
-	 *
-	 * @return number of seconds after which the job is to be run again.
-	 *         Relevant only if toBeRunInBackground() returns true. zero if this
-	 *         is to be run just once. This will run back-to-back if the interval is
-	 *         less than the time taken to finish the job. For example if
-	 *         interval is 10 secods, and the job runs for 12 secs, it is run
-	 *         again immediately, but it is not run in parallel after 10 secs
-	 */
-	public int getBackgroundRunInterval();
 }

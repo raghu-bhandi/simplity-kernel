@@ -70,6 +70,22 @@ public class Application {
 	 */
 	private static Object userTransactionInstance;
 
+	private static Value defaultUserId;
+
+	private static boolean userIdIsNumeric;
+
+	/**
+	 * report an application error that needs attention from admin
+	 *
+	 * @param inputData
+	 *            data with which service was invoked. null if teh error has no
+	 *            such reference
+	 * @param e
+	 */
+	public static void reportApplicationError(ServiceData inputData, ApplicationError e) {
+		currentExceptionListener.listen(inputData, e);
+	}
+
 	/**
 	 * @return get a UserTrnsaction instance
 	 */
@@ -78,6 +94,22 @@ public class Application {
 			throw new ApplicationError("Application is not set up for a JTA based user transaction");
 		}
 		return (UserTransaction) userTransactionInstance;
+	}
+
+	/**
+	 *
+	 * @return default user id, typically during tests. null if it is not set
+	 */
+	public static Value getDefaultUserId() {
+		return defaultUserId;
+	}
+
+	/**
+	 *
+	 * @return is the userId a number? default is text/string
+	 */
+	public static boolean userIdIsNumeric() {
+		return userIdIsNumeric;
 	}
 
 	/**
@@ -454,6 +486,8 @@ public class Application {
 			} else {
 				uid = Value.newTextValue(this.autoLoginUserId);
 			}
+			defaultUserId = uid;
+			userIdIsNumeric = this.userIdIsNumber;
 		}
 		HttpAgent.setUp(uid, cacher, this.sendTraceToClient);
 		String result = null;

@@ -207,8 +207,8 @@ public class CreateSheet extends Action {
 	 * @see org.simplity.tp.Action#getReady(int)
 	 */
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		if (!(this.data == null || this.data.length == 0 || this.data[0].length == 0)) {
 			this.returnValue = Value.newIntegerValue(this.data.length - 1);
 		} else {

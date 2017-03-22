@@ -19,52 +19,67 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.tp;
 
+package org.simplity.job;
+
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.value.Value;
-import org.simplity.service.ServiceContext;
+import org.simplity.kernel.value.ValueType;
+import org.simplity.service.ServiceData;
 
 /**
- * service has actions that are executed in a sequence. JumpTo allows you to
- * change this sequence.
- *
+ * represents a field to be provided as input to a service
  *
  * @author simplity.org
  *
  */
-public class JumpTo extends org.simplity.tp.Action {
+public class InputField {
 
 	/**
-	 * returns either a name of action to go to, or "_stop", "_error",
-	 * "_continue", "_break"
+	 * field name.
 	 */
-	String toAction;
+	String name;
+	/**
+	 * field value.
+	 */
+	String value;
 
 	/**
-	 * cached for performance
+	 * value type
 	 */
-	private Value returnValue;
-	private JumpSignal jumpSignal;
-
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		return this.returnValue;
-	}
+	ValueType valueType;
+	/*
+	 * value parsed into object
+	 */
+	private Value valueObject;
 
 	/**
 	 *
-	 * @return if this is for a signal, then signal, else null
 	 */
-	public JumpSignal getSignal(){
-		return this.jumpSignal;
+	public void getReady() {
+		if (this.name == null) {
+			throw new ApplicationError("name is a required attribute for an input field");
+		}
+		if (this.value == null) {
+			throw new ApplicationError("value is required for an input field");
+		}
+		if (this.valueType == null) {
+			throw new ApplicationError("valueType is required for an input field");
+		}
+		this.valueObject = Value.parseValue(this.value, this.valueType);
+		if (Value.isNull(this.valueObject)) {
+			throw new ApplicationError("Field " + this.name + " is of type " + this.valueType
+					+ " and has an invalid value of " + this.value);
+		}
 	}
 
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		this.jumpSignal = JumpSignal.getSignal(this.toAction);
-		if(this.jumpSignal == null) {
-			this.returnValue = Value.newTextValue(this.toAction);
-		}
+	/**
+	 * add name-value pair to the fields collection
+	 *
+	 * @param inData
+	 *            input data
+	 */
+	public void setInputValue(ServiceData inData) {
+		inData.put(this.name,  this.valueObject);
 	}
 }

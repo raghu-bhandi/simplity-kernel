@@ -41,8 +41,6 @@ public class ServiceSubmitter implements Runnable {
 	private final ServiceInterface service;
 	private final ObjectOutputStream outStream;
 
-	private boolean timeToWindup = false;
-
 	/***
 	 * instantiate with required attributes
 	 *
@@ -61,44 +59,6 @@ public class ServiceSubmitter implements Runnable {
 
 	@Override
 	public void run() {
-		int interval = this.service.getBackgroundRunInterval();
-		if (interval == 0) {
-			this.runOnce(null);
-			return;
-		}
-		/*
-		 * interval in milli seconds
-		 */
-		interval = interval * 1000;
-		String serviceName = this.service.getQualifiedName();
-		while (true) {
-			Date started = new Date();
-			Tracer.trace("Started service " + serviceName + " at " + started);
-			Object obj = this.inData.get(ServiceProtocol.HEADER_FILE_TOKEN);
-			String token = obj == null ? null : obj.toString();
-			this.runOnce(token);
-			if (this.timeToWindup) {
-				Tracer.trace("Shutting down service " + serviceName);
-				return;
-			}
-			Date finished = new Date();
-			Tracer.trace("Finished service " + serviceName + " at " + started);
-			long napTime = interval - (finished.getTime() - started.getTime());
-			if (napTime < 0) {
-				Tracer.trace("Re-starting the service immediately");
-			} else {
-				try {
-					Tracer.trace("Going to wait for " + napTime + "ms");
-					Thread.sleep(napTime);
-				} catch (InterruptedException e) {
-					Tracer.trace(serviceName + " got interrupted..");
-					break;
-				}
-			}
-		}
-	}
-
-	private void runOnce(String token) {
 		Tracer.startAccumulation();
 		Date startTime = new Date();
 		ServiceData outData = null;
@@ -121,19 +81,19 @@ public class ServiceSubmitter implements Runnable {
 		if (this.outStream == null) {
 			return;
 		}
+
 		Date endTime = new Date();
 		long diffTime = endTime.getTime() - startTime.getTime();
 		outData.setExecutionTime((int) diffTime);
 		outData.setTrace(trace);
+		Object obj = this.inData.get(ServiceProtocol.HEADER_FILE_TOKEN);
+		String token = obj == null ? null : obj.toString();
 		if (token == null) {
 			return;
 		}
 
 		outData.put(ServiceProtocol.HEADER_FILE_TOKEN, token);
 
-		if (this.outStream == null) {
-			return;
-		}
 		try {
 			this.outStream.writeObject(outData);
 		} catch (IOException e) {

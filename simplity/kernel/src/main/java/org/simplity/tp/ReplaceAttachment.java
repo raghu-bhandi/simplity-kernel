@@ -123,8 +123,8 @@ public class ReplaceAttachment extends DbAction {
 	 * @see org.simplity.tp.Action#getReady(int)
 	 */
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		this.createSqls();
 	}
 

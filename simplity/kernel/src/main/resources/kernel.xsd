@@ -894,21 +894,6 @@
 				type="xs:boolean"
 				use="optional" />
 			<xs:attribute
-				name="backgroundRunInterval"
-				type="xs:int"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>interval in number of seconds between repeating
-						this service. If this is set, the service is always running in teh
-						background, and repeat the work every so many seconds. Note that
-						the job will not over-lap if it takes longer than this interval.
-						That is, the job is not fired every so many seconds, but is re-run
-						again, no earlier than the interval.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
 				name="description"
 				type="xs:string"
 				use="optional" />
@@ -3999,13 +3984,18 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element
-					ref="job"
+					name="jobs"
+					type="jobs"
 					minOccurs="1"
-					maxOccurs="unbounded" />
+					maxOccurs="1" />
 			</xs:sequence>
 			<xs:attribute
-				name="maxThreads"
+				name="name"
 				use="required"
+				type="xs:string" />
+			<xs:attribute
+				name="maxThreads"
+				use="optional"
 				type="xs:int"
 			>
 				<xs:annotation>
@@ -4042,90 +4032,105 @@
 		</xs:complexType>
 	</xs:element>
 
-	<xs:element name="job">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element
-					name="inputFields"
-					type="jobInputFields"
-					minOccurs="0"
-					maxOccurs="1" />
-				<xs:element
-					name="inputJson"
-					type="xs:string"
-					maxOccurs="1"
-					minOccurs="0"
-				>
-					<xs:annotation>
-						<xs:documentation>Use a CDATA section to paste a formatted json
-							from your editor. This is the json that is suppied as input to
-							the service
-						</xs:documentation>
-					</xs:annotation>
-				</xs:element>
-			</xs:sequence>
-			<xs:attribute
-				name="name"
-				use="required"
-				type="xs:string"
+	<xs:complexType name="jobs">
+		<xs:sequence>
+			<xs:element
+				minOccurs="1"
+				maxOccurs="unbounded"
+				name="job"
 			>
-				<xs:annotation>
-					<xs:documentation>unique name to identify this job
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="userId"
-				use="optional"
-				type="xs:string"
-			>
-				<xs:annotation>
-					<xs:documentation>userId to be used for running this job. Overrides
-						setting at jobs/application. Service is executed with thisuser as
-						logged-in user
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="serviceName"
-				use="required"
-				type="xs:string"
-			>
-				<xs:annotation>
-					<xs:documentation>qualified name of the service to be run as a job
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="runInterval"
-				use="optional"
-				type="xs:int"
-			>
-				<xs:annotation>
-					<xs:documentation>Use this if this is a batch service to be run
-						repeatedly. number of seconds between two runs start-to-start.
-						However, in case the current run takes longer, next run will wait
-						for this to complete before starting. keep it as 0 if this is a
-						lsitner/backgroud job that is run just once.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="nbrDedicatedThreads"
-				use="optional"
-				type="xs:int"
-			>
-				<xs:annotation>
-					<xs:documentation>use this if this is a listener/background job
-						that is run once. min value is 1. If more than 1 is specified, the
-						job is fired on that many threads simultneously, subject to
-						availablity of threads in this scheduler.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-		</xs:complexType>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element
+							name="inputFields"
+							type="jobInputFields"
+							minOccurs="0"
+							maxOccurs="1" />
+						<xs:element
+							name="inputJson"
+							type="xs:string"
+							maxOccurs="1"
+							minOccurs="0"
+						>
+							<xs:annotation>
+								<xs:documentation>Use a CDATA section to paste a formatted json
+									from your editor. This is the json that is suppied as input to
+									the service
+								</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+					<xs:attribute
+						name="name"
+						use="required"
+						type="xs:string"
+					>
+						<xs:annotation>
+							<xs:documentation>unique name to identify this job
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="userId"
+						use="optional"
+						type="xs:string"
+					>
+						<xs:annotation>
+							<xs:documentation>userId to be used for running this job.
+								Overrides
+								setting at jobs/application. Service is executed with
+								thisuser as
+								logged-in user
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="serviceName"
+						use="required"
+						type="xs:string"
+					>
+						<xs:annotation>
+							<xs:documentation>qualified name of the service to be run as a
+								job
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="runInterval"
+						use="optional"
+						type="xs:int"
+					>
+						<xs:annotation>
+							<xs:documentation>Use this if this is a batch service to be run
+								repeatedly. number of seconds between two runs start-to-start.
+								However, in case the current run takes longer, next run will
+								wait
+								for this to complete before starting. keep it as 0 if this
+								is a
+								lsitner/backgroud job that is run just once.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="nbrDedicatedThreads"
+						use="optional"
+						type="xs:int"
+					>
+						<xs:annotation>
+							<xs:documentation>use this if this is a listener/background job
+								that is run once. min value is 1. If more than 1 is specified,
+								the
+								job is fired on that many threads simultneously, subject to
+								availablity of threads in this scheduler.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
 
-	</xs:element>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
 	<xs:complexType name="jobInputFields">
 		<xs:sequence
 			minOccurs="0"

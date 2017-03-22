@@ -76,8 +76,8 @@ public class Block extends Action{
 
 
 	@Override
-	public void getReady(int idx) {
-		super.getReady(idx);
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 		this.actionNameOnFailure = "_stop";
 
 		if (this.actions == null) {
@@ -92,7 +92,7 @@ public class Block extends Action{
 		 */
 		this.dbAccess = DbAccessType.NONE;
 		for (Action action : this.actions) {
-			action.getReady(i);
+			action.getReady(i, service);
 			this.indexedActions.put(action.getName(), new Integer(i));
 			i++;
 			/*
