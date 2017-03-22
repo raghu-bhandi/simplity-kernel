@@ -27,9 +27,16 @@
 </br>
 </br>
 <button onclick="callSQL()">Call SQL</button>
-</br>
-</br>
+<br>
+<br>
 <button onclick="invokeCustomServlet()">Invoke Custom Servlet</button>
+<br>
+<br>
+Upload file: <input type="file" id="myFile"  onchange="uploadfile()"/>
+<br>
+<br>
+<a href="javascript:void(0);" onClick="downloadfile()">Click here to download</a>
+<br>
 </body>
 <script src="js/simplity-min.js"></script>
 <script type="text/javascript">
@@ -81,6 +88,21 @@ function invokeCustomServlet(){
 function onError(response){
 	console.log(response);
 	
+}
+
+var fileKey ;
+var fileName;
+function uploadfile(){
+	var file = document.getElementById("myFile").files[0];
+	fileName = file.name;
+	Simplity.uploadFile(file, function(key) {
+		fileKey = key;
+		console.log("filekey: "+key)
+	});	
+ }
+ 
+function downloadfile(){
+	Simplity.downloadFile(fileKey,fileName,null);
 }
 </script>
 </html>

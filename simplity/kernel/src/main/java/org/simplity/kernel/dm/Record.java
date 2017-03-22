@@ -1275,9 +1275,6 @@ public class Record implements Component {
 			this.noPrimaryKey();
 		}
 		int nbrRows = inSheet.length();
-		if (nbrRows == 1) {
-			return this.delete(inSheet, driver, treatSqlErrorAsNoResult);
-		}
 		/*
 		 * we mostly expect one row, but we do not want to write separate
 		 * code...

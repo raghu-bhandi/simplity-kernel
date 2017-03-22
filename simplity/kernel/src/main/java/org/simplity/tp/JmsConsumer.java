@@ -22,11 +22,7 @@
 
 package org.simplity.tp;
 
-import javax.jms.Session;
-
-import org.simplity.jms.JmsConnector;
 import org.simplity.jms.JmsQueue;
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
@@ -46,6 +42,16 @@ public class JmsConsumer extends Block {
 	 */
 	JmsQueue responseQueue;
 
+	/**
+	 * should we consume just one or all of them on the queue?
+	 */
+	boolean consumeAll;
+
+	/**
+	 * true means wait for the message. consume=false means wait for one, but then come out. consumeAll=true means keep listening till cows come home :-).
+	 * false means do not wait, even for one.
+	 */
+	boolean waitForMessage;
 	/*
 	 * (non-Javadoc)
 	 *
@@ -53,65 +59,41 @@ public class JmsConsumer extends Block {
 	 */
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		/*
-		 *
-		 */
-		Session session = null;
-		try {
-			session = JmsConnector.getSession();
-			BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx, driver);
-			Tracer.trace("JMS session rolled back because the producer had an issue.");
-			this.requestQueue.consume(ctx, worker, session, this.responseQueue);
-		} catch (Exception e) {
-			Tracer.trace("Error while sending message.");
-			if(session != null){
-				try{
-					session.rollback();
-				}catch(Exception ignore){
-					//
-				}
-			}
-		} finally {
-			if (session != null) {
-				try {
-					session.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
+		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx, driver);
+		this.requestQueue.consume(ctx, worker, this.responseQueue, this.consumeAll, this.waitForMessage);
 		return Value.VALUE_TRUE;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see org.simplity.tp.Block#getReady(int)
 	 */
 	@Override
 	public void getReady(int idx) {
 		super.getReady(idx);
 		this.requestQueue.getReady();
-		if(this.responseQueue != null){
+		if (this.responseQueue != null) {
 			this.responseQueue.getReady();
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.simplity.tp.Block#validate(org.simplity.kernel.comp.ValidationContext, org.simplity.tp.Service)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.tp.Block#validate(org.simplity.kernel.comp.
+	 * ValidationContext, org.simplity.tp.Service)
 	 */
 	@Override
 	public int validate(ValidationContext vtx, Service service) {
 		int count = super.validate(vtx, service);
-		if(this.requestQueue == null){
+		if (this.requestQueue == null) {
 			vtx.addError("requestQueue is required");
 			count++;
-		}else{
-			if(this.requestQueue.getQueueName() == null){
-				vtx.addError("queName is required for requestQueue");
-				count++;
-			}
+		} else {
 			count += this.requestQueue.validate(vtx, true);
 		}
-		if(this.responseQueue != null){
+		if (this.responseQueue != null) {
 			count += this.responseQueue.validate(vtx, false);
 		}
 		return count;

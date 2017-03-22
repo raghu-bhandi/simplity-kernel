@@ -29,7 +29,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.jms.Session;
+
 import org.simplity.json.JSONWriter;
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Messages;
@@ -66,6 +69,10 @@ public class ServiceContext extends CommonData {
 	 * writer that can be used by actions to write directly to the response
 	 */
 	private ResponseWriter responseWriter;
+	/**
+	 * jms session associated with this service
+	 */
+	private Session jmsSession;
 
 	/**
 	 * @param serviceName
@@ -96,8 +103,7 @@ public class ServiceContext extends CommonData {
 	 *            is to be taken from context
 	 * @return type of message that got added
 	 */
-	public MessageType addValidationMessage(String messageName,
-			String referredField, String otherReferredField,
+	public MessageType addValidationMessage(String messageName, String referredField, String otherReferredField,
 			String referredTable, int rowNumber, String... params) {
 		String[] values = null;
 		if (params != null && params.length > 0) {
@@ -140,8 +146,7 @@ public class ServiceContext extends CommonData {
 	 * @return type of message that got added
 	 */
 	public MessageType addMessage(String messageName, String... paramValues) {
-		return this.addValidationMessage(messageName, null, null, null, 0,
-				paramValues);
+		return this.addValidationMessage(messageName, null, null, null, 0, paramValues);
 	}
 
 	/**
@@ -155,14 +160,12 @@ public class ServiceContext extends CommonData {
 	 * @param referredTable
 	 * @param rowNumber
 	 */
-	public void addMessageRow(String messageName, MessageType messageType,
-			String messageText, String referredField,
+	public void addMessageRow(String messageName, MessageType messageType, String messageText, String referredField,
 			String otherReferredField, String referredTable, int rowNumber) {
 		if (messageType == MessageType.ERROR) {
 			this.nbrErrors++;
 		}
-		FormattedMessage msg = new FormattedMessage(messageName, messageType,
-				messageText);
+		FormattedMessage msg = new FormattedMessage(messageName, messageType, messageText);
 		msg.fieldName = referredField;
 		msg.relatedFieldName = otherReferredField;
 		msg.tableName = referredTable;
@@ -187,29 +190,30 @@ public class ServiceContext extends CommonData {
 	public List<FormattedMessage> getMessages() {
 		return this.messages;
 	}
+
 	/**
 	 * get all messages as a DataSheet
 	 *
 	 * @return messages
 	 */
 	public DataSheet getMessagesAsDS() {
-		Collection<FormattedMessage> msgs = this.getMessages();		
-		Value[][] data = new Value[4][msgs.size()] ;
-		
-		String[] columnNames = {"name","text","messageType","fieldName"};
+		Collection<FormattedMessage> msgs = this.getMessages();
+		Value[][] data = new Value[4][msgs.size()];
+
+		String[] columnNames = { "name", "text", "messageType", "fieldName" };
 		int i = 0;
-		for(FormattedMessage msg: this.getMessages()){
+		for (FormattedMessage msg : this.getMessages()) {
 			data[0][i] = Value.newTextValue(msg.name);
 			data[1][i] = Value.newTextValue(msg.text);
 			data[2][i] = Value.newTextValue(msg.messageType.name());
-			data[3][i] =  Value.newTextValue(msg.fieldName);
+			data[3][i] = Value.newTextValue(msg.fieldName);
 			i++;
 		}
-		
-		return new MultiRowsSheet(columnNames,data);
+
+		return new MultiRowsSheet(columnNames, data);
 
 	}
-	
+
 	/**
 	 * sreset/remove all messages
 	 *
@@ -258,8 +262,7 @@ public class ServiceContext extends CommonData {
 	 */
 	public String getSummaryInfo() {
 		StringBuilder sbf = new StringBuilder("Context has ");
-		sbf.append(this.allFields.size()).append(" fields and ")
-		.append(this.allSheets.size()).append(" sheets and ")
+		sbf.append(this.allFields.size()).append(" fields and ").append(this.allSheets.size()).append(" sheets and ")
 				.append(this.messages.size()).append(" messages.");
 		return sbf.toString();
 	}
@@ -297,21 +300,42 @@ public class ServiceContext extends CommonData {
 
 	/**
 	 * set a default response writer to the context
+	 *
 	 * @param writer
 	 */
 	public void setWriter(ResponseWriter writer) {
 		this.responseWriter = writer;
 
 	}
+
 	/**
 	 * @return writer, never null
 	 */
 	public ResponseWriter getWriter() {
-		if(this.responseWriter == null){
+		if (this.responseWriter == null) {
 			this.setWriter(new JSONWriter());
 			this.responseWriter.init();
 		}
 		return this.responseWriter;
 
+	}
+
+	/**
+	 * @param session
+	 */
+	public void setJmsSession(Session session) {
+		this.jmsSession = session;
+	}
+
+	/**
+	 * @return jms connector associated with this service. never null.
+	 * @throws ApplicationError
+	 *             in case this service is not associated with a connector
+	 */
+	public Session getJmsSession() {
+		if (this.jmsSession == null) {
+			throw new ApplicationError("This service is not set up for a JMS operation.");
+		}
+		return this.jmsSession;
 	}
 }

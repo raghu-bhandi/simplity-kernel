@@ -88,6 +88,19 @@ public enum DbAccessType {
 		public boolean childTypeIsOk(DbAccessType childType) {
 			return childType == DbAccessType.NONE || childType == READ_ONLY;
 		}
+	},
+	/**
+	 * service is NOT managing the transaction. It is managed by JCA/JTA/XA
+	 */
+	EXTERNAL(true) {
+		/**
+		 * this is to be used cautiously, as the compatibility is to checked
+		 * only if it is a non-sub-service action.
+		 */
+		@Override
+		public boolean childTypeIsOk(DbAccessType childType) {
+			return true;
+		}
 	};
 	private final boolean updatable;
 

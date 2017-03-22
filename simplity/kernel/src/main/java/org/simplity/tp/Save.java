@@ -23,7 +23,6 @@
 package org.simplity.tp;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -127,9 +126,6 @@ public class Save extends DbAction {
 		}
 		if (this.childRecords != null) {
 			Tracer.trace("Child records are valid only when parent is for a single row. Data if any, ignored.");
-		}
-		if(nbrRowsAffected==0){
-			ctx.addMessage(Messages.WARNING, "No records affected");
 		}
 		return nbrRowsAffected;
 	}

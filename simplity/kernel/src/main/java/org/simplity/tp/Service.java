@@ -29,6 +29,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.transaction.UserTransaction;
+
+import org.simplity.jms.JmsConnector;
+import org.simplity.jms.JmsUsage;
+import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
@@ -159,16 +164,21 @@ public class Service implements ServiceInterface {
 	 */
 	String canBeCachedByFields;
 	/**
+	 * does this service use jms? if so with what kind of transaction management
+	 */
+	JmsUsage jmsUsage;
+
+	/**
 	 * action names indexed to respond to navigation requests
 	 */
 	private final HashMap<String, Integer> indexedActions = new HashMap<String, Integer>();
 
-	/*
+	/**
 	 * flag to avoid repeated getReady() calls
 	 */
 	private boolean gotReady;
 
-	/*
+	/**
 	 * instance of className to be used as body of this service
 	 */
 	private ServiceInterface serviceInstance;
@@ -208,6 +218,7 @@ public class Service implements ServiceInterface {
 		}
 
 		ServiceContext ctx = new ServiceContext(this.name, inData.getUserId());
+
 		/*
 		 * copy values and data sheets sent by the client agent. These are
 		 * typically session-stored, but not necessarily that
@@ -228,41 +239,93 @@ public class Service implements ServiceInterface {
 		this.extractInput(ctx, inData.getPayLoad());
 
 		/*
-		 * let us proceed if all OK
+		 * if input is in error, we return to caller without processing this
+		 * service
 		 */
-		if (ctx.isInError() == false) {
-			if (this.outputData != null) {
-				this.outputData.onServiceStart(ctx);
-			}
+		if (ctx.isInError()) {
+			return this.prepareResponse(ctx);
+		}
+
+		if (this.outputData != null) {
+			this.outputData.onServiceStart(ctx);
+		}
+
+		JmsConnector jmsConnector = null;
+		UserTransaction userTransaciton = null;
+		ApplicationError exception = null;
+		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
+		/*
+		 * all set to start with actions
+		 */
+		try {
 			/*
-			 * all set to start with actions
+			 * acquire resources that are needed for this service
 			 */
-			try {
-				BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
-				if (this.dbAccessType == DbAccessType.NONE) {
-					worker.act(null);
-				} else {
-					/*
-					 * get database handle. dbDriver is bit crazy. Does not
-					 * return driver, but expects us to supply a client instance
-					 * with whom it works.
-					 *
-					 * Also, sub-Service means we open a read-only, and then
-					 * call sub-service and complex-logic to manage their own
-					 * connections
-					 */
-					DbAccessType access = this.getDataAccessType();
-					if (access == DbAccessType.SUB_SERVICE) {
-						access = DbAccessType.READ_ONLY;
-					}
-					DbDriver.workWithDriver(worker, this.dbAccessType, this.schemaName);
+			if (this.jmsUsage != null) {
+				jmsConnector = JmsConnector.borrowConnector(this.jmsUsage);
+				ctx.setJmsSession(jmsConnector.getSession());
+			}
+
+			DbAccessType access = this.dbAccessType;
+			/*
+			 * is this a JTA transaction?
+			 */
+			if (access == DbAccessType.EXTERNAL) {
+				userTransaciton = Application.getUserTransaction();
+				userTransaciton.begin();
+			}
+			if (access == DbAccessType.NONE) {
+				worker.act(null);
+			} else {
+				/*
+				 * Also, sub-Service means we open a read-only, and then
+				 * call sub-service and complex-logic to manage their own
+				 * connections
+				 */
+				if (access == DbAccessType.SUB_SERVICE) {
+					access = DbAccessType.READ_ONLY;
 				}
-			} catch (ApplicationError e) {
-				throw e;
+				DbDriver.workWithDriver(worker, access, this.schemaName);
+			}
+		} catch (ApplicationError e) {
+			exception = e;
+		} catch (Exception e) {
+			exception = new ApplicationError(e, "Exception during execution of service. ");
+		}
+		/*
+		 * close/return resources
+		 */
+		if (jmsConnector != null) {
+			JmsConnector.returnConnector(jmsConnector, exception == null && ctx.isInError() == false);
+		}
+		if (userTransaciton != null) {
+			try {
+				if (exception == null && ctx.isInError() == false) {
+					userTransaciton.commit();
+				} else {
+					Tracer.trace("Service is in error. User transaction rolled-back");
+					userTransaciton.rollback();
+				}
 			} catch (Exception e) {
-				throw new ApplicationError(e, "Exception during execution of service. ");
+				exception = new ApplicationError(e, "Error while commit/rollback of user transaction");
 			}
 		}
+
+		if (exception != null) {
+			throw exception;
+		}
+
+		return this.prepareResponse(ctx);
+	}
+
+	/**
+	 * prepare service data to be returned to caller based on the content of
+	 * service context
+	 *
+	 * @param ctx
+	 * @return
+	 */
+	private ServiceData prepareResponse(ServiceContext ctx) {
 		ServiceData response = new ServiceData(ctx.getUserId(), this.getQualifiedName());
 		int nbrErrors = 0;
 		for (FormattedMessage msg : ctx.getMessages()) {
@@ -285,6 +348,7 @@ public class Service implements ServiceInterface {
 			}
 		}
 		return response;
+
 	}
 
 	protected void extractInput(ServiceContext ctx, String requestText) {
@@ -447,6 +511,8 @@ public class Service implements ServiceInterface {
 		 * We have just one action : read action
 		 */
 		Action action = new Read(record);
+		action.failureMessageName = Messages.NO_ROWS;
+
 		Action[] actions = { action };
 		service.actions = actions;
 
@@ -501,6 +567,7 @@ public class Service implements ServiceInterface {
 			OutputRecord[] outRecs = getOutputRecords(record);
 			outData.outputRecords = outRecs;
 		}
+		action.failureMessageName = Messages.NO_ROWS;
 		Action[] actions = { action };
 		service.actions = actions;
 
@@ -538,6 +605,7 @@ public class Service implements ServiceInterface {
 		 * use a suggest action to do the job
 		 */
 		Action action = new Suggest(record);
+		action.failureMessageName = Messages.NO_ROWS;
 		Action[] actions = { action };
 		service.actions = actions;
 
@@ -635,6 +703,7 @@ public class Service implements ServiceInterface {
 		 * save action
 		 */
 		Save action = new Save(record, getChildRecords(record, false));
+		action.failureMessageName = Messages.NO_UPDATE;
 		Action[] actions = { action };
 		service.actions = actions;
 		/*
