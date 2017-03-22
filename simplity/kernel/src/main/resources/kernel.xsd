@@ -3997,9 +3997,12 @@
 
 	<xs:element name="jobs">
 		<xs:complexType>
-		<xs:sequence>
-			<xs:element ref="job" minOccurs="1" maxOccurs="unbounded" />
-		</xs:sequence>
+			<xs:sequence>
+				<xs:element
+					ref="job"
+					minOccurs="1"
+					maxOccurs="unbounded" />
+			</xs:sequence>
 			<xs:attribute
 				name="maxThreads"
 				use="required"
@@ -4043,6 +4046,11 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element
+					name="inputFields"
+					type="jobInputFields"
+					minOccurs="0"
+					maxOccurs="1" />
+				<xs:element
 					name="inputJson"
 					type="xs:string"
 					maxOccurs="1"
@@ -4051,7 +4059,8 @@
 					<xs:annotation>
 						<xs:documentation>Use a CDATA section to paste a formatted json
 							from your editor. This is the json that is suppied as input to
-							the service</xs:documentation>
+							the service
+						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 			</xs:sequence>
@@ -4117,4 +4126,31 @@
 		</xs:complexType>
 
 	</xs:element>
+	<xs:complexType name="jobInputFields">
+		<xs:sequence
+			minOccurs="0"
+			maxOccurs="1"
+		>
+			<xs:element
+				name="inputField"
+				minOccurs="1"
+				maxOccurs="unbounded"
+			>
+				<xs:complexType>
+					<xs:attribute
+						name="name"
+						type="xs:NCName"
+						use="required" />
+					<xs:attribute
+						name="valueType"
+						type="valueType"
+						use="required" />
+					<xs:attribute
+						name="value"
+						type="xs:string"
+						use="required" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 </xs:schema>
