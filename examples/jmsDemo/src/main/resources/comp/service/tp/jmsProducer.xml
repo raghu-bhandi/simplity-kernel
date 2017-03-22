@@ -2,11 +2,16 @@
 <service
 	xmlns="http://www.simplity.org/schema"
 	name="jmsProducer"
-	dbAccessType="none">
+	dbAccessType="none"
+	jmsUsage="notManaged">
+	<inputData>
+		<inputFields>
+			<inputField dataType="_text" name="message"/>
+		</inputFields>
+	</inputData>
 	<actions>
-		<setValue fieldName="hello" fieldValue="Hello world"></setValue>
 		<jmsProducer>
-			<requestQueue queueName="Queue01" fieldNames="hello"/>
+			<requestQueue queueName="jms/Queue01" fieldNames="message"/>
 		</jmsProducer>
 	</actions>
 </service>

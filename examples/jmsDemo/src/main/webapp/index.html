@@ -5,13 +5,27 @@
 <title>Simplity Hello World</title>
 </head>
 <body>
-<div id="hellotag"></div>
+<br>
+<input type="text" id="message"></input><button onclick="post()">Send Message</button>
+<br>
+<br>
+<button onclick="receive()">Receive Message</button>
+<br>
+<br>
+<div id="tag"></div>
 </body>
 <script src="js/simplity-min.js"></script>
 <script type="text/javascript">
-Simplity.getResponse("helloworld",null,onSuccess,onError);
+function post(){
+	var value = document.getElementById("message").value
+	var data = "{'message':'"+value+"'}"
+	Simplity.getResponse("jmsProducer",data,onSuccess,onError);
+}
+function receive(){
+	Simplity.getResponse("jmsConsumer",null,onSuccess,onError);
+}
 function onSuccess(response){
-	document.getElementById("hellotag").innerHTML = response.hello;
+	document.getElementById("tag").innerHTML = JSON.stringify(response);
 }
 function onError(response){
 	console.log(response);

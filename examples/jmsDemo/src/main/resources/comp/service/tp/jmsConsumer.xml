@@ -2,13 +2,15 @@
 <service
 	xmlns="http://www.simplity.org/schema"
 	name="jmsConsumer"
-	dbAccessType="none">
+	dbAccessType="none"
+	jmsUsage="notManaged">
 	<actions>
-		<jmsConsumer>
-			<requestQueue queueName="Queue01" extractAll="true"/>
+		<jmsConsumer waitForMessage="false" consumeAll="true">
+			<requestQueue queueName="jms/Queue01" extractAll="true"/>
 			<actions>
-				<log names="hello"/>
+				<log names="message"/>
 			</actions>
 		</jmsConsumer>
 	</actions>
+	<outputData fieldNames="message"></outputData>
 </service>
