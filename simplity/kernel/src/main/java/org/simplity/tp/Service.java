@@ -407,7 +407,7 @@ public class Service implements ServiceInterface {
 		/*
 		 * are we to manage our own transaction?
 		 */
-		if(useOwnDriverForTransaction && this.needTransaction()){
+		if(useOwnDriverForTransaction){
 			ApplicationError err = this.executeService(ctx);
 			if(err != null){
 				throw err;

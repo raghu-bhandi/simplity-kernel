@@ -3,7 +3,7 @@
 	moduleName="dbactions"
 	xmlns="http://www.simplity.org/schema"
 	name="callSqlqueryCust"
-	dbAccessType="readOnly"
+	dbAccessType="readOnly"	
 >
 	<inputData>
 		<inputFields>
