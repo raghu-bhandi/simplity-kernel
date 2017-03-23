@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sql
+	name="queryMultiSchema"
+	sqlType="singleSelect"
+	xmlns="http://www.simplity.org/schema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.simplity.org/schema http://www.simplity.org/schema "
+>
+	<inputParameters>
+		<sqlParameter dataType="_text" name="agentCode"/>
+	</inputParameters>
+	<preparedStatement>SELECT A.AGENT_NAME,B.PHONE_NO from AGENTS A,TEST_SCHEMA.AGENTS B where A.AGENT_CODE = B.AGENT_CODE AND A.AGENT_CODE = ?</preparedStatement>
+	<outputParameters>
+		<sqlParameter
+			dataType="_text"
+			name="agentName" />
+	<sqlParameter
+			dataType="_text"
+			name="phoneNo" />			
+	</outputParameters>
+</sql>

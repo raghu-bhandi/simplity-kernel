@@ -26,6 +26,9 @@
 <button onclick="callSubservice()">Invoke DB Lookup - as Subservice with mixed schema</button>
 </br>
 </br>
+<button onclick="callSQlMixedSchema()">Invoke DB Lookup - SQL with mixed schema</button>
+</br>
+</br>
 <button onclick="callSQL()">Call SQL</button>
 <br>
 <br>
@@ -69,7 +72,11 @@ function callSubservice(){
 function callCustomer(){
 	Simplity.getResponse("filter_tables.customer",null,onSuccess,onError);
 }
-
+function callSQlMixedSchema(){
+	var data = "{'agentCode':'A003'}"
+	Simplity.getResponse("dbactions.callSqlMixed",data,onSuccess,onError);
+	
+}
 function callSQL(){
 	var data = "{'custCode':'C00013'}"
 	Simplity.getResponse("dbactions.callSqlqueryCust",data,onSuccess,onError);
