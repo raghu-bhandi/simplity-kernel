@@ -4104,10 +4104,20 @@
 							<xs:documentation>Use this if this is a batch service to be run
 								repeatedly. number of seconds between two runs start-to-start.
 								However, in case the current run takes longer, next run will
-								wait
-								for this to complete before starting. keep it as 0 if this
-								is a
-								lsitner/backgroud job that is run just once.
+								wait for this to complete before starting. keep it as 0 if this
+								is a lsitner/backgroud job that is run just once.
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="runAtTheseTimes"
+						use="optional"
+						type="xs:string"
+					>
+						<xs:annotation>
+							<xs:documentation>If the scheduling is by time of the day, use
+								this option to specify comma separated list of times in 24Hr
+								format upto minute (hh:mm, hh:mm, ...)
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>

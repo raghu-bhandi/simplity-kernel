@@ -185,9 +185,7 @@ public class DateUtil {
 	 *         date that would print in UTC as '2016-08-20T00:00:00.000Z'
 	 */
 	public static Date getToday() {
-		Date date = new Date();
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
 		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);

@@ -40,6 +40,7 @@ public class ListenerJob implements ScheduledJob{
 	private Value userId;
 	private RunningJob[] runningJobs;
 	private Object[] futures;
+	private boolean isScheduled;
 
 	ListenerJob(Job job, Value userId){
 		this.scheduledJob = job;
@@ -55,22 +56,31 @@ public class ListenerJob implements ScheduledJob{
 	 * @see org.simplity.job.ScheduledJob#schedule(java.util.concurrent.ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public void schedule(ScheduledThreadPoolExecutor executor) {
+	public boolean schedule(ScheduledThreadPoolExecutor executor) {
+		if(this.isScheduled){
+			Tracer.trace(this.scheduledJob.name + " is already scheduled");
+			return false;
+		}
 		for(int i = 0; i < this.runningJobs.length;i++){
 			RunningJob rj = this.scheduledJob.createRunningJob(this.userId);
 			this.runningJobs[i] = rj;
 			this.futures[i] = executor.submit(rj);
 		}
+		this.isScheduled = true;
+		return false;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.simplity.job.ScheduledJob#shutDownGracefully(java.util.concurrent.ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public void shutDown(ScheduledThreadPoolExecutor executor) {
+	public void cancel(ScheduledThreadPoolExecutor executor) {
 		for(Object obj : this.futures){
-			((Future<?>)obj).cancel(true);
+			if(obj != null){
+				((Future<?>)obj).cancel(true);
+			}
 		}
+		this.isScheduled = false;
 	}
 
 	/* (non-Javadoc)
@@ -78,6 +88,10 @@ public class ListenerJob implements ScheduledJob{
 	 */
 	@Override
 	public void incrmentThread(ScheduledThreadPoolExecutor executor) {
+		if(this.isScheduled == false){
+			Tracer.trace(this.scheduledJob.name + " is not scheduled");
+			return;
+		}
 		int nbr = this.runningJobs.length;
 		RunningJob[] newJobs = new RunningJob[nbr + 1];
 		this.copyJobs(this.runningJobs, newJobs, nbr);
@@ -107,6 +121,10 @@ public class ListenerJob implements ScheduledJob{
 	 */
 	@Override
 	public void decrmentThread(ScheduledThreadPoolExecutor executor) {
+		if(this.isScheduled == false){
+			Tracer.trace(this.scheduledJob.name + " is not scheduled");
+			return;
+		}
 		int nbr = this.runningJobs.length - 1;
 		if(nbr == 0){
 			Tracer.trace("Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
@@ -130,10 +148,13 @@ public class ListenerJob implements ScheduledJob{
 		int i = 0;
 		String name = this.scheduledJob.name;
 		String sname = this.scheduledJob.serviceName;
+
 		for(RunningJob job : this.runningJobs){
 			Future<?> f = (Future<?>)this.futures[i];
 			JobStatus sts;
-			if(f.isCancelled()){
+			if(f == null){
+				sts = JobStatus.SCHEDULED;
+			}else if(f.isCancelled()){
 				sts = JobStatus.CANCELLED;
 			}else{
 				sts = job.jobStatus;
@@ -141,5 +162,12 @@ public class ListenerJob implements ScheduledJob{
 			RunningJobInfo info = new RunningJobInfo(name, sname, sts, i++, "");
 			infoList.add(info);
 		}
+	}
+	/* (non-Javadoc)
+	 * @see org.simplity.job.ScheduledJob#poll(int)
+	 */
+	@Override
+	public int poll(int referenceMinutes) {
+		return ScheduledJob.NEVER;
 	}
 }

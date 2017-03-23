@@ -22,6 +22,8 @@
 
 package org.simplity.job;
 
+import java.util.Arrays;
+
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -47,7 +49,7 @@ public class Job {
 	/**
 	 * this job is to be fired at these times on a 24 hour clock.
 	 */
-	//String[] runAtTheseTimes;
+	String[] runAtTheseTimes;
 	/**
 	 * this job is to be run every so many seconds
 	 */
@@ -80,6 +82,11 @@ public class Job {
 	 * cached during getReady();
 	 */
 	private Value userIdValue;
+
+	/**
+	 * number of minutes elapsed for the day
+	 */
+	private int[] timesOfDay;
 
 
 	/**
@@ -128,6 +135,9 @@ public class Job {
 				field.getReady();
 			}
 		}
+		if(this.runAtTheseTimes != null){
+			this.setTimes();
+		}
 	}
 
 	/**
@@ -138,6 +148,9 @@ public class Job {
 		Value val = this.userIdValue;
 		if(val == null){
 			val = uid;
+		}
+		if(this.timesOfDay != null){
+			return new DayJob(this, val, this.timesOfDay);
 		}
 		if(this.runInterval > 0){
 			return new BatchJob(this, val);
@@ -166,5 +179,23 @@ public class Job {
 			}
 		}
 		return new RunningJob(service, inData);
+	}
+
+	private void setTimes(){
+		this.timesOfDay = new int[this.runAtTheseTimes.length];
+		for(int i = 0; i < this.timesOfDay.length; i++){
+			String[] pair = this.runAtTheseTimes[i].split(":");
+			if(pair.length != 2){
+				throw new ApplicationError("Job " + this.name + " has an invalied time-of-day " + this.runAtTheseTimes[i] + ". hh:mm, hh:mm,..  formatis expected.");
+			}
+			try{
+				int hh = Integer.parseInt(pair[0].trim(), 10);
+				int mm = Integer.parseInt(pair[1].trim(), 10);
+				this.timesOfDay[i] = hh * 60 + mm;
+			}catch(Exception e){
+				throw new ApplicationError("Job " + this.name + " has an invalied time-of-day " + this.runAtTheseTimes[i] + ". hh:mm, hh:mm,..  formatis expected.");
+			}
+		}
+		Arrays.sort(this.timesOfDay);
 	}
 }
