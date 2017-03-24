@@ -3980,7 +3980,7 @@
 		</xs:restriction>
 	</xs:simpleType>
 
-	<xs:element name="jobs">
+	<xs:element name="batch">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element
@@ -4000,7 +4000,7 @@
 			>
 				<xs:annotation>
 					<xs:documentation>maximum number of threads to be allocated to the
-						jobs. This is same as corePoolSize of java
+						batch. This is same as corePoolSize of java
 						ScheduledThreadPoolExecutor that we use below the carpet
 					</xs:documentation>
 				</xs:annotation>
@@ -4023,7 +4023,7 @@
 				type="xs:string"
 			>
 				<xs:annotation>
-					<xs:documentation>userId to be used for running the jobs. Defults
+					<xs:documentation>userId to be used for running the batch. Defults
 						to setting in Application.xml, or "100". Over-ridden by the
 						setting at job level.
 					</xs:documentation>

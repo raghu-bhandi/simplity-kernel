@@ -94,12 +94,16 @@ public class Job {
 	 * @param service
 	 * @param interval
 	 * @param nbrThreads
+	 * @param times
 	 */
-	public Job(String jobName, String service, int interval, int nbrThreads) {
+	public Job(String jobName, String service, int interval, int nbrThreads, String times) {
 		this.name = jobName;
 		this.serviceName = service;
 		this.runInterval = interval;
 		this.nbrDedicatedThreads = nbrThreads;
+		if(times!= null){
+			this.runAtTheseTimes = times.split(",");
+		}
 	}
 
 	/**

@@ -26,8 +26,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.simplity.job.Batch;
 import org.simplity.job.Job;
-import org.simplity.job.Jobs;
 import org.simplity.job.RunningJobInfo;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.Messages;
@@ -37,6 +37,7 @@ import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.AbstractService;
 import org.simplity.service.ServiceContext;
+import org.simplity.tp.LogicInterface;
 
 /**
  * Example of a class that implements a full service
@@ -44,18 +45,19 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class JobsManager extends AbstractService {
+public class BatchManager extends AbstractService implements LogicInterface{
 	private static final String MY_NAME = "JobsManager";
 
 	/*
 	 * field names
 	 */
-	private static final String ACTION = "jobAction";
+	private static final String ACTION = "batchAction";
 	private static final String JOB_NAME = "jobName";
 	private static final String BATCH_NAME = "batchName";
 	private static final String INTERVAL = "interval";
 	private static final String NBR_THREADS = "nbrThreads";
 	private static final String SERVICE_NAME = "serviceName";
+	private static final String RUN_AT_THESE_TIMES = "runAtTheseTimes";
 	/*
 	 * valid actions/commands
 	 */
@@ -113,22 +115,22 @@ public class JobsManager extends AbstractService {
 		 * we make use of the default input-output in AbstractService and put
 		 * our logic here, so that we can also be called by other services
 		 */
-		Jobs jobs = Jobs.getCurrentInstance();
+		Batch batch = Batch.getCurrentInstance();
 
 		/*
 		 * when no batch is running
 		 */
-		if (jobs == null) {
+		if (batch == null) {
 			if (action == null || action.equals(START) == false) {
 				ctx.addMessage(Messages.ERROR, "No batch is running. Use start action to start  a batch.");
 				return Value.VALUE_FALSE;
 			}
 			if (batchName == null) {
-				jobs = Jobs.startEmptyScheduler();
+				batch = Batch.startEmptyScheduler();
 			} else {
-				jobs = Jobs.ScheduleJobs(batchName);
+				batch = Batch.ScheduleJobs(batchName);
 			}
-			if (jobs == null) {
+			if (batch == null) {
 				ctx.addMessage(Messages.ERROR, "Batch could not be started. Look at logs for mre details..");
 				return Value.VALUE_FALSE;
 			}
@@ -139,7 +141,7 @@ public class JobsManager extends AbstractService {
 		 * default action is get status
 		 */
 		if (action == null || action.equals(STATUS)) {
-			RunningJobInfo[] infoList = jobs.getStatus(jobName);
+			RunningJobInfo[] infoList = batch.getStatus(jobName);
 			DataSheet ds = RunningJobInfo.toDataSheet(infoList);
 			ctx.putDataSheet(SHEET_NAME, ds);
 			return Value.VALUE_TRUE;
@@ -157,7 +159,7 @@ public class JobsManager extends AbstractService {
 		 */
 		if (action.equals(STOP)) {
 			ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
-			Jobs.stopScheduler();
+			Batch.stopScheduler();
 			return Value.VALUE_TRUE;
 		}
 		/*
@@ -167,10 +169,10 @@ public class JobsManager extends AbstractService {
 			if (jobName == null) {
 				ctx.addMessage(Messages.INFO,
 						"Initiated shutdown of all jobs. Note that the batch would still be active. use stop before using next start.");
-				jobs.cancelAll();
+				batch.cancelAll();
 			} else {
 				ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
-				jobs.cancelJob(jobName);
+				batch.cancelJob(jobName);
 			}
 			return Value.VALUE_TRUE;
 		}
@@ -184,7 +186,7 @@ public class JobsManager extends AbstractService {
 
 		if (action.equals(INCR)) {
 			ctx.addMessage(Messages.INFO, "Initiated addition of a thread for job " + jobName);
-			jobs.incrmentThread(jobName);
+			batch.incrmentThread(jobName);
 			return Value.VALUE_TRUE;
 		}
 
@@ -193,7 +195,7 @@ public class JobsManager extends AbstractService {
 		 */
 		if (action.equals(DECR)) {
 			ctx.addMessage(Messages.INFO, "Initiated stopping of a thread for job " + jobName);
-			jobs.decrmentThread(jobName);
+			batch.decrmentThread(jobName);
 			return Value.VALUE_TRUE;
 		}
 
@@ -202,7 +204,7 @@ public class JobsManager extends AbstractService {
 		 */
 		if (action.equals(RESTART)) {
 			ctx.addMessage(Messages.INFO, "Initiated stestart of job " + jobName);
-			jobs.reschedule(jobName);
+			batch.reschedule(jobName);
 			return Value.VALUE_TRUE;
 		}
 
@@ -215,17 +217,26 @@ public class JobsManager extends AbstractService {
 				ctx.addMessage(Messages.VALUE_REQUIRED, SERVICE_NAME);
 				return Value.VALUE_FALSE;
 			}
+			String times = ctx.getTextValue(RUN_AT_THESE_TIMES);
 			int nbrThreads = (int) ctx.getLongValue(NBR_THREADS);
 			int interval = (int) ctx.getLongValue(INTERVAL);
-			Job job = new Job(jobName, serviceName, interval, nbrThreads);
+			Job job = new Job(jobName, serviceName, interval, nbrThreads, times);
 			job.getReady();
 			ctx.addMessage(Messages.INFO, "added job " + jobName + " to scheduler..");
-			jobs.scheduleJob(job);
+			batch.scheduleJob(job);
 			return Value.VALUE_TRUE;
 		}
 
 		ctx.addMessage(Messages.INVALID_VALUE, ACTION, action);
 		return Value.VALUE_FALSE;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.tp.LogicInterface#execute(org.simplity.service.ServiceContext)
+	 */
+	@Override
+	public Value execute(ServiceContext ctx) {
+		return this.executeAsAction(ctx, null, false);
 	}
 
 	/**
@@ -242,7 +253,7 @@ public class JobsManager extends AbstractService {
 		System.out.println("Probably start is the best way to start :-)");
 		String action = null;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		JobsManager manager = new JobsManager();
+		BatchManager manager = new BatchManager();
 		ServiceContext ctx;
 		String sn = "unknown";
 		Value userId = Value.newTextValue("420");
@@ -275,6 +286,7 @@ public class JobsManager extends AbstractService {
 					getInput(reader, SERVICE_NAME, ctx, false);
 					getInput(reader, INTERVAL, ctx, true);
 					getInput(reader, NBR_THREADS, ctx, true);
+					getInput(reader, RUN_AT_THESE_TIMES, ctx, false);
 				}
 			}
 			manager.executeAsAction(ctx, null, false);
