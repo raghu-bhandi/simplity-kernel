@@ -191,11 +191,12 @@ public abstract class AbstractService implements ServiceInterface {
 
 		String payload = inData.getPayLoad();
 		if (payload == null) {
-			Tracer.trace("No input fromclient");
+			Tracer.trace("No input from client");
 			return ctx;
 		}
 
 		JsonUtil.extractAll(payload, ctx);
+		Tracer.trace(ctx.getAllFields().size() + " fields extracted ");
 		return ctx;
 	}
 

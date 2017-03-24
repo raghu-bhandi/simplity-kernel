@@ -260,7 +260,8 @@ public class Service implements ServiceInterface {
 	 * execute this service carefully managing the resources. Ensure that there
 	 * is no leakage
 	 *
-	 * @param ctx service context
+	 * @param ctx
+	 *            service context
 	 * @return application error if the service generated one. null is all ok
 	 */
 	private ApplicationError executeService(ServiceContext ctx) {
@@ -391,30 +392,62 @@ public class Service implements ServiceInterface {
 
 	}
 
-	private boolean needTransaction(){
-		if(this.dbAccessType != null){
-			if(this.dbAccessType.updatesDb()){
+	private boolean canWorkWithDriver(DbDriver driver) {
+		/*
+		 * use of JMS may trigger this irrespective of db access
+		 */
+		if (this.jmsUsage == JmsUsage.SERVICE_MANAGED || this.jmsUsage == JmsUsage.EXTERNALLY_MANAGED) {
+			return false;
+		}
+		/*
+		 * if we do not need it all, anything will do..
+		 */
+		if (this.dbAccessType == null || this.dbAccessType == DbAccessType.NONE) {
+			return true;
+		}
+		/*
+		 * can not work with null.
+		 */
+		if (driver == null) {
+			return false;
+		}
+
+		/*
+		 * may be we can get away for reads
+		 */
+		if (this.dbAccessType == DbAccessType.READ_ONLY) {
+			if (this.schemaName == null || this.schemaName.equalsIgnoreCase(driver.getSchema())) {
 				return true;
 			}
 		}
-		if(this.jmsUsage == JmsUsage.SERVICE_MANAGED || this.jmsUsage == JmsUsage.EXTERNALLY_MANAGED){
-			return true;
-		}
+
+		/*
+		 * we tried our best to re-use... but failed
+		 */
 		return false;
 	}
+
 	@Override
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction) {
+	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean transactionIsDelegated) {
 		/*
 		 * are we to manage our own transaction?
 		 */
-		if(useOwnDriverForTransaction){
-			ApplicationError err = this.executeService(ctx);
-			if(err != null){
-				throw err;
+		if (transactionIsDelegated) {
+			if (this.canWorkWithDriver(driver) == false) {
+				/*
+				 * execute this as a service
+				 */
+				ApplicationError err = this.executeService(ctx);
+				if (err != null) {
+					throw err;
+				}
 			}
 			return Value.VALUE_TRUE;
 		}
 
+		/*
+		 * this is a simple action
+		 */
 		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
 		boolean result = worker.workWithDriver(driver);
 		if (result) {

@@ -43,76 +43,76 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  *
  */
-public class Jobs {
+public class Batch {
 
-	private static Jobs myInstance;
+	private static Batch batchInstance;
 
 	/**
 	 *
 	 * @return current instance that can be used for managing running jobs
 	 */
-	public static Jobs getCurrentInstance() {
-		return myInstance;
+	public static Batch getCurrentInstance() {
+		return batchInstance;
 	}
 
 	/**
 	 * start an empty one. Jobs may be added later..
 	 * @return instance of jobs that can be used for managing running jobs
 	 */
-	public static Jobs startEmptyScheduler() {
+	public static Batch startEmptyScheduler() {
 		return load(null);
 	}
 
 	/**
-	 * schedule jobs from a non-default resource
+	 * schedule batch from a non-default resource
 	 *
-	 * @param jobsName
+	 * @param batchName
 	 *            name of the jobs resource under Jobs folder to be used.
 	 *
 	 * @return instance of jobs that can be used for managing running jobs
 	 */
 
-	public static Jobs ScheduleJobs(String jobsName) {
-		return load(jobsName);
+	public static Batch ScheduleJobs(String batchName) {
+		return load(batchName);
 	}
 
 	/**
 	 * stop the scheduler after bringing down all running jobs
 	 */
 	public static void stopScheduler(){
-		if(myInstance != null){
-			myInstance.stop();
-			myInstance = null;
+		if(batchInstance != null){
+			batchInstance.stop();
+			batchInstance = null;
 		}
 	}
-	private static Jobs load(String jobsName) {
-		if (myInstance != null) {
+	private static Batch load(String batchName) {
+		if (batchInstance != null) {
 			throw new ApplicationError(
 					"Jobs are already running. Bring them down before re-running, or incrmentally add ad-hoc jobs");
 		}
-		myInstance = new Jobs();
-		if(jobsName == null){
-			myInstance.jobs = new Job[0];
-			myInstance.maxThreads = 100;
-			myInstance.name = "dummy";
+		batchInstance = new Batch();
+		if(batchName == null){
+			batchInstance.jobs = new Job[0];
+			batchInstance.maxThreads = 100;
+			batchInstance.name = "dummy";
 		}else{
-			String fileName = ComponentManager.getComponentFolder() + "jobs/" + jobsName + ".xml";
+			String fileName = ComponentManager.getComponentFolder() + "batch/" + batchName + ".xml";
 			try {
-				XmlUtil.xmlToObject(fileName, myInstance);
+				XmlUtil.xmlToObject(fileName, batchInstance);
 			} catch (XmlParseException e) {
 				throw new ApplicationError("Resource " + fileName + " has syntax errors.");
 			}
-			if (myInstance.name == null || myInstance.name.equals(jobsName) == false) {
+			if (batchInstance.name == null || batchInstance.name.equals(batchName) == false) {
 				throw new ApplicationError(
 						"You must follow a naming convention where name matches the file in which it is saved.");
 			}
 		}
-		myInstance.execute();
-		return myInstance;
+		batchInstance.execute();
+		return batchInstance;
 	}
 
 	/**
-	 * name of this batch jobs. Should match the file name.
+	 * name of this batch. Should match the file name.
 	 */
 	String name;
 
@@ -141,8 +141,15 @@ public class Jobs {
 
 	private Map<String, ScheduledJob> scheduledJobs = new HashMap<String, ScheduledJob>();
 
+	private ScheduledJob[] polledJobs;
 	/**
-	 *
+	 * our scheduler for time-of-day jobs
+	 */
+	private TimeOfDayScheduler scheduler;
+
+
+	/**
+	 * execute this batch
 	 */
 	public void execute() {
 		this.getReady();
@@ -169,10 +176,19 @@ public class Jobs {
 		this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
 		this.executor.setRemoveOnCancelPolicy(true);
 		Value userId = this.getUserId();
+		List<ScheduledJob> pollers = new ArrayList<ScheduledJob>();
 		for (Job job : this.jobs) {
 			ScheduledJob sj = job.getScheduledJob(userId);
 			this.scheduledJobs.put(job.name, sj);
-			sj.schedule(this.executor);
+			boolean needPolling = sj.schedule(this.executor);
+			if(needPolling){
+				pollers.add(sj);
+			}
+		}
+		if(pollers.size() > 0){
+			this.polledJobs = pollers.toArray(new ScheduledJob[0]);
+			this.scheduler = new TimeOfDayScheduler(this.polledJobs);
+			new Thread(this.scheduler).run();
 		}
 	}
 
@@ -181,12 +197,17 @@ public class Jobs {
 	 *
 	 */
 	public void stop() {
+		if(this.scheduler != null){
+			this.scheduler.interrupt(false);
+		}
 		this.cancelAll();
-		this.executor.shutdownNow();
+		if(this.executor != null){
+			this.executor.shutdownNow();
+		}
 	}
 
 	/**
-	 * gracefully stop a job
+	 * cancel a job. interrupt it if it is running
 	 *
 	 * @param jobName
 	 */
@@ -200,7 +221,7 @@ public class Jobs {
 			Tracer.trace("No job named " + jobName);
 			return;
 		}
-		job.shutDown(this.executor);
+		job.cancel(this.executor);
 	}
 
 	/**
@@ -219,42 +240,12 @@ public class Jobs {
 		job.schedule(this.executor);
 	}
 	/**
-	 * gracefully stop all jobs
+	 * cancel all jobs
 	 */
 	public void cancelAll() {
 		for (ScheduledJob job : this.scheduledJobs.values()) {
-			job.shutDown(this.executor);
+			job.cancel(this.executor);
 		}
-		this.scheduledJobs.clear();
-	}
-
-	/**
-	 * force job to shut down. Job is not given an option to quit on its own
-	 *
-	 * @param jobName
-	 */
-	public void forceShutDown(String jobName) {
-		if(jobName == null){
-			this.forceShutDownAll();
-			return;
-		}
-		ScheduledJob job = this.scheduledJobs.get(jobName);
-		if (job == null) {
-			Tracer.trace("No job named " + jobName);
-			return;
-		}
-		job.shutDown(this.executor);
-	}
-
-	/**
-	 * force jobs to shut down. Jobs are not given an option to quit on their
-	 * own
-	 */
-	public void forceShutDownAll() {
-		for (ScheduledJob job : this.scheduledJobs.values()) {
-			job.shutDown(this.executor);
-		}
-		this.scheduledJobs.clear();
 	}
 
 	/**
@@ -330,10 +321,35 @@ public class Jobs {
 					+ " is already running. Choose a different name for your job if you insist on running it");
 		}
 		ScheduledJob sjob = job.getScheduledJob(this.getUserId());
-		sjob.schedule(this.executor);
+		boolean isPolled = sjob.schedule(this.executor);
+		if(isPolled){
+			this.restartScheduler(sjob);
+		}
 		this.scheduledJobs.put(job.name, sjob);
 		return null;
 
+	}
+
+	/**
+	 * @param job
+	 */
+	private void restartScheduler(ScheduledJob job) {
+		/*
+		 * add this job to the polled jobs array
+		 */
+		int nbr = this.polledJobs.length;
+		ScheduledJob[] newOnes = new ScheduledJob[nbr+1];
+		newOnes[nbr] = job;
+		for(int i = 0;i < this.polledJobs.length; i++){
+			newOnes[i] = this.polledJobs[i];
+		}
+		this.polledJobs = newOnes;
+		/*
+		 * bring down current one before creating a new one
+		 */
+		this.scheduler.interrupt(false);
+		this.scheduler = new TimeOfDayScheduler(this.polledJobs);
+		new Thread(this.scheduler).run();
 	}
 
 	/*
@@ -370,6 +386,5 @@ public class Jobs {
 		for (Job job : this.jobs) {
 			job.getReady();
 		}
-
 	}
 }

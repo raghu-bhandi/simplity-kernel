@@ -239,6 +239,10 @@ public class DbDriver {
 	private DbAccessType accessType;
 
 	/**
+	 * schema used by this connection
+	 */
+	private String schemaName;
+	/**
 	 * set up to be called before any db operation can be done
 	 *
 	 * @param vendor
@@ -488,7 +492,7 @@ public class DbDriver {
 		if (accType != DbAccessType.NONE) {
 			con = getConnection(accType, schema);
 		}
-		DbDriver driver = new DbDriver(con, accType);
+		DbDriver driver = new DbDriver(con, accType, schema);
 		boolean allOk = false;
 		Exception exception = null;
 		try {
@@ -629,11 +633,19 @@ public class DbDriver {
 	 * @param con
 	 * @param dbAccessType
 	 */
-	private DbDriver(Connection con, DbAccessType dbAccessType) {
+	private DbDriver(Connection con, DbAccessType dbAccessType, String schema) {
 		this.connection = con;
 		this.accessType = dbAccessType;
+		this.schemaName = schema;
 	}
 
+	/**
+	 *
+	 * @return schema with which this connection is associated with
+	 */
+	public String getSchema(){
+		return this.schemaName;
+	}
 	/**
 	 * extract output from sql into data sheet
 	 *
@@ -1910,6 +1922,7 @@ public class DbDriver {
 			this.closeStatment(stmt);
 		}
 	}
+
 
 	/**
 	 *

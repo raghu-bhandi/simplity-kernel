@@ -34,23 +34,35 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  */
 public interface ScheduledJob {
 	/**
-	 * schedule running jobs using the executor
-	 * @param executor
+	 * due at value to denote that this job will nt submit again
 	 */
-	public void schedule(ScheduledThreadPoolExecutor executor);
+	public static final int NEVER = -1;
+
+	/**
+	 * schedule running jobs using the executor
+	 *
+	 * @param executor
+	 * @return true if this needs polling. false if executor can manage its
+	 *         scheduling
+	 */
+	public boolean schedule(ScheduledThreadPoolExecutor executor);
 
 	/**
 	 * @param executor
 	 */
-	public void shutDown(ScheduledThreadPoolExecutor executor);
+	public void cancel(ScheduledThreadPoolExecutor executor);
+
 	/**
-	 * add another thread to this job. ignored if this is a batch job, or if there is only one thread at this time
+	 * add another thread to this job. ignored if this is a batch job, or if
+	 * there is only one thread at this time
+	 *
 	 * @param executor
 	 */
 	public void incrmentThread(ScheduledThreadPoolExecutor executor);
 
 	/**
-	 * reduce a thread from this job. ignored if this is a batch job, or if there is only one thread at this time
+	 * reduce a thread from this job. ignored if this is a batch job, or if
+	 * there is only one thread at this time
 	 *
 	 * @param executor
 	 */
@@ -58,7 +70,19 @@ public interface ScheduledJob {
 
 	/**
 	 * add status of running jobs into the list
+	 *
 	 * @param infoList
 	 */
 	public void putStatus(List<RunningJobInfo> infoList);
+
+	/**
+	 * poll wake-up for the scheduled job to check whether it should submit
+	 * returned value is the number of minutes remaining for this job. This can
+	 * be used by the caller to optimize polling, if at all required. Since we
+	 * are talking about minutes, blind polling itself should be fine
+	 *
+	 * @param referenceMinutes
+	 * @return number of minutes. NEVER to indicate that this job need not be
+	 */
+	public int poll(int referenceMinutes);
 }
