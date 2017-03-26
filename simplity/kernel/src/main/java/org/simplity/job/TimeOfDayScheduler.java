@@ -34,6 +34,8 @@ import org.simplity.kernel.Tracer;
  *
  */
 public class TimeOfDayScheduler implements Runnable {
+	private static final int MAX_MINUTES = 24 * 60;
+
 	/*
 	 * design: polls on each of the job. next poll is the least of the values
 	 * returned. Not tracking NEVER returned by poll, and we continue to poll
@@ -87,11 +89,12 @@ public class TimeOfDayScheduler implements Runnable {
 		this.thread = Thread.currentThread();
 		Tracer.trace("TimeOfDay scheduler started.");
 		while (true) {
-			int nextDue = Integer.MAX_VALUE;
+			int nextDue = MAX_MINUTES;
 			Calendar cal = Calendar.getInstance();
 			int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
 			for (ScheduledJob job : this.pollers) {
 				int n = job.poll(minutes);
+				Tracer.trace("Job " + job.scheduledJob.name + " can wait for " + n + " minutes");
 				if (n > 0 && n < nextDue) {
 					nextDue = n;
 				}

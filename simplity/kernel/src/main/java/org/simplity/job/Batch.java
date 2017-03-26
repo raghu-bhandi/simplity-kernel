@@ -32,9 +32,10 @@ import java.util.concurrent.ThreadFactory;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
+import org.simplity.kernel.comp.Component;
 import org.simplity.kernel.comp.ComponentManager;
-import org.simplity.kernel.util.XmlParseException;
-import org.simplity.kernel.util.XmlUtil;
+import org.simplity.kernel.comp.ComponentType;
+import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.value.Value;
 
 /**
@@ -43,7 +44,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  *
  */
-public class Batch {
+public class Batch implements Component {
 
 	private static Batch batchInstance;
 
@@ -57,10 +58,17 @@ public class Batch {
 
 	/**
 	 * start an empty one. Jobs may be added later..
+	 *
 	 * @return instance of jobs that can be used for managing running jobs
 	 */
-	public static Batch startEmptyScheduler() {
-		return load(null);
+	public static Batch startEmptyBatch() {
+		batchInstance = new Batch();
+		batchInstance.jobs = new Job[0];
+		batchInstance.maxThreads = 100;
+		batchInstance.name = "dummy";
+		batchInstance.getReady();
+		batchInstance.start();
+		return batchInstance;
 	}
 
 	/**
@@ -72,42 +80,30 @@ public class Batch {
 	 * @return instance of jobs that can be used for managing running jobs
 	 */
 
-	public static Batch ScheduleJobs(String batchName) {
+	public static Batch startBatch(String batchName) {
+		if (batchName == null || batchName.isEmpty()) {
+			return startEmptyBatch();
+		}
 		return load(batchName);
 	}
 
 	/**
 	 * stop the scheduler after bringing down all running jobs
 	 */
-	public static void stopScheduler(){
-		if(batchInstance != null){
+	public static void stopBatch() {
+		if (batchInstance != null) {
 			batchInstance.stop();
 			batchInstance = null;
 		}
 	}
+
 	private static Batch load(String batchName) {
 		if (batchInstance != null) {
 			throw new ApplicationError(
 					"Jobs are already running. Bring them down before re-running, or incrmentally add ad-hoc jobs");
 		}
-		batchInstance = new Batch();
-		if(batchName == null){
-			batchInstance.jobs = new Job[0];
-			batchInstance.maxThreads = 100;
-			batchInstance.name = "dummy";
-		}else{
-			String fileName = ComponentManager.getComponentFolder() + "batch/" + batchName + ".xml";
-			try {
-				XmlUtil.xmlToObject(fileName, batchInstance);
-			} catch (XmlParseException e) {
-				throw new ApplicationError("Resource " + fileName + " has syntax errors.");
-			}
-			if (batchInstance.name == null || batchInstance.name.equals(batchName) == false) {
-				throw new ApplicationError(
-						"You must follow a naming convention where name matches the file in which it is saved.");
-			}
-		}
-		batchInstance.execute();
+		batchInstance = ComponentManager.getBatch(batchName);
+		batchInstance.start();
 		return batchInstance;
 	}
 
@@ -116,6 +112,10 @@ public class Batch {
 	 */
 	String name;
 
+	/**
+	 * module name
+	 */
+	String moduleName;
 	/**
 	 * maximum number of threads to be utilized for running all the jobs.
 	 */
@@ -147,12 +147,10 @@ public class Batch {
 	 */
 	private TimeOfDayScheduler scheduler;
 
-
 	/**
 	 * execute this batch
 	 */
-	public void execute() {
-		this.getReady();
+	private void start() {
 		if (this.executor != null) {
 			throw new ApplicationError(
 					"Jobs are already getting executed while another attempt is being made to execute them.");
@@ -170,7 +168,8 @@ public class Batch {
 			this.executor = new ScheduledThreadPoolExecutor(this.maxThreads);
 		}
 		/*
-		 * we want jobs to run only when the executor is active. That is, executor is not just a submitter, but manager
+		 * we want jobs to run only when the executor is active. That is,
+		 * executor is not just a submitter, but manager
 		 */
 		this.executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
 		this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
@@ -178,17 +177,17 @@ public class Batch {
 		Value userId = this.getUserId();
 		List<ScheduledJob> pollers = new ArrayList<ScheduledJob>();
 		for (Job job : this.jobs) {
-			ScheduledJob sj = job.getScheduledJob(userId);
+			ScheduledJob sj = job.createScheduledJob(userId);
 			this.scheduledJobs.put(job.name, sj);
 			boolean needPolling = sj.schedule(this.executor);
-			if(needPolling){
+			if (needPolling) {
 				pollers.add(sj);
 			}
 		}
-		if(pollers.size() > 0){
+		if (pollers.size() > 0) {
 			this.polledJobs = pollers.toArray(new ScheduledJob[0]);
 			this.scheduler = new TimeOfDayScheduler(this.polledJobs);
-			new Thread(this.scheduler).run();
+			new Thread(this.scheduler).start();
 		}
 	}
 
@@ -196,12 +195,12 @@ public class Batch {
 	 * bring down all running jobs and shutdown the scheduler
 	 *
 	 */
-	public void stop() {
-		if(this.scheduler != null){
+	private void stop() {
+		if (this.scheduler != null) {
 			this.scheduler.interrupt(false);
 		}
 		this.cancelAll();
-		if(this.executor != null){
+		if (this.executor != null) {
 			this.executor.shutdownNow();
 		}
 	}
@@ -212,7 +211,7 @@ public class Batch {
 	 * @param jobName
 	 */
 	public void cancelJob(String jobName) {
-		if(jobName == null){
+		if (jobName == null || jobName.isEmpty()) {
 			this.cancelAll();
 			return;
 		}
@@ -221,14 +220,14 @@ public class Batch {
 			Tracer.trace("No job named " + jobName);
 			return;
 		}
-		job.cancel(this.executor);
+		job.cancel();
 	}
 
 	/**
 	 * @param jobName
 	 */
 	public void reschedule(String jobName) {
-		if(jobName == null){
+		if (jobName == null || jobName.isEmpty()) {
 			Tracer.trace("No job name specified for rescheduling");
 			return;
 		}
@@ -239,12 +238,13 @@ public class Batch {
 		}
 		job.schedule(this.executor);
 	}
+
 	/**
 	 * cancel all jobs
 	 */
 	public void cancelAll() {
 		for (ScheduledJob job : this.scheduledJobs.values()) {
-			job.cancel(this.executor);
+			job.cancel();
 		}
 	}
 
@@ -320,16 +320,26 @@ public class Batch {
 			return ("Job named " + job.name
 					+ " is already running. Choose a different name for your job if you insist on running it");
 		}
-		ScheduledJob sjob = job.getScheduledJob(this.getUserId());
+		this.appendJob(job);
+		ScheduledJob sjob = job.createScheduledJob(this.getUserId());
 		boolean isPolled = sjob.schedule(this.executor);
-		if(isPolled){
+		this.scheduledJobs.put(job.name, sjob);
+		if (isPolled) {
 			this.restartScheduler(sjob);
 		}
-		this.scheduledJobs.put(job.name, sjob);
 		return null;
 
 	}
 
+	private void appendJob(Job job){
+		int nbr = this.jobs.length;
+		Job[] newJobs = new Job[nbr+1];
+		for(int i = 0; i < nbr; i++){
+			newJobs[i] = this.jobs[i];
+		}
+		newJobs[nbr] = job;
+		this.jobs = newJobs;
+	}
 	/**
 	 * @param job
 	 */
@@ -337,19 +347,21 @@ public class Batch {
 		/*
 		 * add this job to the polled jobs array
 		 */
-		int nbr = this.polledJobs.length;
-		ScheduledJob[] newOnes = new ScheduledJob[nbr+1];
-		newOnes[nbr] = job;
-		for(int i = 0;i < this.polledJobs.length; i++){
-			newOnes[i] = this.polledJobs[i];
+		if(this.polledJobs != null){
+			int nbr = this.polledJobs.length;
+			ScheduledJob[] newOnes = new ScheduledJob[nbr + 1];
+			newOnes[nbr] = job;
+			for (int i = 0; i < this.polledJobs.length; i++) {
+				newOnes[i] = this.polledJobs[i];
+			}
+			this.polledJobs = newOnes;
+			this.scheduler.interrupt(false);
+		}else{
+			this.polledJobs = new ScheduledJob[1];
+			this.polledJobs[0] = job;
 		}
-		this.polledJobs = newOnes;
-		/*
-		 * bring down current one before creating a new one
-		 */
-		this.scheduler.interrupt(false);
 		this.scheduler = new TimeOfDayScheduler(this.polledJobs);
-		new Thread(this.scheduler).run();
+		new Thread(this.scheduler).start();
 	}
 
 	/*
@@ -382,9 +394,68 @@ public class Batch {
 	/**
 	 *
 	 */
+	@Override
 	public void getReady() {
 		for (Job job : this.jobs) {
 			job.getReady();
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.kernel.comp.Component#getSimpleName()
+	 */
+	@Override
+	public String getSimpleName() {
+		return this.name;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.kernel.comp.Component#getQualifiedName()
+	 */
+	@Override
+	public String getQualifiedName() {
+		if (this.moduleName == null) {
+			return this.name;
+		}
+		return this.name + '.' + this.moduleName;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
+	 * ValidationContext)
+	 */
+	@Override
+	public int validate(ValidationContext vtx) {
+		vtx.beginValidation(ComponentType.BATCH, this.getQualifiedName());
+		int count = 0;
+
+		count += vtx.checkMandatoryField("name", this.name);
+		if (this.jobs == null || this.jobs.length == 0) {
+			vtx.addError("Batch hs no jobs to run");
+			count++;
+		} else {
+			for (Job job : this.jobs) {
+				count += job.validate(vtx);
+			}
+		}
+		vtx.endValidation();
+		return count;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.kernel.comp.Component#getComponentType()
+	 */
+	@Override
+	public ComponentType getComponentType() {
+		return ComponentType.BATCH;
 	}
 }

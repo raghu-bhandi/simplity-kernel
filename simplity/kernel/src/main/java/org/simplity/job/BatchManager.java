@@ -20,15 +20,12 @@
  * SOFTWARE.
  */
 
-package org.simplity.ide;
+package org.simplity.job;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import org.simplity.job.Batch;
-import org.simplity.job.Job;
-import org.simplity.job.RunningJobInfo;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.data.DataSheet;
@@ -67,8 +64,16 @@ public class BatchManager extends AbstractService implements LogicInterface{
 	private static final String DECR = "decr";
 	private static final String STATUS = "status";
 	private static final String CANCEL = "cancel";
-	private static final String RESTART = "restart";
+	private static final String SCHEDULE = "schedule";
 	private static final String NEW = "new";
+	private static final String USAGE = "USAGE\nstart batchName  : start a pre-defined batch\n" +
+	"start : start a blank batch to which you can add jobs with action=new\n" +
+			"stop : stop and unload current batch\n"+
+	"status : get status of all jobs\n" +
+			"status jobName : get status of this job\n" +
+	"cancel jobName : cancel/stop/unschedule/interrupt this job\n " +
+			"new jobName <interval> <nbrThreads> <runAtTheseTimes> : (provide one of the three params) add a new job and schedule it." +
+	"schedule jobName : reschedule a job that was previousy cancelled";
 
 	/*
 	 * others
@@ -109,6 +114,10 @@ public class BatchManager extends AbstractService implements LogicInterface{
 	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean transactionIsdelegated ) {
 
 		String action = ctx.getTextValue(ACTION);
+		if(action == null || action.isEmpty()){
+			ctx.addMessage(Messages.ERROR, USAGE);
+			return Value.VALUE_FALSE;
+		}
 		String batchName = ctx.getTextValue(BATCH_NAME);
 		String jobName = ctx.getTextValue(JOB_NAME);
 		/*
@@ -121,14 +130,14 @@ public class BatchManager extends AbstractService implements LogicInterface{
 		 * when no batch is running
 		 */
 		if (batch == null) {
-			if (action == null || action.equals(START) == false) {
-				ctx.addMessage(Messages.ERROR, "No batch is running. Use start action to start  a batch.");
+			if (action.equals(START) == false) {
+				ctx.addMessage(Messages.ERROR, "No batch is running. Use start action to start  a batch.\n" + USAGE);
 				return Value.VALUE_FALSE;
 			}
-			if (batchName == null) {
-				batch = Batch.startEmptyScheduler();
+			if (batchName == null || batchName.isEmpty()) {
+				batch = Batch.startEmptyBatch();
 			} else {
-				batch = Batch.ScheduleJobs(batchName);
+				batch = Batch.startBatch(batchName);
 			}
 			if (batch == null) {
 				ctx.addMessage(Messages.ERROR, "Batch could not be started. Look at logs for mre details..");
@@ -140,8 +149,13 @@ public class BatchManager extends AbstractService implements LogicInterface{
 		/*
 		 * default action is get status
 		 */
-		if (action == null || action.equals(STATUS)) {
-			RunningJobInfo[] infoList = batch.getStatus(jobName);
+		if (action.equals(STATUS)) {
+			RunningJobInfo[] infoList;
+			if(jobName == null){
+				infoList = batch.getStatus();
+			}else{
+				infoList = batch.getStatus(jobName);
+			}
 			DataSheet ds = RunningJobInfo.toDataSheet(infoList);
 			ctx.putDataSheet(SHEET_NAME, ds);
 			return Value.VALUE_TRUE;
@@ -159,7 +173,7 @@ public class BatchManager extends AbstractService implements LogicInterface{
 		 */
 		if (action.equals(STOP)) {
 			ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
-			Batch.stopScheduler();
+			Batch.stopBatch();
 			return Value.VALUE_TRUE;
 		}
 		/*
@@ -202,7 +216,7 @@ public class BatchManager extends AbstractService implements LogicInterface{
 		/*
 		 * decrement
 		 */
-		if (action.equals(RESTART)) {
+		if (action.equals(SCHEDULE)) {
 			ctx.addMessage(Messages.INFO, "Initiated stestart of job " + jobName);
 			batch.reschedule(jobName);
 			return Value.VALUE_TRUE;
@@ -227,7 +241,7 @@ public class BatchManager extends AbstractService implements LogicInterface{
 			return Value.VALUE_TRUE;
 		}
 
-		ctx.addMessage(Messages.INVALID_VALUE, ACTION, action);
+		ctx.addMessage(Messages.ERROR, action + " is an invalid action " + USAGE);
 		return Value.VALUE_FALSE;
 	}
 

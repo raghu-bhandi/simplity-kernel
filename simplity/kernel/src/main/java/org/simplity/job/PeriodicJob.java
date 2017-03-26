@@ -23,8 +23,6 @@
 package org.simplity.job;
 
 import java.util.Calendar;
-import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import org.simplity.kernel.Tracer;
@@ -37,30 +35,28 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  *
  */
-public class DayJob implements ScheduledJob {
+public class PeriodicJob extends IntervalJob {
 	private static final int MINUTES = 24 * 60;
 
-	private final Job scheduledJob;
-	private final Value userId;
 	/*
 	 * number of elapsed minute for the day, sorted asc
 	 */
 	private final int[] timesOfDay;
 
-	/*
-	 * state attributes
-	 */
-	private RunningJob runningJob;
 	private ScheduledThreadPoolExecutor scheduleExecutor;
-	private Future<?> future;
 	/*
 	 * which is the next run-time?
 	 */
 	private int nextIdx;
 
-	DayJob(Job job, Value userId, int[] times) {
-		this.scheduledJob = job;
-		this.userId = userId;
+	PeriodicJob(Job job, Value userId) {
+		super(job, userId);
+		int[] dummy = { 1 };
+		this.timesOfDay = dummy;
+	}
+
+	PeriodicJob(Job job, Value userId, int[] times) {
+		super(job, userId);
 		this.timesOfDay = times;
 	}
 
@@ -71,15 +67,7 @@ public class DayJob implements ScheduledJob {
 	 * ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public boolean schedule(ScheduledThreadPoolExecutor executor) {
-		if (this.scheduleExecutor != null) {
-			Tracer.trace(this.scheduledJob.name + " is already scheduled");
-			return false;
-		}
-		/*
-		 * we schedule it into our own scheduler, but not to executor.
-		 * submitted to executor based on polling
-		 */
+	public boolean scheduleJobs(ScheduledThreadPoolExecutor executor) {
 		this.runningJob = this.scheduledJob.createRunningJob(this.userId);
 		this.scheduleExecutor = executor;
 		this.nextIdx = this.getTimeIdx();
@@ -88,7 +76,7 @@ public class DayJob implements ScheduledJob {
 
 	private int getTimeIdx() {
 		Calendar cal = Calendar.getInstance();
-		int minutes = cal.get(Calendar.HOUR_OF_DAY) * cal.get(Calendar.MINUTE);
+		int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
 		for (int i = 0; i < this.timesOfDay.length; i++) {
 			if (this.timesOfDay[i] > minutes) {
 				return i;
@@ -133,9 +121,6 @@ public class DayJob implements ScheduledJob {
 		 */
 		boolean submitted = this.submit();
 		if (submitted == false) {
-			/*
-			 * most probably previous run is active. Let us retry after a minute
-			 */
 			return 1;
 		}
 
@@ -148,9 +133,19 @@ public class DayJob implements ScheduledJob {
 			 * done for the day.
 			 */
 			this.nextIdx = -1;
+			Tracer.trace("Job " + this.scheduledJob.name
+					+ " has run for the last time for the day. It will be run tomorrow " + this.timesOfDay[0]
+					+ " minutes into the day.");
 			return MINUTES - minutes + this.timesOfDay[0];
 		}
-		return this.timesOfDay[this.nextIdx] - minutes;
+		n = this.timesOfDay[this.nextIdx] - minutes;
+		/*
+		 * it is possible that we are terribly running behind schedule and the next one is already overdue
+		 */
+		if(n < 0){
+			return 1;
+		}
+		return n;
 	}
 
 	private boolean submit() {
@@ -172,55 +167,8 @@ public class DayJob implements ScheduledJob {
 	 * ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public void cancel(ScheduledThreadPoolExecutor executor) {
-		this.future.cancel(true);
+	public void cancel() {
+		super.cancel();
 		this.scheduleExecutor = null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.job.ScheduledJob#incrmentThread(java.util.concurrent.
-	 * ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public void incrmentThread(ScheduledThreadPoolExecutor executor) {
-		this.noChange();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.job.ScheduledJob#decrmentThread(java.util.concurrent.
-	 * ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public void decrmentThread(ScheduledThreadPoolExecutor executor) {
-		this.noChange();
-	}
-
-	private void noChange() {
-		Tracer.trace("Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.job.ScheduledJob#putStatus(java.util.List)
-	 */
-	@Override
-	public void putStatus(List<RunningJobInfo> infoList) {
-		JobStatus sts;
-		if (this.scheduleExecutor == null) {
-			sts = JobStatus.CANCELLED;
-		} else if (this.future == null) {
-			sts = JobStatus.SCHEDULED;
-		} else if (this.future.isCancelled()) {
-			sts = JobStatus.CANCELLED;
-		} else {
-			sts = this.runningJob.jobStatus;
-		}
-		RunningJobInfo info = new RunningJobInfo(this.scheduledJob.name, this.scheduledJob.serviceName, sts, 0, "");
-		infoList.add(info);
 	}
 }

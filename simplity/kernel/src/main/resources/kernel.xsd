@@ -2295,7 +2295,66 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute
+			name="breakOnInterrupt"
+			type="booleanType"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Useful only if this loop is used as an
+					infinite-loop for a background job. For example as a consumer of a
+					queue. When this attribute is set to true, a thread-interrupt is
+					checked at the beginning of each loop. And the execution comes out
+					of the loop on such an interrupt. Thus the actions in the loop are
+					executed as a transaction, and are not interrupted. For safety,
+					this keyword is allowed only if the service is marked as
+					toBeRunInBackground
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
+
+	<xs:complexType name="dropIntoMessageBox">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="fieldName"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>put value of this field into message box
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="expression"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>Use this as an alternate to fieldName. Expression
+					is evaluated and the result is put into the message box
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+	<xs:complexType name="pickupFromMessageBox">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="fieldName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>content of the message box, if any, is set as text
+					value of this field name
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:complexType>
+
+
 	<xs:complexType name="read">
 		<xs:sequence>
 			<xs:element
@@ -3153,8 +3212,8 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="userIdIsNumber"
-				type="xs:string"
+				name="userIdIsNumeric"
+				type="booleanType"
 				use="optional"
 			>
 				<xs:annotation>
@@ -3163,6 +3222,20 @@
 						as modified-by-user). Default is text, which you can change to
 						integral. Of course, we do not allow you to design it as any other
 						type
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="batchJobToRunOnStartup"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>If a batch job is to be started whenever the
+						application comes up, use this option. It is possible that the
+						batch job is run on a different container than the regular
+						on-line, in which case you may have custom-made application.xmlfor
+						each.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -3744,6 +3817,9 @@
 				name="createSheet"
 				type="createSheet" />
 			<xs:element
+				name="dropIntoMessageBox"
+				type="dropIntoMessageBox" />
+			<xs:element
 				name="executeSp"
 				type="executeSp" />
 			<xs:element
@@ -3780,6 +3856,9 @@
 			<xs:element
 				name="loop"
 				type="loop" />
+			<xs:element
+				name="pickupFromMessageBox"
+				type="pickupFromMessageBox" />
 			<xs:element
 				name="read"
 				type="read" />

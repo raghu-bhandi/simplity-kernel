@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 simplity.org
+ * Copyright (c) 2017 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,51 +21,52 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.Tracer;
+import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.expr.Expression;
+import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
- * service has actions that are executed in a sequence. JumpTo allows you to
- * change this sequence.
- *
+ * set message in the message box
  *
  * @author simplity.org
  *
  */
-public class JumpTo extends org.simplity.tp.Action {
-
+public class PickupFromMessageBox extends Action {
 	/**
-	 * returns either a name of action to go to, or "_stop", "_error",
-	 * "_continue", "_break"
+	 * field/table names to be logged
 	 */
-	String toAction;
+	String fieldName;
 
-	/**
-	 * cached for performance
-	 */
-	private Value returnValue;
+	Expression expression;
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
-		Tracer.trace("Trying to jump with value = " + this.returnValue);
-		return this.returnValue;
-	}
-
-	/**
-	 *
-	 * @return if this is for a signal, then signal, else null
-	 */
-	public boolean canJumpOut() {
-		if (JumpSignal._BREAK.equals(this.toAction) || JumpSignal._STOP.equals(this.toAction)) {
-			return true;
+		Object val = ctx.getMessageFromBox();
+		if(val == null){
+			return Value.VALUE_FALSE;
 		}
-		return false;
+		if (this.fieldName == null) {
+			val = ctx.getTextValue(this.fieldName);
+		}else if(this.expression != null){
+			try {
+				val = this.expression.evaluate(ctx).toString();
+			} catch (InvalidOperationException e) {
+				throw new ApplicationError("Error while evaluating expression " + this.expression.toString());
+			}
+		}
+		ctx.putMessageInBox(val);
+		return Value.VALUE_TRUE;
 	}
-
+	/* (non-Javadoc)
+	 * @see org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext, org.simplity.tp.Service)
+	 */
 	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		this.returnValue = Value.newTextValue(this.toAction);
+	public int validate(ValidationContext vtx, Service service) {
+		int count = super.validate(vtx, service);
+		count += vtx.checkMandatoryField("fieldName", this.fieldName);
+		return count;
 	}
 }

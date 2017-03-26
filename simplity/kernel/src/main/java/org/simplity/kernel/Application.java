@@ -31,6 +31,7 @@ import javax.transaction.UserTransaction;
 import org.simplity.http.HttpAgent;
 import org.simplity.http.Serve;
 import org.simplity.jms.JmsConnector;
+import org.simplity.job.Batch;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -309,6 +310,11 @@ public class Application {
 	String xaQueueConnectionFactory;
 
 	/**
+	 * batch job to fire after boot-strapping.
+	 */
+	String batchJobToRunOnStartup;
+
+	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
 	 * servlet in a web-app
@@ -499,8 +505,16 @@ public class Application {
 			for (String msg : msgs) {
 				err.append(msg).append('\n');
 			}
+			if (this.batchJobToRunOnStartup != null) {
+				err.append("Scheduler NOT started for batch " + this.batchJobToRunOnStartup
+						+ " because of issues with applicaiton set up.");
+				err.append('\n');
+			}
 			result = err.toString();
 			Tracer.trace(result);
+		} else if (this.batchJobToRunOnStartup != null) {
+			Batch.startBatch(this.batchJobToRunOnStartup);
+			Tracer.trace("Scheduler started for Batch " + this.batchJobToRunOnStartup);
 		}
 		/*
 		 * we will output all the messages to console as well, just in case the
@@ -509,6 +523,9 @@ public class Application {
 		 */
 		System.out.println(Tracer.stopAccumulation());
 
+		/*
+		 * we run the background batch job only if everything has gone well.
+		 */
 		return result;
 	}
 

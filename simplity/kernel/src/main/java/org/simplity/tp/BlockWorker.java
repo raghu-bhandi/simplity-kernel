@@ -130,46 +130,59 @@ public class BlockWorker implements DbClientInterface, MessageClient {
 		Value result = null;
 		while (currentIdx < nbrActions) {
 			Action action = this.actions[currentIdx];
-			/*
-			 * jump if required
-			 */
-			if (action instanceof JumpTo) {
-				JumpTo jt = (JumpTo) action;
-				JumpSignal signal = jt.getSignal();
-				if (signal != null) {
-					return signal;
-				}
-				Integer idx = this.indexedActions.get(jt.toAction);
-				if (idx == null) {
-					throw new ApplicationError(jt.actionName
-							+ " is not a valid action to jump to.");
-				}
-				/*
-				 * we are to go to this step.
-				 */
-				currentIdx = idx.intValue();
-				continue;
-			}
 			long startedAt = new Date().getTime();
 			result = action.act(this.ctx, driver);
+			currentIdx++;
 			Tracer.trace("Action " + action.actionName
 					+ " finished with result=" + result + " in "
 					+ (new Date().getTime() - startedAt) + " ms");
 
-			if (result != null) {
-				/*
-				 * did the caller signal a stop ?
-				 */
-				if (result.equals(Service.STOP_VALUE)) {
-					return JumpSignal.STOP;
-				}
-				/*
-				 * normal action returned non-null. save the value and move on
-				 */
+			if (result == null) {
+				continue;
+			}
+			/*
+			 * did the caller signal a stop ?
+			 */
+			if (result.equals(Service.STOP_VALUE)) {
+				return JumpSignal.STOP;
+			}
+
+			if(action instanceof JumpTo == false){
 				this.ctx.setValue(action.actionName + BlockWorker.RESULT_SUFFIX,
 						result);
+				continue;
 			}
-			currentIdx++;
+			String destn = result.toString();
+			/*
+			 * process special case of jumpAction.
+			 * Re we to jump out?
+			 */
+			if (destn.equals(JumpSignal._CONTINUE)) {
+				return JumpSignal.CONTINUE;
+			}
+
+			if (destn.equals(JumpSignal._BREAK)) {
+				return JumpSignal.BREAK;
+			}
+
+			if (destn.equals(JumpSignal._STOP)) {
+				return JumpSignal.STOP;
+			}
+
+			/*
+			 * jump is within this block to another action
+			 */
+			Integer idx = this.indexedActions.get(destn);
+			if (idx != null) {
+				/*
+				 * we are to go to this step.
+				 */
+				currentIdx = idx.intValue();
+			}else{
+				throw new ApplicationError(result
+						+ " is not a valid action to jump to.");
+			}
+
 		}
 		return null;
 	}

@@ -96,6 +96,10 @@ public class JmsConsumer extends Block {
 		if (this.responseQueue != null) {
 			count += this.responseQueue.validate(vtx, false);
 		}
+		if(service.jmsUsage == null){
+			vtx.addError("Service uses JMS but has not specified jmsUsage attribute.");
+			count ++;
+		}
 		return count;
 	}
 }

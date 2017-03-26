@@ -21,6 +21,7 @@
  */
 package org.simplity.kernel.comp;
 
+import org.simplity.job.Batch;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Message;
 import org.simplity.kernel.data.FieldsInterface;
@@ -141,6 +142,33 @@ public class ComponentManager {
 			throw new ApplicationError(serviceName + " is not a valid service.");
 		}
 		return (ServiceInterface) comp;
+	}
+
+	/**
+	 *
+	 * @param batchName
+	 *            name
+	 * @return batch if it is defined, null otherwise
+	 */
+	public static Batch getBatchNull(String batchName) {
+		return (Batch) ComponentType.BATCH
+				.getComponentOrNull(batchName);
+	}
+
+	/**
+	 * note that this throws an error if batch is not found
+	 *
+	 * @param batchName
+	 *            name
+	 * @return Batch if it is defined, error otherwise
+	 * @throws ApplicationError
+	 */
+	public static Batch getBatch(String batchName) {
+		Component comp = ComponentType.BATCH.getComponentOrNull(batchName);
+		if (comp == null) {
+			throw new ApplicationError(batchName + " is not a valid batch.");
+		}
+		return (Batch) comp;
 	}
 
 	/**

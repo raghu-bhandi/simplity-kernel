@@ -388,7 +388,11 @@ public class CommonData implements CommonDataInterface {
 		if (Value.isNull(val)) {
 			return null;
 		}
-		return val.toString();
+		String str = val.toString();
+		if(str.isEmpty()){
+			return null;
+		}
+		return str;
 	}
 
 	/*

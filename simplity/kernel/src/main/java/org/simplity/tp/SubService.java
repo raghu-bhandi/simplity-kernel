@@ -21,6 +21,7 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
@@ -44,7 +45,10 @@ public class SubService extends Action {
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
 		ServiceInterface service = ComponentManager
 				.getService(this.serviceName);
-		return service.executeAsAction(ctx, driver, this.transactionIsDelegated);
+		Tracer.trace("service " +this.serviceName + " started as sub service.");
+		Value result = service.executeAsAction(ctx, driver, this.transactionIsDelegated);
+		Tracer.trace("service " + this.serviceName + " returned control back.");
+		return result;
 	}
 
 	/* (non-Javadoc)

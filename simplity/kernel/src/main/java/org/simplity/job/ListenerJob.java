@@ -34,39 +34,28 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  *
  */
-public class ListenerJob implements ScheduledJob{
+public class ListenerJob extends ScheduledJob{
 
-	private final Job scheduledJob;
-	private Value userId;
 	private RunningJob[] runningJobs;
 	private Object[] futures;
-	private boolean isScheduled;
 
 	ListenerJob(Job job, Value userId){
-		this.scheduledJob = job;
+		super(job, userId);
 		int nbr = job.nbrDedicatedThreads;
 		this.runningJobs = new RunningJob[nbr];
 		this.futures = new Object[nbr];
-		if(this.userId == null){
-			this.userId = userId;
-		}
 	}
 
 	/* (non-Javadoc)
 	 * @see org.simplity.job.ScheduledJob#schedule(java.util.concurrent.ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public boolean schedule(ScheduledThreadPoolExecutor executor) {
-		if(this.isScheduled){
-			Tracer.trace(this.scheduledJob.name + " is already scheduled");
-			return false;
-		}
+	public boolean scheduleJobs(ScheduledThreadPoolExecutor executor) {
 		for(int i = 0; i < this.runningJobs.length;i++){
 			RunningJob rj = this.scheduledJob.createRunningJob(this.userId);
 			this.runningJobs[i] = rj;
 			this.futures[i] = executor.submit(rj);
 		}
-		this.isScheduled = true;
 		return false;
 	}
 
@@ -74,7 +63,7 @@ public class ListenerJob implements ScheduledJob{
 	 * @see org.simplity.job.ScheduledJob#shutDownGracefully(java.util.concurrent.ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public void cancel(ScheduledThreadPoolExecutor executor) {
+	public void cancel() {
 		for(Object obj : this.futures){
 			if(obj != null){
 				((Future<?>)obj).cancel(true);
@@ -141,26 +130,13 @@ public class ListenerJob implements ScheduledJob{
 	}
 
 	/* (non-Javadoc)
-	 * @see org.simplity.job.ScheduledJob#putStatus(java.util.List)
+	 * @see org.simplity.job.ScheduledJob#putJobStatusStub(org.simplity.job.JobStatus, java.util.List)
 	 */
 	@Override
-	public void putStatus(List<RunningJobInfo> infoList) {
-		int i = 0;
-		String name = this.scheduledJob.name;
-		String sname = this.scheduledJob.serviceName;
-
+	protected void putJobStatusStub(JobStatus sts, List<RunningJobInfo> infoList) {
+		int i = 1;
 		for(RunningJob job : this.runningJobs){
-			Future<?> f = (Future<?>)this.futures[i];
-			JobStatus sts;
-			if(f == null){
-				sts = JobStatus.SCHEDULED;
-			}else if(f.isCancelled()){
-				sts = JobStatus.CANCELLED;
-			}else{
-				sts = job.jobStatus;
-			}
-			RunningJobInfo info = new RunningJobInfo(name, sname, sts, i++, "");
-			infoList.add(info);
+			this.putJobStatus(sts, job, infoList, i++);
 		}
 	}
 	/* (non-Javadoc)

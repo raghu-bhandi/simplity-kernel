@@ -13,8 +13,10 @@ import org.simplity.service.ServiceData;
  *
  */
 public class HelloJavaDirect extends AbstractService {
-	private static final String MY_NAME = "JamesBond";
-
+	private static final String MY_NAME = "HelloJavaDierct";
+	private static final String HELLO = "Hellow World from a service coded in java";
+	private static final String HELLO_SUB = HELLO + " but used as a sub-service action in another service. ";
+	private static final String PAYLOAD = "{\"hello\" : \"" + HELLO + "\"}";
 	/*
 	 * (non-Javadoc)
 	 *
@@ -45,7 +47,7 @@ public class HelloJavaDirect extends AbstractService {
 	 */
 	@Override
 	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean transactionIsDelegated) {
-		Value value = Value.newTextValue("Hellooooo directly from Java");
+		Value value = Value.newTextValue(HELLO_SUB);
 		ctx.setValue("hello", value);
 		return value;
 	}
@@ -59,7 +61,7 @@ public class HelloJavaDirect extends AbstractService {
 	@Override
 	public ServiceData respond(ServiceData inputData) {
 		ServiceData outData = new ServiceData();
-		outData.setPayLoad("{\"hello\":\"Hellooooo directly from Java\"}");
+		outData.setPayLoad(PAYLOAD);
 		return outData;
 	}
 }
