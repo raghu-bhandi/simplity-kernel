@@ -3073,6 +3073,18 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element
+					ref="jmsProperties"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>Attributes like user name and password etc..
+							that may have to be put into environment before getting conection
+							factory. refer to your JMS provider manua, like jboss for details
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element
 					name="schemaDetails"
 					minOccurs="0"
 					maxOccurs="1"
@@ -3445,6 +3457,21 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="jmsProperties">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="property" minOccurs="1" maxOccurs="unbounded" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:element name="property">
+		<xs:complexType>
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="value" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<!-- Test case. we systematically develop elements bottom-up for this.. -->

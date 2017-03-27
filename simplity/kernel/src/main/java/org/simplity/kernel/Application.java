@@ -304,6 +304,10 @@ public class Application {
 	 */
 	String queueConnectionFactory;
 	/**
+	 * properties of jms connection, like user name password and other flags
+	 */
+	Property[] jmsProperties;
+	/**
 	 * if JMS is used by this application, connection factory for JTA/JCA/XA
 	 * managed operations
 	 */
@@ -398,7 +402,7 @@ public class Application {
 		 * Setup JMS Connection factory
 		 */
 		if (this.queueConnectionFactory != null || this.xaQueueConnectionFactory != null) {
-			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory);
+			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory, this.jmsProperties);
 			if (msg != null) {
 				msgs.add(msg);
 			}

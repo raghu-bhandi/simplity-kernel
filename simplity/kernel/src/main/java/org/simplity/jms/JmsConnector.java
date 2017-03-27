@@ -22,6 +22,8 @@
 
 package org.simplity.jms;
 
+import java.util.Properties;
+
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSession;
@@ -30,6 +32,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Property;
 import org.simplity.kernel.Tracer;
 
 /**
@@ -56,15 +59,27 @@ public class JmsConnector {
 	 *
 	 * @param queueConnectionFactory
 	 * @param xaQueueConnectionFactory
+	 * @param properties
+	 *            additional properties like user name etc.. that are required
+	 *            to be set to teh context for getting the connection
 	 * @return error message in case of error. null if all OK
 	 *
 	 * @throws ApplicationError
 	 *             : in case of any issue with the set-up
 	 */
-	public static String setup(String queueConnectionFactory, String xaQueueConnectionFactory) {
+	public static String setup(String queueConnectionFactory, String xaQueueConnectionFactory, Property[] properties) {
+		Context ctx = null;
 
 		try {
-			Context ctx = new InitialContext();
+			if(properties != null && properties.length > 0){
+				Properties env = new Properties();
+				for (Property property: properties){
+					env.put(property.getName(), property.getValue());
+				}
+				ctx = new InitialContext(env);
+			}else{
+				ctx = new InitialContext();
+			}
 			if (queueConnectionFactory != null) {
 				factory = (QueueConnectionFactory) ctx.lookup(queueConnectionFactory);
 				Tracer.trace("queueConnectionFactory successfully set to " + factory.getClass().getName());
