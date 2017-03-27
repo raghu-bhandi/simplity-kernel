@@ -136,11 +136,14 @@ public class FileProcessor extends Block {
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
 		Tracer.trace("Going to process files in folder " + this.inFolderName + " that exists = " + this.inbox.exists());
 
-		if(this.inFileNamePattern.startsWith("$")){
-				this.parsedInFileNamePattern = ctx.getValue(this.parsedInFileNamePattern).toText();
+		String parsedInFileNamePatternlocal = "";
+		if (this.inFileNamePattern.startsWith("$")) {
+			parsedInFileNamePatternlocal = ctx.getValue(this.parsedInFileNamePattern).toText();
+		} else {
+			parsedInFileNamePatternlocal = this.parsedInFileNamePattern;
 		}
 
-		this.filter = TextUtil.getFileNameFilter(this.parsedInFileNamePattern);
+		this.filter = TextUtil.getFileNameFilter(parsedInFileNamePatternlocal);
 		int nbrFiles = 0;
 		Record record = ComponentManager.getRecord(this.inRecordName);
 		Record outRecord = null;
@@ -197,7 +200,7 @@ public class FileProcessor extends Block {
 				 * Was there any trouble?
 				 */
 				if (errors.size() > 0) {
-					for(FormattedMessage error:errors){
+					for (FormattedMessage error : errors) {
 						error.addData(inText);
 					}
 					ctx.addMessages(errors);
@@ -277,7 +280,6 @@ public class FileProcessor extends Block {
 		}
 	}
 
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -288,7 +290,7 @@ public class FileProcessor extends Block {
 		super.getReady(idx, service);
 
 		this.parsedInFileNamePattern = TextUtil.getFieldName(this.inFileNamePattern);
-		if(this.parsedInFileNamePattern==null){
+		if (this.parsedInFileNamePattern == null) {
 			this.parsedInFileNamePattern = this.inFileNamePattern;
 		}
 

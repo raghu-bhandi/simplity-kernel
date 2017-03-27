@@ -173,7 +173,7 @@ public class Batch implements Component {
 		 */
 		this.executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
 		this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-		this.executor.setRemoveOnCancelPolicy(true);
+		//this.executor.setRemoveOnCancelPolicy(true);
 		Value userId = this.getUserId();
 		List<ScheduledJob> pollers = new ArrayList<ScheduledJob>();
 		for (Job job : this.jobs) {
