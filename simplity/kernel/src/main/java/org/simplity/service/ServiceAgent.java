@@ -317,7 +317,7 @@ public class ServiceAgent {
 		writer.object().key(ServiceProtocol.HEADER_FILE_TOKEN).value(token).endObject();
 		outData.setPayLoad(writer.toString());
 		ServiceSubmitter submitter = new ServiceSubmitter(inData, service, stream);
-		Thread thread = new Thread(submitter);
+		Thread thread = Application.createThread(submitter);
 		thread.start();
 
 		return outData;

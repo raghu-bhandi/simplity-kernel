@@ -22,6 +22,7 @@
 
 package org.simplity.tp;
 
+import org.simplity.kernel.Application;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
@@ -78,7 +79,7 @@ public class Synchronizer extends Action {
 		for (Action action : this.actions) {
 			AsynchWorker worker = new AsynchWorker(ctx, action, driver);
 			workers[i] = worker;
-			Thread thread = new Thread(worker);
+			Thread thread = Application.createThread(worker);
 			threads[i] = thread;
 			thread.start();
 			i++;

@@ -23,7 +23,7 @@
 package org.simplity.job;
 
 import java.util.List;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
@@ -55,7 +55,7 @@ public abstract class ScheduledJob {
 	 * @return true if this needs polling. false if executor can manage its
 	 *         scheduling
 	 */
-	public boolean schedule(ScheduledThreadPoolExecutor executor) {
+	public boolean schedule(ScheduledExecutorService executor) {
 		if (this.isScheduled) {
 			Tracer.trace(this.scheduledJob.name + " is already scheduled");
 			return false;
@@ -64,7 +64,7 @@ public abstract class ScheduledJob {
 		return this.scheduleJobs(executor);
 	}
 
-	abstract boolean scheduleJobs(ScheduledThreadPoolExecutor executor);
+	abstract boolean scheduleJobs(ScheduledExecutorService executor);
 	/**
 	 * cancel this job
 	 */
@@ -76,7 +76,7 @@ public abstract class ScheduledJob {
 	 *
 	 * @param executor
 	 */
-	public void incrmentThread(ScheduledThreadPoolExecutor executor) {
+	public void incrmentThread(ScheduledExecutorService executor) {
 		this.noChange();
 	}
 
@@ -86,7 +86,7 @@ public abstract class ScheduledJob {
 	 *
 	 * @param executor
 	 */
-	public void decrmentThread(ScheduledThreadPoolExecutor executor) {
+	public void decrmentThread(ScheduledExecutorService executor) {
 		this.noChange();
 	}
 

@@ -3433,9 +3433,13 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:NCName">
-						<!-- not used any more any ways.... let us wait for some one to ask... 
-							<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old 
-							log4J uses log4j-1.2-SNAPSHOT.17.jar</xs:documentation></xs:annotation></xs:enumeration> -->
+						<xs:enumeration value="log4jClassic">
+							<xs:annotation>
+								<xs:documentation>Old
+									log4J uses log4j-1.17.jar
+								</xs:documentation>
+							</xs:annotation>
+						</xs:enumeration>
 						<xs:enumeration value="log4j">
 							<xs:annotation>
 								<xs:documentation>Version 2.* of log4J. uses log4j-api-2.7.jar
@@ -3498,6 +3502,42 @@
 				<xs:annotation>
 					<xs:documentation>JNDI name for a UserTransaction instnce to manage
 						a JTA transaction. For example java:comp/UserTransaction in JBOSS
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="corePoolSize"
+				use="optional"
+				type="xs:int"
+			>
+				<xs:annotation>
+					<xs:documentation>number of threads that are retained in the pool for the batch even if they are idle.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="threadFactoryJndiName"
+				use="optional"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>Required if you use batch components inside some
+						EJB containers like Websphere. for example
+						java:jboss/ee/concurrency/factory/default for jboss. This is
+						avaiable in teh configuration file of your app server/container
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="scheduledExecutorJndiName"
+				use="optional"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>Required if you use batch components inside some
+						EJB containers like Websphere. for example
+						java:jboss/ee/concurrency/scheduler/default for jboss. This is
+						avaiable in teh configuration file of your app server/container
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -4155,31 +4195,6 @@
 				name="name"
 				use="required"
 				type="xs:string" />
-			<xs:attribute
-				name="maxThreads"
-				use="required"
-				type="xs:int"
-			>
-				<xs:annotation>
-					<xs:documentation>maximum number of threads to be allocated to the
-						batch. This is same as corePoolSize of java
-						ScheduledThreadPoolExecutor that we use below the carpet. MUST BE
-						greater than 0
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="threadFactory"
-				use="optional"
-				type="xs:string"
-			>
-				<xs:annotation>
-					<xs:documentation>fully qualifed class name of the thread pool
-						factory that you may have implemented to control the attributes of
-						thread
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
 			<xs:attribute
 				name="defaultUserId"
 				use="optional"

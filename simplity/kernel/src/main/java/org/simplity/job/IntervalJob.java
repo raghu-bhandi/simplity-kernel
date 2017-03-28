@@ -24,7 +24,7 @@ package org.simplity.job;
 
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.simplity.kernel.Tracer;
@@ -55,7 +55,7 @@ public class IntervalJob extends ScheduledJob {
 	 * ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public boolean scheduleJobs(ScheduledThreadPoolExecutor executor) {
+	public boolean scheduleJobs(ScheduledExecutorService executor) {
 		this.runningJob = this.scheduledJob.createRunningJob(this.userId);
 		this.future = executor.scheduleAtFixedRate(this.runningJob, 0, this.scheduledJob.runInterval, TimeUnit.SECONDS);
 		return false;
@@ -83,7 +83,7 @@ public class IntervalJob extends ScheduledJob {
 	 * ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public void incrmentThread(ScheduledThreadPoolExecutor executor) {
+	public void incrmentThread(ScheduledExecutorService executor) {
 		this.noChange();
 	}
 
@@ -94,7 +94,7 @@ public class IntervalJob extends ScheduledJob {
 	 * ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public void decrmentThread(ScheduledThreadPoolExecutor executor) {
+	public void decrmentThread(ScheduledExecutorService executor) {
 		this.noChange();
 	}
 

@@ -24,7 +24,7 @@ package org.simplity.job;
 
 import java.util.List;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
@@ -50,7 +50,7 @@ public class ListenerJob extends ScheduledJob{
 	 * @see org.simplity.job.ScheduledJob#schedule(java.util.concurrent.ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public boolean scheduleJobs(ScheduledThreadPoolExecutor executor) {
+	public boolean scheduleJobs(ScheduledExecutorService executor) {
 		for(int i = 0; i < this.runningJobs.length;i++){
 			RunningJob rj = this.scheduledJob.createRunningJob(this.userId);
 			this.runningJobs[i] = rj;
@@ -76,7 +76,7 @@ public class ListenerJob extends ScheduledJob{
 	 * @see org.simplity.job.ScheduledJob#incrmentThread(java.util.concurrent.ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public void incrmentThread(ScheduledThreadPoolExecutor executor) {
+	public void incrmentThread(ScheduledExecutorService executor) {
 		if(this.isScheduled == false){
 			Tracer.trace(this.scheduledJob.name + " is not scheduled");
 			return;
@@ -109,7 +109,7 @@ public class ListenerJob extends ScheduledJob{
 	 * @see org.simplity.job.ScheduledJob#decrmentThread(java.util.concurrent.ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public void decrmentThread(ScheduledThreadPoolExecutor executor) {
+	public void decrmentThread(ScheduledExecutorService executor) {
 		if(this.isScheduled == false){
 			Tracer.trace(this.scheduledJob.name + " is not scheduled");
 			return;

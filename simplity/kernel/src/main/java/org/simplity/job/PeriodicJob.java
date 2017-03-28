@@ -23,7 +23,7 @@
 package org.simplity.job;
 
 import java.util.Calendar;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
@@ -43,7 +43,7 @@ public class PeriodicJob extends IntervalJob {
 	 */
 	private final int[] timesOfDay;
 
-	private ScheduledThreadPoolExecutor scheduleExecutor;
+	private ScheduledExecutorService scheduleExecutor;
 	/*
 	 * which is the next run-time?
 	 */
@@ -67,7 +67,7 @@ public class PeriodicJob extends IntervalJob {
 	 * ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public boolean scheduleJobs(ScheduledThreadPoolExecutor executor) {
+	public boolean scheduleJobs(ScheduledExecutorService executor) {
 		this.runningJob = this.scheduledJob.createRunningJob(this.userId);
 		this.scheduleExecutor = executor;
 		this.nextIdx = this.getTimeIdx();

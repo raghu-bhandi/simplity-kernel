@@ -24,6 +24,9 @@ package org.simplity.kernel;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
 
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
@@ -75,6 +78,13 @@ public class Application {
 
 	private static boolean userIdIsNumeric;
 
+	/*
+	 * batch and thread management
+	 */
+	private static ThreadFactory threadFactory;
+	private static ScheduledExecutorService threadPoolExecutor;
+	private static int batchPoolSize;
+
 	/**
 	 * report an application error that needs attention from admin
 	 *
@@ -118,6 +128,39 @@ public class Application {
 	 */
 	public static ExceptionListener getExceptionListener() {
 		return currentExceptionListener;
+	}
+
+	/**
+	 * get a managed thread as per the container
+	 *
+	 * @param runnable
+	 * @return thread
+	 */
+	public static Thread createThread(Runnable runnable) {
+		if (threadFactory == null) {
+			return new Thread(runnable);
+		}
+		return threadFactory.newThread(runnable);
+	}
+
+	/**
+	 * get a managed thread as per the container
+	 *
+	 * @return executor
+	 */
+	public static ScheduledExecutorService getScheduledExecutor() {
+		if (threadPoolExecutor != null) {
+			return threadPoolExecutor;
+		}
+		int nbr = batchPoolSize;
+		if(nbr == 0){
+			nbr = 50;
+		}
+		if (threadFactory == null) {
+			return new ScheduledThreadPoolExecutor(nbr);
+		}
+		threadPoolExecutor = new ScheduledThreadPoolExecutor(0, threadFactory);
+		return threadPoolExecutor;
 	}
 
 	/**
@@ -319,6 +362,20 @@ public class Application {
 	String batchJobToRunOnStartup;
 
 	/**
+	 * jndi name the container has created to get a threadFActory instance
+	 */
+	String threadFactoryJndiName;
+
+	/**
+	 * jndi name the container has created to get a managed schedule thread pooled executor  instance
+	 */
+	String scheduledExecutorJndiName;
+
+	/**
+	 * number of threads to keep in the pool even if they are idle
+	 */
+	int corePoolSize;
+	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
 	 * servlet in a web-app
@@ -402,7 +459,8 @@ public class Application {
 		 * Setup JMS Connection factory
 		 */
 		if (this.queueConnectionFactory != null || this.xaQueueConnectionFactory != null) {
-			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory, this.jmsProperties);
+			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory,
+					this.jmsProperties);
 			if (msg != null) {
 				msgs.add(msg);
 			}
@@ -464,11 +522,6 @@ public class Application {
 		}
 
 		/*
-		 * initialize service agent
-		 */
-		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard);
-
-		/*
 		 * initialize http-agent. In rare cases, a project may not use
 		 * httpAgent, but it is not so much of an issue if the agent is all
 		 * dressed-up but no work :-)
@@ -499,6 +552,39 @@ public class Application {
 			defaultUserId = uid;
 			userIdIsNumeric = this.userIdIsNumber;
 		}
+
+		/*
+		 * initialize service agent
+		 */
+		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard);
+
+		/*
+		 * batch job, thread pools etc..
+		 */
+		if(this.corePoolSize == 0){
+			batchPoolSize = 1;
+		}else{
+			batchPoolSize = this.corePoolSize;
+		}
+
+		if(this.threadFactoryJndiName != null){
+			try {
+				threadFactory = (ThreadFactory)new InitialContext().lookup(this.threadFactoryJndiName);
+				Tracer.trace("Thread factory instantiated as " + threadFactory.getClass().getName());
+			} catch (Exception e) {
+				msgs.add("Error while looking up " + this.threadFactoryJndiName + ". " + e.getLocalizedMessage());
+			}
+		}
+
+		if(this.scheduledExecutorJndiName != null){
+			try {
+				threadPoolExecutor = (ScheduledExecutorService)new InitialContext().lookup(this.scheduledExecutorJndiName);
+				Tracer.trace("ScheduledThreadPoolExecutor instantiated as " + threadPoolExecutor.getClass().getName());
+			} catch (Exception e) {
+				msgs.add("Error while looking up " + this.scheduledExecutorJndiName + ". " + e.getLocalizedMessage());
+			}
+		}
+
 		HttpAgent.setUp(uid, cacher, this.sendTraceToClient);
 		String result = null;
 		if (msgs.size() > 0) {
@@ -509,14 +595,20 @@ public class Application {
 			for (String msg : msgs) {
 				err.append(msg).append('\n');
 			}
+			/*
+			 * we run the background batch job only if everything has gone well.
+			 */
 			if (this.batchJobToRunOnStartup != null) {
 				err.append("Scheduler NOT started for batch " + this.batchJobToRunOnStartup
-						+ " because of issues with application set up.");
+						+ " because of issues with applicaiton set up.");
 				err.append('\n');
 			}
 			result = err.toString();
 			Tracer.trace(result);
 		} else if (this.batchJobToRunOnStartup != null) {
+			/*
+			 * we run the background batch job only if everything has gone well.
+			 */
 			Batch.startBatch(this.batchJobToRunOnStartup);
 			Tracer.trace("Scheduler started for Batch " + this.batchJobToRunOnStartup);
 		}
@@ -527,9 +619,6 @@ public class Application {
 		 */
 		System.out.println(Tracer.stopAccumulation());
 
-		/*
-		 * we run the background batch job only if everything has gone well.
-		 */
 		return result;
 	}
 
@@ -725,8 +814,8 @@ public class Application {
 
 	private static void printUsage() {
 		System.out.println(
-				"Usage : java  org.simplity.kernel.Application componentFolderPath serviceName inputParam1=vaue1 ...");
+				"Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
 		System.out.println(
-				"example : java  org.simplity.kernel.Application /user/data/ serviceName inputParam1=vaue1 ...");
+				"example : java  org.simplity.kernel.Applicaiton /user/data/ serviceName inputParam1=vaue1 ...");
 	}
 }

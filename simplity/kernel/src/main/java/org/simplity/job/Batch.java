@@ -26,8 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
@@ -64,7 +63,6 @@ public class Batch implements Component {
 	public static Batch startEmptyBatch() {
 		batchInstance = new Batch();
 		batchInstance.jobs = new Job[0];
-		batchInstance.maxThreads = 100;
 		batchInstance.name = "dummy";
 		batchInstance.getReady();
 		batchInstance.start();
@@ -116,16 +114,6 @@ public class Batch implements Component {
 	 * module name
 	 */
 	String moduleName;
-	/**
-	 * maximum number of threads to be utilized for running all the jobs.
-	 */
-	int maxThreads;
-
-	/**
-	 * in case you want to control the parameters with which threads are to be
-	 * created
-	 */
-	String threadFactory;
 
 	/**
 	 * default user id
@@ -137,7 +125,7 @@ public class Batch implements Component {
 	 */
 	Job[] jobs;
 
-	private ScheduledThreadPoolExecutor executor;
+	private ScheduledExecutorService executor;
 
 	private Map<String, ScheduledJob> scheduledJobs = new HashMap<String, ScheduledJob>();
 
@@ -155,24 +143,13 @@ public class Batch implements Component {
 			throw new ApplicationError(
 					"Jobs are already getting executed while another attempt is being made to execute them.");
 		}
-		if (this.threadFactory != null) {
-			ThreadFactory tf = null;
-			try {
-				tf = (ThreadFactory) Class.forName(this.threadFactory).newInstance();
-			} catch (Exception e) {
-				throw new ApplicationError(e,
-						" Error while instantiating ThreadFactory from class " + this.threadFactory);
-			}
-			this.executor = new ScheduledThreadPoolExecutor(this.maxThreads, tf);
-		} else {
-			this.executor = new ScheduledThreadPoolExecutor(this.maxThreads);
-		}
+		this.executor = Application.getScheduledExecutor();
 		/*
 		 * we want jobs to run only when the executor is active. That is,
 		 * executor is not just a submitter, but manager
 		 */
-		this.executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
-		this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
+		//this.executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+		//this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
 		//this.executor.setRemoveOnCancelPolicy(true);
 		Value userId = this.getUserId();
 		List<ScheduledJob> pollers = new ArrayList<ScheduledJob>();
@@ -187,7 +164,7 @@ public class Batch implements Component {
 		if (pollers.size() > 0) {
 			this.polledJobs = pollers.toArray(new ScheduledJob[0]);
 			this.scheduler = new TimeOfDayScheduler(this.polledJobs);
-			new Thread(this.scheduler).start();
+			Application.createThread(this.scheduler).start();
 		}
 	}
 
@@ -201,7 +178,11 @@ public class Batch implements Component {
 		}
 		this.cancelAll();
 		if (this.executor != null) {
+			try{
 			this.executor.shutdownNow();
+			}catch(IllegalStateException ignore){
+				//known issue with JBOSS
+			}
 		}
 	}
 
@@ -397,10 +378,6 @@ public class Batch implements Component {
 	 */
 	@Override
 	public void getReady() {
-		if (this.maxThreads <= 0) {
-			throw new ApplicationError(
-					"maxThreads is a required attribute for batch. This is the maximum number of jobs that would be run simultaneously by the scheduler. Any job that needs to be fired will haave to wait for a running job to stop, if the number of jobs already running matches this number");
-		}
 		for (Job job : this.jobs) {
 			job.getReady();
 		}
