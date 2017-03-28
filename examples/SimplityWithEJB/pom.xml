@@ -6,7 +6,7 @@
 		<artifactId>examples</artifactId>
 		<version>1.2-SNAPSHOT</version>
 	</parent>
-    <artifactId>sample-webapp</artifactId>
+    <artifactId>simplityEJB</artifactId>
     <packaging>war</packaging>
     <version>0.0.1-SNAPSHOT</version>
 	<dependencies>
