@@ -511,7 +511,7 @@ public class Application {
 			}
 			if (this.batchJobToRunOnStartup != null) {
 				err.append("Scheduler NOT started for batch " + this.batchJobToRunOnStartup
-						+ " because of issues with applicaiton set up.");
+						+ " because of issues with application set up.");
 				err.append('\n');
 			}
 			result = err.toString();
@@ -725,8 +725,8 @@ public class Application {
 
 	private static void printUsage() {
 		System.out.println(
-				"Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
+				"Usage : java  org.simplity.kernel.Application componentFolderPath serviceName inputParam1=vaue1 ...");
 		System.out.println(
-				"example : java  org.simplity.kernel.Applicaiton /user/data/ serviceName inputParam1=vaue1 ...");
+				"example : java  org.simplity.kernel.Application /user/data/ serviceName inputParam1=vaue1 ...");
 	}
 }

@@ -31,6 +31,10 @@ package org.simplity.kernel;
  */
 public enum LoggingFramework {
 	/**
+	 * log4j v1 that uses
+	 */
+	LOG4J_CLASSIC,
+	/**
 	 * log4j v2 that uses org.apache.logging.log4J.Logger
 	 */
 	LOG4J,
