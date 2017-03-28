@@ -343,7 +343,7 @@ public class Batch implements Component {
 			this.polledJobs[0] = job;
 		}
 		this.scheduler = new TimeOfDayScheduler(this.polledJobs);
-		new Thread(this.scheduler).start();
+		Application.createThread(this.scheduler).start();
 	}
 
 	/*
