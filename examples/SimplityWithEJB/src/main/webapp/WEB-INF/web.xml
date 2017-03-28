@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+    version="3.0">
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+    
+	<context-param>
+		<param-name>comp-folder</param-name>
+		<param-value>comp/</param-value>
+	</context-param>
+	
+    <servlet>
+        <servlet-name>HelloServlet</servlet-name>
+        <servlet-class>org.sample.HelloServlet</servlet-class>
+    </servlet> 	
+	<servlet>
+		<servlet-name>SimplityStartup</servlet-name>
+		<servlet-class>org.simplity.http.Startup</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>s</servlet-name>
+		<servlet-class>org.simplity.http.Serve</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>r</servlet-name>
+		<servlet-class>org.simplity.helloworld.Serve</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+        <servlet-name>HelloServlet</servlet-name>
+        <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>s</servlet-name>
+		<url-pattern>*._s</url-pattern>
+	</servlet-mapping>
+</web-app>
