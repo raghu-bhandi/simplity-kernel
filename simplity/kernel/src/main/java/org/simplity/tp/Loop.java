@@ -61,6 +61,12 @@ public class Loop extends Block {
 	String[] fieldsToCopyBackAsColumns;
 
 	/**
+	 * in case this service is used as a batch processing kind of logic, then
+	 * you may want to use this loop-block as a unit of work, and you are
+	 * amenable to stop-work at this point, and not in-between
+	 */
+	boolean breakOnInterrupt;
+	/**
 	 * special case where we are to copy all columns as fields
 	 */
 	private boolean copyAllColumnsToFields;
@@ -72,16 +78,15 @@ public class Loop extends Block {
 
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		BlockWorker actionBlock = new BlockWorker(this.actions,
-				this.indexedActions, ctx);
+		BlockWorker actionBlock = new BlockWorker(this.actions, this.indexedActions, ctx);
 		if (this.dataSheetName != null) {
 			return this.loopOnSheet(actionBlock, driver, ctx);
 		}
-		if (this.executeOnCondition != null) {
-			return this.loopOnCondition(actionBlock, driver, ctx);
+		if (this.executeOnCondition == null) {
+			Tracer.trace("Loop action " + this.actionName + " has niether data sheet, nor condition. This is a run-for-ever loop,but could be interrupted");
 		}
-		throw new ApplicationError("Loop action " + this.actionName
-				+ " has niether data sheet, nor condition.");
+		return this.loopOnCondition(actionBlock, driver, ctx);
+
 	}
 
 	/**
@@ -91,27 +96,49 @@ public class Loop extends Block {
 	 * @param driver
 	 * @return true if normal completion. False if we encountered a STOP signal
 	 */
-	private Value loopOnCondition(BlockWorker actionBlock, DbDriver driver,
-			ServiceContext ctx) {
+	private Value loopOnCondition(BlockWorker actionBlock, DbDriver driver, ServiceContext ctx) {
 		/*
 		 * loop with a condition
 		 */
 		try {
-			Value value = this.executeOnCondition.evaluate(ctx);
-			while (value.toBoolean()) {
+			Value toContinue = Value.VALUE_TRUE;
+			if(this.executeOnCondition != null){
+				toContinue = this.executeOnCondition.evaluate(ctx);
+			}
+			boolean interrupted = false;
+			while (toContinue.toBoolean()) {
+				if (this.breakOnInterrupt && Thread.interrupted()) {
+					interrupted = true;
+					break;
+				}
+				/*
+				 * run the block
+				 */
 				JumpSignal signal = actionBlock.execute(driver);
+				/*
+				 * are we to get out?
+				 */
 				if (signal == JumpSignal.STOP) {
 					return Value.VALUE_FALSE;
 				}
 				if (signal == JumpSignal.BREAK) {
 					return Value.VALUE_TRUE;
 				}
-				value = this.executeOnCondition.evaluate(ctx);
+				/*
+				 * should we continue?
+				 */
+				if(this.executeOnCondition != null){
+					toContinue = this.executeOnCondition.evaluate(ctx);
+				}
+			}
+			if (interrupted) {
+				Tracer.trace("Coming out of loop because the thread is interrupted");
+				Thread.currentThread().interrupt();
 			}
 			return Value.VALUE_TRUE;
 		} catch (Exception e) {
-			throw new ApplicationError(e, "Error while evaluating "
-					+ this.executeOnCondition + " into a boolean value.");
+			throw new ApplicationError(e,
+					"Error while evaluating " + this.executeOnCondition + " into a boolean value.");
 		}
 	}
 
@@ -122,27 +149,22 @@ public class Loop extends Block {
 	 * @param driver
 	 * @return true if normal completion. False if we encountered a STOP signal
 	 */
-	private Value loopOnSheet(BlockWorker actionBlock, DbDriver driver,
-			ServiceContext ctx) {
+	private Value loopOnSheet(BlockWorker actionBlock, DbDriver driver, ServiceContext ctx) {
 		DataSheet ds = ctx.getDataSheet(this.dataSheetName);
 		if (ds == null) {
-			Tracer.trace("Data Sheet " + this.dataSheetName
-					+ " not found in the context. Loop action has no work.");
+			Tracer.trace("Data Sheet " + this.dataSheetName + " not found in the context. Loop action has no work.");
 			return Value.VALUE_TRUE;
 		}
 		if (ds.length() == 0) {
-			Tracer.trace("Data Sheet " + this.dataSheetName
-					+ " has no data. Loop action has no work.");
+			Tracer.trace("Data Sheet " + this.dataSheetName + " has no data. Loop action has no work.");
 			return Value.VALUE_TRUE;
 		}
 		DataSheetIterator iterator = null;
 		try {
 			iterator = ctx.startIteration(this.dataSheetName);
 		} catch (AlreadyIteratingException e) {
-			throw new ApplicationError(
-					"Loop action is designed to iterate on data sheet "
-							+ this.dataSheetName
-							+ " but that data sheet is already iterating as part of an enclosing loop action.");
+			throw new ApplicationError("Loop action is designed to iterate on data sheet " + this.dataSheetName
+					+ " but that data sheet is already iterating as part of an enclosing loop action.");
 		}
 		/*
 		 * are we to copy columns as fields?
@@ -153,7 +175,13 @@ public class Loop extends Block {
 		}
 		Value result = Value.VALUE_TRUE;
 		int idx = 0;
+		boolean interrupted = false;
 		while (iterator.moveToNextRow()) {
+			if (this.breakOnInterrupt && Thread.interrupted()) {
+				interrupted = true;
+				break;
+
+			}
 			if (this.columnsToCopyAsFields != null) {
 				this.copyToFields(ctx, ds, idx);
 			}
@@ -176,6 +204,10 @@ public class Loop extends Block {
 		}
 		if (savedValues != null) {
 			this.restoreFields(ctx, ds, savedValues);
+		}
+		if (interrupted) {
+			Tracer.trace("Coming out of loop because the thread is interrupted");
+			Thread.currentThread().interrupt();
 		}
 		return result;
 	}
@@ -203,8 +235,7 @@ public class Loop extends Block {
 	/**
 	 * @param ctx
 	 */
-	private void restoreFields(ServiceContext ctx, DataSheet ds,
-			Value[] values) {
+	private void restoreFields(ServiceContext ctx, DataSheet ds, Value[] values) {
 		int i = 0;
 		if (this.copyAllColumnsToFields) {
 			for (String fieldName : ds.getColumnNames()) {
@@ -277,15 +308,13 @@ public class Loop extends Block {
 		this.actionNameOnFailure = "_stop";
 
 		if (this.columnsToCopyAsFields != null) {
-			if (this.columnsToCopyAsFields.length == 1
-					&& this.columnsToCopyAsFields[0].equals("*")) {
+			if (this.columnsToCopyAsFields.length == 1 && this.columnsToCopyAsFields[0].equals("*")) {
 				this.copyAllColumnsToFields = true;
 			}
 		}
 
 		if (this.fieldsToCopyBackAsColumns != null) {
-			if (this.fieldsToCopyBackAsColumns.length == 1
-					&& this.fieldsToCopyBackAsColumns[0].equals("*")) {
+			if (this.fieldsToCopyBackAsColumns.length == 1 && this.fieldsToCopyBackAsColumns[0].equals("*")) {
 				this.copyBackAllColumns = true;
 			}
 		}
@@ -301,19 +330,31 @@ public class Loop extends Block {
 	public int validate(ValidationContext ctx, Service service) {
 		int count = super.validate(ctx, service);
 		if (this.dataSheetName == null) {
-			if (this.executeOnCondition == null) {
-				ctx.addError(
-						"Loop action should either have executeOnCondition or datasheet name");
-				count++;
+			if (this.executeOnCondition == null && this.canJumpOut() == false) {
+				/*
+				 * appears to be an infinite loop
+				 */
+				if (service.executeInBackground) {
+					/*
+					 * it is okay to have infinite loops in background jobs, but
+					 * we certainly encourage cancelable loops
+					 */
+					if (this.breakOnInterrupt == false) {
+						ctx.reportUnusualSetting(
+								"An infinite loop is used in the service, but breakOnInterrupt is not set. This may result in unancellable jobs which are not desirable.");
+					}
+				} else {
+					ctx.addError("Loop action should either have executeOnCondition or datasheet name");
+					count++;
+				}
 			}
 		} else if (this.executeOnCondition != null) {
-			ctx.addError(
-					"Loop action should not specify both executeOnCondition and datasheet name. Please redesign your actions.");
+			ctx.reportUnusualSetting(
+					"Loop action is for each row of a sheet, but it also specifies executeOnCondition. Note that the executeOnCondition is checked only once in the beginning to decide whether to start the loop at all. It is not checked for further itertions per row. Change your design if this is not the intended behaviour");
 			count++;
 		}
 		if (this.actions == null || this.actions.length == 0) {
-			ctx.addError(
-					"No actions specified for loop. We are not going to cycle with no chains!!.");
+			ctx.addError("No actions specified for loop. We are not going to cycle with no chains!!.");
 			count++;
 		}
 		if (this.executeIfNoRowsInSheet != null) {
@@ -325,5 +366,22 @@ public class Loop extends Block {
 			count++;
 		}
 		return count;
+	}
+
+	/**
+	 * @return true if this block has jumpAction with break/stop facility
+	 */
+	private boolean canJumpOut() {
+		if (this.actions == null) {
+			return false;
+		}
+		for (Action action : this.actions) {
+			if (action instanceof JumpTo) {
+				if (((JumpTo) action).canJumpOut()) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

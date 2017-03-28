@@ -35,6 +35,7 @@ import org.simplity.jms.JmsUsage;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
+import org.simplity.kernel.MessageBox;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
@@ -226,6 +227,10 @@ public class Service implements ServiceInterface {
 			} else {
 				ctx.setObject(key, val);
 			}
+		}
+		MessageBox box = inData.getMessageBox();
+		if(box != null){
+			ctx.setMessageBox(box);
 		}
 		/*
 		 * process input specification

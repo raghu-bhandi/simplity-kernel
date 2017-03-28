@@ -28,26 +28,41 @@ import org.simplity.service.ServiceContext;
 import org.simplity.tp.LogicInterface;
 
 /**
+ * An example logic action that consumes some elapsed time. This is useful in
+ * demo/test services with asynchronous actions. This action will take anywhere
+ * from 1 to 10 seconds to complete.
+ *
  * @author simplity.org
  *
  */
 public class AsynchHelloWorld implements LogicInterface {
 
-	/* (non-Javadoc)
-	 * @see org.simplity.tp.LogicInterface#execute(org.simplity.service.ServiceContext)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.tp.LogicInterface#execute(org.simplity.service.
+	 * ServiceContext)
 	 */
 	@Override
-	public Value execute(ServiceContext arg0) {
-		// We want to put some arbitrary delay to simulate an external task
+	public Value execute(ServiceContext ctx) {
+		// pick a time up to 10 seconds
 		long l = Math.round(10000 * Math.random());
-		Tracer.trace("James Bond " + "started, but will take a nap for " + l + "ns");
+		Tracer.trace("Hello World logic " + "will take a nap for " + l + "ms");
+		boolean interrupted = false;
 		try {
 			Thread.sleep(l);
 		} catch (InterruptedException e) {
-			Tracer.trace("James Bond is interrupted. Can you beleive that!!!");
-			return Value.VALUE_FALSE;
+			Tracer.trace("Hello World logic got woken...");
+			interrupted = true;
 		}
-		Tracer.trace("My Name is Bond.. James Bond-" + l);
+		Tracer.trace("Hello World... rather belated-");
+		/*
+		 * be a responsible method -we should not digest the interrupt. We are
+		 * to relay that.
+		 */
+		if (interrupted) {
+			Thread.currentThread().interrupt();
+		}
 		return Value.VALUE_TRUE;
 	}
 }

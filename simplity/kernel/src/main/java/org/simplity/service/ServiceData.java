@@ -31,6 +31,7 @@ import java.util.Map;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.FormattedMessage;
+import org.simplity.kernel.MessageBox;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
@@ -94,6 +95,12 @@ public class ServiceData implements Serializable {
 	 * specific, then _userId would be the first field.
 	 */
 	private String cacheForInput;
+
+	/**
+	 * used in the input as mechanism to pass message bewteen the caller and a
+	 * service
+	 */
+	private MessageBox messageBox;
 
 	/**
 	 * default constructor, but you are better off using the one with userId and
@@ -249,17 +256,18 @@ public class ServiceData implements Serializable {
 			this.nbrErrors++;
 		}
 	}
+
 	/**
 	 * add list of messages.
 	 *
-	 * @param msg
+	 * @param msgs
 	 */
 	public void addMessages(List<FormattedMessage> msgs) {
 		this.messages.addAll((msgs));
-		for(FormattedMessage msg:msgs){
+		for (FormattedMessage msg : msgs) {
 			if (msg.messageType == MessageType.ERROR) {
 				this.nbrErrors++;
-			}			
+			}
 		}
 	}
 
@@ -317,11 +325,54 @@ public class ServiceData implements Serializable {
 		}
 		JSONWriter writer = new JSONWriter();
 		writer.object();
-		writer.key(ServiceProtocol.REQUEST_STATUS)
-				.value(ServiceProtocol.STATUS_ERROR);
+		writer.key(ServiceProtocol.REQUEST_STATUS).value(ServiceProtocol.STATUS_ERROR);
 		writer.key(ServiceProtocol.MESSAGES);
 		JsonUtil.addObject(writer, this.getMessages());
 		writer.endObject();
 		return writer.toString();
+	}
+
+	/**
+	 * set the message box. If the caller retains access to box, pickUp/drop can
+	 * be done thru the box
+	 *
+	 * @param box
+	 */
+	public void setMessageBox(MessageBox box) {
+		this.messageBox = box;
+	}
+
+	/**
+	 * get the message box. Use this only if you want to pass on the box to some
+	 * one else. If you just want to pick up a message use pickUpMessage()
+	 * instead
+	 *
+	 * @return messageBox that is used for pickup/drop
+	 */
+	public MessageBox getMessageBox() {
+		return this.messageBox;
+	}
+
+	/**
+	 *
+	 * @return message if any in the message box. null otherwise
+	 */
+	public Object pickUpFromMessageBox() {
+		if (this.messageBox == null) {
+			return null;
+		}
+		return this.messageBox.getMessage();
+	}
+
+	/**
+	 * drop a msg into message box. Message box is created if required
+	 *
+	 * @param msg
+	 */
+	public void dropIntoMessageBox(Object msg) {
+		if (this.messageBox == null) {
+			this.messageBox = new MessageBox();
+		}
+		this.messageBox.setMessage(msg);
 	}
 }

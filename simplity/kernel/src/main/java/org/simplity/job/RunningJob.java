@@ -24,6 +24,7 @@ package org.simplity.job;
 
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.MessageBox;
 import org.simplity.kernel.Tracer;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
@@ -37,7 +38,8 @@ import org.simplity.service.ServiceInterface;
 public class RunningJob implements Runnable {
 	private final ServiceInterface service;
 	private final ServiceData inData;
-	JobStatus jobStatus = JobStatus.SCHEDULED;
+	private final MessageBox messageBox;
+	private JobStatus jobStatus = JobStatus.SCHEDULED;
 
 	/**
 	 * create a job thread to run a service with the input data
@@ -50,6 +52,8 @@ public class RunningJob implements Runnable {
 	public RunningJob(ServiceInterface service, ServiceData inData) {
 		this.service = service;
 		this.inData = inData;
+		this.messageBox = new MessageBox();
+		this.inData.setMessageBox(this.messageBox);
 	}
 
 	@Override
@@ -81,5 +85,16 @@ public class RunningJob implements Runnable {
 	 */
 	public JobStatus getJobStatus() {
 		return this.jobStatus;
+	}
+	/**
+	 *
+	 * @return current job status
+	 */
+	public String getServiceStatus() {
+		Object msg = this.messageBox.getMessage();
+		if(msg == null){
+			return "unknown";
+		}
+		return msg.toString();
 	}
 }

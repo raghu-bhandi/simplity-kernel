@@ -21,6 +21,7 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -44,10 +45,10 @@ public class JumpTo extends org.simplity.tp.Action {
 	 * cached for performance
 	 */
 	private Value returnValue;
-	private JumpSignal jumpSignal;
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
+		Tracer.trace("Trying to jump with value = " + this.returnValue);
 		return this.returnValue;
 	}
 
@@ -55,16 +56,16 @@ public class JumpTo extends org.simplity.tp.Action {
 	 *
 	 * @return if this is for a signal, then signal, else null
 	 */
-	public JumpSignal getSignal(){
-		return this.jumpSignal;
+	public boolean canJumpOut() {
+		if (JumpSignal._BREAK.equals(this.toAction) || JumpSignal._STOP.equals(this.toAction)) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
 	public void getReady(int idx, Service service) {
 		super.getReady(idx, service);
-		this.jumpSignal = JumpSignal.getSignal(this.toAction);
-		if(this.jumpSignal == null) {
-			this.returnValue = Value.newTextValue(this.toAction);
-		}
+		this.returnValue = Value.newTextValue(this.toAction);
 	}
 }

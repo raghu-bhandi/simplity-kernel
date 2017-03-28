@@ -34,6 +34,7 @@ import javax.jms.Session;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
+import org.simplity.kernel.MessageBox;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.data.CommonData;
@@ -74,6 +75,11 @@ public class ServiceContext extends CommonData {
 	 * jms session associated with this service
 	 */
 	private Session jmsSession;
+
+	/**
+	 * message box
+	 */
+	private MessageBox messageBox;
 
 	/**
 	 * @param serviceName
@@ -201,8 +207,8 @@ public class ServiceContext extends CommonData {
 		String[] columnNames = { "name", "text", "messageType", "fieldName" };
 		Collection<FormattedMessage> msgs = this.getMessages();
 		int nbr = msgs.size();
-		if( nbr == 0){
-			ValueType[] types = {ValueType.TEXT, ValueType.TEXT, ValueType.TEXT, ValueType.TEXT};
+		if (nbr == 0) {
+			ValueType[] types = { ValueType.TEXT, ValueType.TEXT, ValueType.TEXT, ValueType.TEXT };
 			return new MultiRowsSheet(columnNames, types);
 		}
 		/*
@@ -346,5 +352,39 @@ public class ServiceContext extends CommonData {
 			throw new ApplicationError("This service is not set up for a JMS operation.");
 		}
 		return this.jmsSession;
+	}
+
+	/**
+	 * @param message
+	 */
+	public void putMessageInBox(Object message) {
+		if (this.messageBox == null) {
+			this.messageBox = new MessageBox();
+		}
+		this.messageBox.setMessage(message);
+	}
+
+	/**
+	 * @return message, or null if there is none
+	 */
+	public Object getMessageFromBox() {
+		if (this.messageBox == null) {
+			return null;
+		}
+		return this.messageBox.getMessage();
+	}
+
+	/**
+	 * @param box
+	 */
+	public void setMessageBox(MessageBox box) {
+		this.messageBox = box;
+	}
+
+	/**
+	 * @return message box, or null if there is none
+	 */
+	public MessageBox getMessageBox() {
+		return this.messageBox;
 	}
 }

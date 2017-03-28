@@ -54,7 +54,13 @@ public class RunningJobInfo {
 	 * @return a row of values, in the order as in HEADER
 	 */
 	public String[] toRow() {
-		String[] row = { this.jobName, this.serviceName, "" + this.seqNo, this.jobStatus.toString().toLowerCase(),
+		JobStatus sts = JobStatus.SCHEDULED;
+		if(this.jobStatus == null){
+			sts = JobStatus.SCHEDULED;
+		}else{
+			sts = this.jobStatus;
+		}
+		String[] row = { this.jobName, this.serviceName, "" + this.seqNo, sts.toString().toLowerCase(),
 				this.serviceStatus };
 		return row;
 	}

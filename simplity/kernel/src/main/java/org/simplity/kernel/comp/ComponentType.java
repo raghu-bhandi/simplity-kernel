@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.simplity.job.Batch;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Message;
 import org.simplity.kernel.Tracer;
@@ -107,16 +108,13 @@ public enum ComponentType {
 				/*
 				 * we have to initialize the components
 				 */
-				for (Map.Entry<String, Object> entry : this.cachedOnes
-						.entrySet()) {
+				for (Map.Entry<String, Object> entry : this.cachedOnes.entrySet()) {
 					String fname = entry.getValue().toString();
 					Object obj = null;
 					try {
 						obj = Class.forName(fname).newInstance();
 					} catch (Exception e) {
-						Tracer.trace(e,
-								"Unable to create an instance of Function based on class "
-										+ fname);
+						Tracer.trace(e, "Unable to create an instance of Function based on class " + fname);
 					}
 					if (obj != null) {
 						if (obj instanceof Function) {
@@ -130,10 +128,8 @@ public enum ComponentType {
 				Tracer.trace(this.cachedOnes.size() + " " + this + " loaded.");
 			} catch (Exception e) {
 				this.cachedOnes.clear();
-				Tracer.trace(
-						e,
-						this
-								+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
+				Tracer.trace(e, this
+						+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
 			}
 			for (Function fn : BUILT_IN_FUNCTIONS) {
 				String fname = fn.getSimpleName();
@@ -150,7 +146,12 @@ public enum ComponentType {
 	/**
 	 * test cases for service
 	 */
-	TEST_RUN(7, TestRun.class, "test/", false);
+	TEST_RUN(7, TestRun.class, "test/", false),
+
+	/**
+	 * test cases for service
+	 */
+	BATCH(8, Batch.class, "batch/", false);
 
 	/*
 	 * constants
@@ -206,8 +207,7 @@ public enum ComponentType {
 	 * @param folder
 	 */
 
-	ComponentType(int idx, Class<? extends Component> cls, String folder,
-			boolean preLoaded) {
+	ComponentType(int idx, Class<? extends Component> cls, String folder, boolean preLoaded) {
 		this.idx = idx;
 		this.cls = cls;
 		this.folder = folder;
@@ -315,8 +315,7 @@ public enum ComponentType {
 		if (this.preLoaded) {
 			return this.cachedOnes.values();
 		}
-		throw new ApplicationError(this
-				+ " is not pre-loaded and hence we can not respond to getAll()");
+		throw new ApplicationError(this + " is not pre-loaded and hence we can not respond to getAll()");
 	}
 
 	/**
@@ -331,17 +330,15 @@ public enum ComponentType {
 
 		if (this.cls.isInstance(comp)) {
 			this.cachedOnes.put(comp.getQualifiedName(), comp);
-		} else if (this == ComponentType.SERVICE
-				&& comp instanceof ServiceInterface) {
+		} else if (this == ComponentType.SERVICE && comp instanceof ServiceInterface) {
 			/*
 			 * that was bit clumsy, but the actual occurrence is rare, hence we
 			 * live with that
 			 */
 			this.cachedOnes.put(comp.getQualifiedName(), comp);
 		} else {
-			throw new ApplicationError("An object of type "
-					+ comp.getClass().getName()
-					+ " is being passed as component " + this);
+			throw new ApplicationError(
+					"An object of type " + comp.getClass().getName() + " is being passed as component " + this);
 		}
 	}
 
@@ -379,8 +376,7 @@ public enum ComponentType {
 		if (this.preLoaded) {
 			return this.cachedOnes.get(compName);
 		}
-		String fileName = componentFolder + this.folder
-				+ compName.replace(DELIMITER, FOLDER_CHAR) + EXTN;
+		String fileName = componentFolder + this.folder + compName.replace(DELIMITER, FOLDER_CHAR) + EXTN;
 		Exception exp = null;
 		Object obj = null;
 		try {
@@ -410,8 +406,8 @@ public enum ComponentType {
 		String fullName = comp.getQualifiedName();
 
 		if (compName.equalsIgnoreCase(fullName) == false) {
-			Tracer.trace("Component has a qualified name of " + fullName
-					+ " that is different from its storage name " + compName);
+			Tracer.trace("Component has a qualified name of " + fullName + " that is different from its storage name "
+					+ compName);
 			return null;
 		}
 		return comp;
@@ -438,10 +434,8 @@ public enum ComponentType {
 			Tracer.trace(this.cachedOnes.size() + " " + this + " loaded.");
 		} catch (Exception e) {
 			this.cachedOnes.clear();
-			Tracer.trace(
-					e,
-					this
-							+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
+			Tracer.trace(e, this
+					+ " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
 		}
 	}
 
@@ -459,14 +453,12 @@ public enum ComponentType {
 	 *            is to be loaded as name-value pairs.
 	 * @param objects
 	 */
-	protected static void loadGroups(String folderName, Class<?> rootClass,
-			Map<String, Object> objects) {
+	protected static void loadGroups(String folderName, Class<?> rootClass, Map<String, Object> objects) {
 		String packageName = null;
 		if (rootClass != null) {
 			packageName = rootClass.getPackage().getName() + '.';
 		}
-		for (String resName : FileManager.getResources(componentFolder
-				+ folderName)) {
+		for (String resName : FileManager.getResources(componentFolder + folderName)) {
 			if (resName.endsWith(EXTN) == false) {
 				Tracer.trace("Skipping Non-resource " + resName);
 				continue;
@@ -491,8 +483,7 @@ public enum ComponentType {
 	private static void preLoad() {
 		serviceClasses.clear();
 		loadGroups(CLASS_FOLDER, null, serviceClasses);
-		Tracer.trace(serviceClasses.size()
-				+ " java class names loaded as services.");
+		Tracer.trace(serviceClasses.size() + " java class names loaded as services.");
 		/*
 		 * clean and pre-load if required
 		 */
@@ -536,10 +527,11 @@ public enum ComponentType {
 	}
 
 	/**
-	 * just in case some one does not like to be told to use naming
-	 * conventions...
+	 * set the root folder for components
 	 *
 	 * @param folder
+	 * @return actual folder being used. Possible that the missing folder
+	 *         character is added at the end
 	 */
 	public static String setComponentFolder(String folder) {
 		componentFolder = folder;

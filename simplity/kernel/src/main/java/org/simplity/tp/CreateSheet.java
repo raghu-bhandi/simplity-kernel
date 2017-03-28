@@ -120,7 +120,7 @@ public class CreateSheet extends Action {
 		for (String cell : row) {
 			Value value = null;
 			/*
-			 * is this cell represents name of a field?
+			 * does this cell contain name of a field?
 			 */
 			String fldName = TextUtil.getFieldName(cell);
 			if (fldName == null) {
@@ -161,7 +161,7 @@ public class CreateSheet extends Action {
 			nbr++;
 		}
 		if (this.recordName == null && (this.data == null || this.data.length == 0 || this.data[0].length == 0)) {
-			ctx.addError("either the recordName or data had to be provided");
+			ctx.addError("either the recordName or data has to be provided for createSHeet");
 			nbr++;
 			return nbr;
 		}

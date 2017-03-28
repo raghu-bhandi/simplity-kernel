@@ -24,6 +24,7 @@ package org.simplity.tp;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MessageType;
+import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
@@ -111,15 +112,19 @@ public abstract class Action {
 	 *         field named actionNameResult that can be used by subsequent
 	 *         actions. null implies no such feature
 	 */
-	public Value act(ServiceContext ctx, DbDriver driver) {
+	public final Value act(ServiceContext ctx, DbDriver driver) {
 		/*
 		 * is this a conditional step? i.e. to be executed only if the condition
 		 * is met
 		 */
 
 		if (this.executeOnCondition != null) {
-			try {
-				if (!this.executeOnCondition.evaluate(ctx).toBoolean()) {
+			try{
+				Value val = this.executeOnCondition.evaluate(ctx);
+				if(Value.intepretAsBoolean(val)){
+					Tracer.trace("Cleared the condition " + this.executeOnCondition + " for action to proceed.");
+				}else{
+					Tracer.trace("Condition " + this.executeOnCondition + " and hence skipping this action.");
 					return null;
 				}
 			} catch (Exception e) {

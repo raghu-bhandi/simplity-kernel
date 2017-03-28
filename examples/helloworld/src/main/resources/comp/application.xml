@@ -3,10 +3,11 @@
 	xmlns="http://www.simplity.org/schema"
 	applicationId="HelloWorld"
 	autoLoginUserId="100"
-	loggingFramework="log4j"
+	loggingFramework="log4jClassic"
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
 	connectionString="jdbc:h2:file:${project.build.directory}/hw;user=sa;"
+	batchJobToRunOnStartup="batch"
 >
 <schemaDetails>
 	<schemaDetail schemaName="testSchema" connectionString="jdbc:h2:file:${project.build.directory}/hw;SCHEMA=TEST_SCHEMA;user=sa;"/>

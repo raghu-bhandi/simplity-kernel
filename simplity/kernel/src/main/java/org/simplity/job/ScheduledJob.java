@@ -25,18 +25,28 @@ package org.simplity.job;
 import java.util.List;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import org.simplity.kernel.Tracer;
+import org.simplity.kernel.value.Value;
+
 /**
- * A job that is added to a scheduler. manages running jobs for the job that is
- * scheduled
+ * Wrapper on a job when it is scheduled
  *
  * @author simplity.org
  *
  */
-public interface ScheduledJob {
+public abstract class ScheduledJob {
 	/**
 	 * due at value to denote that this job will nt submit again
 	 */
 	public static final int NEVER = -1;
+
+	protected final Job scheduledJob;
+	protected boolean isScheduled;
+	protected Value userId;
+	ScheduledJob(Job job, Value uid) {
+		this.scheduledJob = job;
+		this.userId = uid;
+	}
 
 	/**
 	 * schedule running jobs using the executor
@@ -45,12 +55,20 @@ public interface ScheduledJob {
 	 * @return true if this needs polling. false if executor can manage its
 	 *         scheduling
 	 */
-	public boolean schedule(ScheduledThreadPoolExecutor executor);
+	public boolean schedule(ScheduledThreadPoolExecutor executor) {
+		if (this.isScheduled) {
+			Tracer.trace(this.scheduledJob.name + " is already scheduled");
+			return false;
+		}
+		this.isScheduled = true;
+		return this.scheduleJobs(executor);
+	}
 
+	abstract boolean scheduleJobs(ScheduledThreadPoolExecutor executor);
 	/**
-	 * @param executor
+	 * cancel this job
 	 */
-	public void cancel(ScheduledThreadPoolExecutor executor);
+	abstract void cancel();
 
 	/**
 	 * add another thread to this job. ignored if this is a batch job, or if
@@ -58,7 +76,9 @@ public interface ScheduledJob {
 	 *
 	 * @param executor
 	 */
-	public void incrmentThread(ScheduledThreadPoolExecutor executor);
+	public void incrmentThread(ScheduledThreadPoolExecutor executor) {
+		this.noChange();
+	}
 
 	/**
 	 * reduce a thread from this job. ignored if this is a batch job, or if
@@ -66,14 +86,50 @@ public interface ScheduledJob {
 	 *
 	 * @param executor
 	 */
-	public void decrmentThread(ScheduledThreadPoolExecutor executor);
+	public void decrmentThread(ScheduledThreadPoolExecutor executor) {
+		this.noChange();
+	}
+
+	private void noChange() {
+		Tracer.trace("Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
+	}
 
 	/**
 	 * add status of running jobs into the list
 	 *
 	 * @param infoList
 	 */
-	public void putStatus(List<RunningJobInfo> infoList);
+	public void putStatus(List<RunningJobInfo> infoList) {
+		JobStatus sts = null;
+		if(this.isScheduled == false){
+			sts = JobStatus.CANCELLED;
+		}
+		 this.putJobStatusStub(sts, infoList);
+	}
+
+	/**
+	 * @param sts
+	 * @param infoList
+	 */
+	protected abstract void putJobStatusStub(JobStatus sts, List<RunningJobInfo> infoList);
+
+	/**
+	 * @param sts
+	 * @param runningJob2
+	 * @param infoList
+	 */
+	protected void putJobStatus(JobStatus sts, RunningJob rj, List<RunningJobInfo> infoList, int seq) {
+		JobStatus status = sts;
+		String serviceStatus = "unknown";
+		if(rj != null){
+			if(sts == null){
+				status = rj.getJobStatus();
+			}
+			serviceStatus =  rj.getServiceStatus();
+		}
+		RunningJobInfo info = new RunningJobInfo(this.scheduledJob.name, this.scheduledJob.serviceName, status, seq, serviceStatus);
+		infoList.add(info);
+	}
 
 	/**
 	 * poll wake-up for the scheduled job to check whether it should submit
@@ -84,5 +140,7 @@ public interface ScheduledJob {
 	 * @param referenceMinutes
 	 * @return number of minutes. NEVER to indicate that this job need not be
 	 */
-	public int poll(int referenceMinutes);
+	public int poll(int referenceMinutes) {
+		return ScheduledJob.NEVER;
+	}
 }

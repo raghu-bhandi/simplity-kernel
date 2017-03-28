@@ -15,6 +15,8 @@ This example provides an overview
  	
  	Once the application is host, this can be tested with get and post request to
  http://localhost:8080/helloworld/rest/nest/helloworld
- 
+ 4. File upload and download 
+ 	- uploads the file and generates a random key for each uploaded file and stores it in temp area
+	- File download method takes the generated file key and downloads the file with the name we have provided along with file key
 
      

@@ -86,7 +86,7 @@ public class JmsProducer extends Action {
 			vtx.addError("requestQueue is required");
 			count++;
 		} else {
-			if (this.requestQueue.getQueue() == null) {
+			if (this.requestQueue.getName() == null) {
 				vtx.addError("queName is required for requestQueue");
 				count++;
 			}
@@ -94,6 +94,10 @@ public class JmsProducer extends Action {
 		}
 		if (this.responseQueue != null) {
 			count += this.responseQueue.validate(vtx, false);
+		}
+		if(service.jmsUsage == null){
+			vtx.addError("Service uses JMS but has not specified jmsUsage attribute.");
+			count ++;
 		}
 		return count;
 	}

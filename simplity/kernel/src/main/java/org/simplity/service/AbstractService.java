@@ -23,6 +23,7 @@
 package org.simplity.service;
 
 import org.simplity.kernel.FormattedMessage;
+import org.simplity.kernel.MessageBox;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -184,6 +185,10 @@ public abstract class AbstractService implements ServiceInterface {
 			} else {
 				ctx.setObject(key, val);
 			}
+		}
+		MessageBox box = inData.getMessageBox();
+		if(box != null){
+			ctx.setMessageBox(box);
 		}
 		if (extractPayloadAsWell == false) {
 			return ctx;

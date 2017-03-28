@@ -39,9 +39,18 @@ public enum JumpSignal {
 	 * stop the service normally
 	 */
 	STOP;
-	private static final String _STOP = "_stop";
-	private static final String _CONTINUE = "_continue";
-	private static final String _BREAK = "_break";
+	/**
+	 * convention to signal stop
+	 */
+	public static final String _STOP = "_stop";
+	/**
+	 * convention to signal continue to the next iteration of a loop
+	 */
+	public static final String _CONTINUE = "_continue";
+	/**
+	 * convention to signal breaking out of a loop
+	 */
+	public static final String _BREAK = "_break";
 	/**
 	 * check if this text is a signal. null if it is not.
 	 * @param text

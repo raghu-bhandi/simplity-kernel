@@ -28,6 +28,7 @@ import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
+import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
@@ -140,7 +141,7 @@ public class Job {
 			}
 		}
 		if(this.runAtTheseTimes != null){
-			this.setTimes();
+			this.timesOfDay = this.getTimes(this.runAtTheseTimes);
 		}
 	}
 
@@ -148,16 +149,16 @@ public class Job {
 	 * @param uid
 	 * @return instance of a scheduled job
 	 */
-	public ScheduledJob getScheduledJob(Value uid) {
+	public ScheduledJob createScheduledJob(Value uid) {
 		Value val = this.userIdValue;
 		if(val == null){
 			val = uid;
 		}
 		if(this.timesOfDay != null){
-			return new DayJob(this, val, this.timesOfDay);
+			return new PeriodicJob(this, val, this.timesOfDay);
 		}
 		if(this.runInterval > 0){
-			return new BatchJob(this, val);
+			return new IntervalJob(this, val);
 		}
 		return new ListenerJob(this, val);
 	}
@@ -185,21 +186,53 @@ public class Job {
 		return new RunningJob(service, inData);
 	}
 
-	private void setTimes(){
-		this.timesOfDay = new int[this.runAtTheseTimes.length];
-		for(int i = 0; i < this.timesOfDay.length; i++){
-			String[] pair = this.runAtTheseTimes[i].split(":");
+	private int[] getTimes(String[] texts){
+
+		int times[] = new int[texts.length];
+		for(int i = 0; i < texts.length; i++){
+			String[] pair = texts[i].split(":");
 			if(pair.length != 2){
-				throw new ApplicationError("Job " + this.name + " has an invalied time-of-day " + this.runAtTheseTimes[i] + ". hh:mm, hh:mm,..  formatis expected.");
+				this.wrongOne(i);
 			}
 			try{
 				int hh = Integer.parseInt(pair[0].trim(), 10);
 				int mm = Integer.parseInt(pair[1].trim(), 10);
-				this.timesOfDay[i] = hh * 60 + mm;
+				if(hh < 0 || mm < 0 || hh > 23 || mm > 59){
+					this.wrongOne(i);
+				}
+				times[i] = hh * 60 + mm;
 			}catch(Exception e){
-				throw new ApplicationError("Job " + this.name + " has an invalied time-of-day " + this.runAtTheseTimes[i] + ". hh:mm, hh:mm,..  formatis expected.");
+				this.wrongOne(i);
 			}
 		}
-		Arrays.sort(this.timesOfDay);
+		Arrays.sort(times);
+		return times;
+	}
+
+	private void wrongOne(int i){
+		throw new ApplicationError("Job " + this.name + " has an invalied time-of-day " + this.runAtTheseTimes[i] + ". hh:mm, hh:mm,..  format is expected.");
+	}
+	/**
+	 * @param vtx
+	 * @return number of errors
+	 */
+	int validate(ValidationContext vtx) {
+		int count = 0;
+		count += vtx.checkMandatoryField("name", this.name);
+		count += vtx.checkMandatoryField("serviceName", this.serviceName);
+		if(this.runInterval == 0 && this.nbrDedicatedThreads == 0 && this.runAtTheseTimes == null){
+			vtx.reportUnusualSetting("Job " + this.name + " has not specified any attributes for running. Assumed nbrDedicatedThread=1");
+		}
+		if(this.runAtTheseTimes != null){
+			if(this.runInterval > 0){
+				vtx.reportUnusualSetting("Job " + this.name + " has specified runAtTheseTimes, and hence runInterval=" + this.runInterval + " ignored.");
+			}
+			if(this.nbrDedicatedThreads > 0){
+				vtx.reportUnusualSetting("Job " + this.name + " has specified runAtTheseTimes, and hence nbrDedicatedThreads=" + this.nbrDedicatedThreads + " ignored");
+			}
+		}else if(this.runInterval > 0 && this.nbrDedicatedThreads > 0){
+			vtx.reportUnusualSetting("Job " + this.name + " has specified nbrDedicatedThreads, and hence runInterval=" + this.runInterval + " ignored");
+		}
+		return count;
 	}
 }

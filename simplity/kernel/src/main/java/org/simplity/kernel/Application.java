@@ -31,6 +31,7 @@ import javax.transaction.UserTransaction;
 import org.simplity.http.HttpAgent;
 import org.simplity.http.Serve;
 import org.simplity.jms.JmsConnector;
+import org.simplity.job.Batch;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -303,10 +304,19 @@ public class Application {
 	 */
 	String queueConnectionFactory;
 	/**
+	 * properties of jms connection, like user name password and other flags
+	 */
+	Property[] jmsProperties;
+	/**
 	 * if JMS is used by this application, connection factory for JTA/JCA/XA
 	 * managed operations
 	 */
 	String xaQueueConnectionFactory;
+
+	/**
+	 * batch job to fire after boot-strapping.
+	 */
+	String batchJobToRunOnStartup;
 
 	/**
 	 * configure application based on the settings. This MUST be triggered
@@ -392,7 +402,7 @@ public class Application {
 		 * Setup JMS Connection factory
 		 */
 		if (this.queueConnectionFactory != null || this.xaQueueConnectionFactory != null) {
-			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory);
+			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory, this.jmsProperties);
 			if (msg != null) {
 				msgs.add(msg);
 			}
@@ -499,8 +509,16 @@ public class Application {
 			for (String msg : msgs) {
 				err.append(msg).append('\n');
 			}
+			if (this.batchJobToRunOnStartup != null) {
+				err.append("Scheduler NOT started for batch " + this.batchJobToRunOnStartup
+						+ " because of issues with application set up.");
+				err.append('\n');
+			}
 			result = err.toString();
 			Tracer.trace(result);
+		} else if (this.batchJobToRunOnStartup != null) {
+			Batch.startBatch(this.batchJobToRunOnStartup);
+			Tracer.trace("Scheduler started for Batch " + this.batchJobToRunOnStartup);
 		}
 		/*
 		 * we will output all the messages to console as well, just in case the
@@ -509,6 +527,9 @@ public class Application {
 		 */
 		System.out.println(Tracer.stopAccumulation());
 
+		/*
+		 * we run the background batch job only if everything has gone well.
+		 */
 		return result;
 	}
 
@@ -704,8 +725,8 @@ public class Application {
 
 	private static void printUsage() {
 		System.out.println(
-				"Usage : java  org.simplity.kernel.Applicaiton componentFolderPath serviceName inputParam1=vaue1 ...");
+				"Usage : java  org.simplity.kernel.Application componentFolderPath serviceName inputParam1=vaue1 ...");
 		System.out.println(
-				"example : java  org.simplity.kernel.Applicaiton /user/data/ serviceName inputParam1=vaue1 ...");
+				"example : java  org.simplity.kernel.Application /user/data/ serviceName inputParam1=vaue1 ...");
 	}
 }

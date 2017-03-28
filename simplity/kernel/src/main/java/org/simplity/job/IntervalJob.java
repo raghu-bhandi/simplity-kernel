@@ -23,7 +23,7 @@
 package org.simplity.job;
 
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -37,17 +37,15 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  *
  */
-public class BatchJob implements ScheduledJob {
+public class IntervalJob extends ScheduledJob {
+	/*
+	 * we have only one job
+	 */
+	protected RunningJob runningJob;
+	protected Future<?> future;
 
-	private final Job scheduledJob;
-	private Value userId;
-	private RunningJob runningJob;
-	private boolean isScheduled;
-	private ScheduledFuture<?> future;
-
-	BatchJob(Job job, Value userId) {
-		this.scheduledJob = job;
-		this.userId = userId;
+	IntervalJob(Job job, Value uid) {
+		super(job, uid);
 	}
 
 	/*
@@ -57,14 +55,9 @@ public class BatchJob implements ScheduledJob {
 	 * ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public boolean schedule(ScheduledThreadPoolExecutor executor) {
-		if (this.isScheduled) {
-			Tracer.trace(this.scheduledJob.name + " is already scheduled");
-			return false;
-		}
+	public boolean scheduleJobs(ScheduledThreadPoolExecutor executor) {
 		this.runningJob = this.scheduledJob.createRunningJob(this.userId);
 		this.future = executor.scheduleAtFixedRate(this.runningJob, 0, this.scheduledJob.runInterval, TimeUnit.SECONDS);
-		this.isScheduled = true;
 		return false;
 	}
 
@@ -76,8 +69,11 @@ public class BatchJob implements ScheduledJob {
 	 * ScheduledThreadPoolExecutor)
 	 */
 	@Override
-	public void cancel(ScheduledThreadPoolExecutor executor) {
-		this.future.cancel(true);
+	public void cancel() {
+		if (this.future != null) {
+			this.future.cancel(true);
+		}
+		this.isScheduled = false;
 	}
 
 	/*
@@ -112,22 +108,13 @@ public class BatchJob implements ScheduledJob {
 	 * @see org.simplity.job.ScheduledJob#putStatus(java.util.List)
 	 */
 	@Override
-	public void putStatus(List<RunningJobInfo> infoList) {
-		JobStatus sts;
-		if(this.isScheduled == false){
-			sts = JobStatus.CANCELLED;
-		}else if(this.future == null){
-			sts = JobStatus.SCHEDULED;
-		}else if(this.future.isCancelled()){
-			sts = JobStatus.CANCELLED;
-		}else{
-			sts = this.runningJob.jobStatus;
-		}
-		RunningJobInfo info = new RunningJobInfo(this.scheduledJob.name, this.scheduledJob.serviceName, sts, 0, "");
-		infoList.add(info);
+	public void putJobStatusStub(JobStatus sts, List<RunningJobInfo> infoList) {
+		this.putJobStatus(sts, this.runningJob, infoList, 0);
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see org.simplity.job.ScheduledJob#poll(int)
 	 */
 	@Override

@@ -637,7 +637,7 @@ public class HttpAgent {
 			userId = (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
 			if (userId == null) {
 				Tracer.trace("autoLoginUserId is set to " + autoLoginUserId
-						+ " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in applicaiton.xml and ensure that your service clears this dummy userId with no credentials");
+						+ " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in application.xml and ensure that your service clears this dummy userId with no credentials");
 				return null;
 			}
 			Tracer.trace("User " + userId + " auto logged-in");

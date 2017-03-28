@@ -813,4 +813,11 @@ public class JmsQueue {
 
 		return count;
 	}
+
+	/**
+	 * @return name of the queue
+	 */
+	public Object getName() {
+		return this.queueName;
+	}
 }
