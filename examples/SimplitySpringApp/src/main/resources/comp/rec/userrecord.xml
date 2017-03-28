@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<record name="userrecord"
+		moduleName="SimplitySpringApp"
+		recordType="storage" 
+		okToSelectAll="true"	
+		keyToBeGenerated="true"	
+	    xmlns="http://www.simplity.org/schema">
+	<fields>
+		<field name ="id" dataType="_number" fieldType="primaryKey"/>
+		<field name="username" dataType="_text"/>
+		<field name ="password" dataType="_text"/>
+		<field name ="email" dataType="_text"/>
+	</fields>
+	
+</record>

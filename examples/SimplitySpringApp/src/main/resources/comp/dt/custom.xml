@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<dataTypes
+	name="kernel"
+	xmlns="http://www.simplity.org/schema"
+>
+	<!-- These are the data types that are defined and used internally by Simplity. 
+		DO NOT DELETE THESE. These are available in declaredDataTypes.xsd These serve 
+		as only quick-and-dirty types to kick-start your applicaiton. But you should 
+		look at other .xml files in this folder -->
+	<components>
+		<textDataType
+			name="text6"
+			maxLength="6" />
+		<textDataType
+			name="text40"
+			maxLength="40" />
+		<textDataType
+			name="text35"
+			maxLength="35" />
+		<textDataType
+			name="text15"
+			maxLength="15" />
+		<textDataType
+			name="text25"
+			maxLength="25" />
+		<textDataType
+			name="text20"
+			maxLength="20" />
+		<textDataType
+			name="text17"
+			maxLength="17" />
+		<textDataType
+			name="text30"
+			maxLength="30" />
+		<textDataType
+			name="text60"
+			maxLength="60" />
+
+	</components>
+</dataTypes>

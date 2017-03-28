@@ -11,7 +11,7 @@
 	</inputData>
 	<actions>
 		<jmsProducer>
-			<requestQueue queueName="jms/Queue01" fieldNames="message"/>
+			<requestQueue queueName="java:/jms/Queue01" fieldNames="message"/>
 		</jmsProducer>
 	</actions>
 </service>

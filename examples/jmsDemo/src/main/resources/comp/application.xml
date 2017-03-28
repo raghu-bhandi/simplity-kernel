@@ -4,6 +4,6 @@
 	applicationId="HelloWorld"
 	autoLoginUserId="100"
 	loggingFramework="log4j"
-	queueConnectionFactory="jms/__defaultConnectionFactory"
+	queueConnectionFactory="java:/jms/__defaultConnectionFactory"
 	>
 </application>

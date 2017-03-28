@@ -6,7 +6,7 @@
 	jmsUsage="notManaged">
 	<actions>
 		<jmsConsumer waitForMessage="false" consumeAll="true">
-			<requestQueue queueName="jms/Queue01" extractAll="true"/>
+			<requestQueue queueName="java:/jms/Queue01" extractAll="true"/>
 			<actions>
 				<log names="message"/>
 			</actions>

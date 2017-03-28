@@ -1,0 +1,51 @@
+<html>
+<head>
+<script src="js/simplity-min.js"></script>
+<script type="text/javascript">
+	function getUsers() {
+		Simplity.getResponse("fetchUserRecord", null, onGetUsersSuccess, onGetUsersError);
+	}
+
+	function onGetUsersSuccess(response) {
+	var table = document.getElementById("userTable");
+		
+		for ( var index in response.userrecord) {
+			if (response.userrecord.hasOwnProperty(index)) {
+				var row = table.insertRow(index);
+				var checkboxCell = row.insertCell(0);
+				checkboxCell.innerHTML = '<tr><td>' + response.userrecord[index].id + '</td><td>' 
+													+ response.userrecord[index].username + '</td><td>' 
+													+ response.userrecord[index].password + '</td><td>'
+													+ response.userrecord[index].email + '</td></tr>';
+			}
+		}
+	}
+
+	function onGetUsersError(response) {
+		alert('Unable to fetch user data - Error occured');
+		console.log(response);
+	}
+</script>
+<style>
+table, th, td {
+    border: 1px solid black;
+}
+</style>
+</head>
+<body>
+	<h2>Hello World!</h2>
+	<br>
+	<button onclick="getUsers()">abc</button>
+	<br>
+	<br>
+	<table id="userTable">
+		<tr>
+			<th>ID</th>
+			<th>User Name</th>
+			<th>Password</th>
+			<th>Email</th>
+		</tr>
+	</table>
+
+</body>
+</html>
