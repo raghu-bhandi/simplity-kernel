@@ -970,6 +970,7 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+
 	<xs:simpleType name="dbAccessType">
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="none">
@@ -984,8 +985,9 @@
 			</xs:enumeration>
 			<xs:enumeration value="readWrite">
 				<xs:annotation>
-					<xs:documentation>database is updated as a single transaction. It
-						is committed or rolled back at the end of this service
+					<xs:documentation>database is updated as a single transaction.
+						It is
+						committed or rolled back at the end of this service
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
@@ -1000,20 +1002,23 @@
 			<xs:enumeration value="subService">
 				<xs:annotation>
 					<xs:documentation>No database use by actions, except for
-						sub-service-actions. Each of the sub-service will manage its own
+						sub-service-actions. Each of the sub-service will manage its
+						own
 						transaction.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
 			<xs:enumeration value="external">
 				<xs:annotation>
-					<xs:documentation>we do read_write, but the transaction is managed
+					<xs:documentation>we do read_write, but the transaction is
+						managed
 						externally, like JTA/JCA/XA
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
+
 	<xs:simpleType name="jmsUsage">
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="notManaged">
@@ -1091,8 +1096,10 @@
 			<xs:annotation>
 				<xs:documentation>Name of the field to which the pay-load is
 					assigned to. If this feature is used, pay-load is not parsed at
-					all, but simply assigned to the field as it is. It is assumed that
-					the service actions will take care of it
+					all,
+					but simply assigned to the field as it is. It is assumed that
+					the
+					service actions will take care of it
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1200,8 +1207,10 @@
 			type="xs:string"
 		>
 			<xs:annotation>
-				<xs:documentation> Use this feature is the service has already
-					prepared a pay-load. Content of this field is used as pay-load.
+				<xs:documentation>
+					Use this feature is the service has already
+					prepared a pay-load.
+					Content of this field is used as pay-load.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1210,9 +1219,12 @@
 			type="booleanType"
 		>
 			<xs:annotation>
-				<xs:documentation> Do not use this for any business service. To be
-					used for testing purposes, and by utility services. all values,
-					arrays and data sheet are written out as paylaod
+				<xs:documentation>
+					Do not use this for any business service. To be
+					used for testing
+					purposes, and by utility services. all values,
+					arrays and data
+					sheet are written out as paylaod
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1734,6 +1746,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:element name="block">
 		<xs:complexType>
 			<xs:sequence
@@ -1748,6 +1761,7 @@
 			</xs:sequence>
 			<xs:attributeGroup ref="actionAttributes" />
 		</xs:complexType>
+
 	</xs:element>
 	<xs:complexType name="copyRows">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -1841,6 +1855,50 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+	<xs:complexType name="encryption">
+		<xs:attributeGroup ref="actionAttributes" />
+		<xs:attribute
+			name="fieldNames"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>comma separated list of fields to work encrypt or
+					decrypt
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="columnNames"
+			type="xs:string"
+			use="optional"
+		>
+			<xs:annotation>
+				<xs:documentation>like sheet1.colName1,sheet2.colName1. comma
+					separated list, each one is of the form sheetNAme.columnName
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="operation"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>comma separated list of fields to work encrypt or
+					decrypt
+				</xs:documentation>
+			</xs:annotation>
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="encrypt" />
+					<xs:enumeration value="decrypt" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+
+
+
 	<xs:complexType name="executeSp">
 		<xs:attributeGroup ref="dbActionAttributes" />
 		<xs:attribute
@@ -1969,6 +2027,7 @@
 			<xs:enumeration value="text/html" />
 		</xs:restriction>
 	</xs:simpleType>
+
 	<xs:complexType name="httpClient">
 		<xs:all>
 			<xs:element
@@ -2106,6 +2165,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:complexType name="jmsConsumer">
 		<xs:all>
 			<xs:element
@@ -2124,6 +2184,7 @@
 				maxOccurs="1"
 				type="actions" />
 		</xs:all>
+
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
 			name="waitForMessage"
@@ -2152,6 +2213,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:complexType name="jmsProducer">
 		<xs:all>
 			<xs:element
@@ -2167,6 +2229,7 @@
 		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
+
 	<xs:complexType name="jumpTo">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2294,6 +2357,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:complexType name="dropIntoMessageBox">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2318,6 +2382,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:complexType name="pickupFromMessageBox">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2332,6 +2397,8 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
+
 	<xs:complexType name="read">
 		<xs:sequence>
 			<xs:element
@@ -2688,6 +2755,7 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+
 				<xs:element
 					name="actionOnErrorWhileProcessing"
 					type="anAction"
@@ -2700,6 +2768,7 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+
 			</xs:all>
 			<xs:attributeGroup ref="actionAttributes" />
 			<xs:attribute
@@ -3364,12 +3433,9 @@
 				</xs:annotation>
 				<xs:simpleType>
 					<xs:restriction base="xs:NCName">
-						<xs:enumeration value="log4jClassic">
-							<xs:annotation>
-								<xs:documentation>Old log4J uses log4j-1.2-SNAPSHOT.17.jar
-								</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
+						<!-- not used any more any ways.... let us wait for some one to ask... 
+							<xs:enumeration value="log4jClassic"><xs:annotation><xs:documentation>Old 
+							log4J uses log4j-1.2-SNAPSHOT.17.jar</xs:documentation></xs:annotation></xs:enumeration> -->
 						<xs:enumeration value="log4j">
 							<xs:annotation>
 								<xs:documentation>Version 2.* of log4J. uses log4j-api-2.7.jar
@@ -3437,6 +3503,7 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+
 	<xs:element name="jmsProperties">
 		<xs:complexType>
 			<xs:sequence>
@@ -3447,6 +3514,7 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
+
 	<xs:element name="property">
 		<xs:complexType>
 			<xs:attribute
@@ -3832,6 +3900,9 @@
 				name="dropIntoMessageBox"
 				type="dropIntoMessageBox" />
 			<xs:element
+				name="encryption"
+				type="encryption" />
+			<xs:element
 				name="executeSp"
 				type="executeSp" />
 			<xs:element
@@ -3921,7 +3992,8 @@
 		>
 			<xs:annotation>
 				<xs:documentation>JNDI name to locate the queue. Required for
-					request queue. Temp queue is used for response if name is not
+					request queue. Temp queue is used for
+					response if name is not
 					specified.
 				</xs:documentation>
 			</xs:annotation>
@@ -3999,6 +4071,7 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+
 		<xs:attribute
 			name="messageType"
 			type="xs:string"
@@ -4010,6 +4083,7 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+
 	<xs:simpleType name="flatFileType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="fixedWidth">
@@ -4028,6 +4102,7 @@
 			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
+
 	<xs:simpleType name="dataSerializationType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="text">
@@ -4066,6 +4141,7 @@
 			<xs:enumeration value="map" />
 		</xs:restriction>
 	</xs:simpleType>
+
 	<xs:element name="batch">
 		<xs:complexType>
 			<xs:sequence>
@@ -4081,13 +4157,14 @@
 				type="xs:string" />
 			<xs:attribute
 				name="maxThreads"
-				use="optional"
+				use="required"
 				type="xs:int"
 			>
 				<xs:annotation>
 					<xs:documentation>maximum number of threads to be allocated to the
 						batch. This is same as corePoolSize of java
-						ScheduledThreadPoolExecutor that we use below the carpet
+						ScheduledThreadPoolExecutor that we use below the carpet. MUST BE
+						greater than 0
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -4117,6 +4194,7 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+
 	<xs:complexType name="jobs">
 		<xs:sequence>
 			<xs:element
@@ -4162,8 +4240,10 @@
 					>
 						<xs:annotation>
 							<xs:documentation>userId to be used for running this job.
-								Overrides setting at jobs/application. Service is executed with
-								thisuser as logged-in user
+								Overrides
+								setting at jobs/application. Service is executed with
+								thisuser as
+								logged-in user
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -4212,15 +4292,18 @@
 						<xs:annotation>
 							<xs:documentation>use this if this is a listener/background job
 								that is run once. min value is 1. If more than 1 is specified,
-								the job is fired on that many threads simultneously, subject to
+								the
+								job is fired on that many threads simultneously, subject to
 								availablity of threads in this scheduler.
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
 				</xs:complexType>
+
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+
 	<xs:complexType name="jobInputFields">
 		<xs:sequence
 			minOccurs="0"

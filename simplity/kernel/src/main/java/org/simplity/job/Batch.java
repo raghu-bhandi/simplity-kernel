@@ -331,15 +331,16 @@ public class Batch implements Component {
 
 	}
 
-	private void appendJob(Job job){
+	private void appendJob(Job job) {
 		int nbr = this.jobs.length;
-		Job[] newJobs = new Job[nbr+1];
-		for(int i = 0; i < nbr; i++){
+		Job[] newJobs = new Job[nbr + 1];
+		for (int i = 0; i < nbr; i++) {
 			newJobs[i] = this.jobs[i];
 		}
 		newJobs[nbr] = job;
 		this.jobs = newJobs;
 	}
+
 	/**
 	 * @param job
 	 */
@@ -347,7 +348,7 @@ public class Batch implements Component {
 		/*
 		 * add this job to the polled jobs array
 		 */
-		if(this.polledJobs != null){
+		if (this.polledJobs != null) {
 			int nbr = this.polledJobs.length;
 			ScheduledJob[] newOnes = new ScheduledJob[nbr + 1];
 			newOnes[nbr] = job;
@@ -356,7 +357,7 @@ public class Batch implements Component {
 			}
 			this.polledJobs = newOnes;
 			this.scheduler.interrupt(false);
-		}else{
+		} else {
 			this.polledJobs = new ScheduledJob[1];
 			this.polledJobs[0] = job;
 		}
@@ -396,6 +397,10 @@ public class Batch implements Component {
 	 */
 	@Override
 	public void getReady() {
+		if (this.maxThreads <= 0) {
+			throw new ApplicationError(
+					"maxThreads is a required attribute for batch. This is the maximum number of jobs that would be run simultaneously by the scheduler. Any job that needs to be fired will haave to wait for a running job to stop, if the number of jobs already running matches this number");
+		}
 		for (Job job : this.jobs) {
 			job.getReady();
 		}

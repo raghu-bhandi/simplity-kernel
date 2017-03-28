@@ -23,33 +23,14 @@ package org.simplity.kernel.util;
 
 import java.io.File;
 import java.io.FilenameFilter;
-/*
- * Copyright (c) 2016 simplity.org
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.xerces.impl.dv.util.Base64;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidExpressionException;
@@ -75,6 +56,7 @@ public class TextUtil {
 	private static final String UNDER_STR = "_";
 	private static final int TO_LOWER = LOWER_A - A;
 	private static final char DELIMITER = '.';
+	private static final String UTF8 = "UTF-8";
 
 	/**
 	 * convert a name that follows variableName notation to CONSTANT_NAME
@@ -196,8 +178,7 @@ public class TextUtil {
 			Class<?> eleType = type.getComponentType();
 			if (ReflectUtil.isValueType(eleType)) {
 				return parseArray(eleType, value);
-			} else if (eleType.isArray() && ReflectUtil.isValueType(eleType
-					.getComponentType())) {
+			} else if (eleType.isArray() && ReflectUtil.isValueType(eleType.getComponentType())) {
 				/*
 				 * 2-d array of values?
 				 */
@@ -236,8 +217,7 @@ public class TextUtil {
 	 *             for any issue while parsing the text into an array of this
 	 *             type
 	 */
-	public static Object parseArray(Class<?> type, String value)
-			throws XmlParseException {
+	public static Object parseArray(Class<?> type, String value) throws XmlParseException {
 		String[] parts = value.split(ARRAY_DELIMITER);
 		int nbr = parts.length;
 		Object array = Array.newInstance(type, nbr);
@@ -260,8 +240,7 @@ public class TextUtil {
 	 * @throws XmlParseException
 	 *             for any issue while parsing the text
 	 */
-	public static Object parse2dArray(Class<?> type, String text)
-			throws XmlParseException {
+	public static Object parse2dArray(Class<?> type, String text) throws XmlParseException {
 		String[] parts = text.split(ROW_DLIMITER);
 		int nbr = parts.length;
 		Object array = Array.newInstance(type, nbr);
@@ -435,8 +414,7 @@ public class TextUtil {
 	 * @param fieldValues
 	 * @return resultant text
 	 */
-	public static String substituteFields(String textWithFieldNames,
-			FieldsInterface fieldValues) {
+	public static String substituteFields(String textWithFieldNames, FieldsInterface fieldValues) {
 		/*
 		 * if there is no $?
 		 */
@@ -477,8 +455,7 @@ public class TextUtil {
 	 * @param fieldValues
 	 * @return resultant text
 	 */
-	public static String substituteFields(String[] textParts,
-			FieldsInterface fieldValues) {
+	public static String substituteFields(String[] textParts, FieldsInterface fieldValues) {
 		StringBuilder sbf = new StringBuilder(textParts[0]);
 		int done = textParts.length;
 		int idx = 1;
@@ -502,7 +479,7 @@ public class TextUtil {
 	 *         folder
 	 */
 	public static FilenameFilter getFileNameFilter(String pattern) {
-		return new MyFileFilter(pattern);
+		return new FileFilterWorker(pattern);
 	}
 
 	/**
@@ -545,12 +522,43 @@ public class TextUtil {
 		return result;
 	}
 
+	/**
+	 * @param string
+	 * @return Base64 encrypted string
+	 */
+	public static String encrypt(String string) {
+		try {
+			return Base64.encode(string.getBytes(UTF8));
+		} catch (UnsupportedEncodingException ignore) {
+			// we do know that it is supported
+			return null;
+		}
+	}
+
+	/**
+	 * @param string
+	 * @return decrypted string
+	 */
+	public static String decrypt(String string) {
+		try {
+			return new String(Base64.decode(string), UTF8);
+		} catch (UnsupportedEncodingException ignore) {
+			// we do know that it is supported
+			return null;
+		}
+	}
+
 }
 
-class MyFileFilter implements FilenameFilter {
+/**
+ *
+ * @author simplity.org
+ *
+ */
+class FileFilterWorker implements FilenameFilter {
 	private final Pattern pattern;
 
-	MyFileFilter(String filePattern) {
+	FileFilterWorker(String filePattern) {
 		this.pattern = Pattern.compile(filePattern);
 	}
 
