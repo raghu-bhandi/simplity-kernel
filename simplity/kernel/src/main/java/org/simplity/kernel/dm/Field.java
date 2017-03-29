@@ -181,6 +181,11 @@ public class Field {
 	 * number of characters this field is taking-up
 	 */
 	int fieldWidth;
+
+	/**
+	 * is this field encrypted
+	 */
+	boolean isEncrypted;
 	/*
 	 * fields that are cached for performance
 	 */
