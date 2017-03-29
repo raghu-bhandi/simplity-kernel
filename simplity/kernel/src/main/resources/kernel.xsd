@@ -391,6 +391,19 @@
 											</xs:documentation>
 										</xs:annotation>
 									</xs:attribute>
+									<xs:attribute
+										name="isEncrypted"
+										type="booleanType"
+										use="optional"
+									>
+										<xs:annotation>
+											<xs:documentation>Is this field to be encrypted before
+												pushing to data base? Once this is set, all record-based
+												actions (like read, filter save)will automatically take care
+												of encrypt/decrypt
+											</xs:documentation>
+										</xs:annotation>
+									</xs:attribute>
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
@@ -1863,7 +1876,7 @@
 			use="optional"
 		>
 			<xs:annotation>
-				<xs:documentation>comma separated list of fields to work encrypt or
+				<xs:documentation>comma separated list of fields to encrypt or
 					decrypt
 				</xs:documentation>
 			</xs:annotation>
@@ -3511,7 +3524,8 @@
 				type="xs:int"
 			>
 				<xs:annotation>
-					<xs:documentation>number of threads that are retained in the pool for the batch even if they are idle.
+					<xs:documentation>number of threads that are retained in the pool
+						for the batch even if they are idle.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>

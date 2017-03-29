@@ -59,6 +59,7 @@ import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.dt.DataTypeSuggester;
 import org.simplity.kernel.util.JsonUtil;
+import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.BooleanValue;
 import org.simplity.kernel.value.IntegerValue;
@@ -355,6 +356,8 @@ public class Record implements Component {
 	private int nbrUpdateFields;
 
 	private int nbrInsertFields;
+
+	private Field[] encryptedFields;
 	/*
 	 * methods for ComponentInterface
 	 */
@@ -582,7 +585,11 @@ public class Record implements Component {
 			}
 			values[i] = vals;
 		}
-		return driver.extractFromSql(this.readSql, values, outSheet);
+		int nbr = driver.extractFromSql(this.readSql, values, outSheet);
+		if (this.encryptedFields != null) {
+			this.crypt(outSheet, true);
+		}
+		return nbr;
 	}
 
 	private Value[] getPrimaryValues(DataSheet inSheet, int idx) {
@@ -642,7 +649,11 @@ public class Record implements Component {
 			Tracer.trace("Value for primary key not present, and hence no read operation.");
 			return 0;
 		}
-		return driver.extractFromSql(this.readSql, values, outData, true);
+		int nbr = driver.extractFromSql(this.readSql, values, outData, true);
+		if (this.encryptedFields != null && nbr > 0) {
+			this.crypt(outData, true);
+		}
+		return nbr;
 	}
 
 	/**
@@ -698,7 +709,6 @@ public class Record implements Component {
 	 * @return data sheet, possible with retrieved rows
 	 */
 	public DataSheet filter(Record inputRecord, FieldsInterface inData, DbDriver driver, Value userId) {
-		DataSheet result = this.createSheet(false, false);
 		/*
 		 * we have to create where clause with ? and corresponding values[]
 		 */
@@ -784,7 +794,12 @@ public class Record implements Component {
 		if (sorts != null) {
 			sql.append(" ORDER BY ").append(sorts.toString());
 		}
+
+		DataSheet result = this.createSheet(false, false);
 		driver.extractFromSql(sql.toString(), values, result, false);
+		if (this.encryptedFields != null) {
+			this.crypt(result, true);
+		}
 		return result;
 	}
 
@@ -963,6 +978,9 @@ public class Record implements Component {
 								+ " is designed to be non-null, but a row is being inserted with a null value in it.");
 					}
 				}
+				if (field.isEncrypted) {
+					value = this.crypt(value, false);
+				}
 				values[valueIdx] = value;
 			}
 			valueIdx++;
@@ -1003,6 +1021,9 @@ public class Record implements Component {
 								+ " is designed to be non-null, but a row is being updated with a null value in it.");
 					}
 				}
+				if (field.isEncrypted) {
+					value = this.crypt(value, false);
+				}
 				values[valueIdx] = value;
 			}
 			valueIdx++;
@@ -1029,6 +1050,10 @@ public class Record implements Component {
 			this.notWritable();
 		}
 		int nbrRows = inSheet.length();
+
+		/*
+		 * simple case first...
+		 */
 		if (nbrRows == 1) {
 			return this.insert((FieldsInterface) inSheet, driver, userId, treatSqlErrorAsNoResult);
 		}
@@ -1050,6 +1075,7 @@ public class Record implements Component {
 		if (result > 0 && generatedKeys[0] != 0) {
 			this.addKeyColumn(inSheet, generatedKeys);
 		}
+
 		return result;
 	}
 
@@ -1070,6 +1096,7 @@ public class Record implements Component {
 		}
 		Value[][] allValues = new Value[1][];
 		allValues[0] = this.getInsertValues(inData, userId);
+
 		if (this.keyToBeGenerated == false) {
 			return this.executeWorker(driver, this.insertSql, allValues, treatSqlErrorAsNoResult);
 		}
@@ -1080,13 +1107,15 @@ public class Record implements Component {
 		int result = this.insertWorker(driver, this.insertSql, allValues, generatedKeys, treatSqlErrorAsNoResult);
 		if (result > 0) {
 			/*
-			 * generated key feature may not be available with some rdb vendor
+			 * generated key feature may not be available with some rdb
+			 * vendor
 			 */
 			long key = generatedKeys[0];
 			if (key > 0) {
 				inData.setValue(this.allPrimaryKeys[0].name, Value.newIntegerValue(key));
 			}
 		}
+
 		return result;
 	}
 
@@ -1120,6 +1149,7 @@ public class Record implements Component {
 		int nbrRows = inSheet.length();
 		Value[][] allValues = new Value[nbrRows][];
 		int rowIdx = 0;
+
 		for (FieldsInterface row : inSheet) {
 			allValues[rowIdx] = this.getInsertValues(row, userId);
 			rowIdx++;
@@ -1218,10 +1248,6 @@ public class Record implements Component {
 			this.noPrimaryKey();
 		}
 		int nbrRows = inSheet.length();
-		/*
-		 * we mostly expect one row, but we do not want to write separate
-		 * code...
-		 */
 		Value[][] allValues = new Value[nbrRows][];
 		if (nbrRows == 1) {
 			allValues[0] = this.getUpdateValues(inSheet, userId);
@@ -1231,7 +1257,8 @@ public class Record implements Component {
 				allValues[i++] = this.getUpdateValues(row, userId);
 			}
 		}
-		return this.executeWorker(driver, this.updateSql, allValues, treatSqlErrorAsNoResult);
+		int result = this.executeWorker(driver, this.updateSql, allValues, treatSqlErrorAsNoResult);
+		return result;
 	}
 
 	/**
@@ -1253,8 +1280,10 @@ public class Record implements Component {
 			this.noPrimaryKey();
 		}
 		Value[][] allValues = new Value[1][];
+
 		allValues[0] = this.getUpdateValues(inputData, userId);
-		return this.executeWorker(driver, this.updateSql, allValues, treatSqlErrorAsNoResult);
+		int result = this.executeWorker(driver, this.updateSql, allValues, treatSqlErrorAsNoResult);
+		return result;
 	}
 
 	/**
@@ -1429,6 +1458,9 @@ public class Record implements Component {
 				value = inData.getValue(field.name);
 			}
 			if (value != null) {
+				if (field.isEncrypted) {
+					value = this.crypt(value, false);
+				}
 				if (valueIdx != 0) {
 					update.append(Record.COMMA);
 				}
@@ -1554,6 +1586,9 @@ public class Record implements Component {
 			sbf.append(')');
 		}
 		driver.extractFromSql(sbf.toString(), values, result, false);
+		if (this.encryptedFields != null) {
+			this.crypt(result, true);
+		}
 	}
 
 	/**
@@ -1575,6 +1610,9 @@ public class Record implements Component {
 			allValues[idx++] = this.getParentValues(prentRow);
 		}
 		driver.extractFromSql(sql, allValues, outSheet);
+		if (this.encryptedFields != null) {
+			this.crypt(outSheet, true);
+		}
 	}
 
 	/**
@@ -1608,6 +1646,9 @@ public class Record implements Component {
 		Value[] values = this.getParentValues(parentData);
 		String sql = this.filterSql + this.getParentWhereClause();
 		driver.extractFromSql(sql, values, result, false);
+		if (this.encryptedFields != null) {
+			this.crypt(result, true);
+		}
 		return result;
 	}
 
@@ -1618,6 +1659,55 @@ public class Record implements Component {
 			sbf.append(" AND ").append(this.allParentKeys[i].columnName).append(EQUAL_PARAM);
 		}
 		return sbf.toString();
+	}
+
+	/**
+	 * en/de crypt a value
+	 *
+	 * @param value
+	 * @param toDecrypt
+	 *            true means decrypt, else encrypt
+	 * @return
+	 */
+	private Value crypt(Value value, boolean toDecrypt) {
+		if (Value.isNull(value)) {
+			return value;
+		}
+		String txt = value.toString();
+		if (toDecrypt) {
+			txt = TextUtil.decrypt(txt);
+		} else {
+			txt = TextUtil.encrypt(txt);
+		}
+		return Value.newTextValue(txt);
+	}
+
+	/**
+	 * encrypt/decrypt columns in this data sheet
+	 *
+	 * @param sheet
+	 * @param toDecrypt
+	 *            true means decrypt, else encrypt
+	 */
+	private void crypt(DataSheet sheet, boolean toDecrypt) {
+		int nbrRows = sheet.length();
+		if (nbrRows == 0) {
+			Tracer.trace("Data sheet has no data and hance no encryption.");
+			return;
+		}
+		for (Field field : this.encryptedFields) {
+			int colIdx = sheet.getColIdx(field.name);
+			if (colIdx == -1) {
+				Tracer.trace("Data sheet has no column named " + field.name + " hance no encryption.");
+				continue;
+			}
+			for (int rowIdx = 0; rowIdx < nbrRows; rowIdx++) {
+				Value[] row = sheet.getRow(rowIdx);
+				row[colIdx] = this.crypt(row[colIdx], toDecrypt);
+			}
+		}
+		Tracer.trace(nbrRows + " rows and " + this.encryptedFields.length + " columns " + (toDecrypt ? "un-" : "")
+				+ "obsfuscated");
 	}
 
 	/*
@@ -1822,9 +1912,12 @@ public class Record implements Component {
 		if (this.defaultRefRecord != null) {
 			refRecord = this.getRefRecord(this.defaultRefRecord);
 		}
+
 		this.fieldNames = new String[this.fields.length];
 		int nbrPrimaries = 0;
 		int nbrParents = 0;
+		int nbrEncrypted = 0;
+
 		for (int i = 0; i < this.fields.length; i++) {
 			Field field = this.fields[i];
 			if (this.forFixedWidthRow) {
@@ -1836,6 +1929,9 @@ public class Record implements Component {
 			this.indexedFields.put(fName, field);
 			if (!this.hasInterFieldValidations && field.hasInterFieldValidations()) {
 				this.hasInterFieldValidations = true;
+			}
+			if (field.isEncrypted) {
+				nbrEncrypted++;
 			}
 			FieldType ft = field.getFieldType();
 			if (FieldType.isPrimaryKey(ft)) {
@@ -1861,11 +1957,8 @@ public class Record implements Component {
 		/*
 		 * because of possible composite keys, we save keys in arrays
 		 */
-		if (nbrPrimaries > 0) {
-			this.setPrimaryKeys(nbrPrimaries);
-		}
-		if (nbrParents > 0) {
-			this.setParentKeys(nbrParents);
+		if (nbrPrimaries > 0 || nbrParents > 0 || nbrEncrypted > 0) {
+			this.cacheSpecialFields(nbrPrimaries, nbrParents, nbrEncrypted);
 		}
 		/*
 		 * are we ok for concurrency check?
@@ -1907,29 +2000,33 @@ public class Record implements Component {
 	}
 
 	/**
-	 * @param nbrParents
-	 */
-	private void setParentKeys(int nbrParents) {
-		this.allParentKeys = new Field[nbrParents];
-		int idx = 0;
-		for (Field field : this.fields) {
-			if (FieldType.isParentKey(field.fieldType)) {
-				this.allParentKeys[idx] = field;
-				idx++;
-			}
-		}
-	}
-
-	/**
 	 * @param nbrPrimaries
 	 */
-	private void setPrimaryKeys(int nbrPrimaries) {
-		this.allPrimaryKeys = new Field[nbrPrimaries];
-		int idx = 0;
+	private void cacheSpecialFields(int nbrPrimaries, int nbrParents, int nbrEncrypted) {
+		if (nbrPrimaries > 0) {
+			this.allPrimaryKeys = new Field[nbrPrimaries];
+		}
+		if (nbrParents > 0) {
+			this.allParentKeys = new Field[nbrParents];
+		}
+		if (nbrEncrypted > 0) {
+			this.encryptedFields = new Field[nbrEncrypted];
+		}
+		int primaryIdx = 0;
+		int parentIdx = 0;
+		int encrIdx = 0;
 		for (Field field : this.fields) {
 			if (FieldType.isPrimaryKey(field.fieldType)) {
-				this.allPrimaryKeys[idx] = field;
-				idx++;
+				this.allPrimaryKeys[primaryIdx] = field;
+				primaryIdx++;
+			}
+			if (FieldType.isParentKey(field.fieldType)) {
+				this.allParentKeys[parentIdx] = field;
+				parentIdx++;
+			}
+			if (field.isEncrypted) {
+				this.encryptedFields[encrIdx] = field;
+				encrIdx++;
 			}
 		}
 	}
@@ -3547,9 +3644,11 @@ public class Record implements Component {
 	 * @param inText
 	 * @return
 	 */
-	private String[] splitFixedWidthInput(String inText, List<FormattedMessage> errors){
-		if(this.recordLength != inText.length()){
-			FormattedMessage msg = new FormattedMessage("kernel.invalidInputStream", "fixed-width input row has " + inText.length() + " chracters while this record " + this.name + " is designed for " + this.recordLength + " characters");
+	private String[] splitFixedWidthInput(String inText, List<FormattedMessage> errors) {
+		if (this.recordLength != inText.length()) {
+			FormattedMessage msg = new FormattedMessage("kernel.invalidInputStream",
+					"fixed-width input row has " + inText.length() + " chracters while this record " + this.name
+							+ " is designed for " + this.recordLength + " characters");
 			msg.addData(inText);
 			errors.add(msg);
 			return null;
