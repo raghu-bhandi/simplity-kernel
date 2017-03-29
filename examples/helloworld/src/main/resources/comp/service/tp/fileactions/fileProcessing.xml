@@ -6,15 +6,19 @@
 	dbAccessType="subService" 
 >
 	<actions>
+		<setValue fieldName="inFolderName" fieldValue="${basedir}/infile"></setValue>
 		<setValue fieldName="inputfilename" fieldValue="txt01.txt"></setValue>
+		<setValue fieldName="outFolderName" fieldValue="${basedir}/outfile"></setValue>
+		<setValue fieldName="outFileName" fieldValue="{name}.{ext}"></setValue>
+
 		<createSheet sheetName="collect" recordName="files.fixed"/>
 		<fileProcessor
-			inFolderName="${basedir}/infile"
+			inFolderName="$inFolderName"
 			inFileNamePattern="$inputfilename"
 			inDataFormat="fixedWidth"
 			inRecordName="files.fixed"
-			outFolderName="${basedir}/outfile"
-			outFileName="{name}.{ext}"
+			outFolderName="$outFolderName"
+			outFileName="$outFileName"
 			outDataFormat="fixedWidth"
 			outRecordName="files.fixed"					
 		>

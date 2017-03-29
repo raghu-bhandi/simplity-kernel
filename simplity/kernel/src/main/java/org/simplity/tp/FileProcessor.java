@@ -59,7 +59,15 @@ public class FileProcessor extends Block {
 	/**
 	 * folder in which we look for files to process
 	 */
+	private String parsedInFolderName;
+	/**
+	 * folder in which we look for files to process
+	 */
 	String outFolderName;
+	/**
+	 * folder in which we look for files to process
+	 */
+	private String parsedOutFolderName;	
 	/**
 	 * example *.txt
 	 */
@@ -75,11 +83,18 @@ public class FileProcessor extends Block {
 	 * translate to a.out
 	 */
 	String outFileName;
-
+	/**
+	 * parsed outFileName
+	 */
+	private String parsedOutFileName;
 	/**
 	 * Similar to outFileName that can be based on input file name
 	 */
 	String renameInFileTo;
+	/**
+	 * parsed renameInFileTo
+	 */
+	private String parsedRenameInFileTo;
 	/**
 	 * should the input file be deleted after processing it? Not relevant if
 	 * rename attribute is specified.
@@ -124,8 +139,6 @@ public class FileProcessor extends Block {
 	 */
 	private FilenameFilter filter;
 
-	private File inbox;
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -134,16 +147,23 @@ public class FileProcessor extends Block {
 	 */
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		Tracer.trace("Going to process files in folder " + this.inFolderName + " that exists = " + this.inbox.exists());
+		String evaluatVarInFolderName = this.parsedInFolderName;
+		if (this.inFolderName.startsWith("$")) {
+			evaluatVarInFolderName = ctx.getValue(this.parsedInFolderName).toText();
+		}
+		if (evaluatVarInFolderName != null && evaluatVarInFolderName.endsWith("/") == false) {
+			evaluatVarInFolderName += '/';
+		}		
+		
+		File inbox = new File(evaluatVarInFolderName);			
+		Tracer.trace("Going to process files in folder " + evaluatVarInFolderName + " that exists = " + inbox.exists());
 
-		String parsedInFileNamePatternlocal = "";
+		String evaluatVarNamePattern = this.parsedInFileNamePattern;
 		if (this.inFileNamePattern.startsWith("$")) {
-			parsedInFileNamePatternlocal = ctx.getValue(this.parsedInFileNamePattern).toText();
-		} else {
-			parsedInFileNamePatternlocal = this.parsedInFileNamePattern;
+			evaluatVarNamePattern = ctx.getValue(this.parsedInFileNamePattern).toText();
 		}
 
-		this.filter = TextUtil.getFileNameFilter(parsedInFileNamePatternlocal);
+		this.filter = TextUtil.getFileNameFilter(evaluatVarNamePattern);
 		int nbrFiles = 0;
 		Record record = ComponentManager.getRecord(this.inRecordName);
 		Record outRecord = null;
@@ -151,7 +171,7 @@ public class FileProcessor extends Block {
 			outRecord = ComponentManager.getRecord(this.outRecordName);
 		}
 		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
-		for (File file : this.inbox.listFiles(this.filter)) {
+		for (File file : inbox.listFiles(this.filter)) {
 			Tracer.trace("File " + file.getAbsolutePath());
 			if (this.processOneFile(file, ctx, driver, record, outRecord, worker)) {
 				nbrFiles++;
@@ -177,8 +197,21 @@ public class FileProcessor extends Block {
 			Tracer.trace("Processing " + inName + "....");
 			reader = new BufferedReader(new FileReader(file));
 			if (this.outFileName != null) {
-				String outName = TextUtil.getFileName(this.outFileName, inName);
-				File outFile = new File(this.outFolderName + outName);
+				String evaluateVarOutFileName = this.parsedOutFileName;
+				if(this.outFileName.startsWith("$")){
+					evaluateVarOutFileName = ctx.getValue(this.parsedOutFileName).toText();
+				}
+				String outName = TextUtil.getFileName(evaluateVarOutFileName, inName);
+				
+				String evaluatorVarOutFolderName = this.parsedOutFolderName;
+				if(this.outFolderName.startsWith("$")){
+					evaluatorVarOutFolderName = ctx.getValue(this.parsedOutFolderName).toText();
+				}				
+				if (evaluatorVarOutFolderName != null && evaluatorVarOutFolderName.endsWith("/") == false) {
+					evaluatorVarOutFolderName += '/';
+				}
+
+				File outFile = new File(evaluatorVarOutFolderName + outName);
 				writer = new BufferedWriter(new FileWriter(outFile));
 			}
 			String inText;
@@ -249,7 +282,13 @@ public class FileProcessor extends Block {
 			 */
 			reader.close();
 			if (this.renameInFileTo != null) {
-				String arcName = this.inFolderName + TextUtil.getFileName(this.renameInFileTo, inName);
+				if(this.inFolderName.startsWith("$")){
+					this.parsedInFolderName = ctx.getValue(this.parsedInFolderName).toText();
+				}
+				if(this.renameInFileTo.startsWith("$")){
+					this.parsedRenameInFileTo = ctx.getValue(this.parsedRenameInFileTo).toText();
+				}
+				String arcName = this.parsedInFolderName + TextUtil.getFileName(this.parsedRenameInFileTo, inName);
 				Tracer.trace("Renaming to " + arcName);
 				file.renameTo(new File(arcName));
 			} else if (this.deleteInFileAfterProcessing) {
@@ -289,24 +328,35 @@ public class FileProcessor extends Block {
 	public void getReady(int idx, Service service) {
 		super.getReady(idx, service);
 
+		this.parsedInFolderName = TextUtil.getFieldName(this.inFolderName);
+		if (this.parsedInFolderName == null) {
+			this.parsedInFolderName = this.inFolderName;
+		}
+		
 		this.parsedInFileNamePattern = TextUtil.getFieldName(this.inFileNamePattern);
 		if (this.parsedInFileNamePattern == null) {
 			this.parsedInFileNamePattern = this.inFileNamePattern;
 		}
-
+		
+		this.parsedOutFolderName = TextUtil.getFieldName(this.outFolderName);
+		if (this.parsedOutFolderName == null) {
+			this.parsedOutFolderName = this.outFolderName;
+		}
+		
+		this.parsedOutFileName = TextUtil.getFieldName(this.outFileName);
+		if (this.parsedOutFileName == null) {
+			this.parsedOutFileName = this.outFileName;
+		}
+		
+		this.parsedRenameInFileTo = TextUtil.getFieldName(this.renameInFileTo);
+		if (this.parsedRenameInFileTo == null) {
+			this.parsedRenameInFileTo = this.renameInFileTo;
+		}
 		if (this.actionOnErrorWhileProcessing != null) {
 			this.actionOnErrorWhileProcessing.getReady(0, service);
 		}
 		if (this.actionOnInvalidInputRow != null) {
 			this.actionOnInvalidInputRow.getReady(0, service);
-		}
-
-		this.inbox = new File(this.inFolderName);
-		if (this.inFolderName != null && this.inFolderName.endsWith("/") == false) {
-			this.inFolderName += '/';
-		}
-		if (this.outFolderName != null && this.outFolderName.endsWith("/") == false) {
-			this.outFolderName += '/';
 		}
 	}
 

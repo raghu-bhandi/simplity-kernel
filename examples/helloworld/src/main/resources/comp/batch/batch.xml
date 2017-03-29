@@ -9,6 +9,6 @@
 		<job
 			name="fileprocessor"
 			serviceName="fileactions.fileProcessing" 
-			runInterval="10"/>
+			runInterval="10"></job>
 	</jobs>
 </batch>
