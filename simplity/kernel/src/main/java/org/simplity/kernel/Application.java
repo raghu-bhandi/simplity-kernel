@@ -51,6 +51,8 @@ import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceCacheManager;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
+import org.simplity.tp.ContextInterface;
+import org.simplity.tp.LogicInterface;
 
 /**
  * Configure this application
@@ -317,6 +319,11 @@ public class Application {
 	 * batch job to fire after boot-strapping.
 	 */
 	String batchJobToRunOnStartup;
+	/**
+	 * Access Application context
+	 */
+	String classManager;
+	private static String classManagerInternal;
 
 	/**
 	 * configure application based on the settings. This MUST be triggered
@@ -329,7 +336,9 @@ public class Application {
 	public String configure() {
 		List<String> msgs = new ArrayList<String>();
 		Tracer.startAccumulation();
-
+		if(classManager!=null){
+			classManagerInternal = classManager;
+		}
 		if (this.traceWrapper != null) {
 			try {
 				TraceWrapper wrapper = (TraceWrapper) Class.forName(this.traceWrapper).newInstance();
@@ -402,7 +411,8 @@ public class Application {
 		 * Setup JMS Connection factory
 		 */
 		if (this.queueConnectionFactory != null || this.xaQueueConnectionFactory != null) {
-			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory, this.jmsProperties);
+			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory,
+					this.jmsProperties);
 			if (msg != null) {
 				msgs.add(msg);
 			}
@@ -728,5 +738,30 @@ public class Application {
 				"Usage : java  org.simplity.kernel.Application componentFolderPath serviceName inputParam1=vaue1 ...");
 		System.out.println(
 				"example : java  org.simplity.kernel.Application /user/data/ serviceName inputParam1=vaue1 ...");
+	}
+
+	public static LogicInterface getBean(String className) {
+		ContextInterface tb = null;
+		try {
+			tb = (ContextInterface) (Class.forName(classManagerInternal)).newInstance();
+		} catch (NullPointerException e) {
+			System.out.println("no context");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if(tb==null)
+			try {
+				return (LogicInterface) (Class.forName(className)).newInstance();
+			} catch (InstantiationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		return tb.getBean(className);
 	}
 }

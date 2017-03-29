@@ -376,7 +376,7 @@ public class Service implements ServiceInterface {
 			return;
 		}
 		if (this.inputData == null) {
-			Tracer.trace("We received input data, but this service is designed not to make us of input.");
+			Tracer.trace("We received input data, but this service is designed not to make use of input.");
 			return;
 		}
 
