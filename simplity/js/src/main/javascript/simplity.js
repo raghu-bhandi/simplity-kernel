@@ -1263,6 +1263,11 @@ var Simplity = (function() {
 	 */
 	var getResponse = function(serviceName, data, successFn, failureFn,
 			fileToken, forPendingService) {
+		if(!data){
+			data = '{}';
+		}else if(!data.indexOf){
+			data = JSON.stringify(data);
+		}
 		successFn = successFn || pushDataToPage;
 		failureFn = failureFn || showMessages;
 		if (!serviceName && !fileToken) {
