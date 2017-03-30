@@ -154,12 +154,12 @@ public class Application {
 		}
 		int nbr = batchPoolSize;
 		if(nbr == 0){
-			nbr = 50;
+			nbr = 2;
 		}
 		if (threadFactory == null) {
 			return new ScheduledThreadPoolExecutor(nbr);
 		}
-		threadPoolExecutor = new ScheduledThreadPoolExecutor(0, threadFactory);
+		threadPoolExecutor = new ScheduledThreadPoolExecutor(nbr, threadFactory);
 		return threadPoolExecutor;
 	}
 
