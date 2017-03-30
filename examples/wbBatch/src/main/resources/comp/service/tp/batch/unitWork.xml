@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="unitWork"
+	moduleName="batch"
+	dbAccessType="none"
+	description="service that proceses each unit of work in a batch job. 
+	This does not make any assumption about batch.
+	This service can be used in an online environmanet also, as it is agnostic to how input is put into service context"
+>
+	<actions>
+		<logic
+			description="this logic is supplied as an example in core library sleeps for upto 10 seconds before saying hello"
+			className="org.simplity.ide.AsynchHelloWorld" />
+	</actions>
+</service>

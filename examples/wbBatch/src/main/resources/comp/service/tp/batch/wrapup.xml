@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="wrapup"
+	moduleName="batch"
+	dbAccessType="none"
+	description="possible some house-keeping work after the main job is done. 
+	Remember that the service context has the details left behind by the main service"
+>
+	<actions>
+		<setValue
+			actionName="log"
+			fieldName="log"
+			expression="&quot;A total of &quot; + nbrLoops + &quot; houses cleand up. We wil be sending a bill for the same to your registered address.&quot;" />
+	</actions>
+</service>

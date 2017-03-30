@@ -77,8 +77,10 @@ public class PeriodicJob extends IntervalJob {
 	private int getTimeIdx() {
 		Calendar cal = Calendar.getInstance();
 		int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
+		Tracer.trace(cal.get(Calendar.HOUR_OF_DAY) +"hr " + cal.get(Calendar.MINUTE)+"mn  " + minutes);
 		for (int i = 0; i < this.timesOfDay.length; i++) {
-			if (this.timesOfDay[i] > minutes) {
+			Tracer.trace(i + " = " + this.timesOfDay[i]);
+			if (this.timesOfDay[i] >= minutes) {
 				return i;
 			}
 		}

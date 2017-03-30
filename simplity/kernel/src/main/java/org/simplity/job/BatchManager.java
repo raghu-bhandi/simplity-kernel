@@ -42,7 +42,7 @@ import org.simplity.tp.LogicInterface;
  * @author simplity.org
  *
  */
-public class BatchManager extends AbstractService implements LogicInterface{
+public class BatchManager extends AbstractService implements LogicInterface {
 	private static final String MY_NAME = "JobsManager";
 
 	/*
@@ -66,19 +66,18 @@ public class BatchManager extends AbstractService implements LogicInterface{
 	private static final String CANCEL = "cancel";
 	private static final String SCHEDULE = "schedule";
 	private static final String NEW = "new";
-	private static final String USAGE = "USAGE\nstart batchName  : start a pre-defined batch\n" +
-	"start : start a blank batch to which you can add jobs with action=new\n" +
-			"stop : stop and unload current batch\n"+
-	"status : get status of all jobs\n" +
-			"status jobName : get status of this job\n" +
-	"cancel jobName : cancel/stop/unschedule/interrupt this job\n " +
-			"new jobName <interval> <nbrThreads> <runAtTheseTimes> : (provide one of the three params) add a new job and schedule it." +
-	"schedule jobName : reschedule a job that was previousy cancelled";
+	private static final String USAGE = "USAGE\nstart batchName  : start a pre-defined batch\n"
+			+ "start : start a blank batch to which you can add jobs with action=new\n"
+			+ "stop : stop and unload current batch\n" + "status : get status of all jobs\n"
+			+ "status jobName : get status of this job\n"
+			+ "cancel jobName : cancel/stop/unschedule/interrupt this job\n "
+			+ "new jobName <interval> <nbrThreads> <runAtTheseTimes> : (provide one of the three params) add a new job and schedule it."
+			+ "schedule jobName : reschedule a job that was previousy cancelled";
 
 	/*
 	 * others
 	 */
-	private static final String SHEET_NAME = "info";
+	private static final String SHEET_NAME = "jobsInfo";
 	private static final String FIELD_SEP = ", ";
 	private static final String ROW_SEP_SEP = "\n";
 
@@ -111,15 +110,14 @@ public class BatchManager extends AbstractService implements LogicInterface{
 	 * .ServiceContext, org.simplity.kernel.db.DbDriver)
 	 */
 	@Override
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean transactionIsdelegated ) {
+	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean transactionIsdelegated) {
 
 		String action = ctx.getTextValue(ACTION);
-		if(action == null || action.isEmpty()){
+		if (action == null || action.isEmpty()) {
 			ctx.addMessage(Messages.ERROR, USAGE);
 			return Value.VALUE_FALSE;
 		}
 		String batchName = ctx.getTextValue(BATCH_NAME);
-		String jobName = ctx.getTextValue(JOB_NAME);
 		/*
 		 * we make use of the default input-output in AbstractService and put
 		 * our logic here, so that we can also be called by other services
@@ -130,106 +128,90 @@ public class BatchManager extends AbstractService implements LogicInterface{
 		 * when no batch is running
 		 */
 		if (batch == null) {
-			if (action.equals(START) == false) {
-				ctx.addMessage(Messages.ERROR, "No batch is running. Use start action to start  a batch.\n" + USAGE);
-				return Value.VALUE_FALSE;
-			}
-			if (batchName == null || batchName.isEmpty()) {
-				batch = Batch.startEmptyBatch();
+			if (action.equals(START)) {
+				if (batchName == null || batchName.isEmpty()) {
+					batch = Batch.startEmptyBatch();
+				} else {
+					batch = Batch.startBatch(batchName);
+				}
+				if (batch == null) {
+					ctx.addMessage(Messages.ERROR, "Batch could not be started. Look at logs for more details..");
+				} else {
+					ctx.addMessage(Messages.SUCCESS, "Batch started");
+				}
 			} else {
-				batch = Batch.startBatch(batchName);
+				if (action.equals(STATUS) == false) {
+					ctx.addMessage(Messages.ERROR, "No batch is running. Use start action to start  a batch.");
+				}
 			}
-			if (batch == null) {
-				ctx.addMessage(Messages.ERROR, "Batch could not be started. Look at logs for mre details..");
-				return Value.VALUE_FALSE;
+
+		} else if (action.equals(STATUS) == false) {
+			this.takeAction(batch, action, ctx);
+			if (action.equals(STOP)) {
+				batch = null;
 			}
-			ctx.addMessage(Messages.SUCCESS, "Batch started");
-			return Value.VALUE_TRUE;
-		}
-		/*
-		 * default action is get status
-		 */
-		if (action.equals(STATUS)) {
-			RunningJobInfo[] infoList;
-			if(jobName == null){
-				infoList = batch.getStatus();
-			}else{
-				infoList = batch.getStatus(jobName);
-			}
-			DataSheet ds = RunningJobInfo.toDataSheet(infoList);
-			ctx.putDataSheet(SHEET_NAME, ds);
-			return Value.VALUE_TRUE;
 		}
 
-		/*
-		 * start
-		 */
-		if (action.equals(START)) {
-			ctx.addMessage(Messages.ERROR, "A scheduler is running. Can not start another one");
-			return Value.VALUE_FALSE;
+		if (batch == null) {
+			ctx.removeValue(BATCH_NAME);
+		} else {
+			ctx.setTextValue(BATCH_NAME, batch.getQualifiedName());
+			RunningJobInfo[] infoList = batch.getStatus();
+			DataSheet ds = RunningJobInfo.toDataSheet(infoList);
+			ctx.putDataSheet(SHEET_NAME, ds);
 		}
 		/*
-		 * stop
+		 * we always provide status
 		 */
+		return null;
+
+	}
+
+	private void takeAction(Batch batch, String action, ServiceContext ctx) {
+		String jobName = ctx.getTextValue(JOB_NAME);
+		if (action.equals(START)) {
+			ctx.addMessage(Messages.ERROR, "A scheduler is running. Can not start another one");
+			return;
+		}
+
 		if (action.equals(STOP)) {
 			ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
 			Batch.stopBatch();
-			return Value.VALUE_TRUE;
+			ctx.removeValue(BATCH_NAME);
+			return;
 		}
-		/*
-		 * cancel
-		 */
-		if (action.equals(CANCEL)) {
-			if (jobName == null) {
-				ctx.addMessage(Messages.INFO,
-						"Initiated shutdown of all jobs. Note that the batch would still be active. use stop before using next start.");
-				batch.cancelAll();
-			} else {
-				ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
-				batch.cancelJob(jobName);
-			}
-			return Value.VALUE_TRUE;
-		}
-		/*
-		 * we need jobName for all command from here..
-		 */
+
 		if (jobName == null) {
 			ctx.addMessage(Messages.VALUE_REQUIRED, JOB_NAME);
-			return Value.VALUE_FALSE;
+			return;
 		}
 
+		if (action.equals(CANCEL)) {
+			batch.cancelJob(jobName);
+			ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
+			return;
+		}
 		if (action.equals(INCR)) {
-			ctx.addMessage(Messages.INFO, "Initiated addition of a thread for job " + jobName);
 			batch.incrmentThread(jobName);
-			return Value.VALUE_TRUE;
+			ctx.addMessage(Messages.INFO, "Initiated addition of a thread for job " + jobName);
+			return;
 		}
-
-		/*
-		 * decrement
-		 */
 		if (action.equals(DECR)) {
-			ctx.addMessage(Messages.INFO, "Initiated stopping of a thread for job " + jobName);
 			batch.decrmentThread(jobName);
-			return Value.VALUE_TRUE;
+			ctx.addMessage(Messages.INFO, "Initiated stopping of a thread for job " + jobName);
+			return;
 		}
-
-		/*
-		 * decrement
-		 */
 		if (action.equals(SCHEDULE)) {
-			ctx.addMessage(Messages.INFO, "Initiated stestart of job " + jobName);
 			batch.reschedule(jobName);
-			return Value.VALUE_TRUE;
+			ctx.addMessage(Messages.INFO, "Initiated stestart of job " + jobName);
+			return;
 		}
 
-		/*
-		 * decrement
-		 */
 		if (action.equals(NEW)) {
 			String serviceName = ctx.getTextValue(SERVICE_NAME);
 			if (serviceName == null) {
 				ctx.addMessage(Messages.VALUE_REQUIRED, SERVICE_NAME);
-				return Value.VALUE_FALSE;
+				return;
 			}
 			String times = ctx.getTextValue(RUN_AT_THESE_TIMES);
 			int nbrThreads = (int) ctx.getLongValue(NBR_THREADS);
@@ -238,15 +220,17 @@ public class BatchManager extends AbstractService implements LogicInterface{
 			job.getReady();
 			ctx.addMessage(Messages.INFO, "added job " + jobName + " to scheduler..");
 			batch.scheduleJob(job);
-			return Value.VALUE_TRUE;
+			return;
 		}
-
 		ctx.addMessage(Messages.ERROR, action + " is an invalid action " + USAGE);
-		return Value.VALUE_FALSE;
+		return;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.simplity.tp.LogicInterface#execute(org.simplity.service.ServiceContext)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.tp.LogicInterface#execute(org.simplity.service.
+	 * ServiceContext)
 	 */
 	@Override
 	public Value execute(ServiceContext ctx) {
@@ -306,7 +290,7 @@ public class BatchManager extends AbstractService implements LogicInterface{
 			manager.executeAsAction(ctx, null, false);
 
 			MultiRowsSheet ds = (MultiRowsSheet) ctx.getMessagesAsDS();
-			if(ds.length() > 0){
+			if (ds.length() > 0) {
 				System.out.println("Messages");
 				System.out.println(ds.toString(FIELD_SEP, ROW_SEP_SEP));
 			}

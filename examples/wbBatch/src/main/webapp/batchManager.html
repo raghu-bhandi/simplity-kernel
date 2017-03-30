@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Batch Manager</title>
+<script type="text/javascript" src="js/simplity-min.js"></script>
+
+<script>
+	var SERVICE_NAME = 'batch.batchManager';
+	var ACTION_START = 'start';
+	var ACTION_STOP = 'stop';
+	var ACTION_CANCEL = 'cancel';
+	var ACTION_SCHEDULE = 'schedule';
+	var ACTION_STATUS = 'status';
+
+	var getStatus = function() {
+		Simplity.getResponse(SERVICE_NAME, '{"batchAction":"status"}', callBack);
+	}
+
+	var callBack = function(data) {
+		var stopBtn = document.getElementById('stopButton');
+		var startBtn = document.getElementById('startButton');
+		if (data.batchName) {
+			// a batch job is running
+			startBtn.style.display = 'none';
+			stopBtn.style.display = '';
+		} else {
+			startBtn.style.display = '';
+			stopBtn.style.display = 'none';
+		}
+		if(!data.jobsInfo){
+			data.jobsInfo = [];
+		}
+		Simplity.pushDataToPage(data);
+	};
+
+	var startBatch = function() {
+		var ele = document.getElementById('batchName');
+		var batchName = ele.value;
+		if (!batchName) {
+			Simplity.error('Please specify the batch name to start');
+			ele.focus();
+			return;
+		}
+		var data = {
+				batchAction : ACTION_START,
+				batchName : batchName
+			};
+		
+		Simplity.getResponse(SERVICE_NAME, data, callBack);
+	}
+	var stopBatch = function() {
+		Simplity.getResponse(SERVICE_NAME, {
+			batchAction : ACTION_STOP
+		}, callBack);
+	}
+	var cancelJob = function(jobName, jobStatus) {
+		if (jobStatus === 'cancelled') {
+			Simplity.error(jobName + ' is already cancelled');
+			return;
+		}
+		var data = {
+				batchAction : ACTION_CANCEL,
+				jobName : jobName
+			};
+		Simplity.getResponse(SERVICE_NAME, data, callBack);
+	}
+	var scheduleJob = function(jobName, jobStatus) {
+		if (jobStatus !== 'cancelled') {
+			Simplity
+					.error(jobName
+							+ ' is already scheduled. You may cancel it first if you want to reschedule.');
+			return;
+		}
+		var data = {
+				batchAction : ACTION_SCHEDULE,
+				jobName : jobName
+			};
+		Simplity.getResponse(SERVICE_NAME, data, callBack);
+	}
+</script>
+<!-- This is not a good practice, but we are embedding script here at the top for convenience. 
+	This is a test page, not a production page
+ -->
+<script type="text/javascript">
+	
+</script>
+
+</head>
+<body onload="getStatus()">
+	<h1>Monitor Batch Jobs</h1>
+
+
+	<div id="batch">
+		Batch Name : <input id="batchName" /> &nbsp;&nbsp;&nbsp; <input
+			id="startButton" type="button" value="Start Batch"
+			onclick="startBatch()" /> <input id="stopButton" type="button"
+			value="Stop Batch" onclick="stopBatch();" />
+	</div>
+	<br />
+
+	<h2>
+		Status of Jobs <input type="button" value="refresh"
+			onclick="getStatus()" />
+	</h2>
+
+	<table id="jobs" border="1" style="border-collapse: collapse;">
+		<thead>
+			<tr>
+				<th>action</th>
+				<th>Job</th>
+				<th>service</th>
+				<th>sl no</th>
+				<th>job status</th>
+				<th>service status</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr style="disply:none" id="__jobsInfo__">
+				<td><input type="button"
+					onclick="cancelJob('__jobName__','__jobStatus__')"
+					value="cancel job" /><input type="button"
+					onclick="scheduleJob('__jobName__', '__jobStatus__')"
+					value="reschedule" /></td>
+				<td>__jobName__</td>
+				<td>__serviceName__</td>
+				<td>__seqNo__</td>
+				<td>__jobStatus__</td>
+				<td>__serviceStatus__</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>
