@@ -31,10 +31,31 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.simplity.utils</groupId>
 			<artifactId>test</artifactId>
 			<version>1.2-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<build>
+		<finalName>helloworld</finalName>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>${project.basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
+	</build>
 </project>

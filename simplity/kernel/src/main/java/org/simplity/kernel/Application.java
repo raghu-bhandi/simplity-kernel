@@ -323,7 +323,7 @@ public class Application {
 	 * Access Application context
 	 */
 	String classManager;
-	private static String classManagerInternal;
+	private static ContextInterface classManagerInternal;
 
 	/**
 	 * configure application based on the settings. This MUST be triggered
@@ -336,12 +336,16 @@ public class Application {
 	public String configure() {
 		List<String> msgs = new ArrayList<String>();
 		Tracer.startAccumulation();
-		if(classManager!=null){
-			classManagerInternal = classManager;
+		if (classManager != null) {
+			try {
+				classManagerInternal = (ContextInterface) (Class.forName(this.classManager)).newInstance();
+			} catch (Exception e) {
+				msgs.add(this.classManager + " could not be used to instantiate a Class Manager. " + e.getMessage());
+			}
 		}
 		if (this.traceWrapper != null) {
 			try {
-				TraceWrapper wrapper = (TraceWrapper) Class.forName(this.traceWrapper).newInstance();
+				TraceWrapper wrapper = Application.getBean(this.traceWrapper, TraceWrapper.class);
 				ServiceLogger.setWrapper(wrapper);
 
 			} catch (Exception e) {
@@ -353,7 +357,7 @@ public class Application {
 		ServiceCacheManager casher = null;
 		if (this.serviceCacheManager != null) {
 			try {
-				casher = (ServiceCacheManager) Class.forName(this.serviceCacheManager).newInstance();
+				casher = Application.getBean(this.serviceCacheManager, ServiceCacheManager.class);
 
 			} catch (Exception e) {
 				msgs.add(this.serviceCacheManager + " could not be used to instantiate a cache manager. "
@@ -364,7 +368,7 @@ public class Application {
 		AccessController gard = null;
 		if (this.accessController != null) {
 			try {
-				gard = (AccessController) Class.forName(this.accessController).newInstance();
+				gard = Application.getBean(this.accessController, AccessController.class);
 
 			} catch (Exception e) {
 				msgs.add(this.accessController + " could not be used to instantiate access controller. "
@@ -375,7 +379,7 @@ public class Application {
 		ExceptionListener listener = null;
 		if (this.exceptionListener != null) {
 			try {
-				listener = (ExceptionListener) Class.forName(this.exceptionListener).newInstance();
+				listener = Application.getBean(this.exceptionListener, ExceptionListener.class);
 				currentExceptionListener = listener;
 			} catch (Exception e) {
 				msgs.add(this.exceptionListener + " could not be used to instantiate an exception listener. "
@@ -444,7 +448,7 @@ public class Application {
 			ast = new FileBasedAssistant(this.attachmentsFolderPath);
 		} else if (this.attachmentAssistant != null) {
 			try {
-				ast = (AttachmentAssistant) Class.forName(this.attachmentAssistant).newInstance();
+				ast = Application.getBean(this.attachmentAssistant, AttachmentAssistant.class);
 			} catch (Exception e) {
 				msgs.add("Error while setting storage assistant based on class " + this.attachmentAssistant + ". "
 						+ e.getMessage());
@@ -487,7 +491,7 @@ public class Application {
 		ClientCacheManager cacher = null;
 		if (this.clientCacheManager != null) {
 			try {
-				cacher = (ClientCacheManager) Class.forName(this.clientCacheManager).newInstance();
+				cacher = Application.getBean(this.clientCacheManager, ClientCacheManager.class);
 			} catch (Exception e) {
 				msgs.add("Error while creating a ClientCacheManager instance using class name "
 						+ this.clientCacheManager + ". " + e.getMessage());
@@ -740,28 +744,19 @@ public class Application {
 				"example : java  org.simplity.kernel.Application /user/data/ serviceName inputParam1=vaue1 ...");
 	}
 
-	public static LogicInterface getBean(String className) {
-		ContextInterface tb = null;
+	@SuppressWarnings("unchecked")
+	public static <T> T getBean(String className, Class<T> clazz) {
+		T tb = null;
+		if (classManagerInternal != null)
+			tb = classManagerInternal.getBean(className, clazz);
+		if (tb != null)
+			return tb;
 		try {
-			tb = (ContextInterface) (Class.forName(classManagerInternal)).newInstance();
-		} catch (NullPointerException e) {
-			System.out.println("no context");
+			tb = (T) (Class.forName(className)).newInstance();
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ApplicationError(
+					className + " is not a valid class that implements LogicInterface. \n" + e.getMessage());
 		}
-		if(tb==null)
-			try {
-				return (LogicInterface) (Class.forName(className)).newInstance();
-			} catch (InstantiationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		return tb.getBean(className);
+		return tb;
 	}
 }

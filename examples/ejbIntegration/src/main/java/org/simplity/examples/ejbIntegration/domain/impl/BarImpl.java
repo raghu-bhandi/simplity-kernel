@@ -1,8 +1,10 @@
-package org.simplity.examples.ejbIntegration;
+package org.simplity.examples.ejbIntegration.domain.impl;
 
 import java.io.Serializable;
 
 import javax.ejb.Stateless;
+
+import org.simplity.examples.ejbIntegration.domain.Bar;
 
 @Stateless
 public class BarImpl implements Bar,Serializable {

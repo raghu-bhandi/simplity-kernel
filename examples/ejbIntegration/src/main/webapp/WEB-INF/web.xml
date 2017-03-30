@@ -14,7 +14,7 @@
 	
     <servlet>
         <servlet-name>HelloServlet</servlet-name>
-        <servlet-class>org.sample.HelloServlet</servlet-class>
+        <servlet-class>org.simplity.examples.ejbIntegration.servlet.HelloServlet</servlet-class>
     </servlet> 	
 	<servlet>
 		<servlet-name>SimplityStartup</servlet-name>

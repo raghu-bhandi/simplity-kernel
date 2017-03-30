@@ -1,7 +1,10 @@
-package org.simplity.examples.ejbIntegration;
+package org.simplity.examples.ejbIntegration.domain.impl;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+
+import org.simplity.examples.ejbIntegration.domain.Bar;
+import org.simplity.examples.ejbIntegration.domain.Foo;
 
 @Stateless
 public class FooImpl implements Foo {

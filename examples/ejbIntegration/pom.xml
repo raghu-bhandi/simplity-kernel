@@ -22,11 +22,24 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.0.1</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.ejb/ejb -->
+		<dependency>
+			<groupId>javax.ejb</groupId>
+			<artifactId>ejb</artifactId>
+			<version>2.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.simplity.utils</groupId>
 			<artifactId>test</artifactId>
 			<version>1.2-SNAPSHOT</version>
 			<scope>test</scope>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
@@ -40,5 +53,17 @@
 	</dependencies>
 	<build>
 		<finalName>ejbIntegration</finalName>
+		<resources>
+			<resource>
+				<directory>${project.basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>${project.basedir}/src/main/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
 	</build>
 </project>

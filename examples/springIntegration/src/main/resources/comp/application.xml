@@ -3,6 +3,6 @@
 	applicationId="SimplitySpringApp" 
 	autoLoginUserId="100" 
 	loggingFramework="log4j"
-	classManager="org.simplity.examples.springIntegration.controller.ApplicationContextProvider">
+	classManager="org.simplity.examples.springIntegration.ApplicationContextProvider">
 	
 </application>

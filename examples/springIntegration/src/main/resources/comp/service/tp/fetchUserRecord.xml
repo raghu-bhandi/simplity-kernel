@@ -3,7 +3,7 @@
 	dbAccessType="none">
 
 	<actions>
-		<logic className="org.simplity.examples.springIntegration.controller.UserController" />
+		<logic className="org.simplity.examples.springIntegration.logic.FetchUsers" />
 		<log names="userrecord" />
 	</actions>
 

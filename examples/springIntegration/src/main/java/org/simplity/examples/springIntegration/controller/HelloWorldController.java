@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("abcd")
+@RequestMapping("helloworld")
 public class HelloWorldController {
 
 private UserDAO userDAO;

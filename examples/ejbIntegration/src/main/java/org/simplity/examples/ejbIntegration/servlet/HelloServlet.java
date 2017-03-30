@@ -1,4 +1,4 @@
-package org.simplity.examples.ejbIntegration;
+package org.simplity.examples.ejbIntegration.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.examples.ejbIntegration.domain.Foo;
 import org.simplity.service.JavaAgent;
 import org.simplity.service.ServiceData;
 

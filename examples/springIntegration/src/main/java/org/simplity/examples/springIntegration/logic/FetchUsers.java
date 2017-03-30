@@ -1,4 +1,4 @@
-package org.simplity.examples.springIntegration.controller;
+package org.simplity.examples.springIntegration.logic;
 
 import java.util.Iterator;
 import java.util.List;
@@ -13,8 +13,8 @@ import org.simplity.tp.LogicInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component(value="org.simplity.examples.springIntegration.controller.UserController")
-public class UserController implements LogicInterface {
+@Component(value="org.simplity.examples.springIntegration.logic.FetchUsers")
+public class FetchUsers implements LogicInterface {
 
 	private UserDAO userDAO;
 	

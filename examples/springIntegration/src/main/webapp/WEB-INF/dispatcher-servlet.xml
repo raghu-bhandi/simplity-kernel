@@ -9,7 +9,7 @@
         http://www.springframework.org/schema/mvc
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-	<context:component-scan base-package="org.simplity.examples.springIntegration.controller" />
+	<context:component-scan base-package="org.simplity.examples.springIntegration" />
 	<mvc:annotation-driven />
 	
 </beans>

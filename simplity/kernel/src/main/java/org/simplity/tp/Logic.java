@@ -40,16 +40,7 @@ public class Logic extends Action {
 	@Override
 	public void getReady(int idx, Service service) {
 		super.getReady(idx, service);
-		try {
-//			this.logic = (LogicInterface) (Class.forName(this.className))
-//					.newInstance();
-			this.logic = Application.getBean(this.className);
-		} catch (Exception e) {
-			throw new ApplicationError(
-					this.className
-					+ " is not a valid class that implements LogicInterface. \n"
-					+ e.getMessage());
-		}
+		this.logic = Application.getBean(this.className, LogicInterface.class);
 	}
 
 	@Override
@@ -60,9 +51,8 @@ public class Logic extends Action {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see
-	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
+	 * @see org.simplity.tp.Action#validate(org.simplity.kernel.comp.
+	 * ValidationContext , org.simplity.tp.Service)
 	 */
 	@Override
 	public int validate(ValidationContext ctx, Service service) {

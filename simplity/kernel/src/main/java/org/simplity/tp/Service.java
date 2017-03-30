@@ -471,7 +471,7 @@ public class Service implements ServiceInterface {
 		this.gotReady = true;
 		if (this.className != null) {
 			try {
-				this.serviceInstance = (ServiceInterface) Class.forName(this.className).newInstance();
+				this.serviceInstance = Application.getBean(this.className, ServiceInterface.class);
 			} catch (Exception e) {
 				throw new ApplicationError(e,
 						"Unable to get an instance of service using class name " + this.className);
@@ -1049,8 +1049,8 @@ public class Service implements ServiceInterface {
 		DbAccessType accessType = DbAccessType.NONE;
 		try {
 			Class<?> cls = Class.forName(className);
-			if (ServiceInterface.class.isAssignableFrom(cls)) {
-				return (ServiceInterface) cls.newInstance();
+			if (ServiceInterface.class.isAssignableFrom(cls)) {				
+				return Application.getBean(className, ServiceInterface.class);
 			}
 			if (cls.isAssignableFrom(LogicInterface.class)) {
 				Logic act = new Logic();

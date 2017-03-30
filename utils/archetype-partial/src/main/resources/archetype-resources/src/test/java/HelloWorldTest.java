@@ -5,7 +5,7 @@ public class HelloWorldTest extends SimpliTestCase{
 
 	@Override
 	protected void setUp() throws Exception {
-		applicationRoot = "path-to-comp/WEB-INF/comp/";
+		applicationRoot = Thread.currentThread().getContextClassLoader().getResource("comp").getPath();
 		testuser = "100";
 		testpwd = "abrakadabra";
 		super.setUp();
@@ -13,7 +13,6 @@ public class HelloWorldTest extends SimpliTestCase{
 	
 	public void testHello(){		
 		servicetest = "helloworldtestrun";	
-		
 	}
 	
 

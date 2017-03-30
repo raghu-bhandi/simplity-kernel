@@ -30,5 +30,5 @@ package org.simplity.tp;
  */
 public interface ContextInterface {
 
-	public LogicInterface getBean(String classname);
+	public <T> T getBean(String classname,Class <T> clazz);
 }

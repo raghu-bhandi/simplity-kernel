@@ -1,9 +1,10 @@
-package org.simplity.examples.ejbIntegration;
+package org.simplity.examples.ejbIntegration.logic;
 
 import javax.ejb.EJB;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.simplity.examples.ejbIntegration.domain.Foo;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.tp.LogicInterface;

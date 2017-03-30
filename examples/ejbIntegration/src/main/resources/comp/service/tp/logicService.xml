@@ -4,7 +4,7 @@
 	name="logicService"
 	dbAccessType="none">
 	<actions>
-		<logic className="org.sample.HelloLogic"/>
+		<logic className="org.simplity.examples.ejbIntegration.logic.HelloLogic"/>
 	</actions>
 	<outputData fieldNames="hello">
 	</outputData>

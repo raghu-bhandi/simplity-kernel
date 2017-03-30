@@ -1,4 +1,4 @@
-package org.simplity.examples.springIntegration.controller;
+package org.simplity.examples.springIntegration;
 
 import org.simplity.tp.ContextInterface;
 import org.simplity.tp.LogicInterface;
@@ -23,8 +23,8 @@ public class ApplicationContextProvider implements ApplicationContextAware,Conte
     }
 
 	@Override
-	public LogicInterface getBean(String classname) {
+	public <T> T getBean(String classname,Class <T> clazz) {
 		// TODO Auto-generated method stub 
-		return getApplicationContext().getBean(classname, LogicInterface.class); 
+		return getApplicationContext().getBean(classname, clazz); 
 	}
 }

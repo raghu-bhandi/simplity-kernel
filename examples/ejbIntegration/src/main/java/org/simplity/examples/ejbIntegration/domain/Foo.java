@@ -1,4 +1,4 @@
-package org.simplity.examples.ejbIntegration;
+package org.simplity.examples.ejbIntegration.domain;
 
 import java.io.Serializable;
 
