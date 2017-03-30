@@ -971,8 +971,7 @@ public class XmlUtil {
 			Element defaultEle) throws IllegalArgumentException,
 			IllegalAccessException {
 		Class<?> objectType = object.getClass();
-		Tracer.trace("Gong to create an element for a "
-				+ objectType.getSimpleName());
+		//Tracer.trace("Gong to create an element for a "	+ objectType.getSimpleName());
 		/*
 		 * create element if required
 		 */
@@ -991,15 +990,14 @@ public class XmlUtil {
 			Object value = field.get(object);
 
 			if (value == null) {
-				Tracer.trace("Field " + field.getName() + " has no value.");
+				//Tracer.trace("Field " + field.getName() + " has no value.");
 				continue;
 			}
 
 			String fieldName = field.getName();
 			Class<?> type = field.getType();
 			if (ReflectUtil.isValueType(type)) {
-				Tracer.trace("Field " + fieldName
-						+ " has a primitive value of " + value);
+				//Tracer.trace("Field " + fieldName	+ " has a primitive value of " + value);
 				String stringValue = nonDefaultPrimitiveValue(value);
 				if (stringValue != null) {
 					ele.setAttribute(fieldName, stringValue);
@@ -1009,8 +1007,7 @@ public class XmlUtil {
 
 			if (type.isArray()) {
 				Object[] objects = (Object[]) value;
-				Tracer.trace("Field " + fieldName
-						+ " is an array with a length = " + objects.length);
+				//Tracer.trace("Field " + fieldName + " is an array with a length = " + objects.length);
 				if (objects.length == 0) {
 					continue;
 				}
@@ -1033,12 +1030,10 @@ public class XmlUtil {
 				 */
 				Element objectEle = doc.createElement(fieldName);
 				ele.appendChild(objectEle);
-				Tracer.trace("field " + fieldName
-						+ " is added as an element and not as an attribute");
+				//Tracer.trace("field " + fieldName + " is added as an element and not as an attribute");
 				for (Object obj : objects) {
 					if (obj == null) {
-						Tracer.trace("An element of array " + fieldName
-								+ " is null. Ignored.");
+						//Tracer.trace("An element of array " + fieldName + " is null. Ignored.");
 					} else {
 						objectEle.appendChild(objectToEle(obj, doc, null));
 					}
@@ -1051,8 +1046,7 @@ public class XmlUtil {
 			 */
 			if (value instanceof Map) {
 				Map<?, ?> objects = (Map<?, ?>) value;
-				Tracer.trace("Field " + fieldName + " is a MAP with size = "
-						+ objects.size());
+				//Tracer.trace("Field " + fieldName + " is a MAP with size = "	+ objects.size());
 				if (objects.size() == 0) {
 					continue;
 				}
@@ -1060,8 +1054,7 @@ public class XmlUtil {
 				ele.appendChild(objectEle);
 				for (Object obj : objects.values()) {
 					if (obj == null) {
-						Tracer.trace("An element of array " + fieldName
-								+ " is null. Ignored.");
+						//Tracer.trace("An element of array " + fieldName + " is null. Ignored.");
 					} else {
 						objectEle.appendChild(objectToEle(obj, doc, null));
 					}
@@ -1073,8 +1066,7 @@ public class XmlUtil {
 			 * with one child element for this object
 			 */
 			Element objectEle = doc.createElement(fieldName);
-			Tracer.trace("Field " + fieldName
-					+ " is an object. An element is added for that.");
+			//Tracer.trace("Field " + fieldName + " is an object. An element is added for that.");
 			ele.appendChild(objectToEle(value, doc, objectEle));
 		}
 		return ele;
