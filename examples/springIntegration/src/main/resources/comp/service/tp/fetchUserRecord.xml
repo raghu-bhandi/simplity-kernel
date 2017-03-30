@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service xmlns="http://www.simplity.org/schema" name="fetchUserRecord"
+	dbAccessType="none">
+
+	<actions>
+		<logic className="org.simplity.examples.springIntegration.logic.FetchUsers" />
+		<log names="userrecord" />
+	</actions>
+
+	<outputData>
+		<outputRecords>
+			<outputRecord sheetName="userrecord" />
+		</outputRecords>
+	</outputData>
+
+</service>

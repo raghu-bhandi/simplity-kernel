@@ -1,7 +1,9 @@
-package com.infosys.qreuse;
+package org.simplity.examples.ejbIntegration;
 
-import com.infosys.qreuse.simplity.test.SimpliTestCase;
+import org.simplity.utils.SimpliTestCase;
+
 public class HelloWorldTest extends SimpliTestCase{
+
 
 	@Override
 	protected void setUp() throws Exception {

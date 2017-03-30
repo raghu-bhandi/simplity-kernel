@@ -1,6 +1,7 @@
-package com.infosys.qreuse;
+package org.simplity.examples.springIntegration;
 
-import com.infosys.qreuse.simplity.test.SimpliTestCase;
+import org.simplity.utils.SimpliTestCase;
+
 public class HelloWorldTest extends SimpliTestCase{
 
 	@Override

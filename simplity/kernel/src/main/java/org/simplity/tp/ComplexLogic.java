@@ -21,6 +21,7 @@
  */
 package org.simplity.tp;
 
+import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
@@ -52,8 +53,7 @@ public class ComplexLogic extends Action {
 	public void getReady(int idx, Service service) {
 		super.getReady(idx, service);
 		try {
-			this.logic = (ComplexLogicInterface) (Class.forName(this.className))
-					.newInstance();
+			this.logic = Application.getBean(className, ComplexLogicInterface.class);
 		} catch (Exception e) {
 			throw new ApplicationError(
 					e,
