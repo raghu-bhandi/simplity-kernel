@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Simplity Test</title>
+<script src="js/simplity-min.js"></script>
+
+<style type="text/css">
+.key {
+	color: red;
+}
+
+.number {
+	color: blue;
+}
+
+.string {
+	color: green;
+}
+
+.boolean {
+	color: olive;
+}
+
+.null {
+	color: fuchsia;
+}
+</style>
+
+<!-- This is not a good practice, but we are embedding script here at the top for convenience. 
+	This is a test page, not a production page
+ -->
+<script type="text/javascript">
+	/**
+	 * invoked on page load
+	 */
+	var login = function() {
+		/*
+		 * populate service name and input from examples..
+		 */
+		if (window.TEST_JSON) {
+			document.getElementById('json').value = JSON.stringify(TEST_JSON,
+					null, 2);
+		}
+		if (window.TEST_SERVICE) {
+			document.getElementById('service').value = TEST_SERVICE;
+		}
+		/*
+		 * do a dummy login, just in case login is enabled, but not set-up
+		 */
+		Simplity.login('222', 'abcd');
+	};
+
+	var TEST_SERVICE = "module.serviceName"
+	var TEST_JSON = {
+		nbr : 765,
+		txtarr : [ 'sd1', 'sd2', 'sd3' ],
+		ds : {
+			nbr : 99,
+			txt : 'tteexxtt'
+		},
+		dsarr : [ {
+			nbr : 22,
+			txt : 'text22'
+		}, {
+			nbr : 33,
+			txt : 'text33'
+		}, {
+			nbr : 44,
+			txt : 'text44'
+		} ]
+	};
+
+	var test = function() {
+		var serviceName = document.getElementById('service').value;
+		if (!serviceName) {
+			Simplity.showMessage('Please enter the service name to test');
+			return;
+		}
+		var json = document.getElementById('json');
+		var data = json.value;
+		if (data) {
+			try {
+				var txt = JSON.stringify(JSON.parse(data), null, 2);
+				json.value = txt;
+			} catch (e) {
+				if (!confirm("Your json has sytax error. want to still proceed? \n\n "
+						+ e)) {
+					return;
+				}
+			}
+		}
+		Simplity.getResponse(serviceName, data, showResponse);
+	};
+	var showResponse = function(data) {
+		document.getElementById('response').innerHTML = JSON.stringify(data,
+				null, 2);
+	};
+</script>
+</head>
+<body onload="login()">
+	<h1>Example Page to Invoke a Service</h1>
+	<span style="font-style: italic">(Feel free to change the
+		service name and input data in the source for the specific service you
+		want to test repeatedly)</span>
+	<br />
+	<h4>Service name to invoke :</h4>
+	&nbsp;
+	<input id="service" style="width: 200px;">
+	<br />
+	<br />
+	<h4>Json Input Data :</h4>
+	<textarea id="json" cols="50" rows="10"> </textarea>
+	<br />
+	<input type="button" value="Go... Get Response" onclick="test()" />
+	<br />
+	<br />
+	<h4>Response data</h4>
+	<pre id="response"></pre>
+</body>
+</html>

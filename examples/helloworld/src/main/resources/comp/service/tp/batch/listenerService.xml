@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="listenerService"
+	moduleName="batch"
+	dbAccessType="none"
+	description="example of a typical listener/background job"
+>
+	<actions>
+		<!-- You do some preparation before you start the actual work. It is a 
+			good idea to wrap this initial work in another service, so that it can be 
+			developed and tested on its own -->
+		<subService serviceName="batch.prepare" />
+		<setValue
+			fieldName="toContinue"
+			expression="true" />
+		<setValue
+			fieldName="nbrLoops"
+			fieldValue="0"
+		/>
+
+		<!-- A unit of work is to be repeated. We recommend that the unit of work 
+			itself is wrapped in a service. It can be developed and tested on its own 
+			as a simple service. -->
+
+
+		<!-- breakOnInterrupt="true" ensures that the job shuts down gracefully 
+			when the monitoring program wants it to shut down -->
+
+		<loop breakOnInterrupt="true">
+			<actions>
+				<!-- if it is appropriate, you may have a separate service that receives 
+					the input for the unit work. Remember you share the same context -->
+				<subService serviceName="batch.checkForWork" />
+
+				<!-- earlier service would have set this flag -->
+				<jumpTo
+					executeOnCondition="!toContinue"
+					actionName="jump"
+					toAction="_break" />
+				<subService serviceName="batch.unitWork" />
+				<setValue
+					fieldName="nbrLoops"
+					expression="nbrLoops + 1" />
+				<!-- let us make use of a way to let manager know our progress.. -->
+				<dropIntoMessageBox expression="nbrLoops + &quot; loops completed &quot;" />
+			</actions>
+		</loop>
+
+		<!-- wrap up before shutting down. Note that this happens even when the 
+			thread is interrupted -->
+		<subService serviceName="batch.wrapup" />
+	</actions>
+</service>

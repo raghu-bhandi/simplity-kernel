@@ -40,6 +40,15 @@ Upload file: <input type="file" id="myFile"  onchange="uploadfile()"/>
 <br>
 <a href="javascript:void(0);" onClick="downloadfile()">Click here to download</a>
 <br>
+<br>
+<button onClick="getBatchStatus()">Get batch status</button>
+<br>
+<br>
+<button onClick="startBatch()">Start batch status</button>
+<br>
+<br>
+<button onClick="stopBatch()">Stop batch status</button>
+<br>
 </body>
 <script src="js/simplity-min.js"></script>
 <script type="text/javascript">
@@ -49,6 +58,18 @@ function onSuccess(response){
 }
 function onError(response){
 	document.getElementById("response").innerHTML = JSON.stringify(response);
+}
+function getBatchStatus(){
+	var data = "{'batchAction':'status','batchName':'batch','jobName':'fileprocessor'}";
+	Simplity.getResponse("batch.batch",data,onSuccess,onError);
+}
+function startBatch(){
+	var data = "{'batchAction':'start','batchName':'batch','jobName':'fileprocessor'}";
+	Simplity.getResponse("batch.batch",data,onSuccess,onError);
+}
+function stopBatch(){
+	var data = "{'batchAction':'stop','batchName':'batch','jobName':'fileprocessor'}";
+	Simplity.getResponse("batch.batch",data,onSuccess,onError);
 }
 
 function callRest(){
@@ -91,12 +112,6 @@ function invokeCustomServlet(){
 	xhttp.open("GET", "\processFile", true);
 	xhttp.send();
 }
-
-function onError(response){
-	console.log(response);
-	
-}
-
 var fileKey ;
 var fileName;
 function uploadfile(){

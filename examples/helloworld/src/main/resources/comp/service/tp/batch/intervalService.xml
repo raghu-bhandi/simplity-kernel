@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="intervalService"
+	moduleName="batch"
+	dbAccessType="none"
+	description="This service is fired every so-many seconds by the batch manager.
+	But we can also use this service in any other context"
+>
+	<actions>
+		<setValue
+			fieldName="log"
+			fieldValue="This is interval service starting its work" />
+		<log names="log" />
+		<logic
+			description="this logic is supplied as an example in core library sleeps for upto 10 seconds before saying hello"
+			className="org.simplity.ide.AsynchHelloWorld" />
+		<setValue
+			fieldName="log"
+			fieldValue="Interval service completed its work" />
+		<log names="log" />
+	</actions>
+</service>
