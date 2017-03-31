@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	moduleName="fileactions"
+	name="fileProcessing2"
+	dbAccessType="subService" 
+>
+	<actions>
+		<setValue fieldName="inFolderName" fieldValue="${basedir}/infile"></setValue>
+		<setValue fieldName="inputfilename" fieldValue="txt01.txt"></setValue>
+		<setValue fieldName="outFolderName" fieldValue="${basedir}/outfile"></setValue>
+		<setValue fieldName="outFileName" fieldValue="{name}02.{ext}"></setValue>
+
+		<createSheet sheetName="collect" recordName="files.fixed"/>
+		<fileProcessor
+			inFolderName="$inFolderName"
+			inFileNamePattern="$inputfilename"
+			inDataFormat="fixedWidth"
+			inRecordName="files.fixed"
+			outFolderName="$outFolderName"
+			outFileName="$outFileName"
+			outDataFormat="fixedWidth"
+			outRecordName="files.fixed3"					
+		>
+		<associatedInputFiles>
+			<flatFile fileNamePattern="{name}associate.{ext}" recordName="files.fixed2" dataFormat="fixedWidth"/>
+		</associatedInputFiles>
+		<actionOnInvalidInputRow>
+				<subService serviceName="fileactions.processErrorRow"/>
+		</actionOnInvalidInputRow>
+		<actionOnErrorWhileProcessing>
+			<subService serviceName="fileactions.processErrorRow"/>
+		</actionOnErrorWhileProcessing>
+			<actions>
+				<log names="a"></log>
+			</actions>
+		</fileProcessor>
+	</actions>
+	<outputData dataSheets="collect"></outputData>
+</service>
