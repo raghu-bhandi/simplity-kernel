@@ -2741,6 +2741,52 @@
 		</xs:sequence>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
+
+	<xs:complexType name="flatFiles">
+		<xs:sequence>
+			<xs:element
+				name="flatFile"
+				minOccurs="1"
+				maxOccurs="unbounded"
+			>
+				<xs:complexType>
+					<xs:attribute
+						name="fileNamePattern"
+						type="xs:string"
+						use="required"
+					>
+						<xs:annotation>
+							<xs:documentation>file name composed of {name} and {ext} that
+								represent name and extension of primary file name for example
+								../folder/{name}-abc.{ext}
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="recordName"
+						type="xs:string"
+						use="required"
+					>
+						<xs:annotation>
+							<xs:documentation>qualified name of record that defines the
+								columns in this flat file
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+					<xs:attribute
+						name="dataFormat"
+						type="flatFileType"
+						use="required"
+					>
+						<xs:annotation>
+							<xs:documentation>in what format is data received in the file?
+							</xs:documentation>
+						</xs:annotation>
+					</xs:attribute>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:element name="fileProcessor">
 		<xs:complexType>
 			<xs:all>
@@ -2781,7 +2827,18 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-
+				<xs:element
+					name="associatedInputFiles"
+					type="flatFiles"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>If you have to read rows from more than one
+							files as input that contain same number of rows
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 			</xs:all>
 			<xs:attributeGroup ref="actionAttributes" />
 			<xs:attribute

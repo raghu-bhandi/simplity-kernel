@@ -35,6 +35,7 @@ import java.util.List;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
+import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
@@ -65,14 +66,12 @@ public class FileProcessor extends Block {
 	 */
 	String inFileNamePattern;
 	/**
-	 * parsed inFileNamePattern
-	 */
-	private String parsedInFileNamePattern;
-	/**
 	 * if we are to create an output file. file name can contain parts of input
 	 * file name as part of it. example if input file name is a.txt
 	 * {name}{ext}.out will translate to a.txt.out and {fileName}.out will
-	 * translate to a.out
+	 * translate to a.out.
+	 *
+	 * It may also be $fieldName where fieldName is available as a text field in service context
 	 */
 	String outFileName;
 
@@ -121,6 +120,14 @@ public class FileProcessor extends Block {
 	Expression conditionForOutput;
 
 	/**
+	 * any associated files that need to be read along with the primary input file
+	 */
+	FlatFile[] associatedInputFiles;
+	/**
+	 * parsed inFileNamePattern
+	 */
+	private String parsedInFileNamePattern;
+	/**
 	 * in case this thread is interrupted, should we exit after completing the current file?
 	 */
 	boolean exitOnInterrupt;
@@ -129,6 +136,9 @@ public class FileProcessor extends Block {
 	 */
 	private FilenameFilter filter;
 
+	/**
+	 * input folder cached as File
+	 */
 	private File inbox;
 
 	/*
@@ -149,13 +159,6 @@ public class FileProcessor extends Block {
 		}
 
 		this.filter = TextUtil.getFileNameFilter(parsedInFileNamePatternlocal);
-		int nbrFiles = 0;
-		Record record = ComponentManager.getRecord(this.inRecordName);
-		Record outRecord = null;
-		if (this.outRecordName != null) {
-			outRecord = ComponentManager.getRecord(this.outRecordName);
-		}
-		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
 		File[] files = this.inbox.listFiles(this.filter);
 		if(files == null || files.length == 0){
 			String msg = "No files waiting to be processed.";
@@ -164,6 +167,15 @@ public class FileProcessor extends Block {
 			return Value.VALUE_ZERO;
 		}
 
+		Record record = ComponentManager.getRecord(this.inRecordName);
+		Record outRecord = null;
+		if (this.outRecordName != null) {
+			outRecord = ComponentManager.getRecord(this.outRecordName);
+		}
+
+		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
+
+		int nbrFiles = 0;
 		for (File file : this.inbox.listFiles(this.filter)) {
 			Tracer.trace("File " + file.getAbsolutePath());
 			if (this.processOneFile(file, ctx, driver, record, outRecord, worker)) {
@@ -188,6 +200,7 @@ public class FileProcessor extends Block {
 
 		BufferedReader reader = null;
 		BufferedWriter writer = null;
+		BufferedReader[] associates = null;
 		try {
 			/*
 			 * create input/output streams
@@ -200,6 +213,30 @@ public class FileProcessor extends Block {
 				File outFile = new File(this.outFolderName + outName);
 				writer = new BufferedWriter(new FileWriter(outFile));
 			}
+
+			/*
+			 * are there associated files?
+			 */
+			Record[] inRecords = null;
+			String[] inNames = null;
+
+			if(this.associatedInputFiles != null){
+				int nbrAssociates = this.associatedInputFiles.length;
+				associates = new BufferedReader[nbrAssociates];
+				inRecords = new Record[nbrAssociates];
+				inNames = new String[nbrAssociates];
+				String folderName = file.getParentFile().getAbsolutePath()+'/';
+				for(int i = 0; i < associates.length; i++){
+					FlatFile ff = this.associatedInputFiles[i];
+					String flatName = folderName + TextUtil.getFileName(ff.fileNamePattern, inName);
+					Tracer.trace("Openeing associated input file " + flatName);
+					inNames[i] = flatName;
+					File f = new File(flatName);
+					associates[i] = new BufferedReader(new FileReader(f));
+					inRecords[i] = ComponentManager.getRecord(ff.recordName);
+				}
+			}
+
 			String inText;
 			/*
 			 * loop on each row in input file. Note that the ctx is not reset
@@ -207,6 +244,7 @@ public class FileProcessor extends Block {
 			 * transactions at row level
 			 */
 			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
+			boolean rowShortage = false;
 			while ((inText = reader.readLine()) != null) {
 				/*
 				 * Absolved of all past sins. Start life afresh :-)
@@ -214,6 +252,20 @@ public class FileProcessor extends Block {
 				ctx.resetMessages();
 				errors.clear();
 				record.extractFromFlatRow(inText, this.inDataFormat, ctx, errors);
+				if(inRecords != null){
+					for(int i = 0; i < inRecords.length; i++){
+						@SuppressWarnings("null")
+						String txt = associates[i].readLine();
+						if(txt == null){
+							@SuppressWarnings("null")
+							String fn = inNames[i];
+							errors.add(new FormattedMessage("Error", MessageType.ERROR, "File " + fn + " has less rows than the primary input file with which it is associated."));
+							rowShortage = true;
+						}else{
+							inRecords[i].extractFromFlatRow(txt, this.associatedInputFiles[i].dataFormat, ctx, errors);
+						}
+					}
+				}
 				/*
 				 * above method validates input as per data type specification.
 				 * Was there any trouble?
@@ -228,6 +280,12 @@ public class FileProcessor extends Block {
 						Tracer.trace("Invalid row received as input. Row is not processed.");
 					} else {
 						this.actionOnInvalidInputRow.act(ctx, driver);
+					}
+					if(rowShortage){
+						/*
+						 * if there is shortage of rows in associated files, no point int proceeding with other rows
+						 */
+						break;
 					}
 					ctx.resetMessages();
 					continue;
@@ -294,6 +352,15 @@ public class FileProcessor extends Block {
 					reader.close();
 				} catch (Exception ignore) {
 					//
+				}
+			}
+			if(associates != null){
+				for(BufferedReader r : associates){
+					try {
+						r.close();
+					} catch (Exception ignore) {
+						//
+					}
 				}
 			}
 		}
