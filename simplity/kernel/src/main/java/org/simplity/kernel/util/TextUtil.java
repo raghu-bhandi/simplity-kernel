@@ -31,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.xerces.impl.dv.util.Base64;
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidExpressionException;
@@ -47,6 +48,7 @@ public class TextUtil {
 	private static final String[] TRUE_VALUES = { "1", "TRUE", "YES" };
 	private static final String ARRAY_DELIMITER = ",";
 	private static final String ROW_DLIMITER = ";";
+	private static final String DOLLAR_STR = "$";
 	private static final char DOLLAR = '$';
 	private static final char LOWER_A = 'a';
 	private static final char LOWER_Z = 'z';
@@ -483,6 +485,9 @@ public class TextUtil {
 	}
 
 	/**
+	 * if the pattern is $fieldName, then the value of field name from fields
+	 * collection is returned
+	 *
 	 * replace place holders in name pattern. {name} is replaced with the file
 	 * name while {ext} is replaced with file extension. Note that extension
 	 * does not include '.'
@@ -500,24 +505,41 @@ public class TextUtil {
 	 * b{ext} ->b
 	 * </pre>
 	 *
-	 * @param pattern
-	 * @param inName
+	 * @param pattern can not be null
+	 * @param inName can be null;
+	 * @param fields
 	 * @return file name after replacing place-holders, if any
 	 */
 
-	public static String getFileName(String pattern, String inName) {
+	public static String getFileName(String pattern, String inName, FieldsInterface fields) {
+		String result;
+		if (pattern.startsWith(DOLLAR_STR)) {
+			Value val = null;
+			if(fields != null){
+				val = fields.getValue(pattern.substring(1));
+			}
+			if (val == null || val.isUnknown()) {
+				throw new ApplicationError("Field " + pattern.substring(1)
+						+ " not found in context. This is required as the name of a file.");
+			}
+			return val.toString();
+		}
+
 		int idx = pattern.indexOf('{');
 		if (idx == -1) {
 			return pattern;
 		}
-		String inFile = inName;
+		String inFile = "";
 		String inExtn = "";
-		idx = inName.lastIndexOf('.');
-		if (idx != -1) {
-			inFile = inName.substring(0, idx);
-			inExtn = inName.substring(idx + 1);
+		if(inName != null){
+			inFile = inName;
+			idx = inName.lastIndexOf('.');
+			if (idx != -1) {
+				inFile = inName.substring(0, idx);
+				inExtn = inName.substring(idx + 1);
+			}
 		}
-		String result = pattern.replaceAll("\\{name\\}", inFile);
+		result = pattern.replaceAll("\\{name\\}", inFile);
 		result = result.replaceAll("\\{ext\\}", inExtn);
 		return result;
 	}

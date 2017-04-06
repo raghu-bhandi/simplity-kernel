@@ -160,6 +160,22 @@ public class Sql implements Component {
 	 *
 	 * @param dataRow
 	 * @param driver
+	 * @param callbackObject
+	 * @return extracted data
+	 */
+	public int processRows(FieldsInterface dataRow, DbDriver driver, DbRowProcessor callbackObject) {
+		if (this.sqlType == SqlType.UPDATE) {
+			throw new ApplicationError("Sql " + this.getQualifiedName()
+					+ " is meant for update, but it is called for data extraction");
+		}
+		Value[] values = this.getInputValues(dataRow);
+		return driver.processRows(this.preparedStatement, values, this.outputNames, this.outputTypes, callbackObject);
+	}
+
+	/**
+	 *
+	 * @param dataRow
+	 * @param driver
 	 * @param treatErrorAsNoAction
 	 *            if true, sql exception is assumed to be because of some
 	 *            constraints, and hence rows affected is set to 0

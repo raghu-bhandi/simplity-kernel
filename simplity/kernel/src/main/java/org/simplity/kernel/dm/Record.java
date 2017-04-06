@@ -376,6 +376,19 @@ public class Record implements Component {
 	}
 
 	/**
+	 * @param fieldName
+	 * @return field or null
+	 */
+	public int getFieldIndex(String fieldName) {
+		for (int i = 0; i < this.fieldNames.length; i++) {
+			if (this.fieldNames[i].equals(fieldName)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
 	 * to avoid confusion, we do not have a method called getName.
 	 *
 	 * @return qualified name of this record
@@ -3599,13 +3612,16 @@ public class Record implements Component {
 	}
 
 	/**
+	 * extract values from a flat-file text row
+	 *
 	 * @param inText
+	 *            flat-file text row
 	 * @param inDataFormat
-	 * @param fieldValues
 	 * @param errors
+	 * @return array of values, or null in case of any validation error. Error
+	 *         message would have been added to errors
 	 */
-	public void extractFromFlatRow(String inText, FlatFileRowType inDataFormat, FieldsInterface fieldValues,
-			List<FormattedMessage> errors) {
+	public Value[] extractFromFlatRow(String inText, FlatFileRowType inDataFormat, List<FormattedMessage> errors) {
 		/*
 		 * split input into individual text values
 		 */
@@ -3616,7 +3632,7 @@ public class Record implements Component {
 				/*
 				 * error: message already added by called method
 				 */
-				return;
+				return null;
 			}
 		} else {
 			inputTexts = inText.split(",");
@@ -3624,17 +3640,39 @@ public class Record implements Component {
 				FormattedMessage msg = new FormattedMessage("kernel.invalidInputStream", inText);
 				msg.addData(inText);
 				errors.add(msg);
-				return;
+				return null;
 			}
 		}
 		/*
 		 * validate and extract
 		 */
+		Value[] values = new Value[this.fields.length];
 		for (int i = 0; i < this.fields.length; i++) {
 			Field field = this.fields[i];
 			String text = inputTexts[i];
-			Value value = field.parseField(text, errors, false, this.name);
-			fieldValues.setValue(field.name, value);
+			values[i] = field.parseField(text, errors, false, this.name);
+		}
+		return values;
+	}
+
+	/**
+	 * parse fields from a flat file row text into fields, of course with
+	 * validation
+	 *
+	 * @param inText
+	 * @param inDataFormat
+	 * @param fieldValues
+	 * @param errors
+	 *            any validation errors are added to this collection
+	 */
+	public void parseFlatFileRow(String inText, FlatFileRowType inDataFormat, FieldsInterface fieldValues,
+			List<FormattedMessage> errors) {
+		Value[] values = this.extractFromFlatRow(inText, inDataFormat, errors);
+
+		if (values != null) {
+			for (int i = 0; i < values.length; i++) {
+				fieldValues.setValue(this.fieldNames[i], values[i]);
+			}
 		}
 	}
 

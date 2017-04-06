@@ -241,9 +241,11 @@ public class HttpAgent {
 						httpCacheManager.cache(inData, outData, session);
 					}
 				}
+			} catch (ApplicationError e) {
+				Application.reportApplicationError(inData, e);
+				message = INTERNAL_ERROR;
 			} catch (Exception e) {
-				Tracer.trace(e, "Internal error");
-				Application.getExceptionListener().listen(inData, e);
+				Application.reportApplicationError(inData, new ApplicationError(e, "Error while processing request"));
 				message = INTERNAL_ERROR;
 			}
 		} while (false);
@@ -290,7 +292,7 @@ public class HttpAgent {
 		ServiceLogger.pushTraceToLog(serviceName, uid, (int) elapsed, trace);
 
 	}
-	
+
 	public static void serve(HttpServletRequest req, HttpServletResponse resp,String serviceName) throws ServletException, IOException {
 
 		String fileToken = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
@@ -373,9 +375,11 @@ public class HttpAgent {
 						httpCacheManager.cache(inData, outData, session);
 					}
 				}
+			} catch (ApplicationError e) {
+				Application.reportApplicationError(inData, e);
+				message = INTERNAL_ERROR;
 			} catch (Exception e) {
-				Tracer.trace(e, "Internal error");
-				Application.getExceptionListener().listen(inData, e);
+				Application.reportApplicationError(inData, new ApplicationError(e, "Error while processing request."));
 				message = INTERNAL_ERROR;
 			}
 		} while (false);
@@ -793,14 +797,14 @@ public class HttpAgent {
 				obj = stream.readObject();
 				stream.close();
 			} catch (Exception e) {
-				Application.getExceptionListener().listen(null, e);
+				Application.reportApplicationError(null, new ApplicationError(e, "Error while streaming response"));
 				message = INTERNAL_ERROR;
 				break;
 			}
 			if (obj instanceof ServiceData == false) {
 				String text = "Temp file is expected to contain an object instance of ServiceData but we found "
 						+ obj.getClass().getName();
-				Application.getExceptionListener().listen(null, new ApplicationError(text));
+				Application.reportApplicationError(null, new ApplicationError(text));
 				message = INTERNAL_ERROR;
 				break;
 			}

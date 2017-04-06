@@ -24,6 +24,7 @@ package org.simplity.jms;
 
 import java.util.Properties;
 
+import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSession;
@@ -71,13 +72,13 @@ public class JmsConnector {
 		Context ctx = null;
 
 		try {
-			if(properties != null && properties.length > 0){
+			if (properties != null && properties.length > 0) {
 				Properties env = new Properties();
-				for (Property property: properties){
+				for (Property property : properties) {
 					env.put(property.getName(), property.getValue());
 				}
 				ctx = new InitialContext(env);
-			}else{
+			} else {
 				ctx = new InitialContext();
 			}
 			if (queueConnectionFactory != null) {
@@ -95,6 +96,18 @@ public class JmsConnector {
 	}
 
 	/**
+	 * get a JMS connection for repeated use across multiple transactions.
+	 * caller can issue start(), commit() rollBack() etc..
+	 * @param jmsUsage
+	 *
+	 * @return connection
+	 */
+	public static JmsConnector borrowMultiTransConnector(JmsUsage jmsUsage) {
+		return borrow(jmsUsage, true);
+	}
+
+	/**
+	 *
 	 * get a JMS connection. And, please, please do not close() it or abandon
 	 * it. Do return it once you are done. I am dependent on
 	 * your discipline at this time to avoid memory leakage
@@ -104,6 +117,11 @@ public class JmsConnector {
 	 * @return connection
 	 */
 	public static JmsConnector borrowConnector(JmsUsage jmsUsage) {
+		return borrow(jmsUsage, false);
+	}
+
+	private static JmsConnector borrow(JmsUsage jmsUsage, boolean multi) {
+
 		try {
 			QueueConnection con = null;
 			boolean transacted = false;
@@ -128,7 +146,7 @@ public class JmsConnector {
 			 * consuming queues, though production works without that
 			 */
 			con.start();
-			return new JmsConnector(con, session, jmsUsage);
+			return new JmsConnector(con, session, jmsUsage, multi);
 		} catch (Exception e) {
 			throw new ApplicationError(e, "Error while creating jms session");
 		}
@@ -156,35 +174,40 @@ public class JmsConnector {
 	/**
 	 * usage for which this instance is created
 	 */
-	JmsUsage jmsUsage;
+	private JmsUsage jmsUsage;
+
+	private boolean forMultiTrans;
 
 	/**
 	 * @param con
 	 * @param session
 	 * @param jmsUsage
 	 */
-	private JmsConnector(QueueConnection con, QueueSession session, JmsUsage jmsUsage) {
+	private JmsConnector(QueueConnection con, QueueSession session, JmsUsage jmsUsage, boolean multi) {
 		this.connection = con;
 		this.session = session;
 		this.jmsUsage = jmsUsage;
+		this.forMultiTrans = multi;
 
 	}
 
 	private void close(boolean allOk) {
-		try {
-			if (this.jmsUsage == JmsUsage.SERVICE_MANAGED) {
-				if (allOk) {
-					Tracer.trace("Jms session committed.");
-					this.session.commit();
+		if (this.forMultiTrans == false) {
+			try {
+				if (this.jmsUsage == JmsUsage.SERVICE_MANAGED) {
+					if (allOk) {
+						Tracer.trace("Jms session committed.");
+						this.session.commit();
+					} else {
+						Tracer.trace("Jms session rolled-back.");
+						this.session.rollback();
+					}
 				} else {
-					Tracer.trace("Jms session rolled-back.");
-					this.session.rollback();
+					Tracer.trace("non-transactional JMS session closed.");
 				}
-			} else {
-				Tracer.trace("non-transactional JMS session closed.");
+			} catch (Exception e) {
+				throw new ApplicationError(e, "error while closing jms conenction");
 			}
-		} catch (Exception e) {
-			throw new ApplicationError(e, "error while closing jms conenction");
 		}
 		try {
 			this.session.close();
@@ -198,6 +221,28 @@ public class JmsConnector {
 		}
 	}
 
+	private void checkMulti(){
+		if(this.forMultiTrans == false){
+			throw new ApplicationError("Jms connection is borrowed for a single transaciton, but is used to manage transactions.");
+		}
+	}
+
+	/**
+	 * commit current transaction. Valid only if the connection is borrowed for multi-trnsactions
+	 * @throws JMSException
+	 */
+	public void commit() throws JMSException{
+		this.checkMulti();
+		this.session.commit();
+	}
+	/**
+	 * roll-back current transaction. Valid only if the connection is borrowed for multi-trnsactions
+	 * @throws JMSException
+	 */
+	public void rollback() throws JMSException{
+		this.checkMulti();
+		this.session.rollback();
+	}
 	/**
 	 * @return session associated with this connector
 	 */

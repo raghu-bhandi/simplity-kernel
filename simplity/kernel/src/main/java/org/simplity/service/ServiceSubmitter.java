@@ -49,8 +49,7 @@ public class ServiceSubmitter implements Runnable {
 	 * @param outStream
 	 *
 	 */
-	public ServiceSubmitter(ServiceData inData, ServiceInterface service,
-			ObjectOutputStream outStream) {
+	public ServiceSubmitter(ServiceData inData, ServiceInterface service, ObjectOutputStream outStream) {
 		this.inData = inData;
 		this.service = service;
 		this.outStream = outStream;
@@ -66,11 +65,10 @@ public class ServiceSubmitter implements Runnable {
 		try {
 			outData = this.service.respond(this.inData);
 		} catch (Exception e) {
-			Application.getExceptionListener().listen(this.inData, e);
+			Application.reportApplicationError(this.inData, e);
 			outData = new ServiceData(this.inData.getUserId(), serviceName);
 			Tracer.trace(e, "Service " + serviceName + " resulted in fatal error");
-			outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e
-					.getMessage()));
+			outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()));
 		}
 		String trace = Tracer.stopAccumulation();
 		/*
@@ -97,8 +95,7 @@ public class ServiceSubmitter implements Runnable {
 		try {
 			this.outStream.writeObject(outData);
 		} catch (IOException e) {
-			Tracer.trace(e,
-					"Error while writing response from background service onto stream");
+			Tracer.trace(e, "Error while writing response from background service onto stream");
 		} finally {
 			try {
 				this.outStream.close();

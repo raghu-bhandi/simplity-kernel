@@ -22,520 +22,455 @@
 
 package org.simplity.tp;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.simplity.aggr.Aggregator;
+import org.simplity.aggr.AggregatorWorker;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.data.FlatFileRowType;
-import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
-import org.simplity.kernel.dm.Record;
-import org.simplity.kernel.expr.Expression;
-import org.simplity.kernel.util.TextUtil;
+import org.simplity.kernel.db.DbRowProcessor;
+import org.simplity.kernel.db.Sql;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
+ * Data structure that keeps meta data about a flat-file
+ *
  * @author simplity.org
  *
  */
-public class FileProcessor extends Block {
+public class FileProcessor {
 	/**
-	 * folder in which we look for files to process
+	 * if the rows are from a SQL
 	 */
-	String inFolderName;
-	/**
-	 * folder in which we look for files to process
-	 */
-	private String parsedInFolderName;	
-	/**
-	 * folder in which we look for files to process
-	 */	
-	String outFolderName;
-	/**
-	 * folder in which we look for files to process
-	 */
-	private String parsedOutFolderName;		
-	/**
-	 * example *.txt
-	 */
-	String inFileNamePattern;
-	/**
-	 * parsed inFileNamePattern
-	 */
-	private String parsedInFileNamePattern;	
-	/**
-	 * if we are to create an output file. file name can contain parts of input
-	 * file name as part of it. example if input file name is a.txt
-	 * {name}{ext}.out will translate to a.txt.out and {fileName}.out will
-	 * translate to a.out.
-	 *
-	 * It may also be $fieldName where fieldName is available as a text field in service context
-	 */
-	String outFileName;
-	/**
-	 * parsed outFileName
-	 */
-	private String parsedOutFileName;
-	/**
-	 * Similar to outFileName that can be based on input file name
-	 */
-	String renameInFileTo;
-	/**
-	 * parsed renameInFileTo
-	 */
-	private String parsedRenameInFileTo;	
-	/**
-	 * should the input file be deleted after processing it? Not relevant if
-	 * rename attribute is specified.
-	 */
-	boolean deleteInFileAfterProcessing;
-	/**
-	 * record that describes the structure of this file
-	 */
-	String inRecordName;
-	/**
-	 * record that describes the structure of this file
-	 */
-	String outRecordName;
+	String inputSql;
 
 	/**
-	 * format of the data in input file
+	 * if driver is an input file
 	 */
-	FlatFileRowType inDataFormat;
-	/**
-	 * format of the data in output file
-	 */
-	FlatFileRowType outDataFormat;
+	FlatFile inputFile;
 
 	/**
-	 * What action do we take in case the input row fails data-type validation?
+	 * if a row is to be written out to a file
 	 */
-	Action actionOnInvalidInputRow;
+	FlatFile outputFile;
 
 	/**
-	 * action to be executed of the row processing generates error
+	 * actions to be taken for each row before processing child rows, Note that
+	 * the action to be taken for the child rows is part of childProcssor
 	 */
-	Action actionOnErrorWhileProcessing;
+	Action actionBeforeChildren;
 
 	/**
-	 * is there a conditional based on which we have to decide whether to write
-	 * output or not? Null means we write always. If specified, output row is
-	 * written for this row only if it evaluates to true.
+	 * are we accumulating/aggregating?. Note that aggregators accumulate for
+	 * all rows for a given parent row in case of a child rows, but accumulate
+	 * for all rows for the primary file
 	 */
-	Expression conditionForOutput;
+	Aggregator[] aggregators;
 
 	/**
-	 * any associated files that need to be read along with the primary input file
+	 * any associated files that need to be read along with the primary input
+	 * file
 	 */
-	FlatFile[] associatedInputFiles;
-	/**
-	 * in case this thread is interrupted, should we exit after completing the current file?
-	 */
-	boolean exitOnInterrupt;
-	/**
-	 * filter corresponding to the input file
-	 */
-	private FilenameFilter filter;
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.Action#delegate(org.simplity.service.ServiceContext,
-	 * org.simplity.kernel.db.DbDriver)
-	 */
-	@Override
-	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		String evaluatVarInFolderName = this.parsedInFolderName;
-		if (this.inFolderName.startsWith("$")) {
-			evaluatVarInFolderName = ctx.getValue(this.parsedInFolderName).toText();
-		}
-		if (evaluatVarInFolderName != null && evaluatVarInFolderName.endsWith("/") == false) {
-			evaluatVarInFolderName += '/';
-		}		
-		
-		File inbox = new File(evaluatVarInFolderName);			
-		Tracer.trace("Going to process files in folder " + evaluatVarInFolderName + " that exists = " + inbox.exists());
+	FileProcessor[] childProcessors;
 
-		String evaluatVarNamePattern = this.parsedInFileNamePattern;
-		if (this.inFileNamePattern.startsWith("$")) {
-			evaluatVarNamePattern = ctx.getValue(this.parsedInFileNamePattern).toText();
+	/**
+	 * action to be taken after processing child rows
+	 */
+	Action actionAfterChildren;
+
+	/**
+	 * @param service
+	 */
+	public void getReady(Service service) {
+		if (this.inputFile != null) {
+			this.inputFile.getReady(service);
 		}
 
-		this.filter = TextUtil.getFileNameFilter(evaluatVarNamePattern);
-		File[] files = inbox.listFiles(this.filter);
-		if(files == null || files.length == 0){
-			String msg = "No files waiting to be processed.";
-			Tracer.trace(msg);
-			ctx.putMessageInBox(msg);
-			return Value.VALUE_ZERO;
+		if (this.outputFile != null) {
+			this.outputFile.getReady(service);
+		}
+		if (this.actionBeforeChildren != null) {
+			this.actionBeforeChildren.getReady(0, service);
 		}
 
-		Record record = ComponentManager.getRecord(this.inRecordName);
-		Record outRecord = null;
-		if (this.outRecordName != null) {
-			outRecord = ComponentManager.getRecord(this.outRecordName);
+		if (this.actionAfterChildren != null) {
+			this.actionAfterChildren.getReady(0, service);
 		}
-
-		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx);
-
-		int nbrFiles = 0;
-		for (File file : inbox.listFiles(this.filter)) {
-			Tracer.trace("File " + file.getAbsolutePath());
-			if (this.processOneFile(file, ctx, driver, record, outRecord, worker)) {
-				nbrFiles++;
-				if(this.exitOnInterrupt && Thread.interrupted()){
-					Tracer.trace("File processor will exit after processing " + nbrFiles + " files as there is an interruption");
-					Thread.currentThread().interrupt();
-					break;
-				}
-				ctx.putMessageInBox(nbrFiles + " files processed");
+		if (this.childProcessors != null) {
+			for (FileProcessor child : this.childProcessors) {
+				child.getReady(service);
 			}
 		}
-		return Value.newIntegerValue(nbrFiles);
 	}
 
 	/**
-	 * @param file
-	 * @throws IOException
+	 * @param vtx
+	 * @param service
+	 * @return number of errors
 	 */
-	private boolean processOneFile(File file, ServiceContext ctx, DbDriver driver, Record record, Record outRecord,
-			BlockWorker worker) {
+	public int validate(ValidationContext vtx, Service service) {
+		return 0;
+	}
 
-		BufferedReader reader = null;
-		BufferedWriter writer = null;
-		BufferedReader[] associates = null;
+	/**
+	 * this is the control-entry into the maze of processing. But it all starts
+	 * from here.
+	 *
+	 * @param file
+	 * @param boss
+	 *            if this is the primary-driver processor, then the batch
+	 *            Processor, else null
+	 * @param dbDriver
+	 * @param ctx
+	 * @return number of rows processed
+	 * @throws InvalidRowException
+	 *             in case the input row fails data-type validation
+	 * @throws Exception
+	 *             any other error
+	 */
+	public int process(File file, BatchProcessor.Worker boss, DbDriver dbDriver, ServiceContext ctx)
+			throws InvalidRowException, Exception {
+		Worker worker = this.getWorker(boss, dbDriver, ctx);
 		try {
-			/*
-			 * create input/output streams
-			 */
-			String inName = file.getName();
-			Tracer.trace("Processing " + inName + "....");
-			reader = new BufferedReader(new FileReader(file));
-			if (this.outFileName != null) {
-				String evaluateVarOutFileName = this.parsedOutFileName;
-				if(this.outFileName.startsWith("$")){
-					evaluateVarOutFileName = ctx.getValue(this.parsedOutFileName).toText();
-				}
-				String outName = TextUtil.getFileName(evaluateVarOutFileName, inName);
-				
-				String evaluatorVarOutFolderName = this.parsedOutFolderName;
-				if(this.outFolderName.startsWith("$")){
-					evaluatorVarOutFolderName = ctx.getValue(this.parsedOutFolderName).toText();
-				}				
-				if (evaluatorVarOutFolderName != null && evaluatorVarOutFolderName.endsWith("/") == false) {
-					evaluatorVarOutFolderName += '/';
-				}
+			worker.openShop(file);
+			return worker.processAll();
+		} finally {
+			worker.closeShop();
+		}
+	}
 
-				File outFile = new File(evaluatorVarOutFolderName + outName);
-				writer = new BufferedWriter(new FileWriter(outFile));
+	Worker getWorker(BatchProcessor.Worker boss, DbDriver dbDriver, ServiceContext ctx) {
+		return new Worker(boss, dbDriver, ctx);
+	}
+
+	Worker getWorker(DbDriver dbDriver, ServiceContext ctx) {
+		return new Worker(null, dbDriver, ctx);
+	}
+
+	class Worker implements DbRowProcessor {
+		/*
+		 * set by constructor
+		 */
+		BatchProcessor.Worker boss;
+		private final DbDriver dbDriver;
+		private final ServiceContext ctx;
+
+		/*
+		 * set at openShop()
+		 */
+		private Sql sql;
+		private Worker[] workers;
+		private AggregatorWorker[] aggWorkers;
+		private FlatFile.InputWorker inFileWorker;
+		private FlatFile.OutputWorker outFileWorker;
+
+		/**
+		 * instantiate with core(non-state) attributes
+		 *
+		 * @param jmsConnector
+		 * @param userTransaction
+		 * @param dbDriver
+		 * @param ctx
+		 */
+		protected Worker(BatchProcessor.Worker boss, DbDriver dbDriver, ServiceContext ctx) {
+			this.boss = boss;
+			this.dbDriver = dbDriver;
+			this.ctx = ctx;
+		}
+
+		/**
+		 * get all required resources, and workers. This is called for the
+		 * primary file processor (not a child processor) boss is non-null here.
+		 *
+		 * @throws IOException
+		 */
+		void openShop(File file) throws IOException {
+			if (file != null) {
+				this.inFileWorker = FileProcessor.this.inputFile.getInputWorker();
+				this.inFileWorker.openShop(this.boss.rootFolder, file, this.ctx);
+			}
+			this.openShopCommon(this.boss.rootFolder);
+		}
+
+		/**
+		 * initialize and get ready for repeated invocation. Any resource can be
+		 * created and kept, because a closeShop() is guaranteed by the caller
+		 * to this method
+		 *
+		 * @throws IOException
+		 */
+		private void openShop(String rootFolder, String parentFileName) throws IOException {
+			FlatFile ff = FileProcessor.this.inputFile;
+			if (ff != null) {
+				this.inFileWorker = ff.getInputWorker();
+				this.inFileWorker.openShop(rootFolder, parentFileName, this.ctx);
+			}
+			this.openShopCommon(rootFolder);
+		}
+
+		private void openShopCommon(String rootFolder) throws IOException {
+			/*
+			 * ensure input file or sql
+			 */
+			if (this.inFileWorker == null) {
+				this.sql = ComponentManager.getSql(FileProcessor.this.inputSql);
+			}
+			/*
+			 * what about output file?
+			 */
+			FlatFile ff = FileProcessor.this.outputFile;
+			String refFileName = null;
+			if (this.inFileWorker != null) {
+				refFileName = this.inFileWorker.getFileName();
+			}
+			if (ff != null) {
+				this.outFileWorker = ff.getOutputWorker();
+				this.outFileWorker.openShop(rootFolder, refFileName, this.ctx);
+			}
+			/*
+			 * aggregators?
+			 */
+			Aggregator[] ags = FileProcessor.this.aggregators;
+			if (ags != null && ags.length > 0) {
+				this.aggWorkers = new AggregatorWorker[ags.length];
+				for (int i = 0; i < ags.length; i++) {
+					this.aggWorkers[i] = ags[i].getWorker();
+				}
 			}
 
 			/*
-			 * are there associated files?
+			 * child processors?
 			 */
-			Record[] inRecords = null;
-			String[] inNames = null;
-
-			if(this.associatedInputFiles != null){
-				int nbrAssociates = this.associatedInputFiles.length;
-				associates = new BufferedReader[nbrAssociates];
-				inRecords = new Record[nbrAssociates];
-				inNames = new String[nbrAssociates];
-				String folderName = file.getParentFile().getAbsolutePath()+'/';
-				for(int i = 0; i < associates.length; i++){
-					FlatFile ff = this.associatedInputFiles[i];
-					String flatName = folderName + TextUtil.getFileName(ff.fileNamePattern, inName);
-					Tracer.trace("Opening associated input file " + flatName);
-					inNames[i] = flatName;
-					File f = new File(flatName);
-					associates[i] = new BufferedReader(new FileReader(f));
-					inRecords[i] = ComponentManager.getRecord(ff.recordName);
+			FileProcessor[] prs = FileProcessor.this.childProcessors;
+			if (prs != null && prs.length > 0) {
+				this.workers = new Worker[prs.length];
+				for (int i = 0; i < prs.length; i++) {
+					Worker worker = prs[i].getWorker(this.dbDriver, this.ctx);
+					worker.openShop(rootFolder, refFileName);
+					this.workers[i] = worker;
 				}
 			}
+		}
 
-			String inText;
+		void closeShop() {
+			if (this.inFileWorker != null) {
+				this.inFileWorker.closeShop();
+			}
+			if (this.outFileWorker != null) {
+				this.outFileWorker.closeShop();
+			}
+			if (this.workers != null) {
+				for (Worker worker : this.workers) {
+					worker.closeShop();
+				}
+			}
+		}
+
+		/**
+		 * this is the method for the primary file processor, and not child-ones
+		 *
+		 * @return
+		 * @throws Exception
+		 */
+		int processAll() throws Exception {
+			if (this.sql != null) {
+				/*
+				 * tricky design. looks like a neat return, but it is not.
+				 * following method will call us back on processRow() for each
+				 * row.
+				 *
+				 * So, read this statement as "call prcoessRow() for each row in
+				 * result set of this sql
+				 */
+				return this.sql.processRows(this.ctx, this.dbDriver, this);
+			}
+
 			/*
-			 * loop on each row in input file. Note that the ctx is not reset
-			 * per row. However, error status is reset because we manage
-			 * transactions at row level
+			 * OK. file processing that is more functional-like
 			 */
 			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
-			boolean rowShortage = false;
-			while ((inText = reader.readLine()) != null) {
-				/*
-				 * Absolved of all past sins. Start life afresh :-)
-				 **/
-				ctx.resetMessages();
+			while (true) {
 				errors.clear();
-				record.extractFromFlatRow(inText, this.inDataFormat, ctx, errors);
-				if(inRecords != null){
-					for(int i = 0; i < inRecords.length; i++){
-						@SuppressWarnings("null")
-						String txt = associates[i].readLine();
-						if(txt == null){
-							@SuppressWarnings("null")
-							String fn = inNames[i];
-							errors.add(new FormattedMessage("Error", MessageType.ERROR, "File " + fn + " has less rows than the primary input file with which it is associated."));
-							rowShortage = true;
-						}else{
-							inRecords[i].extractFromFlatRow(txt, this.associatedInputFiles[i].dataFormat, ctx, errors);
-						}
-					}
-				}
-				/*
-				 * above method validates input as per data type specification.
-				 * Was there any trouble?
-				 */
-				if (errors.size() > 0) {
-					for (FormattedMessage error : errors) {
-						error.addData(inText);
-					}
-					ctx.addMessages(errors);
-
-					if (this.actionOnInvalidInputRow == null) {
-						Tracer.trace("Invalid row received as input. Row is not processed.");
-					} else {
-						this.actionOnInvalidInputRow.act(ctx, driver);
-					}
-					if(rowShortage){
+				try {
+					/*
+					 * read a row into serviceContext
+					 */
+					if (this.inFileWorker.read(errors) == false) {
 						/*
-						 * if there is shortage of rows in associated files, no point int proceeding with other rows
+						 * no more rows
 						 */
 						break;
 					}
-					ctx.resetMessages();
-					continue;
+				} catch (IOException e) {
+					throw new ApplicationError(e, "Error while processing batch files");
 				}
-				/*
-				 * now that the input is fine, let us process the row
-				 */
-				worker.execute(driver);
-				/*
-				 * any trouble while processing?
-				 */
-				if (ctx.isInError()) {
-					ctx.setTextValue("errorWhileProcessingRow", inText);
-					if (this.actionOnErrorWhileProcessing == null) {
-						Tracer.trace("Invalid row received as input. Row is not processed.");
-					} else {
-						this.actionOnErrorWhileProcessing.act(ctx, driver);
+				if (errors.size() > 0) {
+					this.ctx.addMessages(errors);
+					throw new InvalidRowException();
+				}
+
+				this.commonProcess();
+				this.writeAggregators();
+			}
+			return 0;
+		}
+
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see
+		 * org.simplity.kernel.db.DbRowProcessor#processRow(java.lang.String[],
+		 * org.simplity.kernel.value.Value[])
+		 */
+		@Override
+		public boolean processRow(String[] outputNames, Value[] values) {
+			/*
+			 * this is the callback from sql.processRows for each row in the sql
+			 * result. We should do the same thing that we would do after
+			 * reading each row in the input file
+			 *
+			 */
+			for (int i = 0; i < values.length; i++) {
+				this.ctx.setValue(outputNames[i], values[i]);
+			}
+
+			try {
+				this.commonProcess();
+				this.writeAggregators();
+			} catch (Exception e) {
+				Application.reportApplicationError(null, e);
+				return false;
+			}
+			return true;
+		}
+
+		/**
+		 * process one row of this file/sql. Common for main as well as child
+		 * files
+		 *
+		 * @throws Exception
+		 */
+		private void commonProcess() throws Exception {
+			if (this.boss != null) {
+				this.boss.beginTrans();
+				this.ctx.resetMessages();
+			}
+			Exception exception = null;
+			try {
+				Action action = FileProcessor.this.actionBeforeChildren;
+				if (action != null) {
+					action.act(this.ctx, this.dbDriver);
+				}
+
+				this.accumulateAggregators();
+
+				if (this.workers != null) {
+					for (Worker worker : this.workers) {
+						worker.processAParentRow();
 					}
-					continue;
 				}
+				action = FileProcessor.this.actionAfterChildren;
+				if (action != null) {
+					action.act(this.ctx, this.dbDriver);
+				}
+				if (this.outFileWorker != null) {
+					this.outFileWorker.writeOut();
+				}
+
+			} catch (ApplicationError e) {
+				exception = e;
+			} catch (Exception e) {
+				exception = new ApplicationError(e, "Exception during execution of service. ");
+			}
+			if (this.boss == null) {
+				if (exception != null) {
+					throw exception;
+				}
+			} else {
+				this.boss.endTrans(exception, this.dbDriver);
+			}
+		}
+
+		/**
+		 * read rows from child-file for matching key value from parent row.
+		 * We assume that the file is sorted.
+		 * @throws Exception
+		 */
+		private void processAParentRow() throws Exception {
+			if (this.sql != null) {
+				this.sql.processRows(this.ctx, this.dbDriver, this);
+				return;
+			}
+
+			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
+			if(this.inFileWorker.toBeMatched() == false){
 				/*
-				 * are we to write output row?
+				 * single row only
 				 */
-				if (writer != null) {
-					if (this.conditionForOutput != null) {
-						if (this.conditionForOutput.evaluate(ctx).toBoolean() == false) {
-							Tracer.trace("Output not written because the condition for the same is not satisfied.");
-							continue;
-						}
-					}
-					String outText = outRecord.formatFlatRow(this.outDataFormat, ctx);
-					writer.write(outText);
-					writer.newLine();
+				boolean ok = this.inFileWorker.read(errors);
+				if(!ok){
+					Tracer.trace("No rows in file child file");
+					return;
 				}
+				if (errors.size() > 0) {
+					this.ctx.addMessages(errors);
+					throw new InvalidRowException();
+				}
+				this.commonProcess();
+				this.writeAggregators();
+				return;
 			}
 			/*
-			 * important to close the stream before trying to delete/rename
+			 * possibly more than one rows in this file for  parent row
 			 */
-			reader.close();
-			if (this.renameInFileTo != null) {
-				if(this.inFolderName.startsWith("$")){
-					this.parsedInFolderName = ctx.getValue(this.parsedInFolderName).toText();
-				}
-				if(this.renameInFileTo.startsWith("$")){
-					this.parsedRenameInFileTo = ctx.getValue(this.parsedRenameInFileTo).toText();
-				}
-				String arcName = this.parsedInFolderName + TextUtil.getFileName(this.parsedRenameInFileTo, inName);
-				Tracer.trace("Renaming to " + arcName);
-				file.renameTo(new File(arcName));
-			} else if (this.deleteInFileAfterProcessing) {
-				if (file.delete() == false) {
-					throw new ApplicationError("Unable to delete file " + file.getPath());
-				}
+			String parentKey = this.inFileWorker.getParentKey(errors);
+			if (errors.size() > 0) {
+				this.ctx.addMessages(errors);
+				throw new InvalidRowException();
 			}
-			reader = null;
-			return true;
-		} catch (Exception e) {
-			Application.getExceptionListener().listen(null, e);
-			return false;
-		} finally {
-			if (writer != null) {
+			while (true) {
+				errors.clear();
 				try {
-					writer.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-			if(associates != null){
-				for(BufferedReader r : associates){
-					try {
-						r.close();
-					} catch (Exception ignore) {
-						//
+					if (this.inFileWorker.readChildRow(errors, parentKey) == false) {
+						break;
 					}
+				} catch (IOException e) {
+					throw new ApplicationError(e, "Error while processing batch files");
 				}
+				if (errors.size() > 0) {
+					this.ctx.addMessages(errors);
+					throw new InvalidRowException();
+				}
+				this.commonProcess();
+			}
+			this.writeAggregators();
+		}
+
+		private void accumulateAggregators() {
+			if (this.aggWorkers == null) {
+				return;
+			}
+			for (AggregatorWorker agw : this.aggWorkers) {
+				agw.accumulate(this.ctx, this.ctx);
+			}
+		}
+
+		private void writeAggregators() {
+			if (this.aggWorkers == null) {
+				return;
+			}
+			for (AggregatorWorker agw : this.aggWorkers) {
+				agw.writeOut(this.ctx, this.ctx);
 			}
 		}
 	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.Action#getReady(int)
-	 */
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		this.parsedInFolderName = TextUtil.getFieldName(this.inFolderName);
-		if (this.parsedInFolderName == null) {
-			this.parsedInFolderName = this.inFolderName;
-		}
-		
-		this.parsedInFileNamePattern = TextUtil.getFieldName(this.inFileNamePattern);
-		if (this.parsedInFileNamePattern == null) {
-			this.parsedInFileNamePattern = this.inFileNamePattern;
-		}
-		
-		this.parsedOutFolderName = TextUtil.getFieldName(this.outFolderName);
-		if (this.parsedOutFolderName == null) {
-			this.parsedOutFolderName = this.outFolderName;
-		}
-		
-		this.parsedOutFileName = TextUtil.getFieldName(this.outFileName);
-		if (this.parsedOutFileName == null) {
-			this.parsedOutFileName = this.outFileName;
-		}
-		
-		this.parsedRenameInFileTo = TextUtil.getFieldName(this.renameInFileTo);
-		if (this.parsedRenameInFileTo == null) {
-			this.parsedRenameInFileTo = this.renameInFileTo;
-		}
-
-		if (this.actionOnErrorWhileProcessing != null) {
-			this.actionOnErrorWhileProcessing.getReady(0, service);
-		}
-		if (this.actionOnInvalidInputRow != null) {
-			this.actionOnInvalidInputRow.getReady(0, service);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.Block#validate(org.simplity.kernel.comp.
-	 * ValidationContext, org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext vtx, Service service) {
-		int count = 0;
-		count = super.validate(vtx, service);
-		if (this.inFolderName == null) {
-			vtx.addError("inFolderName is required for file processor");
-			count++;
-		}
-		if (this.inFileNamePattern == null) {
-			vtx.addError("inFileNamePattern is required for file processor");
-			count++;
-		}
-		if (this.inDataFormat == null) {
-			vtx.addError("inDataFormat is required for file processor");
-			count++;
-		}
-		if (this.inRecordName == null) {
-			vtx.addError("inRecordName is required for file processor");
-			count++;
-		}
-		if (this.outFolderName != null) {
-			if (this.outDataFormat == null) {
-				vtx.addError("outDataFormat is required when outFolderName is specified");
-				count++;
-			}
-			if (this.outRecordName == null) {
-				vtx.addError("outRecordName is required when outFolderName is specified");
-				count++;
-			}
-			if (this.outFileName == null) {
-				vtx.addError("outFileName is required when outFolderName is specified");
-				count++;
-			}
-		} else if (this.outDataFormat != null || this.outRecordName != null || this.outFileName != null) {
-			vtx.reportUnusualSetting(
-					"Since outFolderName is not specified, no output is going to be written, and other output related attributes are ignored.");
-		}
-		if (this.renameInFileTo == null) {
-			if (this.deleteInFileAfterProcessing == false) {
-				vtx.reportUnusualSetting(
-						"Input file is neither deleted, nor renamed. This may result in the file being processed again.");
-			}
-		} else if (this.deleteInFileAfterProcessing) {
-			vtx.reportUnusualSetting("since rename is specified, we ignore delete directive.");
-		}
-		/*
-		 * If db updates re involved, file-processor requires that the service
-		 * delegates commits to sub-service
-		 */
-		if (this.dbAccess == DbAccessType.READ_WRITE) {
-			count += this.validateDbAccess(service, vtx);
-		}
-		return count;
-	}
-
-	private int validateDbAccess(Service service, ValidationContext vtx) {
-		int count = 0;
-		/*
-		 * There must be one sub-service action that manages its own
-		 * transaction, and rest of the actions should not do any updates
-		 */
-		if (service.dbAccessType != DbAccessType.SUB_SERVICE) {
-			vtx.addError(
-					"File-processor is designed to update data base. Service should delegate transaction processing to sub-service.");
-			count++;
-		}
-		if (this.actionOnErrorWhileProcessing.getDataAccessType().updatesDb()) {
-			if (this.actionOnErrorWhileProcessing instanceof SubService == false) {
-				vtx.addError(
-						"actionOnErrorWhileProcessing is designed for db update. For such a requirement, you should convert this to a subService action.");
-				count++;
-			}
-		}
-		if (this.actionOnInvalidInputRow.getDataAccessType().updatesDb()) {
-			if (this.actionOnInvalidInputRow instanceof SubService == false) {
-				vtx.addError(
-						"actionOnInvalidInputRow is designed for db update. For such a requirement, you should convert this to a subService action.");
-				count++;
-			}
-		}
-		for (Action action : this.actions) {
-			if (action instanceof SubService == false && action.getDataAccessType().updatesDb()) {
-				vtx.addError(
-						"actions of a file-processor is designed for a bb update. You should re-factor this into sub-service so that the db updates can be managed within  separate transaction.");
-				count++;
-			}
-		}
-		return count;
-	}
-
 }

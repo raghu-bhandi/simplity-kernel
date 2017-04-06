@@ -79,12 +79,9 @@ public class DbDriver {
 	/*
 	 * we store sql types with corresponding value types
 	 */
-	private static final int[] LONG_TYPES = { Types.BIGINT, Types.INTEGER,
-			Types.SMALLINT };
-	private static final int[] DATE_TYPES = { Types.DATE, Types.TIME,
-			Types.TIMESTAMP };
-	private static final int[] DOUBLE_TYPES = { Types.DECIMAL, Types.DOUBLE,
-			Types.FLOAT, Types.REAL };
+	private static final int[] LONG_TYPES = { Types.BIGINT, Types.INTEGER, Types.SMALLINT };
+	private static final int[] DATE_TYPES = { Types.DATE, Types.TIME, Types.TIMESTAMP };
+	private static final int[] DOUBLE_TYPES = { Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.REAL };
 	private static final int[] BOOLEAN_TYPES = { Types.BIT, Types.BOOLEAN };
 	private static final Map<Integer, ValueType> SQL_TYPES = new HashMap<Integer, ValueType>();
 
@@ -109,8 +106,7 @@ public class DbDriver {
 	 * names, types and positions as per result set for meta.getTables()
 	 */
 	private static final int TABLE_IDX = 0;
-	private static final String[] TABLE_NAMES = { "schema", "tableName",
-			"tableType", "remarks" };
+	private static final String[] TABLE_NAMES = { "schema", "tableName", "tableType", "remarks" };
 	private static final ValueType[] TABLE_TYPES = { TXT, TXT, TXT, TXT };
 	private static final int[] TABLE_POSNS = { 2, 3, 4, 5 };
 	private static final String[] TABLE_TYPES_TO_EXTRACT = { "TABLE", "VIEW" };
@@ -118,11 +114,9 @@ public class DbDriver {
 	 * names, types and positions as per result set for meta.getTables()
 	 */
 	private static final int COL_IDX = 1;
-	private static final String[] COL_NAMES = { "schema", "tableName",
-			"columnName", "sqlType", "sqlTypeName", "size", "nbrDecimals",
-			"remarks", "nullable" };
-	private static final ValueType[] COL_TYPES = { TXT, TXT, TXT, INT, TXT, INT,
-			INT, TXT, BOOL };
+	private static final String[] COL_NAMES = { "schema", "tableName", "columnName", "sqlType", "sqlTypeName", "size",
+			"nbrDecimals", "remarks", "nullable" };
+	private static final ValueType[] COL_TYPES = { TXT, TXT, TXT, INT, TXT, INT, INT, TXT, BOOL };
 	private static final int[] COL_POSNS = { 2, 3, 4, 5, 6, 7, 9, 12, 18 };
 
 	/*
@@ -137,8 +131,7 @@ public class DbDriver {
 	 * names, types and positions as per result set for meta.getTables()
 	 */
 	private static final int PROC_IDX = 3;
-	private static final String[] PROC_NAMES = { "schema", "procedureName",
-			"procedureType", "remarks" };
+	private static final String[] PROC_NAMES = { "schema", "procedureName", "procedureType", "remarks" };
 	private static final ValueType[] PROC_TYPES = { TXT, TXT, INT, TXT };
 	private static final int[] PROC_POSNS = { 2, 3, 8, 7 };
 
@@ -146,20 +139,16 @@ public class DbDriver {
 	 * names, types and positions as per result set for meta.getTables()
 	 */
 	private static final int PARAM_IDX = 4;
-	private static final String[] PARAM_NAMES = { "schema", "procedureName",
-			"paramName", "columnType", "sqlType", "sqlTypeName", "size",
-			"precision", "scale", "remarks", "nullable", "position" };
-	private static final ValueType[] PARAM_TYPES = { TXT, TXT, TXT, INT, INT,
-			TXT, INT, INT, INT, TXT, BOOL, INT };
-	private static final int[] PARAM_POSNS = { 2, 3, 4, 5, 6, 7, 9, 8, 10, 13,
-			19, 18 };
+	private static final String[] PARAM_NAMES = { "schema", "procedureName", "paramName", "columnType", "sqlType",
+			"sqlTypeName", "size", "precision", "scale", "remarks", "nullable", "position" };
+	private static final ValueType[] PARAM_TYPES = { TXT, TXT, TXT, INT, INT, TXT, INT, INT, INT, TXT, BOOL, INT };
+	private static final int[] PARAM_POSNS = { 2, 3, 4, 5, 6, 7, 9, 8, 10, 13, 19, 18 };
 
 	/*
 	 * names, types and positions as per result set for meta.getUDTs()
 	 */
 	private static final int STRUCT_IDX = 5;
-	private static final String[] STRUCT_NAMES = { "schema", "structName",
-			"structType", "remarks" };
+	private static final String[] STRUCT_NAMES = { "schema", "structName", "structType", "remarks" };
 	private static final ValueType[] STRUCT_TYPES = { TXT, TXT, TXT, TXT };
 	private static final int[] STRUCT_POSNS = { 2, 3, 5, 6 };
 	private static final int[] STRUCT_TYPES_TO_EXTRACT = { Types.STRUCT };
@@ -167,22 +156,20 @@ public class DbDriver {
 	 * names, types and positions as per result set for meta.getTables()
 	 */
 	private static final int ATTR_IDX = 6;
-	private static final String[] ATTR_NAMES = { "schema", "structName",
-			"attributeName", "sqlType", "sqlTypeName", "size", "nbrDecimals",
-			"remarks", "nullable", "position" };
-	private static final ValueType[] ATTR_TYPES = { TXT, TXT, TXT, INT, TXT,
-			INT, INT, TXT, BOOL, INT };
+	private static final String[] ATTR_NAMES = { "schema", "structName", "attributeName", "sqlType", "sqlTypeName",
+			"size", "nbrDecimals", "remarks", "nullable", "position" };
+	private static final ValueType[] ATTR_TYPES = { TXT, TXT, TXT, INT, TXT, INT, INT, TXT, BOOL, INT };
 	private static final int[] ATTR_POSNS = { 2, 3, 4, 5, 6, 7, 8, 11, 17, 16 };
 
 	/*
 	 * put them into array for modularity
 	 */
-	private static final String[][] META_COLUMNS = { TABLE_NAMES, COL_NAMES,
-			KEY_NAMES, PROC_NAMES, PARAM_NAMES, STRUCT_NAMES, ATTR_NAMES };
-	private static final ValueType[][] META_TYPES = { TABLE_TYPES, COL_TYPES,
-			KEY_TYPES, PROC_TYPES, PARAM_TYPES, STRUCT_TYPES, ATTR_TYPES };
-	private static final int[][] META_POSNS = { TABLE_POSNS, COL_POSNS,
-			KEY_POSNS, PROC_POSNS, PARAM_POSNS, STRUCT_POSNS, ATTR_POSNS };
+	private static final String[][] META_COLUMNS = { TABLE_NAMES, COL_NAMES, KEY_NAMES, PROC_NAMES, PARAM_NAMES,
+			STRUCT_NAMES, ATTR_NAMES };
+	private static final ValueType[][] META_TYPES = { TABLE_TYPES, COL_TYPES, KEY_TYPES, PROC_TYPES, PARAM_TYPES,
+			STRUCT_TYPES, ATTR_TYPES };
+	private static final int[][] META_POSNS = { TABLE_POSNS, COL_POSNS, KEY_POSNS, PROC_POSNS, PARAM_POSNS,
+			STRUCT_POSNS, ATTR_POSNS };
 
 	static {
 		for (int i : LONG_TYPES) {
@@ -243,6 +230,11 @@ public class DbDriver {
 	 */
 	private String schemaName;
 	/**
+	 * just safety to ensure that our clients indeed follow the guidelines
+	 */
+	private boolean forMultipleTrans;
+
+	/**
 	 * set up to be called before any db operation can be done
 	 *
 	 * @param vendor
@@ -252,16 +244,13 @@ public class DbDriver {
 	 * @param logSqls
 	 * @param schemaDetails
 	 */
-	public static synchronized void initialSetup(DbVendor vendor,
-			String dataSourceName, String driverClassName, String conString,
-			boolean logSqls, SchemaDetail[] schemaDetails) {
+	public static synchronized void initialSetup(DbVendor vendor, String dataSourceName, String driverClassName,
+			String conString, boolean logSqls, SchemaDetail[] schemaDetails) {
 		if (vendor == null) {
 			Tracer.trace(
 					"This Application has not set dbVendor. We assume that the application does not require any db connection.");
-			if (dataSourceName != null || driverClassName != null
-					|| conString != null || schemaDetails != null) {
-				Tracer.trace(
-						"WARNING: Since dbVendor is not set, we ignore other db related settings.");
+			if (dataSourceName != null || driverClassName != null || conString != null || schemaDetails != null) {
+				Tracer.trace("WARNING: Since dbVendor is not set, we ignore other db related settings.");
 			}
 			return;
 		}
@@ -290,8 +279,7 @@ public class DbDriver {
 								"Warning : This application uses data source, and hence connection string for schema "
 										+ sd.schemaName + " ignored");
 					}
-					setDataSource(sd.schemaName.toUpperCase(),
-							sd.dataSourceName);
+					setDataSource(sd.schemaName.toUpperCase(), sd.dataSourceName);
 				}
 			}
 			return;
@@ -312,11 +300,9 @@ public class DbDriver {
 		try {
 			Class.forName(driverClassName);
 		} catch (Exception e) {
-			throw new ApplicationError(e, "Could not use class "
-					+ driverClassName + " as driver class name.");
+			throw new ApplicationError(e, "Could not use class " + driverClassName + " as driver class name.");
 		}
-		Tracer.trace("Driver class name " + driverClassName
-				+ " invoked successfully");
+		Tracer.trace("Driver class name " + driverClassName + " invoked successfully");
 
 		setConnection(null, conString);
 		if (schemaDetails != null) {
@@ -328,9 +314,8 @@ public class DbDriver {
 							"schemaName and connectionString are required for mutli-schema operation");
 				}
 				if (sd.dataSourceName != null) {
-					Tracer.trace(
-							"Warning: This application uses connection string, and hence dataSource for schema "
-									+ sd.schemaName + " ignored");
+					Tracer.trace("Warning: This application uses connection string, and hence dataSource for schema "
+							+ sd.schemaName + " ignored");
 				}
 				setConnection(sd.schemaName.toUpperCase(), sd.connectionString);
 			}
@@ -349,22 +334,19 @@ public class DbDriver {
 				msg = e.getMessage();
 			} else {
 				try {
-					obj = new InitialContext()
-							.lookup(CONTEXT_PREFIX + dataSourceName);
+					obj = new InitialContext().lookup(CONTEXT_PREFIX + dataSourceName);
 				} catch (Exception e1) {
 					msg = e1.getMessage();
 				}
 			}
 		}
 		if (obj == null) {
-			throw new ApplicationError("Error while using data source name "
-					+ dataSourceName + "\n" + msg);
+			throw new ApplicationError("Error while using data source name " + dataSourceName + "\n" + msg);
 		}
 		if (obj instanceof DataSource == false) {
-			throw new ApplicationError("We got an object instance of "
-					+ obj.getClass().getName() + " as data source for name "
-					+ dataSourceName + " while we were expecting a "
-					+ DataSource.class.getName());
+			throw new ApplicationError(
+					"We got an object instance of " + obj.getClass().getName() + " as data source for name "
+							+ dataSourceName + " while we were expecting a " + DataSource.class.getName());
 		}
 		DataSource ds = (DataSource) obj;
 		Connection con = null;
@@ -377,15 +359,13 @@ public class DbDriver {
 			if (schema == null) {
 				dataSource = ds;
 				Tracer.trace("Database connection for " + dbVendor
-						+ " established successfully using dataSource. Default schema is "
-						+ defaultSchema);
+						+ " established successfully using dataSource. Default schema is " + defaultSchema);
 			} else {
 				otherDataSources.put(schema.toUpperCase(), ds);
 				Tracer.trace("DataSource added for schema " + schema);
 			}
 		} catch (SQLException e) {
-			err = new ApplicationError(e,
-					"Data source is initialized but error while opening connection.");
+			err = new ApplicationError(e, "Data source is initialized but error while opening connection.");
 		} finally {
 			try {
 				if (con != null) {
@@ -419,9 +399,7 @@ public class DbDriver {
 						+ defaultSchema);
 			} else {
 				otherConStrings.put(schema.toUpperCase(), conString);
-				Tracer.trace(
-						"Additional connection string validated for schema "
-								+ schema);
+				Tracer.trace("Additional connection string validated for schema " + schema);
 			}
 		} catch (Exception e) {
 			err = e;
@@ -437,8 +415,7 @@ public class DbDriver {
 		if (err != null) {
 			throw new ApplicationError(err,
 					" Database set up using connection string failed after successfully setting the driver for "
-							+ (schema == null ? " default schema"
-									: (" schema " + schema)));
+							+ (schema == null ? " default schema" : (" schema " + schema)));
 		}
 	}
 
@@ -467,13 +444,12 @@ public class DbDriver {
 	 * @param callBackObject
 	 * @param accessType
 	 */
-	public static void workWithDriver(DbClientInterface callBackObject,
-			DbAccessType accessType) {
+	public static void workWithDriver(DbClientInterface callBackObject, DbAccessType accessType) {
 		workWithDriver(callBackObject, accessType, null);
 	}
 
 	/**
-	 * only way to get an instance of RdbDriver to do rdbms operations.
+	 * Way to get an instance of RdbDriver to do rdbms operations.
 	 * Necessary resources are allotted, and the passed object is called back
 	 * with workWithDriver(instance)
 	 *
@@ -486,8 +462,7 @@ public class DbDriver {
 	 *            schema different from the default one
 	 * @return true if allOK, false in case of roll-back
 	 */
-	public static boolean workWithDriver(DbClientInterface callBackObject,
-			DbAccessType accType, String schema) {
+	public static boolean workWithDriver(DbClientInterface callBackObject, DbAccessType accType, String schema) {
 		Connection con = null;
 		if (accType != DbAccessType.NONE) {
 			con = getConnection(accType, schema);
@@ -498,8 +473,7 @@ public class DbDriver {
 		try {
 			allOk = callBackObject.workWithDriver(driver);
 		} catch (Exception e) {
-			Tracer.trace(e,
-					"Callback object threw an exception while working with the driver");
+			Tracer.trace(e, "Callback object threw an exception while working with the driver");
 			exception = e;
 		}
 		if (con != null) {
@@ -507,11 +481,37 @@ public class DbDriver {
 			con = null;
 		}
 		if (exception != null) {
-			String msg = "Error while executing a service. "
-					+ exception.getMessage();
+			String msg = "Error while executing a service. " + exception.getMessage();
 			throw new ApplicationError(exception, msg);
 		}
 		return allOk;
+	}
+
+	/**
+	 * Way to get an instance of RdbDriver to do multiple transactions. SHoudl
+	 * be used ONLY if the caller needs to commit() rollback() mutliple times
+	 * Necessary resources are allotted, and the passed object is called back
+	 * with workWithDriver(instance)
+	 *
+	 * @param callBackObject
+	 * @param schema
+	 *            optional. Use Only if your application is designed to work
+	 *            with multiple schemas, AND this session transaction need to
+	 *            use a schema different from the default one
+	 */
+	public static void workForMultiTrans(MultiTransClientInterface callBackObject, String schema) {
+		Connection con = null;
+		DbDriver driver = new DbDriver(con, DbAccessType.READ_WRITE, schema);
+		driver.forMultipleTrans = true;
+		try {
+			callBackObject.doMultiplTrans(driver);
+		} finally {
+			try {
+				driver.connection.close();
+			} catch (Exception ignore) {
+				//
+			}
+		}
 	}
 
 	/**
@@ -530,14 +530,14 @@ public class DbDriver {
 				if (acType == DbAccessType.READ_ONLY) {
 					con.setReadOnly(true);
 				} else {
-					con.setTransactionIsolation(
-							Connection.TRANSACTION_READ_COMMITTED);
+					con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 					/*
-					 * auto-commit method should not be invoked in case of Managed transactions
+					 * auto-commit method should not be invoked in case of
+					 * Managed transactions
 					 */
-					if(acType == DbAccessType.READ_WRITE){
+					if (acType == DbAccessType.READ_WRITE) {
 						con.setAutoCommit(false);
-					}else if(acType == DbAccessType.AUTO_COMMIT){
+					} else if (acType == DbAccessType.AUTO_COMMIT) {
 						con.setAutoCommit(false);
 					}
 				}
@@ -569,8 +569,7 @@ public class DbDriver {
 	 * @return connection
 	 * @throws SQLException
 	 */
-	private static Connection createConnection(String schema)
-			throws SQLException {
+	private static Connection createConnection(String schema) throws SQLException {
 		/*
 		 * set sch to an upper-cased schema, but only if it is non-null and
 		 * different from default schema
@@ -579,13 +578,11 @@ public class DbDriver {
 		if (schema != null) {
 			sch = schema.toUpperCase();
 			if (sch.equals(defaultSchema)) {
-				Tracer.trace("service is asking for schema " + schema
-						+ " but that is the default. default connection used");
+				Tracer.trace(
+						"service is asking for schema " + schema + " but that is the default. default connection used");
 				sch = null;
 			} else {
-				Tracer.trace(
-						"Going to open a non-default connection for schema "
-								+ schema);
+				Tracer.trace("Going to open a non-default connection for schema " + schema);
 			}
 		}
 		if (dataSource != null) {
@@ -600,8 +597,7 @@ public class DbDriver {
 			 */
 			DataSource ds = otherDataSources.get(sch);
 			if (ds == null) {
-				throw new ApplicationError(
-						"No dataSource configured for schema " + sch);
+				throw new ApplicationError("No dataSource configured for schema " + sch);
 			}
 			return ds.getConnection();
 
@@ -610,8 +606,7 @@ public class DbDriver {
 		 * old-fashioned application :-(
 		 */
 		if (connectionString == null) {
-			throw new ApplicationError(
-					"Database should be initialized properly before any operation can be done.");
+			throw new ApplicationError("Database should be initialized properly before any operation can be done.");
 		}
 		if (sch == null) {
 			return DriverManager.getConnection(connectionString);
@@ -621,8 +616,7 @@ public class DbDriver {
 		 */
 		String conString = otherConStrings.get(sch);
 		if (conString == null) {
-			throw new ApplicationError(
-					"No connection string configured for schema " + sch);
+			throw new ApplicationError("No connection string configured for schema " + sch);
 		}
 		return DriverManager.getConnection(conString);
 	}
@@ -643,9 +637,10 @@ public class DbDriver {
 	 *
 	 * @return schema with which this connection is associated with
 	 */
-	public String getSchema(){
+	public String getSchema() {
 		return this.schemaName;
 	}
+
 	/**
 	 * extract output from sql into data sheet
 	 *
@@ -660,8 +655,7 @@ public class DbDriver {
 	 *            all rows
 	 * @return number of rows extracted
 	 */
-	public int extractFromSql(String sql, Value[] values, DataSheet outSheet,
-			boolean oneRowOnly) {
+	public int extractFromSql(String sql, Value[] values, DataSheet outSheet, boolean oneRowOnly) {
 		if (traceSqls) {
 			this.traceSql(sql, values);
 			if (this.connection == null) {
@@ -677,6 +671,48 @@ public class DbDriver {
 				return this.extractOne(stmt, outSheet);
 			}
 			result = this.extractAll(stmt, outSheet);
+		} catch (SQLException e) {
+			throw new ApplicationError(e, "Sql Error while extracting data ");
+		} finally {
+			this.closeStatment(stmt);
+		}
+		return result;
+	}
+	/**
+	 * @param sql
+	 * @param values
+	 * @param outputNames
+	 * @param outputTypes
+	 * @param callbackObject
+	 * @return number rows processed
+	 */
+	public int processRows(String sql, Value[] values, String[] outputNames, ValueType[] outputTypes,
+			DbRowProcessor callbackObject) {
+		if (traceSqls) {
+			this.traceSql(sql, values);
+			if (this.connection == null) {
+				return 0;
+			}
+		}
+		PreparedStatement stmt = null;
+		int result = 0;
+		try {
+			stmt = this.connection.prepareStatement(sql);
+			this.setParams(stmt, values);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				Value[] row = new Value[outputTypes.length];
+				for (int i = 0; i < outputTypes.length; i++) {
+					row[i] = outputTypes[i].extractFromRs(rs, i + 1);
+				}
+				boolean toContinue = callbackObject.processRow(outputNames, row);
+				if(toContinue == false){
+					break;
+				}
+				result++;
+			}
+			rs.close();
+			Tracer.trace(result + " rows processed.");
 		} catch (SQLException e) {
 			throw new ApplicationError(e, "Sql Error while extracting data ");
 		} finally {
@@ -729,8 +765,7 @@ public class DbDriver {
 	 *            data sheet that has the expected columns defined in it.
 	 * @return number of rows extracted
 	 */
-	public int extractFromSql(String sql, Value[][] values,
-			DataSheet outSheet) {
+	public int extractFromSql(String sql, Value[][] values, DataSheet outSheet) {
 		if (traceSqls) {
 			this.traceBatchSql(sql, values);
 			if (this.connection == null) {
@@ -766,8 +801,7 @@ public class DbDriver {
 	 *            all rows
 	 * @return a data sheet with has 0 or more rows of extracted data
 	 */
-	public DataSheet extractFromDynamicSql(String sql, Value[] values,
-			boolean oneRowOnly) {
+	public DataSheet extractFromDynamicSql(String sql, Value[] values, boolean oneRowOnly) {
 		if (traceSqls) {
 			this.traceSql(sql, values);
 			if (this.connection == null) {
@@ -804,8 +838,7 @@ public class DbDriver {
 	 *            would treat failure as validation issue.
 	 * @return number of affected rows
 	 */
-	public int executeSql(String sql, Value[] values,
-			boolean treatSqlErrorAsNoAction) {
+	public int executeSql(String sql, Value[] values, boolean treatSqlErrorAsNoAction) {
 		PreparedStatement stmt = null;
 		if (traceSqls) {
 			this.traceSql(sql, values);
@@ -821,8 +854,7 @@ public class DbDriver {
 			result = stmt.executeUpdate();
 		} catch (SQLException e) {
 			if (treatSqlErrorAsNoAction) {
-				Tracer.trace("SQLException code:" + e.getErrorCode()
-						+ " message :" + e.getMessage()
+				Tracer.trace("SQLException code:" + e.getErrorCode() + " message :" + e.getMessage()
 						+ " is treated as zero rows affected.");
 			} else {
 				throw new ApplicationError(e, "Sql Error while executing sql ");
@@ -831,9 +863,7 @@ public class DbDriver {
 			this.closeStatment(stmt);
 		}
 		if (result < 0) {
-			Tracer.trace(
-					"Number of affected rows is not reliable as we got it as "
-							+ result);
+			Tracer.trace("Number of affected rows is not reliable as we got it as " + result);
 		} else {
 			Tracer.trace(result + " rows affected.");
 		}
@@ -858,8 +888,7 @@ public class DbDriver {
 	 *            would treat failure as validation issue.
 	 * @return number of affected rows
 	 */
-	public int insertAndGetKeys(String sql, Value[] values,
-			long[] generatedKeys, String[] keyNames,
+	public int insertAndGetKeys(String sql, Value[] values, long[] generatedKeys, String[] keyNames,
 			boolean treatSqlErrorAsNoAction) {
 		PreparedStatement stmt = null;
 		if (traceSqls) {
@@ -879,8 +908,7 @@ public class DbDriver {
 			}
 		} catch (SQLException e) {
 			if (treatSqlErrorAsNoAction) {
-				Tracer.trace("SQLException code:" + e.getErrorCode()
-						+ " message :" + e.getMessage()
+				Tracer.trace("SQLException code:" + e.getErrorCode() + " message :" + e.getMessage()
 						+ " is treated as zero rows affected.");
 			} else {
 				throw new ApplicationError(e, "Sql Error while executing sql ");
@@ -889,9 +917,7 @@ public class DbDriver {
 			this.closeStatment(stmt);
 		}
 		if (result < 0) {
-			Tracer.trace(
-					"Number of affected rows is not reliable as we got it as "
-							+ result);
+			Tracer.trace("Number of affected rows is not reliable as we got it as " + result);
 		} else {
 			Tracer.trace(result + " rows affected.");
 		}
@@ -905,8 +931,7 @@ public class DbDriver {
 	 * @param generatedKeys
 	 * @throws SQLException
 	 */
-	private void getGeneratedKeys(Statement stmt, long[] generatedKeys)
-			throws SQLException {
+	private void getGeneratedKeys(Statement stmt, long[] generatedKeys) throws SQLException {
 
 		ResultSet rs = stmt.getGeneratedKeys();
 		for (int i = 0; i < generatedKeys.length && rs.next(); i++) {
@@ -929,8 +954,7 @@ public class DbDriver {
 	 *            stops if this method returns false;
 	 * @return number of rows iterated
 	 */
-	public int workWithRows(String sql, Value[] values, ValueType[] outputTypes,
-			RowIterator iterator) {
+	public int workWithRows(String sql, Value[] values, ValueType[] outputTypes, RowIterator iterator) {
 		PreparedStatement stmt = null;
 		try {
 			stmt = this.connection.prepareStatement(sql);
@@ -956,8 +980,7 @@ public class DbDriver {
 	 *            would treat failure as validation issue.
 	 * @return affected rows for each set of values
 	 */
-	public int[] executeBatch(String sql, Value[][] values,
-			boolean treatSqlErrorAsNoAction) {
+	public int[] executeBatch(String sql, Value[][] values, boolean treatSqlErrorAsNoAction) {
 		if (traceSqls) {
 			this.traceBatchSql(sql, values);
 			if (this.connection == null) {
@@ -976,12 +999,10 @@ public class DbDriver {
 			result = stmt.executeBatch();
 		} catch (SQLException e) {
 			if (treatSqlErrorAsNoAction) {
-				Tracer.trace("SQLException code:" + e.getErrorCode()
-						+ " message :" + e.getMessage()
+				Tracer.trace("SQLException code:" + e.getErrorCode() + " message :" + e.getMessage()
 						+ " is treated as zero rows affected.");
 			} else {
-				throw new ApplicationError(e,
-						"Sql Error while executing batch ");
+				throw new ApplicationError(e, "Sql Error while executing batch ");
 			}
 		} finally {
 			this.closeStatment(stmt);
@@ -995,9 +1016,7 @@ public class DbDriver {
 			}
 		}
 		if (rows < 0) {
-			Tracer.trace(
-					"Number of affected rows is not reliable as we got it as "
-							+ rows);
+			Tracer.trace("Number of affected rows is not reliable as we got it as " + rows);
 		} else {
 			Tracer.trace(rows + " rows affected.");
 		}
@@ -1017,9 +1036,8 @@ public class DbDriver {
 	 * @param ctx
 	 * @return number of rows extracted
 	 */
-	public int executeSp(String sql, FieldsInterface inputFields,
-			FieldsInterface outputFields, ProcedureParameter[] params,
-			DataSheet[] outputSheets, ServiceContext ctx) {
+	public int executeSp(String sql, FieldsInterface inputFields, FieldsInterface outputFields,
+			ProcedureParameter[] params, DataSheet[] outputSheets, ServiceContext ctx) {
 		if (traceSqls) {
 			this.traceSql(sql, null);
 			if (this.connection == null) {
@@ -1038,17 +1056,14 @@ public class DbDriver {
 					 * parameters. Better to pin-point such errors
 					 */
 					try {
-						if (param.setParameter(stmt, inputFields,
-								ctx) == false) {
-							Tracer.trace("Error while setting " + param.name
-									+ " You will get an error.");
+						if (param.setParameter(stmt, inputFields, ctx) == false) {
+							Tracer.trace("Error while setting " + param.name + " You will get an error.");
 							// issue in setting parameter. May be a mandatory
 							// field is not set
 							return 0;
 						}
 					} catch (Exception e) {
-						Tracer.trace("Unable to set param " + param.name
-								+ " error : " + e.getMessage());
+						Tracer.trace("Unable to set param " + param.name + " error : " + e.getMessage());
 						param.reportError(e);
 					}
 				}
@@ -1061,8 +1076,7 @@ public class DbDriver {
 					if (i >= nbrSheets) {
 						Tracer.trace(
 								"Stored procedure is ready to give more results, but the requester has supplied only "
-										+ nbrSheets
-										+ " data sheets to read data into. Other data ignored.");
+										+ nbrSheets + " data sheets to read data into. Other data ignored.");
 						break;
 					}
 					DataSheet outputSheet = outputSheets[i];
@@ -1096,8 +1110,7 @@ public class DbDriver {
 			this.closeStatment(stmt);
 		}
 		if (err != null) {
-			throw new ApplicationError(err,
-					"Sql Error while extracting data using stored procedure");
+			throw new ApplicationError(err, "Sql Error while extracting data using stored procedure");
 		}
 
 		Tracer.trace(result + " rows extracted.");
@@ -1117,11 +1130,9 @@ public class DbDriver {
 	 *            if we are managing transaction, true implies commit, and false
 	 *            implies roll-back
 	 */
-	static void closeConnection(Connection con, DbAccessType accType,
-			boolean allOk) {
+	static void closeConnection(Connection con, DbAccessType accType, boolean allOk) {
 		try {
-			Tracer.trace("Going to close a connection of type " + accType
-					+ " with allOK = " + allOk);
+			Tracer.trace("Going to close a connection of type " + accType + " with allOK = " + allOk);
 			if (accType == DbAccessType.READ_WRITE) {
 				if (allOk) {
 					con.commit();
@@ -1150,8 +1161,7 @@ public class DbDriver {
 	 *            feature is added to avoid use of List
 	 * @throws SQLException
 	 */
-	private void setParams(PreparedStatement stmt, Value[] values)
-			throws SQLException {
+	private void setParams(PreparedStatement stmt, Value[] values) throws SQLException {
 		if (values == null) {
 			return;
 		}
@@ -1170,8 +1180,7 @@ public class DbDriver {
 	 * @return number rows extracted
 	 * @throws SQLException
 	 */
-	private int extractAll(PreparedStatement stmt, DataSheet outSheet)
-			throws SQLException {
+	private int extractAll(PreparedStatement stmt, DataSheet outSheet) throws SQLException {
 		ValueType[] outputTypes = outSheet.getValueTypes();
 		ResultSet rs = stmt.executeQuery();
 		int result = 0;
@@ -1184,6 +1193,25 @@ public class DbDriver {
 		return result;
 	}
 
+	private int processAll(PreparedStatement stmt, String[] outputNames, ValueType[] types,
+			DbRowProcessor callbackObject) throws SQLException {
+		ResultSet rs = stmt.executeQuery();
+		int result = 0;
+		while (rs.next()) {
+			Value[] values = new Value[types.length];
+			for (int i = 0; i < types.length; i++) {
+				values[i] = types[i].extractFromRs(rs, i + 1);
+			}
+			boolean toContinue = callbackObject.processRow(outputNames, values);
+			if(toContinue == false){
+				break;
+			}
+			result++;
+		}
+		rs.close();
+		Tracer.trace(result + " rows processed.");
+		return result;
+	}
 	/**
 	 * extract at most one row from a statement into a sheet
 	 *
@@ -1192,8 +1220,7 @@ public class DbDriver {
 	 * @return number rows extracted
 	 * @throws SQLException
 	 */
-	private int extractOne(PreparedStatement stmt, DataSheet outSheet)
-			throws SQLException {
+	private int extractOne(PreparedStatement stmt, DataSheet outSheet) throws SQLException {
 		ResultSet rs = stmt.executeQuery();
 		int result = 0;
 		if (rs.next()) {
@@ -1211,8 +1238,7 @@ public class DbDriver {
 	 * @return
 	 * @throws SQLException
 	 */
-	private DataSheet extractMetaAll(PreparedStatement stmt)
-			throws SQLException {
+	private DataSheet extractMetaAll(PreparedStatement stmt) throws SQLException {
 		ResultSet rs = stmt.executeQuery();
 		DataSheet outSheet = this.createOutSheet(rs);
 		this.extractAll(stmt, outSheet);
@@ -1225,8 +1251,7 @@ public class DbDriver {
 	 * @return
 	 * @throws SQLException
 	 */
-	private DataSheet extractMetaOne(PreparedStatement stmt)
-			throws SQLException {
+	private DataSheet extractMetaOne(PreparedStatement stmt) throws SQLException {
 		ResultSet rs = stmt.executeQuery();
 		DataSheet outSheet = new DynamicSheet();
 		if (rs.next()) {
@@ -1251,11 +1276,9 @@ public class DbDriver {
 	 * @return number of rows iterated
 	 * @throws SQLException
 	 */
-	private int iterate(PreparedStatement stmt, ValueType[] outputTypes,
-			RowIterator iterator) throws SQLException {
+	private int iterate(PreparedStatement stmt, ValueType[] outputTypes, RowIterator iterator) throws SQLException {
 		ResultSet rs = stmt.executeQuery();
-		ValueType[] types = outputTypes == null ? this.getOutputTypes(rs)
-				: outputTypes;
+		ValueType[] types = outputTypes == null ? this.getOutputTypes(rs) : outputTypes;
 		int nbr = 0;
 		while (rs.next()) {
 			iterator.workWithARow(getParams(rs, types));
@@ -1319,8 +1342,7 @@ public class DbDriver {
 	 * @param values
 	 * @throws SQLException
 	 */
-	private static Value[] getParams(ResultSet rs, ValueType[] types)
-			throws SQLException {
+	private static Value[] getParams(ResultSet rs, ValueType[] types) throws SQLException {
 		Value[] values = new Value[types.length];
 		for (int i = 0; i < types.length; i++) {
 			values[i] = types[i].extractFromRs(rs, i + 1);
@@ -1337,8 +1359,7 @@ public class DbDriver {
 	 * @param values
 	 * @throws SQLException
 	 */
-	private static Value[] getParams(ResultSet rs, ValueType[] types,
-			int[] positions) throws SQLException {
+	private static Value[] getParams(ResultSet rs, ValueType[] types, int[] positions) throws SQLException {
 		Value[] values = new Value[types.length];
 		for (int i = 0; i < types.length; i++) {
 			values[i] = types[i].extractFromRs(rs, positions[i]);
@@ -1398,8 +1419,7 @@ public class DbDriver {
 			i++;
 			sbf.append('\n').append(i).append(" : ").append(value.toString());
 			if (i > 12) {
-				sbf.append("..like wise up to ").append(values.length)
-						.append(" : ").append(values[values.length - 1]);
+				sbf.append("..like wise up to ").append(values.length).append(" : ").append(values[values.length - 1]);
 				break;
 			}
 		}
@@ -1456,8 +1476,7 @@ public class DbDriver {
 	 *            can be null to get all tables or pattern, or actual name
 	 * @return sheet with one row per column. Null if no columns.
 	 */
-	public static DataSheet getTableColumns(String schemaName,
-			String tableName) {
+	public static DataSheet getTableColumns(String schemaName, String tableName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
 		try {
 			return getMetaSheet(con, schemaName, tableName, COL_IDX);
@@ -1491,8 +1510,7 @@ public class DbDriver {
 	 *            non-null
 	 * @return key column names
 	 */
-	public static String[] getPrimaryKeysForTable(String schemaName,
-			String tableName) {
+	public static String[] getPrimaryKeysForTable(String schemaName, String tableName) {
 		if (tableName == null) {
 			Tracer.trace(
 					"getPrimaryKeysForTable() is for a specific table. If you want for all tables, use the getPrimaryKeys()");
@@ -1526,8 +1544,7 @@ public class DbDriver {
 	 *            null, pattern or name
 	 * @return data sheet that has attributes of procedures. Null if no output
 	 */
-	public static DataSheet getProcedures(String schemaName,
-			String procedureName) {
+	public static DataSheet getProcedures(String schemaName, String procedureName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
 		try {
 			return getMetaSheet(con, schemaName, procedureName, PROC_IDX);
@@ -1546,8 +1563,7 @@ public class DbDriver {
 	 * @return sheet with one row per column. Null if this table does not exist,
 	 *         or something went wrong!!
 	 */
-	public DataSheet getProcedureParams(String schemaName,
-			String procedureName) {
+	public DataSheet getProcedureParams(String schemaName, String procedureName) {
 		Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
 		try {
 			return getMetaSheet(con, schemaName, procedureName, PARAM_IDX);
@@ -1592,8 +1608,7 @@ public class DbDriver {
 		}
 	}
 
-	private static DataSheet getMetaSheet(Connection con, String schema,
-			String metaName, int metaIdx) {
+	private static DataSheet getMetaSheet(Connection con, String schema, String metaName, int metaIdx) {
 		ResultSet rs = null;
 		String schemaName = schema;
 		if (schema == null) {
@@ -1603,8 +1618,7 @@ public class DbDriver {
 			DatabaseMetaData meta = con.getMetaData();
 			switch (metaIdx) {
 			case TABLE_IDX:
-				rs = meta.getTables(null, schemaName, metaName,
-						TABLE_TYPES_TO_EXTRACT);
+				rs = meta.getTables(null, schemaName, metaName, TABLE_TYPES_TO_EXTRACT);
 				break;
 			case COL_IDX:
 				rs = meta.getColumns(null, schemaName, metaName, null);
@@ -1619,22 +1633,18 @@ public class DbDriver {
 				rs = meta.getProcedureColumns(null, schemaName, metaName, null);
 				break;
 			case STRUCT_IDX:
-				rs = meta.getUDTs(null, schemaName, metaName,
-						STRUCT_TYPES_TO_EXTRACT);
+				rs = meta.getUDTs(null, schemaName, metaName, STRUCT_TYPES_TO_EXTRACT);
 				break;
 			case ATTR_IDX:
 				rs = meta.getAttributes(null, schemaName, metaName, null);
 				break;
 			default:
-				throw new ApplicationError(
-						"Meta data " + metaIdx + " is not defined yet.");
+				throw new ApplicationError("Meta data " + metaIdx + " is not defined yet.");
 			}
 			if (rs.next()) {
-				DataSheet sheet = new MultiRowsSheet(META_COLUMNS[metaIdx],
-						META_TYPES[metaIdx]);
+				DataSheet sheet = new MultiRowsSheet(META_COLUMNS[metaIdx], META_TYPES[metaIdx]);
 				do {
-					sheet.addRow(getParams(rs, META_TYPES[metaIdx],
-							META_POSNS[metaIdx]));
+					sheet.addRow(getParams(rs, META_TYPES[metaIdx], META_POSNS[metaIdx]));
 				} while (rs.next());
 				return sheet;
 			}
@@ -1673,17 +1683,13 @@ public class DbDriver {
 			if (rs.next()) {
 				schema = rs.getString(1);
 				if (rs.wasNull()) {
-					throw new ApplicationError(
-							"data base returned null as default schema.");
+					throw new ApplicationError("data base returned null as default schema.");
 				}
 			} else {
-				throw new ApplicationError(
-						"data base returned no result for sql "
-								+ dbVendor.getGetSchemaSql());
+				throw new ApplicationError("data base returned no result for sql " + dbVendor.getGetSchemaSql());
 			}
 		} catch (SQLException e) {
-			throw new ApplicationError(e,
-					"Error while getting default schema for this db connection.");
+			throw new ApplicationError(e, "Error while getting default schema for this db connection.");
 		}
 		return schema.toUpperCase();
 	}
@@ -1756,8 +1762,7 @@ public class DbDriver {
 	 * @return object that is suitable to be assigned to an array parameter
 	 * @throws SQLException
 	 */
-	public static Array createArray(Connection con, Value[] values,
-			String dbArrayType) throws SQLException {
+	public static Array createArray(Connection con, Value[] values, String dbArrayType) throws SQLException {
 		Object[] data = new Object[values.length];
 		for (int i = 0; i < values.length; i++) {
 			Value val = values[i];
@@ -1768,8 +1773,7 @@ public class DbDriver {
 		Tracer.trace("Going to create an array descriptor for " + dbArrayType);
 		if (dbVendor == DbVendor.ORACLE) {
 			OracleConnection ocon = toOracleConnection(con);
-			ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType,
-					ocon);
+			ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType, ocon);
 			return new ARRAY(ad, ocon, data);
 		}
 		return con.createArrayOf(dbArrayType, data);
@@ -1787,13 +1791,11 @@ public class DbDriver {
 	 * @return object that can be assigned to a struct parameter
 	 * @throws SQLException
 	 */
-	public static Struct createStruct(Connection con, Object[] data,
-			String dbObjectType) throws SQLException {
+	public static Struct createStruct(Connection con, Object[] data, String dbObjectType) throws SQLException {
 		Tracer.trace("Going to create a descriptor for " + dbObjectType);
 		if (dbVendor == DbVendor.ORACLE) {
 			OracleConnection ocon = toOracleConnection(con);
-			StructDescriptor sd = StructDescriptor
-					.createDescriptor(dbObjectType, ocon);
+			StructDescriptor sd = StructDescriptor.createDescriptor(dbObjectType, ocon);
 			return new STRUCT(sd, ocon, data);
 		}
 		return con.createStruct(dbObjectType, data);
@@ -1811,8 +1813,7 @@ public class DbDriver {
 	 * @return object that can be assigned to a struct parameter
 	 * @throws SQLException
 	 */
-	public static Struct createStruct(Connection con, Value[] values,
-			String dbObjectType) throws SQLException {
+	public static Struct createStruct(Connection con, Value[] values, String dbObjectType) throws SQLException {
 		Object[] data = new Object[values.length];
 		for (int i = 0; i < values.length; i++) {
 			Value value = values[i];
@@ -1835,12 +1836,10 @@ public class DbDriver {
 	 *         parameter
 	 * @throws SQLException
 	 */
-	public static Array createStructArray(Connection con, Struct[] structs,
-			String dbArrayType) throws SQLException {
+	public static Array createStructArray(Connection con, Struct[] structs, String dbArrayType) throws SQLException {
 		if (dbVendor == DbVendor.ORACLE) {
 			OracleConnection ocon = toOracleConnection(con);
-			ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType,
-					ocon);
+			ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType, ocon);
 			return new ARRAY(ad, ocon, structs);
 		}
 		return con.createArrayOf(dbArrayType, structs);
@@ -1896,8 +1895,7 @@ public class DbDriver {
 	 *            into this writer.
 	 */
 	@SuppressWarnings("resource")
-	public void sqlToJson(String sql, Value[] values, ValueType[] types,
-			String[] names, ResponseWriter writer) {
+	public void sqlToJson(String sql, Value[] values, ValueType[] types, String[] names, ResponseWriter writer) {
 		if (traceSqls) {
 			this.traceSql(sql, values);
 			if (this.connection == null) {
@@ -1923,7 +1921,6 @@ public class DbDriver {
 		}
 	}
 
-
 	/**
 	 *
 	 * @param stmt
@@ -1931,8 +1928,7 @@ public class DbDriver {
 	 * @param writer
 	 * @throws SQLException
 	 */
-	private void writeAllToJson(PreparedStatement stmt, ValueType[] types,
-			ResponseWriter writer) throws SQLException {
+	private void writeAllToJson(PreparedStatement stmt, ValueType[] types, ResponseWriter writer) throws SQLException {
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			writer.array();
@@ -1953,8 +1949,8 @@ public class DbDriver {
 	 * @param writer
 	 * @throws SQLException
 	 */
-	private void writeAllToJson(PreparedStatement stmt, ValueType[] types,
-			String[] names, ResponseWriter writer) throws SQLException {
+	private void writeAllToJson(PreparedStatement stmt, ValueType[] types, String[] names, ResponseWriter writer)
+			throws SQLException {
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			writer.object();
@@ -1969,4 +1965,29 @@ public class DbDriver {
 		rs.close();
 	}
 
+	/**
+	 * commit this transaction
+	 *
+	 * @throws SQLException
+	 */
+	public void commit() throws SQLException {
+		if (this.forMultipleTrans == false) {
+			throw new ApplicationError(
+					"DbDriver is meant for single transaction, but the caller is mis-using it for mutiple transactions.");
+		}
+		this.connection.commit();
+	}
+
+	/**
+	 * commit this transaction
+	 *
+	 * @throws SQLException
+	 */
+	public void rollback() throws SQLException {
+		if (this.forMultipleTrans == false) {
+			throw new ApplicationError(
+					"DbDriver is meant for single transaction, but the caller is mis-using it for mutiple transactions.");
+		}
+		this.connection.rollback();
+	}
 }

@@ -2742,218 +2742,199 @@
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
 
-	<xs:complexType name="flatFiles">
-		<xs:sequence>
-			<xs:element
-				name="flatFile"
-				minOccurs="1"
-				maxOccurs="unbounded"
+	<xs:attributeGroup name="flatFileAttributes">
+		<xs:attribute
+			name="fileName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>For primary input file, this is the
+					file-name-pattern as a regular expression. This is NOT wild card.
+					If there is only one file, you may use $fieldName, @propertyName as
+					well.
+					For child-file, this may be expressed as part of the main file
+					name.
+					{name} and {ext} will stand for name and extension of primary
+					file.
+					or an output file, the reference file is always the
+					corresponding
+					input file. The file name is relative to the
+					rootFolder as
+					specified in batchProcess.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="recordName"
+			type="xs:string"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>qualified name of record that defines the fields
+					in this flat file
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="dataFormat"
+			type="flatFileType"
+			use="required"
+		>
+			<xs:annotation>
+				<xs:documentation>in what format is data received in the file?
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+	</xs:attributeGroup>
+
+	<xs:element name="inputFile">
+		<xs:complexType>
+			<xs:attributeGroup ref="flatFileAttributes" />
+			<xs:attribute
+				name="linkFieldsInThisRow"
+				type="xs:string"
 			>
-				<xs:complexType>
-					<xs:attribute
-						name="fileNamePattern"
-						type="xs:string"
-						use="required"
-					>
-						<xs:annotation>
-							<xs:documentation>file name composed of {name} and {ext} that
-								represent name and extension of primary file name for example
-								../folder/{name}-abc.{ext}
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="recordName"
-						type="xs:string"
-						use="required"
-					>
-						<xs:annotation>
-							<xs:documentation>qualified name of record that defines the
-								columns in this flat file
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-					<xs:attribute
-						name="dataFormat"
-						type="flatFileType"
-						use="required"
-					>
-						<xs:annotation>
-							<xs:documentation>in what format is data received in the file?
-							</xs:documentation>
-						</xs:annotation>
-					</xs:attribute>
-				</xs:complexType>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:element name="fileProcessor">
+				<xs:annotation>
+					<xs:documentation>For a child file that may have more than one row
+						for a parent row. This is the list of fields in this file that are
+						to be matched with corresponding fields in parent as specified in
+						linkFieldsInParentRow
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="linkFieldsInParentRow"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>Required if linkFieldsInThisRow is specified.
+						This
+						is the list of fields in the parent record to be matched
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="renameInfileTo"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>name of file relative to rootFolder that may
+						contain {name} and {ext} as name/ext of input file name.
+						$fieldName
+						to get it as a field
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="deleteFile"
+				type="booleanType"
+			>
+				<xs:annotation>
+					<xs:documentation>not valid if renameInfileTo is specified. if set
+						to true, file is deleted after processing
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="outputFile">
+		<xs:complexType>
+			<xs:attributeGroup ref="flatFileAttributes" />
+			<xs:attribute
+				name="conditionForOutput"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>if the output row should not be written
+						conditionally. Ensure that this expression evaluates to a boolean
+						value
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="linkFieldsInParentRow"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>Required if linkFieldsInThisRow is specified.
+						This
+						is the list of fields in the parent record to be matched
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="renameInfileTo"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>name of file relative to rootFolder that may
+						contain {name} and {ext} as name/ext of input file name.
+						$fieldName
+						to get it as a field
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="deleteFile"
+				type="booleanType"
+			>
+				<xs:annotation>
+					<xs:documentation>not valid if renameInfileTo is specified. if set
+						to true, file is deleted after processing
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:element name="batchProcessor">
 		<xs:complexType>
 			<xs:all>
 				<xs:element
-					name="actions"
-					type="actions"
-					minOccurs="1"
-					maxOccurs="1"
-				>
-					<xs:annotation>
-						<xs:documentation>Actions that are executed for each row in the
-							input file
-						</xs:documentation>
-					</xs:annotation>
-				</xs:element>
-				<xs:element
-					name="actionOnInvalidInputRow"
-					type="anAction"
-					minOccurs="0"
-					maxOccurs="1"
-				>
-					<xs:annotation>
-						<xs:documentation>An action that is invoked if the input row fails
-							data-type validation
-						</xs:documentation>
-					</xs:annotation>
-				</xs:element>
-
-				<xs:element
-					name="actionOnErrorWhileProcessing"
-					type="anAction"
+					ref="fileProcessor"
 					maxOccurs="1"
 					minOccurs="0"
 				>
 					<xs:annotation>
-						<xs:documentation>An action that is invoked if an error was
-							flagged by the processing logic
-						</xs:documentation>
-					</xs:annotation>
-				</xs:element>
-				<xs:element
-					name="associatedInputFiles"
-					type="flatFiles"
-					minOccurs="0"
-					maxOccurs="1"
-				>
-					<xs:annotation>
-						<xs:documentation>If you have to read rows from more than one
-							files as input that contain same number of rows
+						<xs:documentation>Details of what to process
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 			</xs:all>
 			<xs:attributeGroup ref="actionAttributes" />
 			<xs:attribute
-				name="inFolderName"
+				name="rootFolderName"
 				type="xs:string"
-				use="required"
 			>
 				<xs:annotation>
 					<xs:documentation>Name of the folder where the files are to be
 						processed. use $fieldName to use a field in the service context,
-						or @propertyName to get the property value from java context
+						or @propertyName to get the property value from java context. All
+						file names are relative to this folder
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="inFileNamePattern"
-				type="xs:string"
-				use="required"
-			>
-				<xs:annotation>
-					<xs:documentation>Remember that this is a regular expression and
-						not wild-card. SO, not "*.txt" but ".*\\.txt"
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="inRecordName"
-				type="xs:string"
-				use="required"
-			>
-				<xs:annotation>
-					<xs:documentation>Qualified name of record that describes the
-						contents of this file-row.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="inDataFormat"
-				type="flatFileType"
-				use="required"
-			>
-				<xs:annotation>
-					<xs:documentation>in what format is data received in the file?
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="outFolderName"
+				name="serviceOnErrorAtRowLevel"
 				type="xs:string"
 			>
 				<xs:annotation>
-					<xs:documentation>Output folder to write out the outdata sheet
+					<xs:documentation>Name of the service to be executed as a
+						sub-service in case of error while processing a row.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="conditionForOutput"
+				name="serviceOnInvalidInput"
 				type="xs:string"
 			>
 				<xs:annotation>
-					<xs:documentation>Is there a possibility tht you write a subset of
-						records to output? If so, use this boolean expression. Output row
-						is written only if the expression evaluates to true
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="outFileName"
-				type="xs:string"
-			>
-				<xs:annotation>
-					<xs:documentation>if we are to create an output file. file name can
-						contain parts of input file name as part of it. example if input
-						file name is a.txt {name}{ext}.out will translate to a.txt.out and
-						{name}.out will translate to a.out
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="outRecordName"
-				type="xs:string"
-			>
-				<xs:annotation>
-					<xs:documentation>Qualified name of record that describes the
-						contents of the out file-row.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="outDataFormat"
-				type="flatFileType"
-			>
-				<xs:annotation>
-					<xs:documentation>if data has to be written out to a file, in what
-						format do we write?
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="renameInFileTo"
-				type="xs:string"
-			>
-				<xs:annotation>
-					<xs:documentation>after processing, should the in-file be renamed,
-						so that it wouldn't be processed again.
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="deleteInFileAfterProcessing"
-				type="booleanType"
-			>
-				<xs:annotation>
-					<xs:documentation>Should the input file be deleted after
-						processing? Not relevant if rename option is used.
+					<xs:documentation>Name of the service to be executed as a
+						sub-service in case an input row has validation errors.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2962,16 +2943,128 @@
 				type="booleanType"
 			>
 				<xs:annotation>
-					<xs:documentation>In case this service is running in a batch
-						environment, and there is an interrupt, should we exit after
-						processing the current file? setting no means we will not stop
-						till we complete all files. Consider setting it to true, and
-						ensure that a next job can pick-up from where thus rul left-off
+					<xs:documentation>Should the batch processing stop after processing
+						the current row in case of an interrupt issued by the admin?
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="jmsUsage"
+				use="optional"
+				type="jmsUsage"
+			>
+				<xs:annotation>
+					<xs:documentation>Use this ONLY IF you use any jms in your service,
+						either inside your java classes, or using JmsConsumer or
+						JmsProducer actions.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="dbAccessType"
+				type="dbAccessType"
+				use="required"
+			>
+				<xs:annotation>
+					<xs:documentation>What kind of transaction management is to be used
+						per row in this batch processing
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="schemaNme"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>In case this batch process uses a schema other
+						than the default for the project
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
+
+	<xs:element name="childProcessors">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="fileProcessor" minOccurs="1" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="fileProcessor">
+		<xs:complexType>
+			<xs:all>
+				<xs:element
+					ref="inputFile"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>Specify details of input file</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element
+					ref="outputFile"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>Specify details of output file, if any
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element
+					name="actionBeforeChildren"
+					type="anAction"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>action to be executed for this row, before
+							processing any child row. If there are more than ne rows use
+							block action to group them
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element
+					name="actionAfterChildren"
+					type="anAction"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>action to be executed for this row, after
+							processing any child rows. If there are more than ne rows use
+							block action to group them
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element
+					ref="childProcessors"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>one or more file processors associated with
+							this. Like lines for a header
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:all>
+			<xs:attribute
+				name="inputSql"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>Use this option to use the result of query as the
+						primary driver for batch processing. Either this is to be
+						specified or inputFile is to be specified
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
 	<xs:complexType name="restClient">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -4032,7 +4125,7 @@
 			<xs:element
 				name="executeSql"
 				type="executeSql" />
-			<xs:element ref="fileProcessor" />
+			<xs:element ref="batchProcessor" />
 			<xs:element
 				name="filter"
 				type="filter" />

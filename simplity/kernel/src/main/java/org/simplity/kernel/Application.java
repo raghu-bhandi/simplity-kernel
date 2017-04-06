@@ -55,7 +55,6 @@ import org.simplity.service.ServiceCacheManager;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
 import org.simplity.tp.ContextInterface;
-import org.simplity.tp.LogicInterface;
 
 /**
  * Configure this application
@@ -100,6 +99,18 @@ public class Application {
 	}
 
 	/**
+	 * report an exception that needs attention from admin
+	 *
+	 * @param inputData
+	 *            data with which service was invoked. null if teh error has no
+	 *            such reference
+	 * @param e
+	 */
+	public static void reportApplicationError(ServiceData inputData, Exception e) {
+		currentExceptionListener.listen(inputData, new ApplicationError(e, ""));
+	}
+
+	/**
 	 * @return get a UserTrnsaction instance
 	 */
 	public static UserTransaction getUserTransaction() {
@@ -132,6 +143,7 @@ public class Application {
 		return currentExceptionListener;
 	}
 
+
 	/**
 	 * get a managed thread as per the container
 	 *
@@ -155,7 +167,7 @@ public class Application {
 			return threadPoolExecutor;
 		}
 		int nbr = batchPoolSize;
-		if(nbr == 0){
+		if (nbr == 0) {
 			nbr = 2;
 		}
 		if (threadFactory == null) {
@@ -374,7 +386,8 @@ public class Application {
 	String threadFactoryJndiName;
 
 	/**
-	 * jndi name the container has created to get a managed schedule thread pooled executor  instance
+	 * jndi name the container has created to get a managed schedule thread
+	 * pooled executor instance
 	 */
 	String scheduledExecutorJndiName;
 
@@ -382,6 +395,7 @@ public class Application {
 	 * number of threads to keep in the pool even if they are idle
 	 */
 	int corePoolSize;
+
 	/**
 	 * configure application based on the settings. This MUST be triggered
 	 * before using the app. Typically this would be triggered from start-up
@@ -393,7 +407,7 @@ public class Application {
 	public String configure() {
 		List<String> msgs = new ArrayList<String>();
 		Tracer.startAccumulation();
-		if (classManager != null) {
+		if (this.classManager != null) {
 			try {
 				classManagerInternal = (ContextInterface) (Class.forName(this.classManager)).newInstance();
 			} catch (Exception e) {
@@ -574,24 +588,25 @@ public class Application {
 		/*
 		 * batch job, thread pools etc..
 		 */
-		if(this.corePoolSize == 0){
+		if (this.corePoolSize == 0) {
 			batchPoolSize = 1;
-		}else{
+		} else {
 			batchPoolSize = this.corePoolSize;
 		}
 
-		if(this.threadFactoryJndiName != null){
+		if (this.threadFactoryJndiName != null) {
 			try {
-				threadFactory = (ThreadFactory)new InitialContext().lookup(this.threadFactoryJndiName);
+				threadFactory = (ThreadFactory) new InitialContext().lookup(this.threadFactoryJndiName);
 				Tracer.trace("Thread factory instantiated as " + threadFactory.getClass().getName());
 			} catch (Exception e) {
 				msgs.add("Error while looking up " + this.threadFactoryJndiName + ". " + e.getLocalizedMessage());
 			}
 		}
 
-		if(this.scheduledExecutorJndiName != null){
+		if (this.scheduledExecutorJndiName != null) {
 			try {
-				threadPoolExecutor = (ScheduledExecutorService)new InitialContext().lookup(this.scheduledExecutorJndiName);
+				threadPoolExecutor = (ScheduledExecutorService) new InitialContext()
+						.lookup(this.scheduledExecutorJndiName);
 				Tracer.trace("ScheduledThreadPoolExecutor instantiated as " + threadPoolExecutor.getClass().getName());
 			} catch (Exception e) {
 				msgs.add("Error while looking up " + this.scheduledExecutorJndiName + ". " + e.getLocalizedMessage());
@@ -832,13 +847,21 @@ public class Application {
 				"example : java  org.simplity.kernel.Applicaiton /user/data/ serviceName inputParam1=vaue1 ...");
 	}
 
+	/**
+	 * get a bean from the container
+	 * @param className
+	 * @param clazz
+	 * @return instance of the class, or null if such an object could not be located
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T getBean(String className, Class<T> clazz) {
 		T tb = null;
-		if (classManagerInternal != null)
+		if (classManagerInternal != null) {
 			tb = classManagerInternal.getBean(className, clazz);
-		if (tb != null)
+		}
+		if (tb != null) {
 			return tb;
+		}
 		try {
 			tb = (T) (Class.forName(className)).newInstance();
 		} catch (Exception e) {

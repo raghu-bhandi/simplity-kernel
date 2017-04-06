@@ -64,10 +64,9 @@ public class ServiceAgent {
 	 * @param cacher
 	 * @param guard
 	 */
-	public static void setUp(boolean userIdIsNumber, String login,
-			String logout, ServiceCacheManager cacher, AccessController guard) {
-		instance = new ServiceAgent(userIdIsNumber, login, logout, cacher,
-				guard);
+	public static void setUp(boolean userIdIsNumber, String login, String logout, ServiceCacheManager cacher,
+			AccessController guard) {
+		instance = new ServiceAgent(userIdIsNumber, login, logout, cacher, guard);
 	}
 
 	/**
@@ -75,8 +74,7 @@ public class ServiceAgent {
 	 */
 	public static ServiceAgent getAgent() {
 		if (instance == null) {
-			throw new ApplicationError(
-					"Service Agent is not set up, but there are requests for service!!");
+			throw new ApplicationError("Service Agent is not set up, but there are requests for service!!");
 		}
 		return instance;
 	}
@@ -109,8 +107,8 @@ public class ServiceAgent {
 	/***
 	 * We create an immutable instance fully equipped with all plug-ins
 	 */
-	private ServiceAgent(boolean userIdIsNumber, String login, String logout,
-			ServiceCacheManager cacher, AccessController guard) {
+	private ServiceAgent(boolean userIdIsNumber, String login, String logout, ServiceCacheManager cacher,
+			AccessController guard) {
 		this.numericUserId = userIdIsNumber;
 		this.loginService = login;
 		this.logoutService = logout;
@@ -133,21 +131,17 @@ public class ServiceAgent {
 		if (this.loginService == null) {
 			result = this.dummyLogin(inputData);
 		} else {
-			result = ComponentManager.getService(this.loginService)
-					.respond(inputData);
+			result = ComponentManager.getService(this.loginService).respond(inputData);
 		}
 		Object uid = result.get(ServiceProtocol.USER_ID);
 		if (uid == null) {
-			Tracer.trace("Login service did not set value for "
-					+ ServiceProtocol.USER_ID
+			Tracer.trace("Login service did not set value for " + ServiceProtocol.USER_ID
 					+ ". This implies that the login has failed.");
 		} else {
 			if (uid instanceof Value == false) {
-				throw new ApplicationError(
-						"Login service returned userId as a field in "
-								+ ServiceProtocol.USER_ID
-								+ " but instead of being an instance of Value we found it an instance of "
-								+ uid.getClass().getName());
+				throw new ApplicationError("Login service returned userId as a field in " + ServiceProtocol.USER_ID
+						+ " but instead of being an instance of Value we found it an instance of "
+						+ uid.getClass().getName());
 			}
 			result.setUserId((Value) uid);
 		}
@@ -162,18 +156,15 @@ public class ServiceAgent {
 		if (obj != null) {
 			userId = obj.toString();
 		}
-		Value userIdValue = this.numericUserId
-				? Value.parseValue(userId, ValueType.INTEGER)
-						: Value.newTextValue(userId);
-				if (Value.isNull(userIdValue)) {
-					Tracer.trace("I would have cleared userId " + userId
-							+ " but for the fact that we insist on a number");
-				} else {
-					Tracer.trace("we cleared userId=" + userId
-							+ " with no authentication whatsoever.");
-					result.put(ServiceProtocol.USER_ID, userIdValue);
-				}
-				return result;
+		Value userIdValue = this.numericUserId ? Value.parseValue(userId, ValueType.INTEGER)
+				: Value.newTextValue(userId);
+		if (Value.isNull(userIdValue)) {
+			Tracer.trace("I would have cleared userId " + userId + " but for the fact that we insist on a number");
+		} else {
+			Tracer.trace("we cleared userId=" + userId + " with no authentication whatsoever.");
+			result.put(ServiceProtocol.USER_ID, userIdValue);
+		}
+		return result;
 	}
 
 	/**
@@ -211,8 +202,7 @@ public class ServiceAgent {
 
 		String serviceName = inputData.getServiceName();
 		Value userId = inputData.getUserId();
-		ServiceInterface service = ComponentManager
-				.getServiceOrNull(serviceName);
+		ServiceInterface service = ComponentManager.getServiceOrNull(serviceName);
 		ServiceData response = null;
 		Date startTime = new Date();
 
@@ -224,25 +214,21 @@ public class ServiceAgent {
 			 * do we have this service?
 			 */
 			if (service == null) {
-				Tracer.trace(
-						"Service " + serviceName + " is missing in action !!");
+				Tracer.trace("Service " + serviceName + " is missing in action !!");
 				response = this.defaultResponse(inputData);
-				response.addMessage(
-						Messages.getMessage(Messages.NO_SERVICE, serviceName));
+				response.addMessage(Messages.getMessage(Messages.NO_SERVICE, serviceName));
 				break;
 			}
 
 			/*
 			 * is it accessible to user?
 			 */
-			if (this.securityManager != null && this.securityManager
-					.okToServe(service, inputData) == false) {
+			if (this.securityManager != null && this.securityManager.okToServe(service, inputData) == false) {
 				response = this.defaultResponse(inputData);
 				/*
 				 * should we say you are not authorized?
 				 */
-				Tracer.trace("Logged in user " + userId
-						+ " is not granted access to this service");
+				Tracer.trace("Logged in user " + userId + " is not granted access to this service");
 				response.addMessage(Messages.getMessage(Messages.NO_ACCESS));
 				break;
 			}
@@ -258,7 +244,7 @@ public class ServiceAgent {
 			/*
 			 * is this to be run in the background always?
 			 */
-			if(service.toBeRunInBackground()){
+			if (service.toBeRunInBackground()) {
 				response = this.runInBackground(inputData, service);
 				break;
 			}
@@ -278,11 +264,10 @@ public class ServiceAgent {
 					this.cacheManager.cache(inputData, response);
 				}
 			} catch (Exception e) {
-				Application.getExceptionListener().listen(inputData, e);
+				Application.reportApplicationError(inputData, e);
 				Tracer.trace(e, "Exception thrown by service " + serviceName);
 				response = this.defaultResponse(inputData);
-				response.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR,
-						e.getMessage()));
+				response.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()));
 			}
 		} while (false);
 
@@ -325,12 +310,14 @@ public class ServiceAgent {
 
 	/**
 	 * create a response with right headers..
+	 *
 	 * @param inData
 	 * @return
 	 */
-	private ServiceData defaultResponse(ServiceData inData){
+	private ServiceData defaultResponse(ServiceData inData) {
 		return new ServiceData(inData.getUserId(), inData.getServiceName());
 	}
+
 	/**
 	 * invalidate any cached response for this service
 	 *
@@ -341,6 +328,5 @@ public class ServiceAgent {
 			instance.cacheManager.invalidate(serviceName);
 		}
 	}
-
 
 }

@@ -12,6 +12,27 @@
 		<setValue fieldName="outFileName" fieldValue="{name}.{ext}"></setValue>
 
 		<createSheet sheetName="collect" recordName="files.fixed"/>
+		<batchProcessor
+			rootFolderName="$inFolderName"
+			dbAccessType="none"
+			serviceOnInvalidInput="fileactions.processErrorRow"
+			serviceOnErrorAtRowLevel="fileactions.processErrorRow"
+		>
+			<fileProcessor>
+				<inputFile
+					recordName="files.fixed"
+					fileName="$inputfilename"
+					dataFormat="fixedWidth" />
+				<outputFile
+					recordName="files.fixed"
+					fileName="$outFileName"
+					dataFormat="fixedWidth" />
+				<actionBeforeChildren>
+					<subService serviceName="fileactions.insertRows" />
+				</actionBeforeChildren>
+			</fileProcessor>
+		</batchProcessor>
+<!-- 
 		<fileProcessor
 			inFolderName="$inFolderName"
 			inFileNamePattern="$inputfilename"
@@ -32,6 +53,7 @@
 				<subService serviceName="fileactions.insertRows"/>
 			</actions>
 		</fileProcessor>
+ -->
 	</actions>
 	<outputData dataSheets="collect"></outputData>
 </service>
