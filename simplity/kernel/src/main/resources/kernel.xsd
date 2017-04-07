@@ -2600,24 +2600,29 @@
 			</xs:simpleType>
 		</xs:attribute>
 	</xs:complexType>
-	<xs:complexType name="smtpMail">
+	<xs:complexType name="sendMail">
+		<xs:sequence>
+			<xs:element name="content">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="template">
+							<xs:complexType>
+								<xs:attributeGroup ref="actionAttributes" />
+								<xs:attribute name="path" type="xs:string" use="required" />
+								<xs:attribute name="inputSheetName" type="xs:string" use="required" />
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
 		<xs:attributeGroup ref="actionAttributes" />
-		<xs:attribute
-			name="fromId"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="toIds"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="subject"
-			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="content"
-			type="xs:string"
-			use="required" />
+		<xs:attribute name="fromId" type="xs:string" use="required" />
+		<xs:attribute name="toIds" type="xs:string" use="required" />
+		<xs:attribute name="ccIds" type="xs:string" use="optional" />
+		<xs:attribute name="bccIds" type="xs:string" use="optional" />
+		<xs:attribute name="subject" type="xs:string" use="required" />
+		<xs:attribute name="attachmentSheetName" type="xs:string" use="optional" />
 	</xs:complexType>
 	<xs:complexType name="setValue">
 		<xs:all
@@ -4189,8 +4194,8 @@
 				minOccurs="0"
 				maxOccurs="unbounded" />
 			<xs:element
-				name="smtpMail"
-				type="smtpMail" />
+				name="sendMail"
+				type="sendMail" />
 			<xs:element
 				name="subService"
 				type="subService" />
