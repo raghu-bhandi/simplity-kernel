@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service
+	moduleName="dbactions"
+	dbAccessType="readOnly"
+	name="callHBase"
+	xmlns="http://www.simplity.org/schema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+	<actions>
+		<filter filterRecordName="tables.hbase" outputSheetName="stockSymbols"></filter>
+		<log names="stockSymbols" />
+	</actions>
+	<outputData dataSheets="stockSymbols"></outputData>
+</service>
