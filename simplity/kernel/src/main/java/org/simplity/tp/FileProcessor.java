@@ -270,7 +270,9 @@ public class FileProcessor {
 			}
 			if (this.workers != null) {
 				for (Worker worker : this.workers) {
+					if(worker != null){
 					worker.closeShop();
+					}
 				}
 			}
 		}

@@ -174,7 +174,14 @@ public class FlatFile {
 
 		void openShop(String rootFolder, String refFileName, ServiceContext ctxt) throws IOException {
 			super.openShop(refFileName, ctxt, true);
-			this.reader = new BufferedReader(new FileReader(this.realFile));
+			File file = this.realFile;
+			if(file == null){
+				file = new File(rootFolder + this.realName);
+			}
+			if(file.exists() == false){
+				throw new ApplicationError("File " + file.getAbsolutePath() + " is not found for reading");
+			}
+			this.reader = new BufferedReader(new FileReader(file));
 			this.gearUpToRead(rootFolder);
 		}
 

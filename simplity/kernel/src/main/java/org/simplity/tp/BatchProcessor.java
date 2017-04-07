@@ -38,7 +38,9 @@ import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.MultiTransClientInterface;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.JavaAgent;
 import org.simplity.service.ServiceContext;
+import org.simplity.service.ServiceData;
 
 /**
  * @author simplity.org
@@ -427,7 +429,7 @@ public class BatchProcessor extends Action {
 					Action action = BatchProcessor.this.getErrorAction();
 					if (action == null) {
 						Application.reportApplicationError(null,
-								new ApplicationError(e, "Error while procesing a file in batchProcesor"));
+								new ApplicationError(e, "Error while processing a file in batchProcessor"));
 					} else {
 						try {
 							action.act(this.ctx, null);
@@ -544,5 +546,13 @@ public class BatchProcessor extends Action {
 				}
 			}
 		}
+	}
+	public static void main(String[] args) throws Exception {
+		String comp = "c:/repos/simplity/examples/WebContent/WEB-INF/comp/";
+		Application.bootStrap(comp);
+		String serviceName = "file.po";
+		JavaAgent agent = JavaAgent.getAgent("420", "pwd");
+		ServiceData outData = agent.serve(serviceName, "");
+		System.out.println(outData.getPayLoad());
 	}
 }
