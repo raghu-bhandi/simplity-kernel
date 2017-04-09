@@ -35,7 +35,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public interface AggregatorWorker {
+public interface AggregationWorker {
 	/**
 	 * set-up shop and get ready to start aggregation process. Utility for a
 	 * class to reset in case it is re-used across aggregation cycles.

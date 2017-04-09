@@ -33,7 +33,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class First implements AggregatorWorker {
+public class First implements AggregationWorker {
 	protected final String inputName;
 	protected final String outputName;
 	protected Value value;

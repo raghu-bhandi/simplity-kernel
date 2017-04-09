@@ -2893,9 +2893,9 @@
 
 	<xs:element name="batchProcessor">
 		<xs:complexType>
-			<xs:all>
+			<xs:choice>
 				<xs:element
-					ref="fileProcessor"
+					ref="batchRowProcessor"
 					maxOccurs="1"
 					minOccurs="0"
 				>
@@ -2904,17 +2904,32 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-			</xs:all>
+			</xs:choice>
 			<xs:attributeGroup ref="actionAttributes" />
 			<xs:attribute
-				name="rootFolderName"
+				name="inputFolder"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>Name of the folder where the files where input
+						files are located. use $fieldName to use a field in the service
+						context. Child-input files, if any are also expected in this
+						folder. In case you need to locate them on a different folder, you
+						should use the relative folder prefix as part of the filename for
+						the input
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="outputFolder"
 				type="xs:string"
 			>
 				<xs:annotation>
 					<xs:documentation>Name of the folder where the files are to be
-						processed. use $fieldName to use a field in the service context,
-						or @propertyName to get the property value from java context. All
-						file names are relative to this folder
+						written out. use $fieldName to use a field in the service context.
+						Child-file output, if any, will also be output to this folder. In
+						case you need to organize them to a different folder, you may use
+						relative path as part of the file name.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2987,13 +3002,16 @@
 	<xs:element name="childProcessors">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element ref="fileProcessor" minOccurs="1" maxOccurs="unbounded"/>
+				<xs:element
+					ref="batchRowProcessor"
+					minOccurs="1"
+					maxOccurs="unbounded" />
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="fileProcessor">
+	<xs:element name="batchRowProcessor">
 		<xs:complexType>
-			<xs:all>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
 				<xs:element
 					ref="inputFile"
 					minOccurs="0"
@@ -3050,7 +3068,17 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-			</xs:all>
+				<xs:element
+					ref="aggregators"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation>for creating aggregated fields group by keys
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
 			<xs:attribute
 				name="inputSql"
 				type="xs:string"
@@ -3062,6 +3090,76 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:simpleType name="aggregationType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="averge" />
+			<xs:enumeration value="count" />
+			<xs:enumeration value="sum" />
+			<xs:enumeration value="min" />
+			<xs:enumeration value="max" />
+			<xs:enumeration value="first" />
+			<xs:enumeration value="last" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:element name="aggregators">
+		<xs:complexType>
+			<xs:all minOccurs="1">
+				<xs:element
+					name="aggregator"
+					minOccurs="1"
+				>
+					<xs:complexType>
+						<xs:attribute
+							name="aggregationType"
+							type="aggregationType"
+							use="required"
+						>
+							<xs:annotation>
+								<xs:documentation>It os possible to output teh value as decimal
+									or
+									integral irrespective of the input field type
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute
+							name="inputFieldName"
+							use="required"
+						>
+							<xs:annotation>
+								<xs:documentation>Name of the field/column in the child row
+									being accumulated. For count, use * as the name if you wnt to
+									count all rows. Otherwise only rows with non-null value of this
+									column are counted.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute
+							name="outputFieldName"
+							use="required"
+						>
+							<xs:annotation>
+								<xs:documentation>Name of the field/column with which the
+									aggregated value is written out to parent row/context
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+						<xs:attribute
+							name="outputIsDecimal"
+							type="booleanType"
+						>
+							<xs:annotation>
+								<xs:documentation>Relevant for math functions. Default would be
+									to output accumulated valuea as number/integer.
+								</xs:documentation>
+							</xs:annotation>
+						</xs:attribute>
+					</xs:complexType>
+				</xs:element>
+			</xs:all>
 		</xs:complexType>
 	</xs:element>
 

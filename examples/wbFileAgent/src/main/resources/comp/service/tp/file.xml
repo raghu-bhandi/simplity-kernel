@@ -6,6 +6,58 @@
 	description="this is a regular service, in the sence, client-request waits for this service to finish"
 >
 	<actions>
+		<batchProcessor
+			actionName="fileProcessor"
+			inputFolder="c:/temp/test/in"
+			outputFolder="c:/temp/test/out"
+
+			dbAccessType="none"
+		>
+			<batchRowProcessor>
+				<inputFile
+					recordName="fixed"
+					fileName=".*\.txt"
+					dataFormat="fixedWidth" 
+					renameInfileTo="{name}.bak"/>
+					<actionBeforeChildren>
+						<block>
+			<actions>
+				<setValue
+					fieldName="number"
+					fieldValue="99"
+				></setValue>
+				<log names="orders" />
+				<loop
+					dataSheetName="orders"
+					columnsToCopyAsFields="date"
+					fieldsToCopyBackAsColumns="*"
+				>
+					<actions>
+						<setValue
+							fieldName="text"
+							expression="orders.text + orders.number" />
+						<setValue
+							fieldName="number"
+							expression="orders.number + orders.decimal" />
+						<setValue
+							fieldName="decimal"
+							expression="orders.decimal * orders.number" />
+						<setValue
+							fieldName="bool"
+							expression="!orders.bool" />
+						<setValue
+							fieldName="date"
+							expression="date + 100" />
+						<log names="date" />
+					</actions>
+				</loop>
+			</actions>
+						</block>
+					</actionBeforeChildren>
+			</batchRowProcessor>
+		</batchProcessor>
+		
+<!-- 		
 		<fileProcessor
 			actionName="fileProcessor"
 			inDataFormat="fixedWidth"
@@ -13,7 +65,7 @@
 			inRecordName="fixed"
 			inFolderName="c:/temp/test/in"
 			archivalExtension=".bak"
-			inSheetName="orders"			
+			inSheetName="orders"
 		>
 			<actions>
 				<setValue
@@ -47,6 +99,8 @@
 				</loop>
 			</actions>
 		</fileProcessor>
+-->
+
 	</actions>
 	<outputData dataSheets="orders" />
 </service>

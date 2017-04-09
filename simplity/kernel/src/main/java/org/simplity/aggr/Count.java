@@ -33,12 +33,18 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class Count implements AggregatorWorker {
+public class Count implements AggregationWorker {
+	/**
+	 * field name to count. If specified, rows with non-null values for this
+	 * field are counted. null, or '*' implies count every row. sum is to be
+	 * written out
+	 */
+	private String inputFeildName;
+
 	/**
 	 * field name to which sum is to be written out
 	 */
-	private final String outputName;
-
+	private final String outputFieldName;
 	private int count;
 	/**
 	 * keep track of accumulation and throw an exception in case of concurrency
@@ -48,20 +54,19 @@ public class Count implements AggregatorWorker {
 
 	/**
 	 * create an an instance with the required parameters
+	 * @param inputFieldName
 	 *
-	 * @param outputName
+	 * @param outputFieldName
 	 *            field/column name that is to be written out as sum. non-empty,
 	 *            non-null;
 	 */
-	public Count(String outputName) {
-		this.outputName = outputName;
+	public Count(String inputFieldName, String outputFieldName) {
+		if(inputFieldName != null && inputFieldName.equals("*") == false){
+			this.inputFeildName = inputFieldName;
+		}
+		this.outputFieldName = outputFieldName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#init(org.simplity.service.ServiceContext)
-	 */
 	@Override
 	public void init(ServiceContext ctx) {
 		if (this.inProgress) {
@@ -76,51 +81,38 @@ public class Count implements AggregatorWorker {
 				+ " init(), accumulate(), writeOut()/discard(), reset()");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#accumulate(org.simplity.kernel.data.FieldsInterface,
-	 * org.simplity.service.ServiceContext)
-	 */
 	@Override
-	public void accumulate(FieldsInterface currentRow, ServiceContext ctx){
+	public void accumulate(FieldsInterface currentRow, ServiceContext ctx) {
 		if (this.inProgress == false) {
 			this.throwError();
+		}
+		if(this.inputFeildName != null){
+			/*
+			 * count only if this field is non-null
+			 */
+			Value value = ctx.getValue(this.inputFeildName);
+			if(Value.isNull(value)){
+				return;
+			}
 		}
 		this.count++;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#writeOut(org.simplity.kernel.data.FieldsInterface,
-	 * org.simplity.service.ServiceContext)
-	 */
 	@Override
 	public void writeOut(FieldsInterface outputRow, ServiceContext ctx) {
 		if (this.inProgress == false) {
 			this.throwError();
 		}
-		outputRow.setValue(this.outputName, Value.newIntegerValue(this.count));
+		outputRow.setValue(this.outputFieldName, Value.newIntegerValue(this.count));
 		this.discard(ctx);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#reset(org.simplity.service.ServiceContext)
-	 */
 	@Override
 	public void reset(ServiceContext ctx) {
 		this.count = 0;
 		this.inProgress = false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#discard(org.simplity.service.ServiceContext)
-	 */
 	@Override
 	public void discard(ServiceContext ctx) {
 		this.count = 0;

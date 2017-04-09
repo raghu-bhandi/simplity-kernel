@@ -23,10 +23,9 @@
 package org.simplity.tp;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
@@ -37,8 +36,6 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.data.FlatFileRowType;
 import org.simplity.kernel.dm.Record;
-import org.simplity.kernel.expr.Expression;
-import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -49,7 +46,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public class FlatFile {
+public class InputFile {
 	/**
 	 *
 	 * If this is an associate file, then it is expressed using {name} and and
@@ -83,10 +80,6 @@ public class FlatFile {
 	 */
 	String[] linkFieldsInParentRow;
 	/**
-	 * in case the row may be written conditionally. Defaults to write always.
-	 */
-	Expression conditionForOutput;
-	/**
 	 * name relative to input file. Valid only if this is used as in input file
 	 */
 	String renameInfileTo;
@@ -97,97 +90,103 @@ public class FlatFile {
 	boolean deleteFile;
 
 	/**
-	 *
-	 * @return worker to read from this file
+	 * @param service
 	 */
-	public InputWorker getInputWorker() {
-		return new InputWorker();
+	void getReady(Service service) {
+		if (this.fileName == null) {
+			throw new ApplicationError("file name is required for inputFile");
+		}
+		if (this.linkFieldsInParentRow == null) {
+			if (this.linkFieldsInThisRow != null) {
+				this.throwError();
+			}
+		} else {
+			if (this.linkFieldsInThisRow == null
+					|| this.linkFieldsInThisRow.length != this.linkFieldsInParentRow.length) {
+				this.throwError();
+			}
+		}
+	}
+
+	private void throwError() {
+		throw new ApplicationError("Input file should linkFieldsInParentRow to match linkFieldsInThisRow ");
 	}
 
 	/**
 	 *
-	 * @return worker to write to this file
+	 * @return worker to read from this file
 	 */
-	public OutputWorker getOutputWorker() {
-		return new OutputWorker();
+	public Worker getWorker() {
+		return new Worker();
 	}
 
+	/**
+	 * state-full class that is is invoked repeatedly by FileProcessor. We have
+	 * to have an instance of this for each run. This is our approach to ensure
+	 * that the main component, INputFile, InputFile, remains immutable
+	 *
+	 * @author simplity.org
+	 *
+	 */
 	class Worker {
 		protected Record record;
-		protected String realName;
+		private File realFile;
 		protected ServiceContext ctx;
 
-		String getFileName() {
-			return this.realName;
-		}
-
-		protected void openShop(String refFileName, ServiceContext ctxt, boolean setRealNameAsWell) {
-			if (setRealNameAsWell) {
-				this.realName = TextUtil.getFileName(FlatFile.this.fileName, refFileName, ctxt);
-			}
-			this.record = ComponentManager.getRecord(FlatFile.this.recordName);
-			this.ctx = ctxt;
-		}
-	}
-
-	class OutputWorker extends Worker {
-		private BufferedWriter writer;
-
-		void openShop(String rootFolder, String refFileName, ServiceContext ctxt) throws IOException {
-			super.openShop(refFileName, ctxt, true);
-			this.writer = new BufferedWriter(new FileWriter(rootFolder + this.realName));
-		}
-
-		void writeOut() throws IOException {
-			Expression expr = FlatFile.this.conditionForOutput;
-			try {
-				if (expr == null || Value.intepretAsBoolean(expr.evaluate(this.ctx))) {
-					this.writer.write((this.record.formatFlatRow(FlatFile.this.dataFormat, this.ctx)));
-					this.writer.newLine();
-				}
-			} catch (InvalidOperationException e) {
-				throw new ApplicationError(e, "Error while evaluating expresssion " + expr);
-			}
-		}
-
-		void closeShop() {
-			try {
-				this.writer.close();
-			} catch (Exception ignore) {
-				//
-			}
-		}
-	}
-
-	class InputWorker extends Worker {
-		private File realFile;
 		private BufferedReader reader;
 		private File newFile;
 		/*
 		 * in case we are a child file, and we have to read matching rows
 		 */
-		private Value[] dataRow;
+		/**
+		 * index of key fields to dataRow array
+		 */
 		private int[] keyIndexes;
+		/**
+		 * data read from input file that is yet to be used (read ahead)
+		 */
+		private Value[] dataRow;
+		/**
+		 * all the field names in this rec
+		 */
 		private String[] fieldNames;
+		/**
+		 * computed/concatenated string of key fields
+		 */
 		private String keyValue;
+
+		/**
+		 * did we hit the wall while trying to read?
+		 */
 		private boolean endOfFile;
 
-		void openShop(String rootFolder, String refFileName, ServiceContext ctxt) throws IOException {
-			super.openShop(refFileName, ctxt, true);
-			File file = this.realFile;
-			if(file == null){
-				file = new File(rootFolder + this.realName);
-			}
-			if(file.exists() == false){
-				throw new ApplicationError("File " + file.getAbsolutePath() + " is not found for reading");
-			}
-			this.reader = new BufferedReader(new FileReader(file));
-			this.gearUpToRead(rootFolder);
+		/**
+		 *
+		 * @return actual file name being matched
+		 */
+		String getFileName() {
+			return this.realFile.getName();
 		}
 
 		/**
-		 * called by primary file processor. File is already created based on
-		 * matching criterion, We should not use fileNAme attribute
+		 * called when this is a child file
+		 *
+		 * @param rootFolder
+		 * @param refFileName
+		 * @param ctxt
+		 * @throws IOException
+		 */
+		void openShop(String rootFolder, String refFileName, ServiceContext ctxt) throws IOException {
+			this.ctx = ctxt;
+			String fn = TextUtil.getFileName(InputFile.this.fileName, refFileName, ctxt);
+			this.realFile = new File(rootFolder + fn);
+			this.openShopCommon(rootFolder);
+		}
+
+		/**
+		 * called by primary file processor when this is the driver-input file.
+		 * A real file is passed in this case.
+		 *
 		 *
 		 * @param rootFolder
 		 * @param file
@@ -195,19 +194,31 @@ public class FlatFile {
 		 * @throws IOException
 		 */
 		void openShop(String rootFolder, File file, ServiceContext ctxt) throws IOException {
-			super.openShop(null, ctxt, false);
+			this.ctx = ctxt;
 			this.realFile = file;
-			this.realName = file.getName();
-			this.reader = new BufferedReader(new FileReader(file));
-			this.gearUpToRead(rootFolder);
+			this.openShopCommon(rootFolder);
 		}
 
-		void gearUpToRead(String rootFolder) {
-			String newName = FlatFile.this.renameInfileTo;
-			if (newName != null) {
-				this.newFile = new File(rootFolder + TextUtil.getFileName(newName, this.realName, this.ctx));
+		/**
+		 * Initialize all state-variables
+		 */
+		void openShopCommon(String rootFolder) throws FileNotFoundException {
+			this.record = ComponentManager.getRecord(InputFile.this.recordName);
+
+			if (this.realFile == null) {
+				this.realFile = new File(rootFolder + this.realFile);
 			}
-			String[] names = FlatFile.this.linkFieldsInThisRow;
+			if (this.realFile.exists() == false) {
+				throw new ApplicationError("File " + this.realFile.getAbsolutePath() + " does not exist");
+			}
+			this.reader = new BufferedReader(new FileReader(this.realFile));
+
+			String newName = InputFile.this.renameInfileTo;
+			if (newName != null) {
+				this.newFile = new File(rootFolder + TextUtil.getFileName(newName, this.getFileName(), this.ctx));
+			}
+
+			String[] names = InputFile.this.linkFieldsInThisRow;
 			if (names == null || names.length == 0) {
 				return;
 			}
@@ -215,7 +226,7 @@ public class FlatFile {
 			for (int i = 0; i < names.length; i++) {
 				int idx = this.record.getFieldIndex(names[i]);
 				if (idx == -1) {
-					throw new ApplicationError(names[i] + " is not a field in record " + FlatFile.this.recordName
+					throw new ApplicationError(names[i] + " is not a field in record " + InputFile.this.recordName
 							+ " but it is being referred as a key field to match");
 				}
 				this.keyIndexes[i] = idx;
@@ -224,13 +235,12 @@ public class FlatFile {
 		}
 
 		/**
-		 * read a row, and extract it into context.
+		 * read a row, and extract it into context. This method is invoked for
+		 * driver-file. It is also invoked in case the child-file is one-to-one
+		 * and not based on key match. That is, it is actually not a child, but
+		 * an associate
 		 */
-		boolean read(List<FormattedMessage> errors) throws IOException {
-			if (this.endOfFile) {
-				return false;
-			}
-
+		boolean extractToCtx(List<FormattedMessage> errors) throws IOException {
 			String rowText = this.reader.readLine();
 			if (rowText == null) {
 				return false;
@@ -238,7 +248,7 @@ public class FlatFile {
 			/*
 			 * parse this text into fields and push them to service context
 			 */
-			this.record.parseFlatFileRow(rowText, FlatFile.this.dataFormat, this.ctx, errors);
+			this.record.parseFlatFileRow(rowText, InputFile.this.dataFormat, this.ctx, errors);
 			return true;
 		}
 
@@ -263,10 +273,11 @@ public class FlatFile {
 		String getParentKey(List<FormattedMessage> errors) {
 			String parentKey = "";
 			for (int i = 0; i < this.keyIndexes.length; i++) {
-				Value value = this.ctx.getValue(FlatFile.this.linkFieldsInParentRow[i]);
+				Value value = this.ctx.getValue(InputFile.this.linkFieldsInParentRow[i]);
 				if (Value.isNull(value)) {
-					errors.add(new FormattedMessage("missingKeyColumn", MessageType.ERROR, "value for link field "
-							+ FlatFile.this.linkFieldsInThisRow[i] + " is missing in a row in file " + this.realName));
+					errors.add(new FormattedMessage("missingKeyColumn", MessageType.ERROR,
+							"value for link field " + InputFile.this.linkFieldsInThisRow[i]
+									+ " is missing in a row in file " + this.getFileName()));
 					return null;
 				}
 				parentKey += value.toString();
@@ -274,7 +285,17 @@ public class FlatFile {
 			return parentKey;
 		}
 
+		/**
+		 * read a line from reader, provided there is something to be read
+		 *
+		 * @return a line, or null if there is nothing more to read
+		 * @throws IOException
+		 */
 		private String readLine() throws IOException {
+			if (this.endOfFile) {
+				return null;
+			}
+
 			String rowText = this.reader.readLine();
 			if (rowText == null) {
 				this.endOfFile = true;
@@ -283,9 +304,11 @@ public class FlatFile {
 		}
 
 		/**
-		 * read a child row that matches prent key
+		 * read a child row that matches parent key. INvoked when this file is a
+		 * child-file with possible multiple rows for a given parent row
 		 */
-		boolean readChildRow(List<FormattedMessage> errors, String keyToMatch) throws IOException, InvalidRowException {
+		boolean extractForMatchingKey(List<FormattedMessage> errors, String keyToMatch)
+				throws IOException, InvalidRowException {
 			boolean allOk = true;
 			/*
 			 * ensure that we have a row in our cache before we enter the
@@ -315,7 +338,7 @@ public class FlatFile {
 					this.keyValue = null;
 					return true;
 				}
-				Tracer.trace("Ignoring a row in child file " + this.realName + " with key " + this.keyValue
+				Tracer.trace("Ignoring a row in child file " + this.getFileName() + " with key " + this.keyValue
 						+ " as there is no parent row for this.");
 				allOk = this.readChildRow(errors);
 			}
@@ -331,8 +354,10 @@ public class FlatFile {
 			if (rowText == null) {
 				return false;
 			}
-			this.dataRow = this.record.extractFromFlatRow(rowText, FlatFile.this.dataFormat, errors);
+			this.dataRow = this.record.extractFromFlatRow(rowText, InputFile.this.dataFormat, errors);
 			if (this.dataRow == null) {
+				Tracer.trace("Validation errors found during extracting a row from flat file using record "
+						+ this.record.getQualifiedName());
 				throw new InvalidRowException();
 			}
 			/*
@@ -342,8 +367,9 @@ public class FlatFile {
 			for (int i = 0; i < this.keyIndexes.length; i++) {
 				Value value = this.dataRow[this.keyIndexes[i]];
 				if (Value.isNull(value)) {
-					errors.add(new FormattedMessage("missingKeyColumn", MessageType.ERROR, "value for link field "
-							+ FlatFile.this.linkFieldsInThisRow[i] + " is missing in a row in file " + this.realName));
+					errors.add(new FormattedMessage("missingKeyColumn", MessageType.ERROR,
+							"value for link field " + InputFile.this.linkFieldsInThisRow[i]
+									+ " is missing in a row in file " + this.getFileName()));
 					throw new InvalidRowException();
 				}
 				this.keyValue += value.toString();
@@ -351,6 +377,9 @@ public class FlatFile {
 			return true;
 		}
 
+		/**
+		 * release any resources
+		 */
 		void closeShop() {
 			try {
 				this.reader.close();
@@ -359,18 +388,9 @@ public class FlatFile {
 			}
 			if (this.newFile != null) {
 				this.realFile.renameTo(this.newFile);
-			} else if (FlatFile.this.deleteFile) {
+			} else if (InputFile.this.deleteFile) {
 				this.realFile.delete();
 			}
 		}
 	}
-
-	/**
-	 * @param service
-	 */
-	public void getReady(Service service) {
-		// TODO Auto-generated method stub
-
-	}
-
 }
