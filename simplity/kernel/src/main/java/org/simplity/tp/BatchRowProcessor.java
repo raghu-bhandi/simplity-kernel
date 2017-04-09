@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.simplity.aggr.AggregationWorker;
 import org.simplity.aggr.AggregatorInterface;
-import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Tracer;
@@ -452,9 +451,9 @@ public class BatchRowProcessor {
 
 					this.ctx.addMessages(errors);
 					this.batchWorker.errorOnInputValidation(new InvalidRowException());
+				}else{
+					this.doOneTransaction();
 				}
-
-				this.doOneTransaction();
 			}
 			return nbrRows;
 		}
@@ -481,6 +480,9 @@ public class BatchRowProcessor {
 			return true;
 		}
 
+		/**
+		 * process one row under a transaction
+		 */
 		private void doOneTransaction() {
 			this.batchWorker.beginTrans();
 			this.ctx.resetMessages();
@@ -494,12 +496,6 @@ public class BatchRowProcessor {
 				exception = new ApplicationError(e, "Exception during execution of service. ");
 			}
 			this.batchWorker.endTrans(exception, this.dbDriver);
-			if (exception != null) {
-				Application.reportApplicationError(null, exception);
-			}
-			/*
-			 * we have swallowed an exception.. Let us at least report that
-			 */
 		}
 	}
 
