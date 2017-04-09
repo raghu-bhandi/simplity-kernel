@@ -100,6 +100,10 @@ public class BatchProcessor extends Action {
 	 * Does this use a schema different from the default schema for the project?
 	 */
 	String schemaName;
+	/**
+	 * if some custom code need to make use of the actual file name, let us set a field name in context
+	 */
+	String setActualFileNameTo;
 
 	/**
 	 * sub-service created for the desired service
@@ -431,6 +435,9 @@ public class BatchProcessor extends Action {
 		 */
 		private void processAllFiles(DbDriver dbDriver) {
 			for (File file : this.files) {
+				if(BatchProcessor.this.setActualFileNameTo != null){
+					this.ctx.setTextValue(BatchProcessor.this.setActualFileNameTo, file.getName());
+				}
 				try {
 					this.nbrRowsProcessed += BatchProcessor.this.batchRowProcessor.process(file, this, dbDriver, this.ctx);
 				} catch (Exception e) {

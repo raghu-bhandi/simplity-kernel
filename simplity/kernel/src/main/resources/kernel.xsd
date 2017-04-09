@@ -2996,6 +2996,18 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="setActualFileNameTo"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>If this processor isdesigned to work in more than
+						one file, some logic may need to get teh actual file name being
+						processed. This is the field name to which the actual driver
+						filebeing processed is set to in service context
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 
@@ -3011,7 +3023,10 @@
 	</xs:element>
 	<xs:element name="batchRowProcessor">
 		<xs:complexType>
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:sequence
+				minOccurs="0"
+				maxOccurs="unbounded"
+			>
 				<xs:element
 					ref="inputFile"
 					minOccurs="0"
@@ -3078,7 +3093,7 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-			</xs:choice>
+			</xs:sequence>
 			<xs:attribute
 				name="inputSql"
 				type="xs:string"
