@@ -43,6 +43,8 @@ import org.simplity.service.ServiceContext;
  *
  */
 public class LdapLookup extends Action {
+	protected String attributesRecName;
+	
 	DirContext ldapCtx;
 
 	@Override
