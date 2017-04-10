@@ -346,6 +346,14 @@ public class HttpAgent {
 	 *         under this sessions. null implies that we could not login.
 	 */
 	public static String login(String loginId, String securityToken, HttpSession session) {
+		return login(loginId, securityToken, session, false);
+	}
+
+	/*
+	 * login with added parameter for autoLogin
+	 */
+	private static String login(String loginId, String securityToken, HttpSession session, boolean isAutologin) {
+
 		/*
 		 * we log out from the existing session before attempting to login. This
 		 * is a security requirement. That is, user cn not retain the current
@@ -364,6 +372,7 @@ public class HttpAgent {
 		if (securityToken != null) {
 			inData.put(ServiceProtocol.USER_TOKEN, Value.newTextValue(securityToken));
 		}
+		inData.put(ServiceProtocol.IS_AUTO_LOGIN, Value.newBooleanValue(isAutologin));
 		inData.setPayLoad("{}");
 		ServiceData outData = ServiceAgent.getAgent().login(inData);
 		if (outData == null || outData.hasErrors()) {
@@ -510,7 +519,7 @@ public class HttpAgent {
 				Tracer.trace("Login is required.");
 				return null;
 			}
-			login(autoLoginUserId.toString(), null, session);
+			login(autoLoginUserId.toString(), null, session, true);
 			userId = (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
 			if (userId == null) {
 				Tracer.trace("autoLoginUserId is set to " + autoLoginUserId
