@@ -133,17 +133,19 @@ public class ServiceAgent {
 		} else {
 			result = ComponentManager.getService(this.loginService).respond(inputData);
 		}
-		Object uid = result.get(ServiceProtocol.USER_ID);
-		if (uid == null) {
-			Tracer.trace("Login service did not set value for " + ServiceProtocol.USER_ID
-					+ ". This implies that the login has failed.");
-		} else {
-			if (uid instanceof Value == false) {
-				throw new ApplicationError("Login service returned userId as a field in " + ServiceProtocol.USER_ID
-						+ " but instead of being an instance of Value we found it an instance of "
-						+ uid.getClass().getName());
+		if (result.hasErrors() == false) {
+			Object uid = result.get(ServiceProtocol.USER_ID);
+			if (uid == null) {
+				Tracer.trace("Login service did not set value for " + ServiceProtocol.USER_ID
+						+ ". This implies that the login has failed.");
+			} else {
+				if (uid instanceof Value == false) {
+					throw new ApplicationError("Login service returned userId as a field in " + ServiceProtocol.USER_ID
+							+ " but instead of being an instance of Value we found it an instance of "
+							+ uid.getClass().getName());
+				}
+				result.setUserId((Value) uid);
 			}
-			result.setUserId((Value) uid);
 		}
 		return result;
 	}
@@ -286,6 +288,7 @@ public class ServiceAgent {
 	 * @param inData
 	 * @return response to be sent back to client
 	 */
+	@SuppressWarnings("resource")
 	private ServiceData runInBackground(ServiceData inData, ServiceInterface service) {
 		ServiceData outData = this.defaultResponse(inData);
 		ObjectOutputStream stream = null;
