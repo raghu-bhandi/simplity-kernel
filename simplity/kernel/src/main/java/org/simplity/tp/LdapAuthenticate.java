@@ -29,7 +29,10 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.comp.ComponentType;
+import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.ldap.LdapAgent;
+import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
@@ -43,6 +46,10 @@ public class LdapAuthenticate extends Action {
 
 	String principal;
 	String credentials;
+
+	private Value parsedValue;
+	private String parsedPrincipal;
+	private String parsedCredentials;
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
@@ -66,4 +73,38 @@ public class LdapAuthenticate extends Action {
 		ctx.setValue(ServiceProtocol.USER_ID, Value.newTextValue(principal));
 		return Value.VALUE_TRUE;
 	}
+	
+	@Override
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
+		
+		this.parsedPrincipal = TextUtil.getFieldName(this.principal);
+		if (this.parsedPrincipal == null) {
+			this.parsedValue = Value.parseValue(this.principal);
+			if (this.parsedValue == null) {
+				throw new ApplicationError("SetValue action "
+						+ this.actionName + " has an invalid fieldValue="
+						+ this.principal);
+			}
+			parsedPrincipal = this.parsedValue.toText();
+		}
+		
+		this.parsedCredentials = TextUtil.getFieldName(this.credentials);
+		if (this.parsedCredentials == null) {
+			this.parsedValue = Value.parseValue(this.credentials);
+			if (this.parsedValue == null) {
+				throw new ApplicationError("SetValue action "
+						+ this.actionName + " has an invalid fieldValue="
+						+ this.principal);
+			}
+			parsedCredentials = this.parsedValue.toText();
+		}		
+	}
+
+	@Override
+	public int validate(ValidationContext ctx, Service service) {
+		int count = super.validate(ctx, service);
+
+		return count;
+	}	
 }

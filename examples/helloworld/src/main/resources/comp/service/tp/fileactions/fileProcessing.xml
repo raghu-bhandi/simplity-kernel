@@ -42,12 +42,13 @@
 						<inputFile
 							recordName="files.fixed2"
 							fileName="{name}associate.{ext}"
-							dataFormat="fixedWidth" />
+							dataFormat="fixedWidth" linkFieldsInParentRow="id" linkFieldsInThisRow="id2"/>
 						<outputFile
 							recordName="files.fixed3"
 							fileName="{name}.{ext}"
 							dataFormat="fixedWidth" />
 					</batchRowProcessor>
+					
 				</childProcessors>
 			</batchRowProcessor>
 		</batchProcessor>

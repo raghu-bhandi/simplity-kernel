@@ -8,20 +8,17 @@
 		<inputFields>
 			<inputField
 				dataType="_text"
-				name="username" />
+				name="userId" />
 			<inputField
 				dataType="_text"
-				name="password" />
+				name="userToken" />
 		</inputFields>
 	</inputData>
 	<actions>
-		<copyUserId fieldName="autologin"/>
 		<ldapAuthenticate
 			actionName="authenticate"
 			credentials="$password"
-			principal="$username"/>
-			<log names="authenticateResult"/>
-		<setValue fieldName="_userId" fieldValue="100" executeOnCondition="autologin==100"></setValue>	
+			principal="$username" executeOnCondition="!_isAutoLogin"/>
 	</actions>
 	<outputData fieldNames="_userId">
 	</outputData>
