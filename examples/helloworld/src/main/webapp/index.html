@@ -53,7 +53,7 @@ Upload file: <input type="file" id="myFile"  onchange="uploadfile()"/>
 <button onClick="login()">Login</button>
 <br>
 </body>
-<script src="js/simplity-min.js"></script>
+<script src="js/simplity.js"></script>
 <script type="text/javascript">
 Simplity.getResponse("helloworld",null,onSuccess,onError);
 function onSuccess(response){
@@ -130,7 +130,7 @@ function downloadfile(){
 	Simplity.downloadFile(fileKey,fileName,null);
 }
 function login(){
-	Simplity.login("ENCORE@ITLINFOSYS", "Renew@2020", onSuccess, onError)
+	Simplity.login("XXXX", "XXXX", onSuccess, onError)
 }
 </script>
 </html>

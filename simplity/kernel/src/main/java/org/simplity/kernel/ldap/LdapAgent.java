@@ -52,8 +52,9 @@ public class LdapAgent {
 		env.put("java.naming.security.credentials", credentialsAuth);
 		try {
 			ctx = new InitialDirContext(env);
-		} catch (NamingException ne) {			
-			return null;
+		} catch (NamingException ne) {	
+			
+			ne.printStackTrace();
 		}
 		return ctx;
 	}

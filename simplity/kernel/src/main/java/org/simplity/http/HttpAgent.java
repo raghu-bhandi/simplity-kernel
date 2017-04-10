@@ -356,7 +356,7 @@ public class HttpAgent {
 
 		/*
 		 * we log out from the existing session before attempting to login. This
-		 * is a security requirement. That is, user cn not retain the current
+		 * is a security requirement. That is, user cannot retain the current
 		 * login while trying to login again
 		 */
 		try{
