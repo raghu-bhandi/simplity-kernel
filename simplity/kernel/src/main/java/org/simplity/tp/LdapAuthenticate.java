@@ -28,6 +28,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -39,24 +40,30 @@ import org.simplity.service.ServiceProtocol;
  */
 public class LdapAuthenticate extends Action {
 	private DirContext ldapCtx;
-	
+
 	String principal;
 	String credentials;
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
 		Hashtable<String, String> env = new Hashtable<String, String>(11);
+		DirContext ldapCtx = null;
 		try {
 			// Create initial context
-			DirContext ldapCtx = LdapAgent.getInitialDirContext(principal,credentials);
+			ldapCtx = LdapAgent.getInitialDirContext(principal,credentials);
 			if(ldapCtx == null){
+				ctx.addMessage("kernel.invalidLogin", "");
 				return Value.VALUE_FALSE;
 			}
-			// Close the context when we're done
-			ldapCtx.close();
-		} catch (NamingException e) {
-			e.printStackTrace();
+		} finally {
+			if (ldapCtx!=null)
+				try {
+					ldapCtx.close();
+				} catch (NamingException e) {
+					e.printStackTrace();
+				}
 		}
+		ctx.setValue(ServiceProtocol.USER_ID, Value.newTextValue(principal));
 		return Value.VALUE_TRUE;
 	}
 }

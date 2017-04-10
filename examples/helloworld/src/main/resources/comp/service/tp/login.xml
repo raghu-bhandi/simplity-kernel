@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="login"
+	dbAccessType="none"
+>
+	<inputData>
+		<inputFields>
+			<inputField
+				dataType="_text"
+				name="username" />
+			<inputField
+				dataType="_text"
+				name="password" />
+		</inputFields>
+	</inputData>
+	<actions>
+		<copyUserId fieldName="autologin"/>
+		<ldapAuthenticate
+			actionName="authenticate"
+			credentials="$password"
+			principal="$username"/>
+			<log names="authenticateResult"/>
+		<setValue fieldName="_userId" fieldValue="100" executeOnCondition="autologin==100"></setValue>	
+	</actions>
+	<outputData fieldNames="_userId">
+	</outputData>
+</service>

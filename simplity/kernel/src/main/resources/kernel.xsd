@@ -983,7 +983,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:simpleType name="dbAccessType">
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="none">
@@ -998,9 +997,8 @@
 			</xs:enumeration>
 			<xs:enumeration value="readWrite">
 				<xs:annotation>
-					<xs:documentation>database is updated as a single transaction.
-						It is
-						committed or rolled back at the end of this service
+					<xs:documentation>database is updated as a single transaction. It
+						is committed or rolled back at the end of this service
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
@@ -1015,23 +1013,20 @@
 			<xs:enumeration value="subService">
 				<xs:annotation>
 					<xs:documentation>No database use by actions, except for
-						sub-service-actions. Each of the sub-service will manage its
-						own
+						sub-service-actions. Each of the sub-service will manage its own
 						transaction.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
 			<xs:enumeration value="external">
 				<xs:annotation>
-					<xs:documentation>we do read_write, but the transaction is
-						managed
+					<xs:documentation>we do read_write, but the transaction is managed
 						externally, like JTA/JCA/XA
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:simpleType name="jmsUsage">
 		<xs:restriction base="xs:NCName">
 			<xs:enumeration value="notManaged">
@@ -1109,10 +1104,8 @@
 			<xs:annotation>
 				<xs:documentation>Name of the field to which the pay-load is
 					assigned to. If this feature is used, pay-load is not parsed at
-					all,
-					but simply assigned to the field as it is. It is assumed that
-					the
-					service actions will take care of it
+					all, but simply assigned to the field as it is. It is assumed that
+					the service actions will take care of it
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1220,10 +1213,8 @@
 			type="xs:string"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					Use this feature is the service has already
-					prepared a pay-load.
-					Content of this field is used as pay-load.
+				<xs:documentation> Use this feature is the service has already
+					prepared a pay-load. Content of this field is used as pay-load.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1232,12 +1223,9 @@
 			type="booleanType"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					Do not use this for any business service. To be
-					used for testing
-					purposes, and by utility services. all values,
-					arrays and data
-					sheet are written out as paylaod
+				<xs:documentation> Do not use this for any business service. To be
+					used for testing purposes, and by utility services. all values,
+					arrays and data sheet are written out as paylaod
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1759,7 +1747,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:element name="block">
 		<xs:complexType>
 			<xs:sequence
@@ -1774,7 +1761,6 @@
 			</xs:sequence>
 			<xs:attributeGroup ref="actionAttributes" />
 		</xs:complexType>
-
 	</xs:element>
 	<xs:complexType name="copyRows">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -1909,9 +1895,6 @@
 			</xs:simpleType>
 		</xs:attribute>
 	</xs:complexType>
-
-
-
 	<xs:complexType name="executeSp">
 		<xs:attributeGroup ref="dbActionAttributes" />
 		<xs:attribute
@@ -2040,7 +2023,6 @@
 			<xs:enumeration value="text/html" />
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:complexType name="httpClient">
 		<xs:all>
 			<xs:element
@@ -2178,7 +2160,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="jmsConsumer">
 		<xs:all>
 			<xs:element
@@ -2197,7 +2178,6 @@
 				maxOccurs="1"
 				type="actions" />
 		</xs:all>
-
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
 			name="waitForMessage"
@@ -2226,7 +2206,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="jmsProducer">
 		<xs:all>
 			<xs:element
@@ -2242,7 +2221,6 @@
 		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
-
 	<xs:complexType name="jumpTo">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2282,12 +2260,16 @@
 			type="xs:NCName"
 			use="optional" />
 	</xs:complexType>
-	<xs:complexType name="ldapAuth">
+	<xs:complexType name="ldapAuthenticate">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
-			name="providerUrl"
+			name="principal"
 			type="xs:string"
 			use="required" />
+		<xs:attribute
+			name="credentials"
+			type="xs:string"
+			use="required" />			
 	</xs:complexType>
 	<xs:complexType name="logic">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -2370,7 +2352,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="dropIntoMessageBox">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2395,7 +2376,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:complexType name="pickupFromMessageBox">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -2410,8 +2390,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
-
 	<xs:complexType name="read">
 		<xs:sequence>
 			<xs:element
@@ -2741,7 +2719,6 @@
 		</xs:sequence>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
-
 	<xs:attributeGroup name="flatFileAttributes">
 		<xs:attribute
 			name="fileName"
@@ -2752,16 +2729,11 @@
 				<xs:documentation>For primary input file, this is the
 					file-name-pattern as a regular expression. This is NOT wild card.
 					If there is only one file, you may use $fieldName, @propertyName as
-					well.
-					For child-file, this may be expressed as part of the main file
-					name.
-					{name} and {ext} will stand for name and extension of primary
-					file.
-					or an output file, the reference file is always the
-					corresponding
-					input file. The file name is relative to the
-					rootFolder as
-					specified in batchProcess.
+					well. For child-file, this may be expressed as part of the main
+					file name. {name} and {ext} will stand for name and extension of
+					primary file. or an output file, the reference file is always the
+					corresponding input file. The file name is relative to the
+					rootFolder as specified in batchProcess.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2787,7 +2759,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:attributeGroup>
-
 	<xs:element name="inputFile">
 		<xs:complexType>
 			<xs:attributeGroup ref="flatFileAttributes" />
@@ -2809,8 +2780,7 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Required if linkFieldsInThisRow is specified.
-						This
-						is the list of fields in the parent record to be matched
+						This is the list of fields in the parent record to be matched
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2822,8 +2792,7 @@
 				<xs:annotation>
 					<xs:documentation>name of file relative to rootFolder that may
 						contain {name} and {ext} as name/ext of input file name.
-						$fieldName
-						to get it as a field
+						$fieldName to get it as a field
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2839,7 +2808,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:element name="outputFile">
 		<xs:complexType>
 			<xs:attributeGroup ref="flatFileAttributes" />
@@ -2860,8 +2828,7 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Required if linkFieldsInThisRow is specified.
-						This
-						is the list of fields in the parent record to be matched
+						This is the list of fields in the parent record to be matched
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2873,8 +2840,7 @@
 				<xs:annotation>
 					<xs:documentation>name of file relative to rootFolder that may
 						contain {name} and {ext} as name/ext of input file name.
-						$fieldName
-						to get it as a field
+						$fieldName to get it as a field
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2890,7 +2856,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:element name="batchProcessor">
 		<xs:complexType>
 			<xs:choice>
@@ -3010,7 +2975,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:element name="childProcessors">
 		<xs:complexType>
 			<xs:sequence>
@@ -3107,7 +3071,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:simpleType name="aggregationType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="averge" />
@@ -3119,7 +3082,6 @@
 			<xs:enumeration value="last" />
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:element name="aggregators">
 		<xs:complexType>
 			<xs:all minOccurs="1">
@@ -3135,8 +3097,7 @@
 						>
 							<xs:annotation>
 								<xs:documentation>It os possible to output teh value as decimal
-									or
-									integral irrespective of the input field type
+									or integral irrespective of the input field type
 								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
@@ -3177,7 +3138,6 @@
 			</xs:all>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:complexType name="restClient">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
@@ -3406,9 +3366,16 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element
-					name="ldapProperties"
-					type="xs:string"
+					ref="ldapProperties"
+					minOccurs="0"
+					maxOccurs="1"
 				>
+					<xs:annotation>
+						<xs:documentation> Attributes like user name and password etc..
+							that may have to be put into environment before getting conection
+							factory. refer to your JMS provider manua, like jboss for details
+						</xs:documentation>
+					</xs:annotation>
 				</xs:element>
 				<xs:element
 					ref="jmsProperties"
@@ -3416,12 +3383,9 @@
 					maxOccurs="1"
 				>
 					<xs:annotation>
-						<xs:documentation>
-							Attributes like user name and password etc..
-							that may have to be put into environment
-							before getting conection factory. refer to
-							your JMS provider manua, like jboss for
-							details
+						<xs:documentation> Attributes like user name and password etc..
+							that may have to be put into environment before getting conection
+							factory. refer to your JMS provider manua, like jboss for details
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
@@ -3431,10 +3395,8 @@
 					maxOccurs="1"
 				>
 					<xs:annotation>
-						<xs:documentation>
-							If your application used more than one
-							schemas, then you need to provide details
-							for non-default schema
+						<xs:documentation> If your application used more than one schemas,
+							then you need to provide details for non-default schema
 						</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
@@ -3448,18 +3410,15 @@
 									<xs:attribute
 										name="schemaName"
 										type="xs:string"
-										use="required"
-									/>
+										use="required" />
 									<xs:attribute
 										name="dataSourceName"
 										type="xs:string"
-										use="optional"
-									/>
+										use="optional" />
 									<xs:attribute
 										name="connectionString"
 										type="xs:string"
-										use="optional"
-									/>
+										use="optional" />
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
@@ -3737,8 +3696,7 @@
 					<xs:restriction base="xs:NCName">
 						<xs:enumeration value="log4jClassic">
 							<xs:annotation>
-								<xs:documentation>Old
-									log4J uses log4j-1.17.jar
+								<xs:documentation>Old log4J uses log4j-1.17.jar
 								</xs:documentation>
 							</xs:annotation>
 						</xs:enumeration>
@@ -3846,7 +3804,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:element name="jmsProperties">
 		<xs:complexType>
 			<xs:sequence>
@@ -3857,7 +3814,40 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-
+	<xs:element name="ldapProperties">
+	<xs:complexType>
+		<xs:attribute
+			name="factory"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+		<xs:attribute
+			name="ldapurl"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+		<xs:attribute
+			name="authentication"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+		<xs:attribute
+			name="principal"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+		<xs:attribute
+			name="credentials"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+	</xs:complexType>
+	</xs:element>	
 	<xs:element name="property">
 		<xs:complexType>
 			<xs:attribute
@@ -4271,8 +4261,8 @@
 				name="keyValueList"
 				type="keyValueList" />
 			<xs:element
-				name="ldapAuth"
-				type="ldapAuth" />
+				name="ldapAuthenticate"
+				type="ldapAuthenticate" />
 			<xs:element
 				name="log"
 				type="log" />
@@ -4335,8 +4325,7 @@
 		>
 			<xs:annotation>
 				<xs:documentation>JNDI name to locate the queue. Required for
-					request queue. Temp queue is used for
-					response if name is not
+					request queue. Temp queue is used for response if name is not
 					specified.
 				</xs:documentation>
 			</xs:annotation>
@@ -4414,7 +4403,6 @@
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
-
 		<xs:attribute
 			name="messageType"
 			type="xs:string"
@@ -4426,7 +4414,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 	<xs:simpleType name="flatFileType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="fixedWidth">
@@ -4445,7 +4432,6 @@
 			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:simpleType name="dataSerializationType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="text">
@@ -4484,7 +4470,6 @@
 			<xs:enumeration value="map" />
 		</xs:restriction>
 	</xs:simpleType>
-
 	<xs:element name="batch">
 		<xs:complexType>
 			<xs:sequence>
@@ -4512,7 +4497,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:complexType name="jobs">
 		<xs:sequence>
 			<xs:element
@@ -4558,10 +4542,8 @@
 					>
 						<xs:annotation>
 							<xs:documentation>userId to be used for running this job.
-								Overrides
-								setting at jobs/application. Service is executed with
-								thisuser as
-								logged-in user
+								Overrides setting at jobs/application. Service is executed with
+								thisuser as logged-in user
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -4610,18 +4592,15 @@
 						<xs:annotation>
 							<xs:documentation>use this if this is a listener/background job
 								that is run once. min value is 1. If more than 1 is specified,
-								the
-								job is fired on that many threads simultneously, subject to
+								the job is fired on that many threads simultneously, subject to
 								availablity of threads in this scheduler.
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
 				</xs:complexType>
-
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
 	<xs:complexType name="jobInputFields">
 		<xs:sequence
 			minOccurs="0"
@@ -4649,33 +4628,4 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-
-    <xs:complexType name="ldapPropertiesType">
-    	<xs:attribute
-    		name="factory"
-    		type="xs:NCName"
-    		use="required">
-    	</xs:attribute>
-    	<xs:attribute
-    		name="ldapurl"
-    		type="xs:NCName"
-    		use="required">
-    	</xs:attribute>
-    	<xs:attribute
-    		name="authentication"
-    		type="xs:NCName"
-    		use="required">
-    	</xs:attribute>
-    	<xs:attribute
-    		name="principal"
-    		type="xs:NCName"
-    		use="required">
-    	</xs:attribute>
-    	<xs:attribute
-    		name="credentials"
-    		type="xs:NCName"
-    		use="required">
-    	</xs:attribute>    	
-    </xs:complexType>
-  
 </xs:schema>

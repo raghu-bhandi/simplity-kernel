@@ -4,11 +4,20 @@
 	applicationId="HelloWorld"
 	autoLoginUserId="100"
 	loggingFramework="log4jClassic"
+	loginServiceName="login"
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
 	connectionString="jdbc:h2:file:${project.build.directory}/hw;user=sa;"
 >
-<schemaDetails>
-	<schemaDetail schemaName="testSchema" connectionString="jdbc:h2:file:${project.build.directory}/hw;SCHEMA=TEST_SCHEMA;user=sa;"/>
-</schemaDetails>
+	<ldapProperties
+		factory="com.sun.jndi.ldap.LdapCtxFactory"
+		credentials="Renew@2020"
+		authentication="Simple"
+		ldapurl="ldap://192.168.200.57:3268/"
+		principal="ENCORE@ITLINFOSYS" />
+	<schemaDetails>
+		<schemaDetail
+			schemaName="testSchema"
+			connectionString="jdbc:h2:file:${project.build.directory}/hw;SCHEMA=TEST_SCHEMA;user=sa;" />
+	</schemaDetails>
 </application>

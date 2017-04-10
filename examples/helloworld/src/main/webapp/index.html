@@ -49,6 +49,9 @@ Upload file: <input type="file" id="myFile"  onchange="uploadfile()"/>
 <br>
 <button onClick="stopBatch()">Stop batch status</button>
 <br>
+<br>
+<button onClick="login()">Login</button>
+<br>
 </body>
 <script src="js/simplity-min.js"></script>
 <script type="text/javascript">
@@ -125,6 +128,9 @@ function uploadfile(){
  
 function downloadfile(){
 	Simplity.downloadFile(fileKey,fileName,null);
+}
+function login(){
+	Simplity.login("ENCORE@ITLINFOSYS", "Renew@2020", onSuccess, onError)
 }
 </script>
 </html>
