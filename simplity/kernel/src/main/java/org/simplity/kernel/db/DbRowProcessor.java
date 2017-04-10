@@ -41,6 +41,6 @@ public interface DbRowProcessor {
 	 *         are not interested in any more rows, and teh driver can stop
 	 *         processing any remaining rows
 	 */
-	public boolean processRow(String[] outputNames, Value[] values);
+	public boolean callBackOnDbRow(String[] outputNames, Value[] values);
 
 }

@@ -160,7 +160,6 @@ public class HttpAgent {
 	 *
 	 */
 
-
 	public static void serve(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		String fileToken = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
@@ -293,7 +292,8 @@ public class HttpAgent {
 
 	}
 
-	public static void serve(HttpServletRequest req, HttpServletResponse resp,String serviceName) throws ServletException, IOException {
+	public static void serve(HttpServletRequest req, HttpServletResponse resp, String serviceName)
+			throws ServletException, IOException {
 
 		String fileToken = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
 		if (fileToken != null) {
@@ -306,7 +306,7 @@ public class HttpAgent {
 		/*
 		 * get the service name
 		 */
-		if(serviceName==null){
+		if (serviceName == null) {
 			serviceName = getServiceName(req);
 		}
 
@@ -486,6 +486,16 @@ public class HttpAgent {
 	 */
 	public static String login(String loginId, String securityToken, HttpSession session) {
 		/*
+		 * we log out from the existing session before attempting to login. This
+		 * is a security requirement. That is, user cn not retain the current
+		 * login while trying to login again
+		 */
+		try{
+			logout(session, false);
+		}catch(Exception ignore){
+			//
+		}
+		/*
 		 * ask serviceAgent to login.
 		 */
 		ServiceData inData = new ServiceData();
@@ -495,7 +505,7 @@ public class HttpAgent {
 		}
 		inData.setPayLoad("{}");
 		ServiceData outData = ServiceAgent.getAgent().login(inData);
-		if (outData == null) {
+		if (outData == null || outData.hasErrors()) {
 			return null;
 		}
 		Value userId = outData.getUserId();

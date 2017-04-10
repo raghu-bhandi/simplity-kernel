@@ -705,7 +705,7 @@ public class DbDriver {
 				for (int i = 0; i < outputTypes.length; i++) {
 					row[i] = outputTypes[i].extractFromRs(rs, i + 1);
 				}
-				boolean toContinue = callbackObject.processRow(outputNames, row);
+				boolean toContinue = callbackObject.callBackOnDbRow(outputNames, row);
 				if(toContinue == false){
 					break;
 				}
@@ -1202,7 +1202,7 @@ public class DbDriver {
 			for (int i = 0; i < types.length; i++) {
 				values[i] = types[i].extractFromRs(rs, i + 1);
 			}
-			boolean toContinue = callbackObject.processRow(outputNames, values);
+			boolean toContinue = callbackObject.callBackOnDbRow(outputNames, values);
 			if(toContinue == false){
 				break;
 			}

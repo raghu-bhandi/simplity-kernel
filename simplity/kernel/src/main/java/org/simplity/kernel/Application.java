@@ -22,6 +22,7 @@
 package org.simplity.kernel;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -194,29 +195,37 @@ public class Application {
 	 *             resources
 	 */
 	public static boolean bootStrap(String compFolder) throws Exception {
-		String componentFolder = compFolder;
-		if (!(new File(componentFolder).exists())) {
-			componentFolder = Thread.currentThread().getContextClassLoader().getResource(componentFolder).getPath();
-		}
-		Tracer.trace("Bootstrapping with " + componentFolder);
 		String msg = null;
-		Application app = new Application();
-		try {
-			componentFolder = ComponentType.setComponentFolder(componentFolder);
-			XmlUtil.xmlToObject(componentFolder + CONFIG_FILE_NAME, app);
-			if (app.applicationId == null) {
-				msg = "Unable to load the configuration component " + CONFIG_FILE_NAME
-						+ ". This file is expected to be inside folder " + componentFolder;
+		String componentFolder = compFolder;
+		File file = new File(componentFolder);
+		if (!file.exists()) {
+			URL url = Thread.currentThread().getContextClassLoader().getResource(componentFolder);
+			if(url == null){
+				msg  = componentFolder + " is neither a valid folder, nor a path to valid resource. Boot strap failed.";
 			} else {
-				msg = app.configure();
+				componentFolder = url.getPath();
 			}
-		} catch (Exception e) {
-			msg = e.getMessage();
 		}
+		if(msg == null){
+			Tracer.trace("Bootstrapping with " + componentFolder);
+			Application app = new Application();
+			try {
+				componentFolder = ComponentType.setComponentFolder(componentFolder);
+				XmlUtil.xmlToObject(componentFolder + CONFIG_FILE_NAME, app);
+				if (app.applicationId == null) {
+					msg = "Unable to load the configuration component " + CONFIG_FILE_NAME
+							+ ". This file is expected to be inside folder " + componentFolder;
+				} else {
+					msg = app.configure();
+				}
+			} catch (Exception e) {
+				msg = e.getMessage();
+			}
 
-		if (msg == null) {
-			Serve.updateStartupStatus(true);
-			return true;
+			if (msg == null) {
+				Serve.updateStartupStatus(true);
+				return true;
+			}
 		}
 
 		ApplicationError e = new ApplicationError(msg);

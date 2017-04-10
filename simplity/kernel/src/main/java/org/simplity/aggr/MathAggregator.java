@@ -25,6 +25,7 @@ package org.simplity.aggr;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.FieldsInterface;
+import org.simplity.kernel.value.DecimalValue;
 import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -35,15 +36,11 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  *
  */
-public abstract class MathAggregator implements AggregatorWorker {
+public abstract class MathAggregator implements AggregationWorker {
 	/**
 	 * field name from which to accumulate sum
 	 */
 	private final String inputName;
-	/**
-	 * is the input int or decimal?
-	 */
-	private final boolean inputIsDecimal;
 
 	/**
 	 * field name to which sum is to be written out
@@ -53,7 +50,7 @@ public abstract class MathAggregator implements AggregatorWorker {
 	/**
 	 * is the output decimal or int?
 	 */
-	private final boolean outputIsDecimal;
+	private final boolean outputAsDecimal;
 
 	/**
 	 * state variable. Current sum
@@ -76,9 +73,6 @@ public abstract class MathAggregator implements AggregatorWorker {
 	 * @param inputName
 	 *            field/column name that is being accumulated. non-empty,
 	 *            non-null;
-	 * @param inputIsDecimal
-	 *            true if the input is a decimal value, else it is an integral
-	 *            value
 	 * @param outputName
 	 *            field/column name that is to be written out as sum. non-empty,
 	 *            non-null;
@@ -86,11 +80,10 @@ public abstract class MathAggregator implements AggregatorWorker {
 	 *            true if the output is a decimal value, else it is an integral
 	 *            value
 	 */
-	public MathAggregator(String inputName, boolean inputIsDecimal, String outputName, boolean outputIsDecimal) {
+	public MathAggregator(String inputName, String outputName, boolean outputIsDecimal) {
 		this.inputName = inputName;
-		this.inputIsDecimal = inputIsDecimal;
 		this.outputName = outputName;
-		this.outputIsDecimal = outputIsDecimal;
+		this.outputAsDecimal = outputIsDecimal;
 	}
 
 	/*
@@ -130,7 +123,7 @@ public abstract class MathAggregator implements AggregatorWorker {
 		}
 		this.count++;
 		try{
-		if (this.inputIsDecimal) {
+		if (val instanceof DecimalValue) {
 			this.accumulateDecimal(val.toDecimal());
 		} else {
 			this.accumulateInteger(val.toInteger());
@@ -174,7 +167,7 @@ public abstract class MathAggregator implements AggregatorWorker {
 			this.throwError();
 		}
 		Value value = null;
-		if (this.outputIsDecimal) {
+		if (this.outputAsDecimal) {
 			double result = 0;
 			if (this.count != 0) {
 				result = this.getDecimalResult();

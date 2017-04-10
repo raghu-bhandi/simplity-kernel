@@ -23,36 +23,19 @@
 package org.simplity.aggr;
 
 /**
+ * A class that can get an instance of an AggregatorWorker that actually carries
+ * out the desired functionality at run time
+ *
  * @author simplity.org
  *
  */
-public enum AggrFunction{
+public interface AggregatorInterface {
 	/**
-	 * sum of numeric column
+	 * @return thread-safe worker instance that will not participate in any
+	 *         other concurrent process. Best practice to never re-use an
+	 *         instance. AggregatorWorker abstract class has been designed to
+	 *         avoid re-use without explicit reset() etc..
+	 *
 	 */
-	SUM,
-	/**
-	 * average
-	 */
-	AVERAGE,
-	/**
-	 * count
-	 */
-	COUNT,
-	/**
-	 * max
-	 */
-	MAX,
-	/**
-	 * min
-	 */
-	MIN,
-	/**
-	 * first
-	 */
-	FIRST,
-	/**
-	 * last
-	 */
-	LAST
+	public AggregationWorker getWorker();
 }

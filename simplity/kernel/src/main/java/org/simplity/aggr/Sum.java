@@ -32,42 +32,29 @@ public class Sum extends MathAggregator {
 
 	/**
 	 * @param inputName
-	 * @param inputIsDecimal
-	 * @param outputName
 	 * @param outputIsDecimal
+	 * @param outputName
 	 */
-	public Sum(String inputName, boolean inputIsDecimal, String outputName, boolean outputIsDecimal) {
-		super(inputName, inputIsDecimal, outputName, outputIsDecimal);
+	public Sum(String inputName, String outputName, boolean outputIsDecimal) {
+		super(inputName, outputName, outputIsDecimal);
 	}
 
-	/* (non-Javadoc)
-	 * @see aggr.MathAggregator#accumulateInteger(long)
-	 */
 	@Override
 	protected void accumulateInteger(long value) {
 		this.accumulatedValue += value;
 
 	}
 
-	/* (non-Javadoc)
-	 * @see aggr.MathAggregator#accumulateDecimal(double)
-	 */
 	@Override
 	protected void accumulateDecimal(double value) {
 		this.accumulatedValue += value;
 	}
 
-	/* (non-Javadoc)
-	 * @see aggr.MathAggregator#getDecimalResult()
-	 */
 	@Override
 	protected double getDecimalResult() {
 		return this.accumulatedValue;
 	}
 
-	/* (non-Javadoc)
-	 * @see aggr.MathAggregator#getIntegerResult()
-	 */
 	@Override
 	protected long getIntegerResult() {
 		return Math.round(this.accumulatedValue);

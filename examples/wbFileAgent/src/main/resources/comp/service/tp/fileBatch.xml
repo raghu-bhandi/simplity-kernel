@@ -9,6 +9,8 @@
 	However, the response form this service, as and when it is available, is piped back to client."
 >
 	<actions>
+		<setValue fieldName="msg" fieldValue="This service is to be redesigned" />
+<!-- 
 		<fileProcessor
 			actionName="fileProcessor"
 			inDataFormat="fixedWidth"
@@ -52,6 +54,7 @@
 				<log names="number" />
 			</actions>
 		</fileProcessor>
-	</actions>
+ -->
+ 	</actions>
 	<outputData dataSheets="orders" />
 </service>

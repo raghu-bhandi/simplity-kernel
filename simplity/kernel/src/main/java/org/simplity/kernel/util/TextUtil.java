@@ -505,30 +505,31 @@ public class TextUtil {
 	 * b{ext} ->b
 	 * </pre>
 	 *
-	 * @param pattern can not be null
+	 * @param filePattern can not be null
 	 * @param inName can be null;
 	 * @param fields
 	 * @return file name after replacing place-holders, if any
 	 */
 
-	public static String getFileName(String pattern, String inName, FieldsInterface fields) {
+	public static String getFileName(String filePattern, String inName, FieldsInterface fields) {
 		String result;
-		if (pattern.startsWith(DOLLAR_STR)) {
+		if (filePattern.startsWith(DOLLAR_STR)) {
 			Value val = null;
 			if(fields != null){
-				val = fields.getValue(pattern.substring(1));
+				val = fields.getValue(filePattern.substring(1));
 			}
 			if (val == null || val.isUnknown()) {
-				throw new ApplicationError("Field " + pattern.substring(1)
+				throw new ApplicationError("Field " + filePattern.substring(1)
 						+ " not found in context. This is required as the name of a file.");
 			}
 			return val.toString();
 		}
 
-		int idx = pattern.indexOf('{');
+		int idx = filePattern.indexOf('{');
 		if (idx == -1) {
-			return pattern;
+			return filePattern;
 		}
+
 		String inFile = "";
 		String inExtn = "";
 		if(inName != null){
@@ -539,7 +540,7 @@ public class TextUtil {
 				inExtn = inName.substring(idx + 1);
 			}
 		}
-		result = pattern.replaceAll("\\{name\\}", inFile);
+		result = filePattern.replaceAll("\\{name\\}", inFile);
 		result = result.replaceAll("\\{ext\\}", inExtn);
 		return result;
 	}
@@ -569,7 +570,6 @@ public class TextUtil {
 			return null;
 		}
 	}
-
 }
 
 /**

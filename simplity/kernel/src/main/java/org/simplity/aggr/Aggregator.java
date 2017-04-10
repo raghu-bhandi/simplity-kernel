@@ -23,19 +23,18 @@
 package org.simplity.aggr;
 
 /**
- * A class that can get an instance of an AggregatorWorker that actually carries
- * out the desired functionality at run time
- *
+ * a common aggregator that can handle the usual suspects like Average, Sum...
  * @author simplity.org
  *
  */
-public interface Aggregator {
-	/**
-	 * @return thread-safe worker instance that will not participate in any
-	 *         other concurrent process. Best practice to never re-use an
-	 *         instance. AggregatorWorker abstract class has been designed to
-	 *         avoid re-use without explicit reset() etc..
-	 *
-	 */
-	public AggregatorWorker getWorker();
+public class Aggregator implements AggregatorInterface{
+	String inputFieldName;
+	String outputFieldName;
+	boolean outputAsDecimal;
+	AggregationType aggregationType;
+
+	@Override
+	public AggregationWorker getWorker() {
+		return this.aggregationType.getAggregator(this.inputFieldName, this.outputFieldName, this.outputAsDecimal);
+	}
 }

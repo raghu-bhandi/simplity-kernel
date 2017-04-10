@@ -38,7 +38,9 @@ import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.MultiTransClientInterface;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.JavaAgent;
 import org.simplity.service.ServiceContext;
+import org.simplity.service.ServiceData;
 
 /**
  * @author simplity.org
@@ -49,14 +51,25 @@ public class BatchProcessor extends Action {
 	private static final String FOLDER_SEP = "/";
 
 	/**
-	 * root or working folder. All file names would be relative to this folder.
+	 * folder where input files are expected.This folder is used for all file
+	 * processors. Any input file that is expected in a different folder may
+	 * have the relative folder path in its name
+	 *
 	 */
-	String rootFolderName;
+	String inputFolder;
+
+	/**
+	 * folder where output files are to be written out.This folder is used for all file
+	 * processors. Any output file that is expected in a different folder may
+	 * have the relative folder path in its name
+	 *
+	 */
+	String outputFolder;
 
 	/**
 	 * main file processor
 	 */
-	FileProcessor fileProcessor;
+	BatchRowProcessor batchRowProcessor;
 
 	/**
 	 * What action do we take in case the input row fails data-type validation?
@@ -87,6 +100,10 @@ public class BatchProcessor extends Action {
 	 * Does this use a schema different from the default schema for the project?
 	 */
 	String schemaName;
+	/**
+	 * if some custom code need to make use of the actual file name, let us set a field name in context
+	 */
+	String setActualFileNameTo;
 
 	/**
 	 * sub-service created for the desired service
@@ -97,13 +114,14 @@ public class BatchProcessor extends Action {
 	 */
 	private SubService actionOnErrorAtRowLevel;
 
-	Action getInvalidAction(){
+	Action getInvalidAction() {
 		return this.actionOnInvalidInput;
 	}
 
-	Action getErrorAction(){
+	Action getErrorAction() {
 		return this.actionOnErrorAtRowLevel;
 	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -123,15 +141,21 @@ public class BatchProcessor extends Action {
 	@Override
 	public void getReady(int idx, Service service) {
 		super.getReady(idx, service);
-		if (this.fileProcessor == null) {
+		if (this.batchRowProcessor == null) {
 			throw new ApplicationError("fileProcessor is required for a BatchProcessor");
 		}
 
-		this.fileProcessor.getReady(service);
+		this.batchRowProcessor.getReady(service);
 
-		if (this.rootFolderName == null) {
-			if (this.fileProcessor.inputFile != null || this.fileProcessor.outputFile != null) {
-				throw new ApplicationError("Batch processor uses files, but rootFolderName is not specified");
+		if (this.inputFolder == null) {
+			if (this.batchRowProcessor.inputFile != null) {
+				throw new ApplicationError("Batch processor uses input files, but inputFolder is not specified");
+			}
+		}
+
+		if (this.outputFolder == null) {
+			if (this.batchRowProcessor.outputFile != null) {
+				throw new ApplicationError("Batch processor uses output files, but outputFolder is not specified");
 			}
 		}
 
@@ -165,7 +189,7 @@ public class BatchProcessor extends Action {
 		if (this.actionOnInvalidInput != null) {
 			count += this.actionOnInvalidInput.validate(vtx, service);
 		}
-		count += this.fileProcessor.validate(vtx, service);
+		count += this.batchRowProcessor.validate(vtx, service);
 		return count;
 	}
 
@@ -177,16 +201,17 @@ public class BatchProcessor extends Action {
 	 */
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		String folderName = this.getFolderName(ctx);
+		String inFolderName = this.translateFolderName(this.inputFolder, ctx);
+		String outFolderName = this.translateFolderName(this.outputFolder, ctx);
 		File[] files = null;
-		if (this.fileProcessor.inputFile == null) {
+		if (this.batchRowProcessor.inputFile == null) {
 			/*
 			 * sql driven. eqvt of one null file to be processed
 			 */
 			files = new File[0];
 			// files[0] remain as null
 		} else {
-			files = this.getFiles(folderName, ctx);
+			files = this.getFiles(inFolderName, ctx);
 		}
 
 		if (files == null) {
@@ -224,7 +249,7 @@ public class BatchProcessor extends Action {
 			if (this.jmsUsage == JmsUsage.SERVICE_MANAGED) {
 				con = jmsConnector;
 			}
-			Worker worker = new Worker(folderName, con, userTransaction, files, ctx);
+			Worker worker = new Worker(inFolderName, outFolderName, con, userTransaction, files, ctx);
 			worker.work();
 			nbrRows = worker.getNbrRowsProcessed();
 		} catch (ApplicationError e) {
@@ -238,15 +263,15 @@ public class BatchProcessor extends Action {
 		if (jmsConnector != null) {
 			JmsConnector.returnConnector(jmsConnector, true);
 		}
-		if(exception == null){
+		if (exception == null) {
 			return Value.newIntegerValue(nbrRows);
 		}
 		throw exception;
 	}
 
-	private String getFolderName(ServiceContext ctx) {
+	private String translateFolderName(String folder, ServiceContext ctx) {
 
-		String folderName = this.rootFolderName;
+		String folderName = folder;
 		if (folderName == null) {
 			return null;
 		}
@@ -258,7 +283,7 @@ public class BatchProcessor extends Action {
 			folderName = ctx.getTextValue(folderName.substring(1));
 			if (folderName == null) {
 				throw new ApplicationError(
-						"No value for folder name field " + this.rootFolderName.substring(1) + " in service context");
+						"No value for folder name field " + folder.substring(1) + " in service context");
 			}
 		}
 
@@ -281,7 +306,7 @@ public class BatchProcessor extends Action {
 
 		Tracer.trace("Going to process files in folder " + folderName);
 
-		String fileName = this.fileProcessor.inputFile.fileName;
+		String fileName = this.batchRowProcessor.inputFile.fileName;
 		if (fileName.startsWith(FIELD_PREFIX) == false) {
 			/*
 			 * it is a pattern, and not a field name.
@@ -289,7 +314,7 @@ public class BatchProcessor extends Action {
 			 */
 			File[] files = folder.listFiles(TextUtil.getFileNameFilter(fileName));
 			if (files == null || files.length == 0) {
-				Tracer.trace("No file found in folder " + this.rootFolderName + " matching name " + fileName
+				Tracer.trace("No file found in folder " + this.inputFolder + " matching name " + fileName
 						+ ". Batch processor has no work.");
 				return null;
 			}
@@ -301,7 +326,7 @@ public class BatchProcessor extends Action {
 		fileName = ctx.getTextValue(fileName.substring(1));
 		if (fileName == null) {
 			throw new ApplicationError(
-					"input file name is to be from field " + this.fileProcessor.inputFile.fileName.substring(1)
+					"input file name is to be from field " + this.batchRowProcessor.inputFile.fileName.substring(1)
 							+ " but no value is foundin service context for thsi field");
 		}
 		File[] files = { new File(folderName + fileName) };
@@ -324,7 +349,8 @@ public class BatchProcessor extends Action {
 		final UserTransaction userTransaction;
 		final File[] files;
 		final ServiceContext ctx;
-		final String rootFolder;
+		final String inFolderName;
+		final String outFolderName;
 
 		/*
 		 * state-attribute
@@ -332,15 +358,17 @@ public class BatchProcessor extends Action {
 		int nbrRowsProcessed;
 
 		/**
-		 * @param folderName
+		 * @param inName
+		 * @param outName
 		 * @param jmsConnector
 		 * @param userTransaction
 		 * @param files
 		 * @param ctx
 		 */
-		public Worker(String folderName, JmsConnector jmsConnector, UserTransaction userTransaction, File[] files,
+		public Worker(String inName, String outName, JmsConnector jmsConnector, UserTransaction userTransaction, File[] files,
 				ServiceContext ctx) {
-			this.rootFolder = folderName;
+			this.inFolderName = inName;
+			this.outFolderName = outName;
 			this.jmsConnector = jmsConnector;
 			this.userTransaction = userTransaction;
 			this.files = files;
@@ -383,13 +411,6 @@ public class BatchProcessor extends Action {
 			DbDriver.workWithDriver(this, access, schema);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.simplity.kernel.db.MultiTransClientInterface#doMultiplTrans(org.
-		 * simplity.kernel.db.DbDriver)
-		 */
 		@Override
 		public int doMultiplTrans(DbDriver dbDriver) {
 			/*
@@ -399,13 +420,6 @@ public class BatchProcessor extends Action {
 			return this.nbrRowsProcessed;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.simplity.kernel.db.DbClientInterface#workWithDriver(org.simplity.
-		 * kernel.db.DbDriver)
-		 */
 		@Override
 		public boolean workWithDriver(DbDriver dbDriver) {
 			/*
@@ -421,13 +435,16 @@ public class BatchProcessor extends Action {
 		 */
 		private void processAllFiles(DbDriver dbDriver) {
 			for (File file : this.files) {
+				if(BatchProcessor.this.setActualFileNameTo != null){
+					this.ctx.setTextValue(BatchProcessor.this.setActualFileNameTo, file.getName());
+				}
 				try {
-					this.nbrRowsProcessed += BatchProcessor.this.fileProcessor.process(file, this, dbDriver, this.ctx);
+					this.nbrRowsProcessed += BatchProcessor.this.batchRowProcessor.process(file, this, dbDriver, this.ctx);
 				} catch (Exception e) {
 					Action action = BatchProcessor.this.getErrorAction();
 					if (action == null) {
 						Application.reportApplicationError(null,
-								new ApplicationError(e, "Error while procesing a file in batchProcesor"));
+								new ApplicationError(e, "Error while processing a file in batchProcessor"));
 					} else {
 						try {
 							action.act(this.ctx, null);
@@ -509,21 +526,7 @@ public class BatchProcessor extends Action {
 			 * invalid data in a row
 			 */
 			if (exception instanceof InvalidRowException) {
-				Action action = BatchProcessor.this.getInvalidAction();
-				if (action == null) {
-					Application.reportApplicationError(null,
-							new ApplicationError(exception, "Input file contains invalid data for batch processor"));
-				} else {
-					try {
-						/*
-						 * this is a sub-service, and we want it to use its own
-						 * driver
-						 */
-						action.act(this.ctx, null);
-					} catch (Exception ex) {
-						Application.reportApplicationError(null, ex);
-					}
-				}
+				this.errorOnInputValidation(exception);
 				return;
 			}
 			/*
@@ -544,5 +547,36 @@ public class BatchProcessor extends Action {
 				}
 			}
 		}
+
+		/**
+		 * input row was in error
+		 * @param exception
+		 */
+		void errorOnInputValidation(Exception exception){
+			Action action = BatchProcessor.this.getInvalidAction();
+			if (action == null) {
+				Application.reportApplicationError(null,
+						new ApplicationError(exception, "Input file contains invalid data for batch processor"));
+			} else {
+				try {
+					/*
+					 * this is a sub-service, and we want it to use its own
+					 * driver
+					 */
+					action.act(this.ctx, null);
+				} catch (Exception ex) {
+					Application.reportApplicationError(null, ex);
+				}
+			}
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		String comp = "c:/repos/simplity/examples/WebContent/WEB-INF/comp/";
+		Application.bootStrap(comp);
+		String serviceName = "file.po";
+		JavaAgent agent = JavaAgent.getAgent("420", "pwd");
+		ServiceData outData = agent.serve(serviceName, "");
+		System.out.println(outData.getPayLoad());
 	}
 }

@@ -3,57 +3,53 @@
 	xmlns="http://www.simplity.org/schema"
 	moduleName="fileactions"
 	name="fileProcessing"
-	dbAccessType="subService" 
+	dbAccessType="subService"
 >
 	<actions>
-		<setValue fieldName="inFolderName" fieldValue="${basedir}/infile"></setValue>
-		<setValue fieldName="inputfilename" fieldValue="txt01.txt"></setValue>
-		<setValue fieldName="outFolderName" fieldValue="${basedir}/outfile"></setValue>
-		<setValue fieldName="outFileName" fieldValue="{name}.{ext}"></setValue>
-
-		<createSheet sheetName="collect" recordName="files.fixed"/>
+		<setValue
+			fieldName="inFolderName"
+			fieldValue="${basedir}/infile"
+		></setValue>
+		<setValue
+			fieldName="inputfilename"
+			fieldValue="txt01.txt"
+		></setValue>
+		<setValue
+			fieldName="outFolderName"
+			fieldValue="${basedir}/outfile"
+		></setValue>
 		<batchProcessor
-			rootFolderName="$inFolderName"
+			inputFolder="$inFolderName"
+			outputFolder="$outFolderName"
 			dbAccessType="none"
 			serviceOnInvalidInput="fileactions.processErrorRow"
 			serviceOnErrorAtRowLevel="fileactions.processErrorRow"
 		>
-			<fileProcessor>
+			<batchRowProcessor>
 				<inputFile
 					recordName="files.fixed"
 					fileName="$inputfilename"
 					dataFormat="fixedWidth" />
 				<outputFile
 					recordName="files.fixed"
-					fileName="$outFileName"
+					fileName="{name}.{ext}"
 					dataFormat="fixedWidth" />
 				<actionBeforeChildren>
 					<subService serviceName="fileactions.insertRows" />
 				</actionBeforeChildren>
-			</fileProcessor>
+				<childProcessors>
+					<batchRowProcessor>
+						<inputFile
+							recordName="files.fixed2"
+							fileName="{name}associate.{ext}"
+							dataFormat="fixedWidth" />
+						<outputFile
+							recordName="files.fixed3"
+							fileName="{name}assocaite.{ext}"
+							dataFormat="fixedWidth" />
+					</batchRowProcessor>
+				</childProcessors>
+			</batchRowProcessor>
 		</batchProcessor>
-<!-- 
-		<fileProcessor
-			inFolderName="$inFolderName"
-			inFileNamePattern="$inputfilename"
-			inDataFormat="fixedWidth"
-			inRecordName="files.fixed"
-			outFolderName="$outFolderName"
-			outFileName="$outFileName"
-			outDataFormat="fixedWidth"
-			outRecordName="files.fixed"					
-		>
-		<actionOnInvalidInputRow>
-				<subService serviceName="fileactions.processErrorRow"/>
-		</actionOnInvalidInputRow>
-		<actionOnErrorWhileProcessing>
-			<subService serviceName="fileactions.processErrorRow"/>
-		</actionOnErrorWhileProcessing>
-			<actions>
-				<subService serviceName="fileactions.insertRows"/>
-			</actions>
-		</fileProcessor>
- -->
 	</actions>
-	<outputData dataSheets="collect"></outputData>
 </service>

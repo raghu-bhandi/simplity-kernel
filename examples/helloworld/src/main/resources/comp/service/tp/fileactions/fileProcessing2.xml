@@ -9,27 +9,28 @@
 		<setValue fieldName="inFolderName" fieldValue="${basedir}/infile"></setValue>
 		<setValue fieldName="inputfilename" fieldValue="txt01.txt"></setValue>
 		<setValue fieldName="outFolderName" fieldValue="${basedir}/outfile"></setValue>
-		<setValue fieldName="outFileName" fieldValue="{name}02.{ext}"></setValue>
+		<setValue fieldName="outFileName" fieldValue=""></setValue>
 
 		<createSheet sheetName="collect" recordName="files.fixed"/>
 		
 		<batchProcessor
-			rootFolderName="$inFolderName"
+			inputFolder="$inFolderName"
+			outputFolder="$outFolderName"
 			dbAccessType="none"
 			serviceOnInvalidInput="fileactions.processErrorRow"
 			serviceOnErrorAtRowLevel="fileactions.processErrorRow"
 		>
-			<fileProcessor>
+			<batchRowProcessor>
 				<inputFile
 					recordName="files.fixed"
 					fileName="$inputfilename"
 					dataFormat="fixedWidth" />
 				<outputFile
 					recordName="files.fixed3"
-					fileName="$outFileName"
+					fileName="{name}02.{ext}"
 					dataFormat="fixedWidth" />
 				<childProcessors>
-					<fileProcessor>
+					<batchRowProcessor>
 						<inputFile 
 							recordName="files.fixed2" 
 							fileName="{name}associate.{ext}" 
@@ -37,35 +38,10 @@
 						<actionBeforeChildren>
 						<log names="a" />
 						</actionBeforeChildren>
-					</fileProcessor>
+					</batchRowProcessor>
 				</childProcessors>
-			</fileProcessor>
+			</batchRowProcessor>
 		</batchProcessor>
-	<!-- 	
-		<fileProcessor
-			inFolderName="$inFolderName"
-			inFileNamePattern="$inputfilename"
-			inDataFormat="fixedWidth"
-			inRecordName="files.fixed"
-			outFolderName="$outFolderName"
-			outFileName="$outFileName"
-			outDataFormat="fixedWidth"
-			outRecordName="files.fixed3"					
-		>
-		<associatedInputFiles>
-			<flatFile fileNamePattern="{name}associate.{ext}" recordName="files.fixed2" dataFormat="fixedWidth"/>
-		</associatedInputFiles>
-		<actionOnInvalidInputRow>
-				<subService serviceName="fileactions.processErrorRow"/>
-		</actionOnInvalidInputRow>
-		<actionOnErrorWhileProcessing>
-			<subService serviceName="fileactions.processErrorRow"/>
-		</actionOnErrorWhileProcessing>
-			<actions>
-				<log names="a"></log>
-			</actions>
-		</fileProcessor>
- -->
 	</actions>
 	<outputData dataSheets="collect"></outputData>
 </service>

@@ -38,9 +38,6 @@ public class Max extends MathAggregator {
 	 * @param inputName
 	 *            field/column name that is being accumulated. non-empty,
 	 *            non-null;
-	 * @param inputIsDecimal
-	 *            true if the input is a decimal value, else it is an integral
-	 *            value
 	 * @param outputName
 	 *            field/column name that is to be written out as sum. non-empty,
 	 *            non-null;
@@ -48,14 +45,11 @@ public class Max extends MathAggregator {
 	 *            true if the output is a decimal value, else it is an integral
 	 *            value
 	 */
-	public Max(String inputName, boolean inputIsDecimal, String outputName, boolean outputIsDecimal) {
-		super(inputName, inputIsDecimal, outputName, outputIsDecimal);
+	public Max(String inputName, String outputName, boolean outputIsDecimal) {
+		super(inputName, outputName, outputIsDecimal);
 		this.accumulatedValue = - Double.MAX_VALUE;
 	}
 
-	/* (non-Javadoc)
-	 * @see aggr.MathAggregator#accumulateInteger(long)
-	 */
 	@Override
 	protected void accumulateInteger(long value) {
 		if(value > this.accumulatedValue){
@@ -63,9 +57,6 @@ public class Max extends MathAggregator {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see aggr.MathAggregator#accumulateDecimal(double)
-	 */
 	@Override
 	protected void accumulateDecimal(double value) {
 		if(value > this.accumulatedValue){
@@ -73,25 +64,16 @@ public class Max extends MathAggregator {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see aggr.MathAggregator#getDecimalResult()
-	 */
 	@Override
 	protected double getDecimalResult() {
 		return this.accumulatedValue;
 	}
 
-	/* (non-Javadoc)
-	 * @see aggr.MathAggregator#getIntegerResult()
-	 */
 	@Override
 	protected long getIntegerResult() {
 		return Math.round(this.accumulatedValue);
 	}
 
-	/* (non-Javadoc)
-	 * @see aggr.MathAggregator#reset(org.simplity.service.ServiceContext)
-	 */
 	@Override
 	public void reset(ServiceContext ctx) {
 		super.reset(ctx);
