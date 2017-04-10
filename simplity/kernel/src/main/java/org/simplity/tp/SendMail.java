@@ -109,7 +109,9 @@ public class SendMail extends Action {
 
 			msg.writeTo(System.out);
 			Transport.send(msg);
-		} catch (IOException | MessagingException e) {
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
 	}
@@ -133,7 +135,7 @@ class Mail implements Serializable {
 	public String ccIds;
 	public String bccIds;
 	public String subject;
-	public String content;
+	public Content content;
 	public MailAttachement attachment;
 }
 
