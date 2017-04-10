@@ -3406,14 +3406,22 @@
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element
+					name="ldapProperties"
+					type="xs:string"
+				>
+				</xs:element>
+				<xs:element
 					ref="jmsProperties"
 					minOccurs="0"
 					maxOccurs="1"
 				>
 					<xs:annotation>
-						<xs:documentation>Attributes like user name and password etc..
-							that may have to be put into environment before getting conection
-							factory. refer to your JMS provider manua, like jboss for details
+						<xs:documentation>
+							Attributes like user name and password etc..
+							that may have to be put into environment
+							before getting conection factory. refer to
+							your JMS provider manua, like jboss for
+							details
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
@@ -3423,8 +3431,10 @@
 					maxOccurs="1"
 				>
 					<xs:annotation>
-						<xs:documentation> If your application used more than one schemas,
-							then you need to provide details for non-default schema
+						<xs:documentation>
+							If your application used more than one
+							schemas, then you need to provide details
+							for non-default schema
 						</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
@@ -3438,15 +3448,18 @@
 									<xs:attribute
 										name="schemaName"
 										type="xs:string"
-										use="required" />
+										use="required"
+									/>
 									<xs:attribute
 										name="dataSourceName"
 										type="xs:string"
-										use="optional" />
+										use="optional"
+									/>
 									<xs:attribute
 										name="connectionString"
 										type="xs:string"
-										use="optional" />
+										use="optional"
+									/>
 								</xs:complexType>
 							</xs:element>
 						</xs:sequence>
@@ -4636,4 +4649,33 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+
+    <xs:complexType name="ldapPropertiesType">
+    	<xs:attribute
+    		name="factory"
+    		type="xs:NCName"
+    		use="required">
+    	</xs:attribute>
+    	<xs:attribute
+    		name="ldapurl"
+    		type="xs:NCName"
+    		use="required">
+    	</xs:attribute>
+    	<xs:attribute
+    		name="authentication"
+    		type="xs:NCName"
+    		use="required">
+    	</xs:attribute>
+    	<xs:attribute
+    		name="principal"
+    		type="xs:NCName"
+    		use="required">
+    	</xs:attribute>
+    	<xs:attribute
+    		name="credentials"
+    		type="xs:NCName"
+    		use="required">
+    	</xs:attribute>    	
+    </xs:complexType>
+  
 </xs:schema>
