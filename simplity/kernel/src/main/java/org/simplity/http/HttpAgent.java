@@ -486,16 +486,6 @@ public class HttpAgent {
 	 */
 	public static String login(String loginId, String securityToken, HttpSession session) {
 		/*
-		 * we log out from the existing session before attempting to login. This
-		 * is a security requirement. That is, user cn not retain the current
-		 * login while trying to login again
-		 */
-		try{
-			logout(session, false);
-		}catch(Exception ignore){
-			//
-		}
-		/*
 		 * ask serviceAgent to login.
 		 */
 		ServiceData inData = new ServiceData();
