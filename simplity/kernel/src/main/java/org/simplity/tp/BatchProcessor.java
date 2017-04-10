@@ -570,7 +570,11 @@ public class BatchProcessor extends Action {
 			}
 		}
 	}
-
+/**
+ *
+ * @param args
+ * @throws Exception
+ */
 	public static void main(String[] args) throws Exception {
 		String comp = "c:/repos/simplity/examples/WebContent/WEB-INF/comp/";
 		Application.bootStrap(comp);
