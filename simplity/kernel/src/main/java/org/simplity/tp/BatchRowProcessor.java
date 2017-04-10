@@ -490,10 +490,8 @@ public class BatchRowProcessor {
 			try {
 				this.processARow();
 				this.writeAggregators();
-			} catch (ApplicationError e) {
-				exception = e;
 			} catch (Exception e) {
-				exception = new ApplicationError(e, "Exception during execution of service. ");
+				exception = e;
 			}
 			this.batchWorker.endTrans(exception, this.dbDriver);
 		}
