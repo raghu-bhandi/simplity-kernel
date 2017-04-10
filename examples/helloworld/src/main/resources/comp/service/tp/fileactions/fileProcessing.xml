@@ -3,14 +3,21 @@
 	xmlns="http://www.simplity.org/schema"
 	moduleName="fileactions"
 	name="fileProcessing"
-	dbAccessType="subService" 
+	dbAccessType="subService"
 >
 	<actions>
-		<setValue fieldName="inFolderName" fieldValue="${basedir}/infile"></setValue>
-		<setValue fieldName="inputfilename" fieldValue="txt01.txt"></setValue>
-		<setValue fieldName="outFolderName" fieldValue="${basedir}/outfile"></setValue>
-
-		<createSheet sheetName="collect" recordName="files.fixed"/>
+		<setValue
+			fieldName="inFolderName"
+			fieldValue="${basedir}/infile"
+		></setValue>
+		<setValue
+			fieldName="inputfilename"
+			fieldValue="txt01.txt"
+		></setValue>
+		<setValue
+			fieldName="outFolderName"
+			fieldValue="${basedir}/outfile"
+		></setValue>
 		<batchProcessor
 			inputFolder="$inFolderName"
 			outputFolder="$outFolderName"
@@ -30,8 +37,19 @@
 				<actionBeforeChildren>
 					<subService serviceName="fileactions.insertRows" />
 				</actionBeforeChildren>
+				<childProcessors>
+					<batchRowProcessor>
+						<inputFile
+							recordName="files.fixed2"
+							fileName="{name}associate.{ext}"
+							dataFormat="fixedWidth" />
+						<outputFile
+							recordName="files.fixed3"
+							fileName="{name}assocaite.{ext}"
+							dataFormat="fixedWidth" />
+					</batchRowProcessor>
+				</childProcessors>
 			</batchRowProcessor>
 		</batchProcessor>
 	</actions>
-	<outputData dataSheets="collect"></outputData>
 </service>

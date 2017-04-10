@@ -1,3 +1,0 @@
-1 jack abcd 
-1 jack abcd 
-3 john rest 
