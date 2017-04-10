@@ -500,7 +500,8 @@ public class DbDriver {
 	 *            use a schema different from the default one
 	 */
 	public static void workForMultiTrans(MultiTransClientInterface callBackObject, String schema) {
-		Connection con = null;
+		Connection con = getConnection(DbAccessType.READ_WRITE, schema);
+
 		DbDriver driver = new DbDriver(con, DbAccessType.READ_WRITE, schema);
 		driver.forMultipleTrans = true;
 		try {
