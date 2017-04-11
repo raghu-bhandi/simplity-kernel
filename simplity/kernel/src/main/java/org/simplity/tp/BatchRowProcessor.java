@@ -31,6 +31,7 @@ import org.simplity.aggr.AggregationWorker;
 import org.simplity.aggr.AggregatorInterface;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
+import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
@@ -395,6 +396,7 @@ public class BatchRowProcessor {
 	}
 
 	protected class DriverProcess extends AbstractProcess {
+		private static final String VALIDATION_ERROR = "Input row has validation errors.";
 		private BatchProcessor.Worker batchWorker;
 
 		/**
@@ -467,7 +469,7 @@ public class BatchRowProcessor {
 				if (errors.size() > 0) {
 
 					this.ctx.addMessages(errors);
-					this.batchWorker.errorOnInputValidation(new InvalidRowException());
+					this.batchWorker.errorOnInputValidation(new InvalidRowException(VALIDATION_ERROR));
 				}else{
 					this.doOneTransaction();
 				}
@@ -509,6 +511,7 @@ public class BatchRowProcessor {
 				this.writeAggregators();
 			} catch (Exception e) {
 				exception = e;
+				this.ctx.addMessage(Messages.ERROR, "Error while processing a row from batch driver input. " + e.getMessage());
 			}
 			this.batchWorker.endTrans(exception, this.dbDriver);
 		}

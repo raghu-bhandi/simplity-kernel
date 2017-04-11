@@ -315,7 +315,7 @@ public class InputFile {
 			}
 
 			String rowText = this.reader.readLine();
-			if (rowText == null) {
+			if (rowText == null || rowText.length() == 0) {
 				this.endOfFile = true;
 			}
 			return rowText;
@@ -407,7 +407,7 @@ public class InputFile {
 			if (this.dataRow == null) {
 				Tracer.trace("Validation errors found during extracting a row from flat file using record "
 						+ this.record.getQualifiedName());
-				throw new InvalidRowException();
+				throw new InvalidRowException(rowText + "   is an invalid input row.");
 			}
 			/*
 			 * set key value
@@ -419,7 +419,7 @@ public class InputFile {
 					errors.add(new FormattedMessage("missingKeyColumn", MessageType.ERROR,
 							"value for link field " + InputFile.this.linkFieldsInThisRow[i]
 									+ " is missing in a row in file " + this.getFileName()));
-					throw new InvalidRowException();
+					throw new InvalidRowException("Validation errors found in input file");
 				}
 				this.keyValue += value.toString();
 			}
