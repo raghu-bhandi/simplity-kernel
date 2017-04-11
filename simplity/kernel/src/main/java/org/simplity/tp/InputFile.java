@@ -36,6 +36,8 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.data.FlatFileRowType;
 import org.simplity.kernel.dm.Record;
+import org.simplity.kernel.expr.Expression;
+import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -88,6 +90,8 @@ public class InputFile {
 	 * valid only if this is input, and renameInfileTo is not specified
 	 */
 	boolean deleteFile;
+
+	Expression conditionToProcess;
 
 	/**
 	 * @param service
@@ -241,15 +245,26 @@ public class InputFile {
 		 * an associate
 		 */
 		boolean extractToCtx(List<FormattedMessage> errors) throws IOException {
-			String rowText = this.reader.readLine();
-			if (rowText == null) {
-				return false;
-			}
+
 			/*
-			 * parse this text into fields and push them to service context
+			 * we loop in case there is some condition for row row to be processed
 			 */
-			this.record.parseFlatFileRow(rowText, InputFile.this.dataFormat, this.ctx, errors);
-			return true;
+			while (true) {
+				String rowText = this.reader.readLine();
+				if (rowText == null) {
+					return false;
+				}
+				/*
+				 * parse this text into fields and push them to service context
+				 */
+				this.record.parseFlatFileRow(rowText, InputFile.this.dataFormat, this.ctx, errors);
+				/*
+				 * is there a condition to process this?
+				 */
+				if (this.okToProceed()) {
+					return true;
+				}
+			}
 		}
 
 		/**
@@ -271,6 +286,9 @@ public class InputFile {
 		 * @return key
 		 */
 		String getParentKey(List<FormattedMessage> errors) {
+			if (this.keyIndexes == null) {
+				return null;
+			}
 			String parentKey = "";
 			for (int i = 0; i < this.keyIndexes.length; i++) {
 				Value value = this.ctx.getValue(InputFile.this.linkFieldsInParentRow[i]);
@@ -314,32 +332,45 @@ public class InputFile {
 			 * ensure that we have a row in our cache before we enter the
 			 * while-loop, unless of course it is end-of-file
 			 */
-			if (this.keyValue == null) {
+			if (this.dataRow == null) {
 				allOk = this.readChildRow(errors);
 			}
 			while (allOk) {
-				int cmp = this.keyValue.compareToIgnoreCase(keyToMatch);
-				if (cmp > 0) {
+				if (this.keyIndexes != null) {
 					/*
-					 * we have moved ahead of the parent
+					 * check whether this row is for this parent
 					 */
-					return false;
-				}
-				if (cmp == 0) {
-					/*
-					 * got it. push fields from cache to ctx
-					 */
-					for (int i = 0; i < this.fieldNames.length; i++) {
-						this.ctx.setValue(this.fieldNames[i], this.dataRow[i]);
+					int cmp = this.keyValue.compareToIgnoreCase(keyToMatch);
+					if (cmp > 0) {
+						/*
+						 * we have moved ahead of the parent
+						 */
+						return false;
 					}
-					/*
-					 * clear keyValue so that we force a read next time
-					 */
-					this.keyValue = null;
+					if (cmp < 0) {
+						Tracer.trace("Ignoring a row in child file " + this.getFileName() + " with key " + this.keyValue
+								+ " as there is no parent row for this.");
+						allOk = this.readChildRow(errors);
+						continue;
+					}
+				}
+				/*
+				 * Ok, this child for the right parent.
+				 */
+				for (int i = 0; i < this.fieldNames.length; i++) {
+					this.ctx.setValue(this.fieldNames[i], this.dataRow[i]);
+				}
+				/*
+				 * important to empty the cache once it is used
+				 */
+				this.dataRow = null;
+				/*
+				 * Are there further conditions to process this?
+				 */
+				if (this.okToProceed()) {
 					return true;
 				}
-				Tracer.trace("Ignoring a row in child file " + this.getFileName() + " with key " + this.keyValue
-						+ " as there is no parent row for this.");
+				Tracer.trace("Ignoring a child row that failed qualifying condition.");
 				allOk = this.readChildRow(errors);
 			}
 			/*
@@ -347,6 +378,24 @@ public class InputFile {
 			 * we can tell the caller about it
 			 */
 			return false;
+		}
+
+		/*
+		 * check we can process this row based on conditionToProcess
+		 */
+		private boolean okToProceed() {
+			Expression condition = InputFile.this.conditionToProcess;
+			if (condition == null) {
+				return true;
+			}
+			Value val;
+			try {
+				val = condition.evaluate(this.ctx);
+			} catch (InvalidOperationException e) {
+				throw new ApplicationError(e, "Input file is using conditionToProcess=" + condition
+						+ " but this expression probably has improper data types/operators.");
+			}
+			return Value.intepretAsBoolean(val);
 		}
 
 		private boolean readChildRow(List<FormattedMessage> errors) throws IOException, InvalidRowException {

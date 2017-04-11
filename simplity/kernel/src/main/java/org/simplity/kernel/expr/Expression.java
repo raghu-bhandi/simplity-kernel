@@ -69,7 +69,8 @@ import org.simplity.kernel.value.ValueType;
  * note that we do lazy-evaluation. That is, if first operand is true we do not
  * evaluate the second one in an | operation.
  * <li>, is a pseudo operator between two operands to satisfy syntax. that is
- * how you specify argument list for a function like foo(a, b, 12) </ul>
+ * how you specify argument list for a function like foo(a, b, 12)
+ * </ul>
  *
  * <p>
  * Braces
@@ -159,8 +160,7 @@ public class Expression {
 			parser.parse(this.expressionText.toCharArray(), 0, false);
 			parser.setupShop();
 		} catch (InternalParseException e) {
-			throw new InvalidExpressionException(this.expressionText, e.error,
-					e.errorAt);
+			throw new InvalidExpressionException(this.expressionText, e.error, e.errorAt);
 		}
 	}
 
@@ -174,13 +174,11 @@ public class Expression {
 	 *            if this sub-expression is for function
 	 * @throws InternalParseException
 	 */
-	Expression(char[] chars, int startingAt, boolean commaOk)
-			throws InternalParseException {
+	Expression(char[] chars, int startingAt, boolean commaOk) throws InternalParseException {
 
 		ExpressionParser worker = new ExpressionParser();
 		worker.parse(chars, startingAt, commaOk);
-		this.expressionText = new String(chars, startingAt + 1,
-				worker.parsingAt - startingAt);
+		this.expressionText = new String(chars, startingAt + 1, worker.parsingAt - startingAt);
 		worker.setupShop();
 	}
 
@@ -191,8 +189,7 @@ public class Expression {
 	 * @return value of this expression
 	 * @throws InvalidOperationException
 	 */
-	public Value evaluate(FieldsInterface data)
-			throws InvalidOperationException {
+	public Value evaluate(FieldsInterface data) throws InvalidOperationException {
 		/*
 		 * this is just a safety. As per our current design, this should not
 		 * happen
@@ -256,8 +253,7 @@ public class Expression {
 	 * @param data
 	 * @throws InvalidOperationException
 	 */
-	private void takeSteps(Value[] values, FieldsInterface data)
-			throws InvalidOperationException {
+	private void takeSteps(Value[] values, FieldsInterface data) throws InvalidOperationException {
 		/*
 		 * steps involving commas (for functions) would be at the end. We comma
 		 * operators would be at the end. We will take them outside of the loop
@@ -310,8 +306,7 @@ public class Expression {
 					result = step.bop.operate(leftValue, rightValue);
 				}
 			} catch (InvalidValueException e) {
-				throw new InvalidOperationException(step.bop,
-						leftValue.getValueType(), rightValue.getValueType());
+				throw new InvalidOperationException(step.bop, leftValue.getValueType(), rightValue.getValueType());
 			}
 			values[step.left] = result;
 		}
@@ -327,10 +322,10 @@ public class Expression {
 		/*
 		 * first argument is always at idx=0. idx of subsequent arguments in
 		 * value[] are available as step.right attribute.
-		 * 
+		 *
 		 * For example if it is a simple (a,b), then there is one step with
 		 * left=0, and right=1
-		 * 
+		 *
 		 * if it is (a+b, c) then left=0, right=2 for step[1]
 		 */
 
@@ -371,8 +366,7 @@ public class Expression {
 		int i = 1;
 		int nbrSubExpr = 0;
 		for (Operand operand : this.operands) {
-			sbf.append(i).append(" : ")
-			.append(operand.uop == null ? "" : operand.uop);
+			sbf.append(i).append(" : ").append(operand.uop == null ? "" : operand.uop);
 			if (operand.value != null) {
 				sbf.append(operand.value);
 			}
@@ -386,9 +380,8 @@ public class Expression {
 		sbf.append("   STEPS    \n");
 		i = 1;
 		for (Step step : this.calculationSteps) {
-			sbf.append(i).append(" : operand-").append(step.left + 1)
-			.append("  ").append(step.bop).append("  ")
-			.append(step.right + 1).append("\n");
+			sbf.append(i).append(" : operand-").append(step.left + 1).append("  ").append(step.bop).append("  ")
+					.append(step.right + 1).append("\n");
 			i++;
 		}
 		if (nbrSubExpr > 0) {
@@ -459,8 +452,7 @@ public class Expression {
 		ExpressionParser() {
 		}
 
-		void parse(char[] charsToParse, int startAt, boolean forFunction)
-				throws InternalParseException {
+		void parse(char[] charsToParse, int startAt, boolean forFunction) throws InternalParseException {
 			this.chars = charsToParse;
 			this.nbrChars = charsToParse.length;
 			this.commaOk = forFunction;
@@ -486,16 +478,12 @@ public class Expression {
 
 				if (this.isCloseBracket(c)) {
 					if (openingBracket == 0) {
-						throw new InternalParseException(
-								"close brace found with no matching open brace ",
+						throw new InternalParseException("close brace found with no matching open brace ",
 								this.parsingAt);
 					}
-					if (openingBracket == Chars.OPEN_CURVE
-							&& c == Chars.CLOSE_CURVE
-							|| openingBracket == Chars.OPEN_SQUARE
-							&& c == Chars.CLOSE_SQUARE
-							|| openingBracket == Chars.OPEN_FLOWER
-							&& c == Chars.CLOSE_FLOWER) {
+					if (openingBracket == Chars.OPEN_CURVE && c == Chars.CLOSE_CURVE
+							|| openingBracket == Chars.OPEN_SQUARE && c == Chars.CLOSE_SQUARE
+							|| openingBracket == Chars.OPEN_FLOWER && c == Chars.CLOSE_FLOWER) {
 						/*
 						 * reset to 0 to indicate that we did find corresponding
 						 * one
@@ -504,11 +492,9 @@ public class Expression {
 						break;
 					}
 
-					throw new InternalParseException(startAt + " "
-							+ this.parsingAt + " " + "Opening brace "
-							+ this.chars[startAt - 1]
-									+ " found a matching, but different closing brace "
-									+ c, this.parsingAt);
+					throw new InternalParseException(startAt + " " + this.parsingAt + " " + "Opening brace "
+							+ this.chars[startAt - 1] + " found a matching, but different closing brace " + c,
+							this.parsingAt);
 				}
 				if (this.operandExpected) {
 					this.parseForOperand(c);
@@ -522,8 +508,7 @@ public class Expression {
 			 */
 			if (openingBracket != 0) {
 				throw new InternalParseException(
-						"No closing brace found for the opening brace "
-								+ openingBracket + " that was at " + startAt,
+						"No closing brace found for the opening brace " + openingBracket + " that was at " + startAt,
 						this.parsingAt);
 			}
 
@@ -531,11 +516,8 @@ public class Expression {
 				/*
 				 * unless we havn't parsed anything yet..
 				 */
-				if (this.operandList.size() > 0
-						|| this.currentOperand.uop != null) {
-					throw new InternalParseException(
-							"expression ended on a wrong foot!! ",
-							this.parsingAt);
+				if (this.operandList.size() > 0 || this.currentOperand.uop != null) {
+					throw new InternalParseException("expression ended on a wrong foot!! ", this.parsingAt);
 				}
 			}
 			/*
@@ -548,8 +530,7 @@ public class Expression {
 			 * is it empty? ok for function
 			 */
 			if (this.operandList.size() == 0 && forFunction == false) {
-				throw new InternalParseException(
-						"nothing found between braces", this.parsingAt);
+				throw new InternalParseException("nothing found between braces", this.parsingAt);
 			}
 		}
 
@@ -561,8 +542,7 @@ public class Expression {
 		 */
 		void setupShop() {
 			if (this.operandList.size() > 0) {
-				Expression.this.operands = this.operandList
-						.toArray(new Operand[0]);
+				Expression.this.operands = this.operandList.toArray(new Operand[0]);
 			}
 			/*
 			 * no steps if there is only one operand
@@ -643,8 +623,7 @@ public class Expression {
 			} else if (this.isQuote(c)) {
 				this.currentOperand.operandType = Operand.CONSTANT;
 				this.currentOperand.value = this.parseLiteral();
-			} else if (this.currentOperand.uop == null
-					&& this.isUnaryOperator(c)) {
+			} else if (this.currentOperand.uop == null && this.isUnaryOperator(c)) {
 				this.currentOperand.uop = UnaryOperator.getOperator(c);
 				this.operandExpected = true;
 				return;
@@ -652,27 +631,23 @@ public class Expression {
 				/*
 				 * we got something unexpected
 				 */
-				throw new InternalParseException("Got " + c
-						+ " when an operand is expected.", this.parsingAt);
+				throw new InternalParseException("Got " + c + " when an operand is expected.", this.parsingAt);
 			}
 			/*
 			 * look for invalid unary operators on constants
 			 */
 			if (this.currentOperand.isValid() == false) {
-				throw new InternalParseException(
-						"This operand has an invalid unary opeator "
-								+ this.currentOperand.uop, this.parsingAt - 1);
+				throw new InternalParseException("This operand has an invalid unary opeator " + this.currentOperand.uop,
+						this.parsingAt - 1);
 			}
 		}
 
-		private Expression parseSubExpression(boolean forFunction)
-				throws InternalParseException {
+		private Expression parseSubExpression(boolean forFunction) throws InternalParseException {
 			/*
 			 * skip the open bracket
 			 */
 			this.parsingAt++;
-			Expression expr = new Expression(this.chars, this.parsingAt,
-					forFunction);
+			Expression expr = new Expression(this.chars, this.parsingAt, forFunction);
 			/*
 			 * pointer is to point to the last char parsed. point to the close
 			 * bracket that ended the sub-expression.
@@ -693,9 +668,8 @@ public class Expression {
 					 */
 					if (!this.currentOperand.isValid()) {
 						throw new InternalParseException(
-								"This operand has an invalid unary opeator "
-										+ this.currentOperand.uop,
-										this.parsingAt - 1);
+								"This operand has an invalid unary opeator " + this.currentOperand.uop,
+								this.parsingAt - 1);
 					}
 					Expression exp = this.parseSubExpression(true);
 					if (exp.operands != null) {
@@ -710,16 +684,14 @@ public class Expression {
 					 */
 					return;
 				}
-				throw new InternalParseException("Got " + c
-						+ " when an operator is expected.", this.parsingAt);
+				throw new InternalParseException("Got " + c + " when an operator is expected.", this.parsingAt);
 
 			}
 			/*
 			 * that was the only exception. we do expect a binary operator now
 			 */
 			if (this.isBinaryOperator(c) == false) {
-				throw new InternalParseException("Got " + c
-						+ " when an operator is expected.", this.parsingAt);
+				throw new InternalParseException("Got " + c + " when an operator is expected.", this.parsingAt);
 			}
 			if (c == Chars.LIST) {
 				if (this.commaOk) {
@@ -764,18 +736,16 @@ public class Expression {
 				}
 			}
 			if (foundAt == -1) {
-				throw new InternalParseException("No matching delimiter "
-						+ delimiter + " found for literal.", this.nbrChars);
+				throw new InternalParseException("No matching delimiter " + delimiter + " found for literal.",
+						this.nbrChars);
 			}
-			String token = new String(this.chars, this.parsingAt, foundAt
-					- this.parsingAt);
+			String token = new String(this.chars, this.parsingAt, foundAt - this.parsingAt);
 			Value value = null;
 			if (delimiter == Chars.DIVIDE) {
 				Date date = DateUtil.parseDateWithOptionalTime(token);
 				if (date == null) {
 					throw new InternalParseException(
-							token
-							+ " is not a valid date. yyyy-mm-dd and yyyy-mm-ddThh:mm:ss.sssZ (UTC standard) are the only acceptable format for date.",
+							token + " is not a valid date. yyyy-mm-dd and yyyy-mm-ddThh:mm:ss.sssZ (UTC standard) are the only acceptable format for date.",
 							this.parsingAt);
 				}
 				value = Value.newDateValue(date);
@@ -800,8 +770,7 @@ public class Expression {
 				}
 				break;
 			}
-			String token = new String(this.chars, startedAt, this.parsingAt
-					- startedAt);
+			String token = new String(this.chars, startedAt, this.parsingAt - startedAt);
 			/*
 			 * we have already pointing to the next char. step back.
 			 */
@@ -812,13 +781,11 @@ public class Expression {
 				}
 				return Value.newIntegerValue(Long.parseLong(token));
 			} catch (NumberFormatException e) {
-				throw new InternalParseException(token
-						+ " is not a valid number", this.parsingAt);
+				throw new InternalParseException(token + " is not a valid number", this.parsingAt);
 			}
 		}
 
-		private BinaryOperator parseBinaryOperator(char c)
-				throws InternalParseException {
+		private BinaryOperator parseBinaryOperator(char c) throws InternalParseException {
 
 			/*
 			 * c is guaranteed to be a binary operator. let us check if it is a
@@ -826,9 +793,7 @@ public class Expression {
 			 */
 			int j = this.parsingAt + 1;
 			if (j >= this.nbrChars) {
-				throw new InternalParseException(
-						"Reached end when an operand is expected",
-						this.nbrChars);
+				throw new InternalParseException("Reached end when an operand is expected", this.nbrChars);
 			}
 			char c1 = this.chars[j];
 			/*
@@ -864,61 +829,51 @@ public class Expression {
 			} else if (c != Chars.NOT) { // ! should have c1 == EQUAL
 				return BinaryOperator.getOperator(c);
 			}
-			throw new InternalParseException(c + Chars.EQUAL
-					+ " is not a valid binary operator", this.parsingAt + 1);
+			throw new InternalParseException(c + Chars.EQUAL + " is not a valid binary operator", this.parsingAt + 1);
 		}
 
 		private String parseName() {
 			int endAt = this.parsingAt + 1;
-			while (endAt < this.chars.length
-					&& this.isAlphaNumeric(this.chars[endAt])) {
+			while (endAt < this.chars.length && this.isAlphaNumeric(this.chars[endAt])) {
 				endAt++;
 			}
 			/*
 			 * endAt is pointing one char next to our name
 			 */
-			String parsedName = new String(this.chars, this.parsingAt, endAt
-					- this.parsingAt);
+			String parsedName = new String(this.chars, this.parsingAt, endAt - this.parsingAt);
 			this.parsingAt = endAt - 1;
 			return parsedName;
 		}
 
 		private boolean isWhiteSpace(char c) {
-			return c == Chars.SPACE || c == Chars.TAB || c == Chars.NL
-					|| c == Chars.CR;
+			return c == Chars.SPACE || c == Chars.TAB || c == Chars.NL || c == Chars.CR;
 		}
 
 		private boolean isBinaryOperator(char c) {
-			return c == Chars.PLUS || c == Chars.MINUS || c == Chars.MULT
-					|| c == Chars.DIVIDE || c == Chars.MODULO
-					|| c == Chars.EQUAL || c == Chars.NOT || c == Chars.LESS
-					|| c == Chars.GREATER || c == Chars.AND || c == Chars.OR
-					|| c == Chars.LIST;
+			return c == Chars.PLUS || c == Chars.MINUS || c == Chars.MULT || c == Chars.DIVIDE || c == Chars.MODULO
+					|| c == Chars.EQUAL || c == Chars.NOT || c == Chars.LESS || c == Chars.GREATER || c == Chars.AND
+					|| c == Chars.OR || c == Chars.LIST;
 		}
 
 		private boolean isUnaryOperator(char c) {
-			return c == Chars.MINUS || c == Chars.NOT || c == Chars.IS_KNOWN
-					|| c == Chars.IS_UNKNOWN;
+			return c == Chars.MINUS || c == Chars.NOT || c == Chars.IS_KNOWN || c == Chars.IS_UNKNOWN;
 		}
 
 		private boolean isOpenBracket(char c) {
-			return c == Chars.OPEN_CURVE || c == Chars.OPEN_FLOWER
-					|| c == Chars.OPEN_SQUARE;
+			return c == Chars.OPEN_CURVE || c == Chars.OPEN_FLOWER || c == Chars.OPEN_SQUARE;
 		}
 
 		private boolean isCloseBracket(char c) {
-			return c == Chars.CLOSE_CURVE || c == Chars.CLOSE_FLOWER
-					|| c == Chars.CLOSE_SQUARE;
+			return c == Chars.CLOSE_CURVE || c == Chars.CLOSE_FLOWER || c == Chars.CLOSE_SQUARE;
 		}
 
 		private boolean isQuote(char c) {
-			return c == Chars.SINGLE_QUOTE || c == Chars.DOUBLE_QUOTE
-					|| c == Chars.DIVIDE;
+			return c == Chars.SINGLE_QUOTE || c == Chars.DOUBLE_QUOTE || c == Chars.DIVIDE;
 		}
 
 		private boolean isAlpha(char c) {
-			return c >= Chars.LOWER_A && c <= Chars.LOWER_Z
-					|| c >= Chars.UPPER_A && c <= Chars.UPPER_Z;
+			return (c >= Chars.LOWER_A && c <= Chars.LOWER_Z) || (c >= Chars.UPPER_A && c <= Chars.UPPER_Z)
+					|| c == Chars.UNDER_SCORE;
 		}
 
 		private boolean isNumber(char c) {
@@ -926,8 +881,7 @@ public class Expression {
 		}
 
 		private boolean isAlphaNumeric(char c) {
-			return this.isAlpha(c) || this.isNumber(c) || c == Chars.DOT
-					|| c == Chars.UNDER_SCORE;
+			return this.isAlpha(c) || this.isNumber(c) || c == Chars.DOT;
 		}
 	}
 
@@ -948,18 +902,17 @@ public class Expression {
 	public static void main(String[] args) {
 		String text = "/2015-12-12/ - /2016-12-22/";
 		// String text =
-		// "concat(\"a\" + \"A\", \"b\"+ \"B\", foo(123, faa(456 - abcd), 12), 14)";
+		// "concat(\"a\" + \"A\", \"b\"+ \"B\", foo(123, faa(456 - abcd), 12),
+		// 14)";
 		// String text = "\"a\" , \"A\", \"b\", \"B\", 123 , 456)";
 		try {
 			Tracer.trace("TRYING " + text);
 			Expression expr = new Expression(text);
 			DynamicSheet ds = new DynamicSheet();
 			Value val = expr.evaluate(ds);
-			Tracer.trace("Expression : " + expr.toString()
-					+ " got evaluated to " + val);
+			Tracer.trace("Expression : " + expr.toString() + " got evaluated to " + val);
 		} catch (Exception e) {
-			Tracer.trace(e,
-					"unable to parse/execute expression : " + e.getMessage());
+			Tracer.trace(e, "unable to parse/execute expression : " + e.getMessage());
 		}
 	}
 }

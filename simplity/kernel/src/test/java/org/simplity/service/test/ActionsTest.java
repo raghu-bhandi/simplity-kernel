@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Set;
 
+import javax.naming.directory.DirContext;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +42,7 @@ import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
+import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
 
 public class ActionsTest extends Mockito {
 	private static final String COMP_PATH = "comp/";
@@ -70,6 +72,7 @@ public class ActionsTest extends Mockito {
         final String testFolder = classloader.getResource(".").getPath();		
 		MockitoAnnotations.initMocks(ActionsTest.class);
 		ServletContext context = mock(ServletContext.class);
+		DirContext mockLdapContext = MockInitialDirContextFactory.getLatestMockContext();
 		ComponentType.setComponentFolder(compFolder);
 		FileManager.setContext(context);
 

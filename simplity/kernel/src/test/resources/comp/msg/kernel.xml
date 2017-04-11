@@ -25,11 +25,13 @@
 	<message messageType="error" name="kernel.noService" text="Service $1 is not served by this server."/>
 	<message messageType="error" name="kernel.noAccess" text="Denied access to the service for this user."/>
 
-    <message messageType="error" name="kernel.invalidText" text="We accpet any character up to a max of 3000 of them."/>
+    <message messageType="error" name="kernel.invalidText" text="We accept any character up to a max of 3000 of them."/>
 	<message messageType="error" name="kernel.invalidBoolean" text="1 for true and 0 for false"/>
-	<message messageType="error" name="kernel.invalidDate" text="This is not a vlid date"/>
-	<message messageType="error" name="kernel.invalidDateTime" text="This is not a vlid date and time"/>
+	<message messageType="error" name="kernel.invalidDate" text="This is not a valid date"/>
+	<message messageType="error" name="kernel.invalidDateTime" text="This is not a valid date and time"/>
 	<message messageType="error" name="kernel.invalidNumber" text="This is not valid number"/>
-	<message messageType="error" name="kernel.invalidDecimal" text="This is not a vlid decimal number"/>
+	<message messageType="error" name="kernel.invalidDecimal" text="This is not a valid decimal number"/>
+	
+	<message messageType="error" name="kernel.invalidLogin" text="Login failed"/>	
     </components>
 </messages>

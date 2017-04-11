@@ -305,4 +305,9 @@ public abstract class ServiceProtocol {
 	 *
 	 */
 	public static final String OLD_ATT_TOKEN_SUFFIX = "Old";
+
+	/**
+	 * name of the field in service context that indicates whether this login attempt is by auto-login feature. For example a servce.xml being used as login service can use executeOnCondition="_isAutoLogin"
+	 */
+	public static final String IS_AUTO_LOGIN = "_isAutoLogin";
 }

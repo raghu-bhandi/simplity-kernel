@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	name="login"
+	dbAccessType="none"
+>
+	<inputData>
+		<inputFields>
+			<inputField
+				dataType="_text"
+				name="_userId" />
+			<inputField
+				dataType="_text"
+				name="_userToken" />
+		</inputFields>
+	</inputData>
+	<actions>
+		<log names="_userId,_userToken,_isAutoLogin"/>		
+		<setValue fieldName="isAutoLogin" fieldValue="$_isAutoLogin"></setValue>
+		<ldapAuthenticate
+			actionName="authenticate"
+			credentials="$_userToken"
+			principal="$_userId" executeOnCondition="isAutoLogin==false"/>
+	</actions>
+	<outputData fieldNames="_userId">
+	</outputData>
+</service>

@@ -45,7 +45,7 @@ import org.simplity.kernel.db.DbVendor;
 import org.simplity.kernel.db.SchemaDetail;
 import org.simplity.kernel.file.FileBasedAssistant;
 import org.simplity.kernel.ldap.LdapAgent;
-import org.simplity.kernel.ldap.LdapConfig;
+import org.simplity.kernel.ldap.LdapProperties;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
@@ -316,7 +316,7 @@ public class Application {
 	/**
 	 * Configure the LDAP Setup for the application
 	 */
-	LdapConfig ldapConfig;
+	LdapProperties ldapProperties;
 	/**
 	 * Simplity provides a rudimentary, folder-based system that can be used for
 	 * storing and retrieving attachments. If you want to use that, provide the
@@ -504,9 +504,9 @@ public class Application {
 		/*
 		 * Setup LDAP Agent
 		 */
-		if (this.ldapConfig != null) {
+		if (this.ldapProperties != null) {
 			try {
-				LdapAgent.initialSetup(this.ldapConfig);
+				LdapAgent.initialSetup(this.ldapProperties);
 			} catch (Exception e) {
 				msgs.add("Error while setting up LDAP." + e.getMessage() + " Application will not work properly.");
 			}

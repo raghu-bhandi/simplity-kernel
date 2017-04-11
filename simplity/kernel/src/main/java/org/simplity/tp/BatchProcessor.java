@@ -208,7 +208,7 @@ public class BatchProcessor extends Action {
 			/*
 			 * sql driven. eqvt of one null file to be processed
 			 */
-			files = new File[0];
+			files = new File[1];
 			// files[0] remain as null
 		} else {
 			files = this.getFiles(inFolderName, ctx);
@@ -435,8 +435,12 @@ public class BatchProcessor extends Action {
 		 */
 		private void processAllFiles(DbDriver dbDriver) {
 			for (File file : this.files) {
+				String actualName = null;
+				if(file != null){
+					 file.getName();
+				}
 				if(BatchProcessor.this.setActualFileNameTo != null){
-					this.ctx.setTextValue(BatchProcessor.this.setActualFileNameTo, file.getName());
+					this.ctx.setTextValue(BatchProcessor.this.setActualFileNameTo, actualName);
 				}
 				try {
 					this.nbrRowsProcessed += BatchProcessor.this.batchRowProcessor.process(file, this, dbDriver, this.ctx);
@@ -570,7 +574,11 @@ public class BatchProcessor extends Action {
 			}
 		}
 	}
-
+/**
+ *
+ * @param args
+ * @throws Exception
+ */
 	public static void main(String[] args) throws Exception {
 		String comp = "c:/repos/simplity/examples/WebContent/WEB-INF/comp/";
 		Application.bootStrap(comp);

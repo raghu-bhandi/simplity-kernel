@@ -37,6 +37,8 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.DbRowProcessor;
 import org.simplity.kernel.db.Sql;
+import org.simplity.kernel.expr.Expression;
+import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -86,7 +88,10 @@ public class BatchRowProcessor {
 	 * even if there were no child rows.
 	 */
 	Action actionAfterChildren;
-
+	/**
+	 * if the aggregation process is conditional.
+	 */
+	Expression conditionToAggregate;
 	/**
 	 * @param service
 	 */
@@ -323,6 +328,7 @@ public class BatchRowProcessor {
 				action.act(this.ctx, this.dbDriver);
 			}
 
+
 			this.accumulateAggregators();
 
 			if (this.children != null) {
@@ -346,6 +352,17 @@ public class BatchRowProcessor {
 		protected void accumulateAggregators() {
 			if (this.aggWorkers == null) {
 				return;
+			}
+			Expression condition = BatchRowProcessor.this.conditionToAggregate;
+			if(condition != null){
+				try{
+				Value value = condition.evaluate(this.ctx);
+				if(Value.intepretAsBoolean(value) == false){
+					return;
+				}
+				}catch(InvalidOperationException e){
+					throw new ApplicationError(e, "Error while evaluating expression " + condition);
+				}
 			}
 			for (AggregationWorker agw : this.aggWorkers) {
 				agw.accumulate(this.ctx, this.ctx);
@@ -490,10 +507,8 @@ public class BatchRowProcessor {
 			try {
 				this.processARow();
 				this.writeAggregators();
-			} catch (ApplicationError e) {
-				exception = e;
 			} catch (Exception e) {
-				exception = new ApplicationError(e, "Exception during execution of service. ");
+				exception = e;
 			}
 			this.batchWorker.endTrans(exception, this.dbDriver);
 		}

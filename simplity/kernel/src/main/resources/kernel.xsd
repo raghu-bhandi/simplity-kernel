@@ -1933,13 +1933,27 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="conditionToProcess"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>If there are checks/conditions to ignore/reject a
+						row, specify the expression here. Row that is read is selected for
+						further processing only if this condition evaluates to true
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 
 	<xs:element name="outputFile">
 		<xs:complexType>
 			<xs:attributeGroup ref="flatFileAttributes" />
-			<xs:attribute name="conditionForOutput" type="xs:string">
+			<xs:attribute
+				name="conditionToOutput"
+				type="xs:string"
+			>
 				<xs:annotation>
 					<xs:documentation>if the output row should not be written
 						conditionally. Ensure that this expression evaluates to a boolean
@@ -2124,6 +2138,18 @@
 					<xs:documentation>Use this option to use the result of query as the
 						primary driver for batch processing. Either this is to be
 						specified or inputFile is to be specified
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="conditionToAggregate"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>If there are aggregators, and under some
+						circumstane, you want to proces the row, but not
+						accumulate/aggregate. If specified, the row is aggregated only if
+						this expression evaluates to true;
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
