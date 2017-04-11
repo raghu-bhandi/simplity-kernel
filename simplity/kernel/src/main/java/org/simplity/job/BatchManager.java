@@ -289,7 +289,7 @@ public class BatchManager extends AbstractService implements LogicInterface {
 			}
 			manager.executeAsAction(ctx, null, false);
 
-			MultiRowsSheet ds = (MultiRowsSheet) ctx.getMessagesAsDS();
+			MultiRowsSheet ds = (MultiRowsSheet) ctx.getMessagesAsDs();
 			if (ds.length() > 0) {
 				System.out.println("Messages");
 				System.out.println(ds.toString(FIELD_SEP, ROW_SEP_SEP));

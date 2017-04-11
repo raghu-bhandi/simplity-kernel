@@ -203,7 +203,7 @@ public class ServiceContext extends CommonData {
 	 *
 	 * @return messages
 	 */
-	public DataSheet getMessagesAsDS() {
+	public DataSheet getMessagesAsDs() {
 		String[] columnNames = { "name", "text", "messageType", "fieldName" };
 		Collection<FormattedMessage> msgs = this.getMessages();
 		int nbr = msgs.size();

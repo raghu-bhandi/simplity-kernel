@@ -3116,6 +3116,18 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="conditionToAggregate"
+				type="xs:string"
+			>
+				<xs:annotation>
+					<xs:documentation>If there are aggregators, and under some
+						circumstane, you want to proces the row, but not
+						accumulate/aggregate. If specified, the row is aggregated only if
+						this expression evaluates to true;
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 

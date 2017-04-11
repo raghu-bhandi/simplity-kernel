@@ -435,8 +435,12 @@ public class BatchProcessor extends Action {
 		 */
 		private void processAllFiles(DbDriver dbDriver) {
 			for (File file : this.files) {
+				String actualName = null;
+				if(file != null){
+					 file.getName();
+				}
 				if(BatchProcessor.this.setActualFileNameTo != null){
-					this.ctx.setTextValue(BatchProcessor.this.setActualFileNameTo, file.getName());
+					this.ctx.setTextValue(BatchProcessor.this.setActualFileNameTo, actualName);
 				}
 				try {
 					this.nbrRowsProcessed += BatchProcessor.this.batchRowProcessor.process(file, this, dbDriver, this.ctx);
