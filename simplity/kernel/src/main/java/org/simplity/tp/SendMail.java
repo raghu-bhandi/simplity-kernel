@@ -29,26 +29,32 @@ package org.simplity.tp;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
-import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
+import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 
 public class SendMail extends Action {
 
@@ -60,7 +66,6 @@ public class SendMail extends Action {
 	String attachmentSheetName;
 
 	Content content;
-
 
 	private Properties props = new Properties();
 
@@ -83,11 +88,59 @@ public class SendMail extends Action {
 		mail.bccIds = bccIds;
 		mail.subject = subject;
 
-		try {
-			ctx.setObject("mail", new ByteArrayInputStream(SendMail.serialize(mail)));
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		if(content.type.compareTo(ContentType.TEMPLATE) == 0) {
+			Configuration templateConfiguration = new Configuration();
+
+			try {
+
+				templateConfiguration.setDirectoryForTemplateLoading(new File(content.templatePath));
+				Template template = templateConfiguration.getTemplate(content.template);
+				
+				Map<String, Object> data = new HashMap<String, Object>();
+
+				for(int sheetIndex=0; sheetIndex < content.inputSheetName.length; sheetIndex++) {
+					DataSheet dataSheet = ctx.getDataSheet(content.inputSheetName[sheetIndex]);
+					
+					String[] columnNames = dataSheet.getColumnNames();
+					String[][] rawData = dataSheet.getRawData();
+					
+					if(dataSheet.length() == 1) {
+						for(int i=0; i < dataSheet.width(); i++) {
+							data.put(columnNames[i], rawData[1][i]);
+						}
+					} else {
+						for(int i=0; i < dataSheet.width(); i++) {
+							List<String> rowValues = new ArrayList<String>();
+							for(int j=1; j <= dataSheet.length(); j++) {
+								rowValues.add(rawData[j][i]);
+							}
+							data.put(columnNames[i], rowValues);
+						}
+					}
+				}
+				
+				StringWriter stringWriter = new StringWriter();
+				template.process(data, stringWriter);
+				
+				mail.content = stringWriter.toString();
+				stringWriter.flush();
+				stringWriter.close();
+
+				ctx.setObject("mail", new ByteArrayInputStream(SendMail.serialize(mail)));
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			} catch (TemplateException e) {
+				e.printStackTrace();
+			} 
+		} else if(content.type.compareTo(ContentType.TEXT) == 0) {
+			try {
+				mail.content = content.text;
+				ctx.setObject("mail", new ByteArrayInputStream(SendMail.serialize(mail)));
+			} catch(IOException ioe) {
+				ioe.printStackTrace();
+			}
 		}
+
 		Session session = Session.getInstance(props, null);
 		sendEmail(session, mail);
 
@@ -106,9 +159,10 @@ public class SendMail extends Action {
 			msg.setSubject(mail.subject, "UTF-8");
 			msg.setSentDate(new Date());
 			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
-
+			msg.setContent(mail.content, "text/HTML; charset=UTF-8");
+			
 			msg.writeTo(System.out);
-			Transport.send(msg);
+			//Transport.send(msg);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (MessagingException e) {
@@ -135,7 +189,7 @@ class Mail implements Serializable {
 	public String ccIds;
 	public String bccIds;
 	public String subject;
-	public Content content;
+	public String content;
 	public MailAttachement attachment;
 }
 
@@ -153,7 +207,6 @@ class MailAttachement implements Serializable {
 	}
 }
 
-enum ContentType{
-	TEXT,
-	TEMPLATE
+enum ContentType {
+	TEXT, TEMPLATE
 }

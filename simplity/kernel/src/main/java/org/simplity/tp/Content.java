@@ -1,11 +1,12 @@
 package org.simplity.tp;
 
-public class Content{
+public class Content {
 	ContentType type;
-	String path;
-	String inputSheetName;
+	String templatePath;
+	String template;
+	String[] inputSheetName;
 	String text;
-	
+
 	public Content() {
 	}
 }
