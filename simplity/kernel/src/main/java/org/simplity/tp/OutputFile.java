@@ -65,7 +65,7 @@ public class OutputFile {
 	/**
 	 * in case the row may be written conditionally. Defaults to write always.
 	 */
-	Expression conditionForOutput;
+	Expression conditionToOutput;
 
 
 	/**
@@ -108,7 +108,7 @@ public class OutputFile {
 		}
 
 		void writeOut() throws IOException {
-			Expression expr = OutputFile.this.conditionForOutput;
+			Expression expr = OutputFile.this.conditionToOutput;
 			try {
 				if (expr == null || Value.intepretAsBoolean(expr.evaluate(this.ctx))) {
 					this.writer.write((this.record.formatFlatRow(OutputFile.this.dataFormat, this.ctx)));
