@@ -87,7 +87,7 @@ public class LdapAuthenticate extends Action {
 					e.printStackTrace();
 				}
 		}
-		ctx.setValue(ServiceProtocol.USER_ID, Value.newTextValue(parsedPrincipal));
+		ctx.setValue(ServiceProtocol.USER_ID, Value.newTextValue(parsedPrincipalValue.toText()));
 		return Value.VALUE_TRUE;
 	}
 	
