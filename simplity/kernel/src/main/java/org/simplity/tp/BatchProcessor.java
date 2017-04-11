@@ -208,7 +208,7 @@ public class BatchProcessor extends Action {
 			/*
 			 * sql driven. eqvt of one null file to be processed
 			 */
-			files = new File[0];
+			files = new File[1];
 			// files[0] remain as null
 		} else {
 			files = this.getFiles(inFolderName, ctx);

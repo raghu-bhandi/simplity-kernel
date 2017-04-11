@@ -24,12 +24,15 @@
 			dbAccessType="none"
 			serviceOnInvalidInput="fileactions.processErrorRow"
 			serviceOnErrorAtRowLevel="fileactions.processErrorRow"
+			
 		>
+		
 			<batchRowProcessor>
-				<inputFile
+			
+				<inputFile 
 					recordName="files.fixed"
 					fileName="$inputfilename"
-					dataFormat="fixedWidth" />
+					dataFormat="fixedWidth"/>
 				<outputFile
 					recordName="files.fixed"
 					fileName="{name}.{ext}"
