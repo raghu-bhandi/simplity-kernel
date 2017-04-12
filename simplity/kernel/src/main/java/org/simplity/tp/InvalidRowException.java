@@ -32,6 +32,19 @@ public class InvalidRowException extends Exception {
 	/**
 	 *
 	 */
+	public InvalidRowException(){
+		super("Input data does not conform to specified data type and format");
+	}
+	/**
+	 *
+	 * @param msg
+	 */
+	public InvalidRowException(String msg){
+		super(msg);
+	}
+	/**
+	 *
+	 */
 	private static final long serialVersionUID = 1L;
 //
 }
