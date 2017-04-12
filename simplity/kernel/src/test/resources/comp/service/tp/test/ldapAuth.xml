@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <service
 	xmlns="http://www.simplity.org/schema"
+	moduleName="test"
 	name="ldapAuth"
 	dbAccessType="none">
 	<inputData>
@@ -18,7 +19,6 @@
 			fieldName="isAutoLogin"
 			fieldValue="$_isAutoLogin"></setValue>
 		<ldapAuthenticate
-			actionName="authenticate"
 			credentials="$_userToken"
 			principal="$_userId"
 			executeOnCondition="isAutoLogin==false" />
