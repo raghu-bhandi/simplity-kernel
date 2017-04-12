@@ -41,12 +41,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
@@ -140,7 +147,17 @@ public class SendMail extends Action {
 				ioe.printStackTrace();
 			}
 		}
-
+		
+		DataSheet attachmentDataSheet = ctx.getDataSheet(attachmentSheetName);
+		String[][] rawData = attachmentDataSheet.getRawData();
+		mail.attachment = new MailAttachement[attachmentDataSheet.length()];
+		
+		for(int i=0; i < attachmentDataSheet.length(); i++) {
+			mail.attachment[i] = new MailAttachement();
+			mail.attachment[i].filename = rawData[i+1][0];
+			mail.attachment[i].filepath = rawData[i+1][1];
+		}
+		
 		Session session = Session.getInstance(props, null);
 		sendEmail(session, mail);
 
@@ -159,8 +176,25 @@ public class SendMail extends Action {
 			msg.setSubject(mail.subject, "UTF-8");
 			msg.setSentDate(new Date());
 			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
-			msg.setContent(mail.content, "text/HTML; charset=UTF-8");
+			//msg.setContent(mail.content, "text/HTML; charset=UTF-8");
 			
+			Multipart multipart = new MimeMultipart();
+			
+			BodyPart bodyPart = new MimeBodyPart();
+			bodyPart.setContent(mail.content, "text/HTML; charset=UTF-8");
+			multipart.addBodyPart(bodyPart);
+			
+			DataSource dataSource = null;
+			
+			for(int i=0; i < mail.attachment.length; i++) {
+				bodyPart = new MimeBodyPart();
+				dataSource = new FileDataSource(mail.attachment[i].filepath);
+				bodyPart.setDataHandler(new DataHandler(dataSource));
+				bodyPart.setFileName(mail.attachment[i].filename);
+	            multipart.addBodyPart(bodyPart);
+			}
+			
+            msg.setContent(multipart);
 			msg.writeTo(System.out);
 			//Transport.send(msg);
 		} catch (IOException e) {
@@ -190,18 +224,18 @@ class Mail implements Serializable {
 	public String bccIds;
 	public String subject;
 	public String content;
-	public MailAttachement attachment;
+	public MailAttachement[] attachment;
 }
 
 class MailAttachement implements Serializable {
 
 	private static final long serialVersionUID = 8189730674999834850L;
-
-	public String filekey;
+	
 	public String filename;
-
+	public String filepath;
+	
 	public boolean isEmpty() {
-		if (filekey == null || filekey.isEmpty())
+		if (filename == null || filename.isEmpty())
 			return true;
 		return false;
 	}

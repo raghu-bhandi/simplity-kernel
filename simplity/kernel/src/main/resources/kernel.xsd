@@ -1750,6 +1750,12 @@
 			<xs:enumeration value="text" />
 			<xs:enumeration value="template" />
 		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="attachmenttype">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="inline" />
+			<xs:enumeration value="regular" />
+		</xs:restriction>
 	</xs:simpleType>	
 	<xs:complexType name="sendMail">
 		<xs:sequence>
