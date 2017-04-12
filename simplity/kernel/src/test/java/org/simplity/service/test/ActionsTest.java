@@ -13,7 +13,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Set;
 
-import javax.naming.directory.DirContext;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +41,6 @@ import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
-import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
 
 public class ActionsTest extends Mockito {
 	private static final String COMP_PATH = "comp/";
@@ -72,7 +70,6 @@ public class ActionsTest extends Mockito {
         final String testFolder = classloader.getResource(".").getPath();		
 		MockitoAnnotations.initMocks(ActionsTest.class);
 		ServletContext context = mock(ServletContext.class);
-		DirContext mockLdapContext = MockInitialDirContextFactory.getLatestMockContext();
 		ComponentType.setComponentFolder(compFolder);
 		FileManager.setContext(context);
 
@@ -101,6 +98,7 @@ public class ActionsTest extends Mockito {
 						.listFiles(new File(TestUtils.getFile((String) invocation.getArguments()[0], testFolder)));
 			}
 		});
+
 
 		Application app = new Application();
 		XmlUtil.xmlToObject(compFolder + "applicationH2.xml", app);
@@ -375,6 +373,14 @@ public class ActionsTest extends Mockito {
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Students")).get(0)).get("name"), "Sham");
 	}
+
+	@Test
+	public void ldapAuthenticateTest() {
+		String payLoad = "{'_userId':'winner',_userToken':'pwd'}";
+		ServiceData outData = serviceAgentSetup("test.ldapAuth",payLoad);
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals((String) obj.get("_userId"), "winner");
+	}
 	
 	/**
 	 * Test method for {@link org.simplity.kernel.util.XmlUtil#xmlToObject(java.io.InputStream, java.lang.Object)}.
@@ -397,4 +403,5 @@ public class ActionsTest extends Mockito {
 		
 	}
 
+	
 }
