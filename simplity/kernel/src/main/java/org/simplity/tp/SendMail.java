@@ -176,6 +176,8 @@ public class SendMail extends Action {
 			msg.setSubject(mail.subject, "UTF-8");
 			msg.setSentDate(new Date());
 			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
+			msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(mail.ccIds, false));
+			msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(mail.bccIds, false));
 			//msg.setContent(mail.content, "text/HTML; charset=UTF-8");
 			
 			Multipart multipart = new MimeMultipart();
@@ -196,7 +198,7 @@ public class SendMail extends Action {
 			
             msg.setContent(multipart);
 			msg.writeTo(System.out);
-			//Transport.send(msg);
+			Transport.send(msg);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (MessagingException e) {
