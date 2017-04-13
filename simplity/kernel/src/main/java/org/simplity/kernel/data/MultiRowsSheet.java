@@ -35,6 +35,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.ArrayUtil;
+import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
@@ -627,66 +628,99 @@ public class MultiRowsSheet implements DataSheet {
 	}
 
 	/**
-	 * @return widths of columns in case this used for fixed-width fomtting
+	 * @return widths of columns in case this used for fixed-width formatting
 	 */
 	public int[] getWidths() {
 		return this.columnWidths;
 	}
 
-	@Override
-	public String[] columnToArray(DataSheet ds,String columnName) {
+	//@Override
+	public List<Object> columnToList(DataSheet ds,String columnName) {
 		Value[] columnValues = ds.getColumnValues(columnName);
-		String[] colArray = this.rowToText(columnValues); 
-		return colArray;
-	}
-
-	@Override
-	public List<Value> columnToList(DataSheet ds,String columnName) {
-		Value[] columnValues = ds.getColumnValues(columnName);
-		List<Value> list = new ArrayList<Value>();
+		List<Object> list = new ArrayList<Object>();
 		for(Value value:columnValues){
 			list.add(value);
 		}
 		return list;
 	}
 
-	@Override
-	public Set<Value> columnToSet(DataSheet ds,String columnName) {
+	//@Override
+	public Set<Object> columnToSet(DataSheet ds,String columnName) {
 		Value[] columnValues = ds.getColumnValues(columnName);
-		Set<Value> set = new HashSet<Value>();
+		Set<Object> set = new HashSet<Object>();
 		for(Value value:columnValues){
 			set.add(value);
 		}
 		return set;
 	}
 
-	@Override
-	public Map<Value,Value> columnsAsMap(DataSheet ds,String keyColumnName, String valueColumnName) {
+	//@Override
+	public Map<String,Object> columnsAsMap(DataSheet ds,String keyColumnName, String valueColumnName) {
 		Value[] keys = ds.getColumnValues(keyColumnName);
-		Value[] values = ds.getColumnValues(valueColumnName);
-		Map<Value,Value> map = new HashMap<Value,Value>();
-		for(int i=0;i<keys.length;i++){
-			map.put(keys[i], values[i]);
+		Value[] values = ds.getColumnValues(valueColumnName);		
+		Map<String,Object> map = new HashMap<String, Object>();
+		for(int i=0;i<keys.length;i++){				
+			try {
+				switch (values[i].getValueType()){
+				case BLOB:{	
+					map.put(keys[i].toString(),values[i].toObject());
+					break;
+				}
+				case CLOB:{	
+					map.put(keys[i].toString(),values[i].toObject());
+					break;
+				}
+				case DECIMAL:{
+						map.put(keys[i].toString(),values[i].toDecimal());
+					break;
+				}
+				case BOOLEAN:{
+					map.put(keys[i].toString(),values[i].toBoolean());
+					break;
+				}
+				case DATE:{
+					map.put(keys[i].toString(),values[i].toDate());
+					break;
+				}
+				case INTEGER:{
+					map.put(keys[i].toString(),values[i].toInteger());
+					break;
+				}
+				case TEXT:{
+					map.put(keys[i].toString(),values[i].toText());
+					break;
+				}
+				case TIMESTAMP:{
+					map.put(keys[i].toString(),values[i].toDate());
+					break;
+				}
+				};
+			} catch (InvalidValueException e) {
+				throw new ApplicationError(e,"Error while converting Datasheet to Map");
+			}
+			
 		}
 		return map;
 	}
 
-	@Override
-	public List datasheetToList(DataSheet ds) {
-		List sheetlist = new ArrayList();
-		for(String[] row:ds.getRawData()){
-			List<String> rowList = new ArrayList<String>();
-			for(String value:row){
-				rowList.add(value);
+	//@Override
+	public List<Object> datasheetToList(DataSheet ds,String className) {
+		/*Object obj = Class.forName(className).newInstance();
+		java.lang.reflect.Field[] fields = Class.forName(className).getDeclaredFields();*/
+		List<Object> sheetlist = new ArrayList<Object>();
+		List<Value[]> rowList = ds.getAllRows();		
+		for(Value[] row:rowList){			
+			for(Value value:row){
+				
 			}
 			sheetlist.add(rowList);
 		}
 		return sheetlist;
 	}
 
-	@Override
-	public Set datasheetToSet(DataSheet ds) {
-		Set sheetSet = new HashSet();
+	//@Override
+	public Set<Object> datasheetToSet(DataSheet ds,String className) {
+		Set<Object> sheetSet = new HashSet<Object>();
 		for(String[] row:ds.getRawData()){
 			Set<String> rowSet = new HashSet<String>();
 			for(String value:row){
@@ -697,20 +731,20 @@ public class MultiRowsSheet implements DataSheet {
 		return sheetSet;
 	}
 
-	@Override
-	public DataSheet arrayToDatasheet(String[] arr,String columnName) {
+	//@Override
+	public DataSheet arrayToDatasheet(Object[] arr,String columnName) {
 		String[] header = {columnName};
 		ValueType[] valueTypes = {ValueType.TEXT};
 		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
-		for(String value:arr){
+		for(Object value:arr){
 			Value[] valarray = new Value[1];
-			valarray[0] = Value.newTextValue(value);
+			valarray[0] = Value.newTextValue(value.toString());
 			sheet.addRow(valarray);
 		}
 		return sheet;
 	}
 
-	@Override
+	//@Override
 	public DataSheet listToDatasheet(List<Object> list,String columnName) {
 		String[] header = {columnName};
 		ValueType[] valueTypes = {ValueType.TEXT};
@@ -723,7 +757,7 @@ public class MultiRowsSheet implements DataSheet {
 		return sheet;
 	}
 
-	@Override
+	//@Override
 	public DataSheet setToDatasheet(Set<Object> set,String columnName) {
 		String[] header = {columnName};
 		ValueType[] valueTypes = {ValueType.TEXT};
@@ -736,7 +770,7 @@ public class MultiRowsSheet implements DataSheet {
 		return sheet;
 	}
 
-	@Override
+	//@Override
 	public DataSheet mapToDatasheet(HashMap<Object,Object> map, boolean transpose) {
 		if(transpose){
 			String[] columnNames = {};

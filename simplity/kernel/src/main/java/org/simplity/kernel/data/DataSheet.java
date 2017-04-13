@@ -21,7 +21,6 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -206,19 +205,31 @@ public interface DataSheet extends FieldsInterface, Iterable<FieldsInterface> {
 			DataSerializationType serializationType,
 			boolean replaceExistingRows);
 	
-	public String[] columnToArray(DataSheet ds,String columnName);
-	public List columnToList(DataSheet ds,String columnName);
+	/*public List columnToList(DataSheet ds,String columnName);
 	public Set columnToSet(DataSheet ds,String columnName);
-	public Map<Value,Value> columnsAsMap(DataSheet ds,String keyColumnName,String valueColumnName);
+	public Map<String,Object> columnsAsMap(DataSheet ds,String keyColumnName,String valueColumnName);
 	
-	public List datasheetToList(DataSheet ds);
-	public Set datasheetToSet(DataSheet ds);
+	public List datasheetToList(DataSheet ds,String className);
+	public Set datasheetToSet(DataSheet ds,String className);
 	
-	public DataSheet arrayToDatasheet(String[] arr,String columnName);
+	public DataSheet arrayToDatasheet(Object[] arr,String columnName);
 	public DataSheet listToDatasheet(List<Object> list,String columnName);
 	public DataSheet setToDatasheet(Set<Object> set,String columnName);
 	
-	public DataSheet mapToDatasheet(HashMap<Object,Object> map,boolean transpose);
+	*//**
+	 * writes the map data to a MultiRowsSheet
+	 * 
+	 * @param map
+	 * 			map
+	 * @param transpose
+	 * 		    If transpose = true, 
+	 * 				the output datasheet will be a SingleRowDataSheet with keys as the column and values as the row. 
+	 * 			If transpose = false, 
+	 * 				the output datasheet will be MultiRowDatasheet with columns as "Key","Value" and corresponding rows.
+	 * @return
+	 * 		DataSheet
+	 *//*
+	public DataSheet mapToDatasheet(HashMap<Object,Object> map,boolean transpose);*/
 	
 	
 }
