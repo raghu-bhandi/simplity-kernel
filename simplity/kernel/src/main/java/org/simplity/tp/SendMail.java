@@ -199,6 +199,7 @@ public class SendMail extends Action {
             msg.setContent(multipart);
 			msg.writeTo(System.out);
 			Transport.send(msg);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (MessagingException e) {
