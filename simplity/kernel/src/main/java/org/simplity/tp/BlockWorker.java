@@ -182,14 +182,10 @@ public class BlockWorker implements DbClientInterface, MessageClient {
 				throw new ApplicationError(result
 						+ " is not a valid action to jump to.");
 			}
-
 		}
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.simplity.jms.MessageClient#process(org.simplity.service.ServiceContext)
-	 */
 	@Override
 	public boolean process(ServiceContext sameCtxComingBack) {
 		JumpSignal signal = this.execute(this.initialDriver);
@@ -199,9 +195,6 @@ public class BlockWorker implements DbClientInterface, MessageClient {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.simplity.jms.MessageClient#toContinue()
-	 */
 	@Override
 	public boolean toContinue() {
 		return this.keepGoing;
