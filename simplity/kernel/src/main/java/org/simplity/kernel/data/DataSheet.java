@@ -21,6 +21,8 @@
  */
 package org.simplity.kernel.data;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -203,4 +205,20 @@ public interface DataSheet extends FieldsInterface, Iterable<FieldsInterface> {
 	public void fromSerializedText(String text,
 			DataSerializationType serializationType,
 			boolean replaceExistingRows);
+	
+	public String[] columnToArray(DataSheet ds,String columnName);
+	public List columnToList(DataSheet ds,String columnName);
+	public Set columnToSet(DataSheet ds,String columnName);
+	public Map<Value,Value> columnsAsMap(DataSheet ds,String keyColumnName,String valueColumnName);
+	
+	public List datasheetToList(DataSheet ds);
+	public Set datasheetToSet(DataSheet ds);
+	
+	public DataSheet arrayToDatasheet(String[] arr,String columnName);
+	public DataSheet listToDatasheet(List<Object> list,String columnName);
+	public DataSheet setToDatasheet(Set<Object> set,String columnName);
+	
+	public DataSheet mapToDatasheet(HashMap<Object,Object> map,boolean transpose);
+	
+	
 }

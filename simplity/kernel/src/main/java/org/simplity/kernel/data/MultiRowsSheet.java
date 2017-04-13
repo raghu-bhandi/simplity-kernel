@@ -22,6 +22,7 @@
 package org.simplity.kernel.data;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -631,4 +632,138 @@ public class MultiRowsSheet implements DataSheet {
 	public int[] getWidths() {
 		return this.columnWidths;
 	}
+
+	@Override
+	public String[] columnToArray(DataSheet ds,String columnName) {
+		Value[] columnValues = ds.getColumnValues(columnName);
+		String[] colArray = this.rowToText(columnValues); 
+		return colArray;
+	}
+
+	@Override
+	public List<Value> columnToList(DataSheet ds,String columnName) {
+		Value[] columnValues = ds.getColumnValues(columnName);
+		List<Value> list = new ArrayList<Value>();
+		for(Value value:columnValues){
+			list.add(value);
+		}
+		return list;
+	}
+
+	@Override
+	public Set<Value> columnToSet(DataSheet ds,String columnName) {
+		Value[] columnValues = ds.getColumnValues(columnName);
+		Set<Value> set = new HashSet<Value>();
+		for(Value value:columnValues){
+			set.add(value);
+		}
+		return set;
+	}
+
+	@Override
+	public Map<Value,Value> columnsAsMap(DataSheet ds,String keyColumnName, String valueColumnName) {
+		Value[] keys = ds.getColumnValues(keyColumnName);
+		Value[] values = ds.getColumnValues(valueColumnName);
+		Map<Value,Value> map = new HashMap<Value,Value>();
+		for(int i=0;i<keys.length;i++){
+			map.put(keys[i], values[i]);
+		}
+		return map;
+	}
+
+	@Override
+	public List datasheetToList(DataSheet ds) {
+		List sheetlist = new ArrayList();
+		for(String[] row:ds.getRawData()){
+			List<String> rowList = new ArrayList<String>();
+			for(String value:row){
+				rowList.add(value);
+			}
+			sheetlist.add(rowList);
+		}
+		return sheetlist;
+	}
+
+	@Override
+	public Set datasheetToSet(DataSheet ds) {
+		Set sheetSet = new HashSet();
+		for(String[] row:ds.getRawData()){
+			Set<String> rowSet = new HashSet<String>();
+			for(String value:row){
+				rowSet.add(value);
+			}
+			sheetSet.add(rowSet);
+		}
+		return sheetSet;
+	}
+
+	@Override
+	public DataSheet arrayToDatasheet(String[] arr,String columnName) {
+		String[] header = {columnName};
+		ValueType[] valueTypes = {ValueType.TEXT};
+		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
+		for(String value:arr){
+			Value[] valarray = new Value[1];
+			valarray[0] = Value.newTextValue(value);
+			sheet.addRow(valarray);
+		}
+		return sheet;
+	}
+
+	@Override
+	public DataSheet listToDatasheet(List<Object> list,String columnName) {
+		String[] header = {columnName};
+		ValueType[] valueTypes = {ValueType.TEXT};
+		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
+		for(Object value:list){
+			Value[] valarray = new Value[1];
+			valarray[0] = Value.newTextValue(value.toString());
+			sheet.addRow(valarray);
+		}
+		return sheet;
+	}
+
+	@Override
+	public DataSheet setToDatasheet(Set<Object> set,String columnName) {
+		String[] header = {columnName};
+		ValueType[] valueTypes = {ValueType.TEXT};
+		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
+		for(Object value:set){
+			Value[] valarray = new Value[1];
+			valarray[0] = Value.newTextValue(value.toString());
+			sheet.addRow(valarray);
+		}
+		return sheet;
+	}
+
+	@Override
+	public DataSheet mapToDatasheet(HashMap<Object,Object> map, boolean transpose) {
+		if(transpose){
+			String[] columnNames = {};
+			ValueType[] valueTypes = {};
+			Value[] row = new Value[map.size()];
+			int i=0;
+			for(Object key:map.keySet()){
+				columnNames[i] = key.toString();
+				valueTypes[i] = ValueType.TEXT;
+				row[i] = Value.newTextValue(map.get(key).toString());
+				i++;
+			}
+			SingleRowSheet singleRow = new SingleRowSheet(columnNames, valueTypes);
+			singleRow.addRow(row);
+			return singleRow;
+		}
+		String[] columnNames = {"key","value"};
+		ValueType[] valueTypes = {ValueType.TEXT,ValueType.TEXT};
+		MultiRowsSheet multirowsSheet = new MultiRowsSheet(columnNames, valueTypes);
+		for(Object key:map.keySet()){
+			Value[] row = new Value[2];
+			row[0] = Value.newTextValue(key.toString());
+			row[1] = Value.newTextValue(map.get(key).toString());
+			multirowsSheet.addRow(row);
+		}
+		return multirowsSheet;
+	}
+
+
 }

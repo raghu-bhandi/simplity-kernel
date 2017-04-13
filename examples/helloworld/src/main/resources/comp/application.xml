@@ -11,10 +11,10 @@
 >
 	<ldapProperties
 		factory="com.sun.jndi.ldap.LdapCtxFactory"
-		credentials="XXXX"
+		credentials="Renew@2020"
 		authentication="Simple"
 		ldapurl="ldap://192.168.200.57:3268/"
-		principal="XXXX" />
+		principal="ENCORE@ITLINFOSYS" />
 	<schemaDetails>
 		<schemaDetail
 			schemaName="testSchema"
