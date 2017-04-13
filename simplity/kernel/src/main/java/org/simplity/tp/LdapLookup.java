@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.TreeSet;
 
+import javax.jms.TextMessage;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -34,8 +35,11 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.Tracer;
+import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.DataExtractor;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -43,8 +47,14 @@ import org.simplity.service.ServiceContext;
  *
  */
 public class LdapLookup extends Action {
-	protected String attributesRecName;
-	
+	String objectId;
+	String attrName;
+	String fieldName;
+	/**
+	 * object instance for re-use
+	 */
+	private DataExtractor dataExtractor;
+
 	DirContext ldapCtx;
 
 	@Override
@@ -52,10 +62,9 @@ public class LdapLookup extends Action {
 		Hashtable<String, String> env = new Hashtable<String, String>(11);
 		try {
 			// Create initial context
-			DirContext ldapCtx = LdapAgent.getInitialDirContext();
-
-			
-			// Close the context when we're done
+			ldapCtx = LdapAgent.getInitialDirContext();
+			Attribute attr = this.getAttribute(objectId, attrName);
+			this.extractAttributes(attr, ctx);
 			ldapCtx.close();
 		} catch (NamingException e) {
 			e.printStackTrace();
@@ -63,158 +72,145 @@ public class LdapLookup extends Action {
 		return Value.VALUE_TRUE;
 	}
 
+	private void extractAttributes(Attribute attr, ServiceContext ctx) {		
+			try {
+				NamingEnumeration<?> attrAll = attr.getAll();
+
+				if (attrAll != null) {
+					while (attrAll.hasMore()) {
+						ctx.setTextValue(this.fieldName, attrAll.next().toString());
+					}
+				}
+			} catch (NamingException e) {
+				throw new ApplicationError(e, "Unable to extract the attributes for the lookup");
+			}
+			return;
+	}
+
 	public Attributes getAllAttributes(String name) throws NamingException {
 		return ldapCtx.getAttributes(name);
 	}
+
+	public NamingEnumeration getAttributes(String userId) {
+		Attributes attrs = null;
+		NamingEnumeration neAttrs = null;
+		try {
+			attrs = ldapCtx.getAttributes(userId);
+			neAttrs = attrs.getAll();
+		} catch (NamingException ne) {
+			throw new ApplicationError("LdapRead: Problem getting Attributes; " + ne.getMessage());
+		}
+		return neAttrs;
+	}
+
+	public NamingEnumeration getAttributes(String userId, String attrIDs[]) {
+		Attributes attrs = null;
+		NamingEnumeration neAttrs = null;
+		try {
+			attrs = ldapCtx.getAttributes(userId, attrIDs);
+			neAttrs = attrs.getAll();
+		} catch (NamingException ne) {
+			throw new ApplicationError("LdapRead: Problem getting Attributes; " + ne.getMessage());
+		}
+		return neAttrs;
+	}
+
+	public Object getSingleValueOfAttribute(Attribute a) {
+		Object attrValue;
+		try {
+			attrValue = a.get();
+		} catch (Exception npe) {
+			throw new ApplicationError("LdapRead: Problem getting Attribute; " + npe.getMessage());
+		}
+		return attrValue;
+	}
+
+	public Object getSingleValueOfAttribute(String userId, String attrName) {
+		Attributes attrs = null;
+		Object attrValue = null;
+		Attribute a = null;
+		try {
+			attrs = ldapCtx.getAttributes(userId);
+			a = attrs.get(attrName);
+			attrValue = getSingleValueOfAttribute(a);
+		} catch (Exception npe) {
+			throw new ApplicationError("LdapRead: Problem getting Attribute" + npe.getMessage());
+		}
+		return attrValue;
+	}
+
+	public Attribute getAttribute(String objectId, String attrName) {
+		Attributes attrs = null;
+		Attribute a = null;
+		try {
+			attrs = ldapCtx.getAttributes(objectId);
+		} catch (NamingException ne) {
+			throw new ApplicationError("LdapRead: Object " + objectId + " does not exist ");
+		}
+		try {
+			a = attrs.get(attrName);
+		} catch (NullPointerException npe) {
+			throw new ApplicationError("LdapRead:  Attribute " + attrName + " is not set ");
+		}
+		return a;
+	}
+
+	public Collection getAttributeValues(String objectId, String attrName) {
+		TreeSet valueList = new TreeSet();
+		NamingEnumeration ne = null;
+		Attribute at = null;
+		try {
+			at = getAttribute(objectId, attrName);
+			if (at == null)
+				return valueList;
+			for (ne = at.getAll(); ne.hasMore(); valueList.add(ne.next()))
+				;
+		} catch (NamingException nep) {
+			throw new ApplicationError("LdapRead: getAttributeValues failed");
+		}
+		return valueList;
+	}
+
+	public boolean doesObjectExist(String name) {
+		try {
+			return lookup(name) != null;
+		} catch (NamingException ne) {
+			return false;
+		}
+	}
+
+	private Object lookup(String name) throws NamingException {
+		return ldapCtx.lookup(name);
+	}
+
+	public NamingEnumeration getObjects(String base, String filter, SearchControls controls) {
+		NamingEnumeration answer = null;
+		try {
+			answer = ldapCtx.search(base, filter, controls);
+		} catch (NamingException ne) {
+			throw new ApplicationError("LdapRead : NamingException" + ne.getMessage());
+		}
+		return answer;
+	}
+
+	@Override
+	public void getReady(int idx, Service service) {
+		super.getReady(idx, service);
 	
-    public NamingEnumeration getAttributes(String userId)
-        {
-            Attributes attrs = null;
-            NamingEnumeration neAttrs = null;
-            try
-            {
-                attrs = ldapCtx.getAttributes(userId);
-                neAttrs = attrs.getAll();
-            }
-            catch(NamingException ne)
-            {
-                throw new ApplicationError("LdapRead: Problem getting Attributes; "+ ne.getMessage());
-            }
-            return neAttrs;
-        }	
-    public NamingEnumeration getAttributes(String userId, String attrIDs[])
-        {
-            Attributes attrs = null;
-            NamingEnumeration neAttrs = null;
-            try
-            {
-                attrs = ldapCtx.getAttributes(userId, attrIDs);
-                neAttrs = attrs.getAll();
-            }
-            catch(NamingException ne)
-            {
-                throw new ApplicationError("LdapRead: Problem getting Attributes; "+ ne.getMessage());
-            }
-            return neAttrs;
-        }    
-    public Object getSingleValueOfAttribute(Attribute a)
-        {
-            Object attrValue;
-            try
-            {
-                attrValue = a.get();
-            }
-            catch(Exception npe)
-            {
-                throw new ApplicationError("LdapRead: Problem getting Attribute; "+ npe.getMessage());
-            }
-            return attrValue;
-        }    
-    
-    public Object getSingleValueOfAttribute(String userId, String attrName)
-        {
-            Attributes attrs = null;
-            Object attrValue = null;
-            Attribute a = null;
-            try
-            {
-                attrs = ldapCtx.getAttributes(userId);
-                a = attrs.get(attrName);
-                attrValue = getSingleValueOfAttribute(a);
-            }
-            catch(Exception npe)
-            {
-                throw new ApplicationError("LdapRead: Problem getting Attribute"+ npe.getMessage());
-            }
-            return attrValue;
-        }    
-    
-    public Attribute getAttribute(String objectId, String attrName)
-        {
-            Attributes attrs = null;
-            Attribute a = null;
-            try
-            {
-                attrs = ldapCtx.getAttributes(objectId);
-            }
-            catch(NamingException ne)
-            {
-                throw new ApplicationError("LdapRead: Object " + objectId + " does not exist ");
-            }
-            try
-            {
-                a = attrs.get(attrName);
-            }
-            catch(NullPointerException npe)
-            {
-                throw new ApplicationError("LdapRead:  Attribute " + attrName + " is not set ");
-            }
-            return a;
-        }
+	}
 
-        public Attribute getAttribute(Attributes attributes, String attrName)
-        {
-            Attribute a = null;
-            try
-            {
-                a = attributes.get(attrName);
-            }
-            catch(NullPointerException npe)
-            {
-                throw new ApplicationError("LdapRead:  Attribute " + attrName + " is not set ");
-            }
-            return a;
-        }
+	@Override
+	public int validate(ValidationContext ctx, Service service) {
+		int count = super.validate(ctx, service);
+		if (this.objectId == null) {
+			ctx.addError("objectId is required");
+			count++;
+		}
+		if (this.attrName == null) {
+			ctx.addError("attrName is required");
+			count++;
+		}
+		return count;
 
-        public Collection getAttributeValues(String objectId, String attrName)
-        {
-            TreeSet valueList = new TreeSet();
-            NamingEnumeration ne = null;
-            Attribute at = null;
-            try
-            {
-                at = getAttribute(objectId, attrName);
-                if(at == null)
-                    return valueList;
-                for(ne = at.getAll(); ne.hasMore(); valueList.add(ne.next()));
-            }
-            catch(NamingException nep)
-            {
-                throw new ApplicationError("LdapRead: getAttributeValues failed");
-            }
-            return valueList;
-        }
-
-        public boolean doesObjectExist(String name)
-        {
-            try
-            {
-                return lookup(name) != null;
-            }
-            catch(NamingException ne)
-            {
-                return false;
-            }
-        }
-
-
-        private Object lookup(String name)
-            throws NamingException
-        {
-            return ldapCtx.lookup(name);
-        }
-
-        public NamingEnumeration getObjects(String base, String filter, SearchControls controls)
-        {
-            NamingEnumeration answer = null;
-            try
-            {
-                answer = ldapCtx.search(base, filter, controls);
-            }
-            catch(NamingException ne)
-            {
-                throw new ApplicationError("LdapRead : NamingException"+ ne.getMessage());
-            }
-            return answer;
-        }    
+	}
 }

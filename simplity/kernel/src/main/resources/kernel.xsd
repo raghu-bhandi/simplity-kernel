@@ -998,9 +998,8 @@
 			</xs:enumeration>
 			<xs:enumeration value="readWrite">
 				<xs:annotation>
-					<xs:documentation>database is updated as a single transaction.
-						It is
-						committed or rolled back at the end of this service
+					<xs:documentation>database is updated as a single transaction. It
+						is committed or rolled back at the end of this service
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
@@ -1015,16 +1014,14 @@
 			<xs:enumeration value="subService">
 				<xs:annotation>
 					<xs:documentation>No database use by actions, except for
-						sub-service-actions. Each of the sub-service will manage its
-						own
+						sub-service-actions. Each of the sub-service will manage its own
 						transaction.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:enumeration>
 			<xs:enumeration value="external">
 				<xs:annotation>
-					<xs:documentation>we do read_write, but the transaction is
-						managed
+					<xs:documentation>we do read_write, but the transaction is managed
 						externally, like JTA/JCA/XA
 					</xs:documentation>
 				</xs:annotation>
@@ -1109,10 +1106,8 @@
 			<xs:annotation>
 				<xs:documentation>Name of the field to which the pay-load is
 					assigned to. If this feature is used, pay-load is not parsed at
-					all,
-					but simply assigned to the field as it is. It is assumed that
-					the
-					service actions will take care of it
+					all, but simply assigned to the field as it is. It is assumed that
+					the service actions will take care of it
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1220,10 +1215,8 @@
 			type="xs:string"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					Use this feature is the service has already
-					prepared a pay-load.
-					Content of this field is used as pay-load.
+				<xs:documentation> Use this feature is the service has already
+					prepared a pay-load. Content of this field is used as pay-load.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1232,12 +1225,9 @@
 			type="booleanType"
 		>
 			<xs:annotation>
-				<xs:documentation>
-					Do not use this for any business service. To be
-					used for testing
-					purposes, and by utility services. all values,
-					arrays and data
-					sheet are written out as paylaod
+				<xs:documentation> Do not use this for any business service. To be
+					used for testing purposes, and by utility services. all values,
+					arrays and data sheet are written out as paylaod
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -1910,8 +1900,6 @@
 		</xs:attribute>
 	</xs:complexType>
 
-
-
 	<xs:complexType name="executeSp">
 		<xs:attributeGroup ref="dbActionAttributes" />
 		<xs:attribute
@@ -2282,12 +2270,16 @@
 			type="xs:NCName"
 			use="optional" />
 	</xs:complexType>
-	<xs:complexType name="ldapAuth">
+	<xs:complexType name="ldapAuthenticate">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
-			name="providerUrl"
+			name="principal"
 			type="xs:string"
 			use="required" />
+		<xs:attribute
+			name="credentials"
+			type="xs:string"
+			use="required" />			
 	</xs:complexType>
 	<xs:complexType name="logic">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -2410,7 +2402,6 @@
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
-
 
 	<xs:complexType name="read">
 		<xs:sequence>
@@ -2752,16 +2743,11 @@
 				<xs:documentation>For primary input file, this is the
 					file-name-pattern as a regular expression. This is NOT wild card.
 					If there is only one file, you may use $fieldName, @propertyName as
-					well.
-					For child-file, this may be expressed as part of the main file
-					name.
-					{name} and {ext} will stand for name and extension of primary
-					file.
-					or an output file, the reference file is always the
-					corresponding
-					input file. The file name is relative to the
-					rootFolder as
-					specified in batchProcess.
+					well. For child-file, this may be expressed as part of the main
+					file name. {name} and {ext} will stand for name and extension of
+					primary file. or an output file, the reference file is always the
+					corresponding input file. The file name is relative to the
+					rootFolder as specified in batchProcess.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2809,8 +2795,7 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Required if linkFieldsInThisRow is specified.
-						This
-						is the list of fields in the parent record to be matched
+						This is the list of fields in the parent record to be matched
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2822,8 +2807,7 @@
 				<xs:annotation>
 					<xs:documentation>name of file relative to rootFolder that may
 						contain {name} and {ext} as name/ext of input file name.
-						$fieldName
-						to get it as a field
+						$fieldName to get it as a field
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2871,8 +2855,7 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Required if linkFieldsInThisRow is specified.
-						This
-						is the list of fields in the parent record to be matched
+						This is the list of fields in the parent record to be matched
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2884,8 +2867,7 @@
 				<xs:annotation>
 					<xs:documentation>name of file relative to rootFolder that may
 						contain {name} and {ext} as name/ext of input file name.
-						$fieldName
-						to get it as a field
+						$fieldName to get it as a field
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -3158,8 +3140,7 @@
 						>
 							<xs:annotation>
 								<xs:documentation>It os possible to output teh value as decimal
-									or
-									integral irrespective of the input field type
+									or integral irrespective of the input field type
 								</xs:documentation>
 							</xs:annotation>
 						</xs:attribute>
@@ -3428,6 +3409,18 @@
 	<xs:element name="application">
 		<xs:complexType>
 			<xs:sequence>
+				<xs:element
+					ref="ldapProperties"
+					minOccurs="0"
+					maxOccurs="1"
+				>
+					<xs:annotation>
+						<xs:documentation> Attributes like user name and password etc..
+							that may have to be put into environment before getting conection
+							factory. refer to your JMS provider manua, like jboss for details
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element
 					ref="jmsProperties"
 					minOccurs="0"
@@ -3747,8 +3740,7 @@
 					<xs:restriction base="xs:NCName">
 						<xs:enumeration value="log4jClassic">
 							<xs:annotation>
-								<xs:documentation>Old
-									log4J uses log4j-1.17.jar
+								<xs:documentation>Old log4J uses log4j-1.17.jar
 								</xs:documentation>
 							</xs:annotation>
 						</xs:enumeration>
@@ -3867,7 +3859,41 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-
+	<xs:element name="ldapProperties">
+	<xs:complexType>
+		<xs:attribute
+			name="factory"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+		<xs:attribute
+			name="ldapurl"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+		<xs:attribute
+			name="authentication"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+		<xs:attribute
+			name="principal"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+		<xs:attribute
+			name="credentials"
+			type="xs:string"
+			use="required"
+		>
+		</xs:attribute>
+	</xs:complexType>
+	</xs:element>	
+	
 	<xs:element name="property">
 		<xs:complexType>
 			<xs:attribute
@@ -4281,8 +4307,8 @@
 				name="keyValueList"
 				type="keyValueList" />
 			<xs:element
-				name="ldapAuth"
-				type="ldapAuth" />
+				name="ldapAuthenticate"
+				type="ldapAuthenticate" />
 			<xs:element
 				name="log"
 				type="log" />
@@ -4345,8 +4371,7 @@
 		>
 			<xs:annotation>
 				<xs:documentation>JNDI name to locate the queue. Required for
-					request queue. Temp queue is used for
-					response if name is not
+					request queue. Temp queue is used for response if name is not
 					specified.
 				</xs:documentation>
 			</xs:annotation>
@@ -4568,10 +4593,8 @@
 					>
 						<xs:annotation>
 							<xs:documentation>userId to be used for running this job.
-								Overrides
-								setting at jobs/application. Service is executed with
-								thisuser as
-								logged-in user
+								Overrides setting at jobs/application. Service is executed with
+								thisuser as logged-in user
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -4620,8 +4643,7 @@
 						<xs:annotation>
 							<xs:documentation>use this if this is a listener/background job
 								that is run once. min value is 1. If more than 1 is specified,
-								the
-								job is fired on that many threads simultneously, subject to
+								the job is fired on that many threads simultneously, subject to
 								availablity of threads in this scheduler.
 							</xs:documentation>
 						</xs:annotation>
