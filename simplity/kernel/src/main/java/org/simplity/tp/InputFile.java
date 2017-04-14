@@ -24,7 +24,6 @@ package org.simplity.tp;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
@@ -132,10 +131,10 @@ public class InputFile {
 	 * @author simplity.org
 	 *
 	 */
-	class Worker {
+	class Worker implements BatchInput {
+		protected String rootFolder;
 		protected Record record;
 		private File realFile;
-		protected ServiceContext ctx;
 
 		private BufferedReader reader;
 		private File newFile;
@@ -164,62 +163,49 @@ public class InputFile {
 		 */
 		private boolean endOfFile;
 
-		/**
-		 *
-		 * @return actual file name being matched
-		 */
-		String getFileName() {
+		@Override
+		public String getFileName() {
 			return this.realFile.getName();
 		}
 
 		/**
-		 * called when this is a child file
+		 * called before openShop() when input file name is to be decided based
+		 * on parent file name, typically for child process
 		 *
 		 * @param rootFolder
 		 * @param refFileName
 		 * @param ctxt
-		 * @throws IOException
 		 */
-		void openShop(String rootFolder, String refFileName, ServiceContext ctxt) throws IOException {
-			this.ctx = ctxt;
+		void setInputFileName(String rootFolder, String refFileName, ServiceContext ctxt) {
+			this.rootFolder = rootFolder;
 			String fn = TextUtil.getFileName(InputFile.this.fileName, refFileName, ctxt);
 			this.realFile = new File(rootFolder + fn);
-			this.openShopCommon(rootFolder);
-		}
-
-		/**
-		 * called by primary file processor when this is the driver-input file.
-		 * A real file is passed in this case.
-		 *
-		 *
-		 * @param rootFolder
-		 * @param file
-		 * @param ctxt
-		 * @throws IOException
-		 */
-		void openShop(String rootFolder, File file, ServiceContext ctxt) throws IOException {
-			this.ctx = ctxt;
-			this.realFile = file;
-			this.openShopCommon(rootFolder);
-		}
-
-		/**
-		 * Initialize all state-variables
-		 */
-		void openShopCommon(String rootFolder) throws FileNotFoundException {
-			this.record = ComponentManager.getRecord(InputFile.this.recordName);
-
-			if (this.realFile == null) {
-				this.realFile = new File(rootFolder + this.realFile);
-			}
 			if (this.realFile.exists() == false) {
 				throw new ApplicationError("File " + this.realFile.getAbsolutePath() + " does not exist");
 			}
+		}
+
+		/**
+		 * called before openShop when caller has already set the file to be
+		 * read. Typically for driver process
+		 *
+		 * @param rootFolder
+		 * @param file
+		 */
+		void setInputFile(String rootFolder, File file) {
+			this.rootFolder = rootFolder;
+			this.realFile = file;
+		}
+
+		@Override
+		public void openShop(ServiceContext ctxt) throws IOException {
+			this.record = ComponentManager.getRecord(InputFile.this.recordName);
+
 			this.reader = new BufferedReader(new FileReader(this.realFile));
 
 			String newName = InputFile.this.renameInfileTo;
 			if (newName != null) {
-				this.newFile = new File(rootFolder + TextUtil.getFileName(newName, this.getFileName(), this.ctx));
+				this.newFile = new File(this.rootFolder + TextUtil.getFileName(newName, this.getFileName(), ctxt));
 			}
 
 			String[] names = InputFile.this.linkFieldsInThisRow;
@@ -238,16 +224,12 @@ public class InputFile {
 			this.fieldNames = this.record.getFieldNames();
 		}
 
-		/**
-		 * read a row, and extract it into context. This method is invoked for
-		 * driver-file. It is also invoked in case the child-file is one-to-one
-		 * and not based on key match. That is, it is actually not a child, but
-		 * an associate
-		 */
-		boolean extractToCtx(List<FormattedMessage> errors) throws IOException {
+		@Override
+		public boolean inputARow(List<FormattedMessage> errors, ServiceContext ctxt) throws IOException {
 
 			/*
-			 * we loop in case there is some condition for row row to be processed
+			 * we loop in case there is some condition for row row to be
+			 * processed
 			 */
 			while (true) {
 				String rowText = this.reader.readLine();
@@ -257,11 +239,11 @@ public class InputFile {
 				/*
 				 * parse this text into fields and push them to service context
 				 */
-				this.record.parseFlatFileRow(rowText, InputFile.this.dataFormat, this.ctx, errors);
+				this.record.parseFlatFileRow(rowText, InputFile.this.dataFormat, ctxt, errors);
 				/*
 				 * is there a condition to process this?
 				 */
-				if (this.okToProceed()) {
+				if (this.okToProceed(ctxt)) {
 					return true;
 				}
 			}
@@ -278,20 +260,14 @@ public class InputFile {
 			return this.fieldNames != null;
 		}
 
-		/**
-		 * get parent key to be matched for reading input file. To be called
-		 * after checking with toBeMatched()
-		 *
-		 * @param errors
-		 * @return key
-		 */
-		String getParentKey(List<FormattedMessage> errors) {
+		@Override
+		public String getParentKeyValue(List<FormattedMessage> errors, ServiceContext ctxt) {
 			if (this.keyIndexes == null) {
 				return null;
 			}
 			String parentKey = "";
 			for (int i = 0; i < this.keyIndexes.length; i++) {
-				Value value = this.ctx.getValue(InputFile.this.linkFieldsInParentRow[i]);
+				Value value = ctxt.getValue(InputFile.this.linkFieldsInParentRow[i]);
 				if (Value.isNull(value)) {
 					errors.add(new FormattedMessage("missingKeyColumn", MessageType.ERROR,
 							"value for link field " + InputFile.this.linkFieldsInThisRow[i]
@@ -321,11 +297,8 @@ public class InputFile {
 			return rowText;
 		}
 
-		/**
-		 * read a child row that matches parent key. INvoked when this file is a
-		 * child-file with possible multiple rows for a given parent row
-		 */
-		boolean extractForMatchingKey(List<FormattedMessage> errors, String keyToMatch)
+		@Override
+		public boolean inputARow(List<FormattedMessage> errors, String keyToMatch, ServiceContext ctxt)
 				throws IOException, InvalidRowException {
 			boolean allOk = true;
 			/*
@@ -358,7 +331,7 @@ public class InputFile {
 				 * Ok, this child for the right parent.
 				 */
 				for (int i = 0; i < this.fieldNames.length; i++) {
-					this.ctx.setValue(this.fieldNames[i], this.dataRow[i]);
+					ctxt.setValue(this.fieldNames[i], this.dataRow[i]);
 				}
 				/*
 				 * important to empty the cache once it is used
@@ -367,7 +340,7 @@ public class InputFile {
 				/*
 				 * Are there further conditions to process this?
 				 */
-				if (this.okToProceed()) {
+				if (this.okToProceed(ctxt)) {
 					return true;
 				}
 				Tracer.trace("Ignoring a child row that failed qualifying condition.");
@@ -383,14 +356,14 @@ public class InputFile {
 		/*
 		 * check we can process this row based on conditionToProcess
 		 */
-		private boolean okToProceed() {
+		private boolean okToProceed(ServiceContext ctxt) {
 			Expression condition = InputFile.this.conditionToProcess;
 			if (condition == null) {
 				return true;
 			}
 			Value val;
 			try {
-				val = condition.evaluate(this.ctx);
+				val = condition.evaluate(ctxt);
 			} catch (InvalidOperationException e) {
 				throw new ApplicationError(e, "Input file is using conditionToProcess=" + condition
 						+ " but this expression probably has improper data types/operators.");
@@ -426,10 +399,8 @@ public class InputFile {
 			return true;
 		}
 
-		/**
-		 * release any resources
-		 */
-		void closeShop() {
+		@Override
+		public void closeShop(ServiceContext ctx) {
 			try {
 				this.reader.close();
 			} catch (Exception ignore) {
@@ -441,5 +412,11 @@ public class InputFile {
 				this.realFile.delete();
 			}
 		}
+
+		@Override
+		public boolean possiblyMultipleRowsPerParent() {
+			return InputFile.this.linkFieldsInParentRow != null;
+		}
+
 	}
 }

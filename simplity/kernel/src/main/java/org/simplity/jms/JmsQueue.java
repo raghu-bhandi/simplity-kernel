@@ -24,6 +24,7 @@ package org.simplity.jms;
 
 import java.io.Serializable;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -40,6 +41,7 @@ import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
@@ -50,6 +52,9 @@ import org.simplity.kernel.value.Value;
 import org.simplity.service.DataExtractor;
 import org.simplity.service.DataFormatter;
 import org.simplity.service.ServiceContext;
+import org.simplity.tp.BatchInput;
+import org.simplity.tp.BatchOutput;
+import org.simplity.tp.InvalidRowException;
 
 /**
  * A data structure that capture all details of a JmsQueue
@@ -127,7 +132,7 @@ public class JmsQueue {
 	/**
 	 * jms queue instance for this queue
 	 */
-	private Queue queue;
+	protected Queue queue;
 
 	/**
 	 * consume a request queue, and optionally put a message on to the response
@@ -174,7 +179,7 @@ public class JmsQueue {
 			 * loop for each message.
 			 */
 			do {
-				if(waitForMessage){
+				if (waitForMessage) {
 					Tracer.trace("Looking/waiting for next message on " + nam);
 				}
 				Message msg = consumer.receive(wait);
@@ -228,7 +233,7 @@ public class JmsQueue {
 				} catch (Exception e) {
 					ctx.addMessage(Messages.INTERNAL_ERROR, "Message processor threw an excpetion. " + e.getMessage());
 				}
-				if(consumeAll == false){
+				if (consumeAll == false) {
 					break;
 				}
 			} while (processor.toContinue());
@@ -338,7 +343,7 @@ public class JmsQueue {
 	 * @return
 	 * @throws JMSException
 	 */
-	private Message createMessage(ServiceContext ctx) throws JMSException {
+	protected Message createMessage(ServiceContext ctx) throws JMSException {
 		Session session = ctx.getJmsSession();
 		if (this.dataFormatter != null) {
 			String text = this.dataFormatter.format(ctx);
@@ -815,9 +820,135 @@ public class JmsQueue {
 	}
 
 	/**
+	 *
+	 * @param ctx
+	 * @return a worker instance that can work as a driver input for a batch
+	 */
+	public JmsInput getBatchInput(ServiceContext ctx) {
+		return new JmsInput();
+	}
+
+	/**
+	 *
+	 * @param ctx
+	 * @return a worker instance that can produce messages onto a queue
+	 */
+	public JmsOutput getBatchOutput(ServiceContext ctx) {
+		return new JmsOutput();
+	}
+
+	/**
 	 * @return name of the queue
 	 */
 	public Object getName() {
 		return this.queueName;
+	}
+
+	/**
+	 * worker class that inputs a message from this queue as input for a batch
+	 * process
+	 *
+	 * @author simplity.org
+	 *
+	 */
+	public class JmsInput implements BatchInput {
+		private MessageConsumer consumer;
+
+		protected JmsInput() {
+			//
+		}
+
+		@Override
+		public void openShop(ServiceContext ctx) throws JMSException {
+			Session session = ctx.getJmsSession();
+			this.consumer = session.createConsumer(JmsQueue.this.queue, JmsQueue.this.messageSelector);
+			String nam = JmsQueue.this.queue.getQueueName();
+			Tracer.trace("Started consumer for queue " + nam);
+
+		}
+
+		@Override
+		public void closeShop(ServiceContext ctx) {
+			if (this.consumer != null) {
+				try {
+					this.consumer.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
+
+		@Override
+		public boolean possiblyMultipleRowsPerParent() {
+			return false;
+		}
+
+		@Override
+		public boolean inputARow(List<FormattedMessage> errors, ServiceContext ctx) throws JMSException {
+			Message msg = this.consumer.receive(0);
+			if (msg == null) {
+				Tracer.trace("No more messages in " + JmsQueue.this.queueName + ". Queue consumer will not continue;");
+				return false;
+			}
+			JmsQueue.this.extractMessage(msg, ctx);
+			return true;
+		}
+
+		/*
+		 * this method should never be used
+		 */
+		@Override
+		public boolean inputARow(List<FormattedMessage> errors, String parentKey, ServiceContext ctx)
+				throws InvalidRowException {
+			throw new ApplicationError("JMS Queue can not be used to get messages for a gievn parent.");
+		}
+
+		@Override
+		public String getParentKeyValue(List<FormattedMessage> errors, ServiceContext ctx) {
+			return null;
+		}
+
+		@Override
+		public String getFileName() {
+			return null;
+		}
+	}
+
+	/**
+	 * class that works as output for a batch row processor
+	 *
+	 * @author simplity.org
+	 *
+	 */
+	public class JmsOutput implements BatchOutput {
+		private MessageProducer producer;
+
+		@Override
+		public void openShop(ServiceContext ctx) throws JMSException {
+			Session session = ctx.getJmsSession();
+			this.producer = session.createProducer(JmsQueue.this.queue);
+		}
+
+		@Override
+		public void closeShop(ServiceContext ctx) {
+			if (this.producer != null) {
+				try {
+					this.producer.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
+
+		@Override
+		public boolean outputARow(ServiceContext ctx) throws JMSException {
+			/*
+			 * create a message with data from ctx
+			 */
+			Message msg = JmsQueue.this.createMessage(ctx);
+			this.producer.send(msg);
+			return true;
+		}
+
 	}
 }

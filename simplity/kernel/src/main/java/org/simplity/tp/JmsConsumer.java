@@ -48,7 +48,7 @@ public class JmsConsumer extends Block {
 	boolean consumeAll;
 
 	/**
-	 * true means wait for the message. consume=false means wait for one, but then come out. consumeAll=true means keep listening till cows come home :-).
+	 * true means wait for the message. consumeAll=false means wait for one, but then come out. consumeAll=true means keep listening till cows come home :-).
 	 * false means do not wait, even for one.
 	 */
 	boolean waitForMessage;

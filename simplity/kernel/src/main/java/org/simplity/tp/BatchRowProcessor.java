@@ -27,8 +27,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jms.JMSException;
+
 import org.simplity.aggr.AggregationWorker;
 import org.simplity.aggr.AggregatorInterface;
+import org.simplity.jms.JmsQueue;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
@@ -93,26 +96,58 @@ public class BatchRowProcessor {
 	 * if the aggregation process is conditional.
 	 */
 	Expression conditionToAggregate;
+
+	/**
+	 * you may supply a custom class that writes the output
+	 */
+	String customOutputClassName;
+
+	/**
+	 * you may provide a custom class that serves as a driver input
+	 */
+	String customInputClassName;
+
+	/**
+	 * queue from which to consume requests to be processed as requests
+	 */
+	JmsQueue inputQueue;
+	/**
+	 * optional queue on which responses to be sent on
+	 */
+	JmsQueue outputQueue;
+
 	/**
 	 * @param service
 	 */
 	public void getReady(Service service) {
-		if (this.inputSql == null) {
-			if (this.inputFile == null) {
-				this.throwError();
-			}
-		} else {
-			if (this.inputFile != null) {
-				this.throwError();
-			}
-		}
+		int nbrInputChannels = 0;
 		if (this.inputFile != null) {
 			this.inputFile.getReady(service);
+			nbrInputChannels++;
+		}
+
+		if (this.inputQueue != null) {
+			this.inputQueue.getReady();
+			nbrInputChannels++;
+		}
+		if (this.inputSql != null) {
+			nbrInputChannels++;
+		}
+		if (this.customInputClassName != null) {
+			nbrInputChannels++;
+		}
+		if (nbrInputChannels != 1) {
+			this.throwError();
 		}
 
 		if (this.outputFile != null) {
 			this.outputFile.getReady(service);
 		}
+
+		if (this.outputQueue != null) {
+			this.outputQueue.getReady();
+		}
+
 		if (this.actionBeforeChildren != null) {
 			this.actionBeforeChildren.getReady(0, service);
 		}
@@ -128,7 +163,8 @@ public class BatchRowProcessor {
 	}
 
 	private void throwError() {
-		throw new ApplicationError("A file processor should specify either a sql, or a file for input, but not both");
+		throw new ApplicationError(
+				"A file processor should specify one and only one way to get input rows : sql, file, jms queue or custom input");
 	}
 
 	/**
@@ -208,8 +244,10 @@ public class BatchRowProcessor {
 		protected Sql sql;
 		protected ChildProcess[] children;
 		protected AggregationWorker[] aggWorkers;
-		protected InputFile.Worker inFileWorker;
-		protected OutputFile.Worker outFileWorker;
+		protected BatchInput batchInput;
+		protected BatchOutput fileOutput;
+		protected BatchOutput customOutput;
+		protected BatchOutput jmsOutput;
 
 		/**
 		 * very tricky design because of call-back design. In case a child-level
@@ -231,29 +269,60 @@ public class BatchRowProcessor {
 		 * get all required resources, and workers.
 		 *
 		 * @throws IOException
+		 * @throws JMSException
 		 */
-		protected void openShop(BatchProcessor.Worker batchWorker, String folderIn, String folderOut, String parentFileName,
-				File file, ServiceContext ctxt) throws IOException {
+		protected void openShop(BatchProcessor.Worker batchWorker, String folderIn, String folderOut,
+				String parentFileName, File file, ServiceContext ctxt) throws IOException, JMSException {
 
 			this.setInputFile(batchWorker, folderIn, parentFileName, file, ctxt);
 
 			String inputFileName = null;
 			/*
-			 * if it is not input file, it has to be sql
+			 * what is our input?. We haev to have only one way of input
 			 */
-			if (this.inFileWorker == null) {
+			if (this.batchInput != null) {
+				inputFileName = this.batchInput.getFileName();
+			} else if (BatchRowProcessor.this.inputSql != null) {
 				this.sql = ComponentManager.getSql(BatchRowProcessor.this.inputSql);
+			} else if (BatchRowProcessor.this.inputQueue != null) {
+				this.batchInput = BatchRowProcessor.this.inputQueue.getBatchInput(ctxt);
+				this.batchInput.openShop(ctxt);
+			} else if (BatchRowProcessor.this.customInputClassName != null) {
+				try {
+					this.batchInput = (BatchInput) Class.forName(BatchRowProcessor.this.customInputClassName)
+							.newInstance();
+					this.batchInput.openShop(ctxt);
+				} catch (Exception e) {
+					throw new ApplicationError(e, "Error while using " + BatchRowProcessor.this.customInputClassName
+							+ " to get an instance of BatchInput");
+				}
 			} else {
-				inputFileName = this.inFileWorker.getFileName();
+				throw new ApplicationError("Batch row processor has no input specified.");
 			}
 			/*
-			 * what about output file?
+			 * what about output ? we can have more than one output channels
 			 */
 			OutputFile ff = BatchRowProcessor.this.outputFile;
 
 			if (ff != null) {
-				this.outFileWorker = ff.getWorker();
-				this.outFileWorker.openShop(folderOut, inputFileName, this.ctx);
+				OutputFile.Worker worker = ff.getWorker();
+				worker.setFileName(folderOut, inputFileName, this.ctx);
+				worker.openShop(this.ctx);
+				this.fileOutput = worker;
+			}
+			String clsName = BatchRowProcessor.this.customOutputClassName;
+			if (clsName != null) {
+				try {
+					this.customOutput = (BatchOutput) Class.forName(clsName).newInstance();
+					this.customOutput.openShop(ctxt);
+				} catch (Exception e) {
+					throw new ApplicationError(e,
+							"Error while using " + clsName + " to get an instance of BatchOutput");
+				}
+			}
+			JmsQueue outq = BatchRowProcessor.this.outputQueue;
+			if (outq != null) {
+				this.jmsOutput = outq.getBatchOutput(ctxt);
 			}
 			/*
 			 * aggregators?
@@ -294,11 +363,17 @@ public class BatchRowProcessor {
 		 * release all resource
 		 */
 		void closeShop() {
-			if (this.inFileWorker != null) {
-				this.inFileWorker.closeShop();
+			if (this.batchInput != null) {
+				this.batchInput.closeShop(this.ctx);
 			}
-			if (this.outFileWorker != null) {
-				this.outFileWorker.closeShop();
+			if (this.customOutput != null) {
+				this.customOutput.closeShop(this.ctx);
+			}
+			if (this.fileOutput != null) {
+				this.fileOutput.closeShop(this.ctx);
+			}
+			if (this.jmsOutput != null) {
+				this.jmsOutput.closeShop(this.ctx);
 			}
 			if (this.children != null) {
 				for (AbstractProcess worker : this.children) {
@@ -313,7 +388,8 @@ public class BatchRowProcessor {
 		protected abstract int callFromParent() throws Exception;
 
 		/**
-		 * when sql is used, this is how we get called back on each row in the result
+		 * when sql is used, this is how we get called back on each row in the
+		 * result
 		 */
 		@Override
 		public abstract boolean callBackOnDbRow(String[] outputNames, Value[] values);
@@ -329,7 +405,6 @@ public class BatchRowProcessor {
 				action.act(this.ctx, this.dbDriver);
 			}
 
-
 			this.accumulateAggregators();
 
 			if (this.children != null) {
@@ -341,10 +416,13 @@ public class BatchRowProcessor {
 			if (action != null) {
 				action.act(this.ctx, this.dbDriver);
 			}
-			if (this.outFileWorker != null) {
-				this.outFileWorker.writeOut();
+			if (this.fileOutput != null) {
+				this.fileOutput.outputARow(this.ctx);
 			}
 
+			if (this.jmsOutput != null) {
+				this.jmsOutput.outputARow(this.ctx);
+			}
 		}
 
 		/**
@@ -355,13 +433,13 @@ public class BatchRowProcessor {
 				return;
 			}
 			Expression condition = BatchRowProcessor.this.conditionToAggregate;
-			if(condition != null){
-				try{
-				Value value = condition.evaluate(this.ctx);
-				if(Value.intepretAsBoolean(value) == false){
-					return;
-				}
-				}catch(InvalidOperationException e){
+			if (condition != null) {
+				try {
+					Value value = condition.evaluate(this.ctx);
+					if (Value.intepretAsBoolean(value) == false) {
+						return;
+					}
+				} catch (InvalidOperationException e) {
 					throw new ApplicationError(e, "Error while evaluating expression " + condition);
 				}
 			}
@@ -371,7 +449,8 @@ public class BatchRowProcessor {
 		}
 
 		/**
-		 * if aggregators are specified, call each of them to writ-out the resultant to service context
+		 * if aggregators are specified, call each of them to writ-out the
+		 * resultant to service context
 		 */
 		protected void writeAggregators() {
 			if (this.aggWorkers == null) {
@@ -383,7 +462,8 @@ public class BatchRowProcessor {
 		}
 
 		/**
-		 * if aggregators are specified, call each of them to writ-out the resultant to service context
+		 * if aggregators are specified, call each of them to writ-out the
+		 * resultant to service context
 		 */
 		protected void initAggregators() {
 			if (this.aggWorkers == null) {
@@ -407,21 +487,15 @@ public class BatchRowProcessor {
 			super(dbDriver, ctx);
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.simplity.tp.FileProcessor.AbstractWorker#openSpecificShop(org.
-		 * simplity.tp.BatchProcessor.Worker, java.lang.String,
-		 * java.lang.String, java.io.File, org.simplity.service.ServiceContext)
-		 */
 		@Override
 		protected void setInputFile(BatchProcessor.Worker boss, String folderIn, String parentFileName, File file,
 				ServiceContext ctxt) throws IOException {
 			this.batchWorker = boss;
 			if (file != null) {
-				this.inFileWorker = BatchRowProcessor.this.inputFile.getWorker();
-				this.inFileWorker.openShop(folderIn, file, ctxt);
+				InputFile.Worker inf = BatchRowProcessor.this.inputFile.getWorker();
+				inf.setInputFile(folderIn, file);
+				inf.openShop(ctxt);
+				this.batchInput = inf;
 			}
 		}
 
@@ -457,7 +531,7 @@ public class BatchRowProcessor {
 					/*
 					 * read a row into serviceContext
 					 */
-					if (this.inFileWorker.extractToCtx(errors) == false) {
+					if (this.batchInput.inputARow(errors, this.ctx) == false) {
 						/*
 						 * no more rows
 						 */
@@ -470,20 +544,13 @@ public class BatchRowProcessor {
 
 					this.ctx.addMessages(errors);
 					this.batchWorker.errorOnInputValidation(new InvalidRowException(VALIDATION_ERROR));
-				}else{
+				} else {
 					this.doOneTransaction();
 				}
 			}
 			return nbrRows;
 		}
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.simplity.kernel.db.DbRowProcessor#processRow(java.lang.String[],
-		 * org.simplity.kernel.value.Value[])
-		 */
 		@Override
 		public boolean callBackOnDbRow(String[] outputNames, Value[] values) {
 			/*
@@ -511,7 +578,8 @@ public class BatchRowProcessor {
 				this.writeAggregators();
 			} catch (Exception e) {
 				exception = e;
-				this.ctx.addMessage(Messages.ERROR, "Error while processing a row from batch driver input. " + e.getMessage());
+				this.ctx.addMessage(Messages.ERROR,
+						"Error while processing a row from batch driver input. " + e.getMessage());
 			}
 			this.batchWorker.endTrans(exception, this.dbDriver);
 		}
@@ -534,12 +602,14 @@ public class BatchRowProcessor {
 		}
 
 		@Override
-		protected void setInputFile(org.simplity.tp.BatchProcessor.Worker boss, String folderIn,
-				String parentFileName, File file, ServiceContext ctxt) throws IOException {
+		protected void setInputFile(org.simplity.tp.BatchProcessor.Worker boss, String folderIn, String parentFileName,
+				File file, ServiceContext ctxt) throws IOException {
 			InputFile inf = BatchRowProcessor.this.inputFile;
 			if (inf != null) {
-				this.inFileWorker = inf.getWorker();
-				this.inFileWorker.openShop(folderIn, parentFileName, ctxt);
+				InputFile.Worker worker = inf.getWorker();
+				worker.setInputFileName(folderIn, parentFileName, ctxt);
+				worker.openShop(ctxt);
+				this.batchInput = worker;
 			}
 		}
 
@@ -588,11 +658,11 @@ public class BatchRowProcessor {
 			}
 
 			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
-			if (this.inFileWorker.toBeMatched() == false) {
+			if (this.batchInput.possiblyMultipleRowsPerParent() == false) {
 				/*
 				 * single row only
 				 */
-				boolean ok = this.inFileWorker.extractToCtx(errors);
+				boolean ok = this.batchInput.inputARow(errors, this.ctx);
 				if (!ok) {
 					Tracer.trace("No rows in file child file");
 					return 0;
@@ -608,7 +678,7 @@ public class BatchRowProcessor {
 			/*
 			 * possibly more than one rows in this file for a parent row
 			 */
-			String parentKey = this.inFileWorker.getParentKey(errors);
+			String parentKey = this.batchInput.getParentKeyValue(errors, this.ctx);
 			if (errors.size() > 0) {
 				this.ctx.addMessages(errors);
 				throw new InvalidRowException();
@@ -617,7 +687,7 @@ public class BatchRowProcessor {
 			while (true) {
 				errors.clear();
 				try {
-					if (this.inFileWorker.extractForMatchingKey(errors, parentKey) == false) {
+					if (this.batchInput.inputARow(errors, parentKey, this.ctx) == false) {
 						break;
 					}
 				} catch (IOException e) {

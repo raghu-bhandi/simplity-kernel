@@ -23,6 +23,7 @@
 package org.simplity.tp;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -90,36 +91,42 @@ public class OutputFile {
 	 * @author simplity.org
 	 *
 	 */
-	class Worker {
+	class Worker implements BatchOutput{
 		protected Record record;
-		protected String realName;
-		protected ServiceContext ctx;
+		protected File realFile;
 		private BufferedWriter writer;
 
 		String getFileName() {
-			return this.realName;
+			return this.realFile.getName();
 		}
 
-		void openShop(String rootFolder, String refFileName, ServiceContext ctxt) throws IOException {
+		void setFileName(String rootFolder, String refFileName, ServiceContext ctx){
+			this.realFile = new File(rootFolder + TextUtil.getFileName(OutputFile.this.fileName, refFileName, ctx));
+		}
+
+		@Override
+		public void openShop(ServiceContext ctx) throws IOException {
 			this.record = ComponentManager.getRecord(OutputFile.this.recordName);
-			this.ctx = ctxt;
-			this.realName = TextUtil.getFileName(OutputFile.this.fileName, refFileName, ctxt);
-			this.writer = new BufferedWriter(new FileWriter(rootFolder + this.realName));
+			this.writer = new BufferedWriter(new FileWriter(this.realFile));
 		}
 
-		void writeOut() throws IOException {
+		@Override
+		public boolean outputARow(ServiceContext ctx) throws IOException {
 			Expression expr = OutputFile.this.conditionToOutput;
 			try {
-				if (expr == null || Value.intepretAsBoolean(expr.evaluate(this.ctx))) {
-					this.writer.write((this.record.formatFlatRow(OutputFile.this.dataFormat, this.ctx)));
+				if (expr == null || Value.intepretAsBoolean(expr.evaluate(ctx))) {
+					this.writer.write((this.record.formatFlatRow(OutputFile.this.dataFormat, ctx)));
 					this.writer.newLine();
+					return true;
 				}
+				return false;
 			} catch (InvalidOperationException e) {
 				throw new ApplicationError(e, "Error while evaluating expresssion " + expr);
 			}
 		}
 
-		void closeShop() {
+		@Override
+		public void closeShop(ServiceContext ctx) {
 			try {
 				this.writer.close();
 			} catch (Exception ignore) {
