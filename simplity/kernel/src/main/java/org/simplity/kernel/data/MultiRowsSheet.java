@@ -23,6 +23,7 @@ package org.simplity.kernel.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -634,104 +635,114 @@ public class MultiRowsSheet implements DataSheet {
 		return this.columnWidths;
 	}
 
-	//@Override
-	public List<Object> columnToList(DataSheet ds,String columnName) {
-		Value[] columnValues = ds.getColumnValues(columnName);
+	/** 
+	 * 
+	 * @param sheet
+	 * 			  sheet 			
+	 * @param columnName
+	 * 			  columnName
+	 * @return list of column values  
+	 */
+	public List<Object> columnToList(DataSheet sheet,String columnName) {
+		Value[] columnValues = sheet.getColumnValues(columnName);
 		List<Object> list = new ArrayList<Object>();
 		for(Value value:columnValues){
-			list.add(value);
+			list.add(this.valueToObject(value));
 		}
 		return list;
 	}
 
-	//@Override
-	public Set<Object> columnToSet(DataSheet ds,String columnName) {
-		Value[] columnValues = ds.getColumnValues(columnName);
+	/**
+	 * 
+	 * @param sheet
+	 * @param columnName
+	 * @return set of column values
+	 */
+	public Set<Object> columnToSet(DataSheet sheet,String columnName) {
+		Value[] columnValues = sheet.getColumnValues(columnName);
 		Set<Object> set = new HashSet<Object>();
 		for(Value value:columnValues){
-			set.add(value);
+			set.add(this.valueToObject(value));
 		}
 		return set;
 	}
 
-	//@Override
-	public Map<String,Object> columnsAsMap(DataSheet ds,String keyColumnName, String valueColumnName) {
-		Value[] keys = ds.getColumnValues(keyColumnName);
-		Value[] values = ds.getColumnValues(valueColumnName);		
+	/**
+	 * 
+	 * @param sheet
+	 * @param keyColumnName
+	 * @param valueColumnName
+	 * @return 2 column values as a map with 1 column data as keys and other column data as values
+	 */
+	public Map<String,Object> columnsAsMap(DataSheet sheet,String keyColumnName, String valueColumnName) {
+		Value[] keys = sheet.getColumnValues(keyColumnName);
+		Value[] values = sheet.getColumnValues(valueColumnName);		
 		Map<String,Object> map = new HashMap<String, Object>();
-		for(int i=0;i<keys.length;i++){				
-			try {
-				switch (values[i].getValueType()){
-				case BLOB:{	
-					map.put(keys[i].toString(),values[i].toObject());
-					break;
-				}
-				case CLOB:{	
-					map.put(keys[i].toString(),values[i].toObject());
-					break;
-				}
-				case DECIMAL:{
-						map.put(keys[i].toString(),values[i].toDecimal());
-					break;
-				}
-				case BOOLEAN:{
-					map.put(keys[i].toString(),values[i].toBoolean());
-					break;
-				}
-				case DATE:{
-					map.put(keys[i].toString(),values[i].toDate());
-					break;
-				}
-				case INTEGER:{
-					map.put(keys[i].toString(),values[i].toInteger());
-					break;
-				}
-				case TEXT:{
-					map.put(keys[i].toString(),values[i].toText());
-					break;
-				}
-				case TIMESTAMP:{
-					map.put(keys[i].toString(),values[i].toDate());
-					break;
-				}
-				};
-			} catch (InvalidValueException e) {
-				throw new ApplicationError(e,"Error while converting Datasheet to Map");
+		for(int i=0;i<keys.length;i++){	
+			Object value = this.valueToObject(values[i]);
+			map.put(keys[i].toString(),value);
 			}
-			
-		}
 		return map;
 	}
 
-	//@Override
-	public List<Object> datasheetToList(DataSheet ds,String className) {
-		/*Object obj = Class.forName(className).newInstance();
-		java.lang.reflect.Field[] fields = Class.forName(className).getDeclaredFields();*/
-		List<Object> sheetlist = new ArrayList<Object>();
-		List<Value[]> rowList = ds.getAllRows();		
-		for(Value[] row:rowList){			
-			for(Value value:row){
-				
-			}
-			sheetlist.add(rowList);
+	/**
+	 * 
+	 * @param sheet
+	 * @param className
+	 * @return List of entity objects 
+	 */
+	public List<Object> datasheetToList(DataSheet sheet,String className) {		
+		List<Object> entityList = new ArrayList<Object>();
+		List<Value[]> rowList = sheet.getAllRows();
+		for(Value[] row:rowList){
+			Object obj;
+			try {
+				obj = Class.forName(className).newInstance();		
+				java.lang.reflect.Field[] fields = obj.getClass().getFields();
+				int i=0;
+				for(java.lang.reflect.Field field:fields){		
+					field.set(obj,this.valueToObject(row[i]));				
+				}
+				entityList.add(obj);
+			} catch (Exception e) {
+				throw new ApplicationError(e.getMessage());
+			} 
 		}
-		return sheetlist;
+		return entityList;
 	}
 
-	//@Override
-	public Set<Object> datasheetToSet(DataSheet ds,String className) {
-		Set<Object> sheetSet = new HashSet<Object>();
-		for(String[] row:ds.getRawData()){
-			Set<String> rowSet = new HashSet<String>();
-			for(String value:row){
-				rowSet.add(value);
-			}
-			sheetSet.add(rowSet);
+	/**
+	 * 
+	 * @param sheet
+	 * @param className
+	 * @return Set of entity objects
+	 */
+	public Set<Object> datasheetToSet(DataSheet sheet,String className) {
+		Set<Object> entitySet = new HashSet<Object>();
+		List<Value[]> rowList = sheet.getAllRows();
+		for(Value[] row:rowList){
+			Object obj;
+			try {
+				obj = Class.forName(className).newInstance();		
+				java.lang.reflect.Field[] fields = obj.getClass().getFields();
+				int i=0;
+				for(java.lang.reflect.Field field:fields){		
+					field.set(obj,this.valueToObject(row[i]));				
+				}
+				entitySet.add(obj);
+			} catch (Exception e) {
+				throw new ApplicationError(e.getMessage());
+			} 
 		}
-		return sheetSet;
+		return entitySet;
 	}
 
-	//@Override
+	/**
+	 * 
+	 * @param arr
+	 * @param columnName
+	 * @return MultiRowsSheet with single column
+	 */
 	public DataSheet arrayToDatasheet(Object[] arr,String columnName) {
 		String[] header = {columnName};
 		ValueType[] valueTypes = {ValueType.TEXT};
@@ -744,7 +755,12 @@ public class MultiRowsSheet implements DataSheet {
 		return sheet;
 	}
 
-	//@Override
+	/**
+	 * 
+	 * @param list
+	 * @param columnName
+	 * @return MultiRowsSheet with single column
+	 */
 	public DataSheet listToDatasheet(List<Object> list,String columnName) {
 		String[] header = {columnName};
 		ValueType[] valueTypes = {ValueType.TEXT};
@@ -757,7 +773,12 @@ public class MultiRowsSheet implements DataSheet {
 		return sheet;
 	}
 
-	//@Override
+	/**
+	 * 
+	 * @param set
+	 * @param columnName
+	 * @return MultiRowsSheet with single column
+	 */
 	public DataSheet setToDatasheet(Set<Object> set,String columnName) {
 		String[] header = {columnName};
 		ValueType[] valueTypes = {ValueType.TEXT};
@@ -770,7 +791,19 @@ public class MultiRowsSheet implements DataSheet {
 		return sheet;
 	}
 
-	//@Override
+	/**
+	 * writes map data to a MultiRowsSheet
+	 * 
+	 * @param map
+	 * 			map
+	 * @param transpose
+	 * 		    If transpose = true, 
+	 * 				the output data sheet will be a SingleRowDataSheet with keys as the column and values as the row. 
+	 * 			If transpose = false, 
+	 * 				the output data sheet will be MultiRowDatasheet with columns as "Key","Value" and corresponding rows.
+	 * @return
+	 * 		DataSheet
+	 */
 	public DataSheet mapToDatasheet(HashMap<Object,Object> map, boolean transpose) {
 		if(transpose){
 			String[] columnNames = {};
@@ -783,9 +816,9 @@ public class MultiRowsSheet implements DataSheet {
 				row[i] = Value.newTextValue(map.get(key).toString());
 				i++;
 			}
-			SingleRowSheet singleRow = new SingleRowSheet(columnNames, valueTypes);
-			singleRow.addRow(row);
-			return singleRow;
+			SingleRowSheet singleRowSheet = new SingleRowSheet(columnNames, valueTypes);
+			singleRowSheet.addRow(row);
+			return singleRowSheet;
 		}
 		String[] columnNames = {"key","value"};
 		ValueType[] valueTypes = {ValueType.TEXT,ValueType.TEXT};
@@ -799,5 +832,39 @@ public class MultiRowsSheet implements DataSheet {
 		return multirowsSheet;
 	}
 
-
+	private Object valueToObject(Value value){
+		try {
+			switch (value.getValueType()){
+			case BLOB:{	
+				return value.toObject();
+			}
+			case CLOB:{	
+				return value.toObject();
+			}
+			case DECIMAL:{
+				return value.toDecimal();
+			}
+			case BOOLEAN:{
+				return value.toBoolean();
+			}
+			case DATE:{
+				return value.toDate();
+			}
+			case INTEGER:{
+				return value.toInteger();
+			}
+			case TEXT:{
+				return value.toText();
+			}
+			case TIMESTAMP:{
+				return value.toDate();
+			}
+			default: {
+				return value.toString();
+			}
+			}
+		} catch (InvalidValueException e) {
+			throw new ApplicationError(e.getMessage());
+		}
+	}
 }
