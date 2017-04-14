@@ -31,7 +31,8 @@
 	<message messageType="error" name="kernel.invalidDateTime" text="This is not a valid date and time"/>
 	<message messageType="error" name="kernel.invalidNumber" text="This is not valid number"/>
 	<message messageType="error" name="kernel.invalidDecimal" text="This is not a valid decimal number"/>
-	
+	<message messageType="error" name="kernel.error" text="Error reported; "/>
+		
 	<message messageType="error" name="kernel.invalidLogin" text="Login failed"/>	
     </components>
 </messages>

@@ -42,6 +42,12 @@ public class LdapAgent {
 		return ctx;
 	}
 
+/**
+ * The method is used to authenticating the credentials during login
+ * @param principalAuth
+ * @param credentialsAuth
+ * @return
+ */
 	public static DirContext getInitialDirContext(String principalAuth,String credentialsAuth) {
 		DirContext ctx = null;
 		Hashtable env = new Hashtable();
@@ -52,9 +58,8 @@ public class LdapAgent {
 		env.put("java.naming.security.credentials", credentialsAuth);
 		try {
 			ctx = new InitialDirContext(env);
-		} catch (NamingException ne) {	
-			
-			ne.printStackTrace();
+		} catch (NamingException e) {				
+			Tracer.trace("Unable to connect the LDAP, Authentication failed ;"+e.getMessage());
 		}
 		return ctx;
 	}
