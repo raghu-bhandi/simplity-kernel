@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service
+	name="jmsWrapper"
+	xmlns="http://www.simplity.org/schema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<actions>
+		<batchProcessor
+			dbAccessType="none"
+			jmsUsage="notManaged">
+			<batchRowProcessor>
+				<inputQueue
+					queueName="jms/Queue01"
+					recordName="comments" />
+				<actionBeforeChildren>
+					<subService serviceName="extractTokens" />
+				</actionBeforeChildren>
+			</batchRowProcessor>
+		</batchProcessor>
+	</actions>
+</service>

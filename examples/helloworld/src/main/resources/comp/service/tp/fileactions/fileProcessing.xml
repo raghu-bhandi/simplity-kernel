@@ -23,7 +23,7 @@
 			outputFolder="$outFolderName"
 			dbAccessType="none"
 			serviceOnInvalidInput="fileactions.processErrorRow"
-			serviceOnErrorAtRowLevel="fileactions.processErrorRow"
+			serviceOnErrorAtRowLevel="fileactions.processErrorRow" 
 			
 		>
 		
@@ -32,7 +32,7 @@
 				<inputFile 
 					recordName="files.fixed"
 					fileName="$inputfilename"
-					dataFormat="fixedWidth"/>
+					dataFormat="fixedWidth" />
 				<outputFile
 					recordName="files.fixed"
 					fileName="{name}.{ext}"

@@ -91,6 +91,7 @@ public class InputFile {
 	boolean deleteFile;
 
 	Expression conditionToProcess;
+	Expression conditionToProcess;
 
 	/**
 	 * @param service
