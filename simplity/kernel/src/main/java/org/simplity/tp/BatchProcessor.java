@@ -443,7 +443,7 @@ public class BatchProcessor extends Action {
 					this.ctx.setTextValue(BatchProcessor.this.setActualFileNameTo, actualName);
 				}
 				try {
-					this.nbrRowsProcessed += BatchProcessor.this.batchRowProcessor.process(file, this, dbDriver, this.ctx);
+					this.nbrRowsProcessed += BatchProcessor.this.batchRowProcessor.process(file, this, dbDriver, this.ctx, BatchProcessor.this.exitOnInterrupt);
 				} catch (Exception e) {
 					Action action = BatchProcessor.this.getErrorAction();
 					if (action == null) {

@@ -106,7 +106,7 @@ public class JmsQueue {
 
 	/**
 	 * sheet name with two columns, first one name, second one value, both text.
-	 * bodyMessageType must e set to COMMA_SEPARATED_PAIRS. Consumer extracts
+	 * bodyMessageType must be set to COMMA_SEPARATED_PAIRS. Consumer extracts
 	 * into this sheet, while producer formats the text using data in this
 	 * sheet
 	 */
