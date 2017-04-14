@@ -5,5 +5,6 @@
 	autoLoginUserId="100"
 	loggingFramework="log4j"
 	queueConnectionFactory="jms/__defaultConnectionFactory"
+	batchJobToRunOnStartup="jmsListener"
 	>
 </application>
