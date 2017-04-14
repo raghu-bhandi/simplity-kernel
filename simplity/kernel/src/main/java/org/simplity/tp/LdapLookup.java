@@ -35,9 +35,12 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.MessageType;
+import org.simplity.kernel.Messages;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.ldap.LdapAgent;
+import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.DataExtractor;
 import org.simplity.service.ServiceContext;
@@ -50,20 +53,41 @@ public class LdapLookup extends Action {
 	String objectId;
 	String attrName;
 	String fieldName;
+	
+	private String parsedObjectId;
+	private String parsedAttrName;
+	
+	private Value parsedObjectIdValue;
+	private Value parsedAttrNameValue;
+
 	/**
 	 * object instance for re-use
 	 */
 	private DataExtractor dataExtractor;
 
-	DirContext ldapCtx;
+	private DirContext ldapCtx;
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
+		if (this.parsedObjectId != null) {
+			this.parsedObjectIdValue = ctx.getValue(this.parsedObjectId);
+		} else {
+			this.parsedObjectIdValue = Value.newTextValue(this.objectId);
+		}
+
+		if (this.parsedAttrName != null) {
+			this.parsedAttrNameValue = ctx.getValue(this.parsedAttrName);
+		} else {
+			this.parsedAttrNameValue = Value.newTextValue(this.attrName);
+		}		
 		Hashtable<String, String> env = new Hashtable<String, String>(11);
 		try {
 			// Create initial context
 			ldapCtx = LdapAgent.getInitialDirContext();
-			Attribute attr = this.getAttribute(objectId, attrName);
+			Attribute attr = this.getAttribute(ctx,objectId, attrName);
+			if(ctx.isInError()){
+				return Value.VALUE_FALSE;
+			}
 			this.extractAttributes(attr, ctx);
 			ldapCtx.close();
 		} catch (NamingException e) {
@@ -139,28 +163,30 @@ public class LdapLookup extends Action {
 		return attrValue;
 	}
 
-	public Attribute getAttribute(String objectId, String attrName) {
+	public Attribute getAttribute(ServiceContext ctx, String objectId, String attrName) {
 		Attributes attrs = null;
 		Attribute a = null;
 		try {
 			attrs = ldapCtx.getAttributes(objectId);
-		} catch (NamingException ne) {
-			throw new ApplicationError("LdapRead: Object " + objectId + " does not exist ");
+		} catch (NamingException e) {
+			ctx.addMessage(Messages.ERROR,"LDAP object does not exist; " + e.getMessage());
+			return null;
 		}
 		try {
 			a = attrs.get(attrName);
-		} catch (NullPointerException npe) {
-			throw new ApplicationError("LdapRead:  Attribute " + attrName + " is not set ");
+		} catch (NullPointerException e) {
+			ctx.addMessage(Messages.ERROR,"LDAP attribute does not exist for object "+ objectId+"; " + e.getMessage());
+			return null;
 		}
 		return a;
 	}
 
-	public Collection getAttributeValues(String objectId, String attrName) {
+	public Collection getAttributeValues(ServiceContext ctx,String objectId, String attrName) {
 		TreeSet valueList = new TreeSet();
 		NamingEnumeration ne = null;
 		Attribute at = null;
 		try {
-			at = getAttribute(objectId, attrName);
+			at = getAttribute(ctx,objectId, attrName);
 			if (at == null)
 				return valueList;
 			for (ne = at.getAll(); ne.hasMore(); valueList.add(ne.next()))
@@ -196,6 +222,8 @@ public class LdapLookup extends Action {
 	@Override
 	public void getReady(int idx, Service service) {
 		super.getReady(idx, service);
+		this.parsedObjectId = TextUtil.getFieldName(this.objectId);
+		this.parsedAttrName = TextUtil.getFieldName(this.attrName);
 	
 	}
 

@@ -529,7 +529,8 @@ public class DbDriver {
 			con = createConnection(schema);
 			if (acType != null) {
 				if (acType == DbAccessType.READ_ONLY) {
-					con.setReadOnly(true);
+					//TO-DO Quick patch for Issue #54, needs refactoring
+					//con.setReadOnly(true);
 				} else {
 					con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 					/*

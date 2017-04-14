@@ -6,9 +6,9 @@
 	dbAccessType="none">
 	<actions>
 		<ldapLookup
-			objectId="CN=Chetana Parameshwar Shanbhag,OU=GEN,OU=Users,OU=KEC,OU=BLR,OU=IND,DC=ad,DC=infosys,DC=com"
+			objectId="CN=Chetana Parameshwar Shanbhag"
 			attrName="cn"
 			fieldName="ldapLookup"></ldapLookup>
-		<log names="ldapLookup"/>	
 	</actions>
+	<outputData fieldNames="ldapLookup"></outputData>
 </service>
