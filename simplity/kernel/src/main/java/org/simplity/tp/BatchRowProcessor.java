@@ -190,15 +190,16 @@ public class BatchRowProcessor {
 	 *            to be used for all db work by transaction processing. This
 	 *            driver is NOT used by exception processors
 	 * @param ctx
+	 * @param interruptible
 	 * @return number of rows processed
 	 * @throws InvalidRowException
 	 *             in case the input row fails data-type validation
 	 * @throws Exception
 	 *             any other error
 	 */
-	int process(File file, BatchProcessor.Worker batchWorker, DbDriver dbDriver, ServiceContext ctx)
-			throws InvalidRowException, Exception {
-		DriverProcess driver = this.getDriverProcess(dbDriver, ctx);
+	int process(File file, BatchProcessor.Worker batchWorker, DbDriver dbDriver, ServiceContext ctx,
+			boolean interruptible) throws InvalidRowException, Exception {
+		DriverProcess driver = this.getDriverProcess(dbDriver, ctx, interruptible);
 		try {
 			driver.openShop(batchWorker, batchWorker.inFolderName, batchWorker.outFolderName, null, file, ctx);
 			return driver.callFromParent();
@@ -212,8 +213,8 @@ public class BatchRowProcessor {
 	 * the driver-processor
 	 *
 	 */
-	protected DriverProcess getDriverProcess(DbDriver dbDriver, ServiceContext ctx) {
-		return new DriverProcess(dbDriver, ctx);
+	protected DriverProcess getDriverProcess(DbDriver dbDriver, ServiceContext ctx, boolean inturrutible) {
+		return new DriverProcess(dbDriver, ctx, inturrutible);
 	}
 
 	/**
@@ -478,6 +479,7 @@ public class BatchRowProcessor {
 	protected class DriverProcess extends AbstractProcess {
 		private static final String VALIDATION_ERROR = "Input row has validation errors.";
 		private BatchProcessor.Worker batchWorker;
+		private boolean isInterruptible;
 
 		/**
 		 * @param dbDriver
@@ -485,6 +487,15 @@ public class BatchRowProcessor {
 		 */
 		protected DriverProcess(DbDriver dbDriver, ServiceContext ctx) {
 			super(dbDriver, ctx);
+		}
+
+		/**
+		 * @param dbDriver
+		 * @param ctx
+		 */
+		protected DriverProcess(DbDriver dbDriver, ServiceContext ctx, boolean interruptible) {
+			super(dbDriver, ctx);
+			this.isInterruptible = interruptible;
 		}
 
 		@Override
@@ -521,7 +532,7 @@ public class BatchRowProcessor {
 			}
 
 			/*
-			 * OK. file processing that is more functional-like
+			 * use batchInput to get input rows for processing
 			 */
 			int nbrRows = 0;
 			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
@@ -547,6 +558,11 @@ public class BatchRowProcessor {
 				} else {
 					this.doOneTransaction();
 				}
+				if (this.isInterruptible && Thread.interrupted()) {
+					Tracer.trace("Detected an interrupt. Going to stop processing rows from sql output");
+					Thread.currentThread().interrupt();
+					break;
+				}
 			}
 			return nbrRows;
 		}
@@ -563,6 +579,12 @@ public class BatchRowProcessor {
 				this.ctx.setValue(outputNames[i], values[i]);
 			}
 			this.doOneTransaction();
+
+			if (this.isInterruptible && Thread.interrupted()) {
+				Tracer.trace("Detected an interrupt. Going to stop processing rows from sql output");
+				Thread.currentThread().interrupt();
+				return false;
+			}
 			return true;
 		}
 

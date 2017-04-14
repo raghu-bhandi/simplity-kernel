@@ -6,13 +6,14 @@
 	logSqls="true"
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
-	connectionString="jdbc:h2:~/classicmodels">
+	connectionString="jdbc:h2:~/classicmodels"
+	>
 	<ldapProperties
 		factory="org.simplity.test.mock.ldap.MockInitialDirContextFactory"
-		credentials="XXXX"
+		principal="winner"
+		credentials="pwd"
 		authentication="Simple"
-		ldapurl="ldap://192.168.200.57:3268/"
-		principal="XXXX" />
+		ldapurl="ldap://192.168.200.57:3268/"/>
 	<schemaDetails>
 		<schemaDetail
 			schemaName="TESTSCHEMA"

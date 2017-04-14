@@ -57,30 +57,29 @@ public class LdapAuthenticate extends Action {
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
-		if(this.parsedPrincipal!=null){
+		if (this.parsedPrincipal != null) {
 			this.parsedPrincipalValue = ctx.getValue(this.parsedPrincipal);
-		}else{
-			this.parsedPrincipalValue = Value.newTextValue(this.principal); 
+		} else {
+			this.parsedPrincipalValue = Value.newTextValue(this.principal);
 		}
-		
-		if(this.parsedCredentials!=null){
+
+		if (this.parsedCredentials != null) {
 			this.parsedCredentialsValue = ctx.getValue(this.parsedCredentials);
-		}else{
-			this.parsedCredentialsValue = Value.newTextValue(this.credentials); 
-		}		
-		
-	
+		} else {
+			this.parsedCredentialsValue = Value.newTextValue(this.credentials);
+		}
+
 		Hashtable<String, String> env = new Hashtable<String, String>(11);
 		DirContext ldapCtx = null;
 		try {
 			// Create initial context
-			ldapCtx = LdapAgent.getInitialDirContext(parsedPrincipalValue.toText(),parsedCredentialsValue.toText());
-			if(ldapCtx == null){
+			ldapCtx = LdapAgent.getInitialDirContext(parsedPrincipalValue.toText(), parsedCredentialsValue.toText());
+			if (ldapCtx == null) {
 				ctx.addMessage("kernel.invalidLogin", "");
 				return Value.VALUE_FALSE;
 			}
 		} finally {
-			if (ldapCtx!=null)
+			if (ldapCtx != null)
 				try {
 					ldapCtx.close();
 				} catch (NamingException e) {
@@ -90,18 +89,25 @@ public class LdapAuthenticate extends Action {
 		ctx.setValue(ServiceProtocol.USER_ID, Value.newTextValue(parsedPrincipalValue.toText()));
 		return Value.VALUE_TRUE;
 	}
-	
+
 	@Override
 	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);		
-		this.parsedPrincipal = TextUtil.getFieldName(this.principal);	
+		super.getReady(idx, service);
+		this.parsedPrincipal = TextUtil.getFieldName(this.principal);
 		this.parsedCredentials = TextUtil.getFieldName(this.credentials);
 	}
 
 	@Override
 	public int validate(ValidationContext ctx, Service service) {
 		int count = super.validate(ctx, service);
-
+		if (this.principal == null) {
+			ctx.addError("principal is a required field");
+			count++;
+		}
+		if (this.credentials == null) {
+			ctx.addError("credentials is a required field");
+			count++;
+		}
 		return count;
-	}	
+	}
 }

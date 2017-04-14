@@ -528,9 +528,7 @@ public class DbDriver {
 		try {
 			con = createConnection(schema);
 			if (acType != null) {
-				if (acType == DbAccessType.READ_ONLY) {
-					con.setReadOnly(true);
-				} else {
+				if (acType != DbAccessType.READ_ONLY) {
 					con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 					/*
 					 * auto-commit method should not be invoked in case of
