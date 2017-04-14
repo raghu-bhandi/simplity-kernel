@@ -410,13 +410,13 @@ public class ActionsTest extends Mockito {
 		assertEquals(outData.hasErrors(), true);
 	}
 
-	@Test
-	public void ldapLookupTest() {
-		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
-		ServiceData outData = serviceAgentSetup("test.ldapLookup", payLoad);
-		JSONObject obj = new JSONObject(outData.getPayLoad());
-		assertEquals((String) obj.get("cn"), "Williams");
-	}
+//	@Test
+////	public void ldapLookupTest() {
+////		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
+////		ServiceData outData = serviceAgentSetup("test.ldapLookup", payLoad);
+////		JSONObject obj = new JSONObject(outData.getPayLoad());
+////		assertEquals((String) obj.get("cn"), "Williams");
+////	}
 
 	/**
 	 * Test method for
