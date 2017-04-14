@@ -22,8 +22,6 @@
 package org.simplity.kernel.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,6 +34,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.ArrayUtil;
+import org.simplity.kernel.util.ReflectUtil;
 import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
@@ -643,11 +642,11 @@ public class MultiRowsSheet implements DataSheet {
 	 * 			  columnName
 	 * @return list of column values  
 	 */
-	public List<Object> columnToList(DataSheet sheet,String columnName) {
-		Value[] columnValues = sheet.getColumnValues(columnName);
+	public List<Object> columnAsList(String columnName) {
+		Value[] columnValues = this.getColumnValues(columnName);
 		List<Object> list = new ArrayList<Object>();
 		for(Value value:columnValues){
-			list.add(this.valueToObject(value));
+			list.add(valueToObject(value));
 		}
 		return list;
 	}
@@ -658,11 +657,11 @@ public class MultiRowsSheet implements DataSheet {
 	 * @param columnName
 	 * @return set of column values
 	 */
-	public Set<Object> columnToSet(DataSheet sheet,String columnName) {
-		Value[] columnValues = sheet.getColumnValues(columnName);
+	public Set<Object> columnAsSet(String columnName) {
+		Value[] columnValues = this.getColumnValues(columnName);
 		Set<Object> set = new HashSet<Object>();
 		for(Value value:columnValues){
-			set.add(this.valueToObject(value));
+			set.add(valueToObject(value));
 		}
 		return set;
 	}
@@ -674,12 +673,12 @@ public class MultiRowsSheet implements DataSheet {
 	 * @param valueColumnName
 	 * @return 2 column values as a map with 1 column data as keys and other column data as values
 	 */
-	public Map<String,Object> columnsAsMap(DataSheet sheet,String keyColumnName, String valueColumnName) {
-		Value[] keys = sheet.getColumnValues(keyColumnName);
-		Value[] values = sheet.getColumnValues(valueColumnName);		
+	public Map<String,Object> columnsAsMap(String keyColumnName, String valueColumnName) {
+		Value[] keys = this.getColumnValues(keyColumnName);
+		Value[] values = this.getColumnValues(valueColumnName);		
 		Map<String,Object> map = new HashMap<String, Object>();
 		for(int i=0;i<keys.length;i++){	
-			Object value = this.valueToObject(values[i]);
+			Object value = valueToObject(values[i]);
 			map.put(keys[i].toString(),value);
 			}
 		return map;
@@ -689,19 +688,21 @@ public class MultiRowsSheet implements DataSheet {
 	 * 
 	 * @param sheet
 	 * @param className
+	 * 				fully qualified class name
 	 * @return List of entity objects 
 	 */
-	public List<Object> datasheetToList(DataSheet sheet,String className) {		
+	public List<Object> toList(String className) {		
 		List<Object> entityList = new ArrayList<Object>();
-		List<Value[]> rowList = sheet.getAllRows();
+		List<Value[]> rowList = getAllRows();
 		for(Value[] row:rowList){
 			Object obj;
 			try {
 				obj = Class.forName(className).newInstance();		
-				java.lang.reflect.Field[] fields = obj.getClass().getFields();
+				java.lang.reflect.Field[] fields = obj.getClass().getDeclaredFields();
 				int i=0;
-				for(java.lang.reflect.Field field:fields){		
-					field.set(obj,this.valueToObject(row[i]));				
+				for(java.lang.reflect.Field field:fields){	
+					ReflectUtil.setAttribute(obj, field.getName(), row[i].toString(), false);	
+					i++;
 				}
 				entityList.add(obj);
 			} catch (Exception e) {
@@ -715,19 +716,21 @@ public class MultiRowsSheet implements DataSheet {
 	 * 
 	 * @param sheet
 	 * @param className
+	 * 				fully qualified class name
 	 * @return Set of entity objects
 	 */
-	public Set<Object> datasheetToSet(DataSheet sheet,String className) {
+	public Set<Object> toSet(String className) {
 		Set<Object> entitySet = new HashSet<Object>();
-		List<Value[]> rowList = sheet.getAllRows();
+		List<Value[]> rowList = this.getAllRows();
 		for(Value[] row:rowList){
 			Object obj;
 			try {
 				obj = Class.forName(className).newInstance();		
-				java.lang.reflect.Field[] fields = obj.getClass().getFields();
+				java.lang.reflect.Field[] fields = obj.getClass().getDeclaredFields();
 				int i=0;
-				for(java.lang.reflect.Field field:fields){		
-					field.set(obj,this.valueToObject(row[i]));				
+				for(java.lang.reflect.Field field:fields){	
+					ReflectUtil.setAttribute(obj, field.getName(), row[i].toString(), false);
+					i++;
 				}
 				entitySet.add(obj);
 			} catch (Exception e) {
@@ -741,9 +744,9 @@ public class MultiRowsSheet implements DataSheet {
 	 * 
 	 * @param arr
 	 * @param columnName
-	 * @return MultiRowsSheet with single column
+	 * @return MultiRowsSheet
 	 */
-	public DataSheet arrayToDatasheet(Object[] arr,String columnName) {
+	public static DataSheet toDatasheet(Object[] arr,String columnName) {
 		String[] header = {columnName};
 		ValueType[] valueTypes = {ValueType.TEXT};
 		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
@@ -759,9 +762,9 @@ public class MultiRowsSheet implements DataSheet {
 	 * 
 	 * @param list
 	 * @param columnName
-	 * @return MultiRowsSheet with single column
+	 * @return MultiRowsSheet 
 	 */
-	public DataSheet listToDatasheet(List<Object> list,String columnName) {
+	public static DataSheet toDatasheet(List<Object> list,String columnName) {
 		String[] header = {columnName};
 		ValueType[] valueTypes = {ValueType.TEXT};
 		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
@@ -777,9 +780,9 @@ public class MultiRowsSheet implements DataSheet {
 	 * 
 	 * @param set
 	 * @param columnName
-	 * @return MultiRowsSheet with single column
+	 * @return MultiRowsSheet 
 	 */
-	public DataSheet setToDatasheet(Set<Object> set,String columnName) {
+	public static DataSheet toDatasheet(Set<Object> set,String columnName) {
 		String[] header = {columnName};
 		ValueType[] valueTypes = {ValueType.TEXT};
 		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
@@ -804,7 +807,7 @@ public class MultiRowsSheet implements DataSheet {
 	 * @return
 	 * 		DataSheet
 	 */
-	public DataSheet mapToDatasheet(HashMap<Object,Object> map, boolean transpose) {
+	public static DataSheet toDatasheet(HashMap<Object,Object> map, boolean transpose) {
 		if(transpose){
 			String[] columnNames = {};
 			ValueType[] valueTypes = {};
