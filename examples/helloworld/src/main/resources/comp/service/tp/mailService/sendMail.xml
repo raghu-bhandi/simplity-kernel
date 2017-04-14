@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service xmlns="http://www.simplity.org/schema" name="sendMail"
+	dbAccessType="none">
+	<!-- 
+	<inputData>
+		<inputFields>
+			<inputField dataType="_text" name="message" />
+		</inputFields>
+	</inputData>
+	 -->
+	 
+	<actions>
+		
+		<createSheet sheetName="mailContent1" recordName="sampleMailContent"/>
+		<setValue fieldName="id"  fieldValue="123"></setValue>
+		<setValue fieldName="name"  fieldValue="abc"></setValue>
+		<addRow sheetName="mailContent1"/>
+		
+		<setValue fieldName="id"  fieldValue="456"></setValue>
+		<setValue fieldName="name"  fieldValue="xyz"></setValue>
+		<addRow sheetName="mailContent1"/>
+		
+		<createSheet sheetName="mailContent2" recordName="sampleMailContent2"/>
+		<setValue fieldName="sample"  fieldValue="sample1"></setValue>
+		<setValue fieldName="test"  fieldValue="test1"></setValue>
+		<addRow sheetName="mailContent2"/>
+		
+		<setValue fieldName="sample"  fieldValue="sample2"></setValue>
+		<setValue fieldName="test"  fieldValue="test2"></setValue>
+		<addRow sheetName="mailContent2"/>
+				
+		<createSheet sheetName="mailAttachment" recordName="attachment"/>
+		<setValue fieldName="filename"  fieldValue="Quality.gif"></setValue>
+		<setValue fieldName="filepath"  fieldValue="C:\\Users\\madhavan_n\\Desktop\\Quality.gif"></setValue>
+		<addRow sheetName="mailAttachment"/>
+		
+		<setValue fieldName="filename"  fieldValue="UserServlet1.java"></setValue>
+		<setValue fieldName="filepath"  fieldValue="C:\\Users\\madhavan_n\\Desktop\\UserServlet1.java"></setValue>
+		<addRow sheetName="mailAttachment"/>
+		
+		<setValue fieldName="filename"  fieldValue="UserServlet2.java"></setValue>
+		<setValue fieldName="filepath"  fieldValue="C:\\Users\\madhavan_n\\Desktop\\UserServlet2.java"></setValue>
+		<addRow sheetName="mailAttachment"/>
+		
+		<sendMail fromId="from@sample.com" 
+				  toIds="to@sample.com" 
+				  bccIds="bcc@sample.com" 
+				  ccIds="cc@sample.com" 
+				  subject="sample subject"
+				  attachmentSheetName="mailAttachment">
+				  <!-- attachmentSheetName format will have filename and filekey/filepath as the columns -->
+				<content type="template"
+						templatePath="D:/WorkSpace/Simplity/mailDemo/src/main/resources/template/" 
+						template="sample.ftl"
+						inputSheetName="mailContent1,mailContent2">
+					<text>hello</text>
+				</content>
+		</sendMail>
+	</actions>
+</service>
