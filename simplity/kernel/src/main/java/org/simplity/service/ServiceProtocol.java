@@ -310,4 +310,12 @@ public abstract class ServiceProtocol {
 	 * name of the field in service context that indicates whether this login attempt is by auto-login feature. For example a servce.xml being used as login service can use executeOnCondition="_isAutoLogin"
 	 */
 	public static final String IS_AUTO_LOGIN = "_isAutoLogin";
+	/**
+	 * name of the field with the rowText in the context
+	 */
+	public static final String ROW_TEXT = "_rowText";
+	/**
+	 * name of the field with the row line in the context
+	 */
+	public static final String LINE_NUM = "_lineNum";	
 }
