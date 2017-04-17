@@ -54,6 +54,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import javax.mail.util.ByteArrayDataSource;
 
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
@@ -71,6 +72,7 @@ public class SendMail extends Action {
 	String bccIds;
 	String subject;
 	String attachmentSheetName;
+	String inlineAttachmentSheetName;
 
 	Content content;
 
@@ -95,6 +97,26 @@ public class SendMail extends Action {
 		mail.bccIds = bccIds;
 		mail.subject = subject;
 
+		DataSheet attachmentDataSheet = ctx.getDataSheet(attachmentSheetName);
+		String[][] rawAttachmentData = attachmentDataSheet.getRawData();
+		mail.attachment = new MailAttachement[attachmentDataSheet.length()];
+		
+		for(int i=0; i < attachmentDataSheet.length(); i++) {
+			mail.attachment[i] = new MailAttachement();
+			mail.attachment[i].filename = rawAttachmentData[i+1][0];
+			mail.attachment[i].filepath = rawAttachmentData[i+1][1];
+		}
+		
+		DataSheet inlineAttachmentDataSheet = ctx.getDataSheet(inlineAttachmentSheetName);
+		String[][] rawInlineAttachmentData = inlineAttachmentDataSheet.getRawData();
+		mail.inlineAttachment = new MailAttachement[inlineAttachmentDataSheet.length()];
+		
+		for(int i=0; i < inlineAttachmentDataSheet.length(); i++) {
+			mail.inlineAttachment[i] = new MailAttachement();
+			mail.inlineAttachment[i].filename = rawInlineAttachmentData[i+1][0];
+			mail.inlineAttachment[i].filepath = rawInlineAttachmentData[i+1][1];
+		}
+		
 		if(content.type.compareTo(ContentType.TEMPLATE) == 0) {
 			Configuration templateConfiguration = new Configuration();
 
@@ -148,16 +170,6 @@ public class SendMail extends Action {
 			}
 		}
 		
-		DataSheet attachmentDataSheet = ctx.getDataSheet(attachmentSheetName);
-		String[][] rawData = attachmentDataSheet.getRawData();
-		mail.attachment = new MailAttachement[attachmentDataSheet.length()];
-		
-		for(int i=0; i < attachmentDataSheet.length(); i++) {
-			mail.attachment[i] = new MailAttachement();
-			mail.attachment[i].filename = rawData[i+1][0];
-			mail.attachment[i].filepath = rawData[i+1][1];
-		}
-		
 		Session session = Session.getInstance(props, null);
 		sendEmail(session, mail);
 
@@ -168,8 +180,7 @@ public class SendMail extends Action {
 	private void sendEmail(Session session, Mail mail) {
 		try {
 			MimeMessage msg = new MimeMessage(session);
-			msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
-			msg.addHeader("format", "flowed");
+			msg.addHeader("Content-type", "text/html; charset=UTF-8");
 			msg.addHeader("Content-Transfer-Encoding", "8bit");
 			msg.setFrom(new InternetAddress(mail.fromId, "NoReply-JD"));
 			msg.setReplyTo(InternetAddress.parse(mail.fromId, false));
@@ -181,10 +192,21 @@ public class SendMail extends Action {
 			//msg.setContent(mail.content, "text/HTML; charset=UTF-8");
 			
 			Multipart multipart = new MimeMultipart();
-			
-			BodyPart bodyPart = new MimeBodyPart();
-			bodyPart.setContent(mail.content, "text/HTML; charset=UTF-8");
+			MimeBodyPart bodyPart = new MimeBodyPart();
+			bodyPart.setText(mail.content, "US-ASCII", "html");
+			//bodyPart.setText("<h1>This is a test</h1> <img src=\"http://www.rgagnon.com/images/jht.gif\">", "US-ASCII", "html");
+			//System.out.println(msg.getContentType());
 			multipart.addBodyPart(bodyPart);
+			
+			for(int i=0; i < mail.inlineAttachment.length; i++) {
+				bodyPart = new MimeBodyPart();
+				bodyPart.setDisposition(MimeBodyPart.INLINE);
+				// Attach Inline image file
+				bodyPart.attachFile(mail.inlineAttachment[i].filepath);
+				System.out.println(bodyPart.getFileName().substring(0, bodyPart.getFileName().lastIndexOf(".")));
+				bodyPart.setHeader("Content-ID", bodyPart.getFileName().substring(0, bodyPart.getFileName().lastIndexOf(".")));
+	            multipart.addBodyPart(bodyPart);
+			}
 			
 			DataSource dataSource = null;
 			
@@ -228,6 +250,7 @@ class Mail implements Serializable {
 	public String subject;
 	public String content;
 	public MailAttachement[] attachment;
+	public MailAttachement[] inlineAttachment;
 }
 
 class MailAttachement implements Serializable {

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<service xmlns="http://www.simplity.org/schema" name="sendMail"
+<service xmlns="http://www.simplity.org/schema" 
+	moduleName="mailService"
+	name="sendMail"
 	dbAccessType="none">
 	<!-- 
 	<inputData>
@@ -11,7 +13,7 @@
 	 
 	<actions>
 		
-		<createSheet sheetName="mailContent1" recordName="sampleMailContent"/>
+		<createSheet sheetName="mailContent1" recordName="mail.sampleMailContent"/>
 		<setValue fieldName="id"  fieldValue="123"></setValue>
 		<setValue fieldName="name"  fieldValue="abc"></setValue>
 		<addRow sheetName="mailContent1"/>
@@ -20,7 +22,7 @@
 		<setValue fieldName="name"  fieldValue="xyz"></setValue>
 		<addRow sheetName="mailContent1"/>
 		
-		<createSheet sheetName="mailContent2" recordName="sampleMailContent2"/>
+		<createSheet sheetName="mailContent2" recordName="mail.sampleMailContent2"/>
 		<setValue fieldName="sample"  fieldValue="sample1"></setValue>
 		<setValue fieldName="test"  fieldValue="test1"></setValue>
 		<addRow sheetName="mailContent2"/>
@@ -29,7 +31,7 @@
 		<setValue fieldName="test"  fieldValue="test2"></setValue>
 		<addRow sheetName="mailContent2"/>
 				
-		<createSheet sheetName="mailAttachment" recordName="attachment"/>
+		<createSheet sheetName="mailAttachment" recordName="mail.attachment"/>
 		<setValue fieldName="filename"  fieldValue="Quality.gif"></setValue>
 		<setValue fieldName="filepath"  fieldValue="C:\\Users\\madhavan_n\\Desktop\\Quality.gif"></setValue>
 		<addRow sheetName="mailAttachment"/>
@@ -42,10 +44,10 @@
 		<setValue fieldName="filepath"  fieldValue="C:\\Users\\madhavan_n\\Desktop\\UserServlet2.java"></setValue>
 		<addRow sheetName="mailAttachment"/>
 		
-		<sendMail fromId="from@sample.com" 
-				  toIds="to@sample.com" 
-				  bccIds="bcc@sample.com" 
-				  ccIds="cc@sample.com" 
+		<sendMail fromId="madhavan_n@infosys.com" 
+				  toIds="madhavan_n@infosys.com" 
+				  bccIds="madhavan_n@infosys.com" 
+				  ccIds="madhavan_n@infosys.com" 
 				  subject="sample subject"
 				  attachmentSheetName="mailAttachment">
 				  <!-- attachmentSheetName format will have filename and filekey/filepath as the columns -->
