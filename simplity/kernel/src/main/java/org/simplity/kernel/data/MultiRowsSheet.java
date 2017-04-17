@@ -21,7 +21,9 @@
  */
 package org.simplity.kernel.data;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -640,13 +642,31 @@ public class MultiRowsSheet implements DataSheet {
 	 * 			  sheet 			
 	 * @param columnName
 	 * 			  columnName
+	 * @return array of column values of primitive data type  
+	 */
+	public Object[] columnAsArray(String columnName) {
+		Value[] columnValues = this.getColumnValues(columnName);
+		Object[] array = {};
+		for(int i=0;i<columnValues.length;i++){
+			Value value = columnValues[i];
+			array[i] = valueToPrimitive(value);
+		}
+		return array;
+	}
+	
+	/** 
+	 * 
+	 * @param sheet
+	 * 			  sheet 			
+	 * @param columnName
+	 * 			  columnName
 	 * @return list of column values  
 	 */
 	public List<Object> columnAsList(String columnName) {
 		Value[] columnValues = this.getColumnValues(columnName);
 		List<Object> list = new ArrayList<Object>();
 		for(Value value:columnValues){
-			list.add(valueToObject(value));
+			list.add(valueToPrimitive(value));
 		}
 		return list;
 	}
@@ -661,7 +681,7 @@ public class MultiRowsSheet implements DataSheet {
 		Value[] columnValues = this.getColumnValues(columnName);
 		Set<Object> set = new HashSet<Object>();
 		for(Value value:columnValues){
-			set.add(valueToObject(value));
+			set.add(valueToPrimitive(value));
 		}
 		return set;
 	}
@@ -678,7 +698,7 @@ public class MultiRowsSheet implements DataSheet {
 		Value[] values = this.getColumnValues(valueColumnName);		
 		Map<String,Object> map = new HashMap<String, Object>();
 		for(int i=0;i<keys.length;i++){	
-			Object value = valueToObject(values[i]);
+			Object value = valueToPrimitive(values[i]);
 			map.put(keys[i].toString(),value);
 			}
 		return map;
@@ -693,16 +713,25 @@ public class MultiRowsSheet implements DataSheet {
 	 */
 	public List<Object> toList(String className) {		
 		List<Object> entityList = new ArrayList<Object>();
-		List<Value[]> rowList = getAllRows();
+		List<Value[]> rowList = this.getAllRows();
+		String[] columnNames = this.getColumnNames();
 		for(Value[] row:rowList){
 			Object obj;
 			try {
 				obj = Class.forName(className).newInstance();		
 				java.lang.reflect.Field[] fields = obj.getClass().getDeclaredFields();
-				int i=0;
 				for(java.lang.reflect.Field field:fields){	
-					ReflectUtil.setAttribute(obj, field.getName(), row[i].toString(), false);	
-					i++;
+					for (int j = 0; j < columnNames.length; j++) {
+						/* 
+						 * sets value to corresponding field of class instance 
+						 */
+						if (field.getName().equalsIgnoreCase(columnNames[j])) {							
+							/*
+							 * We expects the caller to make sure the field names of the class and data sheet column names to be same
+							 */
+							ReflectUtil.setAttribute(obj, field.getName(), row[j].toString(), false);
+						}
+					}
 				}
 				entityList.add(obj);
 			} catch (Exception e) {
@@ -727,10 +756,12 @@ public class MultiRowsSheet implements DataSheet {
 			try {
 				obj = Class.forName(className).newInstance();		
 				java.lang.reflect.Field[] fields = obj.getClass().getDeclaredFields();
-				int i=0;
 				for(java.lang.reflect.Field field:fields){	
-					ReflectUtil.setAttribute(obj, field.getName(), row[i].toString(), false);
-					i++;
+					for (int j = 0; j < columnNames.length; j++) {
+						if (field.getName().equals(columnNames[j])) {
+							ReflectUtil.setAttribute(obj, field.getName(), row[j].toString(), false);
+						}
+					}
 				}
 				entitySet.add(obj);
 			} catch (Exception e) {
@@ -765,12 +796,30 @@ public class MultiRowsSheet implements DataSheet {
 	 * @return MultiRowsSheet 
 	 */
 	public static DataSheet toDatasheet(List<Object> list,String columnName) {
-		String[] header = {columnName};
-		ValueType[] valueTypes = {ValueType.TEXT};
+		Class<?> cls = list.get(0).getClass();
+		if(cls.isPrimitive()){
+			String[] header = {columnName};
+			ValueType[] valueTypes = {getType(cls)};
+			MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
+			for(Object value:list){
+				Value[] valarray = new Value[1];
+				valarray[0] = Value.newTextValue(value.toString());
+				sheet.addRow(valarray);
+			}
+			return sheet;
+		}
+		java.lang.reflect.Field[] fields = cls.getDeclaredFields();
+		String[] header = {};
+		ValueType[] valueTypes = {};
+		int i=0;
+		for(java.lang.reflect.Field field:fields){
+			header[i] = field.getName();
+			valueTypes[i] = getType(field.getType());
+			i++;
+		}
 		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
-		for(Object value:list){
-			Value[] valarray = new Value[1];
-			valarray[0] = Value.newTextValue(value.toString());
+		for(Object obj:list){
+			Value[] valarray = objectToValueArray(obj,fields);
 			sheet.addRow(valarray);
 		}
 		return sheet;
@@ -783,12 +832,30 @@ public class MultiRowsSheet implements DataSheet {
 	 * @return MultiRowsSheet 
 	 */
 	public static DataSheet toDatasheet(Set<Object> set,String columnName) {
-		String[] header = {columnName};
-		ValueType[] valueTypes = {ValueType.TEXT};
+		Class<?> cls = set.iterator().next().getClass();
+		if(cls.isPrimitive()){
+			String[] header = {columnName};
+			ValueType[] valueTypes = {getType(cls)};
+			MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
+			for(Object value:set){
+				Value[] valarray = new Value[1];
+				valarray[0] = Value.newTextValue(value.toString());
+				sheet.addRow(valarray);
+			}
+			return sheet;
+		}
+		java.lang.reflect.Field[] fields = cls.getDeclaredFields();
+		String[] header = {};
+		ValueType[] valueTypes = {};
+		int i=0;
+		for(java.lang.reflect.Field field:fields){
+			header[i] = field.getName();
+			valueTypes[i] = getType(field.getType());
+			i++;
+		}
 		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
-		for(Object value:set){
-			Value[] valarray = new Value[1];
-			valarray[0] = Value.newTextValue(value.toString());
+		for(Object obj:set){
+			Value[] valarray = objectToValueArray(obj,fields);
 			sheet.addRow(valarray);
 		}
 		return sheet;
@@ -807,7 +874,7 @@ public class MultiRowsSheet implements DataSheet {
 	 * @return
 	 * 		DataSheet
 	 */
-	public static DataSheet toDatasheet(HashMap<Object,Object> map, boolean transpose) {
+	public static DataSheet toDatasheet(HashMap<String,Object> map, boolean transpose) {
 		if(transpose){
 			String[] columnNames = {};
 			ValueType[] valueTypes = {};
@@ -835,7 +902,7 @@ public class MultiRowsSheet implements DataSheet {
 		return multirowsSheet;
 	}
 
-	private Object valueToObject(Value value){
+	private Object valueToPrimitive(Value value){
 		try {
 			switch (value.getValueType()){
 			case BLOB:{	
@@ -869,5 +936,65 @@ public class MultiRowsSheet implements DataSheet {
 		} catch (InvalidValueException e) {
 			throw new ApplicationError(e.getMessage());
 		}
+	}
+	
+	private static ValueType getType(Class<?> type) {
+		if (type.equals(String.class)) {
+			return ValueType.TEXT;
+		}
+
+		if (type.isPrimitive()) {
+			if (type.equals(int.class)) {
+				return ValueType.INTEGER;
+			}
+
+			if (type.equals(long.class)) {
+				return ValueType.INTEGER;
+			}
+
+			if (type.equals(short.class)) {
+				return ValueType.INTEGER;
+			}
+
+			if (type.equals(byte.class)) {
+				return ValueType.INTEGER;
+			}
+
+			if (type.equals(char.class)) {
+				return ValueType.TEXT;
+			}
+
+			if (type.equals(boolean.class)) {
+				return ValueType.BOOLEAN;
+			}
+
+			if (type.equals(float.class)) {
+				return ValueType.DECIMAL;
+			}
+
+			if (type.equals(double.class)) {
+				return ValueType.DECIMAL;
+			}
+		}
+		if (type.equals(Date.class)) {
+			return ValueType.DATE;
+		}
+		if (type.equals(Timestamp.class)) {
+			return ValueType.TIMESTAMP;
+		}
+		return ValueType.TEXT;
+	}
+
+	private static Value[] objectToValueArray(Object obj,java.lang.reflect.Field[] fields){
+		Value[] valarray = new Value[fields.length];
+		int j = 0;
+		for(java.lang.reflect.Field field:fields){
+			try {
+				valarray[j] = Value.parseObject(field.get(obj));
+			} catch (Exception e) {
+				throw new ApplicationError(e.getMessage());
+			}
+		}
+		return valarray;
 	}
 }

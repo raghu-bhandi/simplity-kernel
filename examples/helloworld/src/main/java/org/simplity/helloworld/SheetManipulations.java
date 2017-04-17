@@ -15,13 +15,16 @@ public class SheetManipulations implements LogicInterface{
 	@Override
 	public Value execute(ServiceContext ctx) {
 		MultiRowsSheet sheet = (MultiRowsSheet) ctx.getDataSheet("orders");
-		List<Object> columnList = sheet.columnAsList("ordNum");
-		DataSheet returnsheet = MultiRowsSheet.toDatasheet(columnList, "ordNum");
+		List<Object> columnList = sheet.columnAsList("ordNum");		
+		
 		Set<Object> sheetSet = sheet.toSet("org.simplity.helloworld.entity.Orders");
 		for(Object obj:sheetSet){
 			Orders order = (Orders)obj;
 			System.out.println("Order Number: "+order.getOrdNum());
 		}
+		
+		DataSheet returnsheet = MultiRowsSheet.toDatasheet(columnList, "ordNum");
+		
 		ctx.putDataSheet("ordNumSheet", returnsheet);
 		return null;
 	}
