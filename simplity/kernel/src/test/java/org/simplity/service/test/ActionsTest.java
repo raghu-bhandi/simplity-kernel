@@ -429,7 +429,7 @@ public class ActionsTest extends Mockito {
 	public void sendMailTest() {	
 		PowerMockito.mockStatic(Transport.class);
 		Messages msg = new org.simplity.test.mail.Messages();
-		PowerMockito.when(Transport.send(msg)).thenReturn();
+		//PowerMockito.when(Transport.send(msg)).thenReturn();
 		ServiceData outData = serviceAgentSetup("test.sendMail", null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals((String) obj.get("fromId"),"from@sample.com");
