@@ -43,22 +43,20 @@ import java.util.Map;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
+import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
-import javax.mail.util.ByteArrayDataSource;
 
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.smtp.SmtpAgent;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
-import org.simplity.test.mail.MockTransport;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -82,7 +80,6 @@ public class SendMail extends Action {
 	@Override
 	protected Value doAct(ServiceContext ctx) {
 
-
 		Mail mail = new Mail();
 		mail.fromId = fromId;
 		mail.toIds = toIds;
@@ -90,14 +87,16 @@ public class SendMail extends Action {
 		mail.bccIds = bccIds;
 		mail.subject = subject;
 
+		Map<String, Object> data = new HashMap<String, Object>();
+		
 		DataSheet attachmentDataSheet = ctx.getDataSheet(attachmentSheetName);
 		String[][] rawAttachmentData = attachmentDataSheet.getRawData();
 		mail.attachment = new MailAttachement[attachmentDataSheet.length()];
 		
 		for(int i=0; i < attachmentDataSheet.length(); i++) {
 			mail.attachment[i] = new MailAttachement();
-			mail.attachment[i].filename = rawAttachmentData[i+1][0];
-			mail.attachment[i].filepath = rawAttachmentData[i+1][1];
+			mail.attachment[i].name = rawAttachmentData[i+1][0];
+			mail.attachment[i].filepath = rawAttachmentData[i+1][1].replace("\\", "/");
 		}
 		
 		DataSheet inlineAttachmentDataSheet = ctx.getDataSheet(inlineAttachmentSheetName);
@@ -106,8 +105,8 @@ public class SendMail extends Action {
 		
 		for(int i=0; i < inlineAttachmentDataSheet.length(); i++) {
 			mail.inlineAttachment[i] = new MailAttachement();
-			mail.inlineAttachment[i].filename = rawInlineAttachmentData[i+1][0];
-			mail.inlineAttachment[i].filepath = rawInlineAttachmentData[i+1][1];
+			mail.inlineAttachment[i].name = rawInlineAttachmentData[i+1][0];
+			mail.inlineAttachment[i].filepath = rawInlineAttachmentData[i+1][1].replace("\\", "/");
 		}
 		
 		if(content.type.compareTo(ContentType.TEMPLATE) == 0) {
@@ -118,8 +117,6 @@ public class SendMail extends Action {
 				templateConfiguration.setDirectoryForTemplateLoading(new File(content.templatePath));
 				Template template = templateConfiguration.getTemplate(content.template);
 				
-				Map<String, Object> data = new HashMap<String, Object>();
-
 				for(int sheetIndex=0; sheetIndex < content.inputSheetName.length; sheetIndex++) {
 					DataSheet dataSheet = ctx.getDataSheet(content.inputSheetName[sheetIndex]);
 					
@@ -163,17 +160,6 @@ public class SendMail extends Action {
 			}
 		}
 		
-
-		attachmentDataSheet = ctx.getDataSheet(attachmentSheetName);
-		String[][] rawData = attachmentDataSheet.getRawData();
-		mail.attachment = new MailAttachement[attachmentDataSheet.length()];
-		
-		for(int i=0; i < attachmentDataSheet.length(); i++) {
-			mail.attachment[i] = new MailAttachement();
-			mail.attachment[i].filename = rawData[i+1][0];
-			mail.attachment[i].filepath = rawData[i+1][1];
-		}
-		
 		Session session = Session.getInstance(SmtpAgent.getProperties(), null);
 
 		sendEmail(session, mail);
@@ -194,22 +180,18 @@ public class SendMail extends Action {
 			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
 			msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(mail.ccIds, false));
 			msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(mail.bccIds, false));
-			//msg.setContent(mail.content, "text/HTML; charset=UTF-8");
 			
 			Multipart multipart = new MimeMultipart();
+			
 			MimeBodyPart bodyPart = new MimeBodyPart();
 			bodyPart.setText(mail.content, "US-ASCII", "html");
-			//bodyPart.setText("<h1>This is a test</h1> <img src=\"http://www.rgagnon.com/images/jht.gif\">", "US-ASCII", "html");
-			//System.out.println(msg.getContentType());
 			multipart.addBodyPart(bodyPart);
 			
 			for(int i=0; i < mail.inlineAttachment.length; i++) {
 				bodyPart = new MimeBodyPart();
 				bodyPart.setDisposition(MimeBodyPart.INLINE);
-				// Attach Inline image file
-				bodyPart.attachFile(mail.inlineAttachment[i].filepath);
-				System.out.println(bodyPart.getFileName().substring(0, bodyPart.getFileName().lastIndexOf(".")));
-				bodyPart.setHeader("Content-ID", bodyPart.getFileName().substring(0, bodyPart.getFileName().lastIndexOf(".")));
+				bodyPart.attachFile(mail.inlineAttachment[i].filepath); // attach inline image file
+				bodyPart.setHeader("Content-ID", mail.inlineAttachment[i].name);
 	            multipart.addBodyPart(bodyPart);
 			}
 			
@@ -219,13 +201,13 @@ public class SendMail extends Action {
 				bodyPart = new MimeBodyPart();
 				dataSource = new FileDataSource(mail.attachment[i].filepath);
 				bodyPart.setDataHandler(new DataHandler(dataSource));
-				bodyPart.setFileName(mail.attachment[i].filename);
+				bodyPart.setFileName(mail.attachment[i].name);
 	            multipart.addBodyPart(bodyPart);
 			}
 			
             msg.setContent(multipart);
 			msg.writeTo(System.out);
-			MockTransport.send(msg);
+			Transport.send(msg);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -262,11 +244,11 @@ class MailAttachement implements Serializable {
 
 	private static final long serialVersionUID = 8189730674999834850L;
 	
-	public String filename;
+	public String name;
 	public String filepath;
 	
 	public boolean isEmpty() {
-		if (filename == null || filename.isEmpty())
+		if (name == null || name.isEmpty())
 			return true;
 		return false;
 	}
