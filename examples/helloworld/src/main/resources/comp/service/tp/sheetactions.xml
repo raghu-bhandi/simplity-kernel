@@ -6,7 +6,6 @@
 	<actions>
 		<filter filterRecordName="tables.orders" outputSheetName="orders"></filter>		
 		<logic className="org.simplity.helloworld.SheetManipulations"/>
-		<log names="orders,ordNumSheet"/>
 	</actions>
-	<outputData arrayNames="ordNumSheet"></outputData>
+	<outputData dataSheets="settosheet" fieldNames="columnArray,columnList,columnSet,columnsMap,orderObj" arrayNames="listtosheet,arraytosheet"></outputData>
 </service>

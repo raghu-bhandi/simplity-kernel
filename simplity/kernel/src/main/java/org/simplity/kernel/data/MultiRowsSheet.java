@@ -646,7 +646,7 @@ public class MultiRowsSheet implements DataSheet {
 	 */
 	public Object[] columnAsArray(String columnName) {
 		Value[] columnValues = this.getColumnValues(columnName);
-		Object[] array = {};
+		Object[] array = new Object[columnValues.length];
 		for(int i=0;i<columnValues.length;i++){
 			Value value = columnValues[i];
 			array[i] = valueToPrimitive(value);
@@ -795,9 +795,9 @@ public class MultiRowsSheet implements DataSheet {
 	 * @param columnName
 	 * @return MultiRowsSheet 
 	 */
-	public static DataSheet toDatasheet(List<Object> list,String columnName) {
+	public static DataSheet toDatasheet(List<? extends Object> list,String columnName) {
 		Class<?> cls = list.get(0).getClass();
-		if(cls.isPrimitive()){
+		if(cls.isPrimitive() || cls.equals(String.class) || cls.equals(Date.class) || cls.equals(Timestamp.class)){
 			String[] header = {columnName};
 			ValueType[] valueTypes = {getType(cls)};
 			MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
@@ -809,8 +809,8 @@ public class MultiRowsSheet implements DataSheet {
 			return sheet;
 		}
 		java.lang.reflect.Field[] fields = cls.getDeclaredFields();
-		String[] header = {};
-		ValueType[] valueTypes = {};
+		String[] header = new String[fields.length];
+		ValueType[] valueTypes = new ValueType[fields.length];
 		int i=0;
 		for(java.lang.reflect.Field field:fields){
 			header[i] = field.getName();
@@ -831,9 +831,9 @@ public class MultiRowsSheet implements DataSheet {
 	 * @param columnName
 	 * @return MultiRowsSheet 
 	 */
-	public static DataSheet toDatasheet(Set<Object> set,String columnName) {
+	public static DataSheet toDatasheet(Set<? extends Object> set,String columnName) {
 		Class<?> cls = set.iterator().next().getClass();
-		if(cls.isPrimitive()){
+		if(cls.isPrimitive() || cls.equals(String.class) || cls.equals(Date.class) || cls.equals(Timestamp.class)){
 			String[] header = {columnName};
 			ValueType[] valueTypes = {getType(cls)};
 			MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
@@ -845,8 +845,8 @@ public class MultiRowsSheet implements DataSheet {
 			return sheet;
 		}
 		java.lang.reflect.Field[] fields = cls.getDeclaredFields();
-		String[] header = {};
-		ValueType[] valueTypes = {};
+		String[] header = new String[fields.length];
+		ValueType[] valueTypes = new ValueType[fields.length];
 		int i=0;
 		for(java.lang.reflect.Field field:fields){
 			header[i] = field.getName();
@@ -912,16 +912,16 @@ public class MultiRowsSheet implements DataSheet {
 				return value.toObject();
 			}
 			case DECIMAL:{
-				return value.toDecimal();
+				return new Float(value.toDecimal());
 			}
 			case BOOLEAN:{
-				return value.toBoolean();
+				return new Boolean(value.toBoolean());
 			}
 			case DATE:{
 				return value.toDate();
 			}
 			case INTEGER:{
-				return value.toInteger();
+				return new Long(value.toInteger());
 			}
 			case TEXT:{
 				return value.toText();
@@ -990,6 +990,7 @@ public class MultiRowsSheet implements DataSheet {
 		int j = 0;
 		for(java.lang.reflect.Field field:fields){
 			try {
+				field.setAccessible(true);
 				valarray[j] = Value.parseObject(field.get(obj));
 			} catch (Exception e) {
 				throw new ApplicationError(e.getMessage());
