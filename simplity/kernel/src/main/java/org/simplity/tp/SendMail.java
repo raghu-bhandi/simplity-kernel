@@ -39,25 +39,23 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
-import javax.activation.DataHandler;
 import javax.activation.DataSource;
-import javax.activation.FileDataSource;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.smtp.SmtpAgent;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
+import org.simplity.test.mail.MockTransport;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -74,19 +72,12 @@ public class SendMail extends Action {
 
 	Content content;
 
-	private Properties props = new Properties();
-
 	public SendMail() {
 	}
 
 	@Override
 	protected Value doAct(ServiceContext ctx) {
 
-		try {
-			props.load(this.getClass().getClassLoader().getResourceAsStream("config.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
 		Mail mail = new Mail();
 		mail.fromId = fromId;
@@ -148,17 +139,17 @@ public class SendMail extends Action {
 			}
 		}
 		
-		DataSheet attachmentDataSheet = ctx.getDataSheet(attachmentSheetName);
-		String[][] rawData = attachmentDataSheet.getRawData();
-		mail.attachment = new MailAttachement[attachmentDataSheet.length()];
-		
-		for(int i=0; i < attachmentDataSheet.length(); i++) {
-			mail.attachment[i] = new MailAttachement();
-			mail.attachment[i].filename = rawData[i+1][0];
-			mail.attachment[i].filepath = rawData[i+1][1];
-		}
-		
-		Session session = Session.getInstance(props, null);
+//		DataSheet attachmentDataSheet = ctx.getDataSheet(attachmentSheetName);
+//		String[][] rawData = attachmentDataSheet.getRawData();
+//		mail.attachment = new MailAttachement[attachmentDataSheet.length()];
+//		
+//		for(int i=0; i < attachmentDataSheet.length(); i++) {
+//			mail.attachment[i] = new MailAttachement();
+//			mail.attachment[i].filename = rawData[i+1][0];
+//			mail.attachment[i].filepath = rawData[i+1][1];
+//		}
+//		
+		Session session = Session.getInstance(SmtpAgent.getProperties(), null);
 		sendEmail(session, mail);
 
 		return Value.newBooleanValue(true);
@@ -188,17 +179,17 @@ public class SendMail extends Action {
 			
 			DataSource dataSource = null;
 			
-			for(int i=0; i < mail.attachment.length; i++) {
-				bodyPart = new MimeBodyPart();
-				dataSource = new FileDataSource(mail.attachment[i].filepath);
-				bodyPart.setDataHandler(new DataHandler(dataSource));
-				bodyPart.setFileName(mail.attachment[i].filename);
-	            multipart.addBodyPart(bodyPart);
-			}
+//			for(int i=0; i < mail.attachment.length; i++) {
+//				bodyPart = new MimeBodyPart();
+//				dataSource = new FileDataSource(mail.attachment[i].filepath);
+//				bodyPart.setDataHandler(new DataHandler(dataSource));
+//				bodyPart.setFileName(mail.attachment[i].filename);
+//	            multipart.addBodyPart(bodyPart);
+//			}
 			
             msg.setContent(multipart);
 			msg.writeTo(System.out);
-			Transport.send(msg);
+			MockTransport.send(msg);
 
 		} catch (IOException e) {
 			e.printStackTrace();

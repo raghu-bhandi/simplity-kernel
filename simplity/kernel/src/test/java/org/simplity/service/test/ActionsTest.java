@@ -14,12 +14,10 @@ import java.sql.Statement;
 import java.util.Hashtable;
 import java.util.Set;
 
+import javax.mail.Message;
+import javax.mail.Transport;
 import javax.naming.Context;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.spi.InitialContextFactory;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -31,11 +29,15 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
@@ -48,10 +50,9 @@ import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
+import org.simplity.test.mail.Messages;
 import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
-
-import com.sun.jndi.ldap.LdapCtxFactory;
-
+@RunWith(PowerMockRunner.class)
 public class ActionsTest extends Mockito {
 	private static final String COMP_PATH = "comp/";
 
@@ -82,6 +83,10 @@ public class ActionsTest extends Mockito {
 		
 		ServletContext context = mock(ServletContext.class);
 		MockInitialDirContextFactory factory = mock(MockInitialDirContextFactory.class);
+		Transport transport = mock(Transport.class);
+		
+		
+		
 		
 		Class<Hashtable<?, ?>> clazz = null;
 		when(factory.getInitialContext(any(clazz))).thenAnswer(new Answer<Context>() {
@@ -121,6 +126,8 @@ public class ActionsTest extends Mockito {
 			}
 		});
 		
+		Class<Message> clazzMessage;
+		/*when(Transport.send(any(clazzMessage))).thenAnser*/
 		
 	
 		Application app = new Application();
@@ -417,6 +424,16 @@ public class ActionsTest extends Mockito {
 ////		JSONObject obj = new JSONObject(outData.getPayLoad());
 ////		assertEquals((String) obj.get("cn"), "Williams");
 ////	}
+	@PrepareForTest({ Transport.class })
+	@Test
+	public void sendMailTest() {	
+		PowerMockito.mockStatic(Transport.class);
+		Messages msg = new org.simplity.test.mail.Messages();
+		PowerMockito.when(Transport.send(msg)).thenReturn();
+		ServiceData outData = serviceAgentSetup("test.sendMail", null);
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals((String) obj.get("fromId"),"from@sample.com");
+	}
 
 	/**
 	 * Test method for

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service xmlns="http://www.simplity.org/schema" moduleName="test" name="sendMail"
+	dbAccessType="none">
+ 	<actions>
+		
+		<sendMail fromId="from@sample.com" 
+				  toIds="to@sample.com" 
+				  bccIds="bcc@sample.com" 
+				  ccIds="cc@sample.com" 
+				  subject="sample subject">
+				<content type="text">
+					<text>hello from mail test</text>
+				</content>
+		</sendMail>
+	</actions>
+</service>
