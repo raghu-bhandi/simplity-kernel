@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<batch
+	name="jmsListener"
+	xmlns="http://www.simplity.org/schema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<jobs>
+		<job 
+			name="jmsListener" runInterval="2"
+			serviceName="jmsWrapper" />
+	</jobs>
+</batch>

@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.util.List;
 
 import org.simplity.kernel.ApplicationError;
@@ -40,6 +41,7 @@ import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
+import org.simplity.service.ServiceProtocol;
 
 /**
  * Data structure that keeps meta data about a flat-file
@@ -136,7 +138,7 @@ public class InputFile {
 		protected Record record;
 		private File realFile;
 
-		private BufferedReader reader;
+		private LineNumberReader reader;
 		private File newFile;
 		/*
 		 * in case we are a child file, and we have to read matching rows
@@ -201,7 +203,7 @@ public class InputFile {
 		public void openShop(ServiceContext ctxt) throws IOException {
 			this.record = ComponentManager.getRecord(InputFile.this.recordName);
 
-			this.reader = new BufferedReader(new FileReader(this.realFile));
+			this.reader = new LineNumberReader(new FileReader(this.realFile));
 
 			String newName = InputFile.this.renameInfileTo;
 			if (newName != null) {
@@ -228,7 +230,7 @@ public class InputFile {
 		public boolean inputARow(List<FormattedMessage> errors, ServiceContext ctxt) throws IOException {
 
 			/*
-			 * we loop in case there is some condition for row row to be
+			 * we loop in case there is some condition for row to be
 			 * processed
 			 */
 			while (true) {
@@ -236,6 +238,10 @@ public class InputFile {
 				if (rowText == null) {
 					return false;
 				}
+				int lineNumber = this.reader.getLineNumber();
+				
+				ctxt.setTextValue(ServiceProtocol.ROW_TEXT, rowText);
+				ctxt.setLongValue(ServiceProtocol.LINE_NUM, lineNumber);
 				/*
 				 * parse this text into fields and push them to service context
 				 */

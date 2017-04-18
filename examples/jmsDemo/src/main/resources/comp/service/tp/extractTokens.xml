@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service
+	name="extractTokens"
+	dbAccessType="none"
+	jmsUsage="notManaged"
+	xmlns="http://www.simplity.org/schema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<inputData>
+		<inputRecords>
+			<inputRecord recordName="comments"/>
+		</inputRecords>
+	</inputData>
+	<actions>
+		<logic className="org.simplity.logic.ExtractTokens"/>
+		<log names="tokens"/>
+	</actions>
+	<outputData>
+		<outputRecords>
+			<outputRecord recordName="comments"/>
+		</outputRecords>
+	</outputData>
+</service>

@@ -5,13 +5,15 @@
 	dbAccessType="none"
 	jmsUsage="notManaged">
 	<inputData>
-		<inputFields>
-			<inputField dataType="_text" name="message"/>
-		</inputFields>
+		<inputRecords>
+			<inputRecord recordName="comments" />
+		</inputRecords>
 	</inputData>
 	<actions>
 		<jmsProducer>
-			<requestQueue queueName="jms/Queue01" fieldNames="message"/>
+			<requestQueue
+				queueName="jms/Queue01"
+				recordName="comments" />
 		</jmsProducer>
 	</actions>
 </service>
