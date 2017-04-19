@@ -351,7 +351,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void saveDataAddTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.saveDataAdd", null);
+		ServiceData outData = serviceAgentSetup("dbactions.saveDataAdd", null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
 	}
@@ -371,7 +371,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void readWithSqlTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.readWithSql", null);
+		ServiceData outData = serviceAgentSetup("dbactions.readWithSql", null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("lastName"), "Patterson");
 	}
