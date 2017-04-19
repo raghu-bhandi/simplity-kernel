@@ -3,7 +3,7 @@ package org.simplity.helloworld.entity;
 import java.util.Date;
 
 public class Orders {	
-	double ordNum;
+	private double ordNum;
 	double ordAmount;
 	double advanceAmount;
 	Date ordDate;

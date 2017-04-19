@@ -31,9 +31,8 @@ public class SheetManipulations implements LogicInterface{
 		Set<Object> sheetSet = sheet.toSet("org.simplity.helloworld.entity.Orders");
 		List<Object> sheetList = sheet.toList("org.simplity.helloworld.entity.Orders");
 		
-		ctx.setObject("orderObj", (Orders)sheetList.get(0));		
-		Orders obj = (Orders)ctx.getObject("orderObj");
-		System.out.println("Customer Code: "+obj.getCustCode());
+		ctx.setObject("orderObj", sheetList);		
+		
 		
 		Integer[] array = {12,34,26,78,39};
 		DataSheet arraytosheet = MultiRowsSheet.toDatasheet(array, "name");		

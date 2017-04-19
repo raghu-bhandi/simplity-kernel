@@ -37,6 +37,7 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.ArrayUtil;
 import org.simplity.kernel.util.ReflectUtil;
+import org.simplity.kernel.util.SheetUtil;
 import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
@@ -729,7 +730,8 @@ public class MultiRowsSheet implements DataSheet {
 							/*
 							 * We expects the caller to make sure the field names of the class and data sheet column names to be same
 							 */
-							ReflectUtil.setAttribute(obj, field.getName(), row[j].toString(), false);
+							field.setAccessible(true);
+							SheetUtil.setAttribute(obj, field.getName(), row[j].toString(), false);
 						}
 					}
 				}
@@ -759,7 +761,8 @@ public class MultiRowsSheet implements DataSheet {
 				for(java.lang.reflect.Field field:fields){	
 					for (int j = 0; j < columnNames.length; j++) {
 						if (field.getName().equals(columnNames[j])) {
-							ReflectUtil.setAttribute(obj, field.getName(), row[j].toString(), false);
+							field.setAccessible(true);
+							SheetUtil.setAttribute(obj, field.getName(), row[j].toString(), false);
 						}
 					}
 				}

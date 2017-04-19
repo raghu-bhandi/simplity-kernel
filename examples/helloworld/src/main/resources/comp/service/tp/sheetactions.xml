@@ -7,5 +7,5 @@
 		<filter filterRecordName="tables.orders" outputSheetName="orders"></filter>		
 		<logic className="org.simplity.helloworld.SheetManipulations"/>
 	</actions>
-	<outputData dataSheets="settosheet" fieldNames="columnArray,columnList,columnSet,columnsMap,orderObj" arrayNames="listtosheet,arraytosheet"></outputData>
+	<outputData dataSheets="settosheet,listtosheet" fieldNames="columnArray,columnList,columnSet,columnsMap,orderObj" arrayNames="arraytosheet"></outputData>
 </service>
