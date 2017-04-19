@@ -3,5 +3,6 @@
 	<fields>
 		<field columnName="id" dataType="_number" fieldType="primaryKey" name="id" sqlTypeName="VARCHAR"/>
 		<field columnName="name" dataType="_text" fieldType="data" name="name" sqlTypeName="VARCHAR"/>
+		<field columnName="city" dataType="_text" fieldType="data" name="name" sqlTypeName="VARCHAR"/>
 	</fields>
 </record>

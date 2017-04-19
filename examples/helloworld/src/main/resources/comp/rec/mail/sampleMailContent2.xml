@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<record name="sampleMailContent2" moduleName="mail" recordType="structure" xmlns="http://www.simplity.org/schema">
-	<fields>
-		<field columnName="sample" dataType="_text" fieldType="primaryKey" name="sample" sqlTypeName="VARCHAR"/>
-		<field columnName="test" dataType="_text" fieldType="data" name="test" sqlTypeName="VARCHAR"/>
-	</fields>
-</record>

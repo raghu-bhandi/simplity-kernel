@@ -90,23 +90,27 @@ public class SendMail extends Action {
 		Map<String, Object> data = new HashMap<String, Object>();
 		
 		DataSheet attachmentDataSheet = ctx.getDataSheet(attachmentSheetName);
-		String[][] rawAttachmentData = attachmentDataSheet.getRawData();
-		mail.attachment = new MailAttachement[attachmentDataSheet.length()];
-		
-		for(int i=0; i < attachmentDataSheet.length(); i++) {
-			mail.attachment[i] = new MailAttachement();
-			mail.attachment[i].name = rawAttachmentData[i+1][0];
-			mail.attachment[i].filepath = rawAttachmentData[i+1][1].replace("\\", "/");
+		if(attachmentDataSheet != null) {
+			String[][] rawAttachmentData = attachmentDataSheet.getRawData();
+			mail.attachment = new MailAttachement[attachmentDataSheet.length()];
+			
+			for(int i=0; i < attachmentDataSheet.length(); i++) {
+				mail.attachment[i] = new MailAttachement();
+				mail.attachment[i].name = rawAttachmentData[i+1][0];
+				mail.attachment[i].filepath = rawAttachmentData[i+1][1].replace("\\", "/");
+			}
 		}
 		
 		DataSheet inlineAttachmentDataSheet = ctx.getDataSheet(inlineAttachmentSheetName);
-		String[][] rawInlineAttachmentData = inlineAttachmentDataSheet.getRawData();
-		mail.inlineAttachment = new MailAttachement[inlineAttachmentDataSheet.length()];
-		
-		for(int i=0; i < inlineAttachmentDataSheet.length(); i++) {
-			mail.inlineAttachment[i] = new MailAttachement();
-			mail.inlineAttachment[i].name = rawInlineAttachmentData[i+1][0];
-			mail.inlineAttachment[i].filepath = rawInlineAttachmentData[i+1][1].replace("\\", "/");
+		if(inlineAttachmentDataSheet != null) {
+			String[][] rawInlineAttachmentData = inlineAttachmentDataSheet.getRawData();
+			mail.inlineAttachment = new MailAttachement[inlineAttachmentDataSheet.length()];
+			
+			for(int i=0; i < inlineAttachmentDataSheet.length(); i++) {
+				mail.inlineAttachment[i] = new MailAttachement();
+				mail.inlineAttachment[i].name = rawInlineAttachmentData[i+1][0];
+				mail.inlineAttachment[i].filepath = rawInlineAttachmentData[i+1][1].replace("\\", "/");
+			}
 		}
 		
 		if(content.type.compareTo(ContentType.TEMPLATE) == 0) {
@@ -187,22 +191,25 @@ public class SendMail extends Action {
 			bodyPart.setText(mail.content, "US-ASCII", "html");
 			multipart.addBodyPart(bodyPart);
 			
-			for(int i=0; i < mail.inlineAttachment.length; i++) {
-				bodyPart = new MimeBodyPart();
-				bodyPart.setDisposition(MimeBodyPart.INLINE);
-				bodyPart.attachFile(mail.inlineAttachment[i].filepath); // attach inline image file
-				bodyPart.setHeader("Content-ID", mail.inlineAttachment[i].name);
-	            multipart.addBodyPart(bodyPart);
+			if(mail.inlineAttachment != null) {
+				for(int i=0; i < mail.inlineAttachment.length; i++) {
+					bodyPart = new MimeBodyPart();
+					bodyPart.setDisposition(MimeBodyPart.INLINE);
+					bodyPart.attachFile(mail.inlineAttachment[i].filepath); // attach inline image file
+					bodyPart.setHeader("Content-ID", mail.inlineAttachment[i].name);
+		            multipart.addBodyPart(bodyPart);
+				}
 			}
 			
-			DataSource dataSource = null;
-			
-			for(int i=0; i < mail.attachment.length; i++) {
-				bodyPart = new MimeBodyPart();
-				dataSource = new FileDataSource(mail.attachment[i].filepath);
-				bodyPart.setDataHandler(new DataHandler(dataSource));
-				bodyPart.setFileName(mail.attachment[i].name);
-	            multipart.addBodyPart(bodyPart);
+			if(mail.attachment != null) {
+				DataSource dataSource = null;
+				for(int i=0; i < mail.attachment.length; i++) {
+					bodyPart = new MimeBodyPart();
+					dataSource = new FileDataSource(mail.attachment[i].filepath);
+					bodyPart.setDataHandler(new DataHandler(dataSource));
+					bodyPart.setFileName(mail.attachment[i].name);
+		            multipart.addBodyPart(bodyPart);
+				}
 			}
 			
             msg.setContent(multipart);

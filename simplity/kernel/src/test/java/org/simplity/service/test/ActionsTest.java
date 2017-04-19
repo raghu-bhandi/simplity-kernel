@@ -429,15 +429,17 @@ public class ActionsTest extends Mockito {
 ////		JSONObject obj = new JSONObject(outData.getPayLoad());
 ////		assertEquals((String) obj.get("cn"), "Williams");
 ////	}
+	
+	
 	@PrepareForTest({ Transport.class })
 	@Test
-	public void sendMailTest() {	
+	public void sendMailTest() {
 		PowerMockito.mockStatic(Transport.class);
 		Messages msg = new org.simplity.test.mail.Messages();
-		//PowerMockito.when(Transport.send(msg)).thenReturn();
+		//PowerMockito.when("").thenReturn("");
 		ServiceData outData = serviceAgentSetup("test.sendMail", null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
-		assertEquals((String) obj.get("fromId"),"from@sample.com");
+		assertEquals((String) obj.get("_requestStatus"),"ok");
 	}
 
 	/**
