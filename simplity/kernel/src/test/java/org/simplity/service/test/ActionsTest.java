@@ -80,14 +80,16 @@ public class ActionsTest extends Mockito {
 		String compFolder = classloader.getResource(".").getPath().concat(COMP_PATH);
 		final String testFolder = classloader.getResource(".").getPath();
 		MockitoAnnotations.initMocks(ActionsTest.class);
-		
+
 		ServletContext context = mock(ServletContext.class);
 		MockInitialDirContextFactory factory = mock(MockInitialDirContextFactory.class);
+
 		Transport transport = mock(Transport.class);
 		
 		
 		
 		
+
 		Class<Hashtable<?, ?>> clazz = null;
 		when(factory.getInitialContext(any(clazz))).thenAnswer(new Answer<Context>() {
 
@@ -125,11 +127,13 @@ public class ActionsTest extends Mockito {
 						.listFiles(new File(TestUtils.getFile((String) invocation.getArguments()[0], testFolder)));
 			}
 		});
+
 		
 		Class<Message> clazzMessage;
 		/*when(Transport.send(any(clazzMessage))).thenAnser*/
 		
 	
+
 		Application app = new Application();
 		XmlUtil.xmlToObject(compFolder + "applicationH2.xml", app);
 		/*
@@ -417,6 +421,7 @@ public class ActionsTest extends Mockito {
 		assertEquals(outData.hasErrors(), true);
 	}
 
+
 //	@Test
 ////	public void ldapLookupTest() {
 ////		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
@@ -457,4 +462,8 @@ public class ActionsTest extends Mockito {
 
 	}
 
+	@Test
+	public void fileProcessingTest() {
+		ServiceData outData = serviceAgentSetup("fileactions.fileProcessing", null);
+	}
 }
