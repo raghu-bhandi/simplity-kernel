@@ -79,10 +79,10 @@ public class ActionsTest extends Mockito {
 		String compFolder = classloader.getResource(".").getPath().concat(COMP_PATH);
 		final String testFolder = classloader.getResource(".").getPath();
 		MockitoAnnotations.initMocks(ActionsTest.class);
-		
+
 		ServletContext context = mock(ServletContext.class);
 		MockInitialDirContextFactory factory = mock(MockInitialDirContextFactory.class);
-		
+
 		Class<Hashtable<?, ?>> clazz = null;
 		when(factory.getInitialContext(any(clazz))).thenAnswer(new Answer<Context>() {
 
@@ -120,9 +120,7 @@ public class ActionsTest extends Mockito {
 						.listFiles(new File(TestUtils.getFile((String) invocation.getArguments()[0], testFolder)));
 			}
 		});
-		
-		
-	
+
 		Application app = new Application();
 		XmlUtil.xmlToObject(compFolder + "applicationH2.xml", app);
 		/*
@@ -410,13 +408,14 @@ public class ActionsTest extends Mockito {
 		assertEquals(outData.hasErrors(), true);
 	}
 
-//	@Test
-////	public void ldapLookupTest() {
-////		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
-////		ServiceData outData = serviceAgentSetup("test.ldapLookup", payLoad);
-////		JSONObject obj = new JSONObject(outData.getPayLoad());
-////		assertEquals((String) obj.get("cn"), "Williams");
-////	}
+	// @Test
+	//// public void ldapLookupTest() {
+	//// String payLoad = "{'objectId':'CN=Sunita
+	// Williams','attrName':'surname'}";
+	//// ServiceData outData = serviceAgentSetup("test.ldapLookup", payLoad);
+	//// JSONObject obj = new JSONObject(outData.getPayLoad());
+	//// assertEquals((String) obj.get("cn"), "Williams");
+	//// }
 
 	/**
 	 * Test method for
@@ -440,4 +439,8 @@ public class ActionsTest extends Mockito {
 
 	}
 
+	@Test
+	public void fileProcessingTest() {
+		ServiceData outData = serviceAgentSetup("fileactions.fileProcessing", null);
+	}
 }

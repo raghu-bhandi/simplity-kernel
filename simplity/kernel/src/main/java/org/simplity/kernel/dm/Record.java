@@ -3683,10 +3683,11 @@ public class Record implements Component {
 	 * @return
 	 */
 	private String[] splitFixedWidthInput(String inText, List<FormattedMessage> errors) {
-		if (this.recordLength != inText.length()) {
+		int minExpectedLength = this.recordLength - fields[fields.length-1].fieldWidth;
+		if (inText.length() < minExpectedLength ) {
 			FormattedMessage msg = new FormattedMessage("kernel.invalidInputStream",
-					"fixed-width input row has " + inText.length() + " chracters while this record " + this.name
-							+ " is designed for " + this.recordLength + " characters");
+					"fixed-width input row has " + inText.length() + " charecters while this record " + this.name
+							+ " is designed for " + this.recordLength + " charecters");
 			msg.addData(inText);
 			errors.add(msg);
 			return null;
@@ -3696,7 +3697,10 @@ public class Record implements Component {
 		for (int i = 0; i < texts.length; i++) {
 			int width = this.fields[i].fieldWidth;
 			int endIdx = beginIdx + width;
-			texts[i] = inText.substring(beginIdx, endIdx);
+			if(i!=texts.length-1)
+				texts[i] = inText.substring(beginIdx, endIdx);
+			else
+				texts[i] = inText.substring(beginIdx);				
 			beginIdx = endIdx;
 		}
 		return texts;
