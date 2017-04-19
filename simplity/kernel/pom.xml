@@ -102,7 +102,7 @@
 			<version>1.2.132</version>
 			<scope>test</scope>
 		</dependency>
-<!-- 		<dependency>
+ 		<dependency>
 			<groupId>org.powermock</groupId>
 			<artifactId>powermock-api-mockito</artifactId>
 			<version>1.6.2</version>
@@ -113,53 +113,7 @@
 			<artifactId>powermock-module-junit4</artifactId>
 			<version>1.6.2</version>
 			<scope>test</scope>
-		</dependency> -->
-		<dependency>
-
-	            <groupId>junit</groupId>
-
-            <artifactId>junit</artifactId>
-
-            <version>4.11</version>
-
-            <scope>test</scope>
-
-        </dependency>
-
-        <dependency>
-
-            <groupId>org.mockito</groupId>
-
-            <artifactId>mockito-core</artifactId>
-
-            <version>2.0.5-beta</version>
-
-        </dependency>
-
-        <dependency>
-
-            <groupId>org.powermock</groupId>
-
-            <artifactId>powermock-api-mockito</artifactId>
-
-            <version>1.6.2</version>
-
-            <scope>test</scope>
-
-        </dependency>
-
-        <dependency>
-
-            <groupId>org.powermock</groupId>
-
-            <artifactId>powermock-module-junit4</artifactId>
-
-            <version>1.6.2</version>
-
-            <scope>test</scope>
-
-        </dependency>
-		
+		</dependency>		
 	</dependencies>
 	<build>
 		<testResources>
