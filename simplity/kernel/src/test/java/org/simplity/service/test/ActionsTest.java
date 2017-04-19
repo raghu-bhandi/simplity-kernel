@@ -436,7 +436,7 @@ public class ActionsTest extends Mockito {
 	@PrepareForTest({ Transport.class })
 	@Test
 	public void sendMailTest() {
-		PowerMockito.mockStatic(Transport.class);
+		//PowerMockito.mockStatic(Transport.class);
 		Messages msg = new org.simplity.test.mail.Messages();
 		//PowerMockito.when("").thenReturn("");
 		ServiceData outData = serviceAgentSetup("test.sendMail", null);

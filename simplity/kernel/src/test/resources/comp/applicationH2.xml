@@ -19,6 +19,6 @@
 			schemaName="TESTSCHEMA"
 			connectionString="jdbc:h2:~/simplitykernel/db/classicmodels;" />
 	</schemaDetails>
-	<smtpProperties host="http://10.11.23.4" port="25">
+	<smtpProperties host="blrkecsmtp01" port="25">
 	</smtpProperties>
 </application>
