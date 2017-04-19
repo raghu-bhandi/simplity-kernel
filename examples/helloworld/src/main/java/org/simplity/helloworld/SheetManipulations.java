@@ -19,7 +19,7 @@ public class SheetManipulations implements LogicInterface{
 		MultiRowsSheet sheet = (MultiRowsSheet) ctx.getDataSheet("orders");
 		
 		Object[] columnArray = sheet.columnAsArray("ordDate");
-		List<Object> columnList = sheet.columnAsList("ordNum");		
+		 List<Object> columnList = sheet.columnAsList("ordNum");		
 		Set<Object> columnSet = sheet.columnAsSet("ordAmount");
 		Map<String, Object> columnsMap = sheet.columnsAsMap("ordNum", "ordDescription");
 		
@@ -31,7 +31,7 @@ public class SheetManipulations implements LogicInterface{
 		Set<Object> sheetSet = sheet.toSet("org.simplity.helloworld.entity.Orders");
 		List<Object> sheetList = sheet.toList("org.simplity.helloworld.entity.Orders");
 		
-		ctx.setObject("orderObj", sheetList);		
+		//ctx.setObject("orderObj", sheetList);		
 		
 		
 		Integer[] array = {12,34,26,78,39};
