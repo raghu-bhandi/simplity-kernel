@@ -766,7 +766,7 @@ public class Field {
 	 */
 	public Value getValue(FieldsInterface values) {
 		Value value = values.getValue(this.name);
-		if (value == null) {
+		if (Value.isNull(value)) {
 			return this.defaultValueObject;
 		}
 		return value;

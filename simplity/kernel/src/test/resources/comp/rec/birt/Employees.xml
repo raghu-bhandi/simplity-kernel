@@ -5,7 +5,7 @@
 		<field name="employeeNumber" dataType="id" fieldType="primaryKey"
 			columnName="employeeNumber" label="Id" />
 		<field name="lastName" dataType="text" columnName="lastName"
-			label="lastName" />
+			label="lastName" defaultValue=" "/>
 		<field name="firstName" dataType="text" columnName="firstName"
 			label="firstName" />
 		<field name="extension" dataType="text" columnName="extension"

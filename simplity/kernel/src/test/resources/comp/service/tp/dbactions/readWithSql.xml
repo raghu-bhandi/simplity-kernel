@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <service xmlns="http://www.simplity.org/schema" name="readWithSql"
-	moduleName="tutorial" dbAccessType="readOnly" description="Test Read with sql">
+	moduleName="dbactions" dbAccessType="readOnly" description="Test Read with sql">
 
 	<actions>
-		<readWithSql sqlName="example.Employees" outputSheetName="Employees"></readWithSql>
+		<readWithSql sqlName="example.employees" outputSheetName="Employees"></readWithSql>
 	</actions>
 	<outputData>
 		<outputRecords>

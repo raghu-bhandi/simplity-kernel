@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <service xmlns="http://www.simplity.org/schema" name="saveDataAdd"
-	moduleName="tutorial" dbAccessType="readWrite" description="Test save action type add">
+	moduleName="dbactions" dbAccessType="readWrite" description="Test save action type add">
 
 	<actions>
-		<setValue actionName="2" fieldName="lastName" fieldValue="lastName5"
-			description="Where did they live?"></setValue>
+		<createSheet sheetName="employeeSheet" recordName="birt.Employees"/>
 		<setValue actionName="3" fieldName="firstName" fieldValue="firstName5"
 			description="Where did they live?"></setValue>
 		<setValue actionName="4" fieldName="extension" fieldValue="extension5"
@@ -17,7 +16,8 @@
 			description="Where did they live?"></setValue>
 		<setValue actionName="8" fieldName="jobTitle" fieldValue="jobTitle6"
 			description="Where did they live?"></setValue>
-		<save saveAction="add" recordName="birt.Employees" actionName="saveAction"></save>
+		<addRow sheetName="employeeSheet"/>			
+		<save saveAction="add" recordName="birt.Employees" actionName="saveAction" inputSheetName="employeeSheet"></save>
 		<setValue fieldName="testValue" fieldValue="1234"
 			executeOnCondition="saveActionResult!=0"></setValue>
 	</actions>

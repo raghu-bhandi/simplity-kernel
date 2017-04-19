@@ -983,9 +983,11 @@ public class Record implements Component {
 				values[valueIdx] = userId;
 			} else {
 				Value value = row.getValue(field.name);
-				if (value == null) {
+				if (Value.isNull(value)) {
 					if (field.isNullable) {
 						value = Value.newUnknownValue(field.getValueType());
+					} else if (field.defaultValue != null) {
+						value = field.getValue(row);
 					} else {
 						throw new ApplicationError("Column " + field.columnName + " in table " + this.tableName
 								+ " is designed to be non-null, but a row is being inserted with a null value in it.");
@@ -1029,6 +1031,8 @@ public class Record implements Component {
 				if (value == null) {
 					if (field.isNullable) {
 						value = Value.newUnknownValue(field.getValueType());
+					} else if (field.defaultValue != null) {
+						value = field.getValue(row);
 					} else {
 						throw new ApplicationError("Column " + field.columnName + " in table " + this.tableName
 								+ " is designed to be non-null, but a row is being updated with a null value in it.");
@@ -1120,8 +1124,7 @@ public class Record implements Component {
 		int result = this.insertWorker(driver, this.insertSql, allValues, generatedKeys, treatSqlErrorAsNoResult);
 		if (result > 0) {
 			/*
-			 * generated key feature may not be available with some rdb
-			 * vendor
+			 * generated key feature may not be available with some rdb vendor
 			 */
 			long key = generatedKeys[0];
 			if (key > 0) {
@@ -3683,8 +3686,8 @@ public class Record implements Component {
 	 * @return
 	 */
 	private String[] splitFixedWidthInput(String inText, List<FormattedMessage> errors) {
-		int minExpectedLength = this.recordLength - fields[fields.length-1].fieldWidth;
-		if (inText.length() < minExpectedLength ) {
+		int minExpectedLength = this.recordLength - fields[fields.length - 1].fieldWidth;
+		if (inText.length() < minExpectedLength) {
 			FormattedMessage msg = new FormattedMessage("kernel.invalidInputStream",
 					"fixed-width input row has " + inText.length() + " charecters while this record " + this.name
 							+ " is designed for " + this.recordLength + " charecters");
@@ -3697,10 +3700,10 @@ public class Record implements Component {
 		for (int i = 0; i < texts.length; i++) {
 			int width = this.fields[i].fieldWidth;
 			int endIdx = beginIdx + width;
-			if(i!=texts.length-1)
+			if (i != texts.length - 1)
 				texts[i] = inText.substring(beginIdx, endIdx);
 			else
-				texts[i] = inText.substring(beginIdx);				
+				texts[i] = inText.substring(beginIdx);
 			beginIdx = endIdx;
 		}
 		return texts;
