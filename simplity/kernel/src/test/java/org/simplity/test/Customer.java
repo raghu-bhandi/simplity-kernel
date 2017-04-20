@@ -8,6 +8,18 @@ public class Customer {
 	private String state;
 	private String country;
 	private int postalCode;
+	
+	public Customer(int customerNumber, String customerName, String address, String city, String state, String country,
+			int postalCode) {
+		super();
+		this.customerNumber = customerNumber;
+		this.customerName = customerName;
+		this.address = address;
+		this.city = city;
+		this.state = state;
+		this.country = country;
+		this.postalCode = postalCode;
+	}
 	public int getCustomerNumber() {
 		return customerNumber;
 	}

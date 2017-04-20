@@ -23,6 +23,7 @@ package org.simplity.kernel.data;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -780,13 +781,31 @@ public class MultiRowsSheet implements DataSheet {
 	 * @param columnName
 	 * @return MultiRowsSheet
 	 */
-	public static DataSheet toDatasheet(Object[] arr,String columnName) {
-		String[] header = {columnName};
-		ValueType[] valueTypes = {ValueType.TEXT};
+	public static MultiRowsSheet toDatasheet(Object[] arr,String columnName) {
+		Class<?> cls = arr[0].getClass();
+		if(cls.isPrimitive() || cls.equals(String.class) || cls.equals(Date.class) || cls.equals(Timestamp.class)){
+			String[] header = {columnName};
+			ValueType[] valueTypes = {getType(cls)};
+			MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
+			for(Object value:arr){
+				Value[] valarray = new Value[1];
+				valarray[0] = Value.newTextValue(value.toString());
+				sheet.addRow(valarray);
+			}
+			return sheet;
+		}
+		java.lang.reflect.Field[] fields = cls.getDeclaredFields();
+		String[] header = new String[fields.length];
+		ValueType[] valueTypes = new ValueType[fields.length];
+		int i=0;
+		for(java.lang.reflect.Field field:fields){
+			header[i] = field.getName();
+			valueTypes[i] = getType(field.getType());
+			i++;
+		}
 		MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
-		for(Object value:arr){
-			Value[] valarray = new Value[1];
-			valarray[0] = Value.newTextValue(value.toString());
+		for(Object obj:arr){
+			Value[] valarray = objectToValueArray(obj,fields);
 			sheet.addRow(valarray);
 		}
 		return sheet;
@@ -798,9 +817,9 @@ public class MultiRowsSheet implements DataSheet {
 	 * @param columnName
 	 * @return MultiRowsSheet 
 	 */
-	public static DataSheet toDatasheet(List<? extends Object> list,String columnName) {
+	public static MultiRowsSheet toDatasheet(List<? extends Object> list,String columnName) {
 		Class<?> cls = list.get(0).getClass();
-		if(cls.isPrimitive() || cls.equals(String.class) || cls.equals(Date.class) || cls.equals(Timestamp.class)){
+		if(cls.isPrimitive() || cls.getName().startsWith("java.lang") || cls.equals(String.class) || cls.equals(Date.class) || cls.equals(Timestamp.class)){
 			String[] header = {columnName};
 			ValueType[] valueTypes = {getType(cls)};
 			MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
@@ -834,9 +853,9 @@ public class MultiRowsSheet implements DataSheet {
 	 * @param columnName
 	 * @return MultiRowsSheet 
 	 */
-	public static DataSheet toDatasheet(Set<? extends Object> set,String columnName) {
+	public static MultiRowsSheet toDatasheet(Set<? extends Object> set,String columnName) {
 		Class<?> cls = set.iterator().next().getClass();
-		if(cls.isPrimitive() || cls.equals(String.class) || cls.equals(Date.class) || cls.equals(Timestamp.class)){
+		if(cls.isPrimitive() || cls.getName().startsWith("java.lang") || cls.equals(String.class) || cls.equals(Date.class) || cls.equals(Timestamp.class)){
 			String[] header = {columnName};
 			ValueType[] valueTypes = {getType(cls)};
 			MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
@@ -877,10 +896,10 @@ public class MultiRowsSheet implements DataSheet {
 	 * @return
 	 * 		DataSheet
 	 */
-	public static DataSheet toDatasheet(HashMap<String,Object> map, boolean transpose) {
+	public static DataSheet toDatasheet(Map<String,? extends Object> map, boolean transpose) {
 		if(transpose){
-			String[] columnNames = {};
-			ValueType[] valueTypes = {};
+			String[] columnNames = new String[map.size()];
+			ValueType[] valueTypes = new ValueType[map.size()];
 			Value[] row = new Value[map.size()];
 			int i=0;
 			for(Object key:map.keySet()){
@@ -995,6 +1014,7 @@ public class MultiRowsSheet implements DataSheet {
 			try {
 				field.setAccessible(true);
 				valarray[j] = Value.parseObject(field.get(obj));
+				j++;
 			} catch (Exception e) {
 				throw new ApplicationError(e.getMessage());
 			}

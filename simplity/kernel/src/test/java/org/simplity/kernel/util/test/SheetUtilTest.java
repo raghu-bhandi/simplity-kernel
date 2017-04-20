@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package org.simplity.kernel.util.test;
 
 import static org.junit.Assert.*;
@@ -6,13 +9,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
+import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.MultiRowsSheet;
+import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.test.Customer;
@@ -84,6 +88,102 @@ public class SheetUtilTest {
 		assertEquals(cust.getCustomerNumber(), 112);
 	}
 	
+	@Test
+	public final void arrayToDatasheet(){
+		String[] stringArray = {"abc","def"};
+		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(stringArray, "arraydata");
+		assertEquals("abc", sheet.getRow(0)[0].toString());
+	}
+	
+	@Test
+	public final void objectarrayToDatasheet(){
+		Customer cust1 = new Customer(130,"Mike","ABC","AAA","VVV","xxx",123456);
+		Customer cust2 = new Customer(140,"Mick","DEF","BBB","CCC","yyy",112233);
+		Customer[] custArray = {cust1,cust2};
+		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(custArray,null);
+		int cust1Num = 0;
+		try {
+			cust1Num = (int)sheet.getColumnValue("customerNumber", 0).toInteger();
+		} catch (InvalidValueException e) {
+			e.printStackTrace();
+		}
+		assertEquals(130,cust1Num);
+	}
+	
+	@Test
+	public final void listToDatasheet(){
+		List<String> list = new ArrayList<String>();
+		list.add("jack");
+		list.add("stephen");
+		list.add("nick");
+		MultiRowsSheet listtosheet = MultiRowsSheet.toDatasheet(list, "list");
+		String actualResult = listtosheet.getColumnValue("list", 1).toString();
+		assertEquals("stephen",actualResult);
+	}
+	
+	@Test
+	public final void objectListToDatasheet(){
+		Customer cust1 = new Customer(130,"Mike","ABC","AAA","VVV","xxx",123456);
+		Customer cust2 = new Customer(140,"Mick","DEF","BBB","CCC","yyy",112233);
+		List<Customer> list = new ArrayList<Customer>();
+		list.add(cust1);
+		list.add(cust2);
+		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(list,null);
+		String cust2Name = null;
+		cust2Name = sheet.getColumnValue("customerName",1).toString();
+		assertEquals("Mick",cust2Name);
+	}
+	
+	@Test
+	public final void setToDatasheet(){
+		Set<Double> set = new HashSet<Double>();
+		set.add(3621.67);
+		set.add(629.07);
+		MultiRowsSheet settosheet = MultiRowsSheet.toDatasheet(set, "set");
+		String actualResult = settosheet.getColumnValue("set", 1).toString();
+		assertEquals("629.07",actualResult);
+	}
+	
+	@Test
+	public final void objectSetToDatasheet(){
+		Customer cust1 = new Customer(130,"Mike","ABC","AAA","VVV","xxx",123456);
+		Customer cust2 = new Customer(140,"Mick","DEF","BBB","CCC","yyy",112233);
+		Set<Customer> set = new HashSet<Customer>();
+		set.add(cust1);
+		set.add(cust2);
+		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(set,null);
+		int cust2postalCode = 0;
+		try {
+			cust2postalCode = (int)sheet.getColumnValue("postalCode",0).toInteger();
+		} catch (InvalidValueException e) {
+			e.printStackTrace();
+		}
+		assertEquals(123456,cust2postalCode);
+	}
+	
+	@Test
+	public final void mapSheetTranspose(){
+		Map<String,String> map = new HashMap<String, String>();
+		map.put("empNo", "235");
+		map.put("empName", "Robert");
+		map.put("empMail", "Robert@abc.com");
+		DataSheet transposeSheet = MultiRowsSheet.toDatasheet(map, true);
+		String mailId = transposeSheet.getColumnValue("empMail", 0).toString();
+		assertEquals("Robert@abc.com",mailId);
+	}
+	
+	@Test
+	public final void mapToSheet(){
+		Map<String,String> map = new HashMap<String, String>();
+		map.put("empNo", "235");
+		map.put("empName", "Robert");
+		map.put("empMail", "Robert@abc.com");
+		DataSheet transposeSheet = MultiRowsSheet.toDatasheet(map, false);
+		String key1 = transposeSheet.getColumnValue("key", 0).toString();
+		String value1 = transposeSheet.getColumnValue("value", 0).toString();
+		assertEquals("empName",key1);
+		assertEquals("Robert",value1);
+	}
 	
 	public final MultiRowsSheet getSheet(){
 		String[] columnNames = {"customerNumber","customerName","address","city","state","country","postalCode"};
