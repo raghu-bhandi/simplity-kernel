@@ -84,7 +84,7 @@ public class LdapLookup extends Action {
 		try {
 			// Create initial context
 			ldapCtx = LdapAgent.getInitialDirContext();
-			Attribute attr = this.getAttribute(ctx,objectId, attrName);
+			Attribute attr = this.getAttribute(ctx,parsedObjectIdValue.toText(), parsedAttrNameValue.toText());
 			if(ctx.isInError()){
 				return Value.VALUE_FALSE;
 			}

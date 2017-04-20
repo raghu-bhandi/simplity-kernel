@@ -11,15 +11,12 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Hashtable;
 import java.util.Set;
 
-import javax.naming.Context;
+import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
-import javax.naming.spi.InitialContextFactory;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -44,13 +41,11 @@ import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
+import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
-import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
-
-import com.sun.jndi.ldap.LdapCtxFactory;
 
 public class ActionsTest extends Mockito {
 	private static final String COMP_PATH = "comp/";
@@ -81,17 +76,6 @@ public class ActionsTest extends Mockito {
 		MockitoAnnotations.initMocks(ActionsTest.class);
 
 		ServletContext context = mock(ServletContext.class);
-		MockInitialDirContextFactory factory = mock(MockInitialDirContextFactory.class);
-
-		Class<Hashtable<?, ?>> clazz = null;
-		when(factory.getInitialContext(any(clazz))).thenAnswer(new Answer<Context>() {
-
-			@Override
-			public Context answer(InvocationOnMock invocation) throws Throwable {
-				System.out.println("hello");
-				return (DirContext) Mockito.mock(DirContext.class);
-			}
-		});
 		ComponentType.setComponentFolder(compFolder);
 		FileManager.setContext(context);
 
@@ -128,6 +112,19 @@ public class ActionsTest extends Mockito {
 		 */
 		app.configure();
 
+		DirContext mockContext = LdapAgent.getInitialDirContext();
+			
+		
+		 when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>(){
+
+			@Override
+			public Attributes answer(InvocationOnMock invocation) throws NamingException {
+				Attributes attrs = new BasicAttributes();
+				attrs.put("surname", "Williams");
+				return attrs;
+			}
+			 
+		 });
 		/*
 		 * Load the db data
 		 */
@@ -408,14 +405,13 @@ public class ActionsTest extends Mockito {
 		assertEquals(outData.hasErrors(), true);
 	}
 
-	// @Test
-	//// public void ldapLookupTest() {
-	//// String payLoad = "{'objectId':'CN=Sunita
-	// Williams','attrName':'surname'}";
-	//// ServiceData outData = serviceAgentSetup("test.ldapLookup", payLoad);
-	//// JSONObject obj = new JSONObject(outData.getPayLoad());
-	//// assertEquals((String) obj.get("cn"), "Williams");
-	//// }
+	@Test
+	public void ldapLookupTest() {
+		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
+		ServiceData outData = serviceAgentSetup("test.ldapLookup", payLoad);
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals((String) obj.get("ldapLookup"), "Williams");
+	}
 
 	/**
 	 * Test method for

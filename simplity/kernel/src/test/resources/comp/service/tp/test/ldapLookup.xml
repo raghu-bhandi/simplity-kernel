@@ -16,8 +16,8 @@
 	</inputData>
 	<actions>
 		<ldapLookup
-			objectId="CN=Sunita Williams,OU=GEN,OU=Users,OU=company,DC=com"
-			attrName="cn"
+			objectId="$objectId"
+			attrName="$attrName"
 			fieldName="ldapLookup"></ldapLookup>
 	</actions>
 	<outputData fieldNames="ldapLookup"></outputData>
