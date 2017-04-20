@@ -15,6 +15,7 @@ public class LdapAgent {
 	private static String authentication;
 	private static String principal;
 	private static String credentials;
+	private static DirContext ctx;
 
 	public static void initialSetup(LdapProperties ldapProperties) {
 		Tracer.trace("Setting up the LDAP Agent");
@@ -35,7 +36,7 @@ public class LdapAgent {
 		env.put("java.naming.security.principal", principal);
 		env.put("java.naming.security.credentials", credentials);
 		try {
-			ctx = new InitialDirContext(env);
+			ctx = new InitialDirContext(env); 
 		} catch (NamingException ne) {
 			throw new ApplicationError("LdapFactory Failed to connect to LDAP: " + ldapurl);
 		}
