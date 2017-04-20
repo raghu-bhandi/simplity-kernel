@@ -7,7 +7,11 @@ public class Customer {
 	private String city;
 	private String state;
 	private String country;
-	private int postalCode;
+	private int postalCode;	
+	
+	public Customer() {
+		super();
+	}
 	
 	public Customer(int customerNumber, String customerName, String address, String city, String state, String country,
 			int postalCode) {

@@ -82,10 +82,15 @@ public class SheetUtilTest {
 	
 	@Test
 	public final void sheetToSet(){
-		MultiRowsSheet dataSheet = getSheet();
+		String[] columnNames = {"customerNumber","customerName","address","city","state","country","postalCode"};
+		ValueType[] columnValueTypes = {ValueType.INTEGER,ValueType.TEXT,ValueType.TEXT,ValueType.TEXT,ValueType.TEXT,ValueType.TEXT,ValueType.INTEGER};
+		MultiRowsSheet dataSheet = new MultiRowsSheet(columnNames, columnValueTypes);
+
+		Value[] row1 = {Value.newIntegerValue(103),Value.newTextValue("Atelier graphique"),Value.newTextValue("54, rue Royale"),Value.newTextValue("Nantes"),Value.newTextValue("NULL"),Value.newTextValue("France"),Value.newIntegerValue(44000)};
+		dataSheet.addRow(row1);
 		Set<Object> actualResult = dataSheet.toSet("org.simplity.test.Customer");
 		Customer cust = (Customer)actualResult.iterator().next();
-		assertEquals(cust.getCustomerNumber(), 112);
+		assertEquals(cust.getCustomerNumber(), 103);
 	}
 	
 	@Test
@@ -147,10 +152,8 @@ public class SheetUtilTest {
 	@Test
 	public final void objectSetToDatasheet(){
 		Customer cust1 = new Customer(130,"Mike","ABC","AAA","VVV","xxx",123456);
-		Customer cust2 = new Customer(140,"Mick","DEF","BBB","CCC","yyy",112233);
 		Set<Customer> set = new HashSet<Customer>();
 		set.add(cust1);
-		set.add(cust2);
 		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(set,null);
 		int cust2postalCode = 0;
 		try {
