@@ -32,29 +32,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.activation.DataHandler;
-import javax.activation.DataSource;
-import javax.activation.FileDataSource;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
-
 import org.simplity.kernel.data.DataSheet;
-import org.simplity.kernel.smtp.SmtpAgent;
+import org.simplity.kernel.smtp.Mail;
+import org.simplity.kernel.smtp.MailAttachment;
+import org.simplity.kernel.smtp.MailConnector;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -77,6 +64,10 @@ public class SendMail extends Action {
 	public SendMail() {
 	}
 
+	/**
+	 * receives data from service, creates mail object, sets fromId, toIds, ccIds, bccIds, subject
+	 * set mail content (either text or template)
+	 */
 	@Override
 	protected Value doAct(ServiceContext ctx) {
 
@@ -92,24 +83,24 @@ public class SendMail extends Action {
 		DataSheet attachmentDataSheet = ctx.getDataSheet(attachmentSheetName);
 		if(attachmentDataSheet != null) {
 			String[][] rawAttachmentData = attachmentDataSheet.getRawData();
-			mail.attachment = new MailAttachement[attachmentDataSheet.length()];
+			mail.attachment = new MailAttachment[attachmentDataSheet.length()];
 			
 			for(int i=0; i < attachmentDataSheet.length(); i++) {
-				mail.attachment[i] = new MailAttachement();
-				mail.attachment[i].name = rawAttachmentData[i+1][0];
-				mail.attachment[i].filepath = rawAttachmentData[i+1][1].replace("\\", "/");
+				mail.attachment[i] = new MailAttachment(rawAttachmentData[i+1][0], rawAttachmentData[i+1][1].replace("\\", "/"));
+				//mail.attachment[i].name = rawAttachmentData[i+1][0];
+				//mail.attachment[i].filepath = rawAttachmentData[i+1][1].replace("\\", "/");
 			}
 		}
 		
 		DataSheet inlineAttachmentDataSheet = ctx.getDataSheet(inlineAttachmentSheetName);
 		if(inlineAttachmentDataSheet != null) {
 			String[][] rawInlineAttachmentData = inlineAttachmentDataSheet.getRawData();
-			mail.inlineAttachment = new MailAttachement[inlineAttachmentDataSheet.length()];
+			mail.inlineAttachment = new MailAttachment[inlineAttachmentDataSheet.length()];
 			
 			for(int i=0; i < inlineAttachmentDataSheet.length(); i++) {
-				mail.inlineAttachment[i] = new MailAttachement();
-				mail.inlineAttachment[i].name = rawInlineAttachmentData[i+1][0];
-				mail.inlineAttachment[i].filepath = rawInlineAttachmentData[i+1][1].replace("\\", "/");
+				mail.inlineAttachment[i] = new MailAttachment(rawInlineAttachmentData[i+1][0], rawInlineAttachmentData[i+1][1].replace("\\", "/"));
+				//mail.inlineAttachment[i].name = rawInlineAttachmentData[i+1][0];
+				//mail.inlineAttachment[i].filepath = rawInlineAttachmentData[i+1][1].replace("\\", "/");
 			}
 		}
 		
@@ -163,16 +154,21 @@ public class SendMail extends Action {
 				ioe.printStackTrace();
 			}
 		}
+
+		//sendEmail(mail);
+		new MailConnector().sendEmail(mail);
 		
-		Session session = Session.getInstance(SmtpAgent.getProperties(), null);
-
-		sendEmail(session, mail);
-
 		return Value.newBooleanValue(true);
 
 	}
 
-	private void sendEmail(Session session, Mail mail) {
+	/**
+	 * create MimeMessage and values (fromId, toIds, ccIds, bccIds, subject, content, and attachment) 
+	 * and send the object to MailConnector
+	 */
+/*
+	private void sendEmail(Mail mail) {
+		Session session = Session.getInstance(SmtpAgent.getProperties(), null);
 		try {
 			MimeMessage msg = new MimeMessage(session);
 			msg.addHeader("Content-type", "text/html; charset=UTF-8");
@@ -192,28 +188,30 @@ public class SendMail extends Action {
 			multipart.addBodyPart(bodyPart);
 			
 			if(mail.inlineAttachment != null) {
-				for(int i=0; i < mail.inlineAttachment.length; i++) {
+				MailAttachment[] inlineMailAttachment = mail.inlineAttachment;
+				for(int i=0; i < inlineMailAttachment.length; i++) {
 					bodyPart = new MimeBodyPart();
 					bodyPart.setDisposition(MimeBodyPart.INLINE);
-					bodyPart.attachFile(mail.inlineAttachment[i].filepath); // attach inline image file
-					bodyPart.setHeader("Content-ID", mail.inlineAttachment[i].name);
+					bodyPart.attachFile(inlineMailAttachment[i].filepath); // attach inline image file
+					bodyPart.setHeader("Content-ID", inlineMailAttachment[i].name);
 		            multipart.addBodyPart(bodyPart);
 				}
 			}
 			
 			if(mail.attachment != null) {
 				DataSource dataSource = null;
-				for(int i=0; i < mail.attachment.length; i++) {
+				MailAttachment[] mailAttachment = mail.attachment;
+				for(int i=0; i < mailAttachment.length; i++) {
 					bodyPart = new MimeBodyPart();
-					dataSource = new FileDataSource(mail.attachment[i].filepath);
+					dataSource = new FileDataSource(mailAttachment[i].filepath);
 					bodyPart.setDataHandler(new DataHandler(dataSource));
-					bodyPart.setFileName(mail.attachment[i].name);
+					bodyPart.setFileName(mailAttachment[i].name);
 		            multipart.addBodyPart(bodyPart);
 				}
 			}
 			
             msg.setContent(multipart);
-			msg.writeTo(System.out);
+			msg.writeTo(System.out); // remove this after test
 			Transport.send(msg);
 
 		} catch (IOException e) {
@@ -222,7 +220,7 @@ public class SendMail extends Action {
 			e.printStackTrace();
 		}
 	}
-
+*/
 	private static byte[] serialize(Object obj) throws IOException {
 
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
@@ -233,7 +231,7 @@ public class SendMail extends Action {
 		return b.toByteArray();
 	}
 }
-
+/*
 class Mail implements Serializable {
 	private static final long serialVersionUID = -4314888435710523295L;
 
@@ -243,8 +241,8 @@ class Mail implements Serializable {
 	public String bccIds;
 	public String subject;
 	public String content;
-	public MailAttachement[] attachment;
-	public MailAttachement[] inlineAttachment;
+	public MailAttachment[] attachment;
+	public MailAttachment[] inlineAttachment;
 }
 
 class MailAttachement implements Serializable {
@@ -254,13 +252,22 @@ class MailAttachement implements Serializable {
 	public String name;
 	public String filepath;
 	
-	public boolean isEmpty() {
-		if (name == null || name.isEmpty())
-			return true;
-		return false;
+	public MailAttachement() {
+		
 	}
-}
+	
+	/**
+	 * name - id of the attachment
+	 * filepath - complete file name (along with file path)
+	 */
+/*
+	public MailAttachement(String name, String filepath) {
+		this.name = name;
+		this.filepath = filepath;
+	}
 
+}
+*/
 enum ContentType {
 	TEXT, TEMPLATE
 }
