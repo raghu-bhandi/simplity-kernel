@@ -82,7 +82,7 @@ public class InputRecord {
 	 * why is this record being input? we extract and validate input based on
 	 * this purpose
 	 */
-	DataPurpose purpose = DataPurpose.SUBSET;
+	DataPurpose purpose = DataPurpose.OTHERS;
 
 	/**
 	 * name of sheet in which we are expecting data. null if data is not

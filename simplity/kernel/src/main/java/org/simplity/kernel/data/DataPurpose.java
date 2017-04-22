@@ -50,4 +50,9 @@ public enum DataPurpose {
 	 */
 	, SUBSET
 
+	/**
+	 * when the purpose is not directly related to rdbms operations.
+	 */
+	,OTHERS
+
 }
