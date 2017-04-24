@@ -241,6 +241,7 @@ public class InputFile {
 
 				ctxt.setTextValue(ServiceProtocol.ROW_TEXT, rowText);
 				ctxt.setLongValue(ServiceProtocol.LINE_NUM, lineNumber);
+				ctxt.setTextValue(ServiceProtocol.FIlE_BATCH,this.realFile.getName());
 				/*
 				 * parse this text into fields and push them to service context
 				 */
