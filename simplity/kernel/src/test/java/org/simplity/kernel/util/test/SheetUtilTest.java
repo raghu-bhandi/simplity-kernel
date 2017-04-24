@@ -172,7 +172,7 @@ public class SheetUtilTest {
 		map.put("empMail", "Robert@abc.com");
 		DataSheet transposeSheet = MultiRowsSheet.toDatasheet(map, true);
 		String mailId = transposeSheet.getColumnValue("empMail", 0).toString();
-		assertEquals("Robert@abc.com",mailId);
+		assertEquals(map.get("empMail").toString(),mailId);
 	}
 	
 	@Test
@@ -184,8 +184,7 @@ public class SheetUtilTest {
 		DataSheet transposeSheet = MultiRowsSheet.toDatasheet(map, false);
 		String key1 = transposeSheet.getColumnValue("key", 0).toString();
 		String value1 = transposeSheet.getColumnValue("value", 0).toString();
-		assertEquals("empName",key1);
-		assertEquals("Robert",value1);
+		assertEquals(map.get(key1).toString(),value1);
 	}
 	
 	public final MultiRowsSheet getSheet(){

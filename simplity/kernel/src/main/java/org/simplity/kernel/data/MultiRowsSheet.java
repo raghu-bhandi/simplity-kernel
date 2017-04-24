@@ -715,31 +715,10 @@ public class MultiRowsSheet implements DataSheet {
 	 */
 	public List<Object> toList(String className) {		
 		List<Object> entityList = new ArrayList<Object>();
-		List<Value[]> rowList = this.getAllRows();
-		String[] columnNames = this.getColumnNames();
+		List<Value[]> rowList = this.getAllRows();		
 		for(Value[] row:rowList){
-			Object obj;
-			try {
-				obj = Class.forName(className).newInstance();		
-				java.lang.reflect.Field[] fields = obj.getClass().getDeclaredFields();
-				for(java.lang.reflect.Field field:fields){	
-					for (int j = 0; j < columnNames.length; j++) {
-						/* 
-						 * sets value to corresponding field of class instance 
-						 */
-						if (field.getName().equalsIgnoreCase(columnNames[j])) {							
-							/*
-							 * We expects the caller to make sure the field names of the class and data sheet column names to be same
-							 */
-							field.setAccessible(true);
-							SheetUtil.setAttribute(obj, field.getName(), row[j].toString(), false);
-						}
-					}
-				}
-				entityList.add(obj);
-			} catch (Exception e) {
-				throw new ApplicationError(e.getMessage());
-			} 
+			Object obj = rowToObject(className, row);
+			entityList.add(obj);
 		}
 		return entityList;
 	}
@@ -755,22 +734,8 @@ public class MultiRowsSheet implements DataSheet {
 		Set<Object> entitySet = new HashSet<Object>();
 		List<Value[]> rowList = this.getAllRows();
 		for(Value[] row:rowList){
-			Object obj;
-			try {
-				obj = Class.forName(className).newInstance();		
-				java.lang.reflect.Field[] fields = obj.getClass().getDeclaredFields();
-				for(java.lang.reflect.Field field:fields){	
-					for (int j = 0; j < columnNames.length; j++) {
-						if (field.getName().equals(columnNames[j])) {
-							field.setAccessible(true);
-							SheetUtil.setAttribute(obj, field.getName(), row[j].toString(), false);
-						}
-					}
-				}
-				entitySet.add(obj);
-			} catch (Exception e) {
-				throw new ApplicationError(e.getMessage());
-			} 
+			Object obj = rowToObject(className, row);
+			entitySet.add(obj);
 		}
 		return entitySet;
 	}
@@ -783,7 +748,7 @@ public class MultiRowsSheet implements DataSheet {
 	 */
 	public static MultiRowsSheet toDatasheet(Object[] arr,String columnName) {
 		Class<?> cls = arr[0].getClass();
-		if(cls.isPrimitive() || cls.equals(String.class) || cls.equals(Date.class) || cls.equals(Timestamp.class)){
+		if(cls.isPrimitive() || cls.getName().startsWith("java.lang") || cls.equals(String.class) || cls.equals(Date.class) || cls.equals(Timestamp.class)){
 			String[] header = {columnName};
 			ValueType[] valueTypes = {getType(cls)};
 			MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
@@ -1020,5 +985,40 @@ public class MultiRowsSheet implements DataSheet {
 			}
 		}
 		return valarray;
+	}
+	
+	/**
+	 * sets all row values to object of provided class
+	 * 
+	 * @param className
+	 * @param row
+	 * @return
+	 * 		provided class object 
+	 */
+	private Object rowToObject(String className,Value[] row){
+		Object obj = null;
+		try {
+			 obj = Class.forName(className).newInstance();
+			java.lang.reflect.Field[] fields = obj.getClass().getDeclaredFields();
+			String[] columnNames = this.getColumnNames();
+			for (java.lang.reflect.Field field : fields) {
+				for (int j = 0; j < columnNames.length; j++) {
+					/*
+					 * sets value to corresponding field of class instance
+					 */
+					if (field.getName().equalsIgnoreCase(columnNames[j])) {
+						/*
+						 * We expects the caller to make sure the field names of the
+						 * class and data sheet column names to be same
+						 */
+						field.setAccessible(true);
+						SheetUtil.setAttribute(obj, field.getName(), row[j].toString(), false);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return obj; 
 	}
 }
