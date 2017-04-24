@@ -2314,12 +2314,16 @@
 			type="xs:NCName"
 			use="optional" />
 	</xs:complexType>
-	<xs:complexType name="ldapAuth">
+	<xs:complexType name="ldapAuthenticate">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
-			name="providerUrl"
+			name="principal"
 			type="xs:string"
 			use="required" />
+		<xs:attribute
+			name="credentials"
+			type="xs:string"
+			use="required" />			
 	</xs:complexType>
 	<xs:complexType name="logic">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -3494,23 +3498,26 @@
 				<xs:element
 					ref="jmsProperties"
 					minOccurs="0"
-					maxOccurs="1"
-				>
+					maxOccurs="1">
 					<xs:annotation>
-						<xs:documentation>Attributes like user name and password etc..
-							that may have to be put into environment before getting conection
-							factory. refer to your JMS provider manua, like jboss for details
+						<xs:documentation>
+							Attributes like user name and password etc..
+							that may have to be put into environment
+							before getting conection factory. refer to
+							your JMS provider manua, like jboss for
+							details
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element
 					name="schemaDetails"
 					minOccurs="0"
-					maxOccurs="1"
-				>
+					maxOccurs="1">
 					<xs:annotation>
-						<xs:documentation> If your application used more than one schemas,
-							then you need to provide details for non-default schema
+						<xs:documentation>
+							If your application used more than one
+							schemas, then you need to provide details
+							for non-default schema
 						</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
@@ -3518,8 +3525,7 @@
 							<xs:element
 								name="schemaDetail"
 								minOccurs="1"
-								maxOccurs="unbounded"
-							>
+								maxOccurs="unbounded">
 								<xs:complexType>
 									<xs:attribute
 										name="schemaName"
@@ -3538,6 +3544,16 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
+				<xs:element
+					ref="ldapProperties"
+					minOccurs="0"
+					maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation>
+							Setup details for the LDAP connection
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>			
 			</xs:sequence>
 			<xs:attribute
 				name="applicationId"
@@ -3919,7 +3935,6 @@
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
-
 	<xs:element name="jmsProperties">
 		<xs:complexType>
 			<xs:sequence>
@@ -3930,7 +3945,35 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-
+	<xs:element name="ldapProperties">
+		<xs:complexType>
+			<xs:attribute
+				name="factory"
+				use="required"
+				type="xs:string">			
+			</xs:attribute>
+			<xs:attribute
+				name="principal"
+				use="required"
+				type="xs:string">			
+			</xs:attribute>
+			<xs:attribute
+				name="credentials"
+				use="required"
+				type="xs:string">			
+			</xs:attribute>
+			<xs:attribute
+				name="authentication"
+				use="required"
+				type="xs:string">			
+			</xs:attribute>
+			<xs:attribute
+				name="ldapurl"
+				use="required"
+				type="xs:string">			
+			</xs:attribute>			
+		</xs:complexType>
+	</xs:element>
 	<xs:element name="property">
 		<xs:complexType>
 			<xs:attribute
@@ -4345,8 +4388,8 @@
 				name="keyValueList"
 				type="keyValueList" />
 			<xs:element
-				name="ldapAuth"
-				type="ldapAuth" />
+				name="ldapAuthenticate"
+				type="ldapAuthenticate" />
 			<xs:element
 				name="log"
 				type="log" />
@@ -4723,4 +4766,6 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+
+    <xs:complexType name="ldapProperties"></xs:complexType>
 </xs:schema>
