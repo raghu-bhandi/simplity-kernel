@@ -1,6 +1,9 @@
 package org.simplity.helloworld;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,22 +21,27 @@ public class SheetManipulations implements LogicInterface{
 	public Value execute(ServiceContext ctx) {
 		MultiRowsSheet sheet = (MultiRowsSheet) ctx.getDataSheet("orders");
 		
-		Object[] columnArray = sheet.columnAsArray("ordDate");
-		 List<Object> columnList = sheet.columnAsList("ordNum");		
-		Set<Object> columnSet = sheet.columnAsSet("ordAmount");
-		Map<String, Object> columnsMap = sheet.columnsAsMap("ordNum", "ordDescription");
+		Date[] columnArray = new Date[sheet.length()];
+		columnArray = sheet.columnAsArray("ordDate",columnArray);
+		List<Integer> columnList = new ArrayList<Integer>();
+		columnList = (List<Integer>) sheet.columnAsCollection("ordNum",columnList);		
+		Set<Double> columnSet = new HashSet<Double>();
+		columnSet = (Set<Double>) sheet.columnAsCollection("ordAmount",columnSet);
+		Map<Integer, String> columnsMap = new HashMap<Integer, String>();
+		columnsMap = sheet.columnsAsMap("ordNum", "ordDescription",columnsMap);
 		
 		ctx.setObject("columnArray",columnArray);
 		ctx.setObject("columnList",columnList);
 		ctx.setObject("columnSet",columnSet);
 		ctx.setObject("columnsMap",columnsMap);
 		
-		Set<Object> sheetSet = sheet.toSet("org.simplity.helloworld.entity.Orders");
-		List<Object> sheetList = sheet.toList("org.simplity.helloworld.entity.Orders");
+		Set<Orders> sheetSet = new HashSet<Orders>();
+		sheetSet = sheet.toSet(sheetSet,Orders.class);
+		List<Orders> sheetList = new ArrayList<Orders>();
+		sheetList = sheet.toList(sheetList,Orders.class);
 		
-		for(Object obj:sheetList){
-			Orders orders = (Orders)obj;
-			System.out.println("Order Number: "+orders.getOrdNum());
+		for(Orders obj:sheetList){
+			System.out.println("Order Number: "+obj.getOrdNum());
 		}
 			
 		Integer[] array = {12,34,26,78,39};

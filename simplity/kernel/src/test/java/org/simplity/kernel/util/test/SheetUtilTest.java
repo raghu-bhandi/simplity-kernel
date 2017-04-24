@@ -23,81 +23,84 @@ import org.simplity.test.Customer;
 
 public class SheetUtilTest {
 
-	@Test
+	/*@Test
 	public final void columnToArray(){
 		MultiRowsSheet dataSheet = getSheet();
-		Object[] colarray = dataSheet.columnAsArray("customerNumber");
-		assertNotNull(colarray);
-		Object[] expectedResult = new Integer[]{103,112,114,119,121};
-		assertEquals(Arrays.asList(expectedResult).toString(), Arrays.asList(colarray).toString());
-	}
+		Integer[] intArray = new Integer[dataSheet.length()];
+		intArray = dataSheet.columnAsArray("customerNumber",intArray);
+		assertNotNull(intArray);
+		Integer[] expectedResult = {103,112,114,119,121};
+		assertEquals(Arrays.asList(expectedResult).toString(), Arrays.asList(intArray).toString());
+	}*/
 	
 	@Test
 	public final void columnToList(){
 		MultiRowsSheet dataSheet = getSheet();
-		List<Object> list= dataSheet.columnAsList("customerName");
+		List<String> actualList = new ArrayList<String>();
+		actualList = (List<String>) dataSheet.columnAsCollection("customerName",actualList);
 		List<String> expectedList = new ArrayList<String>();
 		expectedList.add("Atelier graphique");
 		expectedList.add("Signal Gift Stores");
 		expectedList.add("Australian Collectors");
 		expectedList.add("La Rochelle Gifts");
 		expectedList.add("Baane Mini Imports");
-		assertEquals(expectedList,list);
+		assertEquals(expectedList,actualList);
 	}
 	
 	@Test
 	public final void columnToSet(){
 		MultiRowsSheet dataSheet = getSheet();
-		Set<Object> set= dataSheet.columnAsSet("city");
+		Set<String> actualSet = new HashSet<String>();
+		actualSet = (Set<String>) dataSheet.columnAsCollection("city",actualSet);
 		Set<String> expectedSet = new HashSet<String>();
 		expectedSet.add("Nantes");
 		expectedSet.add("Las Vegas");
 		expectedSet.add("Melbourne");
 		expectedSet.add("Nantes");
 		expectedSet.add("San Rafael");
-		System.out.println(set);
-		assertEquals(expectedSet,set);
+		assertEquals(expectedSet,actualSet);
 	}
 	
 	@Test
 	public final void columnsToMap(){
 		MultiRowsSheet dataSheet = getSheet();
-		Map<String,Object> map= dataSheet.columnsAsMap("city","country");
+		Map<String,String> actualResult = new HashMap<String,String>();
+		actualResult = dataSheet.columnsAsMap("city","country",actualResult);
 		Map<String,String> expectedResult = new HashMap<String,String>();
 		expectedResult.put("Nantes", "France");
 		expectedResult.put("Las Vegas", "USA");
 		expectedResult.put("Melbourne", "Australia");
 		expectedResult.put("Nantes", "France");
 		expectedResult.put("San Rafael", "USA");
-		assertEquals(expectedResult,map);
+		assertEquals(expectedResult,actualResult);
 	}
 	
 	@Test
 	public final void sheetToList(){
 		MultiRowsSheet dataSheet = getSheet();
-		List<Object> actualResult = dataSheet.toList("org.simplity.test.Customer");
-		Customer cust = (Customer)actualResult.get(0);
+		List<Customer> actualResult = new ArrayList<Customer>();
+		actualResult = dataSheet.toList(actualResult,Customer.class);
+		Customer cust = actualResult.get(0);
 		assertEquals(cust.getCustomerName(), "Atelier graphique");
 	}
 	
 	@Test
 	public final void sheetToSet(){
-		String[] columnNames = {"customerNumber","customerName","address","city","state","country","postalCode"};
-		ValueType[] columnValueTypes = {ValueType.INTEGER,ValueType.TEXT,ValueType.TEXT,ValueType.TEXT,ValueType.TEXT,ValueType.TEXT,ValueType.INTEGER};
-		MultiRowsSheet dataSheet = new MultiRowsSheet(columnNames, columnValueTypes);
-
-		Value[] row1 = {Value.newIntegerValue(103),Value.newTextValue("Atelier graphique"),Value.newTextValue("54, rue Royale"),Value.newTextValue("Nantes"),Value.newTextValue("NULL"),Value.newTextValue("France"),Value.newIntegerValue(44000)};
-		dataSheet.addRow(row1);
-		Set<Object> actualResult = dataSheet.toSet("org.simplity.test.Customer");
-		Customer cust = (Customer)actualResult.iterator().next();
-		assertEquals(cust.getCustomerNumber(), 103);
+		MultiRowsSheet dataSheet = getSheet();
+		Set<Customer> actualResult = new HashSet<Customer>();
+		actualResult = dataSheet.toSet(actualResult,Customer.class);
+		assertEquals(5, actualResult.size());
 	}
 	
 	@Test
 	public final void arrayToDatasheet(){
-		String[] stringArray = {"abc","def"};
-		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(stringArray, "arraydata");
-		assertEquals("abc", sheet.getRow(0)[0].toString());
+		Integer[] intArray = {1,2,3};
+		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(intArray, "arraydata");
+		try {
+			assertEquals(1,(int)sheet.getColumnValue("arraydata", 0).toInteger());
+		} catch (InvalidValueException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Test
@@ -171,8 +174,10 @@ public class SheetUtilTest {
 		map.put("empName", "Robert");
 		map.put("empMail", "Robert@abc.com");
 		DataSheet transposeSheet = MultiRowsSheet.toDatasheet(map, true);
-		String mailId = transposeSheet.getColumnValue("empMail", 0).toString();
-		assertEquals(map.get("empMail").toString(),mailId);
+		int noOfColumns = transposeSheet.width();
+		int noOfRows = transposeSheet.length();
+		assertEquals(3,noOfColumns);
+		assertEquals(1,noOfRows);
 	}
 	
 	@Test
