@@ -22,7 +22,6 @@
 
 package org.simplity.tp;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -239,7 +238,7 @@ public class InputFile {
 					return false;
 				}
 				int lineNumber = this.reader.getLineNumber();
-				
+
 				ctxt.setTextValue(ServiceProtocol.ROW_TEXT, rowText);
 				ctxt.setLongValue(ServiceProtocol.LINE_NUM, lineNumber);
 				/*
