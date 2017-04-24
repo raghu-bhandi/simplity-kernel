@@ -3,13 +3,13 @@
 	dbAccessType="none">
  	<actions>
 		
-		<sendMail fromId="from@sample.com" 
-				  toIds="to@sample.com" 
-				  bccIds="bcc@sample.com" 
-				  ccIds="cc@sample.com" 
-				  subject="sample subject">
+		<sendMail fromId="from@mockserver.com" 
+				  toIds="bar@mockserver.com" 
+				  bccIds="bcc@mockserver.com" 
+				  ccIds="cc@mockserver.com" 
+				  subject="Simplity - sample subject">
 				<content type="text">
-					<text>hello from mail test</text>
+					<text>Simplity - hello from test mail</text>
 				</content>
 		</sendMail>
 	</actions>

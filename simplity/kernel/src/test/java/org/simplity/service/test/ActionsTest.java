@@ -6,15 +6,21 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Hashtable;
+import java.util.Properties;
 import java.util.Set;
 
+import javax.mail.Folder;
 import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
 import javax.mail.Transport;
 import javax.naming.Context;
 import javax.naming.directory.DirContext;
@@ -29,7 +35,6 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -47,14 +52,14 @@ import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
+import org.simplity.kernel.mail.MailConnector;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 import org.simplity.test.mail.Messages;
 import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
-//@RunWith(PowerMockRunner.class)
-//@PowerMockIgnore("javax.management.*")
+
 public class ActionsTest extends Mockito {
 	private static final String COMP_PATH = "comp/";
 
@@ -76,6 +81,8 @@ public class ActionsTest extends Mockito {
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 
+	// private static final int SMTP_TEST_PORT = 3025;
+
 	@BeforeClass
 	public static void setUp() throws Exception {
 		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
@@ -85,13 +92,7 @@ public class ActionsTest extends Mockito {
 
 		ServletContext context = mock(ServletContext.class);
 		MockInitialDirContextFactory factory = mock(MockInitialDirContextFactory.class);
-
-		Transport transport = mock(Transport.class);
 		
-		
-		
-		
-
 		Class<Hashtable<?, ?>> clazz = null;
 		when(factory.getInitialContext(any(clazz))).thenAnswer(new Answer<Context>() {
 
@@ -130,18 +131,22 @@ public class ActionsTest extends Mockito {
 			}
 		});
 
-		
-		Class<Message> clazzMessage;
-		/*when(Transport.send(any(clazzMessage))).thenAnser*/
-		
-	
-
 		Application app = new Application();
 		XmlUtil.xmlToObject(compFolder + "applicationH2.xml", app);
 		/*
 		 * app.configure() takes care of all initial set up
 		 */
 		app.configure();
+
+		MailConnector mailConnector = mock(MailConnector.class);
+		when(mailConnector.initialize()).then(new Answer<Session>() {
+
+			@Override
+			public Session answer(InvocationOnMock invocation) throws Throwable {
+				return ActionsTest.getMailSession();
+			}
+
+		});
 
 		/*
 		 * Load the db data
@@ -423,25 +428,37 @@ public class ActionsTest extends Mockito {
 		assertEquals(outData.hasErrors(), true);
 	}
 
+	public static Session getMailSession() {
+		Properties props = System.getProperties();
+		props.setProperty("mail.store.protocol", "imaps");
+		props.setProperty("mail.imap.partialfetch", "0");
+		return Session.getDefaultInstance(props, null);
+	}
 
-//	@Test
-////	public void ldapLookupTest() {
-////		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
-////		ServiceData outData = serviceAgentSetup("test.ldapLookup", payLoad);
-////		JSONObject obj = new JSONObject(outData.getPayLoad());
-////		assertEquals((String) obj.get("cn"), "Williams");
-////	}
-	
-	
-	//@PrepareForTest({ Transport.class })
+	/*
+	 * Test method for 
+	 * org.simplity.tp.SendMail
+	 */
 	@Test
 	public void sendMailTest() {
-		//PowerMockito.mockStatic(Transport.class);
-		Messages msg = new org.simplity.test.mail.Messages();
-		//PowerMockito.when("").thenReturn("");
 		ServiceData outData = serviceAgentSetup("test.sendMail", null);
+
+		try {
+			Session session = getMailSession();
+			Store store = session.getStore("imap");
+			store.connect("mockserver.com", "bar", "samplepassword");
+			Folder folder = store.getDefaultFolder();
+			folder = folder.getFolder("inbox");
+			folder.open(Folder.READ_ONLY);
+			for (Message message : folder.getMessages()) {
+				assertEquals((String) message.getSubject(), "Simplity - sample subject");
+			}
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+
 		JSONObject obj = new JSONObject(outData.getPayLoad());
-		assertEquals((String) obj.get("_requestStatus"),"ok");
+		assertEquals((String) obj.get("_requestStatus"), "ok");
 	}
 
 	/**

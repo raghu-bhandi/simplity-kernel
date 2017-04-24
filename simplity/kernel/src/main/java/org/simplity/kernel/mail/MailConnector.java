@@ -20,7 +20,7 @@
  * SOFTWARE.
  */
 
-package org.simplity.kernel.smtp;
+package org.simplity.kernel.mail;
 
 import java.io.IOException;
 import java.util.Date;
@@ -49,19 +49,20 @@ import javax.mail.internet.MimeMultipart;
 public class MailConnector {
 
 	static Properties mailProps;
-	/**
-	 * session
-	 */
-	private final Session session;
 	
-	public MailConnector() {
-		this.session = Session.getInstance(SmtpAgent.getProperties(), null);
+	public Session initialize() {
+		return Session.getInstance(MailAgent.getProperties(), null);
 	}
 	
+	/**
+	 * create MimeMessage and values (fromId, toIds, ccIds, bccIds, subject, content, and attachment) 
+	 * and send the object to MailConnector
+	 */
 	public void sendEmail(Mail mail) {
 		
 		try {
-			MimeMessage msg = new MimeMessage(session);
+			Session session = initialize();
+			MimeMessage msg = new MimeMessage(session );
 			msg.addHeader("Content-type", "text/html; charset=UTF-8");
 			msg.addHeader("Content-Transfer-Encoding", "8bit");
 			msg.setFrom(new InternetAddress(mail.fromId, "NoReply-JD"));
@@ -102,7 +103,6 @@ public class MailConnector {
 			}
 			
             msg.setContent(multipart);
-			msg.writeTo(System.out); // remove this after test
 			Transport.send(msg);
 
 		} catch (IOException e) {
@@ -112,10 +112,4 @@ public class MailConnector {
 		}
 	}
 	
-	/**
-	 * @return session associated with this connector
-	 */
-	public Session getSession() {
-		return this.session;
-	}
 }

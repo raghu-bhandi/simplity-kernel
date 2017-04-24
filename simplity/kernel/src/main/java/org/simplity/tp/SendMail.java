@@ -39,9 +39,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.simplity.kernel.data.DataSheet;
-import org.simplity.kernel.smtp.Mail;
-import org.simplity.kernel.smtp.MailAttachment;
-import org.simplity.kernel.smtp.MailConnector;
+import org.simplity.kernel.mail.Mail;
+import org.simplity.kernel.mail.MailAttachment;
+import org.simplity.kernel.mail.MailConnector;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -87,8 +87,6 @@ public class SendMail extends Action {
 			
 			for(int i=0; i < attachmentDataSheet.length(); i++) {
 				mail.attachment[i] = new MailAttachment(rawAttachmentData[i+1][0], rawAttachmentData[i+1][1].replace("\\", "/"));
-				//mail.attachment[i].name = rawAttachmentData[i+1][0];
-				//mail.attachment[i].filepath = rawAttachmentData[i+1][1].replace("\\", "/");
 			}
 		}
 		
@@ -99,8 +97,6 @@ public class SendMail extends Action {
 			
 			for(int i=0; i < inlineAttachmentDataSheet.length(); i++) {
 				mail.inlineAttachment[i] = new MailAttachment(rawInlineAttachmentData[i+1][0], rawInlineAttachmentData[i+1][1].replace("\\", "/"));
-				//mail.inlineAttachment[i].name = rawInlineAttachmentData[i+1][0];
-				//mail.inlineAttachment[i].filepath = rawInlineAttachmentData[i+1][1].replace("\\", "/");
 			}
 		}
 		
@@ -155,72 +151,12 @@ public class SendMail extends Action {
 			}
 		}
 
-		//sendEmail(mail);
 		new MailConnector().sendEmail(mail);
 		
 		return Value.newBooleanValue(true);
 
 	}
-
-	/**
-	 * create MimeMessage and values (fromId, toIds, ccIds, bccIds, subject, content, and attachment) 
-	 * and send the object to MailConnector
-	 */
-/*
-	private void sendEmail(Mail mail) {
-		Session session = Session.getInstance(SmtpAgent.getProperties(), null);
-		try {
-			MimeMessage msg = new MimeMessage(session);
-			msg.addHeader("Content-type", "text/html; charset=UTF-8");
-			msg.addHeader("Content-Transfer-Encoding", "8bit");
-			msg.setFrom(new InternetAddress(mail.fromId, "NoReply-JD"));
-			msg.setReplyTo(InternetAddress.parse(mail.fromId, false));
-			msg.setSubject(mail.subject, "UTF-8");
-			msg.setSentDate(new Date());
-			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
-			msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(mail.ccIds, false));
-			msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(mail.bccIds, false));
-			
-			Multipart multipart = new MimeMultipart();
-			
-			MimeBodyPart bodyPart = new MimeBodyPart();
-			bodyPart.setText(mail.content, "US-ASCII", "html");
-			multipart.addBodyPart(bodyPart);
-			
-			if(mail.inlineAttachment != null) {
-				MailAttachment[] inlineMailAttachment = mail.inlineAttachment;
-				for(int i=0; i < inlineMailAttachment.length; i++) {
-					bodyPart = new MimeBodyPart();
-					bodyPart.setDisposition(MimeBodyPart.INLINE);
-					bodyPart.attachFile(inlineMailAttachment[i].filepath); // attach inline image file
-					bodyPart.setHeader("Content-ID", inlineMailAttachment[i].name);
-		            multipart.addBodyPart(bodyPart);
-				}
-			}
-			
-			if(mail.attachment != null) {
-				DataSource dataSource = null;
-				MailAttachment[] mailAttachment = mail.attachment;
-				for(int i=0; i < mailAttachment.length; i++) {
-					bodyPart = new MimeBodyPart();
-					dataSource = new FileDataSource(mailAttachment[i].filepath);
-					bodyPart.setDataHandler(new DataHandler(dataSource));
-					bodyPart.setFileName(mailAttachment[i].name);
-		            multipart.addBodyPart(bodyPart);
-				}
-			}
-			
-            msg.setContent(multipart);
-			msg.writeTo(System.out); // remove this after test
-			Transport.send(msg);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (MessagingException e) {
-			e.printStackTrace();
-		}
-	}
-*/
+	
 	private static byte[] serialize(Object obj) throws IOException {
 
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
@@ -231,43 +167,7 @@ public class SendMail extends Action {
 		return b.toByteArray();
 	}
 }
-/*
-class Mail implements Serializable {
-	private static final long serialVersionUID = -4314888435710523295L;
 
-	public String fromId;
-	public String toIds;
-	public String ccIds;
-	public String bccIds;
-	public String subject;
-	public String content;
-	public MailAttachment[] attachment;
-	public MailAttachment[] inlineAttachment;
-}
-
-class MailAttachement implements Serializable {
-
-	private static final long serialVersionUID = 8189730674999834850L;
-	
-	public String name;
-	public String filepath;
-	
-	public MailAttachement() {
-		
-	}
-	
-	/**
-	 * name - id of the attachment
-	 * filepath - complete file name (along with file path)
-	 */
-/*
-	public MailAttachement(String name, String filepath) {
-		this.name = name;
-		this.filepath = filepath;
-	}
-
-}
-*/
 enum ContentType {
 	TEXT, TEMPLATE
 }

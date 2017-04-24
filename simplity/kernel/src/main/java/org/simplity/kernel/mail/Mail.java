@@ -1,4 +1,4 @@
-package org.simplity.kernel.smtp;
+package org.simplity.kernel.mail;
 
 import java.io.Serializable;
 
