@@ -393,7 +393,7 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void ldapAuthenticate1Test() {
 		String payLoad = "{'_userId':'winner','_userToken':'pwd'}";
-		ServiceData outData = serviceAgentSetup("test.ldapAuth", payLoad);
+		ServiceData outData = serviceAgentSetup("ldap.ldapAuth", payLoad);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals((String) obj.get("_userId"), "winner");
 	}
@@ -401,14 +401,14 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void ldapAuthenticate2Test() {
 		String payLoad = "{'_userId':'rogue','_userToken':'guess'}";
-		ServiceData outData = serviceAgentSetup("test.ldapAuth", payLoad);
+		ServiceData outData = serviceAgentSetup("ldap.ldapAuth", payLoad);
 		assertEquals(outData.hasErrors(), true);
 	}
 
 	@Test
 	public void ldapLookupTest() {
 		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
-		ServiceData outData = serviceAgentSetup("test.ldapLookup", payLoad);
+		ServiceData outData = serviceAgentSetup("ldap.ldapLookup", payLoad);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals((String) obj.get("ldapLookup"), "Williams");
 	}

@@ -43,16 +43,16 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  *
  */
-public class Batch implements Component {
+public class Jobs implements Component {
 
-	private static Batch batchInstance;
+	private static Jobs jobsInstance;
 
 	/**
 	 *
 	 * @return current instance that can be used for managing running jobs
 	 */
-	public static Batch getCurrentInstance() {
-		return batchInstance;
+	public static Jobs getCurrentInstance() {
+		return jobsInstance;
 	}
 
 	/**
@@ -60,49 +60,49 @@ public class Batch implements Component {
 	 *
 	 * @return instance of jobs that can be used for managing running jobs
 	 */
-	public static Batch startEmptyBatch() {
-		batchInstance = new Batch();
-		batchInstance.jobs = new Job[0];
-		batchInstance.name = "dummy";
-		batchInstance.getReady();
-		batchInstance.start();
-		return batchInstance;
+	public static Jobs startEmptyJobs() {
+		jobsInstance = new Jobs();
+		jobsInstance.jobs = new Job[0];
+		jobsInstance.name = "dummy";
+		jobsInstance.getReady();
+		jobsInstance.start();
+		return jobsInstance;
 	}
 
 	/**
 	 * schedule batch from a non-default resource
 	 *
-	 * @param batchName
+	 * @param jobName
 	 *            name of the jobs resource under Jobs folder to be used.
 	 *
 	 * @return instance of jobs that can be used for managing running jobs
 	 */
 
-	public static Batch startBatch(String batchName) {
-		if (batchName == null || batchName.isEmpty()) {
-			return startEmptyBatch();
+	public static Jobs startJobs(String jobName) {
+		if (jobName == null || jobName.isEmpty()) {
+			return startEmptyJobs();
 		}
-		return load(batchName);
+		return load(jobName);
 	}
 
 	/**
 	 * stop the scheduler after bringing down all running jobs
 	 */
-	public static void stopBatch() {
-		if (batchInstance != null) {
-			batchInstance.stop();
-			batchInstance = null;
+	public static void stopJobs() {
+		if (jobsInstance != null) {
+			jobsInstance.stop();
+			jobsInstance = null;
 		}
 	}
 
-	private static Batch load(String batchName) {
-		if (batchInstance != null) {
+	private static Jobs load(String batchName) {
+		if (jobsInstance != null) {
 			throw new ApplicationError(
 					"Jobs are already running. Bring them down before re-running, or incrmentally add ad-hoc jobs");
 		}
-		batchInstance = ComponentManager.getBatch(batchName);
-		batchInstance.start();
-		return batchInstance;
+		jobsInstance = ComponentManager.getJobs(batchName);
+		jobsInstance.start();
+		return jobsInstance;
 	}
 
 	/**
@@ -415,7 +415,7 @@ public class Batch implements Component {
 	 */
 	@Override
 	public int validate(ValidationContext vtx) {
-		vtx.beginValidation(ComponentType.BATCH, this.getQualifiedName());
+		vtx.beginValidation(ComponentType.JOBS, this.getQualifiedName());
 		int count = 0;
 
 		count += vtx.checkMandatoryField("name", this.name);
@@ -438,6 +438,6 @@ public class Batch implements Component {
 	 */
 	@Override
 	public ComponentType getComponentType() {
-		return ComponentType.BATCH;
+		return ComponentType.JOBS;
 	}
 }

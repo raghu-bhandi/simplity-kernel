@@ -91,7 +91,7 @@ public class TextValue extends Value {
 	}
 
 	@Override
-	public Object[] toArray(Value[] values) {
+	public  String[] toArray(Value[] values) {
 		int n = values.length;
 		String[] arr = new String[n];
 		for (int i = 0; i < n; i++) {

@@ -6,10 +6,13 @@
 	dbAccessType="readOnly"	
 >
 	<inputData>
+	<inputRecords>
+		<inputRecord recordName="" purpose="read"/>
+	</inputRecords>
 		<inputFields>
 			<inputField
 				dataType="_text"
-				name="agentCode" />
+				name="agentCode"  />
 		</inputFields>
 	</inputData>
 	<actions>

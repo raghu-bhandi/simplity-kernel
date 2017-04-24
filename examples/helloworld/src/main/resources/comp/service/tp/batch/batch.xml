@@ -4,6 +4,6 @@
 	moduleName="batch"
 	name="batch"
 	dbAccessType="none"
-	className="org.simplity.job.BatchManager"
+	className="org.simplity.job.JobsManager"
 >
 </service>

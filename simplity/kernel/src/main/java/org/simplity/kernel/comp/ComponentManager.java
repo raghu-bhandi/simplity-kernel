@@ -21,7 +21,7 @@
  */
 package org.simplity.kernel.comp;
 
-import org.simplity.job.Batch;
+import org.simplity.job.Jobs;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Message;
 import org.simplity.kernel.data.FieldsInterface;
@@ -146,29 +146,28 @@ public class ComponentManager {
 
 	/**
 	 *
-	 * @param batchName
+	 * @param JobsName
 	 *            name
-	 * @return batch if it is defined, null otherwise
+	 * @return Jobs if it is defined, null otherwise
 	 */
-	public static Batch getBatchNull(String batchName) {
-		return (Batch) ComponentType.BATCH
-				.getComponentOrNull(batchName);
+	public static Jobs getJobsNull(String JobsName) {
+		return (Jobs) ComponentType.JOBS.getComponentOrNull(JobsName);
 	}
 
 	/**
-	 * note that this throws an error if batch is not found
+	 * note that this throws an error if Jobs is not found
 	 *
-	 * @param batchName
+	 * @param jobsName
 	 *            name
-	 * @return Batch if it is defined, error otherwise
+	 * @return Jobs if it is defined, error otherwise
 	 * @throws ApplicationError
 	 */
-	public static Batch getBatch(String batchName) {
-		Component comp = ComponentType.BATCH.getComponentOrNull(batchName);
+	public static Jobs getJobs(String jobsName) {
+		Component comp = ComponentType.JOBS.getComponentOrNull(jobsName);
 		if (comp == null) {
-			throw new ApplicationError(batchName + " is not a valid batch.");
+			throw new ApplicationError(jobsName + " is not a valid Jobs.");
 		}
-		return (Batch) comp;
+		return (Jobs) comp;
 	}
 
 	/**

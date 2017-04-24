@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.simplity.job.Batch;
+import org.simplity.job.Jobs;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Message;
 import org.simplity.kernel.Tracer;
@@ -151,7 +151,7 @@ public enum ComponentType {
 	/**
 	 * test cases for service
 	 */
-	BATCH(8, Batch.class, "batch/", false);
+	JOBS(8, Jobs.class, "batch/", false);
 
 	/*
 	 * constants
