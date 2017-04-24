@@ -35,7 +35,7 @@ import javax.transaction.UserTransaction;
 import org.simplity.http.HttpAgent;
 import org.simplity.http.Serve;
 import org.simplity.jms.JmsConnector;
-import org.simplity.job.Batch;
+import org.simplity.job.Jobs;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -382,7 +382,7 @@ public class Application {
 	/**
 	 * batch job to fire after boot-strapping.
 	 */
-	String batchJobToRunOnStartup;
+	String jobsToRunOnStartup;
 	/**
 	 * Access Application context
 	 */
@@ -635,19 +635,19 @@ public class Application {
 			/*
 			 * we run the background batch job only if everything has gone well.
 			 */
-			if (this.batchJobToRunOnStartup != null) {
-				err.append("Scheduler NOT started for batch " + this.batchJobToRunOnStartup
+			if (this.jobsToRunOnStartup != null) {
+				err.append("Scheduler NOT started for batch " + this.jobsToRunOnStartup
 						+ " because of issues with applicaiton set up.");
 				err.append('\n');
 			}
 			result = err.toString();
 			Tracer.trace(result);
-		} else if (this.batchJobToRunOnStartup != null) {
+		} else if (this.jobsToRunOnStartup != null) {
 			/*
 			 * we run the background batch job only if everything has gone well.
 			 */
-			Batch.startBatch(this.batchJobToRunOnStartup);
-			Tracer.trace("Scheduler started for Batch " + this.batchJobToRunOnStartup);
+			Jobs.startJobs(this.jobsToRunOnStartup);
+			Tracer.trace("Scheduler started for Batch " + this.jobsToRunOnStartup);
 		}
 		/*
 		 * we will output all the messages to console as well, just in case the

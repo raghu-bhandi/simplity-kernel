@@ -110,7 +110,7 @@ public class Service implements ServiceInterface {
 	/**
 	 * database access type
 	 */
-	DbAccessType dbAccessType;
+	DbAccessType dbAccessType = DbAccessType.NONE;
 
 	/**
 	 * input fields/grids for this service. not valid if requestTextFieldName is
@@ -446,8 +446,8 @@ public class Service implements ServiceInterface {
 				if (err != null) {
 					throw err;
 				}
-			}
-			return Value.VALUE_TRUE;
+				return Value.VALUE_TRUE;
+			}			
 		}
 
 		/*
