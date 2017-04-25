@@ -24,11 +24,11 @@ public class SheetManipulations implements LogicInterface{
 		Date[] columnArray = new Date[sheet.length()];
 		columnArray = sheet.columnAsArray("ordDate",columnArray);
 		List<Integer> columnList = new ArrayList<Integer>();
-		columnList = (List<Integer>) sheet.columnAsCollection("ordNum",columnList);		
+		columnList = (List<Integer>) sheet.columnAsCollection("ordNum",columnList,Integer.class);		
 		Set<Double> columnSet = new HashSet<Double>();
-		columnSet = (Set<Double>) sheet.columnAsCollection("ordAmount",columnSet);
+		columnSet = (Set<Double>) sheet.columnAsCollection("ordAmount",columnSet,Double.class);
 		Map<Integer, String> columnsMap = new HashMap<Integer, String>();
-		columnsMap = sheet.columnsAsMap("ordNum", "ordDescription",columnsMap);
+		columnsMap = sheet.columnsAsMap("ordNum", "ordDescription",columnsMap,Integer.class,String.class);
 		
 		ctx.setObject("columnArray",columnArray);
 		ctx.setObject("columnList",columnList);
