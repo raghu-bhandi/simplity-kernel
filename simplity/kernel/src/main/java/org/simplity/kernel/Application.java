@@ -46,6 +46,7 @@ import org.simplity.kernel.db.SchemaDetail;
 import org.simplity.kernel.file.FileBasedAssistant;
 import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.ldap.LdapProperties;
+import org.simplity.kernel.mail.MailProperties;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
@@ -387,6 +388,11 @@ public class Application {
 	 * Access Application context
 	 */
 	String classManager;
+	/**
+	 * Configure the Mail Setup for the application
+	 */
+	MailProperties mailProperties;
+	
 	private static ContextInterface classManagerInternal;
 
 	/**
@@ -509,6 +515,16 @@ public class Application {
 				LdapAgent.initialSetup(this.ldapProperties);
 			} catch (Exception e) {
 				msgs.add("Error while setting up LDAP." + e.getMessage() + " Application will not work properly.");
+			}
+		}
+		/*
+		 * Setup Mail Agent
+		 */
+		if (this.mailProperties != null) {
+			try {
+				MailProperties.initialSetup(this.mailProperties);
+			} catch (Exception e) {
+				msgs.add("Error while setting up MailAgent." + e.getMessage() + " Application will not work properly.");
 			}
 		}
 
