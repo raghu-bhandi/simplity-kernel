@@ -45,6 +45,7 @@ import org.simplity.kernel.db.DbVendor;
 import org.simplity.kernel.db.SchemaDetail;
 import org.simplity.kernel.file.FileBasedAssistant;
 import org.simplity.kernel.ldap.LdapProperties;
+import org.simplity.kernel.mail.MailProperties;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
@@ -386,6 +387,11 @@ public class Application {
 	 * Access Application context
 	 */
 	String classManager;
+	/**
+	 * Configure the Mail Setup for the application
+	 */
+	MailProperties mailProperties;
+	
 	private static ContextInterface classManagerInternal;
 
 	/**
@@ -500,6 +506,18 @@ public class Application {
 				msgs.add(msg);
 			}
 		}
+
+		/*
+		 * Setup Mail Agent
+		 */
+		if (this.mailProperties != null) {
+			try {
+				MailProperties.initialSetup(this.mailProperties);
+			} catch (Exception e) {
+				msgs.add("Error while setting up MailAgent." + e.getMessage() + " Application will not work properly.");
+			}
+		}
+
 
 		/*
 		 * in production, we cache components as they are loaded, but in
