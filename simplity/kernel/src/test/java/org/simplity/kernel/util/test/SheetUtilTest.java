@@ -23,7 +23,7 @@ import org.simplity.test.Customer;
 
 public class SheetUtilTest {
 
-	/*@Test
+	@Test
 	public final void columnToArray(){
 		MultiRowsSheet dataSheet = getSheet();
 		Integer[] intArray = new Integer[dataSheet.length()];
@@ -31,7 +31,7 @@ public class SheetUtilTest {
 		assertNotNull(intArray);
 		Integer[] expectedResult = {103,112,114,119,121};
 		assertEquals(Arrays.asList(expectedResult).toString(), Arrays.asList(intArray).toString());
-	}*/
+	}
 	
 	@Test
 	public final void columnToList(){

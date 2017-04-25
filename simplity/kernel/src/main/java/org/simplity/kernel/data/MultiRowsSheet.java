@@ -39,6 +39,7 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.ArrayUtil;
 import org.simplity.kernel.util.ReflectUtil;
+import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
@@ -649,10 +650,22 @@ public class MultiRowsSheet implements DataSheet {
 	@SuppressWarnings("unchecked")
 	public <T> T[] columnAsArray(String columnName,T[] array) {
 		Value[] columnValues = this.getColumnValues(columnName);
-		Class<?> clazz = array.getClass().getComponentType();
-		array = (T[])Array.newInstance(clazz, columnValues.length); 
+		Class<?> genericType = array.getClass().getComponentType();
+		array = (T[])Array.newInstance(genericType, columnValues.length); 
 		for(int i=0;i<columnValues.length;i++){
 			Value value = columnValues[i];
+			try {
+				if(genericType.equals(Integer.class)){
+					array[i] = (T)new Integer((int)value.toInteger());
+					continue;				
+				}
+				if(genericType.equals(Float.class)){
+					array[i] = (T)new Float((float)value.toDecimal());
+					continue;
+				}
+			} catch (InvalidValueException e) {
+				throw new ApplicationError(e.getMessage());
+			}
 			array[i] = (T) value.toObject();
 		}
 		return array;
@@ -669,8 +682,21 @@ public class MultiRowsSheet implements DataSheet {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> Collection<T> columnAsCollection(String columnName,Collection<T> c) {
+		Class<?> genericType = c.getClass().getComponentType();
 		Value[] columnValues = this.getColumnValues(columnName);
 		for(Value value:columnValues){
+			try {
+				if(genericType.equals(Integer.class)){
+					c.add((T)new Integer((int)value.toInteger()));
+					continue;
+				}
+				if(genericType.equals(Float.class)){
+					c.add((T)new Float((float)value.toDecimal()));
+					continue;
+				}
+			} catch (InvalidValueException e) {
+				throw new ApplicationError(e.getMessage());
+			}
 			c.add((T)value.toObject());
 		}
 		return c;
@@ -686,10 +712,39 @@ public class MultiRowsSheet implements DataSheet {
 	 */
 	@SuppressWarnings("unchecked")
 	public <K,V> Map<K,V> columnsAsMap(String keyColumnName,String valueColumnName,Map<K,V> map) {
+		Class<?> keyType = null;
+		Class<?> valueType = null;
+		for(K key:map.keySet()){
+			keyType = key.getClass();
+			valueType = map.get(key).getClass();
+			break;
+		}		
 		Value[] keys = this.getColumnValues(keyColumnName);
 		Value[] values = this.getColumnValues(valueColumnName);		
 		for(int i=0;i<keys.length;i++){	
-			map.put((K)keys[i].toObject(),(V)values[i].toObject());
+			K key = null;
+			V value = null;
+			try {
+				if(keyType.equals(Integer.class)){
+					key = (K)new Integer((int)keys[i].toInteger());
+				}
+				else if(keyType.equals(Float.class)){
+					key = (K)new Float((float)keys[i].toDecimal());
+				}
+				else if(valueType.equals(Integer.class)){
+					value = (V)new Integer((int)values[i].toInteger());
+				}
+				else if(valueType.equals(Float.class)){
+					value = (V)new Float((float)values[i].toDecimal());
+				}
+				else{
+					key = (K)keys[i].toObject();
+					value = (V)values[i].toObject();			
+				}
+			} catch (InvalidValueException e) {
+				throw new ApplicationError(e.getMessage());
+			}
+			map.put(key,value);
 		}
 		return map;
 	}
