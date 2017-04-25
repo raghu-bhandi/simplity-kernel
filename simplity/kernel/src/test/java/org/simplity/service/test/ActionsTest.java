@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -21,8 +20,10 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
-import javax.mail.Transport;
 import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -40,10 +41,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-/*import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;*/
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
@@ -52,12 +49,12 @@ import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
+import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.mail.MailConnector;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
-import org.simplity.test.mail.Messages;
 import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
 
 public class ActionsTest extends Mockito {
@@ -91,6 +88,7 @@ public class ActionsTest extends Mockito {
 		MockitoAnnotations.initMocks(ActionsTest.class);
 
 		ServletContext context = mock(ServletContext.class);
+
 		MockInitialDirContextFactory factory = mock(MockInitialDirContextFactory.class);
 		
 		Class<Hashtable<?, ?>> clazz = null;
@@ -102,6 +100,7 @@ public class ActionsTest extends Mockito {
 				return (DirContext) Mockito.mock(DirContext.class);
 			}
 		});
+
 		ComponentType.setComponentFolder(compFolder);
 		FileManager.setContext(context);
 
@@ -147,6 +146,20 @@ public class ActionsTest extends Mockito {
 			}
 
 		});
+
+		DirContext mockContext = LdapAgent.getInitialDirContext();
+			
+		
+		 when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>(){
+
+			@Override
+			public Attributes answer(InvocationOnMock invocation) throws NamingException {
+				Attributes attrs = new BasicAttributes();
+				attrs.put("surname", "Williams");
+				return attrs;
+			}
+			 
+		 });
 
 		/*
 		 * Load the db data
@@ -371,7 +384,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void saveDataAddTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.saveDataAdd", null);
+		ServiceData outData = serviceAgentSetup("dbactions.saveDataAdd", null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(obj.get("testValue"), 1234);
 	}
@@ -391,7 +404,7 @@ public class ActionsTest extends Mockito {
 	 */
 	@Test
 	public void readWithSqlTest() {
-		ServiceData outData = serviceAgentSetup("tutorial.readWithSql", null);
+		ServiceData outData = serviceAgentSetup("dbactions.readWithSql", null);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("lastName"), "Patterson");
 	}
@@ -416,7 +429,7 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void ldapAuthenticate1Test() {
 		String payLoad = "{'_userId':'winner','_userToken':'pwd'}";
-		ServiceData outData = serviceAgentSetup("test.ldapAuth", payLoad);
+		ServiceData outData = serviceAgentSetup("ldap.ldapAuth", payLoad);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals((String) obj.get("_userId"), "winner");
 	}
@@ -424,7 +437,7 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void ldapAuthenticate2Test() {
 		String payLoad = "{'_userId':'rogue','_userToken':'guess'}";
-		ServiceData outData = serviceAgentSetup("test.ldapAuth", payLoad);
+		ServiceData outData = serviceAgentSetup("ldap.ldapAuth", payLoad);
 		assertEquals(outData.hasErrors(), true);
 	}
 
@@ -459,6 +472,15 @@ public class ActionsTest extends Mockito {
 
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals((String) obj.get("_requestStatus"), "ok");
+	}
+	
+	@Test
+	public void ldapLookupTest() {
+		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
+		ServiceData outData = serviceAgentSetup("ldap.ldapLookup", payLoad);
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals((String) obj.get("ldapLookup"), "Williams");
+
 	}
 
 	/**

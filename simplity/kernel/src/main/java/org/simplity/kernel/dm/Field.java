@@ -762,11 +762,11 @@ public class Field {
 	 *
 	 * @param values
 	 * @return get value for the field from the collection. In case it is not
-	 *         found, get default if this field happens to be mandatory
+	 *         found, get default
 	 */
 	public Value getValue(FieldsInterface values) {
 		Value value = values.getValue(this.name);
-		if (value == null) {
+		if (Value.isNull(value)) {
 			return this.defaultValueObject;
 		}
 		return value;

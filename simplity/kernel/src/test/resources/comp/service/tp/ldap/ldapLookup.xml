@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <service
 	xmlns="http://www.simplity.org/schema"
-	moduleName="test"
-	name="ldapAuth"
+	moduleName="ldap"
+	name="ldapLookup"
 	dbAccessType="none">
 	<inputData>
 		<inputFields>
 			<inputField
 				dataType="_text"
-				name="_userId" />
+				name="objectId" />
 			<inputField
 				dataType="_text"
-				name="_userToken" />
+				name="attrName" />
 		</inputFields>
 	</inputData>
 	<actions>
-		<ldapAuthenticate
-			credentials="$_userToken"
-			principal="$_userId"></ldapAuthenticate>
+		<ldapLookup
+			objectId="$objectId"
+			attrName="$attrName"
+			fieldName="ldapLookup"></ldapLookup>
 	</actions>
-	<outputData fieldNames="_userId">
-	</outputData>
+	<outputData fieldNames="ldapLookup"></outputData>
 </service>

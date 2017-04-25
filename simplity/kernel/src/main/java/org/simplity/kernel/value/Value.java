@@ -621,7 +621,7 @@ public abstract class Value implements Serializable {
 	 * @param values
 	 * @return gets an array of primitives/object for the Value[] array
 	 */
-	public abstract Object[] toArray(Value[] values);
+	public abstract <T> T[] toArray(Value[] values);
 
 	/**
 	 * @return java Object that represents the underlying value. String, Long,

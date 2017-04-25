@@ -331,9 +331,9 @@ public class Record implements Component {
 	private boolean isComplexStruct;
 
 	/**
-	 * length of record in case forFixedWidthRow = true
+	 * min length of record in case forFixedWidthRow = true
 	 */
-	private int recordLength;
+	private int minRecordLength;
 
 	/**
 	 * in case the primary is a composite key : with more than one fields, then
@@ -982,8 +982,8 @@ public class Record implements Component {
 			if (field.fieldType == FieldType.CREATED_BY_USER || field.fieldType == FieldType.MODIFIED_BY_USER) {
 				values[valueIdx] = userId;
 			} else {
-				Value value = row.getValue(field.name);
-				if (value == null) {
+				Value value = field.getValue(row);
+				if (Value.isNull(value)) {
 					if (field.isNullable) {
 						value = Value.newUnknownValue(field.getValueType());
 					} else {
@@ -1025,8 +1025,8 @@ public class Record implements Component {
 			if (field.fieldType == FieldType.MODIFIED_BY_USER) {
 				values[valueIdx] = userId;
 			} else {
-				Value value = row.getValue(field.name);
-				if (value == null) {
+				Value value = field.getValue(row);
+				if (Value.isNull(value)) {
 					if (field.isNullable) {
 						value = Value.newUnknownValue(field.getValueType());
 					} else {
@@ -1934,7 +1934,7 @@ public class Record implements Component {
 		for (int i = 0; i < this.fields.length; i++) {
 			Field field = this.fields[i];
 			if (this.forFixedWidthRow) {
-				this.recordLength += field.fieldWidth;
+				this.minRecordLength += field.fieldWidth;
 			}
 			field.getReady(this, refRecord, this.recordType == RecordUsageType.VIEW);
 			String fName = field.name;
@@ -1966,7 +1966,12 @@ public class Record implements Component {
 				this.isComplexStruct = true;
 			}
 		}
-
+		/*
+		 * last field is allowed to be flexible in a fixed width record
+		 */
+		if (this.forFixedWidthRow) {
+			this.minRecordLength -= this.fields[this.fields.length - 1].fieldWidth;
+		}
 		/*
 		 * because of possible composite keys, we save keys in arrays
 		 */
@@ -3683,26 +3688,27 @@ public class Record implements Component {
 	 * @return
 	 */
 	private String[] splitFixedWidthInput(String inText, List<FormattedMessage> errors) {
-		int minExpectedLength = this.recordLength - fields[fields.length-1].fieldWidth;
-		if (inText.length() < minExpectedLength ) {
+		if (inText.length() < this.minRecordLength) {
 			FormattedMessage msg = new FormattedMessage("kernel.invalidInputStream",
-					"fixed-width input row has " + inText.length() + " charecters while this record " + this.name
-							+ " is designed for " + this.recordLength + " charecters");
+					"fixed-width input row has " + inText.length() + " chracters while this record " + this.name
+							+ " is designed for a minimum of" + this.minRecordLength + " characters");
 			msg.addData(inText);
 			errors.add(msg);
 			return null;
 		}
 		String[] texts = new String[this.fields.length];
 		int beginIdx = 0;
-		for (int i = 0; i < texts.length; i++) {
+		/*
+		 * last field takes whatever is available. so keep that out of the loop
+		 */
+		int nbr = texts.length - 1;
+		for (int i = 0; i < nbr; i++) {
 			int width = this.fields[i].fieldWidth;
 			int endIdx = beginIdx + width;
-			if(i!=texts.length-1)
-				texts[i] = inText.substring(beginIdx, endIdx);
-			else
-				texts[i] = inText.substring(beginIdx);				
+			texts[i] = inText.substring(beginIdx, endIdx);
 			beginIdx = endIdx;
 		}
+		texts[nbr] = inText.substring(beginIdx);
 		return texts;
 	}
 }

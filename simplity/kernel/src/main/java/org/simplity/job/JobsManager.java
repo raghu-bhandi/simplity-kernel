@@ -42,15 +42,15 @@ import org.simplity.tp.LogicInterface;
  * @author simplity.org
  *
  */
-public class BatchManager extends AbstractService implements LogicInterface {
+public class JobsManager extends AbstractService implements LogicInterface {
 	private static final String MY_NAME = "JobsManager";
 
 	/*
 	 * field names
 	 */
-	private static final String ACTION = "batchAction";
+	private static final String ACTION = "JobsAction";
 	private static final String JOB_NAME = "jobName";
-	private static final String BATCH_NAME = "batchName";
+	private static final String JOBS_NAME = "JobsName";
 	private static final String INTERVAL = "interval";
 	private static final String NBR_THREADS = "nbrThreads";
 	private static final String SERVICE_NAME = "serviceName";
@@ -66,9 +66,9 @@ public class BatchManager extends AbstractService implements LogicInterface {
 	private static final String CANCEL = "cancel";
 	private static final String SCHEDULE = "schedule";
 	private static final String NEW = "new";
-	private static final String USAGE = "USAGE\nstart batchName  : start a pre-defined batch\n"
-			+ "start : start a blank batch to which you can add jobs with action=new\n"
-			+ "stop : stop and unload current batch\n" + "status : get status of all jobs\n"
+	private static final String USAGE = "USAGE\nstart JobsName  : start a pre-defined Jobs\n"
+			+ "start : start a blank Jobs to which you can add jobs with action=new\n"
+			+ "stop : stop and unload current Jobs\n" + "status : get status of all jobs\n"
 			+ "status jobName : get status of this job\n"
 			+ "cancel jobName : cancel/stop/unschedule/interrupt this job\n "
 			+ "new jobName <interval> <nbrThreads> <runAtTheseTimes> : (provide one of the three params) add a new job and schedule it."
@@ -117,46 +117,46 @@ public class BatchManager extends AbstractService implements LogicInterface {
 			ctx.addMessage(Messages.ERROR, USAGE);
 			return Value.VALUE_FALSE;
 		}
-		String batchName = ctx.getTextValue(BATCH_NAME);
+		String JobsName = ctx.getTextValue(JOBS_NAME);
 		/*
 		 * we make use of the default input-output in AbstractService and put
 		 * our logic here, so that we can also be called by other services
 		 */
-		Batch batch = Batch.getCurrentInstance();
+		Jobs jobs = Jobs.getCurrentInstance();
 
 		/*
-		 * when no batch is running
+		 * when no Jobs is running
 		 */
-		if (batch == null) {
+		if (jobs == null) {
 			if (action.equals(START)) {
-				if (batchName == null || batchName.isEmpty()) {
-					batch = Batch.startEmptyBatch();
+				if (JobsName == null || JobsName.isEmpty()) {
+					jobs = Jobs.startEmptyJobs();
 				} else {
-					batch = Batch.startBatch(batchName);
+					jobs = Jobs.startJobs(JobsName);
 				}
-				if (batch == null) {
-					ctx.addMessage(Messages.ERROR, "Batch could not be started. Look at logs for more details..");
+				if (jobs == null) {
+					ctx.addMessage(Messages.ERROR, "Jobs could not be started. Look at logs for more details..");
 				} else {
-					ctx.addMessage(Messages.SUCCESS, "Batch started");
+					ctx.addMessage(Messages.SUCCESS, "Jobs started");
 				}
 			} else {
 				if (action.equals(STATUS) == false) {
-					ctx.addMessage(Messages.ERROR, "No batch is running. Use start action to start  a batch.");
+					ctx.addMessage(Messages.ERROR, "No Jobs is running. Use start action to start  a Jobs.");
 				}
 			}
 
 		} else if (action.equals(STATUS) == false) {
-			this.takeAction(batch, action, ctx);
+			this.takeAction(jobs, action, ctx);
 			if (action.equals(STOP)) {
-				batch = null;
+				jobs = null;
 			}
 		}
 
-		if (batch == null) {
-			ctx.removeValue(BATCH_NAME);
+		if (jobs == null) {
+			ctx.removeValue(JOBS_NAME);
 		} else {
-			ctx.setTextValue(BATCH_NAME, batch.getQualifiedName());
-			RunningJobInfo[] infoList = batch.getStatus();
+			ctx.setTextValue(JOBS_NAME, jobs.getQualifiedName());
+			RunningJobInfo[] infoList = jobs.getStatus();
 			DataSheet ds = RunningJobInfo.toDataSheet(infoList);
 			ctx.putDataSheet(SHEET_NAME, ds);
 		}
@@ -167,7 +167,7 @@ public class BatchManager extends AbstractService implements LogicInterface {
 
 	}
 
-	private void takeAction(Batch batch, String action, ServiceContext ctx) {
+	private void takeAction(Jobs Jobs, String action, ServiceContext ctx) {
 		String jobName = ctx.getTextValue(JOB_NAME);
 		if (action.equals(START)) {
 			ctx.addMessage(Messages.ERROR, "A scheduler is running. Can not start another one");
@@ -176,8 +176,8 @@ public class BatchManager extends AbstractService implements LogicInterface {
 
 		if (action.equals(STOP)) {
 			ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
-			Batch.stopBatch();
-			ctx.removeValue(BATCH_NAME);
+			Jobs.stopJobs();
+			ctx.removeValue(JOBS_NAME);
 			return;
 		}
 
@@ -187,22 +187,22 @@ public class BatchManager extends AbstractService implements LogicInterface {
 		}
 
 		if (action.equals(CANCEL)) {
-			batch.cancelJob(jobName);
+			Jobs.cancelJob(jobName);
 			ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
 			return;
 		}
 		if (action.equals(INCR)) {
-			batch.incrmentThread(jobName);
+			Jobs.incrmentThread(jobName);
 			ctx.addMessage(Messages.INFO, "Initiated addition of a thread for job " + jobName);
 			return;
 		}
 		if (action.equals(DECR)) {
-			batch.decrmentThread(jobName);
+			Jobs.decrmentThread(jobName);
 			ctx.addMessage(Messages.INFO, "Initiated stopping of a thread for job " + jobName);
 			return;
 		}
 		if (action.equals(SCHEDULE)) {
-			batch.reschedule(jobName);
+			Jobs.reschedule(jobName);
 			ctx.addMessage(Messages.INFO, "Initiated stestart of job " + jobName);
 			return;
 		}
@@ -219,7 +219,7 @@ public class BatchManager extends AbstractService implements LogicInterface {
 			Job job = new Job(jobName, serviceName, interval, nbrThreads, times);
 			job.getReady();
 			ctx.addMessage(Messages.INFO, "added job " + jobName + " to scheduler..");
-			batch.scheduleJob(job);
+			Jobs.scheduleJob(job);
 			return;
 		}
 		ctx.addMessage(Messages.ERROR, action + " is an invalid action " + USAGE);
@@ -251,7 +251,7 @@ public class BatchManager extends AbstractService implements LogicInterface {
 		System.out.println("Probably start is the best way to start :-)");
 		String action = null;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		BatchManager manager = new BatchManager();
+		JobsManager manager = new JobsManager();
 		ServiceContext ctx;
 		String sn = "unknown";
 		Value userId = Value.newTextValue("420");
@@ -272,7 +272,7 @@ public class BatchManager extends AbstractService implements LogicInterface {
 			ctx.setTextValue(ACTION, action);
 			action = action.toLowerCase();
 			if (action.equals(START)) {
-				getInput(reader, BATCH_NAME, ctx, false);
+				getInput(reader, JOBS_NAME, ctx, false);
 			} else if (action.equals(STATUS)) {
 				getInput(reader, JOB_NAME, ctx, false);
 			} else if (action.equals(STOP)) {

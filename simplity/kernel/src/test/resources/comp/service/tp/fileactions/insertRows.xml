@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <service xmlns="http://www.simplity.org/schema" 
 	moduleName="fileactions"
-	name="insertRows"
-	dbAccessType="readWrite">
+	name="insertRows">
 	<actions>
 		<log actionName="allOK" names="_lineNum,_rowText,id,name,address" />
 	</actions>
