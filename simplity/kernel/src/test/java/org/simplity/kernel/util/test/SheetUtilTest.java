@@ -111,7 +111,7 @@ public class SheetUtilTest {
 		Integer[] intArray = {1,2,3};
 		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(intArray);
 		try {
-			assertEquals(1,(int)sheet.getColumnValue("arraydata", 0).toInteger());
+			assertEquals(1,(int)sheet.getColumnValue("array", 0).toInteger());
 		} catch (InvalidValueException e) {
 			e.printStackTrace();
 		}
@@ -139,7 +139,7 @@ public class SheetUtilTest {
 		list.add("stephen");
 		list.add("nick");
 		MultiRowsSheet listtosheet = MultiRowsSheet.toDatasheet(list);
-		String actualResult = listtosheet.getColumnValue("list", 1).toString();
+		String actualResult = listtosheet.getColumnValue("array", 1).toString();
 		assertEquals("stephen",actualResult);
 	}
 	
@@ -162,7 +162,7 @@ public class SheetUtilTest {
 		set.add(3621.67);
 		set.add(629.07);
 		MultiRowsSheet settosheet = MultiRowsSheet.toDatasheet(set);
-		String actualResult = settosheet.getColumnValue("set", 1).toString();
+		String actualResult = settosheet.getColumnValue("array", 1).toString();
 		assertEquals("629.07",actualResult);
 	}
 	
