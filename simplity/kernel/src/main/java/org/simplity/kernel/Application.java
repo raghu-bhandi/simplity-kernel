@@ -44,7 +44,6 @@ import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.DbVendor;
 import org.simplity.kernel.db.SchemaDetail;
 import org.simplity.kernel.file.FileBasedAssistant;
-import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.ldap.LdapProperties;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
@@ -499,16 +498,6 @@ public class Application {
 					this.jmsProperties);
 			if (msg != null) {
 				msgs.add(msg);
-			}
-		}
-		/*
-		 * Setup LDAP Agent
-		 */
-		if (this.ldapProperties != null) {
-			try {
-				LdapAgent.initialSetup(this.ldapProperties);
-			} catch (Exception e) {
-				msgs.add("Error while setting up LDAP." + e.getMessage() + " Application will not work properly.");
 			}
 		}
 

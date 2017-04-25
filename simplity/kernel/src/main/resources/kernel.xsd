@@ -2160,19 +2160,77 @@
 			use="required" />
 	</xs:complexType>
 	<xs:complexType name="ldapLookup">
-		<xs:attributeGroup ref="actionAttributes" />
+		<xs:sequence
+			minOccurs="1"
+			maxOccurs="1">
+			<xs:element
+				name="exists"
+				type="exists"
+				minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+			<xs:element
+				name="singleAttr"
+				type="singleAttr"
+				minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+			<xs:element
+				name="multiAttrs"
+				type="multiAttrs"
+				minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="exists">
 		<xs:attribute
 			name="objectId"
 			type="xs:string"
-			use="required" />
-		<xs:attribute
-			name="attrName"
-			type="xs:string"
-			use="required" />
+			use="required">
+		</xs:attribute>
 		<xs:attribute
 			name="fieldName"
 			type="xs:string"
-			use="required" />
+			use="required">
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="singleAttr">
+		<xs:attribute
+			name="objectId"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+		<xs:attribute
+			name="attrName"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+		<xs:attribute
+			name="fieldName"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="multiAttrs">
+		<xs:sequence
+			minOccurs="1"
+			maxOccurs="1">
+			<xs:element
+				name="attrIDs"
+				type="xs:string">
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute
+			name="objectId"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+		<xs:attribute
+			name="outputDataSheetName"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="logic">
 		<xs:attributeGroup ref="actionAttributes" />

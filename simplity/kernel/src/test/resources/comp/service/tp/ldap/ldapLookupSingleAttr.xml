@@ -2,7 +2,7 @@
 <service
 	xmlns="http://www.simplity.org/schema"
 	moduleName="ldap"
-	name="ldapLookup"
+	name="ldapLookupSingleAttr"
 	dbAccessType="none">
 	<inputData>
 		<inputFields>
@@ -15,10 +15,12 @@
 		</inputFields>
 	</inputData>
 	<actions>
-		<ldapLookup
-			objectId="$objectId"
-			attrName="$attrName"
-			fieldName="ldapLookup"></ldapLookup>
+		<ldapLookup>
+			<singleAttr
+				objectId="$objectId"
+				attrName="$attrName"
+				fieldName="surname"></singleAttr>
+		</ldapLookup>
 	</actions>
-	<outputData fieldNames="ldapLookup"></outputData>
+	<outputData fieldNames="surname"></outputData>
 </service>
