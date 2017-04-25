@@ -123,8 +123,7 @@ public class ServiceAgent {
 	 *
 	 * @return fields to be put into session. Note that we do not return any
 	 *         response to client to data returned by standard service call.
-	 *         This is typically used as global fields for the user session. In
-	 *         case of
+	 *         This is typically used as global fields for the user session.
 	 */
 	public ServiceData login(ServiceData inputData) {
 		ServiceData result = null;

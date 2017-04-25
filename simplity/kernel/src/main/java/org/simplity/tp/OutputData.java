@@ -161,6 +161,8 @@ public class OutputData {
 				outData.put(f, val);
 			}
 		}
+		this.prepareOutData(outData, ctx);
+		
 		/*
 		 * response
 		 */
