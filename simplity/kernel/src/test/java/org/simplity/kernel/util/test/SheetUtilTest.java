@@ -34,10 +34,24 @@ public class SheetUtilTest {
 	}
 	
 	@Test
-	public final void columnToList(){
+	public final void columnToListInteger(){
+		MultiRowsSheet dataSheet = getSheet();
+		List<Integer> actualList = new ArrayList<Integer>();
+		actualList = (List<Integer>) dataSheet.columnAsCollection("customerNumber",actualList,Integer.class);
+		List<Integer> expectedList = new ArrayList<Integer>();
+		expectedList.add(103);
+		expectedList.add(112);
+		expectedList.add(114);
+		expectedList.add(119);
+		expectedList.add(121);
+		assertEquals(expectedList,actualList);
+	}
+	
+	@Test
+	public final void columnToListString(){
 		MultiRowsSheet dataSheet = getSheet();
 		List<String> actualList = new ArrayList<String>();
-		actualList = (List<String>) dataSheet.columnAsCollection("customerName",actualList);
+		actualList = (List<String>) dataSheet.columnAsCollection("customerName",actualList,String.class);
 		List<String> expectedList = new ArrayList<String>();
 		expectedList.add("Atelier graphique");
 		expectedList.add("Signal Gift Stores");
@@ -51,7 +65,7 @@ public class SheetUtilTest {
 	public final void columnToSet(){
 		MultiRowsSheet dataSheet = getSheet();
 		Set<String> actualSet = new HashSet<String>();
-		actualSet = (Set<String>) dataSheet.columnAsCollection("city",actualSet);
+		actualSet = (Set<String>) dataSheet.columnAsCollection("city",actualSet,String.class);
 		Set<String> expectedSet = new HashSet<String>();
 		expectedSet.add("Nantes");
 		expectedSet.add("Las Vegas");
@@ -65,7 +79,7 @@ public class SheetUtilTest {
 	public final void columnsToMap(){
 		MultiRowsSheet dataSheet = getSheet();
 		Map<String,String> actualResult = new HashMap<String,String>();
-		actualResult = dataSheet.columnsAsMap("city","country",actualResult);
+		actualResult = dataSheet.columnsAsMap("city","country",actualResult,String.class,String.class);
 		Map<String,String> expectedResult = new HashMap<String,String>();
 		expectedResult.put("Nantes", "France");
 		expectedResult.put("Las Vegas", "USA");
