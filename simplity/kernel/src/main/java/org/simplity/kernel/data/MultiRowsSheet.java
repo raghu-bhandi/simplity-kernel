@@ -778,12 +778,12 @@ public class MultiRowsSheet implements DataSheet {
 	 * @param columnName
 	 * @return MultiRowsSheet
 	 */
-	public static <T> MultiRowsSheet toDatasheet(T[] arr, String columnName) {
+	public static <T> MultiRowsSheet toDatasheet(T[] arr) {
 		if (arr != null && arr.length > 0) {
 			Class<?> cls = arr[0].getClass();
 			if (cls.isPrimitive() || cls.getName().startsWith("java.lang") || cls.equals(String.class)
 					|| cls.equals(Date.class) || cls.equals(Timestamp.class)) {
-				String[] header = { columnName };
+				String[] header = { "array" };
 				ValueType[] valueTypes = { getType(cls) };
 				MultiRowsSheet sheet = new MultiRowsSheet(header, valueTypes);
 				for (T value : arr) {
@@ -820,7 +820,7 @@ public class MultiRowsSheet implements DataSheet {
 	 * @return MultiRowsSheet
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> MultiRowsSheet toDatasheet(Collection<T> c, String columnName) {
+	public static <T> MultiRowsSheet toDatasheet(Collection<T> c) {
 		Iterator<T> iterator = c.iterator();
 		Class<?> clazz = null;
 		while (iterator.hasNext()) {
@@ -829,7 +829,7 @@ public class MultiRowsSheet implements DataSheet {
 		}
 		T[] array = (T[]) Array.newInstance(clazz, c.size());
 		array = c.toArray(array);
-		return toDatasheet(array, columnName);
+		return toDatasheet(array);
 	}
 
 	/**

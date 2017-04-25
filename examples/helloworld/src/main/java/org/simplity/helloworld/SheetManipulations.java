@@ -45,14 +45,14 @@ public class SheetManipulations implements LogicInterface{
 		}
 			
 		Integer[] array = {12,34,26,78,39};
-		DataSheet arraytosheet = MultiRowsSheet.toDatasheet(array, "name");		
+		DataSheet arraytosheet = MultiRowsSheet.toDatasheet(array);		
 		List<String> list = new ArrayList<String>();
 		list.add("jack");
 		list.add("mike");
 		list.add("stephen");
 		list.add("nick");
-		DataSheet listtosheet = MultiRowsSheet.toDatasheet(list, "name");
-		DataSheet settosheet = MultiRowsSheet.toDatasheet(sheetSet, null);
+		DataSheet listtosheet = MultiRowsSheet.toDatasheet(list);
+		DataSheet settosheet = MultiRowsSheet.toDatasheet(sheetSet);
 		
 		ctx.putDataSheet("listtosheet", listtosheet);
 		ctx.putDataSheet("arraytosheet", arraytosheet);

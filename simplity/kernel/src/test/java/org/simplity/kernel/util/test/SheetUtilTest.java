@@ -109,7 +109,7 @@ public class SheetUtilTest {
 	@Test
 	public final void arrayToDatasheet(){
 		Integer[] intArray = {1,2,3};
-		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(intArray, "arraydata");
+		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(intArray);
 		try {
 			assertEquals(1,(int)sheet.getColumnValue("arraydata", 0).toInteger());
 		} catch (InvalidValueException e) {
@@ -122,7 +122,7 @@ public class SheetUtilTest {
 		Customer cust1 = new Customer(130,"Mike","ABC","AAA","VVV","xxx",123456);
 		Customer cust2 = new Customer(140,"Mick","DEF","BBB","CCC","yyy",112233);
 		Customer[] custArray = {cust1,cust2};
-		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(custArray,null);
+		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(custArray);
 		int cust1Num = 0;
 		try {
 			cust1Num = (int)sheet.getColumnValue("customerNumber", 0).toInteger();
@@ -138,7 +138,7 @@ public class SheetUtilTest {
 		list.add("jack");
 		list.add("stephen");
 		list.add("nick");
-		MultiRowsSheet listtosheet = MultiRowsSheet.toDatasheet(list, "list");
+		MultiRowsSheet listtosheet = MultiRowsSheet.toDatasheet(list);
 		String actualResult = listtosheet.getColumnValue("list", 1).toString();
 		assertEquals("stephen",actualResult);
 	}
@@ -150,7 +150,7 @@ public class SheetUtilTest {
 		List<Customer> list = new ArrayList<Customer>();
 		list.add(cust1);
 		list.add(cust2);
-		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(list,null);
+		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(list);
 		String cust2Name = null;
 		cust2Name = sheet.getColumnValue("customerName",1).toString();
 		assertEquals("Mick",cust2Name);
@@ -161,7 +161,7 @@ public class SheetUtilTest {
 		Set<Double> set = new HashSet<Double>();
 		set.add(3621.67);
 		set.add(629.07);
-		MultiRowsSheet settosheet = MultiRowsSheet.toDatasheet(set, "set");
+		MultiRowsSheet settosheet = MultiRowsSheet.toDatasheet(set);
 		String actualResult = settosheet.getColumnValue("set", 1).toString();
 		assertEquals("629.07",actualResult);
 	}
@@ -171,7 +171,7 @@ public class SheetUtilTest {
 		Customer cust1 = new Customer(130,"Mike","ABC","AAA","VVV","xxx",123456);
 		Set<Customer> set = new HashSet<Customer>();
 		set.add(cust1);
-		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(set,null);
+		MultiRowsSheet sheet = MultiRowsSheet.toDatasheet(set);
 		int cust2postalCode = 0;
 		try {
 			cust2postalCode = (int)sheet.getColumnValue("postalCode",0).toInteger();
