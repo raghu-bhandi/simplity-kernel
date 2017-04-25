@@ -46,7 +46,6 @@ import org.simplity.kernel.db.SchemaDetail;
 import org.simplity.kernel.file.FileBasedAssistant;
 import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.ldap.LdapProperties;
-import org.simplity.kernel.mail.MailAgent;
 import org.simplity.kernel.mail.MailProperties;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.XmlUtil;
@@ -523,7 +522,7 @@ public class Application {
 		 */
 		if (this.mailProperties != null) {
 			try {
-				MailAgent.initialSetup(this.mailProperties);
+				MailProperties.initialSetup(this.mailProperties);
 			} catch (Exception e) {
 				msgs.add("Error while setting up MailAgent." + e.getMessage() + " Application will not work properly.");
 			}

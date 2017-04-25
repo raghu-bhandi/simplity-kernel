@@ -42,6 +42,8 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.mail.Mail;
 import org.simplity.kernel.mail.MailAttachment;
 import org.simplity.kernel.mail.MailConnector;
+import org.simplity.kernel.mail.MailContent;
+import org.simplity.kernel.mail.MailContentType;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -59,7 +61,7 @@ public class SendMail extends Action {
 	String attachmentSheetName;
 	String inlineAttachmentSheetName;
 
-	Content content;
+	MailContent content;
 
 	public SendMail() {
 	}
@@ -100,16 +102,16 @@ public class SendMail extends Action {
 			}
 		}
 		
-		if(content.type.compareTo(ContentType.TEMPLATE) == 0) {
+		if(content.getType().compareTo(MailContentType.TEMPLATE) == 0) {
 			Configuration templateConfiguration = new Configuration();
 
 			try {
 
-				templateConfiguration.setDirectoryForTemplateLoading(new File(content.templatePath));
-				Template template = templateConfiguration.getTemplate(content.template);
+				templateConfiguration.setDirectoryForTemplateLoading(new File(content.getTemplatePath()));
+				Template template = templateConfiguration.getTemplate(content.getTemplate());
 				
-				for(int sheetIndex=0; sheetIndex < content.inputSheetName.length; sheetIndex++) {
-					DataSheet dataSheet = ctx.getDataSheet(content.inputSheetName[sheetIndex]);
+				for(int sheetIndex=0; sheetIndex < content.getInputSheetName().length; sheetIndex++) {
+					DataSheet dataSheet = ctx.getDataSheet(content.getInputSheetName()[sheetIndex]);
 					
 					String[] columnNames = dataSheet.getColumnNames();
 					String[][] rawData = dataSheet.getRawData();
@@ -142,9 +144,9 @@ public class SendMail extends Action {
 			} catch (TemplateException e) {
 				e.printStackTrace();
 			} 
-		} else if(content.type.compareTo(ContentType.TEXT) == 0) {
+		} else if(content.getType().compareTo(MailContentType.TEXT) == 0) {
 			try {
-				mail.content = content.text;
+				mail.content = content.getText();
 				ctx.setObject("mail", new ByteArrayInputStream(SendMail.serialize(mail)));
 			} catch(IOException ioe) {
 				ioe.printStackTrace();
@@ -168,6 +170,3 @@ public class SendMail extends Action {
 	}
 }
 
-enum ContentType {
-	TEXT, TEMPLATE
-}

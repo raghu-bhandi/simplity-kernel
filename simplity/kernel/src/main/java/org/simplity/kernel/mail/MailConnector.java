@@ -51,7 +51,7 @@ public class MailConnector {
 	static Properties mailProps;
 	
 	public Session initialize() {
-		return Session.getInstance(MailAgent.getProperties(), null);
+		return Session.getInstance(MailProperties.getProperties(), null);
 	}
 	
 	/**
