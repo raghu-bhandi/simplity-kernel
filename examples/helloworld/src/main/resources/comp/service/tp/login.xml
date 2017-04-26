@@ -17,12 +17,12 @@
 	<actions>
 		<log names="_userId,_userToken,_isAutoLogin"/>	
 		<copyUserId fieldName="username"/>	
-		<setValue fieldName="isAutoLogin" fieldValue="$_isAutoLogin"></setValue>
+		<setValue actionName="auto" fieldName="isAutoLogin" fieldValue="$_isAutoLogin"></setValue>
 		<ldapAuthenticate
 			actionName="authenticate"
 			credentials="$_userToken"
-			principal="$_userId" executeOnCondition="isAutoLogin==false"/>
+			principal="$_userId" executeOnCondition="~isAutoLogin"/>
 	</actions>
-	<outputData fieldNames="_userId">
+	<outputData sessionFields="_userId">
 	</outputData>
 </service>
