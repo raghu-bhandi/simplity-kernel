@@ -35,6 +35,7 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.JsonUtil;
+import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ResponseWriter;
 import org.simplity.service.ServiceContext;
@@ -186,59 +187,6 @@ public class OutputData {
 		outData.setPayLoad(writer.toString());
 	}
 
-	private void prepareOutData(ServiceData outData, ServiceContext ctx) {
-		if (this.justOutputEveryThing) {
-			this.copyAllToOutData(outData, ctx);
-			return;
-		}
-		if (this.fieldNames != null) {
-			for (String fieldName : this.fieldNames) {
-				outData.put(fieldName, ctx.getValue(fieldName));
-			}
-		}
-
-		if (this.dataSheets != null) {
-			for (String sheetName : this.dataSheets) {
-				DataSheet sheet = ctx.getDataSheet(sheetName);
-				if (sheet == null) {
-					Tracer.trace("Service context has no sheet with name " + sheetName + " for output.");
-				} else {
-					outData.put(sheetName, ctx.getDataSheet(sheetName));
-				}
-			}
-		}
-		if (this.outputRecords != null) {
-			for (OutputRecord rec : this.outputRecords) {
-				outData.put(rec.sheetName, ctx.getDataSheet(rec.sheetName));
-			}
-		}
-		if (this.arrayNames != null) {
-			for (String arrayName : this.arrayNames) {
-				DataSheet sheet = ctx.getDataSheet(arrayName);
-				if (sheet == null) {
-					Value value = ctx.getValue(arrayName);
-					if (value == null) {
-						Tracer.trace("Service context has no sheet with name " + arrayName + " for output.");
-						continue;
-					}
-					outData.put(arrayName, ctx.getValue(arrayName));
-				} else {
-					outData.put(arrayName, sheet);
-				}
-			}
-		}
-	}
-
-	private void copyAllToOutData(ServiceData outData, ServiceContext ctx) {
-		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
-			outData.put(entry.getKey(), entry.getValue());
-		}
-
-		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
-			outData.put(entry.getKey(), entry.getValue());
-		}
-	}
-
 	/**
 	 * write data to the json writer based on this spec, and data available in
 	 * the context
@@ -255,6 +203,7 @@ public class OutputData {
 
 		if (this.dataSheets != null) {
 			for (String sheetName : this.dataSheets) {
+				sheetName = TextUtil.getFieldValue(ctx, sheetName).toText();
 				DataSheet sheet = ctx.getDataSheet(sheetName);
 				if (sheet == null) {
 					Tracer.trace("Service context has no sheet with name " + sheetName + " for output.");
