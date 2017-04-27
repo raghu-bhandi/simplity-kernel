@@ -65,7 +65,7 @@ import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
-import org.simplity.kernel.ldap.LdapAgent;
+import org.simplity.kernel.ldap.LdapProperties;
 import org.simplity.kernel.mail.MailConnector;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
@@ -154,6 +154,9 @@ public class ActionsTest extends Mockito {
 		 */
 		app.configure();
 
+
+		DirContext mockContext = LdapProperties.getInitialDirContext();
+
 		MailConnector mailConnector = mock(MailConnector.class);
 
 		when(mailConnector.initialize()).then(new Answer<Session>() {
@@ -165,10 +168,8 @@ public class ActionsTest extends Mockito {
 
 		});
 
-		DirContext mockContext = LdapAgent.getInitialDirContext();
-
-		when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>() {
-
+		
+		 when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>(){
 			@Override
 			public Attributes answer(InvocationOnMock invocation) throws NamingException {
 				Attributes attrs = new BasicAttributes();
@@ -177,6 +178,27 @@ public class ActionsTest extends Mockito {
 			}
 
 		});
+
+		 when(mockContext.lookup("CN=Sunita Williams")).thenAnswer(new Answer<Object>(){
+
+				@Override
+				public Object answer(InvocationOnMock invocation) {
+					return new Boolean(true);
+				}
+				 
+			 });
+		 
+		 String[] attrIDs = {"surname"};
+		 when(mockContext.getAttributes("CN=Sunita Williams", attrIDs)).then(new Answer<Attributes>(){
+
+			@Override
+			public Attributes answer(InvocationOnMock invocation) throws Throwable {
+				Attributes attrs = new BasicAttributes();
+				attrs.put("surname", "Williams");
+				return attrs;
+			}
+			 
+		 });
 
 		/*
 		 * Load the db data
@@ -491,14 +513,29 @@ public class ActionsTest extends Mockito {
 	}
 
 	@Test
-	public void ldapLookupTest() {
-		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
-		ServiceData outData = serviceAgentSetup("ldap.ldapLookup", payLoad);
+	public void ldapLookupExistsTest() {
+		String payLoad = "{'objectId':'CN=Sunita Williams','fieldname':'ldapLookup'}";
+		ServiceData outData = serviceAgentSetup("ldap.ldapLookupExists", payLoad);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
-		assertEquals((String) obj.get("ldapLookup"), "Williams");
-
+		assertEquals((Boolean) obj.get("ldapLookup"), true);
 	}
+	
+	@Test
+	public void ldapLookupSingleAttrTest() {
+		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
+		ServiceData outData = serviceAgentSetup("ldap.ldapLookupSingleAttr", payLoad);
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals((String) obj.get("surname"), "Williams");
+	}	
 
+	@Test
+	public void ldapLookupMultiAttrTest() {
+		String payLoad = "{'objectId':'CN=Sunita Williams','outputDataSheetName':'outsheet'}";
+		ServiceData outData = serviceAgentSetup("ldap.ldapLookupMultiAttr", payLoad);
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		JSONArray arr  = obj.getJSONArray("outsheet");		
+		assertEquals(arr.getJSONObject(0).get("value").toString(),"Williams");
+	}	
 	/**
 	 * Test method for
 	 * {@link org.simplity.kernel.util.XmlUtil#xmlToObject(java.io.InputStream, java.lang.Object)}

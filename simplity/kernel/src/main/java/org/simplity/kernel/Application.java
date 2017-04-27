@@ -44,7 +44,6 @@ import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.db.DbVendor;
 import org.simplity.kernel.db.SchemaDetail;
 import org.simplity.kernel.file.FileBasedAssistant;
-import org.simplity.kernel.ldap.LdapAgent;
 import org.simplity.kernel.ldap.LdapProperties;
 import org.simplity.kernel.mail.MailProperties;
 import org.simplity.kernel.util.JsonUtil;
@@ -507,16 +506,7 @@ public class Application {
 				msgs.add(msg);
 			}
 		}
-		/*
-		 * Setup LDAP Agent
-		 */
-		if (this.ldapProperties != null) {
-			try {
-				LdapAgent.initialSetup(this.ldapProperties);
-			} catch (Exception e) {
-				msgs.add("Error while setting up LDAP." + e.getMessage() + " Application will not work properly.");
-			}
-		}
+
 		/*
 		 * Setup Mail Agent
 		 */
@@ -527,6 +517,7 @@ public class Application {
 				msgs.add("Error while setting up MailAgent." + e.getMessage() + " Application will not work properly.");
 			}
 		}
+
 
 		/*
 		 * in production, we cache components as they are loaded, but in
@@ -608,7 +599,7 @@ public class Application {
 		/*
 		 * initialize service agent
 		 */
-		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard);
+		ServiceAgent.setUp(this.autoLoginUserId,this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard);
 
 		/*
 		 * batch job, thread pools etc..

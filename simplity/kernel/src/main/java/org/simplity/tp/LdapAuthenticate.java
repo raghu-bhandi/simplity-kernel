@@ -25,15 +25,10 @@ package org.simplity.tp;
 import java.util.Hashtable;
 
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
-import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
-import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.expr.InvalidOperationException;
-import org.simplity.kernel.ldap.LdapAgent;
+import org.simplity.kernel.ldap.LdapProperties;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -73,7 +68,7 @@ public class LdapAuthenticate extends Action {
 		DirContext ldapCtx = null;
 		try {
 			// Create initial context
-			ldapCtx = LdapAgent.getInitialDirContext(parsedPrincipalValue.toText(), parsedCredentialsValue.toText());
+			ldapCtx = LdapProperties.getInitialDirContext(parsedPrincipalValue.toText(), parsedCredentialsValue.toText());
 			if (ldapCtx == null) {
 				ctx.addMessage("kernel.invalidLogin", "");
 				return Value.VALUE_FALSE;

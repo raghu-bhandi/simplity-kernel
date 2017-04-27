@@ -36,6 +36,7 @@ import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidExpressionException;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.ServiceContext;
 
 /**
  * utility methods relating to text handling and manipulation
@@ -367,7 +368,23 @@ public class TextUtil {
 		}
 		return null;
 	}
-
+	/**
+	 * check for value of $fieldName. ,
+	 * else return null.
+	 * @param ctx
+	 * @param name
+	 * @return field value either as-is or from context
+	 */
+	public static Value getFieldValue(ServiceContext ctx, String name) {
+		/*
+		 * even "$" is null
+		 */
+		String parsedName = getFieldName(name);
+		if(parsedName!=null){
+			return ctx.getValue(parsedName);
+		}		
+		return Value.newTextValue(name);
+	}
 	/**
 	 * parse into parts where [0] is the text before first variable, [1] is the
 	 * first fieldName, [2] is next constant between first and second field name

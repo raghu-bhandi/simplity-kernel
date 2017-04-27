@@ -2,7 +2,7 @@
 <service
 	xmlns="http://www.simplity.org/schema"
 	moduleName="ldap"
-	name="ldapLookup"
+	name="ldapLookupMultiAttr"
 	dbAccessType="none">
 	<inputData>
 		<inputFields>
@@ -11,14 +11,15 @@
 				name="objectId" />
 			<inputField
 				dataType="_text"
-				name="attrName" />
+				name="outputDataSheetName" />
 		</inputFields>
 	</inputData>
 	<actions>
-		<ldapLookup
-			objectId="$objectId"
-			attrName="$attrName"
-			fieldName="ldapLookup"></ldapLookup>
+		<ldapLookup>
+			<multiAttrs objectId="$objectId" outputDataSheetName="$outputDataSheetName">
+				<attrIDs>surname</attrIDs>
+			</multiAttrs>
+		</ldapLookup>
 	</actions>
-	<outputData fieldNames="ldapLookup"></outputData>
+	<outputData dataSheets="$outputDataSheetName"></outputData>
 </service>

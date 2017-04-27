@@ -4,12 +4,10 @@
 	elementFormDefault="qualified"
 	xmlns="http://www.simplity.org/schema"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:dt="http://www.simplity.org/custom"
->
+	xmlns:dt="http://www.simplity.org/custom">
 	<xs:import
 		namespace="http://www.simplity.org/custom"
-		schemaLocation="custom.xsd"
-	></xs:import>
+		schemaLocation="custom.xsd"></xs:import>
 	<!-- data types are organized in one or more files, but not one per file. 
 		hence we have a wrapper element <dataTypes> with another wrapper element 
 		called <dataTypes> for the collection. -->
@@ -22,14 +20,12 @@
 		<xs:complexType>
 			<xs:sequence
 				minOccurs="1"
-				maxOccurs="1"
-			>
+				maxOccurs="1">
 				<xs:element name="components">
 					<xs:complexType>
 						<xs:choice
 							minOccurs="1"
-							maxOccurs="unbounded"
-						>
+							maxOccurs="unbounded">
 							<xs:element
 								name="booleanDataType"
 								type="Btype" />
@@ -72,8 +68,7 @@
 		<xs:attribute
 			name="name"
 			type="xs:NCName"
-			use="required"
-		>
+			use="required">
 			<xs:annotation>
 				<xs:documentation> Name is to be unique within a project. text20 is
 					not a good name. shortDescription is a good name
@@ -83,8 +78,7 @@
 		<xs:attribute
 			name="messageName"
 			type="xs:string"
-			use="optional"
-		>
+			use="optional">
 			<xs:annotation>
 				<xs:documentation> What is the message to be used to inform the user
 					that the field is in error. While defining this message in
@@ -95,8 +89,7 @@
 		<xs:attribute
 			name="formatter"
 			use="optional"
-			type="xs:NCName"
-		>
+			type="xs:NCName">
 			<xs:annotation>
 				<xs:documentation> name of function that is used by the client-side
 					script for formatting this value
@@ -110,8 +103,7 @@
 		<xs:attribute
 			name="sqlType"
 			type="xs:string"
-			use="optional"
-		>
+			use="optional">
 			<xs:annotation>
 				<xs:documentation> used for creating script to create table
 				</xs:documentation>
@@ -120,8 +112,7 @@
 		<xs:attribute
 			name="valueList"
 			type="xs:string"
-			use="optional"
-		>
+			use="optional">
 			<xs:annotation>
 				<xs:documentation> comma separated list of valid values. Like
 					enumeration. eg. 1:first,2:second for integral type, or
@@ -135,8 +126,7 @@
 		<xs:attribute
 			name="regex"
 			type="xs:string"
-			use="optional"
-		>
+			use="optional">
 			<xs:annotation>
 				<xs:documentation> regular expression pattern that this value should
 					specify. As per Java conventions
@@ -150,8 +140,7 @@
 		<xs:attribute
 			name="maxLength"
 			type="xs:integer"
-			use="required"
-		>
+			use="required">
 		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="Ctype">
@@ -170,8 +159,7 @@
 		<xs:attribute
 			name="nbrFractionDigits"
 			type="xs:integer"
-			use="optional"
-		>
+			use="optional">
 			<xs:annotation>
 				<xs:documentation>If this is decimal, number of digits after decimal
 					point
@@ -184,8 +172,7 @@
 		<xs:attribute
 			name="maxDaysIntoPast"
 			type="xs:integer"
-			use="optional"
-		></xs:attribute>
+			use="optional"></xs:attribute>
 		<xs:attribute
 			name="maxDaysIntoFuture"
 			type="xs:integer"
@@ -212,14 +199,12 @@
 		<xs:complexType>
 			<xs:sequence
 				maxOccurs="1"
-				minOccurs="1"
-			>
+				minOccurs="1">
 				<xs:element name="components">
 					<xs:complexType>
 						<xs:sequence
 							minOccurs="1"
-							maxOccurs="unbounded"
-						>
+							maxOccurs="unbounded">
 							<xs:element name="message">
 								<xs:complexType>
 									<xs:attribute
@@ -252,14 +237,12 @@
 		<xs:complexType>
 			<xs:sequence
 				maxOccurs="1"
-				minOccurs="1"
-			>
+				minOccurs="1">
 				<xs:element name="fields">
 					<xs:complexType>
 						<xs:sequence
 							minOccurs="1"
-							maxOccurs="unbounded"
-						>
+							maxOccurs="unbounded">
 							<xs:element name="field">
 								<xs:complexType>
 									<xs:attribute
@@ -272,8 +255,7 @@
 										use="optional" />
 									<xs:attribute
 										name="fieldType"
-										use="optional"
-									>
+										use="optional">
 										<xs:simpleType>
 											<xs:annotation>
 												<xs:documentation>defaults to 'data' for storage-record, and
@@ -313,8 +295,7 @@
 									<xs:attribute
 										name="referredRecord"
 										type="xs:string"
-										use="optional"
-									>
+										use="optional">
 										<xs:annotation>
 											<xs:documentation>for fields in a view, this attribute
 												overrides defaultRefRecord at record level
@@ -324,8 +305,7 @@
 									<xs:attribute
 										name="referredField"
 										type="xs:NCName"
-										use="optional"
-									>
+										use="optional">
 										<xs:annotation>
 											<xs:documentation>defaults to name</xs:documentation>
 										</xs:annotation>
@@ -369,8 +349,7 @@
 									<xs:attribute
 										name="sqlTypeName"
 										type="xs:string"
-										use="optional"
-									>
+										use="optional">
 										<xs:annotation>
 											<xs:documentation>Mandatory if fieldType is one of
 												valueArray, record or recordArray. This is the name of the
@@ -382,8 +361,7 @@
 									<xs:attribute
 										name="fieldWidth"
 										type="xs:int"
-										use="optional"
-									>
+										use="optional">
 										<xs:annotation>
 											<xs:documentation>Required if record is marked
 												forFixedWidthRow. Number of characters this field occupies
@@ -394,8 +372,7 @@
 									<xs:attribute
 										name="isEncrypted"
 										type="booleanType"
-										use="optional"
-									>
+										use="optional">
 										<xs:annotation>
 											<xs:documentation>Is this field to be encrypted before
 												pushing to data base? Once this is set, all record-based
@@ -420,8 +397,7 @@
 				use="optional" />
 			<xs:attribute
 				name="recordType"
-				use="optional"
-			>
+				use="optional">
 				<xs:simpleType>
 					<xs:restriction base="xs:NCName">
 						<xs:enumeration value="storage" />
@@ -442,8 +418,7 @@
 			<xs:attribute
 				name="sequenceName"
 				type="xs:string"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation>Ignored for non-oracle db. Defaults to
 						tableName_seq if omitted.
@@ -461,8 +436,7 @@
 			<xs:attribute
 				name="childrenToBeSaved"
 				type="xs:string"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation>Child records that are to be read whenever a row
 						from this record is read.
@@ -472,8 +446,7 @@
 			<xs:attribute
 				name="childrenToBeRead"
 				type="xs:string"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation>Child records that are to be saved along with
 						this record
@@ -483,8 +456,7 @@
 			<xs:attribute
 				name="defaultRefRecord"
 				type="xs:string"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation>Must be provided if this record is a view. This
 						is the record that the fields are taken from by default. Fields
@@ -496,8 +468,7 @@
 			<xs:attribute
 				name="listFieldName"
 				type="xs:NCName"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation>If this record is to be used for listing
 						key-value pairs, specify the field name to be used for value. Note
@@ -508,8 +479,7 @@
 			<xs:attribute
 				name="listGroupKeyName"
 				type="xs:NCName"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation>If this record is to be used for listing
 						key-value pairs, and the table contains list of values across
@@ -531,8 +501,7 @@
 			<xs:attribute
 				name="defaultSheetName"
 				type="xs:string"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation> First field is typically displayed and used for
 						matching while second one is the key/internal value
@@ -570,8 +539,7 @@
 			<xs:attribute
 				name="useTimestampForConcurrency"
 				type="booleanType"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation>should we insist that the client returns the last
 						time stamp during an update that we match with the current row
@@ -1109,17 +1077,14 @@
 			<xs:annotation>
 				<xs:documentation>Name of the field to which the pay-load is
 					assigned to. If this feature is used, pay-load is not parsed at
-					all,
-					but simply assigned to the field as it is. It is assumed that
-					the
-					service actions will take care of it
+					all, but simply assigned to the field as it is. It is assumed that
+					the service actions will take care of it
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
 			name="justInputEveryThing"
-			type="booleanType"
-		>
+			type="booleanType">
 			<xs:annotation>
 				<xs:documentation>Never use this if you are accepting input from an
 					external source like an http call. Input is parsed with no
@@ -1363,14 +1328,47 @@
 						use="optional" />
 					<xs:attribute
 						name="purpose"
-						use="optional"
-					>
+						use="optional">
+						<xs:annotation>
+							<xs:documentation>Useful if the data is input for a db operation.
+							</xs:documentation>
+						</xs:annotation>
 						<xs:simpleType>
 							<xs:restriction base="xs:NCName">
-								<xs:enumeration value="read" />
-								<xs:enumeration value="filter" />
-								<xs:enumeration value="subset" />
-								<xs:enumeration value="save" />
+								<xs:enumeration value="read">
+									<xs:annotation>
+										<xs:documentation>For a key based read operation. Only key
+											fields re extracted
+										</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+								<xs:enumeration value="filter">
+									<xs:annotation>
+										<xs:documentation>Fields along with operators, and possibly
+											to-fields are extracted
+										</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+								<xs:enumeration value="subset">
+									<xs:annotation>
+										<xs:documentation>Any of the fields can be input. Meant for
+											updating only the fields that are received from client
+										</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+								<xs:enumeration value="save">
+									<xs:annotation>
+										<xs:documentation>new row, or a complete row update
+										</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
+								<xs:enumeration value="others">
+									<xs:annotation>
+										<xs:documentation>not directly meant for any rdbms operation.
+											fields are treated as they are defined in the record
+										</xs:documentation>
+									</xs:annotation>
+								</xs:enumeration>
 							</xs:restriction>
 						</xs:simpleType>
 					</xs:attribute>
@@ -2282,12 +2280,89 @@
 			type="xs:NCName"
 			use="optional" />
 	</xs:complexType>
-	<xs:complexType name="ldapAuth">
+	<xs:complexType name="ldapAuthenticate">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
-			name="providerUrl"
+			name="principal"
 			type="xs:string"
 			use="required" />
+		<xs:attribute
+			name="credentials"
+			type="xs:string"
+			use="required" />
+	</xs:complexType>
+	<xs:complexType name="ldapLookup">
+		<xs:sequence
+			minOccurs="1"
+			maxOccurs="1">
+			<xs:element
+				name="exists"
+				type="exists"
+				minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+			<xs:element
+				name="singleAttr"
+				type="singleAttr"
+				minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+			<xs:element
+				name="multiAttrs"
+				type="multiAttrs"
+				minOccurs="0"
+				maxOccurs="1">
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="exists">
+		<xs:attribute
+			name="objectId"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+		<xs:attribute
+			name="fieldName"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="singleAttr">
+		<xs:attribute
+			name="objectId"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+		<xs:attribute
+			name="attrName"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+		<xs:attribute
+			name="fieldName"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="multiAttrs">
+		<xs:sequence
+			minOccurs="1"
+			maxOccurs="1">
+			<xs:element
+				name="attrIDs"
+				type="xs:string">
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute
+			name="objectId"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
+		<xs:attribute
+			name="outputDataSheetName"
+			type="xs:string"
+			use="required">
+		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="logic">
 		<xs:attributeGroup ref="actionAttributes" />
@@ -2299,8 +2374,7 @@
 	<xs:complexType name="loop">
 		<xs:sequence
 			minOccurs="1"
-			maxOccurs="1"
-		>
+			maxOccurs="1">
 			<xs:element
 				name="actions"
 				type="actions"
@@ -2772,16 +2846,11 @@
 				<xs:documentation>For primary input file, this is the
 					file-name-pattern as a regular expression. This is NOT wild card.
 					If there is only one file, you may use $fieldName, @propertyName as
-					well.
-					For child-file, this may be expressed as part of the main file
-					name.
-					{name} and {ext} will stand for name and extension of primary
-					file.
-					or an output file, the reference file is always the
-					corresponding
-					input file. The file name is relative to the
-					rootFolder as
-					specified in batchProcess.
+					well. For child-file, this may be expressed as part of the main
+					file name. {name} and {ext} will stand for name and extension of
+					primary file. or an output file, the reference file is always the
+					corresponding input file. The file name is relative to the
+					rootFolder as specified in batchProcess.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
@@ -2825,25 +2894,21 @@
 			</xs:attribute>
 			<xs:attribute
 				name="linkFieldsInParentRow"
-				type="xs:string"
-			>
+				type="xs:string">
 				<xs:annotation>
 					<xs:documentation>Required if linkFieldsInThisRow is specified.
-						This
-						is the list of fields in the parent record to be matched
+						This is the list of fields in the parent record to be matched
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
 				name="renameInfileTo"
 				type="xs:string"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation>name of file relative to rootFolder that may
 						contain {name} and {ext} as name/ext of input file name.
-						$fieldName
-						to get it as a field
+						$fieldName to get it as a field
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -2891,21 +2956,18 @@
 			>
 				<xs:annotation>
 					<xs:documentation>Required if linkFieldsInThisRow is specified.
-						This
-						is the list of fields in the parent record to be matched
+						This is the list of fields in the parent record to be matched
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
 				name="renameInfileTo"
 				type="xs:string"
-				use="optional"
-			>
+				use="optional">
 				<xs:annotation>
 					<xs:documentation>name of file relative to rootFolder that may
 						contain {name} and {ext} as name/ext of input file name.
-						$fieldName
-						to get it as a field
+						$fieldName to get it as a field
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -3526,6 +3588,15 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
+				<xs:element
+					ref="ldapProperties"
+					minOccurs="0"
+					maxOccurs="1">
+					<xs:annotation>
+						<xs:documentation> Setup details for the LDAP connection
+						</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 			</xs:sequence>
 			<xs:attribute
 				name="applicationId"
@@ -3918,7 +3989,35 @@
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
-
+	<xs:element name="ldapProperties">
+		<xs:complexType>
+			<xs:attribute
+				name="factory"
+				use="required"
+				type="xs:string">
+			</xs:attribute>
+			<xs:attribute
+				name="principal"
+				use="required"
+				type="xs:string">
+			</xs:attribute>
+			<xs:attribute
+				name="credentials"
+				use="required"
+				type="xs:string">
+			</xs:attribute>
+			<xs:attribute
+				name="authentication"
+				use="required"
+				type="xs:string">
+			</xs:attribute>
+			<xs:attribute
+				name="ldapurl"
+				use="required"
+				type="xs:string">
+			</xs:attribute>
+		</xs:complexType>
+	</xs:element>
 	<xs:element name="property">
 		<xs:complexType>
 			<xs:attribute
@@ -4333,8 +4432,11 @@
 				name="keyValueList"
 				type="keyValueList" />
 			<xs:element
-				name="ldapAuth"
-				type="ldapAuth" />
+				name="ldapAuthenticate"
+				type="ldapAuthenticate" />
+			<xs:element
+				name="ldapLookup"
+				type="ldapLookup" />
 			<xs:element
 				name="log"
 				type="log" />
@@ -4393,20 +4495,17 @@
 	<xs:complexType name="jmsQueue">
 		<xs:attribute
 			name="queueName"
-			type="xs:string"
-		>
+			type="xs:string">
 			<xs:annotation>
 				<xs:documentation>JNDI name to locate the queue. Required for
-					request queue. Temp queue is used for
-					response if name is not
+					request queue. Temp queue is used for response if name is not
 					specified.
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
 			name="messageBodyType"
-			type="dataSerializationType"
-		>
+			type="dataSerializationType">
 			<xs:annotation>
 				<xs:documentation>If the message body is used for transporting data,
 					how is it formatted?
@@ -4620,10 +4719,8 @@
 					>
 						<xs:annotation>
 							<xs:documentation>userId to be used for running this job.
-								Overrides
-								setting at jobs/application. Service is executed with
-								thisuser as
-								logged-in user
+								Overrides setting at jobs/application. Service is executed with
+								thisuser as logged-in user
 							</xs:documentation>
 						</xs:annotation>
 					</xs:attribute>
@@ -4641,8 +4738,7 @@
 					<xs:attribute
 						name="runInterval"
 						use="optional"
-						type="xs:int"
-					>
+						type="xs:int">
 						<xs:annotation>
 							<xs:documentation>Use this if this is a batch service to be run
 								repeatedly. number of seconds between two runs start-to-start.
@@ -4667,13 +4763,11 @@
 					<xs:attribute
 						name="nbrDedicatedThreads"
 						use="optional"
-						type="xs:int"
-					>
+						type="xs:int">
 						<xs:annotation>
 							<xs:documentation>use this if this is a listener/background job
 								that is run once. min value is 1. If more than 1 is specified,
-								the
-								job is fired on that many threads simultneously, subject to
+								the job is fired on that many threads simultneously, subject to
 								availablity of threads in this scheduler.
 							</xs:documentation>
 						</xs:annotation>
