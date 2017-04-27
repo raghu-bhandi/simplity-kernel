@@ -6,7 +6,7 @@
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<actions>
 		<batchProcessor dbAccessType="readOnly" 
-						inputFolder="${basedir}/infile"
+						inputFolder="${basedir}/src/test/resources/infile"
 						outputFolder="${basedir}/target"
 						serviceOnErrorAtRowLevel="batchProcess.batchProcessorError"
 						serviceOnInvalidInput="batchProcess.batchProcessorInvalidInput"

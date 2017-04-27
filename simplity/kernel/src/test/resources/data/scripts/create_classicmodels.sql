@@ -114,3 +114,4 @@ CREATE TABLE Products (
   PRIMARY KEY (productCode)
 ) AS SELECT * FROM CSVREAD(SELECT CONCAT(@DBPATH,'/Products.txt'));
 
+

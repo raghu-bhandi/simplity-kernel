@@ -234,7 +234,6 @@ public class ActionsTest extends Mockito {
 		TestUtils.copyDirectory(new File("src/test/resources/data/datafiles"), destFile1);
 		RunScript.execute(schemaConn, new FileReader(
 				new File("src/test/resources/data/scripts/create_classicmodels1.sql").getAbsolutePath()));
-
 	}
 
 	private ServiceData serviceAgentSetup(String servicename, String payload) {
@@ -566,23 +565,42 @@ public class ActionsTest extends Mockito {
 	
 	@Test
 	public void batchProcessingTest(){
-		 try {
-			InitialContext ctx=new InitialContext();  
-			 QueueConnectionFactory f=(QueueConnectionFactory)ctx.lookup("myQueueConnectionFactory");  
-			 QueueConnection con=f.createQueueConnection();  
-			 con.start();  
-			 QueueSession ses=con.createQueueSession(false, 1);  
-			 Queue t=(Queue)ctx.lookup("batchProcessorQueue");  
-			 QueueSender sender=ses.createSender(t);  
-			 TextMessage msg=ses.createTextMessage();
-			 msg.setText("message to send");  
-            sender.send(msg);  
-		} catch (NamingException e) {
+		InitialContext ic;
+		try {
+			ic = new InitialContext();
+
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) ic
+					.lookup("vm://localhost?broker.persistent=false");
+			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
+			QueueSession queueSession = queueConnection.createQueueSession(false,
+					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+			queueConnection.start();
+
+			Destination destination = (Destination) ic.lookup("jms/Queue02");
+			MessageConsumer consumer = queueSession.createConsumer(destination);
+			MessageListener messageListener = queueSession.getMessageListener();
+			consumer.setMessageListener(messageListener);
+			ServiceData outData = serviceAgentSetup("batchProcess.DbInFileOut", null);
+			QueueBrowser qBrowser = queueSession.createBrowser((Queue) destination);
+			Enumeration qe = qBrowser.getEnumeration();
+			while (qe.hasMoreElements()) {
+				ActiveMQMessage receiveMessage = (ActiveMQMessage) qe.nextElement();
+				assertEquals(receiveMessage.getProperty("personId"), "personid123");
+			}
+			 
+		 } catch (NamingException e) {
 			e.printStackTrace();
 		} catch (JMSException e) {
 			e.printStackTrace();
-		}  
-           
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}             
+	}
+	
+	@Test
+	public void batchProcessingTest1(){
+		ServiceData outData = serviceAgentSetup("batchProcess.FileInFileOut", null);		
 	}
 
 	@Test
