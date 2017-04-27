@@ -19,8 +19,8 @@
 			<singleAttr
 				objectId="$objectId"
 				attrName="$attrName"
-				fieldName="surname"></singleAttr>
+				fieldName="$attrName"></singleAttr>
 		</ldapLookup>
 	</actions>
-	<outputData fieldNames="surname"></outputData>
+	<outputData fieldNames="$attrName"></outputData>
 </service>

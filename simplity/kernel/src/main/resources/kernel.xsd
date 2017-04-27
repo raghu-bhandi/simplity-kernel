@@ -2322,7 +2322,7 @@
 			use="required">
 		</xs:attribute>
 		<xs:attribute
-			name="fieldname"
+			name="fieldName"
 			type="xs:string"
 			use="required">
 		</xs:attribute>

@@ -57,6 +57,7 @@ public class ServiceAgent {
 
 	/**
 	 * Set plugins and parameters for agent
+	 * @param autoLoginUserId 
 	 *
 	 * @param userIdIsNumber
 	 * @param login
@@ -64,9 +65,9 @@ public class ServiceAgent {
 	 * @param cacher
 	 * @param guard
 	 */
-	public static void setUp(boolean userIdIsNumber, String login, String logout, ServiceCacheManager cacher,
+	public static void setUp(String autoLoginUserId, boolean userIdIsNumber, String login, String logout, ServiceCacheManager cacher,
 			AccessController guard) {
-		instance = new ServiceAgent(userIdIsNumber, login, logout, cacher, guard);
+		instance = new ServiceAgent(autoLoginUserId,userIdIsNumber, login, logout, cacher, guard);
 	}
 
 	/**
@@ -103,12 +104,18 @@ public class ServiceAgent {
 	 * registered access control class
 	 */
 	private final AccessController securityManager;
+	/**
+	 * autologin ID
+	 */
+	private final String autoLoginUserId;
 
 	/***
 	 * We create an immutable instance fully equipped with all plug-ins
+	 * @param autoLoginUserId 
 	 */
-	private ServiceAgent(boolean userIdIsNumber, String login, String logout, ServiceCacheManager cacher,
+	private ServiceAgent(String autoLoginUserId, boolean userIdIsNumber, String login, String logout, ServiceCacheManager cacher,
 			AccessController guard) {
+		this.autoLoginUserId = autoLoginUserId;
 		this.numericUserId = userIdIsNumber;
 		this.loginService = login;
 		this.logoutService = logout;
@@ -126,6 +133,12 @@ public class ServiceAgent {
 	 *         This is typically used as global fields for the user session.
 	 */
 	public ServiceData login(ServiceData inputData) {
+		boolean isAutoLogin = false;
+		if(!autoLoginUserId.isEmpty() && autoLoginUserId!=null && autoLoginUserId.equals(inputData.get(ServiceProtocol.USER_ID).toString()))
+			isAutoLogin = true;
+		
+		inputData.put(ServiceProtocol.IS_AUTO_LOGIN, Value.newBooleanValue(isAutoLogin));
+		
 		ServiceData result = null;
 		if (this.loginService == null) {
 			result = this.dummyLogin(inputData);

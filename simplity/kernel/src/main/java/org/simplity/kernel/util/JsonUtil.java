@@ -656,6 +656,7 @@ public class JsonUtil {
 	 */
 	public static void addAttributes(JSONWriter writer, String[] fieldNames, ServiceContext ctx) {
 		for (String fieldName : fieldNames) {
+			fieldName = TextUtil.getFieldValue(ctx, fieldName).toText();
 			Value value = ctx.getValue(fieldName);
 			if (value != null) {
 				if (value.isUnknown() == false) {

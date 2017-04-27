@@ -6,7 +6,16 @@
 </head>
 <body>
 <br>
-<input type="text" id="message"></input><button onclick="post()">Send Message</button>
+<table id="commentsTable">
+<thead><tr><th>Sample Record:</th></tr></thead>
+<tbody>
+<tr><td>Id: </td><td><input type="text" id="id"></td></tr>
+<tr><td>Person Id: </td><td><input type="text" id="personId"></td></tr>
+<tr><td>Comments: </td><td><input type="text" id="comments"></td></tr>
+<tr><td>Tokens: </td><td><input type="text" id="tokens"></td></tr>
+</tbody>
+</table>
+<button onclick="post()">Send Message</button>
 <br>
 <br>
 <button onclick="receive()">Receive Message</button>
@@ -17,16 +26,24 @@
 <script src="js/simplity-min.js"></script>
 <script type="text/javascript">
 function post(){
-	var value = document.getElementById("message").value
-	var data = "{'message':'"+value+"'}"
+	var id = document.getElementById("id").value
+	var personId = document.getElementById("personId").value
+	var comments = document.getElementById("comments").value
+	var tokens = document.getElementById("tokens").value
+	
+	var data = "{'id':'" + id +"','personId':'" + personId + "','comments':'" + comments + "','tokens':'" + tokens + "'}"
+	//var data = "{'id':'1','personId':'personid123','comments':'comments123-abcd','tokens':'tokens123'}";
 	Simplity.getResponse("jmsProducer",data,onSuccess,onError);
 }
+
 function receive(){
 	Simplity.getResponse("jmsConsumer",null,onSuccess,onError);
 }
+
 function onSuccess(response){
 	document.getElementById("tag").innerHTML = JSON.stringify(response);
 }
+
 function onError(response){
 	console.log(response);
 }

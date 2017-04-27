@@ -25,6 +25,7 @@ package org.simplity.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.simplity.kernel.Application;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
@@ -104,6 +105,7 @@ public class JavaAgent {
 		if (pwd != null) {
 			inData.put(ServiceProtocol.USER_TOKEN, Value.newTextValue(pwd));
 		}
+
 		inData.setPayLoad("{}");
 		ServiceData outData = ServiceAgent.getAgent().login(inData);
 		if (outData == null) {

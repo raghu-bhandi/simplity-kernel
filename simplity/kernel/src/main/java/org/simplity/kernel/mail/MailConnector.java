@@ -40,7 +40,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 /**
- * class that manages to provide desired jmsSession for jms clients. This is
+ * class that manages to send mail. This is
  * similar to DbDriver in its functionality
  *
  * @author simplity.org

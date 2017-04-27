@@ -599,7 +599,7 @@ public class Application {
 		/*
 		 * initialize service agent
 		 */
-		ServiceAgent.setUp(this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard);
+		ServiceAgent.setUp(this.autoLoginUserId,this.userIdIsNumber, this.loginServiceName, this.logoutServiceName, casher, gard);
 
 		/*
 		 * batch job, thread pools etc..
