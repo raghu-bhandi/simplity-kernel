@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service name="DbInFileOut" 
+		 moduleName="batchProcess"
+		 dbAccessType="none"
+		 xmlns="http://www.simplity.org/schema" 
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<actions>
+		<batchProcessor dbAccessType="readOnly" 
+						inputFolder="${basedir}/infile"
+						outputFolder="${basedir}/target"
+						serviceOnErrorAtRowLevel="batchProcess.batchProcessorError"
+						serviceOnInvalidInput="batchProcess.batchProcessorInvalidInput">
+			<batchRowProcessor inputSql="example.Students">
+				<actionBeforeChildren>
+					<log names="_rowText,_lineNum"/>					
+				</actionBeforeChildren>
+				<childProcessors>
+					<batchRowProcessor>
+						<inputFile recordName="files.fixed2" fileName="batchIn.txt" dataFormat="fixedWidth"/>
+						<aggregators>
+							<aggregator aggregationType="sum" outputFieldName="averageOut" inputFieldName="id"/>
+						</aggregators>	
+						<outputQueue queueName="batchProcessorQueue" recordName="files.fixed4"/>											
+					</batchRowProcessor>
+				</childProcessors>	
+				<actionAfterChildren>
+					<log names="averageOut"/>
+				</actionAfterChildren>			
+				<outputFile recordName="files.fixed4" fileName="batchOut.txt" dataFormat="commaSeparated"/>
+			</batchRowProcessor>		
+		</batchProcessor>
+	</actions>
+</service>

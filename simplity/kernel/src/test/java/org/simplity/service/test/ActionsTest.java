@@ -15,12 +15,14 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.jms.*;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
@@ -545,5 +547,26 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void fileProcessingTest() {
 		ServiceData outData = serviceAgentSetup("fileactions.fileProcessing", null);
+	}
+	
+	@Test
+	public void batchProcessingTest(){
+		 try {
+			InitialContext ctx=new InitialContext();  
+			 QueueConnectionFactory f=(QueueConnectionFactory)ctx.lookup("myQueueConnectionFactory");  
+			 QueueConnection con=f.createQueueConnection();  
+			 con.start();  
+			 QueueSession ses=con.createQueueSession(false, 1);  
+			 Queue t=(Queue)ctx.lookup("batchProcessorQueue");  
+			 QueueSender sender=ses.createSender(t);  
+			 TextMessage msg=ses.createTextMessage();
+			 msg.setText("message to send");  
+            sender.send(msg);  
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}  
+           
 	}
 }
