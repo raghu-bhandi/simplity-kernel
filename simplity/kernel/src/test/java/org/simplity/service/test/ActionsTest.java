@@ -6,21 +6,35 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
+import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueSession;
+import javax.jms.TextMessage;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.naming.Context;
+import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttributes;
@@ -31,6 +45,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQMessage;
 import org.h2.tools.RunScript;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -55,6 +71,7 @@ import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
+import org.simplity.test.mock.ldap.MockInitialContextFactory;
 import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
 
 public class ActionsTest extends Mockito {
@@ -89,10 +106,10 @@ public class ActionsTest extends Mockito {
 
 		ServletContext context = mock(ServletContext.class);
 
-		MockInitialDirContextFactory factory = mock(MockInitialDirContextFactory.class);
-		
+		MockInitialDirContextFactory dirfactory = mock(MockInitialDirContextFactory.class);
+
 		Class<Hashtable<?, ?>> clazz = null;
-		when(factory.getInitialContext(any(clazz))).thenAnswer(new Answer<Context>() {
+		when(dirfactory.getInitialContext(any(clazz))).thenAnswer(new Answer<Context>() {
 
 			@Override
 			public Context answer(InvocationOnMock invocation) throws Throwable {
@@ -138,6 +155,7 @@ public class ActionsTest extends Mockito {
 		app.configure();
 
 		MailConnector mailConnector = mock(MailConnector.class);
+
 		when(mailConnector.initialize()).then(new Answer<Session>() {
 
 			@Override
@@ -148,9 +166,8 @@ public class ActionsTest extends Mockito {
 		});
 
 		DirContext mockContext = LdapAgent.getInitialDirContext();
-			
-		
-		 when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>(){
+
+		when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>() {
 
 			@Override
 			public Attributes answer(InvocationOnMock invocation) throws NamingException {
@@ -158,8 +175,8 @@ public class ActionsTest extends Mockito {
 				attrs.put("surname", "Williams");
 				return attrs;
 			}
-			 
-		 });
+
+		});
 
 		/*
 		 * Load the db data
@@ -449,8 +466,7 @@ public class ActionsTest extends Mockito {
 	}
 
 	/*
-	 * Test method for 
-	 * org.simplity.tp.SendMail
+	 * Test method for org.simplity.tp.SendMail
 	 */
 	@Test
 	public void sendMailTest() {
@@ -473,7 +489,7 @@ public class ActionsTest extends Mockito {
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals((String) obj.get("_requestStatus"), "ok");
 	}
-	
+
 	@Test
 	public void ldapLookupTest() {
 		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
@@ -509,4 +525,82 @@ public class ActionsTest extends Mockito {
 	public void fileProcessingTest() {
 		ServiceData outData = serviceAgentSetup("fileactions.fileProcessing", null);
 	}
+
+	@Test
+	public void jmsTest() {
+		// TextMessage receiveMessage = null;
+
+		/*
+		 * try { ConnectionFactory connectionFactory = new
+		 * ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
+		 * QueueConnection queueConnection = (QueueConnection)
+		 * connectionFactory.createConnection(); QueueSession queueSession =
+		 * queueConnection.createQueueSession(false,
+		 * javax.jms.Session.DUPS_OK_ACKNOWLEDGE); queueConnection.start();
+		 * Destination destination = queueSession.createQueue("jms/Queue01");
+		 * 
+		 * 
+		 * MessageProducer producer = queueSession.createProducer(destination);
+		 * TextMessage messageToSend =
+		 * queueSession.createTextMessage("testing");
+		 * producer.send(messageToSend);
+		 * 
+		 * MessageConsumer consumer = queueSession.createConsumer(destination);
+		 * MessageListener messageListener = queueSession.getMessageListener();
+		 * consumer.setMessageListener(messageListener);
+		 * 
+		 * receiveMessage = (TextMessage) consumer.receive();
+		 * assertEquals(receiveMessage.getText(), "testing"); } catch(Exception
+		 * e) {
+		 * 
+		 * }
+		 */
+
+		InitialContext ic;
+		try {
+			ic = new InitialContext();
+
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) ic
+					.lookup("vm://localhost?broker.persistent=false");
+			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
+			QueueSession queueSession = queueConnection.createQueueSession(false,
+					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+			queueConnection.start();
+
+			Destination destination = (Destination) ic.lookup("jms/Queue01");
+			MessageConsumer consumer = queueSession.createConsumer(destination);
+			MessageListener messageListener = queueSession.getMessageListener();
+			consumer.setMessageListener(messageListener);
+
+
+			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
+					+ "'tokens':'token123'}";
+			ServiceData producerData = serviceAgentSetup("jms.jmsProducer", payLoad);
+
+			// MessageProducer producer =
+			// queueSession.createProducer(destination);
+			// TextMessage messageToSend =
+			// queueSession.createTextMessage("testing");
+			// producer.send(messageToSend);
+			QueueBrowser qBrowser = queueSession.createBrowser((Queue) destination);
+			Enumeration qe = qBrowser.getEnumeration();
+			while (qe.hasMoreElements()) {
+				ActiveMQMessage receiveMessage = (ActiveMQMessage) qe.nextElement();
+				assertEquals(receiveMessage.getProperty("personId"), "personid123");
+			}
+			
+
+		} catch (JMSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 }

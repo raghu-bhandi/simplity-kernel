@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <service
 	xmlns="http://www.simplity.org/schema"
+	moduleName="jms"
 	name="jmsProducer"
 	dbAccessType="none"
 	jmsUsage="notManaged">
@@ -12,6 +13,7 @@
 	</inputData>
 	
 	<actions>
+		<log names="personId"/>
 		<jmsProducer>
 			<requestQueue
 				queueName="jms/Queue01"

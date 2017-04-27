@@ -6,7 +6,8 @@
 	logSqls="true"
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
-	connectionString="jdbc:h2:~/classicmodels">
+	connectionString="jdbc:h2:~/classicmodels" 
+	queueConnectionFactory="vm://localhost?broker.persistent=false">
 	<schemaDetails>
 		<schemaDetail
 			schemaName="TESTSCHEMA"
