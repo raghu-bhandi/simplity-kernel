@@ -154,7 +154,6 @@ public class ActionsTest extends Mockito {
 		 */
 		app.configure();
 
-
 		DirContext mockContext = LdapProperties.getInitialDirContext();
 
 		MailConnector mailConnector = mock(MailConnector.class);
@@ -168,8 +167,7 @@ public class ActionsTest extends Mockito {
 
 		});
 
-		
-		 when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>(){
+		when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>() {
 			@Override
 			public Attributes answer(InvocationOnMock invocation) throws NamingException {
 				Attributes attrs = new BasicAttributes();
@@ -179,17 +177,17 @@ public class ActionsTest extends Mockito {
 
 		});
 
-		 when(mockContext.lookup("CN=Sunita Williams")).thenAnswer(new Answer<Object>(){
+		when(mockContext.lookup("CN=Sunita Williams")).thenAnswer(new Answer<Object>() {
 
-				@Override
-				public Object answer(InvocationOnMock invocation) {
-					return new Boolean(true);
-				}
-				 
-			 });
-		 
-		 String[] attrIDs = {"surname"};
-		 when(mockContext.getAttributes("CN=Sunita Williams", attrIDs)).then(new Answer<Attributes>(){
+			@Override
+			public Object answer(InvocationOnMock invocation) {
+				return new Boolean(true);
+			}
+
+		});
+
+		String[] attrIDs = { "surname" };
+		when(mockContext.getAttributes("CN=Sunita Williams", attrIDs)).then(new Answer<Attributes>() {
 
 			@Override
 			public Attributes answer(InvocationOnMock invocation) throws Throwable {
@@ -197,8 +195,8 @@ public class ActionsTest extends Mockito {
 				attrs.put("surname", "Williams");
 				return attrs;
 			}
-			 
-		 });
+
+		});
 
 		/*
 		 * Load the db data
@@ -519,23 +517,24 @@ public class ActionsTest extends Mockito {
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals((Boolean) obj.get("ldapLookup"), true);
 	}
-	
+
 	@Test
 	public void ldapLookupSingleAttrTest() {
 		String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
 		ServiceData outData = serviceAgentSetup("ldap.ldapLookupSingleAttr", payLoad);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
 		assertEquals((String) obj.get("surname"), "Williams");
-	}	
+	}
 
 	@Test
 	public void ldapLookupMultiAttrTest() {
 		String payLoad = "{'objectId':'CN=Sunita Williams','outputDataSheetName':'outsheet'}";
 		ServiceData outData = serviceAgentSetup("ldap.ldapLookupMultiAttr", payLoad);
 		JSONObject obj = new JSONObject(outData.getPayLoad());
-		JSONArray arr  = obj.getJSONArray("outsheet");		
-		assertEquals(arr.getJSONObject(0).get("value").toString(),"Williams");
-	}	
+		JSONArray arr = obj.getJSONArray("outsheet");
+		assertEquals(arr.getJSONObject(0).get("value").toString(), "Williams");
+	}
+
 	/**
 	 * Test method for
 	 * {@link org.simplity.kernel.util.XmlUtil#xmlToObject(java.io.InputStream, java.lang.Object)}
@@ -563,8 +562,9 @@ public class ActionsTest extends Mockito {
 		ServiceData outData = serviceAgentSetup("fileactions.fileProcessing", null);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Test
-	public void jmsTest() {
+	public void jmsProducerTest() {
 		// TextMessage receiveMessage = null;
 
 		/*
@@ -593,51 +593,96 @@ public class ActionsTest extends Mockito {
 		 * }
 		 */
 
-		InitialContext ic;
 		try {
-			ic = new InitialContext();
-
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) ic
+			InitialContext initialContext = new InitialContext();
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) initialContext
 					.lookup("vm://localhost?broker.persistent=false");
 			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
 			QueueSession queueSession = queueConnection.createQueueSession(false,
 					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
 			queueConnection.start();
 
-			Destination destination = (Destination) ic.lookup("jms/Queue01");
-			MessageConsumer consumer = queueSession.createConsumer(destination);
-			MessageListener messageListener = queueSession.getMessageListener();
-			consumer.setMessageListener(messageListener);
-
+			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
 
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
 					+ "'tokens':'token123'}";
 			ServiceData producerData = serviceAgentSetup("jms.jmsProducer", payLoad);
+			JSONObject obj = new JSONObject(producerData.getPayLoad());
+			assertEquals((String) obj.get("_requestStatus"), "ok");
 
-			// MessageProducer producer =
-			// queueSession.createProducer(destination);
-			// TextMessage messageToSend =
-			// queueSession.createTextMessage("testing");
-			// producer.send(messageToSend);
-			QueueBrowser qBrowser = queueSession.createBrowser((Queue) destination);
-			Enumeration qe = qBrowser.getEnumeration();
-			while (qe.hasMoreElements()) {
-				ActiveMQMessage receiveMessage = (ActiveMQMessage) qe.nextElement();
-				assertEquals(receiveMessage.getProperty("personId"), "personid123");
+			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
+			Enumeration queueBrowserEnumeration = queueBrowser.getEnumeration();
+			while (queueBrowserEnumeration.hasMoreElements()) {
+				ActiveMQMessage queueMessage = (ActiveMQMessage) queueBrowserEnumeration.nextElement();
+				assertEquals(queueMessage.getProperty("personId"), "personid123");
+				assertEquals(queueMessage.getProperty("comments"), "comments123");
+				assertEquals(queueMessage.getProperty("tokens"), "token123");
 			}
-			
-
 		} catch (JMSException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+
+	@Test
+	public void jmsConsumerTest() {
+		try {
+			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123'," + "'tokens':'token123'}";
+			ServiceData producerData = serviceAgentSetup("jms.jmsProducer", payLoad);
+			JSONObject producerObject = new JSONObject(producerData.getPayLoad());
+			assertEquals((String) producerObject.get("_requestStatus"), "ok");
+
+			InitialContext initialContext = new InitialContext();
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) initialContext.lookup("vm://localhost?broker.persistent=false");
+			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
+			QueueSession queueSession = queueConnection.createQueueSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+			queueConnection.start();
+			
+			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
+			
+			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
+			if(queueBrowser.getEnumeration().hasMoreElements()) {
+				ServiceData consumerData = serviceAgentSetup("jms.jmsConsumer", null);
+				JSONObject consumerObject = new JSONObject(consumerData.getPayLoad());
+				
+				JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");
+				for (int i = 0; i < commentSheet.length(); i++) {
+					JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
+					assertEquals(commentSheetRow.get("personId"), "personid123");
+					assertEquals(commentSheetRow.get("comments"), "comments123");
+					assertEquals(commentSheetRow.get("tokens"), "token123");
+				}
+			} else {
+				assertEquals("No messages in queue", "true");
+				System.out.println("No messages in queue");
+			}
+			
+			/*
+			boolean loopNext = true;
+			ServiceData consumerData = null;
+			JSONObject consumerObject = null;
+			while (loopNext) {
+				consumerData = serviceAgentSetup("jms.jmsConsumer", null);
+				consumerObject = new JSONObject(consumerData.getPayLoad());
+				if (!consumerObject.get("commentSheet").toString().equals("null"))
+					loopNext = false;
+			}
+			
+			JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");
+			for (int i = 0; i < commentSheet.length(); i++) {
+				JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
+				assertEquals(commentSheetRow.get("personId"), "personid123");
+				assertEquals(commentSheetRow.get("comments"), "comments123");
+				assertEquals(commentSheetRow.get("tokens"), "token123");
+			}
+*/
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
