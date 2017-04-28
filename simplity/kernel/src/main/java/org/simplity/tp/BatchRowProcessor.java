@@ -75,8 +75,8 @@ public class BatchRowProcessor {
 
 	/**
 	 * are we accumulating/aggregating?. We can accumulate, say sum of a number,
-	 * for all rows in this file/sql for each row of the parent.
-	 * For the driver(primary) processor, there is no parent-row, and hence we
+	 * for all rows in this file/sql for each row of the parent. For the
+	 * driver(primary) processor, there is no parent-row, and hence we
 	 * accumulate across all rows in the file/sql.
 	 */
 	AggregatorInterface[] aggregators;
@@ -226,8 +226,8 @@ public class BatchRowProcessor {
 	}
 
 	/**
-	 * common tasks between a DriverProcess and ChildProcess have been
-	 * carved into this abstract class.
+	 * common tasks between a DriverProcess and ChildProcess have been carved
+	 * into this abstract class.
 	 *
 	 * @author simplity.org
 	 *
@@ -323,7 +323,13 @@ public class BatchRowProcessor {
 			}
 			JmsQueue outq = BatchRowProcessor.this.outputQueue;
 			if (outq != null) {
-				this.jmsOutput = outq.getBatchOutput(ctxt);
+				try {
+					this.jmsOutput = outq.getBatchOutput(ctxt);
+					this.jmsOutput.openShop(ctxt);
+				} catch (Exception e) {
+					throw new ApplicationError(e,
+							"Error while using " + (String) outq.getName() + " to get an instance of JMSOutput");
+				}
 			}
 			/*
 			 * aggregators?
