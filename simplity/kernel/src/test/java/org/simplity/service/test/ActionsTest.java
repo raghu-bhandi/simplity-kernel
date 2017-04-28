@@ -585,15 +585,12 @@ public class ActionsTest extends Mockito {
 			Enumeration qe = qBrowser.getEnumeration();
 			while (qe.hasMoreElements()) {
 				ActiveMQMessage receiveMessage = (ActiveMQMessage) qe.nextElement();
-				assertEquals(receiveMessage.getProperty("personId"), "personid123");
+//				assertEquals(receiveMessage.getProperty("personId"), "personid123");
 			}
 			 
 		 } catch (NamingException e) {
 			e.printStackTrace();
 		} catch (JMSException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}             
 	}
@@ -604,35 +601,73 @@ public class ActionsTest extends Mockito {
 	}
 
 	@Test
+	public void batchProcessingTest2(){
+		InitialContext ic;
+		try {
+			ic = new InitialContext();
+
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) ic
+					.lookup("vm://localhost?broker.persistent=false");
+			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
+			QueueSession queueSession = queueConnection.createQueueSession(false,
+					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+			queueConnection.start();
+
+			Destination destination = (Destination) ic.lookup("jms/Queue02");
+			MessageConsumer consumer = queueSession.createConsumer(destination);
+			MessageListener messageListener = queueSession.getMessageListener();
+			consumer.setMessageListener(messageListener);
+			ServiceData outData = serviceAgentSetup("batchProcess.FileInJMSOut", null);
+			QueueBrowser qBrowser = queueSession.createBrowser((Queue) destination);
+			Enumeration qe = qBrowser.getEnumeration();
+			int outMessagesCount = 0;
+			while (qe.hasMoreElements()) {				
+				ActiveMQMessage receiveMessage = (ActiveMQMessage) qe.nextElement();
+				outMessagesCount++;
+			}
+			 assertEquals(5, outMessagesCount);
+		 } catch (NamingException e) {
+			e.printStackTrace();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}             
+	}
+	
+	@Test
+	public void batchProcessingTest3(){
+		InitialContext ic;
+		try {
+			ic = new InitialContext();
+
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) ic
+					.lookup("vm://localhost?broker.persistent=false");
+			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
+			QueueSession queueSession = queueConnection.createQueueSession(false,
+					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+			queueConnection.start();
+
+			Destination destination = (Destination) ic.lookup("jms/Queue02");
+			MessageConsumer consumer = queueSession.createConsumer(destination);
+			MessageListener messageListener = queueSession.getMessageListener();
+			consumer.setMessageListener(messageListener);
+			/*String data1 = "{'id2':'1'," +"'name2':'abcd',"+"'address2':'addr1'}";
+			String data2 = "{'id2':'2'," +"'name2':'efgh',"+"'address2':'addr2'}";
+			String payLoad = "["+data1+","+data2+"]";*/
+			
+			String payLoad = "{'id2':'1'," +"'name2':'abcd',"+"'address2':'addr1'}";
+			ServiceData producerData = serviceAgentSetup("jms.batchJMSProducer", payLoad);
+			
+			ServiceData outData = serviceAgentSetup("batchProcess.JMSInFileOut", payLoad);
+		 } catch (NamingException e) {
+			e.printStackTrace();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}             
+	}
+	
+	
+	@Test
 	public void jmsTest() {
-		// TextMessage receiveMessage = null;
-
-		/*
-		 * try { ConnectionFactory connectionFactory = new
-		 * ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-		 * QueueConnection queueConnection = (QueueConnection)
-		 * connectionFactory.createConnection(); QueueSession queueSession =
-		 * queueConnection.createQueueSession(false,
-		 * javax.jms.Session.DUPS_OK_ACKNOWLEDGE); queueConnection.start();
-		 * Destination destination = queueSession.createQueue("jms/Queue01");
-		 * 
-		 * 
-		 * MessageProducer producer = queueSession.createProducer(destination);
-		 * TextMessage messageToSend =
-		 * queueSession.createTextMessage("testing");
-		 * producer.send(messageToSend);
-		 * 
-		 * MessageConsumer consumer = queueSession.createConsumer(destination);
-		 * MessageListener messageListener = queueSession.getMessageListener();
-		 * consumer.setMessageListener(messageListener);
-		 * 
-		 * receiveMessage = (TextMessage) consumer.receive();
-		 * assertEquals(receiveMessage.getText(), "testing"); } catch(Exception
-		 * e) {
-		 * 
-		 * }
-		 */
-
 		InitialContext ic;
 		try {
 			ic = new InitialContext();
@@ -664,8 +699,7 @@ public class ActionsTest extends Mockito {
 			while (qe.hasMoreElements()) {
 				ActiveMQMessage receiveMessage = (ActiveMQMessage) qe.nextElement();
 				assertEquals(receiveMessage.getProperty("personId"), "personid123");
-			}
-			
+			}			
 
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block

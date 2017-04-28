@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<service
+	xmlns="http://www.simplity.org/schema"
+	moduleName="jms"
+	name="batchJMSProducer"
+	dbAccessType="none"
+	jmsUsage="notManaged">
+<inputData>
+	<inputFields>
+		<inputField dataType="_number" name="id2"/>
+		<inputField dataType="_text" name="name2"/>
+		<inputField dataType="_text" name="address2"/>
+	</inputFields>
+</inputData>	 
+	<actions>
+		<jmsProducer>
+			<requestQueue
+				queueName="jms/Queue02"
+				recordName="comments" />
+		</jmsProducer>
+	</actions>
+</service>

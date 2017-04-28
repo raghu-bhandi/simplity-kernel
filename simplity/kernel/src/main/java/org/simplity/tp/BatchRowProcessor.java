@@ -324,6 +324,11 @@ public class BatchRowProcessor {
 			JmsQueue outq = BatchRowProcessor.this.outputQueue;
 			if (outq != null) {
 				this.jmsOutput = outq.getBatchOutput(ctxt);
+				try {
+					this.jmsOutput.openShop(ctxt);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 			/*
 			 * aggregators?

@@ -1,31 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<service name="FileInFileOut" 
+<service name="JMSInFileOut" 
 		 moduleName="batchProcess"
 		 dbAccessType="none"
 		 xmlns="http://www.simplity.org/schema" 
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<actions>
 		<batchProcessor dbAccessType="readOnly" 
+						jmsUsage="notManaged"
 						inputFolder="${basedir}/src/test/resources/infile"
 						outputFolder="${basedir}/target"
 						serviceOnErrorAtRowLevel="batchProcess.batchProcessorError"
 						serviceOnInvalidInput="batchProcess.batchProcessorInvalidInput"
 						>
 			<batchRowProcessor>			
-				<inputFile recordName="files.fixed2" fileName="batchIn.txt" dataFormat="fixedWidth"/>
+				<inputQueue queueName="jms/Queue02" fieldNames="id2,name2,address2"/>
 				<actionBeforeChildren>
 					<log names="_rowText,_lineNum"/>					
 				</actionBeforeChildren>
 				<childProcessors>
 					<batchRowProcessor inputSql="example.selectStudent">
 						<aggregators>
-							<aggregator aggregationType="sum" outputFieldName="averageOut" inputFieldName="id"/>
+							<aggregator aggregationType="sum" outputFieldName="sumOut" inputFieldName="rollNumber"/>
 						</aggregators>	
-					<outputFile recordName="files.fixed4" fileName="batchOut.txt" dataFormat="fixedWidth"/>											
+					<outputFile recordName="files.fixed4" fileName="batchOut.txt" dataFormat="commaSeparated"/>											
 					</batchRowProcessor>
 				</childProcessors>	
 				<actionAfterChildren>
-					<log names="averageOut"/>
+					<log names="sumOut"/>
 				</actionAfterChildren>					
 			</batchRowProcessor>		
 		</batchProcessor>

@@ -8,21 +8,22 @@
 		<readWithSql sqlName="example.getStudents" outputSheetName="students"></readWithSql>
 		<log names="students"/>
 		<batchProcessor dbAccessType="readOnly" 
-						inputFolder="${basedir}/infile"
+						jmsUsage="notManaged"
+						inputFolder="${basedir}/src/test/resources/infile"
 						outputFolder="${basedir}/target"
 						serviceOnErrorAtRowLevel="batchProcess.batchProcessorError"
 						serviceOnInvalidInput="batchProcess.batchProcessorInvalidInput">
-			<batchRowProcessor inputSql="example.getStudents">
-				<actionBeforeChildren>
-					<log names="_rowText,_lineNum"/>					
-				</actionBeforeChildren>
+			<batchRowProcessor inputSql="example.getStudents">				
 				<childProcessors>
 					<batchRowProcessor>
 						<inputFile recordName="files.fixed2" fileName="batchIn.txt" dataFormat="fixedWidth" linkFieldsInParentRow="rollNumber" linkFieldsInThisRow="id2"/>
+						<actionBeforeChildren>
+							<log names="_rowText,_lineNum"/>					
+						</actionBeforeChildren>
 						<aggregators>
-							<aggregator aggregationType="sum" outputFieldName="averageOut" inputFieldName="id"/>
+							<aggregator aggregationType="sum" outputFieldName="averageOut" inputFieldName="id2"/>
 						</aggregators>	
-						<outputQueue queueName="batchProcessorQueue" recordName="files.fixed4"/>											
+						<outputQueue queueName="jms/Queue02" recordName="files.fixed4"/>											
 					</batchRowProcessor>
 				</childProcessors>	
 				<actionAfterChildren>
