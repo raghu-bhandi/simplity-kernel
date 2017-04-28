@@ -48,9 +48,9 @@ public class JobsManager extends AbstractService implements LogicInterface {
 	/*
 	 * field names
 	 */
-	private static final String ACTION = "JobsAction";
+	private static final String ACTION = "jobsAction";
 	private static final String JOB_NAME = "jobName";
-	private static final String JOBS_NAME = "JobsName";
+	private static final String JOBS_NAME = "jobsName";
 	private static final String INTERVAL = "interval";
 	private static final String NBR_THREADS = "nbrThreads";
 	private static final String SERVICE_NAME = "serviceName";

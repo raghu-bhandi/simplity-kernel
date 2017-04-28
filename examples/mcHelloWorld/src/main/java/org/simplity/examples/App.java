@@ -1,5 +1,7 @@
 package org.simplity.examples;
 
+import java.io.File;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -14,8 +16,9 @@ public class App {
 	public static void main(String[] args) {
 		try {
 			Server server = new Server(8081);
-			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-			String folder = classLoader.getResource("comp").getPath()+"/";			
+			File jarPath = new File(App.class.getProtectionDomain().getCodeSource().getLocation().getPath());			
+			String folder = jarPath.getParent()+File.separator+"comp"+File.separator;
+			
 			try {
 				Application.bootStrap(folder);
 			} catch (Exception e) {
