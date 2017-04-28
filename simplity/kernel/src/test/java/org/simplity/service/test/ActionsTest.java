@@ -565,34 +565,7 @@ public class ActionsTest extends Mockito {
 	@SuppressWarnings("rawtypes")
 	@Test
 	public void jmsProducerTest() {
-		// TextMessage receiveMessage = null;
-
-		/*
-		 * try { ConnectionFactory connectionFactory = new
-		 * ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-		 * QueueConnection queueConnection = (QueueConnection)
-		 * connectionFactory.createConnection(); QueueSession queueSession =
-		 * queueConnection.createQueueSession(false,
-		 * javax.jms.Session.DUPS_OK_ACKNOWLEDGE); queueConnection.start();
-		 * Destination destination = queueSession.createQueue("jms/Queue01");
-		 * 
-		 * 
-		 * MessageProducer producer = queueSession.createProducer(destination);
-		 * TextMessage messageToSend =
-		 * queueSession.createTextMessage("testing");
-		 * producer.send(messageToSend);
-		 * 
-		 * MessageConsumer consumer = queueSession.createConsumer(destination);
-		 * MessageListener messageListener = queueSession.getMessageListener();
-		 * consumer.setMessageListener(messageListener);
-		 * 
-		 * receiveMessage = (TextMessage) consumer.receive();
-		 * assertEquals(receiveMessage.getText(), "testing"); } catch(Exception
-		 * e) {
-		 * 
-		 * }
-		 */
-
+		
 		try {
 			InitialContext initialContext = new InitialContext();
 			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) initialContext
@@ -661,25 +634,6 @@ public class ActionsTest extends Mockito {
 				System.out.println("No messages in queue");
 			}
 			
-			/*
-			boolean loopNext = true;
-			ServiceData consumerData = null;
-			JSONObject consumerObject = null;
-			while (loopNext) {
-				consumerData = serviceAgentSetup("jms.jmsConsumer", null);
-				consumerObject = new JSONObject(consumerData.getPayLoad());
-				if (!consumerObject.get("commentSheet").toString().equals("null"))
-					loopNext = false;
-			}
-			
-			JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");
-			for (int i = 0; i < commentSheet.length(); i++) {
-				JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
-				assertEquals(commentSheetRow.get("personId"), "personid123");
-				assertEquals(commentSheetRow.get("comments"), "comments123");
-				assertEquals(commentSheetRow.get("tokens"), "token123");
-			}
-*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
