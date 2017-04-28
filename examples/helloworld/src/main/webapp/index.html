@@ -76,15 +76,15 @@
 				.stringify(response);
 	}
 	function getBatchStatus() {
-		var data = "{'batchAction':'status','batchName':'batch','jobName':'fileprocessor'}";
+		var data = "{'jobsAction':'status','jobsName':'batch','jobName':'fileprocessor'}";
 		Simplity.getResponse("batch.batch", data, onSuccess, onError);
 	}
 	function startBatch() {
-		var data = "{'batchAction':'start','batchName':'batch','jobName':'fileprocessor'}";
+		var data = "{'jobsAction':'start','jobsName':'batch','jobName':'fileprocessor'}";
 		Simplity.getResponse("batch.batch", data, onSuccess, onError);
 	}
 	function stopBatch() {
-		var data = "{'batchAction':'stop','batchName':'batch','jobName':'fileprocessor'}";
+		var data = "{'jobsAction':'stop','jobsName':'batch','jobName':'fileprocessor'}";
 		Simplity.getResponse("batch.batch", data, onSuccess, onError);
 	}
 

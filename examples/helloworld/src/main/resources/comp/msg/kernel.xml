@@ -33,6 +33,7 @@
 	<message messageType="error" name="kernel.invalidDecimal" text="This is not a valid decimal number"/>
 	<message messageType="error" name="kernel.error" text="Error reported; "/>
 		
-	<message messageType="error" name="kernel.invalidLogin" text="Login failed"/>	
+	<message messageType="error" name="kernel.invalidLogin" text="Login failed"/>
+	<message messageType="info" name="kernel.info" text="$1"/>	
     </components>
 </messages>

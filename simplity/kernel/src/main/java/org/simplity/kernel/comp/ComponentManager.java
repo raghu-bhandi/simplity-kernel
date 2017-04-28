@@ -165,7 +165,7 @@ public class ComponentManager {
 	public static Jobs getJobs(String jobsName) {
 		Component comp = ComponentType.JOBS.getComponentOrNull(jobsName);
 		if (comp == null) {
-			throw new ApplicationError(jobsName + " is not a valid Jobs.");
+			throw new ApplicationError(jobsName + " is not a valid Job.");
 		}
 		return (Jobs) comp;
 	}

@@ -95,12 +95,12 @@ public class Jobs implements Component {
 		}
 	}
 
-	private static Jobs load(String batchName) {
+	private static Jobs load(String jobName) {
 		if (jobsInstance != null) {
 			throw new ApplicationError(
 					"Jobs are already running. Bring them down before re-running, or incrmentally add ad-hoc jobs");
 		}
-		jobsInstance = ComponentManager.getJobs(batchName);
+		jobsInstance = ComponentManager.getJobs(jobName);
 		jobsInstance.start();
 		return jobsInstance;
 	}
