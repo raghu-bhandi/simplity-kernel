@@ -69,6 +69,7 @@ import org.simplity.kernel.ldap.LdapProperties;
 import org.simplity.kernel.mail.MailConnector;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.DataExtractor;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 import org.simplity.test.mock.ldap.MockInitialContextFactory;
@@ -76,6 +77,10 @@ import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
 
 public class ActionsTest extends Mockito {
 	private static final String COMP_PATH = "comp/";
+
+	private static InitialContext initialContext;
+
+	private static QueueSession queueSession;
 
 	@Mock
 	HttpServletRequest request;
@@ -95,7 +100,6 @@ public class ActionsTest extends Mockito {
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
 
-	// private static final int SMTP_TEST_PORT = 3025;
 
 	@BeforeClass
 	public static void setUp() throws Exception {
@@ -153,6 +157,13 @@ public class ActionsTest extends Mockito {
 		 * app.configure() takes care of all initial set up
 		 */
 		app.configure();
+
+		initialContext = new InitialContext();
+		QueueConnectionFactory connectionFactory = (QueueConnectionFactory) initialContext
+				.lookup("vm://localhost?broker.persistent=false");
+		QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
+		queueSession = queueConnection.createQueueSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+		queueConnection.start();
 
 		DirContext mockContext = LdapProperties.getInitialDirContext();
 
@@ -562,40 +573,35 @@ public class ActionsTest extends Mockito {
 		ServiceData outData = serviceAgentSetup("fileactions.fileProcessing", null);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void jmsProducerTest() {
-		
+
 		try {
-			InitialContext initialContext = new InitialContext();
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) initialContext
-					.lookup("vm://localhost?broker.persistent=false");
-			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
-			QueueSession queueSession = queueConnection.createQueueSession(false,
-					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
-			queueConnection.start();
-
 			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
-
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
 					+ "'tokens':'token123'}";
 			ServiceData producerData = serviceAgentSetup("jms.jmsProducer", payLoad);
 			JSONObject obj = new JSONObject(producerData.getPayLoad());
-			assertEquals((String) obj.get("_requestStatus"), "ok");
 
 			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
-			Enumeration queueBrowserEnumeration = queueBrowser.getEnumeration();
-			while (queueBrowserEnumeration.hasMoreElements()) {
+
+			int numOfTries = 3;
+			Enumeration<Object> queueBrowserEnumeration = null;
+			for (numOfTries = 3; numOfTries > 0; numOfTries--) {
+				queueBrowserEnumeration = queueBrowser.getEnumeration();
+				if (queueBrowserEnumeration.hasMoreElements()) {
+					break;
+				}
+			}
+			
+			assertEquals(queueBrowserEnumeration.hasMoreElements(), true);
+			if (queueBrowserEnumeration.hasMoreElements()) {
 				ActiveMQMessage queueMessage = (ActiveMQMessage) queueBrowserEnumeration.nextElement();
 				assertEquals(queueMessage.getProperty("personId"), "personid123");
 				assertEquals(queueMessage.getProperty("comments"), "comments123");
 				assertEquals(queueMessage.getProperty("tokens"), "token123");
 			}
-		} catch (JMSException e) {
-			e.printStackTrace();
-		} catch (NamingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -604,24 +610,22 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void jmsConsumerTest() {
 		try {
-			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123'," + "'tokens':'token123'}";
-			ServiceData producerData = serviceAgentSetup("jms.jmsProducer", payLoad);
-			JSONObject producerObject = new JSONObject(producerData.getPayLoad());
-			assertEquals((String) producerObject.get("_requestStatus"), "ok");
-
-			InitialContext initialContext = new InitialContext();
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) initialContext.lookup("vm://localhost?broker.persistent=false");
-			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
-			QueueSession queueSession = queueConnection.createQueueSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
-			queueConnection.start();
-			
 			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
-			
 			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
-			if(queueBrowser.getEnumeration().hasMoreElements()) {
+			int numOfTries = 3;
+			Enumeration queueBrowserEnumeration = null;
+			for (numOfTries = 3; numOfTries > 0; numOfTries--) {
+				queueBrowserEnumeration = queueBrowser.getEnumeration();
+				if (queueBrowserEnumeration.hasMoreElements()) {
+					break;
+				}
+			}
+			assertEquals(queueBrowserEnumeration.hasMoreElements(), true);
+			
+			if (queueBrowser.getEnumeration().hasMoreElements()) {
 				ServiceData consumerData = serviceAgentSetup("jms.jmsConsumer", null);
 				JSONObject consumerObject = new JSONObject(consumerData.getPayLoad());
-				
+
 				JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");
 				for (int i = 0; i < commentSheet.length(); i++) {
 					JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
@@ -629,11 +633,7 @@ public class ActionsTest extends Mockito {
 					assertEquals(commentSheetRow.get("comments"), "comments123");
 					assertEquals(commentSheetRow.get("tokens"), "token123");
 				}
-			} else {
-				assertEquals("No messages in queue", "true");
-				System.out.println("No messages in queue");
 			}
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
