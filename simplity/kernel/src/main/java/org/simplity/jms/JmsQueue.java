@@ -69,6 +69,10 @@ public class JmsQueue {
 	 */
 	String queueName;
 	/**
+	 * timeout in milliseconds
+	 */
+	String timeout;
+	/**
 	 * null if message body is not used, but header parameters are used to
 	 * transport data.
 	 * How the body of the message is used to transport data.
@@ -660,6 +664,7 @@ public class JmsQueue {
 		if (this.fieldNames != null && this.fieldNames.length == 0) {
 			this.fieldNames = null;
 		}
+	
 		/*
 		 * cache object instance
 		 */
@@ -844,6 +849,10 @@ public class JmsQueue {
 		return this.queueName;
 	}
 
+	public Long getTimeout() {
+		return Long.getLong(timeout);
+	}
+
 	/**
 	 * worker class that inputs a message from this queue as input for a batch
 	 * process
@@ -885,7 +894,7 @@ public class JmsQueue {
 
 		@Override
 		public boolean inputARow(List<FormattedMessage> errors, ServiceContext ctx) throws JMSException {
-			Message msg = this.consumer.receive(0);
+			Message msg = this.consumer.receive(1000);
 			if (msg == null) {
 				Tracer.trace("No more messages in " + JmsQueue.this.queueName + ". Queue consumer will not continue;");
 				return false;

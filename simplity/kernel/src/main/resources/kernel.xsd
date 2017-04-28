@@ -4504,6 +4504,10 @@
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
+			name="timeout"
+			type="xs:long">
+		</xs:attribute>
+		<xs:attribute
 			name="messageBodyType"
 			type="dataSerializationType">
 			<xs:annotation>
