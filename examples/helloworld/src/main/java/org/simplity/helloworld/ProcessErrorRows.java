@@ -14,7 +14,6 @@ public class ProcessErrorRows implements LogicInterface {
 		List<FormattedMessage> msgs = ctx.getMessages();
 		for(FormattedMessage msg:msgs){
 			System.out.println(msg.text);
-			System.out.println(msg.data[0]);
 			System.out.println(msg.fieldName);
 		}
 		return null;
