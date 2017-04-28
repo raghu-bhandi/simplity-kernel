@@ -3716,7 +3716,7 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="batchJobToRunOnStartup"
+				name="jobsToRunOnStartup"
 				type="xs:string"
 				use="optional"
 			>
