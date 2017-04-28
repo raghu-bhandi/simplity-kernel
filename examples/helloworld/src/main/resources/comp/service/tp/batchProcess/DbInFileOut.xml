@@ -19,8 +19,7 @@
 						<inputFile recordName="files.fixed2" fileName="batchIn.txt" dataFormat="fixedWidth"/>
 						<aggregators>
 							<aggregator aggregationType="sum" outputFieldName="averageOut" inputFieldName="id"/>
-						</aggregators>	
-						<outputQueue queueName="batchProcessorQueue" recordName="files.fixed4"/>											
+						</aggregators>										
 					</batchRowProcessor>
 				</childProcessors>	
 				<actionAfterChildren>

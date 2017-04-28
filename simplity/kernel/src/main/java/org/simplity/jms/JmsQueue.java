@@ -69,10 +69,6 @@ public class JmsQueue {
 	 */
 	String queueName;
 	/**
-	 * timeout in milliseconds
-	 */
-	String timeout;
-	/**
 	 * null if message body is not used, but header parameters are used to
 	 * transport data.
 	 * How the body of the message is used to transport data.
@@ -848,11 +844,6 @@ public class JmsQueue {
 	public Object getName() {
 		return this.queueName;
 	}
-
-	public Long getTimeout() {
-		return Long.getLong(timeout);
-	}
-
 	/**
 	 * worker class that inputs a message from this queue as input for a batch
 	 * process
