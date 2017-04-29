@@ -447,9 +447,15 @@ public class Service implements ServiceInterface {
 					throw err;
 				}
 				return Value.VALUE_TRUE;
-			}			
+			}
 		}
 
+		/*
+		 * is this a custom service?
+		 */
+		if(this.serviceInstance != null){
+			return this.serviceInstance.executeAsAction(ctx, driver, transactionIsDelegated);
+		}
 		/*
 		 * this is a simple action
 		 */
@@ -1049,7 +1055,7 @@ public class Service implements ServiceInterface {
 		DbAccessType accessType = DbAccessType.NONE;
 		try {
 			Class<?> cls = Class.forName(className);
-			if (ServiceInterface.class.isAssignableFrom(cls)) {				
+			if (ServiceInterface.class.isAssignableFrom(cls)) {
 				return Application.getBean(className, ServiceInterface.class);
 			}
 			if (cls.isAssignableFrom(LogicInterface.class)) {
