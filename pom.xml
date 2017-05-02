@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.simplity</groupId>
 	<artifactId>all</artifactId>
-	<version>1.2-SNAPSHOT</version>
+	<version>1.2</version>
 	<packaging>pom</packaging>
 	<name>simplity-all</name>
 	<properties>
@@ -16,7 +13,7 @@
 		<connection>scm:git:git://github.com/simplity/simplity.git</connection>
 		<developerConnection>scm:git:git@github.com:simplity/simplity.git</developerConnection>
 		<url>https://github.com/simplity/simplity</url>
-		<tag>all-1.2-SNAPSHOT</tag>
+		<tag>all-1.2</tag>
 	</scm>
 	<build>
 		<plugins>

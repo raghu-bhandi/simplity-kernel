@@ -1,14 +1,10 @@
 <?xml version="1.0"?>
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.simplity.examples</groupId>
 		<artifactId>examples</artifactId>
-		<version>1.2-SNAPSHOT</version>
+		<version>1.2</version>
 	</parent>
 	<artifactId>petclinic</artifactId>
 	<packaging>war</packaging>
@@ -20,14 +16,14 @@
 		<torque.driver>org.h2.Driver</torque.driver>
 		<torque.database.url>${dbpath}</torque.database.url>
 		<torque.database.user>sa</torque.database.user>
-		<torque.database.password></torque.database.password>
-		<torque.database.schema></torque.database.schema>
+		<torque.database.password />
+		<torque.database.schema />
 	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.simplity</groupId>
 			<artifactId>kernel</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>
@@ -49,13 +45,13 @@
 		<dependency>
 			<groupId>org.simplity.utils</groupId>
 			<artifactId>test</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.simplity.utils</groupId>
 			<artifactId>template</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.2</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -138,7 +134,7 @@
 					<dependency>
 						<groupId>org.simplity.utils</groupId>
 						<artifactId>template</artifactId>
-						<version>1.2-SNAPSHOT</version>
+						<version>1.2</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -160,7 +156,7 @@
 						<driver>org.h2.Driver</driver>
 						<url>${dbpath}</url>
 						<username>sa</username>
-						<password></password>
+						<password />
 						<autocommit>true</autocommit>
 						<skip>${maven.test.skip}</skip>
 					</configuration>
