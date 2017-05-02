@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.simplity.examples</groupId>
 		<artifactId>examples</artifactId>
-		<version>1.2</version>
+		<version>1.2.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>wbBatch</artifactId>
 	<packaging>war</packaging>
@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.simplity</groupId>
 			<artifactId>kernel</artifactId>
-			<version>1.2</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
