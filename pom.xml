@@ -23,6 +23,7 @@
 				<version>2.5.3</version>
 				<configuration>
 					<arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>
+			        <pushChanges>false</pushChanges>
 				</configuration>
 			</plugin>
 			<plugin>
