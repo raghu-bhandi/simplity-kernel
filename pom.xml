@@ -12,7 +12,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/simplity/simplity.git</connection>
 		<developerConnection>scm:git:git@github.com:simplity/simplity.git</developerConnection>
-		<url>https://github.com/simplity/simplity</url>
+		<url>https://github.com/simplity/simplity.git</url>
 		<tag>all-1.2</tag>
 	</scm>
 	<build>
