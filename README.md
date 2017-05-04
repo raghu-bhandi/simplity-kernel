@@ -2,6 +2,16 @@
 
 * Github  - [![Build Status](https://travis-ci.org/simplity/simplity.svg?branch=master)](https://travis-ci.org/simplity/simplity)
 
+To add dependency to the maven project, 
+
+```xml
+<dependency>
+  <groupId>org.simplity</groupId>
+  <artifactId>kernel</artifactId>
+  <version>1.2</version>
+</dependency>
+```
+
 ``` Ridiculously simple set of APIs/framework for typical transaction processing systems.```
 
 ##Components of simplity
