@@ -54,7 +54,7 @@ public class Count implements AggregationWorker {
 
 	/**
 	 * create an an instance with the required parameters
-	 * @param inputFieldName
+	 * @param inputFieldName Input field name
 	 *
 	 * @param outputFieldName
 	 *            field/column name that is to be written out as sum. non-empty,

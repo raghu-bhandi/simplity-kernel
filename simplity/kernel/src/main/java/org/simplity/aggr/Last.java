@@ -35,7 +35,7 @@ import org.simplity.service.ServiceContext;
 public class Last extends First {
 	/**
 	 * create an an instance with the required parameters
-	 * @param inputName
+	 * @param inputName input name
 	 *
 	 * @param outputName
 	 *            field/column name that is to be written out as sum. non-empty,

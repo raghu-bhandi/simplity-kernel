@@ -306,7 +306,7 @@ public class HttpAgent {
 	/**
 	 * get the JSON to be sent back to client in case of errors
 	 *
-	 * @param messages
+	 * @param messages Messages
 	 * @return JSON string for the supplied errors
 	 */
 	public static String getResponseForError(FormattedMessage[] messages) {
@@ -575,8 +575,8 @@ public class HttpAgent {
 	 * loginService is to be executed, then caller should use login() instead of
 	 * this method
 	 *
-	 * @param session
-	 * @param userId
+	 * @param session Session 
+	 * @param userId User ID
 	 * @return map of global fields that is maintained by Simplity. Any
 	 *         parameter in this map is made available to every service request
 	 */
@@ -606,8 +606,8 @@ public class HttpAgent {
 	/**
 	 * invalidate any cached response for this service
 	 *
-	 * @param serviceName
-	 * @param session
+	 * @param serviceName Service Name
+	 * @param session Session
 	 */
 	public static void invalidateCache(String serviceName, HttpSession session) {
 		if (httpCacheManager != null) {

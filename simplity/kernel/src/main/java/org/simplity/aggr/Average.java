@@ -31,9 +31,9 @@ package org.simplity.aggr;
 public class Average extends MathAggregator {
 
 	/**
-	 * @param inputName
-	 * @param outputName
-	 * @param outputIsDecimal
+	 * @param inputName inputname of the field
+	 * @param outputName outputname of the field
+	 * @param outputIsDecimal true or false
 	 */
 	public Average(String inputName, String outputName, boolean outputIsDecimal) {
 		super(inputName, outputName, outputIsDecimal);

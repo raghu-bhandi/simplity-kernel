@@ -31,9 +31,9 @@ package org.simplity.aggr;
 public class Sum extends MathAggregator {
 
 	/**
-	 * @param inputName
-	 * @param outputIsDecimal
-	 * @param outputName
+	 * @param inputName input name
+	 * @param outputName output name
+	 * @param outputIsDecimal true or false
 	 */
 	public Sum(String inputName, String outputName, boolean outputIsDecimal) {
 		super(inputName, outputName, outputIsDecimal);

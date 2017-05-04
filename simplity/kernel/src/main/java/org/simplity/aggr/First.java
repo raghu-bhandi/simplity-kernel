@@ -45,7 +45,7 @@ public class First implements AggregationWorker {
 
 	/**
 	 * create an an instance with the required parameters
-	 * @param inputName
+	 * @param inputName input name
 	 *
 	 * @param outputName
 	 *            field/column name that is to be written out as sum. non-empty,
