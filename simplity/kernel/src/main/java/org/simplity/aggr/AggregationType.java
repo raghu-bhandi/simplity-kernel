@@ -92,9 +92,9 @@ public enum AggregationType{
 	};
 
 	/**
-	 * @param inputFieldName
-	 * @param outputFieldName
-	 * @param outputAsDecimal
+	 * @param inputFieldName input field for aggregation
+	 * @param outputFieldName output field for aggregation
+	 * @param outputAsDecimal true or false
 	 * @return an aggregation worker
 	 */
 	public abstract  AggregationWorker getAggregator(String inputFieldName, String outputFieldName, boolean outputAsDecimal);

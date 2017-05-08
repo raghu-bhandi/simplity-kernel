@@ -33,9 +33,9 @@ import org.simplity.service.ServiceContext;
 public class Min extends MathAggregator {
 
 	/**
-	 * @param inputName
-	 * @param outputName
-	 * @param outputIsDecimal
+	 * @param inputName input name
+	 * @param outputName output name
+	 * @param outputIsDecimal true or false
 	 */
 	public Min(String inputName, String outputName, boolean outputIsDecimal) {
 		super(inputName, outputName, outputIsDecimal);

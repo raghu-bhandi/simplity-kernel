@@ -63,8 +63,8 @@ public interface AggregationWorker {
 	 * ready for the next accumulation. Note that init is NOT called after this.
 	 * Also, this is called when there are no more rows
 	 *
-	 * @param outputRow
-	 * @param ctx
+	 * @param outputRow Output Row
+	 * @param ctx Service Context
 	 */
 	public void writeOut(FieldsInterface outputRow, ServiceContext ctx);
 
@@ -72,14 +72,14 @@ public interface AggregationWorker {
 	 * invoked in case the accumulated value is to be discarded (opposite of
 	 * writeOut)
 	 *
-	 * @param ctx
+	 * @param ctx  Service Context
 	 */
 	public void discard(ServiceContext ctx);
 
 	/**
 	 * reset to a state as if this was never called earlier..
 	 *
-	 * @param ctx
+	 * @param ctx  Service Context
 	 */
 	public void reset(ServiceContext ctx);
 }
