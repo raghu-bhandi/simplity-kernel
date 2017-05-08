@@ -653,6 +653,7 @@ public class XmlUtil {
 			/*
 			 * we have an object as the child
 			 */
+			System.out.println("------"+fieldType.getName());
 			fieldObject = fieldType.newInstance();
 			elementToObject(element, fieldObject);
 			field.setAccessible(true);
