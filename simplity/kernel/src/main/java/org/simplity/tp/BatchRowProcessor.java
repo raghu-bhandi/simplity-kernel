@@ -202,7 +202,7 @@ public class BatchRowProcessor {
 		DriverProcess driver = this.getDriverProcess(dbDriver, ctx, interruptible);
 		try {
 			driver.openShop(batchWorker, batchWorker.inFolderName, batchWorker.outFolderName, null, file, ctx);
-			return driver.callFromParent();
+			return driver.callFromParent();			
 		} finally {
 			driver.closeShop();
 		}

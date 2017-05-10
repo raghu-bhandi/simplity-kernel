@@ -28,6 +28,8 @@ public class MockInitialContextFactory implements InitialContextFactory {
 				queueConnection.start();
 				Destination destination = queueSession.createQueue("jms/Queue01");
 				Mockito.when(context.lookup("jms/Queue01")).thenReturn(destination);
+				Destination destination1 = queueSession.createQueue("jms/Queue02");
+				Mockito.when(context.lookup("jms/Queue02")).thenReturn(destination1);
 			} catch (JMSException e) {
 				e.printStackTrace();
 			}

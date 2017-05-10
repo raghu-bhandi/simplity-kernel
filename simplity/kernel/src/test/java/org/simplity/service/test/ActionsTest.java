@@ -26,6 +26,7 @@ import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.TextMessage;
 import javax.mail.Folder;
@@ -99,7 +100,6 @@ public class ActionsTest extends Mockito {
 
 	@Rule
 	public final ExpectedException exception = ExpectedException.none();
-
 
 	@BeforeClass
 	public static void setUp() throws Exception {
@@ -242,7 +242,6 @@ public class ActionsTest extends Mockito {
 		TestUtils.copyDirectory(new File("src/test/resources/data/datafiles"), destFile1);
 		RunScript.execute(schemaConn, new FileReader(
 				new File("src/test/resources/data/scripts/create_classicmodels1.sql").getAbsolutePath()));
-
 	}
 
 	private ServiceData serviceAgentSetup(String servicename, String payload) {
@@ -574,15 +573,163 @@ public class ActionsTest extends Mockito {
 	}
 
 	@Test
-	public void jmsProducerTest() {
+	public void batchProcessingTest() {
+		InitialContext ic;
+		try {
+			ic = new InitialContext();
 
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) ic
+					.lookup("vm://localhost?broker.persistent=false");
+			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
+			QueueSession queueSession = queueConnection.createQueueSession(false,
+					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+			queueConnection.start();
+
+			Destination destination = (Destination) ic.lookup("jms/Queue02");
+			MessageConsumer consumer = queueSession.createConsumer(destination);
+			MessageListener messageListener = queueSession.getMessageListener();
+			consumer.setMessageListener(messageListener);
+			ServiceData outData = serviceAgentSetup("batchProcess.DbInFileOut", null);
+			QueueBrowser qBrowser = queueSession.createBrowser((Queue) destination);
+			Enumeration qe = qBrowser.getEnumeration();
+			while (qe.hasMoreElements()) {
+				ActiveMQMessage receiveMessage = (ActiveMQMessage) qe.nextElement();
+				// assertEquals(receiveMessage.getProperty("personId"),
+				// "personid123");
+			}
+
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void batchProcessingTest1() {
+		ServiceData outData = serviceAgentSetup("batchProcess.FileInFileOut", null);
+	}
+
+	@Test
+	public void batchProcessingTest2() {
+		InitialContext ic;
+		try {
+			ic = new InitialContext();
+
+			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) ic
+					.lookup("vm://localhost?broker.persistent=false");
+			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
+			QueueSession queueSession = queueConnection.createQueueSession(false,
+					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+			queueConnection.start();
+
+			Destination destination = (Destination) ic.lookup("jms/Queue02");
+			MessageConsumer consumer = queueSession.createConsumer(destination);
+			MessageListener messageListener = queueSession.getMessageListener();
+			consumer.setMessageListener(messageListener);
+			ServiceData outData = serviceAgentSetup("batchProcess.FileInJMSOut", null);
+			QueueBrowser qBrowser = queueSession.createBrowser((Queue) destination);
+			Enumeration qe = qBrowser.getEnumeration();
+			int outMessagesCount = 0;
+			while (qe.hasMoreElements()) {
+				ActiveMQMessage receiveMessage = (ActiveMQMessage) qe.nextElement();
+				outMessagesCount++;
+			}
+			assertEquals(5, outMessagesCount);
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void batchProcessingTest3() {
+		try {
+			Destination destination = (Destination) initialContext.lookup("jms/Queue02");
+			MessageProducer producer = queueSession.createProducer(destination);
+
+			// loop
+			javax.jms.Message message = queueSession.createMessage();
+			message.setObjectProperty("id2", "1");
+			message.setObjectProperty("name2", "abcd");
+			message.setObjectProperty("address2", "addr1");
+
+			producer.send(message);
+			// end loop
+
+			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
+
+			int numOfTries = 3;
+			Enumeration<Object> queueBrowserEnumeration = null;
+			for (numOfTries = 3; numOfTries > 0; numOfTries--) {
+				try {
+					Thread.currentThread().sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				queueBrowserEnumeration = queueBrowser.getEnumeration();
+				if (queueBrowserEnumeration.hasMoreElements()) {
+					break;
+				}
+			}
+			if (queueBrowserEnumeration.hasMoreElements()) {
+				ServiceData outData = serviceAgentSetup("batchProcess.JMSInFileOut", null);
+			}
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void batchProcessingTest4() {
+		try {
+			Destination destination = (Destination) initialContext.lookup("jms/Queue02");
+			MessageProducer producer = queueSession.createProducer(destination);
+
+			// loop
+			javax.jms.Message message = queueSession.createMessage();
+			message.setObjectProperty("id2", "1");
+			message.setObjectProperty("name2", "abcd");
+			message.setObjectProperty("address2", "addr1");
+
+			producer.send(message);
+			// end loop
+
+			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
+
+			int numOfTries = 3;
+			Enumeration<Object> queueBrowserEnumeration = null;
+			for (numOfTries = 3; numOfTries > 0; numOfTries--) {
+				try {
+					Thread.currentThread().sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				queueBrowserEnumeration = queueBrowser.getEnumeration();
+				if (queueBrowserEnumeration.hasMoreElements()) {
+					break;
+				}
+			}
+			if (queueBrowserEnumeration.hasMoreElements()) {
+				ServiceData outData = serviceAgentSetup("batchProcess.JMSInFileOut", null);
+			}
+		} catch (NamingException e) {
+			e.printStackTrace();
+		} catch (JMSException e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	@Test
+	public void jmsProducerTest() {
 		try {
 			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
 					+ "'tokens':'token123'}";
 			ServiceData producerData = serviceAgentSetup("jms.jmsProducer", payLoad);
-			JSONObject obj = new JSONObject(producerData.getPayLoad());
-
 			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
 
 			int numOfTries = 3;
@@ -593,7 +740,7 @@ public class ActionsTest extends Mockito {
 					break;
 				}
 			}
-			
+
 			assertEquals(queueBrowserEnumeration.hasMoreElements(), true);
 			if (queueBrowserEnumeration.hasMoreElements()) {
 				ActiveMQMessage queueMessage = (ActiveMQMessage) queueBrowserEnumeration.nextElement();
@@ -621,7 +768,7 @@ public class ActionsTest extends Mockito {
 				}
 			}
 			assertEquals(queueBrowserEnumeration.hasMoreElements(), true);
-			
+
 			if (queueBrowser.getEnumeration().hasMoreElements()) {
 				ServiceData consumerData = serviceAgentSetup("jms.jmsConsumer", null);
 				JSONObject consumerObject = new JSONObject(consumerData.getPayLoad());
@@ -638,5 +785,4 @@ public class ActionsTest extends Mockito {
 			e.printStackTrace();
 		}
 	}
-
 }

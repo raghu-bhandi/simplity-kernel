@@ -660,6 +660,7 @@ public class JmsQueue {
 		if (this.fieldNames != null && this.fieldNames.length == 0) {
 			this.fieldNames = null;
 		}
+	
 		/*
 		 * cache object instance
 		 */
@@ -843,7 +844,6 @@ public class JmsQueue {
 	public Object getName() {
 		return this.queueName;
 	}
-
 	/**
 	 * worker class that inputs a message from this queue as input for a batch
 	 * process
@@ -885,7 +885,7 @@ public class JmsQueue {
 
 		@Override
 		public boolean inputARow(List<FormattedMessage> errors, ServiceContext ctx) throws JMSException {
-			Message msg = this.consumer.receive(0);
+			Message msg = this.consumer.receive(1000);
 			if (msg == null) {
 				Tracer.trace("No more messages in " + JmsQueue.this.queueName + ". Queue consumer will not continue;");
 				return false;
