@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testRun testName="helloworldtestrun" xmlns="http://www.simplity.org/schema">
-  <testCases>
-    <testCase serviceName="helloworld" testCaseName="helloworldtest">
-    <outputJson><![CDATA[ {"hello":"Hello World!","_messages":[]}]]></outputJson>
-    </testCase>  
-  </testCases>
-</testRun>
