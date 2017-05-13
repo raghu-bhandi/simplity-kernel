@@ -73,8 +73,11 @@ public interface ServiceInterface extends Component {
 
 	/**
 	 * @param inputData
+	 *            input data, possibly a pay-load that came from a client
+	 * @param payloadType
+	 *            if this is meant to be communicated back to client
 	 * @return service data that has response to be sent to client, as well as
 	 *         data meant for client-agent
 	 */
-	public ServiceData respond(ServiceData inputData);
+	public ServiceData respond(ServiceData inputData, PayloadType payloadType);
 }

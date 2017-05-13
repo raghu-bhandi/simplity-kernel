@@ -34,6 +34,7 @@ import org.simplity.kernel.util.DateUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.service.AbstractService;
+import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceData;
 
 /**
@@ -49,7 +50,7 @@ public class TestDt extends AbstractService {
 	 * ServiceData)
 	 */
 	@Override
-	public ServiceData respond(ServiceData inputData) {
+	public ServiceData respond(ServiceData inputData, PayloadType payloadType) {
 		String input = inputData.getPayLoad();
 		if (input == null || input.isEmpty()) {
 			input = "{}";

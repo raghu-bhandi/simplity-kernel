@@ -91,7 +91,7 @@ public class Application {
 	 * report an application error that needs attention from admin
 	 *
 	 * @param inputData
-	 *            data with which service was invoked. null if teh error has no
+	 *            data with which service was invoked. null if the error has no
 	 *            such reference
 	 * @param e
 	 */
@@ -103,7 +103,7 @@ public class Application {
 	 * report an exception that needs attention from admin
 	 *
 	 * @param inputData
-	 *            data with which service was invoked. null if teh error has no
+	 *            data with which service was invoked. null if the error has no
 	 *            such reference
 	 * @param e
 	 */
@@ -391,7 +391,7 @@ public class Application {
 	 * Configure the Mail Setup for the application
 	 */
 	MailProperties mailProperties;
-	
+
 	private static ContextInterface classManagerInternal;
 
 	/**
@@ -629,7 +629,7 @@ public class Application {
 			}
 		}
 
-		HttpAgent.setUp(uid, cacher, this.sendTraceToClient);
+		HttpAgent.setUp(uid, cacher);
 		String result = null;
 		if (msgs.size() > 0) {
 			/*

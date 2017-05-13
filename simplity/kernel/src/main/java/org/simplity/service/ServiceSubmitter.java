@@ -40,6 +40,7 @@ public class ServiceSubmitter implements Runnable {
 	private final ServiceData inData;
 	private final ServiceInterface service;
 	private final ObjectOutputStream outStream;
+	private final PayloadType payloadType;
 
 	/***
 	 * instantiate with required attributes
@@ -47,12 +48,14 @@ public class ServiceSubmitter implements Runnable {
 	 * @param inData
 	 * @param service
 	 * @param outStream
+	 * @param payloadType
 	 *
 	 */
-	public ServiceSubmitter(ServiceData inData, ServiceInterface service, ObjectOutputStream outStream) {
+	public ServiceSubmitter(ServiceData inData, ServiceInterface service, ObjectOutputStream outStream, PayloadType payloadType) {
 		this.inData = inData;
 		this.service = service;
 		this.outStream = outStream;
+		this.payloadType = payloadType;
 
 	}
 
@@ -63,7 +66,7 @@ public class ServiceSubmitter implements Runnable {
 		ServiceData outData = null;
 		String serviceName = this.service.getQualifiedName();
 		try {
-			outData = this.service.respond(this.inData);
+			outData = this.service.respond(this.inData, this.payloadType);
 		} catch (Exception e) {
 			Application.reportApplicationError(this.inData, e);
 			outData = new ServiceData(this.inData.getUserId(), serviceName);

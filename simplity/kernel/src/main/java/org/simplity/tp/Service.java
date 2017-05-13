@@ -50,6 +50,7 @@ import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
@@ -207,9 +208,9 @@ public class Service implements ServiceInterface {
 	}
 
 	@Override
-	public ServiceData respond(ServiceData inData) {
+	public ServiceData respond(ServiceData inData, PayloadType payloadType) {
 		if (this.serviceInstance != null) {
-			return this.serviceInstance.respond(inData);
+			return this.serviceInstance.respond(inData, payloadType);
 		}
 
 		ServiceContext ctx = new ServiceContext(this.name, inData.getUserId());
@@ -235,14 +236,14 @@ public class Service implements ServiceInterface {
 		/*
 		 * process input specification
 		 */
-		this.extractInput(ctx, inData.getPayLoad());
+		this.extractInput(ctx, inData.getPayLoad(), payloadType);
 
 		/*
 		 * if input is in error, we return to caller without processing this
 		 * service
 		 */
 		if (ctx.isInError()) {
-			return this.prepareResponse(ctx);
+			return this.prepareResponse(ctx, payloadType);
 		}
 
 		if (this.outputData != null) {
@@ -258,7 +259,7 @@ public class Service implements ServiceInterface {
 			throw exception;
 		}
 
-		return this.prepareResponse(ctx);
+		return this.prepareResponse(ctx, payloadType);
 	}
 
 	/**
@@ -342,9 +343,10 @@ public class Service implements ServiceInterface {
 	 * service context
 	 *
 	 * @param ctx
+	 * @param payloadType
 	 * @return
 	 */
-	private ServiceData prepareResponse(ServiceContext ctx) {
+	private ServiceData prepareResponse(ServiceContext ctx, PayloadType payloadType) {
 		ServiceData response = new ServiceData(ctx.getUserId(), this.getQualifiedName());
 		int nbrErrors = 0;
 		for (FormattedMessage msg : ctx.getMessages()) {
@@ -358,7 +360,7 @@ public class Service implements ServiceInterface {
 		 * telling the bad news is left to the Client Agent :-)
 		 */
 		if (nbrErrors == 0) {
-			this.prepareResponse(ctx, response);
+			this.prepareResponse(ctx, response, payloadType);
 			if (this.inputData != null) {
 				this.inputData.cleanup(ctx);
 			}
@@ -370,7 +372,13 @@ public class Service implements ServiceInterface {
 
 	}
 
-	protected void extractInput(ServiceContext ctx, String requestText) {
+	/**
+	 *
+	 * @param ctx
+	 * @param requestText
+	 * @param paylodType
+	 */
+	protected void extractInput(ServiceContext ctx, String requestText, PayloadType paylodType) {
 		if (requestText == null || requestText.length() == 0) {
 			Tracer.trace("No input received from client");
 			return;
@@ -387,12 +395,12 @@ public class Service implements ServiceInterface {
 		}
 	}
 
-	protected void prepareResponse(ServiceContext ctx, ServiceData response) {
+	protected void prepareResponse(ServiceContext ctx, ServiceData response, PayloadType payloadType) {
 		if (this.outputData == null) {
 			Tracer.trace("Service " + this.name + " is designed to send no response.");
 			response.setPayLoad(OutputData.EMPTY_RESPONSE);
 		} else {
-			this.outputData.setResponse(ctx, response);
+			this.outputData.setResponse(ctx, response, payloadType);
 		}
 
 	}

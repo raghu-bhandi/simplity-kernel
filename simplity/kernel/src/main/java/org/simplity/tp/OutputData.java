@@ -37,6 +37,7 @@ import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.PayloadType;
 import org.simplity.service.ResponseWriter;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceData;
@@ -108,8 +109,9 @@ public class OutputData {
 	 *
 	 * @param ctx
 	 * @param outData
+	 * @param payloadType
 	 */
-	public void setResponse(ServiceContext ctx, ServiceData outData) {
+	public void setResponse(ServiceContext ctx, ServiceData outData, PayloadType payloadType) {
 		if (this.outputFromWriter) {
 			Tracer.trace("Picking up response from writer");
 			ResponseWriter writer = ctx.getWriter();
@@ -159,19 +161,27 @@ public class OutputData {
 				/*
 				 * we may set null to remove existing values
 				 */
-				outData.put(f, val);
+				outData.setSessionField(f, val);
 			}
 		}
-//		this.prepareOutData(outData, ctx);
+		if (payloadType == null || payloadType == PayloadType.NONE) {
+			this.prepareOutData(outData, ctx);
+		} else {
+			this.setJsonPayload(ctx, outData);
+		}
 
-		/*
-		 * response
-		 */
+	}
+
+	private void setJsonPayload(ServiceContext ctx, ServiceData outData) {
 		JSONWriter writer = new JSONWriter();
 		writer.object();
 		if (this.justOutputEveryThing) {
 			this.allDataToJson(writer, ctx);
 		} else {
+			/*
+			 * we have to attach a pay load of the right type.
+			 * as of now, we know only about json
+			 */
 			this.dataToJson(writer, ctx);
 		}
 		/*
@@ -534,6 +544,9 @@ public class OutputData {
 	}
 
 	/**
+	 * check whether fieldNames of this specification clashes with fields from a
+	 * record
+	 *
 	 * @param fields
 	 * @return
 	 */
@@ -541,6 +554,7 @@ public class OutputData {
 		if (this.fieldNames == null || this.fieldNames.length == 0 || fields == null || fields.length == 0) {
 			return true;
 		}
+
 		Set<String> allNames = new HashSet<String>(this.fieldNames.length);
 		for (String aName : this.fieldNames) {
 			allNames.add(aName);

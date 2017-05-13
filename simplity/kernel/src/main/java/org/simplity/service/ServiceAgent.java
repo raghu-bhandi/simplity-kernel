@@ -57,7 +57,8 @@ public class ServiceAgent {
 
 	/**
 	 * Set plugins and parameters for agent
-	 * @param autoLoginUserId 
+	 *
+	 * @param autoLoginUserId
 	 *
 	 * @param userIdIsNumber
 	 * @param login
@@ -65,9 +66,9 @@ public class ServiceAgent {
 	 * @param cacher
 	 * @param guard
 	 */
-	public static void setUp(String autoLoginUserId, boolean userIdIsNumber, String login, String logout, ServiceCacheManager cacher,
-			AccessController guard) {
-		instance = new ServiceAgent(autoLoginUserId,userIdIsNumber, login, logout, cacher, guard);
+	public static void setUp(String autoLoginUserId, boolean userIdIsNumber, String login, String logout,
+			ServiceCacheManager cacher, AccessController guard) {
+		instance = new ServiceAgent(autoLoginUserId, userIdIsNumber, login, logout, cacher, guard);
 	}
 
 	/**
@@ -105,16 +106,17 @@ public class ServiceAgent {
 	 */
 	private final AccessController securityManager;
 	/**
-	 * autologin ID
+	 * auto login ID
 	 */
 	private final String autoLoginUserId;
 
 	/***
 	 * We create an immutable instance fully equipped with all plug-ins
-	 * @param autoLoginUserId 
+	 *
+	 * @param autoLoginUserId
 	 */
-	private ServiceAgent(String autoLoginUserId, boolean userIdIsNumber, String login, String logout, ServiceCacheManager cacher,
-			AccessController guard) {
+	private ServiceAgent(String autoLoginUserId, boolean userIdIsNumber, String login, String logout,
+			ServiceCacheManager cacher, AccessController guard) {
 		this.autoLoginUserId = autoLoginUserId;
 		this.numericUserId = userIdIsNumber;
 		this.loginService = login;
@@ -133,17 +135,20 @@ public class ServiceAgent {
 	 *         This is typically used as global fields for the user session.
 	 */
 	public ServiceData login(ServiceData inputData) {
-		boolean isAutoLogin = false;
-		if(!autoLoginUserId.isEmpty() && autoLoginUserId!=null && autoLoginUserId.equals(inputData.get(ServiceProtocol.USER_ID).toString()))
-			isAutoLogin = true;
-		
+
+		/*
+		 * login service may want to know whether this is an auto-login
+		 *
+		 */
+		boolean isAutoLogin = this.autoLoginUserId != null
+				&& this.autoLoginUserId.equals(inputData.get(ServiceProtocol.USER_ID).toString());
 		inputData.put(ServiceProtocol.IS_AUTO_LOGIN, Value.newBooleanValue(isAutoLogin));
-		
+
 		ServiceData result = null;
 		if (this.loginService == null) {
 			result = this.dummyLogin(inputData);
 		} else {
-			result = ComponentManager.getService(this.loginService).respond(inputData);
+			result = ComponentManager.getService(this.loginService).respond(inputData, PayloadType.NONE);
 		}
 		if (result.hasErrors() == false) {
 			Object uid = result.get(ServiceProtocol.USER_ID);
@@ -162,18 +167,28 @@ public class ServiceAgent {
 		return result;
 	}
 
+	/**
+	 * application has not set any login service. Simulate a successful login
+	 *
+	 * @param inData
+	 * @return
+	 */
 	private ServiceData dummyLogin(ServiceData inData) {
 		ServiceData result = new ServiceData();
 		Tracer.trace("No login service is attached. we use a dummy login.");
+		/*
+		 * choosing a number, just in case the application uses a numeric field
+		 */
 		String userId = "100";
 		Object obj = inData.get(ServiceProtocol.USER_ID);
 		if (obj != null) {
 			userId = obj.toString();
 		}
+
 		Value userIdValue = this.numericUserId ? Value.parseValue(userId, ValueType.INTEGER)
 				: Value.newTextValue(userId);
 		if (Value.isNull(userIdValue)) {
-			Tracer.trace("I would have cleared userId " + userId + " but for the fact that we insist on a number");
+			Tracer.trace("we would have cleared userId " + userId + " but for the fact that we insist on a number");
 		} else {
 			Tracer.trace("we cleared userId=" + userId + " with no authentication whatsoever.");
 			result.put(ServiceProtocol.USER_ID, userIdValue);
@@ -188,7 +203,7 @@ public class ServiceAgent {
 	 */
 	public void logout(ServiceData inputData) {
 		if (this.logoutService != null) {
-			ComponentManager.getService(this.logoutService).respond(inputData);
+			ComponentManager.getService(this.logoutService).respond(inputData, PayloadType.NONE);
 		}
 	}
 
@@ -203,16 +218,26 @@ public class ServiceAgent {
 	 *
 	 */
 	public ServiceData executeService(ServiceData inputData) {
+		return this.executeService(inputData, PayloadType.NONE);
+	}
+
+	/**
+		 * @param inputData
+		 *            fields are assumed to be session data, and payLoad is the
+		 *            request string from client
+	 * @param payloadType
+		 * @return response to be returned to client payLoad is response text, while
+		 *         fields collection is data to be set to session. Null if the
+		 *         service not found or the logged-in user is not entitled for the
+		 *         service
+		 *
+		 */
+	public ServiceData executeService(ServiceData inputData, PayloadType payloadType) {
 		/*
 		 * this is the entry point for the app-side. This method may be invoked
-		 * either remotely, or with HttpAgent on the same JVM. This is
-		 * distinction need not be detected, except for a small issue with
-		 * trace.
+		 * either remotely, or with HttpAgent on the same JVM. This
+		 * distinction need not be detected
 		 */
-		boolean isRemoteCall = Tracer.acucumulationIsOn() == false;
-		if (isRemoteCall) {
-			Tracer.startAccumulation();
-		}
 
 		String serviceName = inputData.getServiceName();
 		Value userId = inputData.getUserId();
@@ -259,7 +284,7 @@ public class ServiceAgent {
 			 * is this to be run in the background always?
 			 */
 			if (service.toBeRunInBackground()) {
-				response = this.runInBackground(inputData, service);
+				response = this.runInBackground(inputData, service, payloadType);
 				break;
 			}
 			/*
@@ -267,7 +292,7 @@ public class ServiceAgent {
 			 */
 			try {
 				Tracer.trace("Invoking service " + serviceName);
-				response = service.respond(inputData);
+				response = service.respond(inputData, payloadType);
 				boolean hasErrors = response != null && response.hasErrors();
 				if (hasErrors) {
 					Tracer.trace(serviceName + " returned with errors.");
@@ -289,9 +314,6 @@ public class ServiceAgent {
 		long diffTime = endTime.getTime() - startTime.getTime();
 		if (response != null) {
 			response.setExecutionTime((int) diffTime);
-			if (isRemoteCall) {
-				response.setTrace(Tracer.stopAccumulation());
-			}
 		}
 		return response;
 	}
@@ -301,7 +323,7 @@ public class ServiceAgent {
 	 * @return response to be sent back to client
 	 */
 	@SuppressWarnings("resource")
-	private ServiceData runInBackground(ServiceData inData, ServiceInterface service) {
+	private ServiceData runInBackground(ServiceData inData, ServiceInterface service, PayloadType payloadType) {
 		ServiceData outData = this.defaultResponse(inData);
 		ObjectOutputStream stream = null;
 		String token = null;
@@ -316,7 +338,7 @@ public class ServiceAgent {
 		JSONWriter writer = new JSONWriter();
 		writer.object().key(ServiceProtocol.HEADER_FILE_TOKEN).value(token).endObject();
 		outData.setPayLoad(writer.toString());
-		ServiceSubmitter submitter = new ServiceSubmitter(inData, service, stream);
+		ServiceSubmitter submitter = new ServiceSubmitter(inData, service, stream, payloadType);
 		Thread thread = Application.createThread(submitter);
 		thread.start();
 

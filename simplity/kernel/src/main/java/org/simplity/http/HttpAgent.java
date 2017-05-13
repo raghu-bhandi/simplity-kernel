@@ -43,12 +43,11 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.ClientCacheManager;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.ServiceLogger;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.file.FileManager;
-import org.simplity.kernel.util.CircularLifo;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceProtocol;
@@ -142,11 +141,6 @@ public class HttpAgent {
 	private static ClientCacheManager httpCacheManager;
 
 	/**
-	 * accumulated traces to be streamed to client when requested.
-	 */
-	private static boolean tracesToBeCached;
-
-	/**
 	 * serve this service. Main entrance to the server from an http client.
 	 *
 	 * @param req
@@ -177,7 +171,6 @@ public class HttpAgent {
 
 		long startedAt = new Date().getTime();
 		long elapsed = 0;
-		Value userId = null;
 		ServiceData outData = null;
 		Tracer.startAccumulation();
 		Tracer.trace("Request received for service " + serviceName);
@@ -199,7 +192,6 @@ public class HttpAgent {
 					message = NO_LOGIN;
 					break;
 				}
-				userId = inData.getUserId();
 				String payLoad = null;
 				if (isGet) {
 					payLoad = queryToJson(req);
@@ -229,7 +221,7 @@ public class HttpAgent {
 						break;
 					}
 				}
-				outData = ServiceAgent.getAgent().executeService(inData);
+				outData = ServiceAgent.getAgent().executeService(inData, PayloadType.JSON);
 				/*
 				 * by our convention, server may send data in outData to be set
 				 * to session
@@ -277,19 +269,6 @@ public class HttpAgent {
 					+ " payload");
 		}
 		writeResponse(resp, response);
-		String trace = Tracer.stopAccumulation();
-		if (outData != null) {
-			String serverTrace = outData.getTrace();
-			if (serverTrace != null) {
-				trace = "---- Web Tier Trace ---\n" + trace + "\n------ App Tier Trace ----\n" + serverTrace;
-			}
-		}
-		if (tracesToBeCached) {
-			cacheTraces(session, trace);
-		}
-		String uid = userId == null ? "unknown" : userId.toString();
-		ServiceLogger.pushTraceToLog(serviceName, uid, (int) elapsed, trace);
-
 	}
 
 	private static String getServiceName(HttpServletRequest req) {
@@ -482,15 +461,10 @@ public class HttpAgent {
 	 *            for all services
 	 * @param cacher
 	 *            http cache manager
-	 * @param cacheTraces
-	 *            if true, traces are also saved into a circular buffer that can
-	 *            be delivered to the client
 	 */
-	public static void setUp(Value autoUserId, ClientCacheManager cacher, boolean cacheTraces) {
+	public static void setUp(Value autoUserId, ClientCacheManager cacher) {
 		autoLoginUserId = autoUserId;
 		httpCacheManager = cacher;
-		tracesToBeCached = cacheTraces;
-
 	}
 
 	/**
@@ -526,10 +500,11 @@ public class HttpAgent {
 		if (sessionData == null) {
 			throw new ApplicationError("Unexpected situation. UserId is located in session, but not map");
 		}
+
 		ServiceData data = new ServiceData(userId, null);
-		for (Map.Entry<String, Object> entry : sessionData.entrySet()) {
-			data.put(entry.getKey(), entry.getValue());
-		}
+		Map<String, Object> sf = new HashMap<String, Object>();
+		sf.putAll(sessionData);
+		data.setSessionFields(sf);
 
 		return data;
 	}
@@ -556,16 +531,18 @@ public class HttpAgent {
 	 * @param session
 	 * @param data
 	 */
+	@SuppressWarnings({"unchecked" })
 	private static void setSessionData(HttpSession session, ServiceData data) {
-		@SuppressWarnings("unchecked")
 		Map<String, Object> sessionData = (Map<String, Object>) session.getAttribute(SESSION_NAME_FOR_MAP);
 
 		if (sessionData == null) {
 			Tracer.trace("Unexpected situation. setSession invoked with no active session. Action ignored");
-		} else {
-			for (String key : data.getFieldNames()) {
-				sessionData.put(key, data.get(key));
-			}
+			return;
+		}
+
+		Map<String, Object> sf = data.getSessionFields();
+		if(sf != null){
+			sessionData.putAll(sf);
 		}
 	}
 
@@ -575,7 +552,7 @@ public class HttpAgent {
 	 * loginService is to be executed, then caller should use login() instead of
 	 * this method
 	 *
-	 * @param session Session 
+	 * @param session Session
 	 * @param userId User ID
 	 * @return map of global fields that is maintained by Simplity. Any
 	 *         parameter in this map is made available to every service request
@@ -585,9 +562,6 @@ public class HttpAgent {
 		Map<String, Object> sessionData = new HashMap<String, Object>();
 		session.setAttribute(SESSION_NAME_FOR_USER_ID, userId);
 		session.setAttribute(SESSION_NAME_FOR_MAP, sessionData);
-		if (tracesToBeCached) {
-			session.setAttribute(CACHED_TRACES, new CircularLifo<String>());
-		}
 		Tracer.trace("New session data created for " + userId);
 		return sessionData;
 	}
@@ -613,24 +587,6 @@ public class HttpAgent {
 		if (httpCacheManager != null) {
 			httpCacheManager.invalidate(serviceName, session);
 		}
-	}
-
-	/**
-	 * push trace to the buffer in session
-	 *
-	 * @param session
-	 * @param trace
-	 */
-	private static void cacheTraces(HttpSession session, String trace) {
-		Object obj = session.getAttribute(HttpAgent.CACHED_TRACES);
-		if (obj == null) {
-			Tracer.trace("Unexpected absence of trace buffer in session. Client will not get traces.");
-			return;
-		}
-		@SuppressWarnings("unchecked")
-		CircularLifo<String> lifo = ((CircularLifo<String>) obj);
-		lifo.put(trace);
-
 	}
 
 	/**
@@ -705,9 +661,6 @@ public class HttpAgent {
 			response = STILL_PENDING_PREFIX + fileToken + STILL_PENDING_SUFFIX;
 		}
 		writeResponse(resp, response);
-		if (tracesToBeCached && outData != null) {
-			cacheTraces(req.getSession(true), outData.getTrace());
-		}
 	}
 
 	/**
@@ -728,140 +681,5 @@ public class HttpAgent {
 			writer.write(payLoad);
 		}
 		writer.close();
-	}
-	
-	/**
-	 * TODO: temp method. Must be refactored
-	 */
-	public static void serve(HttpServletRequest req, HttpServletResponse resp, String serviceName) throws ServletException, IOException {
-
-		String fileToken = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
-		if (fileToken != null) {
-			Tracer.trace("Checking for pending service with token " + fileToken);
-			getPendingResponse(req, resp, fileToken);
-			return;
-		}
-		HttpSession session = req.getSession(true);
-		boolean isGet = GET.equals(req.getMethod());
-		/*
-		 * get the service name
-		 */
-		//String serviceName = getServiceName(req);
-
-		long startedAt = new Date().getTime();
-		long elapsed = 0;
-		Value userId = null;
-		ServiceData outData = null;
-		Tracer.startAccumulation();
-		Tracer.trace("Request received for service " + serviceName);
-		FormattedMessage message = null;
-		/*
-		 * let us earnestly try to serve now :-) this do{} is not a loop, but a
-		 * block that helps in handling errors in an elegant way
-		 */
-		ServiceData inData = null;
-		do {
-			try {
-				if (serviceName == null) {
-					message = NO_SERVICE;
-					break;
-				}
-
-				inData = createServiceData(session, false);
-				if (inData == null) {
-					message = NO_LOGIN;
-					break;
-				}
-				userId = inData.getUserId();
-				String payLoad = null;
-				if (isGet) {
-					payLoad = queryToJson(req);
-				} else {
-					/*
-					 * try-catch specifically for any possible I/O errors
-					 */
-					try {
-						payLoad = readInput(req);
-					} catch (Exception e) {
-						message = DATA_ERROR;
-						break;
-					}
-				}
-				/*
-				 * we are forced to check payload for the time being for some
-				 * safety
-				 */
-				if (payLoad == null || payLoad.isEmpty() || payLoad.equals("undefined") || payLoad.equals("null")) {
-					payLoad = "{}";
-				}
-				inData.setPayLoad(payLoad);
-				inData.setServiceName(serviceName);
-				if (httpCacheManager != null) {
-					outData = httpCacheManager.respond(inData, session);
-					if (outData != null) {
-						break;
-					}
-				}
-				outData = ServiceAgent.getAgent().executeService(inData);
-				/*
-				 * by our convention, server may send data in outData to be set
-				 * to session
-				 */
-				if (outData.hasErrors() == false) {
-					setSessionData(session, outData);
-					if (httpCacheManager != null) {
-						httpCacheManager.cache(inData, outData, session);
-					}
-				}
-			} catch (ApplicationError e) {
-				Application.reportApplicationError(inData, e);
-				message = INTERNAL_ERROR;
-			} catch (Exception e) {
-				Application.reportApplicationError(inData, new ApplicationError(e, "Error while processing request"));
-				message = INTERNAL_ERROR;
-			}
-		} while (false);
-
-		elapsed = new Date().getTime() - startedAt;
-		resp.setHeader(ServiceProtocol.SERVICE_EXECUTION_TIME, elapsed + "");
-		resp.setContentType("text/json");
-		String response = null;
-		FormattedMessage[] messages = null;
-		if (outData == null) {
-			if (message == null) {
-				message = INTERNAL_ERROR;
-			}
-			/*
-			 * we got error
-			 */
-			Tracer.trace("Error on web tier : " + message.text);
-			messages = new FormattedMessage[1];
-			messages[0] = message;
-			response = getResponseForError(messages);
-		} else if (outData.hasErrors()) {
-			Tracer.trace("Service returned with errors");
-			response = getResponseForError(outData.getMessages());
-		} else {
-			/*
-			 * all OK
-			 */
-			response = outData.getPayLoad();
-			Tracer.trace("Service succeeded and has " + (response == null ? "no " : (response.length()) + " chars ")
-					+ " payload");
-		}
-		writeResponse(resp, response);
-		String trace = Tracer.stopAccumulation();
-		if (outData != null) {
-			String serverTrace = outData.getTrace();
-			if (serverTrace != null) {
-				trace = "---- Web Tier Trace ---\n" + trace + "\n------ App Tier Trace ----\n" + serverTrace;
-			}
-		}
-		if (tracesToBeCached) {
-			cacheTraces(session, trace);
-		}
-		String uid = userId == null ? "unknown" : userId.toString();
-		ServiceLogger.pushTraceToLog(serviceName, uid, (int) elapsed, trace);
-
 	}
 }

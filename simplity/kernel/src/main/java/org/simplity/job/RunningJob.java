@@ -26,6 +26,7 @@ import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MessageBox;
 import org.simplity.kernel.Tracer;
+import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
 
@@ -68,7 +69,7 @@ public class RunningJob implements Runnable {
 		this.jobStatus = JobStatus.RUNNING;
 		Tracer.trace("Job status set to  " + this.jobStatus);
 		try {
-			this.service.respond(this.inData);
+			this.service.respond(this.inData, PayloadType.JSON);
 			Tracer.trace("Service " + this.service.getQualifiedName() + " is done..");
 			this.jobStatus = JobStatus.DONE;
 			Tracer.trace("Reset to  " + this.jobStatus);

@@ -167,7 +167,7 @@ public class JobsManager extends AbstractService implements LogicInterface {
 
 	}
 
-	private void takeAction(Jobs Jobs, String action, ServiceContext ctx) {
+	private void takeAction(Jobs jobs, String action, ServiceContext ctx) {
 		String jobName = ctx.getTextValue(JOB_NAME);
 		if (action.equals(START)) {
 			ctx.addMessage(Messages.ERROR, "A scheduler is running. Can not start another one");
@@ -176,7 +176,7 @@ public class JobsManager extends AbstractService implements LogicInterface {
 
 		if (action.equals(STOP)) {
 			ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
-			Jobs.stopJobs();
+			org.simplity.job.Jobs.stopJobs();
 			ctx.removeValue(JOBS_NAME);
 			return;
 		}
@@ -187,22 +187,22 @@ public class JobsManager extends AbstractService implements LogicInterface {
 		}
 
 		if (action.equals(CANCEL)) {
-			Jobs.cancelJob(jobName);
+			jobs.cancelJob(jobName);
 			ctx.addMessage(Messages.INFO, "Initiated shutdown for job " + jobName);
 			return;
 		}
 		if (action.equals(INCR)) {
-			Jobs.incrmentThread(jobName);
+			jobs.incrmentThread(jobName);
 			ctx.addMessage(Messages.INFO, "Initiated addition of a thread for job " + jobName);
 			return;
 		}
 		if (action.equals(DECR)) {
-			Jobs.decrmentThread(jobName);
+			jobs.decrmentThread(jobName);
 			ctx.addMessage(Messages.INFO, "Initiated stopping of a thread for job " + jobName);
 			return;
 		}
 		if (action.equals(SCHEDULE)) {
-			Jobs.reschedule(jobName);
+			jobs.reschedule(jobName);
 			ctx.addMessage(Messages.INFO, "Initiated stestart of job " + jobName);
 			return;
 		}
@@ -219,7 +219,7 @@ public class JobsManager extends AbstractService implements LogicInterface {
 			Job job = new Job(jobName, serviceName, interval, nbrThreads, times);
 			job.getReady();
 			ctx.addMessage(Messages.INFO, "added job " + jobName + " to scheduler..");
-			Jobs.scheduleJob(job);
+			jobs.scheduleJob(job);
 			return;
 		}
 		ctx.addMessage(Messages.ERROR, action + " is an invalid action " + USAGE);

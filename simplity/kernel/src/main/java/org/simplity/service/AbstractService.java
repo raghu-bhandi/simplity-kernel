@@ -112,7 +112,7 @@ public abstract class AbstractService implements ServiceInterface {
 	 * ServiceData)
 	 */
 	@Override
-	public ServiceData respond(ServiceData inputData) {
+	public ServiceData respond(ServiceData inputData, PayloadType payloadType) {
 		/*
 		 * concrete classes should over-ride this. Instead of making this an
 		 * abstract method, we have given a default implementation that does

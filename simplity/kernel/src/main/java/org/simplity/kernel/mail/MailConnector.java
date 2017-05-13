@@ -32,6 +32,7 @@ import javax.activation.FileDataSource;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -49,19 +50,19 @@ import javax.mail.internet.MimeMultipart;
 public class MailConnector {
 
 	static Properties mailProps;
-	
+
 	public Session initialize() {
 		return Session.getInstance(MailProperties.getProperties(), null);
 	}
-	
+
 	/**
-	 * create MimeMessage and values (fromId, toIds, ccIds, bccIds, subject, content, and attachment) 
+	 * create MimeMessage and values (fromId, toIds, ccIds, bccIds, subject, content, and attachment)
 	 * and send the object to MailConnector
 	 */
 	public void sendEmail(Mail mail) {
-		
+
 		try {
-			Session session = initialize();
+			Session session = this.initialize();
 			MimeMessage msg = new MimeMessage(session );
 			msg.addHeader("Content-type", "text/html; charset=UTF-8");
 			msg.addHeader("Content-Transfer-Encoding", "8bit");
@@ -72,24 +73,24 @@ public class MailConnector {
 			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
 			msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(mail.ccIds, false));
 			msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(mail.bccIds, false));
-			
+
 			Multipart multipart = new MimeMultipart();
-			
+
 			MimeBodyPart bodyPart = new MimeBodyPart();
 			bodyPart.setText(mail.content, "US-ASCII", "html");
 			multipart.addBodyPart(bodyPart);
-			
+
 			if(mail.inlineAttachment != null) {
 				MailAttachment[] inlineMailAttachment = mail.inlineAttachment;
 				for(int i=0; i < inlineMailAttachment.length; i++) {
 					bodyPart = new MimeBodyPart();
-					bodyPart.setDisposition(MimeBodyPart.INLINE);
+					bodyPart.setDisposition(Part.INLINE);
 					bodyPart.attachFile(inlineMailAttachment[i].filepath); // attach inline image file
 					bodyPart.setHeader("Content-ID", inlineMailAttachment[i].name);
 		            multipart.addBodyPart(bodyPart);
 				}
 			}
-			
+
 			if(mail.attachment != null) {
 				DataSource dataSource = null;
 				MailAttachment[] mailAttachment = mail.attachment;
@@ -101,7 +102,7 @@ public class MailConnector {
 		            multipart.addBodyPart(bodyPart);
 				}
 			}
-			
+
             msg.setContent(multipart);
 			Transport.send(msg);
 
@@ -111,5 +112,5 @@ public class MailConnector {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

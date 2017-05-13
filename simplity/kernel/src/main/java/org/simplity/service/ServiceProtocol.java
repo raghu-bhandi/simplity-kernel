@@ -321,5 +321,5 @@ public abstract class ServiceProtocol {
 	/**
 	 * name of the file currently being processed
 	 */
-	public static final String FIlE_BATCH = "_fileBatch";	
+	public static final String FIlE_BATCH = "_fileBatch";
 }

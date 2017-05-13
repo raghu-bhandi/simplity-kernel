@@ -25,7 +25,6 @@ package org.simplity.service;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.simplity.kernel.Application;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
@@ -73,23 +72,33 @@ public class JavaAgent {
 	 * @return response from the service
 	 */
 	public ServiceData serve(String serviceName, String payLoad) {
+		return this.serve(serviceName, payLoad, PayloadType.JSON);
+
+	}
+
+	/**
+	 * execute the service with
+	 *
+	 * @param serviceName
+	 * @param payLoad
+	 *            request parameters for the service
+	 * @param payloadType
+	 * @return response from the service
+	 */
+	public ServiceData serve(String serviceName, String payLoad, PayloadType payloadType) {
 		ServiceData inData = new ServiceData(this.userId, serviceName);
 		this.setSessionData(inData);
-		String pl = payLoad;
-		if (payLoad == null || payLoad.isEmpty()) {
-			pl = "{}";
-		}
-		inData.setPayLoad(pl);
-		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
+		inData.setPayLoad(payLoad);
+		ServiceData outData = ServiceAgent.getAgent().executeService(inData, payloadType);
 		Tracer.trace(outData.getTrace());
 		/*
 		 * typical java agents may not even have the discipline to see output.
 		 * We are better off tracing the error messages as well
 		 */
 		FormattedMessage[] msgs = outData.getMessages();
-		if(msgs != null && msgs.length > 0){
+		if (msgs != null && msgs.length > 0) {
 			Tracer.trace("**** Server returned with following messages ***");
-			for(FormattedMessage msg : msgs){
+			for (FormattedMessage msg : msgs) {
 				Tracer.trace(msg.messageType + " : " + msg.text);
 			}
 		}
@@ -142,11 +151,12 @@ public class JavaAgent {
 	/**
 	 * logout from this session
 	 */
-	public void logout(){
+	public void logout() {
 		ServiceData inData = new ServiceData(this.userId, null);
 		this.setSessionData(inData);
 		ServiceAgent.getAgent().logout(inData);
 	}
+
 	/**
 	 * save session data from output data
 	 *
@@ -164,8 +174,8 @@ public class JavaAgent {
 	 * @param inData
 	 */
 	private void setSessionData(ServiceData inData) {
-		for (Map.Entry<String, Object> entry : this.sessionData.entrySet()) {
-			inData.put(entry.getKey(), entry.getValue());
-		}
+		Map<String, Object> sf = new HashMap<String, Object>();
+		inData.setSessionFields(sf);
+		sf.putAll(this.sessionData);
 	}
 }

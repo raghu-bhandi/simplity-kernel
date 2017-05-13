@@ -103,6 +103,11 @@ public class ServiceData implements Serializable {
 	private MessageBox messageBox;
 
 	/**
+	 * session fields
+	 */
+	private Map<String, Object> sessionFields;
+
+	/**
 	 * default constructor, but you are better off using the one with userId and
 	 * serviceName
 	 */
@@ -374,5 +379,46 @@ public class ServiceData implements Serializable {
 			this.messageBox = new MessageBox();
 		}
 		this.messageBox.setMessage(msg);
+	}
+
+	/**
+	 * @param sf
+	 */
+	public void setSessionFields(Map<String, Object> sf) {
+		this.sessionFields = sf;
+	}
+
+	/**
+	 * @return the sessionFields
+	 */
+	public Map<String, Object> getSessionFields() {
+		return this.sessionFields;
+	}
+
+	/**
+	 * get a session field value
+	 *
+	 * @param fieldName
+	 * @return null if there is no session, or session has no value for this
+	 *         field
+	 */
+	public Object getSessionField(String fieldName) {
+		if (this.sessionFields == null) {
+			return null;
+		}
+		return this.sessionFields.get(fieldName);
+	}
+
+	/**
+	 * set a session value
+	 *
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setSessionField(String fieldName, Object value) {
+		if (this.sessionFields == null) {
+			this.sessionFields = new HashMap<String, Object>();
+		}
+		this.sessionFields.put(fieldName, value);
 	}
 }

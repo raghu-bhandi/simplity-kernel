@@ -3,6 +3,7 @@ package org.simplity.ide;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.AbstractService;
+import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceData;
 
@@ -59,7 +60,7 @@ public class HelloJavaDirect extends AbstractService {
 	 * ServiceData)
 	 */
 	@Override
-	public ServiceData respond(ServiceData inputData) {
+	public ServiceData respond(ServiceData inputData, PayloadType oayloadTYpe) {
 		ServiceData outData = new ServiceData();
 		outData.setPayLoad(PAYLOAD);
 		return outData;
