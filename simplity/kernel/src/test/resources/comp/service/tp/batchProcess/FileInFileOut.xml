@@ -10,12 +10,10 @@
 						outputFolder="${basedir}/target"
 						serviceOnErrorAtRowLevel="batchProcess.batchProcessorError"
 						serviceOnInvalidInput="batchProcess.batchProcessorInvalidInput"
+						schemaName="TESTSCHEMA"
 						>
 			<batchRowProcessor>			
 				<inputFile recordName="files.fixed2" fileName="batchIn.txt" dataFormat="fixedWidth"/>
-				<actionBeforeChildren>
-					<log names="_rowText,_lineNum"/>					
-				</actionBeforeChildren>
 				<childProcessors>
 					<batchRowProcessor inputSql="example.selectStudent">
 						<aggregators>

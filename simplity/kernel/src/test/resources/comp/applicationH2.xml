@@ -6,20 +6,18 @@
 	logSqls="true"
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
-	connectionString="jdbc:h2:~/classicmodels" 
+	connectionString="jdbc:h2:file:${project.build.directory}/${defaultDB};user=sa;" 
 	queueConnectionFactory="vm://localhost?broker.persistent=false">
 	<schemaDetails>
 		<schemaDetail
 			schemaName="TESTSCHEMA"
-			connectionString="jdbc:h2:~/simplitykernel/db/classicmodels;" />
+			connectionString="jdbc:h2:file:${project.build.directory}/${anotherDB};user=sa;" />
 	</schemaDetails>	
 	<ldapProperties
 		factory="org.simplity.test.mock.ldap.MockInitialDirContextFactory"
 		principal="winner"
 		credentials="pwd"
 		authentication="Simple"
-		ldapurl="ldap://192.168.200.57:3268/"/>
-	<mailProperties host="blrkecsmtp01" port="25">
-	</mailProperties>
-
+		ldapurl="ldap://XXX:XXX:XX:XX:3268/"/>
+		
 </application>
