@@ -525,7 +525,7 @@ public class ActionsTest extends Mockito {
 
 	@Test
 	public void fileProcessingTest() {
-		ServiceData outData = JavaAgent.getAgent("100",null).serve("fileactions.fileProcessing", null,PayloadType.JSON);
+		ServiceData outData = JavaAgent.getAgent("100",null).serve("batchProcess.FileInFileOutGroupBy", null,PayloadType.JSON);
 	}
 
 	@Test
