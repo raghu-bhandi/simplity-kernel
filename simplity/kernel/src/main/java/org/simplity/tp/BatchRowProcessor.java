@@ -202,7 +202,7 @@ public class BatchRowProcessor {
 		DriverProcess driver = this.getDriverProcess(dbDriver, ctx, interruptible);
 		try {
 			driver.openShop(batchWorker, batchWorker.inFolderName, batchWorker.outFolderName, null, file, ctx);
-			return driver.callFromParent();			
+			return driver.callFromParent();
 		} finally {
 			driver.closeShop();
 		}
@@ -549,6 +549,9 @@ public class BatchRowProcessor {
 					 * read a row into serviceContext
 					 */
 					if (this.batchInput.inputARow(errors, this.ctx) == false) {
+						if(this.batchWorker != null && this.batchWorker.doEof()){
+							this.eof();
+						}
 						/*
 						 * no more rows
 						 */
@@ -610,6 +613,21 @@ public class BatchRowProcessor {
 						"Error while processing a row from batch driver input. " + e.getMessage());
 			}
 			this.batchWorker.endTrans(exception, this.dbDriver);
+		}
+		/**
+		 * end of file encountered. call action before-child and after-child
+		 */
+		private void eof(){
+			this.ctx.setBooleanValue(BatchProcessor.EOF_FIELD_IN_CTX, true);
+			Action action = BatchRowProcessor.this.actionBeforeChildren;
+			if (action != null) {
+				action.act(this.ctx, this.dbDriver);
+			}
+			action = BatchRowProcessor.this.actionAfterChildren;
+			if (action != null) {
+				action.act(this.ctx, this.dbDriver);
+			}
+			this.ctx.setBooleanValue(BatchProcessor.EOF_FIELD_IN_CTX, false);
 		}
 	}
 

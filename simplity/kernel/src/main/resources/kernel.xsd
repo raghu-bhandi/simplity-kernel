@@ -3101,6 +3101,20 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
+			<xs:attribute
+				name="callChildEventsOnEof"
+				type="booleanType"
+			>
+				<xs:annotation>
+					<xs:documentation>Set this to true if the design requires the
+						beforeChild and aterChild actions to be called after the
+						end-of-file is reached on the primary input driver. Actions will
+						be called with a special variable named _batchProcessEof is set to
+						true in the context. If you are using java, use
+						BatchProcessor.EOF_FIELD_IN_CTX as the constant
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
 

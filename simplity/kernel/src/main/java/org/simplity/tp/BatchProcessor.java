@@ -49,6 +49,11 @@ import org.simplity.service.ServiceData;
 public class BatchProcessor extends Action {
 	private static final String FIELD_PREFIX = "$";
 	private static final String FOLDER_SEP = "/";
+	/**
+	 * name of the field in context that indicates whether end-of-file is reached on the driver file.
+	 * this flag is set on ONLY IF doEndOfFile is set to true
+	 */
+	public static final String EOF_FIELD_IN_CTX = "_batchProcessEof";
 
 	/**
 	 * folder where input files are expected.This folder is used for all file
@@ -104,6 +109,12 @@ public class BatchProcessor extends Action {
 	 * if some custom code need to make use of the actual file name, let us set a field name in context
 	 */
 	String setActualFileNameTo;
+
+	/**
+	 * should the before and after child-event actions be called one last time when end-of-file is reached on the input file?
+	 * This is valid ONLY if the input is a file, and not a sql
+	 */
+	boolean callChildEventsOnEof;
 
 	/**
 	 * sub-service created for the desired service
@@ -434,6 +445,10 @@ public class BatchProcessor extends Action {
 		 * using the resources that are made available
 		 */
 		private void processAllFiles(DbDriver dbDriver) {
+			/*
+			 * this flag is set and reset by eof() method,but better to have it false in ctx
+			 */
+			this.ctx.setBooleanValue(EOF_FIELD_IN_CTX, false);
 			for (File file : this.files) {
 				String actualName = null;
 				if(file != null){
@@ -572,6 +587,14 @@ public class BatchProcessor extends Action {
 					Application.reportApplicationError(null, ex);
 				}
 			}
+		}
+
+		/**
+		 * is callChildEventsOnEof set for this processor?
+		 * @return true if EOF events is to be triggered. False otherwise
+		 */
+		public boolean doEof(){
+			return BatchProcessor.this.callChildEventsOnEof;
 		}
 	}
 /**
