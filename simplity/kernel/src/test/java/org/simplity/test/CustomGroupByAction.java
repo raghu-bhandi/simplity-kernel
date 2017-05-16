@@ -41,7 +41,7 @@ public class CustomGroupByAction implements LogicInterface {
 			if (ctx.getValue(bk_id).equals(ctx.getValue(id)) && ctx.getValue(bk_name).equals(ctx.getValue(name))) {
 				long agg = ctx.getLongValue(aggField);
 				long total = ctx.getLongValue(totalAagField);
-				ctx.setLongValue(totalAagField, Long.sum(agg, total));
+				ctx.setLongValue(totalAagField, agg + total);
 			} else {
 				ctx.setValue(out_id, ctx.getValue(bk_id));
 				ctx.setValue(out_name, ctx.getValue(bk_name));
