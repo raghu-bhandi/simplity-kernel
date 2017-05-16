@@ -6,6 +6,7 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.test.TestUtils;
+import org.simplity.tp.BatchProcessor;
 import org.simplity.tp.LogicInterface;
 
 public class CustomGroupByAction implements LogicInterface {
@@ -30,6 +31,14 @@ public class CustomGroupByAction implements LogicInterface {
 	@Override
 	public Value execute(ServiceContext ctx) {
 		ctx.setBooleanValue("WriteOK", false);
+		if(ctx.getBooleanValue(BatchProcessor.EOF_FIELD_IN_CTX)){
+			ctx.setValue(out_id, ctx.getValue(bk_id));
+			ctx.setValue(out_name, ctx.getValue(bk_name));
+			ctx.setValue(out_address, ctx.getValue(bk_address));
+			ctx.setValue(out_total, ctx.getValue(totalAagField));
+
+			ctx.setBooleanValue("WriteOK", true);
+		}
 		if (!checkIfBkCtxExists(ctx)) {
 			ctx.setValue(bk_id, ctx.getValue(id));
 			ctx.setValue(bk_name, ctx.getValue(name));
