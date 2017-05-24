@@ -21,15 +21,12 @@
  */
 package org.simplity.tp;
 
-import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.expr.Expression;
-import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
- * set message in the message box
+ * get message in the message box
  *
  * @author simplity.org
  *
@@ -40,24 +37,15 @@ public class PickupFromMessageBox extends Action {
 	 */
 	String fieldName;
 
-	Expression expression;
-
 	@Override
 	protected Value doAct(ServiceContext ctx) {
 		Object val = ctx.getMessageFromBox();
 		if(val == null){
 			return Value.VALUE_FALSE;
 		}
-		if (this.fieldName == null) {
-			val = ctx.getTextValue(this.fieldName);
-		}else if(this.expression != null){
-			try {
-				val = this.expression.evaluate(ctx).toString();
-			} catch (InvalidOperationException e) {
-				throw new ApplicationError("Error while evaluating expression " + this.expression.toString());
-			}
+		if (this.fieldName != null) {
+			ctx.setTextValue(this.fieldName,val.toString());
 		}
-		ctx.putMessageInBox(val);
 		return Value.VALUE_TRUE;
 	}
 	/* (non-Javadoc)
