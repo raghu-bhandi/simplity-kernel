@@ -19,5 +19,6 @@
 		credentials="pwd"
 		authentication="Simple"
 		ldapurl="ldap://XXX:XXX:XX:XX:3268/"/>
-		
+	<mailProperties host="mockserver.com" port="25" />
+	
 </application>

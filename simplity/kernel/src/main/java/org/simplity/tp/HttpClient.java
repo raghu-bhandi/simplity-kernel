@@ -144,6 +144,25 @@ public class HttpClient extends Action {
 	 */
 	private boolean isXml;
 
+	public HttpClient() {
+		
+	}
+	
+	public HttpClient(String urlString, String httpMethod, String contentType, 
+			OutputData requestData, String requestFieldName, 
+			InputData responseData, String responseFieldName, 
+			boolean isJson, boolean isXml) {
+		this.urlString = urlString;
+		this.httpMethod = httpMethod;
+		this.contentType = contentType;
+		this.requestData = requestData;
+		this.requestFieldName = requestFieldName;
+		this.responseData = responseData;
+		this.responseFieldName = responseFieldName;
+		this.isJson = isJson;
+		this.isXml = isXml;
+	}
+	
 	@Override
 	protected Value doAct(ServiceContext ctx) {
 		String txt;

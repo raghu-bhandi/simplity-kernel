@@ -68,6 +68,7 @@ import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.ldap.LdapProperties;
 import org.simplity.kernel.mail.MailConnector;
+import org.simplity.kernel.mail.MailProperties;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.DataExtractor;
@@ -168,17 +169,6 @@ public class ActionsTest extends Mockito {
 
 		DirContext mockContext = LdapProperties.getInitialDirContext();
 
-		MailConnector mailConnector = mock(MailConnector.class);
-
-		when(mailConnector.initialize()).then(new Answer<Session>() {
-
-			@Override
-			public Session answer(InvocationOnMock invocation) throws Throwable {
-				return ActionsTest.getMailSession();
-			}
-
-		});
-
 		when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>() {
 			@Override
 			public Attributes answer(InvocationOnMock invocation) throws NamingException {
@@ -211,13 +201,6 @@ public class ActionsTest extends Mockito {
 		});
 	}
 
-
-	public static Session getMailSession() {
-		Properties props = System.getProperties();
-		props.setProperty("mail.store.protocol", "imaps");
-		props.setProperty("mail.imap.partialfetch", "0");
-		return Session.getDefaultInstance(props, null);
-	}
 	/**
 	 * Test for setValue action with fieldnames @throws Exception
 	 */
@@ -454,27 +437,34 @@ public class ActionsTest extends Mockito {
 	/*
 	 * Test method for org.simplity.tp.SendMail
 	 */
-//	@Test
-//	public void sendMailTest() {
-//		ServiceData outData = JavaAgent.getAgent("100",null).serve("test.sendMail", null,PayloadType.JSON);
-//
-//		try {
-//			Session session = getMailSession();
-//			Store store = session.getStore("imap");
-//			store.connect("mockserver.com", "bar", "samplepassword");
-//			Folder folder = store.getDefaultFolder();
-//			folder = folder.getFolder("inbox");
-//			folder.open(Folder.READ_ONLY);
-//			for (Message message : folder.getMessages()) {
-//				assertEquals((String) message.getSubject(), "Simplity - sample subject");
-//			}
-//		} catch (MessagingException e) {
-//			e.printStackTrace();
-//		}
-//
-//		JSONObject obj = new JSONObject(outData.getPayLoad());
-//		assertEquals((String) obj.get("_requestStatus"), "ok");
-//	}
+	@Test
+	public void sendMailTest() {
+		ServiceData outData = JavaAgent.getAgent("100",null).serve("test.sendMail", null,PayloadType.JSON);
+
+		try {
+			
+			Properties props = System.getProperties();			
+			props.putAll(MailProperties.getProperties());
+			
+			props.setProperty("mail.store.protocol", "imaps");
+			props.setProperty("mail.imap.partialfetch", "0");
+
+
+			Session session = Session.getInstance(props, null);
+			
+			Store store = session.getStore("imap");
+			store.connect(props.getProperty("mail.smtp.host"), "bar", "samplepassword");
+			Folder folder = store.getDefaultFolder();
+			folder = folder.getFolder("inbox");
+			folder.open(Folder.READ_ONLY);
+			assertEquals(1, folder.getMessages().length);
+			for (Message message : folder.getMessages()) {
+				assertEquals((String) message.getSubject(), "Simplity - sample subject");
+			}
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Test
 	public void ldapLookupExistsTest() {
@@ -728,8 +718,7 @@ public class ActionsTest extends Mockito {
 			if (queueBrowser.getEnumeration().hasMoreElements()) {
 				ServiceData consumerData = JavaAgent.getAgent("100",null).serve("jms.jmsConsumer", null,PayloadType.JSON);
 				JSONObject consumerObject = new JSONObject(consumerData.getPayLoad());
-
-				JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");
+				JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");				
 				for (int i = 0; i < commentSheet.length(); i++) {
 					JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
 					assertEquals(commentSheetRow.get("personId"), "personid123");

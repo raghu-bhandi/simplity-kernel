@@ -90,7 +90,7 @@ public class JavaAgent {
 		this.setSessionData(inData);
 		inData.setPayLoad(payLoad);
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData, payloadType);
-		Tracer.trace(outData.getTrace());
+		
 		/*
 		 * typical java agents may not even have the discipline to see output.
 		 * We are better off tracing the error messages as well
