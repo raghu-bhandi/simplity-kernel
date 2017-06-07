@@ -26,18 +26,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Writer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.file.FileManager;
-import org.simplity.kernel.util.CircularLifo;
 import org.simplity.service.ServiceProtocol;
 
 /**
@@ -60,7 +57,6 @@ public class Stream extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		Tracer.startAccumulation();
 		try {
 			/*
 			 * this put request could be to discard a file that was uploaded
@@ -93,13 +89,9 @@ public class Stream extends HttpServlet {
 			}
 		} catch (Exception e) {
 			Tracer.trace(e, "Error while trying to upload a file.");
-			String msg = Tracer.stopAccumulation();
-			this.log(msg);
 			throw new ApplicationError(e,
 					"Error while trying to upload a file.");
 		}
-		String msg = Tracer.stopAccumulation();
-		this.log(msg);
 	}
 
 	/**
@@ -118,10 +110,6 @@ public class Stream extends HttpServlet {
 		if (token == null) {
 			Tracer.trace("No file/token specified for file download request");
 			resp.setStatus(404);
-			return;
-		}
-		if (token.equals(ServiceProtocol.FILE_NAME_FOR_LOGS)) {
-			this.sendLogs(req, resp);
 			return;
 		}
 		boolean toDownload = false;
@@ -190,44 +178,6 @@ public class Stream extends HttpServlet {
 				} catch (Exception ignore) {
 					//
 				}
-			}
-		}
-	}
-
-	/**
-	 * retrieve buffered logs from session a
-	 *
-	 * @param req
-	 * @param resp
-	 * @throws IOException
-	 */
-	private void sendLogs(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-		resp.setDateHeader("Expires", 0);
-		HttpSession session = req.getSession(false);
-		if (session == null) {
-			return;
-		}
-		Object obj = session.getAttribute(HttpAgent.CACHED_TRACES);
-		if (obj == null) {
-			return;
-		}
-		@SuppressWarnings("unchecked")
-		String[] traces = ((CircularLifo<String>) obj).getAll(new String[0]);
-		if (traces.length == 0) {
-			return;
-		}
-		Writer writer = resp.getWriter();
-		try {
-			for (String trace : traces) {
-				writer.write(trace);
-			}
-		} finally {
-			try {
-				writer.close();
-			} catch (Exception ignore) {
-				//
 			}
 		}
 	}

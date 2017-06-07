@@ -94,8 +94,6 @@ public class Serve extends HttpServlet {
 			HttpAgent.serve(req, resp);
 		} catch (Exception e) {
 			String msg = "We have an internal error. ";
-			String trace = Tracer.stopAccumulation();
-			Tracer.trace(trace);
 			Tracer.trace(e, msg);
 			this.reportError(resp, msg + e.getMessage());
 		}

@@ -420,7 +420,6 @@ public class Application {
 	 */
 	public String configure() {
 		List<String> msgs = new ArrayList<String>();
-		Tracer.startAccumulation();
 		if (this.classManager != null) {
 			try {
 				classManagerInternal = (ContextInterface) (Class.forName(this.classManager)).newInstance();
@@ -656,13 +655,6 @@ public class Application {
 			Jobs.startJobs(this.jobsToRunOnStartup);
 			Tracer.trace("Scheduler started for Batch " + this.jobsToRunOnStartup);
 		}
-		/*
-		 * we will output all the messages to console as well, just in case the
-		 * logging set-up is not ok, or it is sending to some place the poor
-		 * programmer is unable to figure out
-		 */
-		System.out.println(Tracer.stopAccumulation());
-
 		return result;
 	}
 
@@ -852,7 +844,6 @@ public class Application {
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
 		System.out.println("response :" + outData.getPayLoad());
 		System.out.println("message :" + JsonUtil.toJson(outData.getMessages()));
-		System.out.println("trace :" + outData.getTrace());
 
 	}
 

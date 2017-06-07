@@ -127,8 +127,6 @@ public class HttpAgent {
 	 */
 	public static final String SESSION_NAME_FOR_MAP = "_userSessionMap";
 
-	static final String CACHED_TRACES = "CACHED_TRACES";
-
 	/**
 	 * set at set-up time in case we are in development mode, and we use a
 	 * default dummyLogin id
@@ -172,7 +170,6 @@ public class HttpAgent {
 		long startedAt = new Date().getTime();
 		long elapsed = 0;
 		ServiceData outData = null;
-		Tracer.startAccumulation();
 		Tracer.trace("Request received for service " + serviceName);
 		FormattedMessage message = null;
 		/*

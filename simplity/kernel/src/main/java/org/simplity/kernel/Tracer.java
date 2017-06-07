@@ -27,89 +27,14 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 
 /**
- * provides a way to trace the path and states of a service. This is not meant
- * for "i am here with i = 20" kind of logging. We are strictly against logging
- * for the sake of debugging. We do not deal with such complex algorithm that is
- * so complex to debug, and in case something is close to that, we recommend
- * using debug option in an IDE. Also, a programmer may end-up with some log
- * statements during initial development, but once the core functionality is
- * tested, we expect the code to be clean. serviceLogger is meant to provide
- * some insight about how the service got executed, and its performance.
- *
- * <p>
- * Our approach is different from Log4J and the likes. we are "service oriented"
- * and not "object oriented" when it comes to logging. We accumulate logs/traces
- * as service progresses. Accumulated logs are flushed using MyLogger. Note that
- * MyLogger pipes this to an available logging infrastructure
+ * common logging class used by all core simplity classes to provide a log that
+ * is naturally sequenced in chronological order
  *
  * @author simplity.org
  *
  */
 public class Tracer {
 	private static final char NEW_LINE = '\n';
-	private static final String EMPTY = "";
-	/*
-	 * In most cases, one service executes in one thread. we use thread-static
-	 * instance of the logger to capture information in a sequence that
-	 */
-	private static ThreadLocal<StringBuilder> tracedText = new ThreadLocal<StringBuilder>();
-
-
-	/**
-	 * start accumulation of trace. Once started, traces are accumulated, but
-	 * not written to the underlying logger. If you do not stop, the reports
-	 * will be lost into thin air.
-	 *
-	 * @return existing accumulated text, if it was on, empty string otherwise
-	 */
-	public static String startAccumulation() {
-//		StringBuilder sbf = Tracer.tracedText.get();
-//		Tracer.tracedText.set(new StringBuilder());
-//		return sbf == null ? Tracer.EMPTY : sbf.toString();
-		return Tracer.EMPTY;
-	}
-
-	/**
-	 * start accumulation of trace. Once started, traces are accumulated, but
-	 * not written to the underlying logger. If you do not stop, the reports
-	 * will be lost into thin air.
-	 *
-	 * @param trace
-	 *            new trace text
-	 *
-	 * @return existing accumulated text, if it was on, empty string otherwise
-	 */
-	public static String startAccumulation(String trace) {
-//		StringBuilder sbf = Tracer.tracedText.get();
-		Tracer.tracedText.set(new StringBuilder(trace));
-//		return sbf == null ? Tracer.EMPTY : sbf.toString();
-		return Tracer.EMPTY;
-	}
-
-	/**
-	 * send accumulated trace text to logger
-	 *
-	 */
-	public static void flush() {
-
-		StringBuilder sbf = Tracer.tracedText.get();
-		if (sbf != null) {
-			ServiceLogger.log(sbf.toString());
-			Tracer.tracedText.set(new StringBuilder());
-		}
-	}
-
-	/**
-	 * stop accumulation, and return what is accumulated so far
-	 *
-	 * @return accumulated report, empty string if nothing is accumulated
-	 */
-	public static String stopAccumulation() {
-		//StringBuilder sbf = Tracer.tracedText.get();
-		//Tracer.tracedText.remove();
-		//return sbf == null ? Tracer.EMPTY : sbf.toString();
-		return Tracer.EMPTY;
-	}
 
 	/**
 	 * reports just a trace information. This should be used to trace
@@ -120,13 +45,7 @@ public class Tracer {
 	 *            text to be logged
 	 */
 	public static void trace(String text) {
-
-		StringBuilder sbf = Tracer.tracedText.get();
-		if (sbf == null) {
 			ServiceLogger.log(Tracer.NEW_LINE + text);
-		} else {
-			sbf.append(Tracer.NEW_LINE).append(text);
-		}
 	}
 
 	/**
@@ -149,15 +68,5 @@ public class Tracer {
 		trace(msg);
 		trace(writer.getBuffer().toString());
 
-	}
-
-	/**
-	 * is accumulation of trace text initiated for this thread?
-	 *
-	 * @return true if there was a call to startTrace() in this thread. False
-	 *         otherwise
-	 */
-	public static boolean acucumulationIsOn() {
-		return tracedText.get() != null;
 	}
 }

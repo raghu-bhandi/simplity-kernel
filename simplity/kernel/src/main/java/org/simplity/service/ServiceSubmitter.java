@@ -61,7 +61,6 @@ public class ServiceSubmitter implements Runnable {
 
 	@Override
 	public void run() {
-		Tracer.startAccumulation();
 		Date startTime = new Date();
 		ServiceData outData = null;
 		String serviceName = this.service.getQualifiedName();
@@ -73,12 +72,10 @@ public class ServiceSubmitter implements Runnable {
 			Tracer.trace(e, "Service " + serviceName + " resulted in fatal error");
 			outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()));
 		}
-		String trace = Tracer.stopAccumulation();
 		/*
 		 * no way to communicate back
 		 */
 		Tracer.trace("Background service completed with following trace");
-		Tracer.trace(trace);
 		if (this.outStream == null) {
 			return;
 		}
@@ -86,7 +83,6 @@ public class ServiceSubmitter implements Runnable {
 		Date endTime = new Date();
 		long diffTime = endTime.getTime() - startTime.getTime();
 		outData.setExecutionTime((int) diffTime);
-		outData.setTrace(trace);
 		Object obj = this.inData.get(ServiceProtocol.HEADER_FILE_TOKEN);
 		String token = obj == null ? null : obj.toString();
 		if (token == null) {

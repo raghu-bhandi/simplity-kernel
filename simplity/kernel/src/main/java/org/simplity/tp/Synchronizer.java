@@ -98,9 +98,6 @@ public class Synchronizer extends Action {
 			}
 		}
 		Tracer.trace("All child-actions returned");
-		for (AsynchWorker worker : workers) {
-			Tracer.trace(worker.getTrace());
-		}
 		if (this.finalAction != null) {
 			return this.finalAction.act(ctx, driver);
 		}
@@ -131,16 +128,11 @@ public class Synchronizer extends Action {
 		private final ServiceContext ctx;
 		private final Action action;
 		private final DbDriver driver;
-		private String trace;
 
 		AsynchWorker(ServiceContext ctx, Action action, DbDriver driver) {
 			this.ctx = ctx;
 			this.action = action;
 			this.driver = driver;
-		}
-
-		String getTrace() {
-			return this.trace;
 		}
 
 		/*
@@ -150,9 +142,7 @@ public class Synchronizer extends Action {
 		 */
 		@Override
 		public void run() {
-			Tracer.startAccumulation();
 			this.action.act(this.ctx, this.driver);
-			this.trace = Tracer.stopAccumulation();
 		}
 	}
 }

@@ -71,10 +71,6 @@ public class ServiceData implements Serializable {
 	 */
 	private String payLoad;
 	/**
-	 * trace text from service to client, if flag is on
-	 */
-	private String trace;
-	/**
 	 * presence indicates error from server
 	 */
 	private List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
@@ -144,21 +140,6 @@ public class ServiceData implements Serializable {
 	 */
 	public String getCacheForInput() {
 		return this.cacheForInput;
-	}
-
-	/**
-	 * @return the trace
-	 */
-	public String getTrace() {
-		return this.trace;
-	}
-
-	/**
-	 * @param trace
-	 *            the trace to set
-	 */
-	public void setTrace(String trace) {
-		this.trace = trace;
 	}
 
 	/**
