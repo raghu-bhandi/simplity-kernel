@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.transaction.UserTransaction;
@@ -236,7 +237,9 @@ public class Service implements ServiceInterface {
 		/*
 		 * process input specification
 		 */
-		this.extractInput(ctx, inData.getPayLoad(), payloadType);
+		if(payloadType != PayloadType.NONE){
+			this.extractInput(ctx, inData.getPayLoad(), payloadType);
+		}
 
 		/*
 		 * if input is in error, we return to caller without processing this
@@ -368,8 +371,8 @@ public class Service implements ServiceInterface {
 				response.setCacheForInput(this.canBeCachedByFields);
 			}
 		}
-		return response;
 
+		return response;
 	}
 
 	/**
@@ -395,14 +398,34 @@ public class Service implements ServiceInterface {
 		}
 	}
 
+	/**
+	 * copy desired output to response
+	 * @param ctx
+	 * @param response
+	 * @param payloadType
+	 */
 	protected void prepareResponse(ServiceContext ctx, ServiceData response, PayloadType payloadType) {
-		if (this.outputData == null) {
-			Tracer.trace("Service " + this.name + " is designed to send no response.");
-			response.setPayLoad(OutputData.EMPTY_RESPONSE);
-		} else {
-			this.outputData.setResponse(ctx, response, payloadType);
+		if(payloadType == PayloadType.JSON){
+			if (this.outputData == null) {
+				Tracer.trace("Service " + this.name + " is designed to send no response.");
+				response.setPayLoad(OutputData.EMPTY_RESPONSE);
+			} else {
+				this.outputData.setResponse(ctx, response, payloadType);
+			}
+			return;
 		}
-
+		/*
+		 * copy every thing from ctx to service date
+		 */
+		for(Map.Entry<String, Value> entry : ctx.getAllFields()){
+			response.put(entry.getKey(), entry.getValue());
+		}
+		for(Map.Entry<String, DataSheet> entry : ctx.getAllSheets()){
+			Object obj = response.put(entry.getKey(), entry.getValue());
+			if(obj != null){
+				Tracer.trace("Warning: " + entry.getKey() + " is used as a field nae as well as data sheet name in service context. field value is ignored and only data sheet is copied to output servie data.");
+			}
+		}
 	}
 
 	private boolean canWorkWithDriver(DbDriver driver) {

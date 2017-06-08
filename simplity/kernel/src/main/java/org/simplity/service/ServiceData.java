@@ -216,11 +216,14 @@ public class ServiceData implements Serializable {
 	 *
 	 * @param key
 	 * @param value
+	 * @return existing value that got kicked-out because of this put operation.
+	 *         null if no such damage.
 	 */
-	public void put(String key, Object value) {
-		if (key != null && value != null) {
-			this.fields.put(key, value);
+	public Object put(String key, Object value) {
+		if (key == null || value == null) {
+			return null;
 		}
+		return this.fields.put(key, value);
 	}
 
 	/**
