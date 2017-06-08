@@ -112,6 +112,11 @@
 			<version>5.7.0</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+		    <groupId>com.netflix.hystrix</groupId>
+		    <artifactId>hystrix-core</artifactId>
+		    <version>1.0.2</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<testResources>

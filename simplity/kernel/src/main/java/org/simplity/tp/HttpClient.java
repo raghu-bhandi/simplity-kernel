@@ -164,7 +164,7 @@ public class HttpClient extends Action {
 	}
 	
 	@Override
-	protected Value doAct(ServiceContext ctx) {
+	public Value doAct(ServiceContext ctx) {
 		String txt;
 		if (this.urlParts == null) {
 			txt = this.urlString;

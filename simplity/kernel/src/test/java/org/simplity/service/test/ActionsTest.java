@@ -730,4 +730,20 @@ public class ActionsTest extends Mockito {
 			e.printStackTrace();
 		}
 	}
+	
+	@Test
+	public void hystricsTest() {
+		String payLoad = "{'inputData':'Passed'}";
+		ServiceData outData = JavaAgent.getAgent("100",null).serve("test.hystrixTest", payLoad,PayloadType.JSON);
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals((String) obj.get("response"), "Test Passed");
+	}
+	
+	@Test
+	public void hystricsFallbackTest() {
+		String payLoad = "{'inputData':'Fallback'}";
+		ServiceData outData = JavaAgent.getAgent("100",null).serve("test.hystrixTest", payLoad,PayloadType.JSON);
+		JSONObject obj = new JSONObject(outData.getPayLoad());
+		assertEquals((String) obj.get("response"), "Fallback activated");
+	}
 }
