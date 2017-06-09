@@ -79,6 +79,8 @@ import org.simplity.service.ServiceData;
 import org.simplity.test.mock.ldap.MockInitialContextFactory;
 import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
 
+import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
+
 public class ActionsTest extends Mockito {
 	private static final String COMP_PATH = "comp/";
 
@@ -732,18 +734,72 @@ public class ActionsTest extends Mockito {
 	}
 	
 	@Test
-	public void hystricsTest() {
-		String payLoad = "{'inputData':'Passed'}";
-		ServiceData outData = JavaAgent.getAgent("100",null).serve("test.hystrixTest", payLoad,PayloadType.JSON);
-		JSONObject obj = new JSONObject(outData.getPayLoad());
-		assertEquals((String) obj.get("response"), "Test Passed");
+	public void hystricsTestSynchronous() {
+		HystrixRequestContext context = HystrixRequestContext.initializeContext();
+        try {
+        	String payLoad = "{'inputData':'Passed'}";
+        	ServiceData outData = JavaAgent.getAgent("100",null).serve("test.hystrixTestSynchronous", payLoad,PayloadType.JSON);
+        	JSONObject obj = new JSONObject(outData.getPayLoad());
+        	assertEquals((String) obj.get("response"), "Test Passed");
+        } finally {
+        	context.shutdown();
+        }
+	}
+	
+	@Test
+	public void hystricsTestAsynchronous() {
+		HystrixRequestContext context = HystrixRequestContext.initializeContext();
+        try {
+			String payLoad = "{'inputData':'Passed'}";
+			ServiceData outData = JavaAgent.getAgent("100",null).serve("test.hystrixTestAsynchronous", payLoad,PayloadType.JSON);
+			JSONObject obj = new JSONObject(outData.getPayLoad());
+			assertEquals((String) obj.get("response"), "Test Passed");
+        } finally {
+        	context.shutdown();
+        }
 	}
 	
 	@Test
 	public void hystricsFallbackTest() {
-		String payLoad = "{'inputData':'Fallback'}";
-		ServiceData outData = JavaAgent.getAgent("100",null).serve("test.hystrixTest", payLoad,PayloadType.JSON);
-		JSONObject obj = new JSONObject(outData.getPayLoad());
-		assertEquals((String) obj.get("response"), "Fallback activated");
+		HystrixRequestContext context = HystrixRequestContext.initializeContext();
+        try {
+			String payLoad = "{'inputData':'Fallback'}";
+			ServiceData outData = JavaAgent.getAgent("100",null).serve("test.hystrixTestSynchronous", payLoad,PayloadType.JSON);
+			JSONObject obj = new JSONObject(outData.getPayLoad());
+			assertEquals((String) obj.get("response"), "Fallback activated");
+	    } finally {
+	    	context.shutdown();
+	    }
+	}
+	
+	@Test
+	public void hystricsCacheTestSynchronous() {
+		HystrixRequestContext context = HystrixRequestContext.initializeContext();
+        try {
+        	String payLoad = "{'inputData':'Passed'}";
+    		ServiceData outData = JavaAgent.getAgent("100",null).serve("test.hystrixTestSynchronous", payLoad,PayloadType.JSON);
+    		JSONObject obj = new JSONObject(outData.getPayLoad());
+    		assertEquals((String) obj.get("response"), "Test Passed");
+    		assertEquals((String) obj.get("isResponseFromCache"), "false");
+    		
+    		outData = JavaAgent.getAgent("100",null).serve("test.hystrixTestSynchronous", payLoad,PayloadType.JSON);
+    		obj = new JSONObject(outData.getPayLoad());
+    		assertEquals((String) obj.get("response"), "Test Passed");
+    		assertEquals((String) obj.get("isResponseFromCache"), "true");
+        } finally {
+        	context.shutdown();
+        }
+		
+        context = HystrixRequestContext.initializeContext();
+        try {
+        	String payLoad = "{'inputData':'Passed'}";
+    		ServiceData outData = JavaAgent.getAgent("100",null).serve("test.hystrixTestSynchronous", payLoad,PayloadType.JSON);
+    		JSONObject obj = new JSONObject(outData.getPayLoad());
+    		assertEquals((String) obj.get("response"), "Test Passed");
+    		assertEquals((String) obj.get("isResponseFromCache"), "false");
+        } finally {
+        	context.shutdown();
+        }
+        
 	}
 }

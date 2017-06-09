@@ -24,6 +24,11 @@ public class HystrixCommandHelloWorld extends HystrixCommand<String> {
     }
     
     @Override
+    protected String getCacheKey() {
+        return this.name;
+    }
+    
+    @Override
     protected String getFallback() {
         return "Fallback activated";
     }

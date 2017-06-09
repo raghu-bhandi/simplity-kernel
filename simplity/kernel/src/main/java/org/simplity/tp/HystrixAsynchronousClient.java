@@ -21,6 +21,8 @@
  */
 package org.simplity.tp;
 
+import java.util.concurrent.Future;
+
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -30,7 +32,7 @@ import org.simplity.service.ServiceContext;
  * @author infosys.com
  *
  */
-public class HystrixClient extends Action {
+public class HystrixAsynchronousClient extends Action {
 	
 	OutputData requestData;
 	/**
@@ -51,15 +53,25 @@ public class HystrixClient extends Action {
 	 */
 	String responseFieldName;
 	
-	public HystrixClient() {
+	public HystrixAsynchronousClient() {
 		
 	}
 	
 	@Override
 	public Value doAct(ServiceContext ctx) {
-		String inputData = ctx.getTextValue("inputData");
-		String responseText = new HystrixCommandHelloWorld(inputData).execute();
-		ctx.setTextValue(this.responseFieldName, responseText);
+		try {
+			String inputData = ctx.getTextValue("inputData");
+			HystrixCommandHelloWorld hystrixCommandHelloWorld = new HystrixCommandHelloWorld(inputData);
+			Future<String> responseFuture = hystrixCommandHelloWorld.queue();
+			String responseText = responseFuture.get();
+			boolean isResponseFromCache = hystrixCommandHelloWorld.isResponseFromCache();
+			
+			ctx.setTextValue("response", responseText);
+			ctx.setTextValue("isResponseFromCache", String.valueOf(isResponseFromCache));
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 		return Value.VALUE_TRUE;
 	}
 
