@@ -22,18 +22,19 @@
 package org.simplity.openapi;
 
 import java.io.IOException;
-import java.io.Writer;
+import java.net.URLDecoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Tracer;
-import org.simplity.kernel.value.Value;
+import org.simplity.kernel.util.HttpUtil;
 import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
@@ -45,7 +46,8 @@ import org.simplity.service.ServiceData;
  * @author simplity.org
  *
  */
-public class OpenApiAgent {
+public class Controller {
+	private static final String UTF = "UTF-8";
 
 	/**
 	 * message to be sent to client if there is any internal error
@@ -68,13 +70,48 @@ public class OpenApiAgent {
 	 */
 
 	public void serve(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		resp.setContentType("text/json");
+		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+		resp.setDateHeader("Expires", 0);
+
+		/*
+		 * parse body and query string into json object
+		 */
+		JSONObject params = this.getPayload(req);
+		/*
+		 * assuming http://www.simplity.org:8020/app1/subapp/a/b/c?a=b&c=d
+		 *
+		 * we need to get a/b/c as RESTful path
+		 */
+		String path = URLDecoder.decode(req.getRequestURI(), UTF);
+		/*
+		 * path now is set to /app1/subapp/a/b/c
+		 */
+		int idx = URLDecoder.decode(req.getContextPath(), UTF).length();
+		/*
+		 * contextPath is set to /app1/subapp
+		 */
+		if(idx+1 <= path.length()){
+			/*
+			 * this should never happen though..
+			 */
+			path = "";
+		}else{
+			path = path.substring(idx+1);
+		}
+		ServiceSpec spec = ServiceSpecs.getServiceSpec(path, req.getMethod().toLowerCase(), params);
+		if (spec == null) {
+			this.invalidPath(resp);
+			return;
+		}
 
 		/*
 		 * get the service name
 		 */
-		ServiceData inData = this.createInData(req, resp);
-		if (inData == null) {
-			return;
+		ServiceData inData = spec.getInData(req, params);
+
+		if(inData.hasErrors()){
+			spec.writeResponse(resp, inData);
 		}
 
 		Tracer.trace("Request received for service " + inData.getServiceName());
@@ -90,63 +127,47 @@ public class OpenApiAgent {
 			message = INTERNAL_ERROR;
 		}
 
-		resp.setContentType("text/json");
-		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-		resp.setDateHeader("Expires", 0);
 		if (outData == null) {
+			outData = inData;
 			if (message == null) {
 				message = INTERNAL_ERROR;
 			}
-			/*
-			 * we got error
-			 */
-			Tracer.trace("Error on web tier : " + message.text);
-			FormattedMessage[] messages = new FormattedMessage[1];
-			messages[0] = message;
-			this.writeErrors(resp, messages);
-		} else {
-			this.writeResponse(resp, outData);
+			outData.addMessage(message);
 		}
-	}
+		spec.writeResponse(resp, outData);
 
-	/**
-	 * @param resp
-	 * @param outData
-	 * @throws IOException
-	 */
-	private void writeResponse(HttpServletResponse resp, ServiceData outData) throws IOException {
-		//TODO: use swagger to create response json
-		//TODO: refer to org.simplity.tp.OutputData for creating json from service data
-		Writer writer = resp.getWriter();
-		writer.write("{}");
-		writer.close();
-	}
-
-	/**
-	 * @param resp
-	 * @param messages
-	 * @throws IOException
-	 */
-	private void writeErrors(HttpServletResponse resp, FormattedMessage[] messages) throws IOException {
-		//TODO: write a response indicating error status and error messages
-		Writer writer = resp.getWriter();
-		writer.write("{}");
-		writer.close();
 	}
 
 	/**
 	 * @param req
-	 * @param resp
 	 * @return
+	 * @throws IOException
 	 */
-	private ServiceData createInData(HttpServletRequest req, HttpServletResponse resp) {
-		//TODO: use swagger to validate service request
-		//TODO: use mapping data/config to map url to serviceName
-		//TODO: how do you get userId for the logged-in user?
-		Value userId = null;
-		String serviceName = null;
-		ServiceData inData = new ServiceData(userId, serviceName);
-		return inData;
+	private JSONObject getPayload(HttpServletRequest req) throws IOException {
+		String text = HttpUtil.readInput(req);
+		JSONObject params;
+		if (text == null || text.isEmpty()) {
+			params = new JSONObject();
+		} else {
+			params = new JSONObject(text);
+		}
+		HttpUtil.parseQueryString(req, params);
+		return params;
 	}
 
+	/**
+	 * @param resp
+	 */
+	private void invalidPayload(HttpServletResponse resp) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * @param resp
+	 */
+	private void invalidPath(HttpServletResponse resp) {
+		// TODO Auto-generated method stub
+
+	}
 }

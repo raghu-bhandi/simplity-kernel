@@ -96,8 +96,10 @@ public class FileManager {
 		return resources.toArray(empty);
 	}
 
+	@SuppressWarnings("unused")
 	private static void addAllResourcesWithCtx(String parentFolder,
 			List<String> resources) {
+		@SuppressWarnings("unchecked")
 		Set<String> paths = myContext
 				.getResourcePaths(FOLDER_CHAR + parentFolder);
 		if (paths == null) {
@@ -112,8 +114,12 @@ public class FileManager {
 		}
 	}
 
-	private static void addAllResourcesWithFs(String parentFolder,
+	private static void addAllResourcesWithFs(String folderName,
 			List<String> resources) {
+		String parentFolder = folderName;
+		if(parentFolder.endsWith("/") == false){
+			parentFolder += '/';
+		}
 		File file = new File(parentFolder);
 		if (file.exists() == false) {
 			Tracer.trace(
@@ -194,6 +200,7 @@ public class FileManager {
 		if (file.exists()) {
 			return new FileInputStream(file);
 		}
+		Tracer.trace("file " + fileName + " does not exist.");
 		return null;
 	}
 

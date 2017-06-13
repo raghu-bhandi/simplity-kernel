@@ -76,11 +76,11 @@ public enum ComponentType {
 		@Override
 		protected Component generateComp(String compName) {
 			/*
-			 * is this service delivered by a java class?
+			 * is this service an alias?
 			 */
-			String className = (String) serviceClasses.get(compName);
-			if (className != null) {
-				return Service.getLogicService(compName, className);
+			Object entry = serviceAliases.get(compName);
+			if (entry != null) {
+				return this.getComponentOrNull(entry.toString());
 			}
 			/*
 			 * try on-the-fly service generation
@@ -175,7 +175,7 @@ public enum ComponentType {
 	 * service has a way to generate rather than load.. One way is to have a
 	 * class associated with that
 	 */
-	protected static final Map<String, Object> serviceClasses = new HashMap<String, Object>();
+	protected static final Map<String, Object> serviceAliases = new HashMap<String, Object>();
 	/*
 	 * attributes of component type
 	 */
@@ -481,9 +481,9 @@ public enum ComponentType {
 	 * are not pre-loaded
 	 */
 	private static void preLoad() {
-		serviceClasses.clear();
-		loadGroups(CLASS_FOLDER, null, serviceClasses);
-		Tracer.trace(serviceClasses.size() + " java class names loaded as services.");
+		serviceAliases.clear();
+		loadGroups(CLASS_FOLDER, null, serviceAliases);
+		Tracer.trace(serviceAliases.size() + " java class names loaded as services.");
 		/*
 		 * clean and pre-load if required
 		 */

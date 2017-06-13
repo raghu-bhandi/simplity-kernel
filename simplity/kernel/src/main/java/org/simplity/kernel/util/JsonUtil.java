@@ -58,6 +58,7 @@ import org.simplity.service.ServiceProtocol;
  *
  */
 public class JsonUtil {
+
 	/**
 	 * create a data sheet out of a well-formed json array of simple jsonObject.
 	 *
@@ -558,14 +559,14 @@ public class JsonUtil {
 			JsonUtil.sheetToJson(writer, sheet, null, false);
 		}
 		List<FormattedMessage> msgs = ctx.getMessages();
-		if(msgs.size() > 0){
+		if (msgs.size() > 0) {
 			writer.key(ServiceProtocol.MESSAGES);
 			JsonUtil.addObject(writer, msgs);
 		}
 		writer.key(ServiceProtocol.REQUEST_STATUS);
-		if(ctx.isInError()){
-		writer.value(ServiceProtocol.STATUS_ERROR);
-		}else{
+		if (ctx.isInError()) {
+			writer.value(ServiceProtocol.STATUS_ERROR);
+		} else {
 			writer.value(ServiceProtocol.STATUS_OK);
 		}
 		writer.endObject();
@@ -906,10 +907,6 @@ public class JsonUtil {
 				JSONObject resultObj = null;
 				JSONArray resultArr = null;
 				if (result instanceof JSONObject) {
-					if (idx != -1) {
-						throw new ApplicationError(fieldSelector
-								+ " is not an appropriate selector. We encountered a non-object for attribute " + part);
-					}
 					resultObj = (JSONObject) result;
 					child = resultObj.opt(part);
 				} else if (result instanceof JSONArray) {
@@ -1057,4 +1054,5 @@ public class JsonUtil {
 	public static Object getArrayValue(String itemSelector, JSONObject json) {
 		return getValueWorker(itemSelector, json, 2);
 	}
+
 }

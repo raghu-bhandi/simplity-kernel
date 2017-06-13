@@ -274,8 +274,7 @@ public class TestCase {
 		for (int i = 0; i < nbrMsgs; i++) {
 			obj = msgs.opt(i);
 			if (obj instanceof JSONObject) {
-				if (((JSONObject) obj).optString("messageType")
-						.equals("error")) {
+				if ("error".equals(((JSONObject) obj).optString("messageType"))) {
 					return false;
 				}
 			}
