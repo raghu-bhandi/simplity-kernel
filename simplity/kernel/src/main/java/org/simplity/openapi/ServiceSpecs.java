@@ -66,7 +66,7 @@ public class ServiceSpecs {
 	/**
 	 * simplity specific attribute for serviceNme
 	 */
-	public static final String SERVICE_NAME_ATTR = "serviceName";
+	public static final String SERVICE_NAME_ATTR = "x-serviceName";
 
 	/**
 	 * paths that are allowed inside this path. this is a collection indexed by
