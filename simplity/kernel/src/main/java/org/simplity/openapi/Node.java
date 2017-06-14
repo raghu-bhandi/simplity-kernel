@@ -45,7 +45,7 @@ public class Node {
 	 * non-null when fieldName is non-null. This is the sole child from this
 	 * node irrespective of the field value
 	 */
-	private Node dummyChild = null;
+	private Node fieldChild = null;
 	/**
 	 * child paths from here. one entry for each possible value of the path part
 	 * from here. null if this is a field
@@ -72,6 +72,7 @@ public class Node {
 	Node(Node parent, String pathPrefix) {
 		this.parent = parent;
 		this.pathPrefix = pathPrefix;
+		Tracer.trace("Node created with prefix=" + pathPrefix);
 	}
 
 	/**
@@ -87,12 +88,11 @@ public class Node {
 	 * @return child-node associated with this field
 	 */
 	public Node setFieldName(String fieldName) {
-		if (this.children != null) {
-			throw new ApplicationError(ServiceSpecs.INVALID_API);
-		}
 		if (this.fieldName == null) {
 			this.fieldName = fieldName;
-			this.dummyChild = new Node(this, this.pathPrefix);
+			this.fieldChild = new Node(this, this.pathPrefix);
+
+			Tracer.trace("field-child added at " + this.pathPrefix + " with field name=" + fieldName);
 		} else if (this.fieldName.equals(fieldName) == false) {
 			/*
 			 * two paths can not have different field names at the same
@@ -100,7 +100,7 @@ public class Node {
 			 */
 			throw new ApplicationError(ServiceSpecs.INVALID_API);
 		}
-		return this.dummyChild;
+		return this.fieldChild;
 	}
 
 	/**
@@ -117,13 +117,6 @@ public class Node {
 	 * @return child node for this path-part
 	 */
 	public Node setChild(String pathPart) {
-		if (this.fieldName != null) {
-			/*
-			 * you can not have fieldName in one path and constant in
-			 * another path at the same location
-			 */
-			throw new ApplicationError(ServiceSpecs.INVALID_API);
-		}
 		Node child = null;
 		if (this.children == null) {
 			this.children = new HashMap<String, Node>();
@@ -137,6 +130,7 @@ public class Node {
 			}
 			child = new Node(this, prefix);
 			this.children.put(pathPart, child);
+			Tracer.trace("New Child added at " + this.pathPrefix + " for sub path " + pathPart);
 		}
 		return child;
 	}
@@ -150,12 +144,21 @@ public class Node {
 	 *         part.
 	 */
 	public Node getChild(String pathPart) {
-		if (this.dummyChild != null) {
-			return this.dummyChild;
+		Node child = null;
+		if(this.children != null){
+			child = this.children.get(pathPart);
 		}
-		return this.children.get(pathPart);
+		return child;
 	}
 
+	/**
+	 *
+	 * @return child associated with the field
+	 *
+	 */
+	public Node getFieldChild() {
+		return this.fieldChild;
+	}
 	/**
 	 * set service specs associated with methods
 	 *
@@ -181,6 +184,7 @@ public class Node {
 				}
 			}
 			this.serviceSpecs.put(method, new ServiceSpec(obj, serviceName));
+			Tracer.trace("Service spec added at prefix=" + this.pathPrefix + " for method=" + method + " and service name=" + serviceName + (this.parent != null ? (" and parent at " + this.parent.pathPrefix) : ""));
 		}
 	}
 
@@ -202,6 +206,13 @@ public class Node {
 	 */
 	public Node getParent() {
 		return this.parent;
+	}
+
+	/**
+	 * @return path-prefix of this node
+	 */
+	public String getPathPrefix() {
+		return this.pathPrefix;
 	}
 
 }

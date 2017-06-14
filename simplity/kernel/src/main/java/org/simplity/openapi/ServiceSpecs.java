@@ -101,9 +101,10 @@ public class ServiceSpecs {
 	/**
 	 * private constructor
 	 */
-	private ServiceSpecs(){
-		//enforce static
+	private ServiceSpecs() {
+		// enforce static
 	}
+
 	/**
 	 *
 	 * @param path
@@ -112,38 +113,17 @@ public class ServiceSpecs {
 	 * @return spec or null if there is no spec for this url
 	 */
 	public static ServiceSpec getServiceSpec(String path, String method, JSONObject params) {
-		if(path == null || path.isEmpty()){
+		if (path == null || path.isEmpty()) {
 			return null;
 		}
-		Node node = rootNode;
-		/*
-		 * go down the path as much as we can.
-		 */
-			String[] parts = trimPath(path).split(PATH_SEP_STR);
-			for (String part : parts) {
-				Node child = node.getChild(part);
-				if (child == null) {
-					/*
-					 * we reached a leaf. we ignore any remaining part
-					 */
-					break;
-				}
-				/*
-				 * should we use this part as field value?
-				 */
-				String fieldName = child.getFieldName();
-				if (fieldName != null) {
-					params.put(fieldName, part);
-				}
-				node = child;
-			}
-
+		Node node = findNodeForPath(path, params);
 		/*
 		 * get the spec at this node. In case we do not have one at this node,
 		 * then we keep going up
 		 *
 		 */
 		while (node != null) {
+			Tracer.trace("Looking for spec at " + node.getPathPrefix());
 			if (node.isValidPath()) {
 				ServiceSpec spec = node.getServiceSpec(method);
 				if (spec == null) {
@@ -162,6 +142,46 @@ public class ServiceSpecs {
 		return null;
 	}
 
+	private static Node findNodeForPath(String path, JSONObject params){
+		Node node = rootNode;
+		if(path == null){
+			return node;
+		}
+		String p = path.trim();
+		if(p.isEmpty()){
+			return node;
+		}
+		/*
+		 * go down the path as much as we can.
+		 */
+		String[] parts = p.split(PATH_SEP_STR);
+		for (String part : parts) {
+			if(part.isEmpty()){
+				continue;
+			}
+			Tracer.trace("looking at node=" + node.getPathPrefix() + " for part=" + part);
+			Node child = node.getChild(part);
+			if (child == null) {
+				/*
+				 * this is not path. Is it field?
+				 */
+				child = node.getFieldChild();
+				if (child == null) {
+					/*
+					 * we reached a leaf. we ignore any remaining part
+					 */
+					break;
+				}
+				/*
+				 * copy this part as field value
+				 */
+				params.put(node.getFieldName(), part);
+			}
+			node = child;
+		}
+		Tracer.trace("leaf node is " + node.getPathPrefix());
+		return node;
+	}
 	/**
 	 * load all api's from a resource folder
 	 *
@@ -171,15 +191,15 @@ public class ServiceSpecs {
 		File folder = new File(apiFolder);
 		if (folder.exists() == false || folder.isDirectory() == false) {
 			Tracer.trace("Api spec folder " + apiFolder + " is not a folder.");
-			return ;
+			return;
 		}
 		String[] files = FileManager.getResources(apiFolder);
 		if (files.length == 0) {
 			Tracer.trace("Api spec folder " + apiFolder + " has no files.");
-			return ;
+			return;
 		}
 		for (String fileName : files) {
-			if(fileName.endsWith(".json") == false){
+			if (fileName.endsWith(".json") == false) {
 				Tracer.trace("Skipping non-joson file " + fileName);
 				continue;
 			}
@@ -192,14 +212,14 @@ public class ServiceSpecs {
 	 *
 	 * @param fileName
 	 */
-	public static void loadFromFile(String fileName){
-			Tracer.trace("Going to load file " + fileName);
-			try {
-				String json = FileManager.readResource(fileName);
-				loadFromJsonText(json);
-			} catch (Exception e) {
-				Tracer.trace(e, "Error while loading open-api spec " + fileName);
-			}
+	public static void loadFromFile(String fileName) {
+		Tracer.trace("Going to load file " + fileName);
+		try {
+			String json = FileManager.readResource(fileName);
+			loadFromJsonText(json);
+		} catch (Exception e) {
+			Tracer.trace(e, "Error while loading open-api spec " + fileName);
+		}
 	}
 
 	/**
@@ -212,15 +232,16 @@ public class ServiceSpecs {
 	/**
 	 * unload/reset all apis
 	 */
-	public static void unloadAll(){
+	public static void unloadAll() {
 		rootNode = new Node(null, null);
 	}
+
 	/**
 	 * @param json
 	 */
 	public static void loadFromJson(JSONObject json) {
 		JSONObject paths = json.optJSONObject(PATHS_ATTR);
-		if(paths == null || paths.length() == 0){
+		if (paths == null || paths.length() == 0) {
 			Tracer.trace(" No paths in the API");
 			return;
 		}
@@ -238,7 +259,7 @@ public class ServiceSpecs {
 			 * replace refs in rest of the api
 			 */
 			replaceRefs(json, defs);
-		}else{
+		} else {
 			Tracer.trace("No definitions in this api");
 		}
 
@@ -264,7 +285,7 @@ public class ServiceSpecs {
 
 				String[] parts = trimPath(fullPath).split(PATH_SEP_STR);
 				for (String part : parts) {
-					if(part.isEmpty()){
+					if (part.isEmpty()) {
 						Tracer.trace("Empty part found in path.Igonred");
 						continue;
 					}
@@ -287,19 +308,20 @@ public class ServiceSpecs {
 		}
 	}
 
-	private static String trimPath(String path){
+	private static String trimPath(String path) {
 		String result = path;
 
-		if(result.charAt(0) == PATH_SEP_CHAR){
+		if (result.charAt(0) == PATH_SEP_CHAR) {
 			result = result.substring(1);
 		}
 
 		int idx = result.length() - 1;
-		if(idx >= 0 && result.charAt(idx) == PATH_SEP_CHAR){
+		if (idx >= 0 && result.charAt(idx) == PATH_SEP_CHAR) {
 			result = result.substring(0, idx);
 		}
 		return result;
 	}
+
 	/**
 	 * find internal references and replace them with actual objects
 	 *
@@ -331,7 +353,7 @@ public class ServiceSpecs {
 						Tracer.trace("defintion for " + ref + " not found. reference replaced with an empty object");
 						jsonObj = new JSONObject();
 					}
-					Tracer.trace("Replacing " + ref );
+					Tracer.trace("Replacing " + ref);
 					json.put(key, jsonObj);
 				}
 			} else if (obj instanceof JSONArray) {
@@ -372,7 +394,7 @@ public class ServiceSpecs {
 						Tracer.trace("defintion for " + ref + " not found. reference replaced with an empty object");
 						jsonObj = new JSONObject();
 					}
-					Tracer.trace("Replacing " + ref + " at position " + i );
+					Tracer.trace("Replacing " + ref + " at position " + i);
 					array.put(i, jsonObj);
 				}
 			} else if (obj instanceof JSONArray) {
@@ -399,18 +421,20 @@ public class ServiceSpecs {
 			Tracer.trace("$ref is to be set to a value starting with " + REF_START);
 			return null;
 		}
-		Tracer.trace("Found a ref entry for " +ref);
+		Tracer.trace("Found a ref entry for " + ref);
 		return ref.substring(REF_START.length());
 	}
 
-
 	public static void main(String[] args) {
-		String rootFolder = "c:/assets/OpenAPI-Specification-master/examples/v2.0/json/";
-		String fileName = rootFolder + "petstore.json";
-		loadFromFile(fileName);
+		String rootFolder = "C:/repos/simplity/test/WebContent/WEB-INF/api/";
+		loadAll(rootFolder);
 		JSONObject params = new JSONObject();
-		ServiceSpec spec = getServiceSpec("/v1/pets", "get", params);
-		JSONObject obj = spec.getResponseSchema();
-		System.out.println(spec.getServiceName(params));
+		ServiceSpec spec = getServiceSpec("/app/troubleTicket/1234", "get", params);
+		if (spec == null) {
+			Tracer.trace("That is not a valid request");
+		} else {
+			System.out.println("ServiceName is " + spec.getServiceName(params));
+			System.out.println("params is " + params.toString(2));
+		}
 	}
 }

@@ -113,10 +113,16 @@ public class OutputData {
 	 */
 	public void setResponse(ServiceContext ctx, ServiceData outData, PayloadType payloadType) {
 		if (this.outputFromWriter) {
+			/*
+			 * payload is ready in the writer
+			 */
 			Tracer.trace("Picking up response from writer");
 			ResponseWriter writer = ctx.getWriter();
-			writer.key("junk").value(100);
+			/*
+			 * add status
+			 */
 			writer.key(ServiceProtocol.REQUEST_STATUS).value(ServiceProtocol.STATUS_OK);
+
 			writer.end();
 			outData.setPayLoad(writer.getResponse());
 			return;
@@ -132,7 +138,6 @@ public class OutputData {
 			if (obj == null) {
 				Tracer.trace("We expected a ready response in service context with name " + this.responseTextFieldName
 						+ " . We are sorry that we could not locate it, and we are sending an empty response.");
-				outData.setPayLoad(EMPTY_RESPONSE);
 			} else {
 				outData.setPayLoad(obj.toString());
 			}
@@ -164,15 +169,14 @@ public class OutputData {
 				outData.setSessionField(f, val);
 			}
 		}
-		if (payloadType == null || payloadType == PayloadType.NONE) {
+		if (payloadType == PayloadType.NONE) {
 			this.prepareOutData(outData, ctx);
 		} else {
-			this.setJsonPayload(ctx, outData);
+			outData.setPayLoad(this.getJsonPayload(ctx));
 		}
-
 	}
 
-	private void setJsonPayload(ServiceContext ctx, ServiceData outData) {
+	private String getJsonPayload(ServiceContext ctx) {
 		JSONWriter writer = new JSONWriter();
 		writer.object();
 		if (this.justOutputEveryThing) {
@@ -196,7 +200,7 @@ public class OutputData {
 		writer.endArray();
 
 		writer.endObject();
-		outData.setPayLoad(writer.toString());
+		return writer.toString();
 	}
 
 	private void prepareOutData(ServiceData outData, ServiceContext ctx) {
@@ -324,44 +328,6 @@ public class OutputData {
 			writer.init();
 			ctx.setWriter(writer);
 		}
-	}
-
-	/**
-	 * output all fields, and sheets, except session fields
-	 *
-	 * @param ctx
-	 * @param response
-	 * @param inData
-	 */
-	protected void setPayload(ServiceContext ctx, ServiceData response, ServiceData inData) {
-		if (this.outputFromWriter) {
-			Tracer.trace("Picking up response from writer");
-			ResponseWriter writer = ctx.getWriter();
-			writer.key(ServiceProtocol.REQUEST_STATUS).value(ServiceProtocol.STATUS_OK);
-			writer.end();
-			response.setPayLoad(writer.getResponse());
-			return;
-		}
-
-		JSONWriter writer = new JSONWriter();
-		writer.object();
-
-		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
-			String fieldName = entry.getKey();
-			/*
-			 * write this, but only if it didn't come as session field
-			 */
-			if (inData.get(fieldName) == null) {
-				writer.key(fieldName);
-				writer.value(entry.getValue().toObject());
-			}
-		}
-		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
-			writer.key(entry.getKey());
-			JsonUtil.sheetToJson(writer, entry.getValue(), null, false);
-		}
-		writer.endObject();
-		response.setPayLoad(writer.toString());
 	}
 
 	/**

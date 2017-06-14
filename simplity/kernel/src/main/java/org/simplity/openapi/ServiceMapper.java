@@ -40,6 +40,7 @@ public class ServiceMapper {
 	 * @return service name that the server understands
 	 */
 	public static String translate(String serviceName, JSONObject params){
-		return serviceName;
+		params.put("_serviceName", serviceName);
+		return "junk";
 	}
 }

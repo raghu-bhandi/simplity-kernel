@@ -76,9 +76,19 @@ public class HttpUtil {
 	 */
 	public static void parseQueryString(HttpServletRequest req, JSONObject params) {
 		String text = req.getQueryString();
+		if(text == null){
+			return;
+		}
+		text = text.trim();
+		if(text.isEmpty()){
+			return;
+		}
 		String[] parts = text.split("&");
 		try {
 			for (String part : parts) {
+				if(part.isEmpty()){
+					continue;
+				}
 				String[] pair = part.split("=");
 				String field = URLDecoder.decode(pair[0], "UTF-8");
 				String value;
@@ -94,5 +104,4 @@ public class HttpUtil {
 			// we know that this is supported
 		}
 	}
-
 }

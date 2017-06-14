@@ -46,7 +46,7 @@ import org.simplity.service.ServiceData;
  * @author simplity.org
  *
  */
-public class Controller {
+public class Agent {
 	private static final String UTF = "UTF-8";
 
 	/**
@@ -69,7 +69,7 @@ public class Controller {
 	 *
 	 */
 
-	public void serve(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	public static void serve(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		resp.setContentType("text/json");
 		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 		resp.setDateHeader("Expires", 0);
@@ -77,31 +77,35 @@ public class Controller {
 		/*
 		 * parse body and query string into json object
 		 */
-		JSONObject params = this.getPayload(req);
+		JSONObject params = getPayload(req);
 		/*
 		 * assuming http://www.simplity.org:8020/app1/subapp/a/b/c?a=b&c=d
 		 *
 		 * we need to get a/b/c as RESTful path
 		 */
 		String path = URLDecoder.decode(req.getRequestURI(), UTF);
+		System.out.println("getRequestURI=" + path + " and contextPath is " + req.getContextPath());
 		/*
 		 * path now is set to /app1/subapp/a/b/c
 		 */
-		int idx = URLDecoder.decode(req.getContextPath(), UTF).length();
+
+		int idx = req.getContextPath().length();
 		/*
 		 * contextPath is set to /app1/subapp
 		 */
-		if(idx+1 <= path.length()){
+		if(idx >= path.length()){
 			/*
 			 * this should never happen though..
 			 */
+			System.out.println("oooooops. URI is shorter than contextpath ???");
 			path = "";
 		}else{
-			path = path.substring(idx+1);
+			path = path.substring(idx);
 		}
+		System.out.println("GOing to look for service spec for path=" + path);
 		ServiceSpec spec = ServiceSpecs.getServiceSpec(path, req.getMethod().toLowerCase(), params);
 		if (spec == null) {
-			this.invalidPath(resp);
+			respondWithError(resp, "We do not serve that request path");
 			return;
 		}
 
@@ -118,7 +122,7 @@ public class Controller {
 		FormattedMessage message = null;
 		ServiceData outData = null;
 		try {
-			outData = ServiceAgent.getAgent().executeService(inData, PayloadType.NONE);
+			outData = ServiceAgent.getAgent().executeService(inData, PayloadType.JSON);
 		} catch (ApplicationError e) {
 			Application.reportApplicationError(inData, e);
 			message = INTERNAL_ERROR;
@@ -143,7 +147,7 @@ public class Controller {
 	 * @return
 	 * @throws IOException
 	 */
-	private JSONObject getPayload(HttpServletRequest req) throws IOException {
+	private static JSONObject getPayload(HttpServletRequest req) throws IOException {
 		String text = HttpUtil.readInput(req);
 		JSONObject params;
 		if (text == null || text.isEmpty()) {
@@ -157,17 +161,11 @@ public class Controller {
 
 	/**
 	 * @param resp
+	 * @param message
+	 * @throws IOException
 	 */
-	private void invalidPayload(HttpServletResponse resp) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * @param resp
-	 */
-	private void invalidPath(HttpServletResponse resp) {
-		// TODO Auto-generated method stub
-
+	public static void respondWithError(HttpServletResponse resp, String message) throws IOException {
+		resp.setStatus(500);
+		resp.getWriter().write(message);
 	}
 }

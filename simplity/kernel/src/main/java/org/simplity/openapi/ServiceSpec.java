@@ -22,12 +22,18 @@
 
 package org.simplity.openapi;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.json.JSONObject;
+import org.simplity.json.JSONWriter;
+import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.util.JsonUtil;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceData;
+import org.simplity.service.ServiceProtocol;
 
 /**
  * service specification based on Open API for a given operation.
@@ -57,13 +63,53 @@ public class ServiceSpec {
 	}
 
 	public void extractInput(JSONObject payload, ServiceData data) {
-		//
+		data.setPayLoad(payload.toString());
 	}
 
-	public void writeResponse(HttpServletResponse resp,  ServiceData data) {
-
+	/**
+	 * writes response based on service output and service spec
+	 * @param resp
+	 * @param data
+	 * @throws IOException
+	 */
+	public void writeResponse(HttpServletResponse resp,  ServiceData data) throws IOException {
+		/*
+		 * TODO: implement spec based extraction from out data. We are now assuming payload is all ready
+		 */
+		String text;
+		if(data.hasErrors()){
+			text = this.getResponseForError(data.getMessages());
+		}else{
+			 Object obj = data.getPayLoad();
+			 if(obj == null || obj instanceof JSONObject == false){
+				 text = "{}";
+			 }else{
+				 text = ((JSONObject)obj).toString();
+			 }
+		}
+		resp.getWriter().write(text);
 	}
 
+	/**
+	 * get the JSON to be sent back to client in case of errors
+	 *
+	 * @param messages Messages
+	 * @return JSON string for the supplied errors
+	 */
+	private String getResponseForError(FormattedMessage[] messages) {
+		JSONWriter writer = new JSONWriter();
+		writer.object();
+		writer.key(ServiceProtocol.REQUEST_STATUS);
+		writer.value(ServiceProtocol.STATUS_ERROR);
+		writer.key(ServiceProtocol.MESSAGES);
+		JsonUtil.addObject(writer, messages);
+		writer.endObject();
+		return writer.toString();
+	}
+	/**
+	 *
+	 * @return schema of response for success
+	 */
 	public JSONObject getResponseSchema() {
 		return (JSONObject) JsonUtil.getValue("responses.200.schema", this.operationSpec);
 	}
@@ -71,11 +117,13 @@ public class ServiceSpec {
 	/**
 	 * @param req
 	 * @param params
-	 * @return
+	 * @return in data into which data from client is extracted as per service spec
 	 */
 	public ServiceData getInData(HttpServletRequest req, JSONObject params) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO really parse data based on spec
+		ServiceData data = new ServiceData(Value.newTextValue("100"), this.getServiceName(params) );
+		data.setPayLoad(params.toString());
+		return data;
 	}
 
 }

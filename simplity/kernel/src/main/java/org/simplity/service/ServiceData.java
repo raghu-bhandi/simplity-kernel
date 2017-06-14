@@ -181,9 +181,12 @@ public class ServiceData implements Serializable {
 	}
 
 	/**
-	 * @return the payLoad
+	 * @return the payLoad as text
 	 */
 	public String getPayLoad() {
+		if(this.payLoad == null || this.payLoad.isEmpty()){
+			return "{}";
+		}
 		return this.payLoad;
 	}
 
@@ -308,7 +311,7 @@ public class ServiceData implements Serializable {
 		if (this.hasErrors() == false) {
 			String resp = this.getPayLoad();
 			if (resp != null) {
-				return resp;
+				return resp.toString();
 			}
 			return "{}";
 		}

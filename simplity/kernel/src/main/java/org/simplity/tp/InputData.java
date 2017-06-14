@@ -85,19 +85,35 @@ public class InputData {
 	 *            into which data is to be extracted to
 	 */
 	public void extractFromJson(String inputText, ServiceContext ctx) {
-		String jsonText = inputText.trim();
-		if (jsonText.isEmpty()) {
-			jsonText = "{}";
+		JSONObject json = null;
+		if(inputText == null){
+			json = new JSONObject();
+		}else{
+			String jsonText = inputText.trim();
+			if (jsonText.isEmpty()) {
+				json = new JSONObject();
+			}else{
+				json = new JSONObject(jsonText);
+			}
 		}
+		this.extractFromJson(json, ctx);
+	}
+	/**
+	 * extract and validate data from input service data into service context
+	 *
+	 * @param json
+	 *            non-null pay-load received from client
+	 * @param ctx
+	 *            into which data is to be extracted to
+	 */
+	public void extractFromJson(JSONObject json, ServiceContext ctx) {
 		if (this.setInputToFieldName != null) {
-			ctx.setTextValue(this.setInputToFieldName, jsonText);
+			ctx.setTextValue(this.setInputToFieldName, json.toString());
 			Tracer.trace(
 					"Request text is not parsed but set as object value of "
 							+ this.setInputToFieldName);
 			return;
 		}
-
-		JSONObject json = new JSONObject(jsonText);
 		if (this.justInputEveryThing) {
 			JsonUtil.extractAll(json, ctx);
 			return;

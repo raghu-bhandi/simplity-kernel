@@ -33,6 +33,7 @@ import javax.transaction.UserTransaction;
 
 import org.simplity.jms.JmsConnector;
 import org.simplity.jms.JmsUsage;
+import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
@@ -231,13 +232,13 @@ public class Service implements ServiceInterface {
 			}
 		}
 		MessageBox box = inData.getMessageBox();
-		if(box != null){
+		if (box != null) {
 			ctx.setMessageBox(box);
 		}
 		/*
 		 * process input specification
 		 */
-		if(payloadType != PayloadType.NONE){
+		if (payloadType != PayloadType.NONE) {
 			this.extractInput(ctx, inData.getPayLoad(), payloadType);
 		}
 
@@ -381,8 +382,8 @@ public class Service implements ServiceInterface {
 	 * @param requestText
 	 * @param paylodType
 	 */
-	protected void extractInput(ServiceContext ctx, String requestText, PayloadType paylodType) {
-		if (requestText == null || requestText.length() == 0) {
+	protected void extractInput(ServiceContext ctx, Object payload, PayloadType payloadType) {
+		if (payload == null) {
 			Tracer.trace("No input received from client");
 			return;
 		}
@@ -390,9 +391,13 @@ public class Service implements ServiceInterface {
 			Tracer.trace("We received input data, but this service is designed not to make use of input.");
 			return;
 		}
-
 		try {
-			this.inputData.extractFromJson(requestText, ctx);
+			if (payloadType == PayloadType.JSON) {
+				this.inputData.extractFromJson(payload.toString(), ctx);
+			} else {
+				this.inputData.extractFromJson((JSONObject) payload, ctx);
+			}
+
 		} catch (Exception e) {
 			ctx.addMessage(Messages.INVALID_DATA, "Invalid input data format. " + e.getMessage());
 		}
@@ -400,30 +405,40 @@ public class Service implements ServiceInterface {
 
 	/**
 	 * copy desired output to response
+	 *
 	 * @param ctx
 	 * @param response
 	 * @param payloadType
 	 */
 	protected void prepareResponse(ServiceContext ctx, ServiceData response, PayloadType payloadType) {
-		if(payloadType == PayloadType.JSON){
-			if (this.outputData == null) {
-				Tracer.trace("Service " + this.name + " is designed to send no response.");
-				response.setPayLoad(OutputData.EMPTY_RESPONSE);
-			} else {
-				this.outputData.setResponse(ctx, response, payloadType);
-			}
+
+		if (payloadType == null || payloadType == PayloadType.NONE) {
+			/*
+			 * we are not to worry about payload. Let us copy everything to
+			 * output
+			 */
+			this.copyEverything(ctx, response);
 			return;
 		}
+		if (this.outputData == null) {
+			Tracer.trace("Service " + this.name + " is designed to send no response.");
+			return;
+		}
+		this.outputData.setResponse(ctx, response, payloadType);
+	}
+
+	private void copyEverything(ServiceContext ctx, ServiceData response) {
 		/*
-		 * copy every thing from ctx to service date
+		 * copy every thing from ctx to service data
 		 */
-		for(Map.Entry<String, Value> entry : ctx.getAllFields()){
+		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
 			response.put(entry.getKey(), entry.getValue());
 		}
-		for(Map.Entry<String, DataSheet> entry : ctx.getAllSheets()){
+		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
 			Object obj = response.put(entry.getKey(), entry.getValue());
-			if(obj != null){
-				Tracer.trace("Warning: " + entry.getKey() + " is used as a field nae as well as data sheet name in service context. field value is ignored and only data sheet is copied to output servie data.");
+			if (obj != null) {
+				Tracer.trace("Warning: " + entry.getKey()
+						+ " is used as a field nae as well as data sheet name in service context. field value is ignored and only data sheet is copied to output servie data.");
 			}
 		}
 	}
@@ -484,7 +499,7 @@ public class Service implements ServiceInterface {
 		/*
 		 * is this a custom service?
 		 */
-		if(this.serviceInstance != null){
+		if (this.serviceInstance != null) {
 			return this.serviceInstance.executeAsAction(ctx, driver, transactionIsDelegated);
 		}
 		/*

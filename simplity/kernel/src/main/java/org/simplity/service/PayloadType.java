@@ -33,7 +33,7 @@ public enum PayloadType {
 	 */
 	NONE,
 	/**
-	 * json
+	 * json text
 	 */
 	JSON;
 }
