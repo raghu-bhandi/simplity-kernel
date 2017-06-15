@@ -2180,15 +2180,15 @@
 	<xs:complexType name="jmsConsumer">
 		<xs:all>
 			<xs:element
-				name="requestQueue"
-				type="jmsQueue"
+				name="requestJmsObject"
+				type="jmsObject"
 				minOccurs="1"
 				maxOccurs="1" />
 			<xs:element
-				name="responseQueue"
+				name="responseJmsObject"
 				minOccurs="0"
 				maxOccurs="1"
-				type="jmsQueue" />
+				type="jmsObject" />
 			<xs:element
 				name="actions"
 				minOccurs="1"
@@ -2228,15 +2228,15 @@
 	<xs:complexType name="jmsProducer">
 		<xs:all>
 			<xs:element
-				name="requestQueue"
-				type="jmsQueue"
+				name="requestJmsObject"
+				type="jmsObject"
 				minOccurs="1"
 				maxOccurs="1" />
 			<xs:element
-				name="responseQueue"
+				name="responseJmsObject"
 				minOccurs="0"
 				maxOccurs="1"
-				type="jmsQueue" />
+				type="jmsObject" />
 		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
@@ -3201,15 +3201,15 @@
 					</xs:annotation>
 				</xs:element>
 				<xs:element
-					name="inputQueue"
+					name="inputJmsObject"
 					minOccurs="0"
 					maxOccurs="1"
-					type="jmsQueue" />
+					type="jmsObject" />
 				<xs:element
-					name="outputQueue"
+					name="outputJmsObject"
 					minOccurs="0"
 					maxOccurs="1"
-					type="jmsQueue" />
+					type="jmsObject" />
 			</xs:sequence>
 			<xs:attribute
 				name="inputSql"
@@ -3941,7 +3941,30 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
+				name="topicConnectionFactory"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>JNDI name for jms connection factory for a
+						non-JTA/JCA/XA aware connection. For example
+						java:/ConnectionFactory for JBOSS.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
 				name="xaQueueConnectionFactory"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>JNDI name for jms connection factory for a
+						JTA/JCA/XA aware connection. For example java:/JmsXA for JBOSS.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="xaTopicConnectionFactory"
 				type="xs:string"
 				use="optional"
 			>
@@ -4529,13 +4552,23 @@
 				type="synchronizer" />
 		</xs:choice>
 	</xs:group>
-	<xs:complexType name="jmsQueue">
+	<xs:complexType name="jmsObject">
 		<xs:attribute
 			name="queueName"
 			type="xs:string">
 			<xs:annotation>
 				<xs:documentation>JNDI name to locate the queue. Required for
 					request queue. Temp queue is used for response if name is not
+					specified.
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="topicName"
+			type="xs:string">
+			<xs:annotation>
+				<xs:documentation>JNDI name to locate the topic. Required for
+					request topic. Temp topic is used for response if name is not
 					specified.
 				</xs:documentation>
 			</xs:annotation>

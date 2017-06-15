@@ -22,7 +22,7 @@
 
 package org.simplity.tp;
 
-import org.simplity.jms.JmsQueue;
+import org.simplity.jms.JmsObject;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
@@ -34,13 +34,13 @@ import org.simplity.service.ServiceContext;
  */
 public class JmsConsumer extends Block {
 	/**
-	 * queue from which to consume requests to be processed as requests
+	 * jms queue/topic from which to consume requests to be processed as requests
 	 */
-	JmsQueue requestQueue;
+	JmsObject requestJmsObject;
 	/**
-	 * optional queue on which responses to be sent on
+	 * optional jms queue/topic on which responses to be sent on
 	 */
-	JmsQueue responseQueue;
+	JmsObject responseJmsObject;
 
 	/**
 	 * should we consume just one or all of them on the queue?
@@ -60,7 +60,7 @@ public class JmsConsumer extends Block {
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
 		BlockWorker worker = new BlockWorker(this.actions, this.indexedActions, ctx, driver);
-		this.requestQueue.consume(ctx, worker, this.responseQueue, this.consumeAll, this.waitForMessage);
+		this.requestJmsObject.consume(ctx, worker, this.responseJmsObject, this.consumeAll, this.waitForMessage);
 		return Value.VALUE_TRUE;
 	}
 
@@ -72,9 +72,9 @@ public class JmsConsumer extends Block {
 	@Override
 	public void getReady(int idx, Service service) {
 		super.getReady(idx, service);
-		this.requestQueue.getReady();
-		if (this.responseQueue != null) {
-			this.responseQueue.getReady();
+		this.requestJmsObject.getReady();
+		if (this.responseJmsObject != null) {
+			this.responseJmsObject.getReady();
 		}
 	}
 
@@ -87,14 +87,14 @@ public class JmsConsumer extends Block {
 	@Override
 	public int validate(ValidationContext vtx, Service service) {
 		int count = super.validate(vtx, service);
-		if (this.requestQueue == null) {
-			vtx.addError("requestQueue is required");
+		if (this.requestJmsObject == null) {
+			vtx.addError("requestJmsObject is required");
 			count++;
 		} else {
-			count += this.requestQueue.validate(vtx, true);
+			count += this.requestJmsObject.validate(vtx, true);
 		}
-		if (this.responseQueue != null) {
-			count += this.responseQueue.validate(vtx, false);
+		if (this.responseJmsObject != null) {
+			count += this.responseJmsObject.validate(vtx, false);
 		}
 		if(service.jmsUsage == null){
 			vtx.addError("Service uses JMS but has not specified jmsUsage attribute.");

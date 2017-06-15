@@ -31,7 +31,7 @@ import javax.jms.JMSException;
 
 import org.simplity.aggr.AggregationWorker;
 import org.simplity.aggr.AggregatorInterface;
-import org.simplity.jms.JmsQueue;
+import org.simplity.jms.JmsObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
@@ -108,13 +108,13 @@ public class BatchRowProcessor {
 	String customInputClassName;
 
 	/**
-	 * queue from which to consume requests to be processed as requests
+	 * queue/topic from which to consume requests to be processed as requests
 	 */
-	JmsQueue inputQueue;
+	JmsObject inputJmsObject;
 	/**
-	 * optional queue on which responses to be sent on
+	 * optional queue/topic on which responses to be sent on
 	 */
-	JmsQueue outputQueue;
+	JmsObject outputJmsObject;
 
 	/**
 	 * @param service
@@ -126,8 +126,8 @@ public class BatchRowProcessor {
 			nbrInputChannels++;
 		}
 
-		if (this.inputQueue != null) {
-			this.inputQueue.getReady();
+		if (this.inputJmsObject != null) {
+			this.inputJmsObject.getReady();
 			nbrInputChannels++;
 		}
 		if (this.inputSql != null) {
@@ -144,8 +144,8 @@ public class BatchRowProcessor {
 			this.outputFile.getReady(service);
 		}
 
-		if (this.outputQueue != null) {
-			this.outputQueue.getReady();
+		if (this.outputJmsObject != null) {
+			this.outputJmsObject.getReady();
 		}
 
 		if (this.actionBeforeChildren != null) {
@@ -285,8 +285,8 @@ public class BatchRowProcessor {
 				inputFileName = this.batchInput.getFileName();
 			} else if (BatchRowProcessor.this.inputSql != null) {
 				this.sql = ComponentManager.getSql(BatchRowProcessor.this.inputSql);
-			} else if (BatchRowProcessor.this.inputQueue != null) {
-				this.batchInput = BatchRowProcessor.this.inputQueue.getBatchInput(ctxt);
+			} else if (BatchRowProcessor.this.inputJmsObject != null) {
+				this.batchInput = BatchRowProcessor.this.inputJmsObject.getBatchInput(ctxt);
 				this.batchInput.openShop(ctxt);
 			} else if (BatchRowProcessor.this.customInputClassName != null) {
 				try {
@@ -321,14 +321,19 @@ public class BatchRowProcessor {
 							"Error while using " + clsName + " to get an instance of BatchOutput");
 				}
 			}
-			JmsQueue outq = BatchRowProcessor.this.outputQueue;
+			JmsObject outq = BatchRowProcessor.this.outputJmsObject;
 			if (outq != null) {
 				try {
 					this.jmsOutput = outq.getBatchOutput(ctxt);
 					this.jmsOutput.openShop(ctxt);
 				} catch (Exception e) {
-					throw new ApplicationError(e,
-							"Error while using " + (String) outq.getName() + " to get an instance of JMSOutput");
+					if(outq.getQueueName() != null) {
+						throw new ApplicationError(e,
+								"Error while using " + (String) outq.getQueueName().toString() + " to get an instance of JMSOutput");
+					} else if(outq.getTopicName() != null) {
+						throw new ApplicationError(e,
+								"Error while using " + (String) outq.getTopicName().toString() + " to get an instance of JMSOutput");
+					}
 				}
 			}
 			/*

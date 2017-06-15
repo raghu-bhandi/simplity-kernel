@@ -5,7 +5,7 @@
 		<createSheet sheetName="commentSheet" recordName="comments" />
 		<log actionName="emptysheet" names="commentSheet" />
 		<jmsConsumer waitForMessage="false" consumeAll="true">
-			<requestQueue queueName="jms/Queue01" recordName="comments"
+			<requestJmsObject queueName="jms/Queue01" recordName="comments"
 				extractAll="true" />
 			<actions>
 				<addRow sheetName="commentSheet" />

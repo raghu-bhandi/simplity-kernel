@@ -63,6 +63,7 @@ import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.FormattedMessage;
+import org.simplity.kernel.Property;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
@@ -168,7 +169,7 @@ public class ActionsTest extends Mockito {
 		QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
 		queueSession = queueConnection.createQueueSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
 		queueConnection.start();
-
+		
 		DirContext mockContext = LdapProperties.getInitialDirContext();
 
 		when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>() {
