@@ -17,6 +17,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -29,6 +30,11 @@ import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
+import javax.jms.TopicConnection;
+import javax.jms.TopicPublisher;
+import javax.jms.TopicSession;
+import javax.jms.TopicSubscriber;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -88,6 +94,8 @@ public class ActionsTest extends Mockito {
 	private static InitialContext initialContext;
 
 	private static QueueSession queueSession;
+	
+	private static TopicSession topicSession;
 
 	@Mock
 	HttpServletRequest request;
@@ -169,6 +177,10 @@ public class ActionsTest extends Mockito {
 		QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
 		queueSession = queueConnection.createQueueSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
 		queueConnection.start();
+		
+		TopicConnection topicConnection = (TopicConnection) connectionFactory.createConnection();
+		topicSession = topicConnection.createTopicSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+		topicConnection.start();
 		
 		DirContext mockContext = LdapProperties.getInitialDirContext();
 
@@ -673,7 +685,7 @@ public class ActionsTest extends Mockito {
 
 	
 	@Test
-	public void jmsProducerTest() {
+	public void jmsQueueProducerTest() {
 		try {
 			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
@@ -704,7 +716,7 @@ public class ActionsTest extends Mockito {
 	}
 
 	@Test
-	public void jmsConsumerTest() {
+	public void jmsQueueConsumerTest() {
 		try {
 			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
 			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
@@ -732,6 +744,35 @@ public class ActionsTest extends Mockito {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Test
+	public void jmsTopicProducerTest() {
+		try {
+			Destination destination = (Destination) initialContext.lookup("jms/Topic01");
+			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
+					+ "'tokens':'token123'}";
+			ServiceData producerData = JavaAgent.getAgent("100",null).serve("jms.jmsProducer", payLoad,PayloadType.JSON);
+			
+			
+			
+		    TopicPublisher topicPublisher = topicSession.createPublisher((Topic)destination);
+		    topicPublisher.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+		    TextMessage message = topicSession.createTextMessage();
+		    message.setText("Hello World");                                       
+		    topicPublisher.send(message);         
+		    System.out.println("Message published: " + message.getText());
+		       
+			TopicSubscriber topicSubscriber = topicSession.createSubscriber((Topic)destination);
+			ActiveMQMessage topicMessage = (ActiveMQMessage) topicSubscriber.receive();
+			assertEquals(topicMessage.getProperty("personId"), "personid123");
+			assertEquals(topicMessage.getProperty("comments"), "comments123");
+			assertEquals(topicMessage.getProperty("tokens"), "token123");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 	
 	@Test
