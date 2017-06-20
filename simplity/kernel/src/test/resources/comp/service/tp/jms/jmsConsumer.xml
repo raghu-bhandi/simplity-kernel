@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<service xmlns="http://www.simplity.org/schema" moduleName="jms"
-	name="jmsConsumer" dbAccessType="none" jmsUsage="notManaged">
+<service
+	xmlns="http://www.simplity.org/schema"
+	moduleName="jms"
+	name="jmsConsumer"
+	dbAccessType="none"
+	jmsUsage="notManaged"
+>
 	<actions>
-		<createSheet sheetName="commentSheet" recordName="comments" />
-		<log actionName="emptysheet" names="commentSheet" />
-		<jmsConsumer waitForMessage="false" consumeAll="true">
-			<requestQueue queueName="jms/Queue01" recordName="comments"
+		<createSheet
+			sheetName="commentSheet"
+			recordName="comments" />
+		<log
+			actionName="emptysheet"
+			names="commentSheet" />
+		<jmsConsumer
+			waitForMessage="false"
+			consumeAll="true"
+		>
+			<requestDestination
+				name="jms/Queue01"
+				recordName="comments"
 				extractAll="true" />
 			<actions>
 				<addRow sheetName="commentSheet" />

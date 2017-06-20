@@ -29,7 +29,7 @@
 				<actionAfterChildren>
 					<log names="averageOut"/>
 				</actionAfterChildren>	
-				<outputQueue fieldNames="id2,name2,address2" queueName="jms/Queue02"/>				
+				<outputDestination fieldNames="id2,name2,address2" name="jms/Queue02"/>				
 			</batchRowProcessor>		
 		</batchProcessor>
 	</actions>
