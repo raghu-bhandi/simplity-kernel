@@ -43,6 +43,8 @@ import org.simplity.kernel.util.XmlUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
+import com.google.common.net.HttpHeaders;
+
 /**
  * Get response from a server using rest call
  *
@@ -232,6 +234,7 @@ public class HttpClient extends Action {
 			 */
 			conn.setRequestMethod(this.httpMethod);
 			conn.setRequestProperty("Accept", this.contentType);
+			conn.setRequestProperty(HttpHeaders.CONTENT_TYPE, this.contentType);
 			conn.setDoOutput(true);
 			String req = this.getRequestText(ctx);
 			if(req != null){
