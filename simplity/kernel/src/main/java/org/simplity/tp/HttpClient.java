@@ -62,6 +62,7 @@ public class HttpClient extends Action {
 	 * no value is found, we treat it as empty string and still go ahead.
 	 */
 	String urlString;
+	String parsedUrlString;
 	/**
 	 * The HTTP method, GET, POST etc..
 	 */
@@ -166,6 +167,9 @@ public class HttpClient extends Action {
 	@Override
 	public Value doAct(ServiceContext ctx) {
 		String txt;
+		if(parsedUrlString != null){
+			this.urlString = ctx.getTextValue(parsedUrlString);
+		}
 		if (this.urlParts == null) {
 			txt = this.urlString;
 		} else {
@@ -372,6 +376,9 @@ public class HttpClient extends Action {
 			throw new ApplicationError(
 					"responseFieldName is requried for a restClient action that has its content type set to "
 							+ this.contentType);
+		}	
+		if(this.urlString != null){
+			this.parsedUrlString = TextUtil.getFieldName(this.urlString);
 		}
 	}
 
