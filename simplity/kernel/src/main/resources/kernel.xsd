@@ -2180,15 +2180,15 @@
 	<xs:complexType name="jmsConsumer">
 		<xs:all>
 			<xs:element
-				name="requestQueue"
-				type="jmsQueue"
+				name="requestDestination"
+				type="jmsDestination"
 				minOccurs="1"
 				maxOccurs="1" />
 			<xs:element
-				name="responseQueue"
+				name="responseDestination"
 				minOccurs="0"
 				maxOccurs="1"
-				type="jmsQueue" />
+				type="jmsDestination" />
 			<xs:element
 				name="actions"
 				minOccurs="1"
@@ -2228,15 +2228,15 @@
 	<xs:complexType name="jmsProducer">
 		<xs:all>
 			<xs:element
-				name="requestQueue"
-				type="jmsQueue"
+				name="requestDestination"
+				type="jmsDestination"
 				minOccurs="1"
 				maxOccurs="1" />
 			<xs:element
-				name="responseQueue"
+				name="responseDestination"
 				minOccurs="0"
 				maxOccurs="1"
-				type="jmsQueue" />
+				type="jmsDestination" />
 		</xs:all>
 		<xs:attributeGroup ref="actionAttributes" />
 	</xs:complexType>
@@ -3201,15 +3201,15 @@
 					</xs:annotation>
 				</xs:element>
 				<xs:element
-					name="inputQueue"
+					name="inputDestination"
 					minOccurs="0"
 					maxOccurs="1"
-					type="jmsQueue" />
+					type="jmsDestination" />
 				<xs:element
-					name="outputQueue"
+					name="outputDestination"
 					minOccurs="0"
 					maxOccurs="1"
-					type="jmsQueue" />
+					type="jmsDestination" />
 			</xs:sequence>
 			<xs:attribute
 				name="inputSql"
@@ -3611,15 +3611,6 @@
 						</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element
-					ref="mailProperties"
-					minOccurs="0"
-					maxOccurs="1">
-					<xs:annotation>
-						<xs:documentation> Setup mail properties
-						</xs:documentation>
-					</xs:annotation>
-				</xs:element>
 			</xs:sequence>
 			<xs:attribute
 				name="applicationId"
@@ -3929,7 +3920,7 @@
 				</xs:simpleType>
 			</xs:attribute>
 			<xs:attribute
-				name="queueConnectionFactory"
+				name="jmsConnectionFactory"
 				type="xs:string"
 				use="optional"
 			>
@@ -3941,7 +3932,7 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="xaQueueConnectionFactory"
+				name="xaJmsConnectionFactory"
 				type="xs:string"
 				use="optional"
 			>
@@ -4038,20 +4029,6 @@
 				name="ldapurl"
 				use="required"
 				type="xs:string">
-			</xs:attribute>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="mailProperties">
-		<xs:complexType>
-			<xs:attribute
-				name="host"
-				use="required"
-				type="xs:string">
-			</xs:attribute>
-			<xs:attribute
-				name="port"
-				use="required"
-				type="xs:int">
 			</xs:attribute>
 		</xs:complexType>
 	</xs:element>
@@ -4529,9 +4506,9 @@
 				type="synchronizer" />
 		</xs:choice>
 	</xs:group>
-	<xs:complexType name="jmsQueue">
+	<xs:complexType name="jmsDestination">
 		<xs:attribute
-			name="queueName"
+			name="name"
 			type="xs:string">
 			<xs:annotation>
 				<xs:documentation>JNDI name to locate the queue. Required for
@@ -4546,6 +4523,14 @@
 			<xs:annotation>
 				<xs:documentation>If the message body is used for transporting data,
 					how is it formatted?
+				</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
+		<xs:attribute
+			name="isTopic"
+			type="booleanType">
+			<xs:annotation>
+				<xs:documentation>Is this a topic? false means it is a queue. true means it is a topi
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>

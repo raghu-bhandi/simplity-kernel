@@ -15,8 +15,8 @@
 	<actions>
 		<log names="personId"/>
 		<jmsProducer>
-			<requestQueue
-				queueName="jms/Queue01"
+			<requestDestination
+				name="jms/Queue01"
 				recordName="comments"/>
 		</jmsProducer>
 	</actions>
