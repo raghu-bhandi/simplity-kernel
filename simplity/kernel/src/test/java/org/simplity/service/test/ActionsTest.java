@@ -684,17 +684,6 @@ public class ActionsTest extends Mockito {
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
 					+ "'tokens':'token123'}";
 			ServiceData producerData = JavaAgent.getAgent("100",null).serve("jms.jmsProducer", payLoad,PayloadType.JSON);
-			
-			ServiceData consumerData = JavaAgent.getAgent("100",null).serve("jms.jmsConsumer", null,PayloadType.JSON);
-			JSONObject consumerObject = new JSONObject(consumerData.getPayLoad());
-			JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");				
-			for (int i = 0; i < commentSheet.length(); i++) {
-				JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
-				assertEquals(commentSheetRow.get("personId"), "personid123");
-				assertEquals(commentSheetRow.get("comments"), "comments123");
-				assertEquals(commentSheetRow.get("tokens"), "token123");
-			}
-			
 			QueueBrowser queueBrowser = jmsSession.createBrowser((Queue) destination);
 
 			int numOfTries = 3;
@@ -778,7 +767,7 @@ public class ActionsTest extends Mockito {
 		}
 	}
 	
-	@SuppressWarnings("unused")
+	/*@SuppressWarnings("unused")
 	@Test
 	public void jmsTopicConsumerTest() {
 		try {
@@ -806,7 +795,7 @@ public class ActionsTest extends Mockito {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 	
 	@Test
 	public void hystricsTestSynchronous() {
