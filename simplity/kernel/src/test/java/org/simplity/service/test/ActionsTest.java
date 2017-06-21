@@ -92,13 +92,7 @@ public class ActionsTest extends Mockito {
 
 	private static InitialContext initialContext;
 
-<<<<<<< HEAD
-	private static QueueSession queueSession;
-	
-	private static TopicSession topicSession;
-=======
 	private static javax.jms.Session jmsSession;
->>>>>>> ee97ae8d318c1900472771846da1de3cbde5f248
 
 	@Mock
 	HttpServletRequest request;
@@ -177,23 +171,10 @@ public class ActionsTest extends Mockito {
 		initialContext = new InitialContext();
 		ConnectionFactory connectionFactory = (ConnectionFactory) initialContext
 				.lookup("vm://localhost?broker.persistent=false");
-<<<<<<< HEAD
-		QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
-		queueSession = queueConnection.createQueueSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
-		queueConnection.start();
-		
-		TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
-				.lookup("vm://localhost?broker.persistent=false");
-		TopicConnection topicConnection = (TopicConnection) topicConnectionFactory.createConnection();
-		topicSession = topicConnection.createTopicSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
-		topicConnection.start();
-		
-=======
 		javax.jms.Connection connection = (javax.jms.Connection) connectionFactory.createConnection();
 		jmsSession = connection.createSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
 		connection.start();
 
->>>>>>> ee97ae8d318c1900472771846da1de3cbde5f248
 		DirContext mockContext = LdapProperties.getInitialDirContext();
 
 		when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>() {
@@ -703,6 +684,17 @@ public class ActionsTest extends Mockito {
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
 					+ "'tokens':'token123'}";
 			ServiceData producerData = JavaAgent.getAgent("100",null).serve("jms.jmsProducer", payLoad,PayloadType.JSON);
+			
+			ServiceData consumerData = JavaAgent.getAgent("100",null).serve("jms.jmsConsumer", null,PayloadType.JSON);
+			JSONObject consumerObject = new JSONObject(consumerData.getPayLoad());
+			JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");				
+			for (int i = 0; i < commentSheet.length(); i++) {
+				JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
+				assertEquals(commentSheetRow.get("personId"), "personid123");
+				assertEquals(commentSheetRow.get("comments"), "comments123");
+				assertEquals(commentSheetRow.get("tokens"), "token123");
+			}
+			
 			QueueBrowser queueBrowser = jmsSession.createBrowser((Queue) destination);
 
 			int numOfTries = 3;
@@ -758,31 +750,62 @@ public class ActionsTest extends Mockito {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	@Test
 	public void jmsTopicProducerTest() {
 		try {
 			Topic topic = (Topic) initialContext.lookup("jms/Topic01");
+			TopicSubscriber topicSubscriber01 = ((TopicSession)jmsSession).createSubscriber(topic);
+			TopicSubscriber topicSubscriber02 = ((TopicSession)jmsSession).createSubscriber(topic);
+		    TopicPublisher topicPublisher = ((TopicSession)jmsSession).createPublisher(topic);
+			
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
 					+ "'tokens':'token123'}";
-			ServiceData producerData = JavaAgent.getAgent("100",null).serve("jms.jmsProducer", payLoad,PayloadType.JSON);
+			ServiceData producerData = JavaAgent.getAgent("100",null).serve("jms.jmsTopicProducer", payLoad,PayloadType.JSON);
 			
-		    TopicPublisher topicPublisher = topicSession.createPublisher(topic);
-		    topicPublisher.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-		    TextMessage message = topicSession.createTextMessage();
-		    message.setText("Hello World");
-		    topicPublisher.send(message);
-		    System.out.println("Message published: " + message.getText());
-		    
-			TopicSubscriber topicSubscriber = topicSession.createSubscriber(topic);
-			ActiveMQMessage topicMessage = (ActiveMQMessage) topicSubscriber.receive();
-			assertEquals(topicMessage.getProperty("personId"), "personid123");
-			assertEquals(topicMessage.getProperty("comments"), "comments123");
-			assertEquals(topicMessage.getProperty("tokens"), "token123");
+			ActiveMQMessage topicMessage01 = (ActiveMQMessage) topicSubscriber01.receive();
+			assertEquals(topicMessage01.getProperty("personId"), "personid123");
+			assertEquals(topicMessage01.getProperty("comments"), "comments123");
+			assertEquals(topicMessage01.getProperty("tokens"), "token123");
+			
+			ActiveMQMessage topicMessage02 = (ActiveMQMessage) topicSubscriber02.receive();
+			assertEquals(topicMessage02.getProperty("personId"), "personid123");
+			assertEquals(topicMessage02.getProperty("comments"), "comments123");
+			assertEquals(topicMessage02.getProperty("tokens"), "token123");
 			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+	}
+	
+	@SuppressWarnings("unused")
+	@Test
+	public void jmsTopicConsumerTest() {
+		try {
+			Topic topic = (Topic) initialContext.lookup("jms/Topic01");
+			TopicSubscriber topicSubscriber = ((TopicSession)jmsSession).createSubscriber(topic);
+		    TopicPublisher topicPublisher = ((TopicSession)jmsSession).createPublisher(topic);
+		    topicPublisher.setTimeToLive(10000);
+		    topicPublisher.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			TextMessage message = ((TopicSession)jmsSession).createTextMessage();
+			String payLoad = "commentSheet={'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
+					+ "'tokens':'token123'}";
+			message.setText(payLoad);
+			topicPublisher.publish(message);
+			
+			ServiceData consumerData = JavaAgent.getAgent("100",null).serve("jms.jmsTopicConsumer", null,PayloadType.JSON);
+			JSONObject consumerObject = new JSONObject(consumerData.getPayLoad());
+			JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");				
+			for (int i = 0; i < commentSheet.length(); i++) {
+				JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
+				assertEquals(commentSheetRow.get("personId"), "personid123");
+				assertEquals(commentSheetRow.get("comments"), "comments123");
+				assertEquals(commentSheetRow.get("tokens"), "token123");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Test

@@ -2,7 +2,7 @@
 <service
 	xmlns="http://www.simplity.org/schema"
 	moduleName="jms"
-	name="jmsProducerTopic"
+	name="jmsTopicProducer"
 	dbAccessType="none"
 	jmsUsage="notManaged">
 	 
@@ -15,8 +15,8 @@
 	<actions>
 		<log names="personId"/>
 		<jmsProducer>
-			<requestJmsObject
-				queueName="jms/Topic01"
+			<requestDestination
+				name="jms/Topic01"
 				recordName="comments"/>
 		</jmsProducer>
 	</actions>
