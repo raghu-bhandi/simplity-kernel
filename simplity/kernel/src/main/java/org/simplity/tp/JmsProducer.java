@@ -22,7 +22,7 @@
 
 package org.simplity.tp;
 
-import org.simplity.jms.JmsObject;
+import org.simplity.jms.JmsDestination;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
@@ -37,12 +37,12 @@ public class JmsProducer extends Action {
 	/**
 	 * queue/topic to be used to send a message as request
 	 */
-	JmsObject requestJmsObject;
+	JmsDestination requestJmsDestination;
 
 	/**
 	 * queue/topic to be used to get back a response. optional.
 	 */
-	JmsObject responseJmsObject;
+	JmsDestination responseJmsDestination;
 
 	/*
 	 * (non-Javadoc)
@@ -51,7 +51,7 @@ public class JmsProducer extends Action {
 	 */
 	@Override
 	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		boolean allOk = this.requestJmsObject.produce(ctx, this.responseJmsObject);
+		boolean allOk = this.requestJmsDestination.produce(ctx, this.responseJmsDestination);
 		if (allOk) {
 			return Value.VALUE_TRUE;
 		}
@@ -67,9 +67,9 @@ public class JmsProducer extends Action {
 	public void getReady(int idx, Service service) {
 		super.getReady(idx, service);
 
-		this.requestJmsObject.getReady();
-		if (this.responseJmsObject != null) {
-			this.responseJmsObject.getReady();
+		this.requestJmsDestination.getReady();
+		if (this.responseJmsDestination != null) {
+			this.responseJmsDestination.getReady();
 		}
 	}
 
@@ -82,18 +82,18 @@ public class JmsProducer extends Action {
 	@Override
 	public int validate(ValidationContext vtx, Service service) {
 		int count = super.validate(vtx, service);
-		if (this.requestJmsObject == null) {
+		if (this.requestJmsDestination == null) {
 			vtx.addError("requestJmsObject is required");
 			count++;
 		} else {
-			if (this.requestJmsObject.getQueueName() == null && this.requestJmsObject.getTopicName() == null) {
-				vtx.addError("queueName/topicName is required for requestJmsObject");
+			if (this.requestJmsDestination.getName() == null) {
+				vtx.addError("name is required for requestJmsDestination");
 				count++;
 			}
-			count += this.requestJmsObject.validate(vtx, true);
+			count += this.requestJmsDestination.validate(vtx, true);
 		}
-		if (this.responseJmsObject != null) {
-			count += this.responseJmsObject.validate(vtx, false);
+		if (this.responseJmsDestination != null) {
+			count += this.responseJmsDestination.validate(vtx, false);
 		}
 		if(service.jmsUsage == null){
 			vtx.addError("Service uses JMS but has not specified jmsUsage attribute.");

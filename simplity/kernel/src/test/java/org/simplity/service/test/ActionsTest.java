@@ -32,6 +32,7 @@ import javax.jms.QueueSession;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicConnection;
+import javax.jms.TopicConnectionFactory;
 import javax.jms.TopicPublisher;
 import javax.jms.TopicSession;
 import javax.jms.TopicSubscriber;
@@ -178,7 +179,9 @@ public class ActionsTest extends Mockito {
 		queueSession = queueConnection.createQueueSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
 		queueConnection.start();
 		
-		TopicConnection topicConnection = (TopicConnection) connectionFactory.createConnection();
+		TopicConnectionFactory topicConnectionFactory = (TopicConnectionFactory) initialContext
+				.lookup("vm://localhost?broker.persistent=false");
+		TopicConnection topicConnection = (TopicConnection) topicConnectionFactory.createConnection();
 		topicSession = topicConnection.createTopicSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
 		topicConnection.start();
 		
@@ -749,21 +752,19 @@ public class ActionsTest extends Mockito {
 	@Test
 	public void jmsTopicProducerTest() {
 		try {
-			Destination destination = (Destination) initialContext.lookup("jms/Topic01");
+			Topic topic = (Topic) initialContext.lookup("jms/Topic01");
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
 					+ "'tokens':'token123'}";
 			ServiceData producerData = JavaAgent.getAgent("100",null).serve("jms.jmsProducer", payLoad,PayloadType.JSON);
 			
-			
-			
-		    TopicPublisher topicPublisher = topicSession.createPublisher((Topic)destination);
+		    TopicPublisher topicPublisher = topicSession.createPublisher(topic);
 		    topicPublisher.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 		    TextMessage message = topicSession.createTextMessage();
-		    message.setText("Hello World");                                       
-		    topicPublisher.send(message);         
+		    message.setText("Hello World");
+		    topicPublisher.send(message);
 		    System.out.println("Message published: " + message.getText());
-		       
-			TopicSubscriber topicSubscriber = topicSession.createSubscriber((Topic)destination);
+		    
+			TopicSubscriber topicSubscriber = topicSession.createSubscriber(topic);
 			ActiveMQMessage topicMessage = (ActiveMQMessage) topicSubscriber.receive();
 			assertEquals(topicMessage.getProperty("personId"), "personid123");
 			assertEquals(topicMessage.getProperty("comments"), "comments123");

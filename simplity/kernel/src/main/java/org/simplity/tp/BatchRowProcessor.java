@@ -31,7 +31,7 @@ import javax.jms.JMSException;
 
 import org.simplity.aggr.AggregationWorker;
 import org.simplity.aggr.AggregatorInterface;
-import org.simplity.jms.JmsObject;
+import org.simplity.jms.JmsDestination;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
@@ -110,11 +110,11 @@ public class BatchRowProcessor {
 	/**
 	 * queue/topic from which to consume requests to be processed as requests
 	 */
-	JmsObject inputJmsObject;
+	JmsDestination inputJmsObject;
 	/**
 	 * optional queue/topic on which responses to be sent on
 	 */
-	JmsObject outputJmsObject;
+	JmsDestination outputJmsObject;
 
 	/**
 	 * @param service
@@ -321,7 +321,7 @@ public class BatchRowProcessor {
 							"Error while using " + clsName + " to get an instance of BatchOutput");
 				}
 			}
-			JmsObject outq = BatchRowProcessor.this.outputJmsObject;
+			JmsDestination outq = BatchRowProcessor.this.outputJmsObject;
 			if (outq != null) {
 				try {
 					this.jmsOutput = outq.getBatchOutput(ctxt);
