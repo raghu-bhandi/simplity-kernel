@@ -24,10 +24,10 @@ package org.simplity.jms;
 
 import java.util.Properties;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -48,18 +48,18 @@ public class JmsConnector {
 	/**
 	 * non-jta connection
 	 */
-	private static QueueConnectionFactory factory;
+	private static ConnectionFactory factory;
 
 	/**
 	 * for jta-managed connection
 	 */
-	private static QueueConnectionFactory xaFactory;
+	private static ConnectionFactory xaFactory;
 
 	/**
 	 * initial setup. Called by Application on startup
 	 *
-	 * @param queueConnectionFactory
-	 * @param xaQueueConnectionFactory
+	 * @param connectionFactory
+	 * @param xaConnectionFactory
 	 * @param properties
 	 *            additional properties like user name etc.. that are required
 	 *            to be set to teh context for getting the connection
@@ -68,7 +68,7 @@ public class JmsConnector {
 	 * @throws ApplicationError
 	 *             : in case of any issue with the set-up
 	 */
-	public static String setup(String queueConnectionFactory, String xaQueueConnectionFactory, Property[] properties) {
+	public static String setup(String connectionFactory, String xaConnectionFactory, Property[] properties) {
 		Context ctx = null;
 
 		try {
@@ -81,12 +81,12 @@ public class JmsConnector {
 			} else {
 				ctx = new InitialContext();
 			}
-			if (queueConnectionFactory != null) {
-				factory = (QueueConnectionFactory) ctx.lookup(queueConnectionFactory);
+			if (connectionFactory != null) {
+				factory = (QueueConnectionFactory) ctx.lookup(connectionFactory);
 				Tracer.trace("queueConnectionFactory successfully set to " + factory.getClass().getName());
 			}
-			if (xaQueueConnectionFactory != null) {
-				xaFactory = (QueueConnectionFactory) ctx.lookup(xaQueueConnectionFactory);
+			if (xaConnectionFactory != null) {
+				xaFactory = (QueueConnectionFactory) ctx.lookup(xaConnectionFactory);
 				Tracer.trace("xaQueueConnectionFactory successfully set to " + xaFactory.getClass().getName());
 			}
 		} catch (Exception e) {
@@ -123,24 +123,24 @@ public class JmsConnector {
 	private static JmsConnector borrow(JmsUsage jmsUsage, boolean multi) {
 
 		try {
-			QueueConnection con = null;
+			Connection con = null;
 			boolean transacted = false;
-			QueueSession session = null;
+			Session session = null;
 			if (jmsUsage == JmsUsage.EXTERNALLY_MANAGED) {
 				if (xaFactory == null) {
 					throw new ApplicationError("Application is not set up for JMS with JTA/JCA/XA");
 				}
-				con = xaFactory.createQueueConnection();
+				con = xaFactory.createConnection();
 			} else {
 				if (factory == null) {
 					throw new ApplicationError("Application is not set up for JMS local session managed operations");
 				}
-				con = factory.createQueueConnection();
+				con = factory.createConnection();
 				if (jmsUsage == JmsUsage.SERVICE_MANAGED) {
 					transacted = true;
 				}
 			}
-			session = con.createQueueSession(transacted, Session.AUTO_ACKNOWLEDGE);
+			session = con.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
 			/*
 			 * not very well advertised.. but this method is a MUST for
 			 * consuming queues, though production works without that
@@ -164,12 +164,12 @@ public class JmsConnector {
 	/**
 	 * jndi name of queueConnection factory non-JTA connection
 	 */
-	private final QueueConnection connection;
+	private final Connection connection;
 
 	/**
 	 * jndi name of queueConnection factory non-JTA connection
 	 */
-	private final QueueSession session;
+	private final Session session;
 
 	/**
 	 * usage for which this instance is created
@@ -183,7 +183,7 @@ public class JmsConnector {
 	 * @param session
 	 * @param jmsUsage
 	 */
-	private JmsConnector(QueueConnection con, QueueSession session, JmsUsage jmsUsage, boolean multi) {
+	private JmsConnector(Connection con, Session session, JmsUsage jmsUsage, boolean multi) {
 		this.connection = con;
 		this.session = session;
 		this.jmsUsage = jmsUsage;

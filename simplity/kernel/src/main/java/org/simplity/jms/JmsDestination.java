@@ -35,7 +35,6 @@ import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
-import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.naming.InitialContext;
@@ -62,12 +61,18 @@ import org.simplity.tp.InvalidRowException;
  * @author simplity.org
  *
  */
-public class JmsQueue {
+public class JmsDestination {
 
 	/**
-	 * name of the queue (destination) used for requesting a service
+	 * name of the queue (destination) used for requesting a service. This is
+	 * the jndi name that is available in the context
 	 */
-	String queueName;
+	String name;
+
+	/**
+	 * is this destination a topic? false means it is a queue
+	 */
+	boolean isTopic;
 	/**
 	 * null if message body is not used, but header parameters are used to
 	 * transport data.
@@ -132,7 +137,7 @@ public class JmsQueue {
 	/**
 	 * jms queue instance for this queue
 	 */
-	protected Queue queue;
+	protected Destination destination;
 
 	/**
 	 * consume a request queue, and optionally put a message on to the response
@@ -155,7 +160,7 @@ public class JmsQueue {
 	 *            consumeAll is true, then we do not come-out till interrupted,
 	 *            or the queue closes
 	 */
-	public void consume(ServiceContext ctx, MessageClient processor, JmsQueue responseQ, boolean consumeAll,
+	public void consume(ServiceContext ctx, MessageClient processor, JmsDestination responseQ, boolean consumeAll,
 			boolean waitForMessage) {
 
 		Session session = ctx.getJmsSession();
@@ -163,9 +168,9 @@ public class JmsQueue {
 		MessageProducer producer = null;
 
 		try {
-			consumer = session.createConsumer(this.queue, this.messageSelector);
-			String nam = this.queue.getQueueName();
-			Tracer.trace("Started consumer for queue " + nam);
+			consumer = session.createConsumer(this.destination, this.messageSelector);
+			String nam = this.name;
+			Tracer.trace("Started consumer for destination " + nam);
 			/*
 			 * We may not use producer at all, but an empty producer does not
 			 * hurt as much as creating it repeatedly..
@@ -184,7 +189,7 @@ public class JmsQueue {
 				}
 				Message msg = consumer.receive(wait);
 				if (msg == null) {
-					Tracer.trace("No message in " + this.queueName + ". Queue consumer will not continue;");
+					Tracer.trace("No message in " + this.name + ". Consumer will not continue;");
 					/*
 					 * queue is shut down
 					 */
@@ -209,7 +214,7 @@ public class JmsQueue {
 					 */
 					String corId = msg.getJMSCorrelationID();
 					if (replyQ == null && responseQ != null) {
-						replyQ = responseQ.getQueue();
+						replyQ = responseQ.getDestination();
 					}
 
 					processor.process(ctx);
@@ -238,7 +243,7 @@ public class JmsQueue {
 				}
 			} while (processor.toContinue());
 		} catch (Exception e) {
-			throw new ApplicationError(e, "Error while consuming and procesing JMS queue " + this.queueName);
+			throw new ApplicationError(e, "Error while consuming and procesing JMS queue " + this.name);
 
 		} finally {
 			if (consumer != null) {
@@ -269,14 +274,14 @@ public class JmsQueue {
 	 *            operation
 	 * @return true if a message indeed was put on the queue. False otherwise
 	 */
-	public boolean produce(ServiceContext ctx, JmsQueue responseQ) {
+	public boolean produce(ServiceContext ctx, JmsDestination responseQ) {
 		MessageProducer producer = null;
 		MessageConsumer consumer = null;
-		Queue response = null;
+		Destination response = null;
 		String corId = null;
 		Session session = ctx.getJmsSession();
 		try {
-			producer = session.createProducer(this.queue);
+			producer = session.createProducer(this.destination);
 			/*
 			 * create a message with data from ctx
 			 */
@@ -286,11 +291,11 @@ public class JmsQueue {
 			 * should we ask for a return message?
 			 */
 			if (responseQ != null) {
-				if (responseQ.queueName == null) {
+				if (responseQ.name == null) {
 					response = session.createTemporaryQueue();
 					consumer = session.createConsumer(response);
 				} else {
-					response = responseQ.getQueue();
+					response = responseQ.getDestination();
 					corId = UUID.randomUUID().toString();
 					consumer = session.createConsumer(response, "JMSCorrelationID='" + corId + '\'');
 					msg.setJMSCorrelationID(corId);
@@ -684,9 +689,9 @@ public class JmsQueue {
 			}
 		}
 		try {
-			this.queue = (Queue) new InitialContext().lookup(this.queueName);
+			this.destination = (Destination) new InitialContext().lookup(this.name);
 		} catch (Exception e) {
-			throw new ApplicationError("Jms queue name " + this.queueName
+			throw new ApplicationError("Jms destination name " + this.name
 					+ " could not be used as a JNDI name to locate a queue name. " + e.getMessage());
 		}
 	}
@@ -695,8 +700,8 @@ public class JmsQueue {
 	 *
 	 * @return name of this queue
 	 */
-	public Queue getQueue() {
-		return this.queue;
+	public Destination getDestination() {
+		return this.destination;
 	}
 
 	/**
@@ -840,8 +845,8 @@ public class JmsQueue {
 	/**
 	 * @return name of the queue
 	 */
-	public Object getName() {
-		return this.queueName;
+	public String getName() {
+		return this.name;
 	}
 
 	/**
@@ -861,9 +866,9 @@ public class JmsQueue {
 		@Override
 		public void openShop(ServiceContext ctx) throws JMSException {
 			Session session = ctx.getJmsSession();
-			this.consumer = session.createConsumer(JmsQueue.this.queue, JmsQueue.this.messageSelector);
-			String nam = JmsQueue.this.queue.getQueueName();
-			Tracer.trace("Started consumer for queue " + nam);
+			this.consumer = session.createConsumer(JmsDestination.this.destination,
+					JmsDestination.this.messageSelector);
+			Tracer.trace("Started consumer for queue " + JmsDestination.this.name);
 
 		}
 
@@ -890,10 +895,10 @@ public class JmsQueue {
 			 */
 			Message msg = this.consumer.receive(1);
 			if (msg == null) {
-				Tracer.trace("No more messages in " + JmsQueue.this.queueName + ". Queue consumer will not continue;");
+				Tracer.trace("No more messages in " + JmsDestination.this.name + ". Queue consumer will not continue;");
 				return false;
 			}
-			JmsQueue.this.extractMessage(msg, ctx);
+			JmsDestination.this.extractMessage(msg, ctx);
 			return true;
 		}
 
@@ -929,7 +934,7 @@ public class JmsQueue {
 		@Override
 		public void openShop(ServiceContext ctx) throws JMSException {
 			Session session = ctx.getJmsSession();
-			this.producer = session.createProducer(JmsQueue.this.queue);
+			this.producer = session.createProducer(JmsDestination.this.destination);
 		}
 
 		@Override
@@ -948,7 +953,7 @@ public class JmsQueue {
 			/*
 			 * create a message with data from ctx
 			 */
-			Message msg = JmsQueue.this.createMessage(ctx);
+			Message msg = JmsDestination.this.createMessage(ctx);
 			this.producer.send(msg);
 			return true;
 		}
