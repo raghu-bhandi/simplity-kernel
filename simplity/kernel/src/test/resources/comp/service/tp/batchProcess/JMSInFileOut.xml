@@ -13,7 +13,11 @@
 						serviceOnInvalidInput="batchProcess.batchProcessorInvalidInput"
 						>
 			<batchRowProcessor>			
+<<<<<<< HEAD
 				<inputJmsObject queueName="jms/Queue02" fieldNames="id2,name2,address2" extractAll="true" timeout="1000" />
+=======
+				<inputDestination name="jms/Queue02" fieldNames="id2,name2,address2" extractAll="true" timeout="1000" />
+>>>>>>> ee97ae8d318c1900472771846da1de3cbde5f248
 				<childProcessors>
 					<batchRowProcessor inputSql="example.selectStudent">
 						<aggregators>

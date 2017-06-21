@@ -37,8 +37,13 @@
 								outputFieldName="averageOut"
 								inputFieldName="id2" />
 						</aggregators>
+<<<<<<< HEAD
 						<outputJmsObject
 							queueName="jms/Queue02"
+=======
+						<outputDestination
+							name="jms/Queue02"
+>>>>>>> ee97ae8d318c1900472771846da1de3cbde5f248
 							recordName="files.fixed4" />
 					</batchRowProcessor>
 				</childProcessors>

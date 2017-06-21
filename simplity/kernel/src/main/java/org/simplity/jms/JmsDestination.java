@@ -56,7 +56,7 @@ import org.simplity.tp.BatchOutput;
 import org.simplity.tp.InvalidRowException;
 
 /**
- * A data structure that capture all details of a JmsQueue and JmsTopic
+ * A data structure that capture all details of a JmsQueue
  *
  * @author simplity.org
  *
@@ -64,15 +64,15 @@ import org.simplity.tp.InvalidRowException;
 public class JmsDestination {
 
 	/**
-	 * name of the destination (queue/topic) used for requesting a service
+	 * name of the queue (destination) used for requesting a service. This is
+	 * the jndi name that is available in the context
 	 */
 	String name;
-	
+
 	/**
-	 * type of the destination (queue/topic)
+	 * is this destination a topic? false means it is a queue
 	 */
-	String isTopic;
-	
+	boolean isTopic;
 	/**
 	 * null if message body is not used, but header parameters are used to
 	 * transport data.
@@ -135,10 +135,10 @@ public class JmsDestination {
 	 */
 	private DataExtractor dataExtractor;
 	/**
-	 * jms destination instance for this destination
+	 * jms queue instance for this queue
 	 */
 	protected Destination destination;
-	
+
 	/**
 	 * consume a request queue, and optionally put a message on to the response
 	 * queue. Keep doing this for messages in the request queue, till the queue
@@ -160,7 +160,7 @@ public class JmsDestination {
 	 *            consumeAll is true, then we do not come-out till interrupted,
 	 *            or the queue closes
 	 */
-	public void consume(ServiceContext ctx, MessageClient processor, JmsDestination responseJmsDestination, boolean consumeAll,
+	public void consume(ServiceContext ctx, MessageClient processor, JmsDestination responseQ, boolean consumeAll,
 			boolean waitForMessage) {
 
 		Session session = ctx.getJmsSession();
@@ -168,13 +168,9 @@ public class JmsDestination {
 		MessageProducer producer = null;
 
 		try {
-			String nam = "";
-			if(this.destination != null) {
-				consumer = session.createConsumer(this.destination, this.messageSelector);
-				nam = this.getName().toString();
-			}
-			
-			Tracer.trace("Started consumer for jms destination " + nam);
+			consumer = session.createConsumer(this.destination, this.messageSelector);
+			String nam = this.name;
+			Tracer.trace("Started consumer for destination " + nam);
 			/*
 			 * We may not use producer at all, but an empty producer does not
 			 * hurt as much as creating it repeatedly..
@@ -193,13 +189,11 @@ public class JmsDestination {
 				}
 				Message msg = consumer.receive(wait);
 				if (msg == null) {
-					if(this.name != null) {
-						Tracer.trace("No message in " + this.name + ". Destination (Queue/Topic) consumer will not continue;");
-						/*
-						 * jms destination is shut down
-						 */
-						break;
-					}
+					Tracer.trace("No message in " + this.name + ". Consumer will not continue;");
+					/*
+					 * queue is shut down
+					 */
+					break;
 				}
 				/*
 				 * let exception in one message not affect the over-all process
@@ -219,22 +213,22 @@ public class JmsDestination {
 					 * select the message back
 					 */
 					String corId = msg.getJMSCorrelationID();
-					if (replyQ == null && responseJmsDestination != null) {
-						if(responseJmsDestination.getDestination() != null)
-							replyQ = responseJmsDestination.getDestination();
+					if (replyQ == null && responseQ != null) {
+						replyQ = responseQ.getDestination();
 					}
-					
+
 					processor.process(ctx);
 					if (replyQ != null) {
 						Message respMsg = null;
-						if (responseJmsDestination == null) {
-							Tracer.trace("No response is specified for this consumer, but producer is asking for a reply. Sending a blank message");
+						if (responseQ == null) {
+							Tracer.trace(
+									"No response is specified for this consumer, but producer is asking for a reply. Sending a blank message");
 							respMsg = session.createMessage();
-						} else{
+						} else {
 							/*
 							 * prepare a reply based on specification
 							 */
-							respMsg = responseJmsDestination.createMessage(ctx);
+							respMsg = responseQ.createMessage(ctx);
 						}
 						if (corId != null) {
 							respMsg.setJMSCorrelationID(corId);
@@ -249,7 +243,7 @@ public class JmsDestination {
 				}
 			} while (processor.toContinue());
 		} catch (Exception e) {
-			throw new ApplicationError(e, "Error while consuming and procesing JMS queue/topic " + this.name);
+			throw new ApplicationError(e, "Error while consuming and procesing JMS queue " + this.name);
 
 		} finally {
 			if (consumer != null) {
@@ -280,16 +274,14 @@ public class JmsDestination {
 	 *            operation
 	 * @return true if a message indeed was put on the queue. False otherwise
 	 */
-	public boolean produce(ServiceContext ctx, JmsDestination responseJmsDestination) {
+	public boolean produce(ServiceContext ctx, JmsDestination responseQ) {
 		MessageProducer producer = null;
 		MessageConsumer consumer = null;
-		Destination destinationResponse = null;
+		Destination response = null;
 		String corId = null;
 		Session session = ctx.getJmsSession();
 		try {
-			if(this.destination != null)
-				producer = session.createProducer(this.destination);
-			
+			producer = session.createProducer(this.destination);
 			/*
 			 * create a message with data from ctx
 			 */
@@ -298,18 +290,17 @@ public class JmsDestination {
 			/*
 			 * should we ask for a return message?
 			 */
-			if (responseJmsDestination != null) {
-				if (responseJmsDestination.name == null || responseJmsDestination.name.isEmpty()) {
-					destinationResponse = session.createTemporaryQueue();
-					consumer = session.createConsumer(destinationResponse);
-					msg.setJMSReplyTo(destinationResponse);
-				} else if(responseJmsDestination.name != null && !responseJmsDestination.name.isEmpty()){
-					destinationResponse = responseJmsDestination.getDestination();
+			if (responseQ != null) {
+				if (responseQ.name == null) {
+					response = session.createTemporaryQueue();
+					consumer = session.createConsumer(response);
+				} else {
+					response = responseQ.getDestination();
 					corId = UUID.randomUUID().toString();
-					consumer = session.createConsumer(destinationResponse, "JMSCorrelationID='" + corId + '\'');
+					consumer = session.createConsumer(response, "JMSCorrelationID='" + corId + '\'');
 					msg.setJMSCorrelationID(corId);
-					msg.setJMSReplyTo(destinationResponse);
 				}
+				msg.setJMSReplyTo(response);
 			}
 			producer.send(msg);
 			/*
@@ -318,20 +309,20 @@ public class JmsDestination {
 			 * for another null than loosing the null-check facility for this
 			 * method
 			 */
-			if (consumer != null && responseJmsDestination != null) {
+			if (consumer != null && responseQ != null) {
 				Message message = consumer.receive();
 				if (message == null) {
 					/*
 					 * some issue in the queue
 					 */
-					Tracer.trace("Response message is null. Probably some issue with the destination provider");
+					Tracer.trace("Response message is null. Probably some issue with the queue provider");
 					return false;
 				}
-				responseJmsDestination.extractMessage(message, ctx);
+				responseQ.extractMessage(message, ctx);
 			}
 			return true;
 		} catch (Exception e) {
-			Tracer.trace("Error while putting mesage on tp a destination. " + e.getMessage());
+			Tracer.trace("Error while putting mesage on tp a queue. " + e.getMessage());
 			return false;
 		} finally {
 			if (consumer != null) {
@@ -698,23 +689,21 @@ public class JmsDestination {
 			}
 		}
 		try {
-			if(this.name != null && !this.name.isEmpty()) {
-				this.destination = (Destination) new InitialContext().lookup(this.name);
-			}
+			this.destination = (Destination) new InitialContext().lookup(this.name);
 		} catch (Exception e) {
-				throw new ApplicationError("Jms destination name " + this.name
-						+ " could not be used as a JNDI name to locate a destination name. " + e.getMessage());
+			throw new ApplicationError("Jms destination name " + this.name
+					+ " could not be used as a JNDI name to locate a queue name. " + e.getMessage());
 		}
 	}
 
 	/**
 	 *
-	 * @return name of this destination
+	 * @return name of this queue
 	 */
 	public Destination getDestination() {
 		return this.destination;
 	}
-	
+
 	/**
 	 * validate attributes
 	 *
@@ -847,19 +836,19 @@ public class JmsDestination {
 	/**
 	 *
 	 * @param ctx
-	 * @return a worker instance that can produce messages onto a destination
+	 * @return a worker instance that can produce messages onto a queue
 	 */
 	public JmsOutput getBatchOutput(ServiceContext ctx) {
 		return new JmsOutput();
 	}
 
 	/**
-	 * @return name of the destination
+	 * @return name of the queue
 	 */
-	public Object getName() {
+	public String getName() {
 		return this.name;
 	}
-	
+
 	/**
 	 * worker class that inputs a message from this queue as input for a batch
 	 * process
@@ -877,11 +866,10 @@ public class JmsDestination {
 		@Override
 		public void openShop(ServiceContext ctx) throws JMSException {
 			Session session = ctx.getJmsSession();
-			if(JmsDestination.this.destination != null) {
-				this.consumer = session.createConsumer(JmsDestination.this.destination, JmsDestination.this.messageSelector);
-				String nam = JmsDestination.this.getName().toString();
-				Tracer.trace("Started consumer for queue " + nam);
-			}
+			this.consumer = session.createConsumer(JmsDestination.this.destination,
+					JmsDestination.this.messageSelector);
+			Tracer.trace("Started consumer for queue " + JmsDestination.this.name);
+
 		}
 
 		@Override
@@ -907,9 +895,7 @@ public class JmsDestination {
 			 */
 			Message msg = this.consumer.receive(1);
 			if (msg == null) {
-				if(JmsDestination.this.destination != null) {
-					Tracer.trace("No more messages in " + JmsDestination.this.name + ". Destination consumer will not continue;");
-				}
+				Tracer.trace("No more messages in " + JmsDestination.this.name + ". Queue consumer will not continue;");
 				return false;
 			}
 			JmsDestination.this.extractMessage(msg, ctx);
@@ -948,9 +934,7 @@ public class JmsDestination {
 		@Override
 		public void openShop(ServiceContext ctx) throws JMSException {
 			Session session = ctx.getJmsSession();
-			if(JmsDestination.this.destination != null) {
-				this.producer = session.createProducer(JmsDestination.this.destination);
-			}
+			this.producer = session.createProducer(JmsDestination.this.destination);
 		}
 
 		@Override

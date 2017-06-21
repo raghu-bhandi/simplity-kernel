@@ -108,13 +108,13 @@ public class BatchRowProcessor {
 	String customInputClassName;
 
 	/**
-	 * queue/topic from which to consume requests to be processed as requests
+	 * queue from which to consume requests to be processed as requests
 	 */
-	JmsDestination inputJmsObject;
+	JmsDestination inputDestination;
 	/**
-	 * optional queue/topic on which responses to be sent on
+	 * optional queue on which responses to be sent on
 	 */
-	JmsDestination outputJmsObject;
+	JmsDestination outputDestination;
 
 	/**
 	 * @param service
@@ -126,8 +126,8 @@ public class BatchRowProcessor {
 			nbrInputChannels++;
 		}
 
-		if (this.inputJmsObject != null) {
-			this.inputJmsObject.getReady();
+		if (this.inputDestination != null) {
+			this.inputDestination.getReady();
 			nbrInputChannels++;
 		}
 		if (this.inputSql != null) {
@@ -144,8 +144,8 @@ public class BatchRowProcessor {
 			this.outputFile.getReady(service);
 		}
 
-		if (this.outputJmsObject != null) {
-			this.outputJmsObject.getReady();
+		if (this.outputDestination != null) {
+			this.outputDestination.getReady();
 		}
 
 		if (this.actionBeforeChildren != null) {
@@ -285,8 +285,8 @@ public class BatchRowProcessor {
 				inputFileName = this.batchInput.getFileName();
 			} else if (BatchRowProcessor.this.inputSql != null) {
 				this.sql = ComponentManager.getSql(BatchRowProcessor.this.inputSql);
-			} else if (BatchRowProcessor.this.inputJmsObject != null) {
-				this.batchInput = BatchRowProcessor.this.inputJmsObject.getBatchInput(ctxt);
+			} else if (BatchRowProcessor.this.inputDestination != null) {
+				this.batchInput = BatchRowProcessor.this.inputDestination.getBatchInput(ctxt);
 				this.batchInput.openShop(ctxt);
 			} else if (BatchRowProcessor.this.customInputClassName != null) {
 				try {
@@ -321,19 +321,14 @@ public class BatchRowProcessor {
 							"Error while using " + clsName + " to get an instance of BatchOutput");
 				}
 			}
-			JmsDestination outq = BatchRowProcessor.this.outputJmsObject;
+			JmsDestination outq = BatchRowProcessor.this.outputDestination;
 			if (outq != null) {
 				try {
 					this.jmsOutput = outq.getBatchOutput(ctxt);
 					this.jmsOutput.openShop(ctxt);
 				} catch (Exception e) {
-					if(outq.getQueueName() != null) {
-						throw new ApplicationError(e,
-								"Error while using " + (String) outq.getQueueName().toString() + " to get an instance of JMSOutput");
-					} else if(outq.getTopicName() != null) {
-						throw new ApplicationError(e,
-								"Error while using " + (String) outq.getTopicName().toString() + " to get an instance of JMSOutput");
-					}
+					throw new ApplicationError(e,
+							"Error while using " + (String) outq.getName() + " to get an instance of JMSOutput");
 				}
 			}
 			/*

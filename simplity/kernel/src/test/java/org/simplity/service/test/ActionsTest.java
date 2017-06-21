@@ -25,10 +25,8 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
-import javax.jms.QueueConnection;
-import javax.jms.QueueConnectionFactory;
+import javax.jms.ConnectionFactory;
 import javax.jms.QueueSender;
-import javax.jms.QueueSession;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 import javax.jms.TopicConnection;
@@ -94,9 +92,13 @@ public class ActionsTest extends Mockito {
 
 	private static InitialContext initialContext;
 
+<<<<<<< HEAD
 	private static QueueSession queueSession;
 	
 	private static TopicSession topicSession;
+=======
+	private static javax.jms.Session jmsSession;
+>>>>>>> ee97ae8d318c1900472771846da1de3cbde5f248
 
 	@Mock
 	HttpServletRequest request;
@@ -173,8 +175,9 @@ public class ActionsTest extends Mockito {
 		app.configure();
 
 		initialContext = new InitialContext();
-		QueueConnectionFactory connectionFactory = (QueueConnectionFactory) initialContext
+		ConnectionFactory connectionFactory = (ConnectionFactory) initialContext
 				.lookup("vm://localhost?broker.persistent=false");
+<<<<<<< HEAD
 		QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
 		queueSession = queueConnection.createQueueSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
 		queueConnection.start();
@@ -185,6 +188,12 @@ public class ActionsTest extends Mockito {
 		topicSession = topicConnection.createTopicSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
 		topicConnection.start();
 		
+=======
+		javax.jms.Connection connection = (javax.jms.Connection) connectionFactory.createConnection();
+		jmsSession = connection.createSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+		connection.start();
+
+>>>>>>> ee97ae8d318c1900472771846da1de3cbde5f248
 		DirContext mockContext = LdapProperties.getInitialDirContext();
 
 		when(mockContext.getAttributes("CN=Sunita Williams")).thenAnswer(new Answer<Attributes>() {
@@ -542,19 +551,19 @@ public class ActionsTest extends Mockito {
 		try {
 			ic = new InitialContext();
 
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) ic
+			ConnectionFactory connectionFactory = (ConnectionFactory) ic
 					.lookup("vm://localhost?broker.persistent=false");
-			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
-			QueueSession queueSession = queueConnection.createQueueSession(false,
+			javax.jms.Connection connection = (javax.jms.Connection) connectionFactory.createConnection();
+			javax.jms.Session jmsSession = connection.createSession(false,
 					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
-			queueConnection.start();
+			connection.start();
 
 			Destination destination = (Destination) ic.lookup("jms/Queue02");
-			MessageConsumer consumer = queueSession.createConsumer(destination);
-			MessageListener messageListener = queueSession.getMessageListener();
+			MessageConsumer consumer = jmsSession.createConsumer(destination);
+			MessageListener messageListener = jmsSession.getMessageListener();
 			consumer.setMessageListener(messageListener);
 			ServiceData outData = JavaAgent.getAgent("100",null).serve("batchProcess.DbInFileOut", null,PayloadType.JSON);
-			QueueBrowser qBrowser = queueSession.createBrowser((Queue) destination);
+			QueueBrowser qBrowser = jmsSession.createBrowser((Queue) destination);
 			Enumeration qe = qBrowser.getEnumeration();
 			while (qe.hasMoreElements()) {
 				ActiveMQMessage receiveMessage = (ActiveMQMessage) qe.nextElement();
@@ -580,19 +589,19 @@ public class ActionsTest extends Mockito {
 		try {
 			ic = new InitialContext();
 
-			QueueConnectionFactory connectionFactory = (QueueConnectionFactory) ic
+			ConnectionFactory connectionFactory = (ConnectionFactory) ic
 					.lookup("vm://localhost?broker.persistent=false");
-			QueueConnection queueConnection = (QueueConnection) connectionFactory.createConnection();
-			QueueSession queueSession = queueConnection.createQueueSession(false,
+			javax.jms.Connection connection = (javax.jms.Connection) connectionFactory.createConnection();
+			javax.jms.Session jmsSession = connection.createSession(false,
 					javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
-			queueConnection.start();
+			connection.start();
 
 			Destination destination = (Destination) ic.lookup("jms/Queue02");
-			MessageConsumer consumer = queueSession.createConsumer(destination);
-			MessageListener messageListener = queueSession.getMessageListener();
+			MessageConsumer consumer = jmsSession.createConsumer(destination);
+			MessageListener messageListener = jmsSession.getMessageListener();
 			consumer.setMessageListener(messageListener);
 			ServiceData outData = JavaAgent.getAgent("100",null).serve("batchProcess.FileInJMSOut", null,PayloadType.JSON);
-			QueueBrowser qBrowser = queueSession.createBrowser((Queue) destination);
+			QueueBrowser qBrowser = jmsSession.createBrowser((Queue) destination);
 			Enumeration qe = qBrowser.getEnumeration();
 			int outMessagesCount = 0;
 			while (qe.hasMoreElements()) {
@@ -611,10 +620,10 @@ public class ActionsTest extends Mockito {
 	public void batchProcessingTest3() {
 		try {
 			Destination destination = (Destination) initialContext.lookup("jms/Queue02");
-			MessageProducer producer = queueSession.createProducer(destination);
+			MessageProducer producer = jmsSession.createProducer(destination);
 
 			// loop
-			javax.jms.Message message = queueSession.createMessage();
+			javax.jms.Message message = jmsSession.createMessage();
 			message.setObjectProperty("id2", "1");
 			message.setObjectProperty("name2", "abcd");
 			message.setObjectProperty("address2", "addr1");
@@ -622,7 +631,7 @@ public class ActionsTest extends Mockito {
 			producer.send(message);
 			// end loop
 
-			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
+			QueueBrowser queueBrowser = jmsSession.createBrowser((Queue) destination);
 
 			int numOfTries = 3;
 			Enumeration<Object> queueBrowserEnumeration = null;
@@ -650,10 +659,10 @@ public class ActionsTest extends Mockito {
 	public void batchProcessingTest4() {
 		try {
 			Destination destination = (Destination) initialContext.lookup("jms/Queue02");
-			MessageProducer producer = queueSession.createProducer(destination);
+			MessageProducer producer = jmsSession.createProducer(destination);
 
 			// loop
-			javax.jms.Message message = queueSession.createMessage();
+			javax.jms.Message message = jmsSession.createMessage();
 			message.setObjectProperty("id2", "1");
 			message.setObjectProperty("name2", "abcd");
 			message.setObjectProperty("address2", "addr1");
@@ -661,7 +670,7 @@ public class ActionsTest extends Mockito {
 			producer.send(message);
 			// end loop
 
-			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
+			QueueBrowser queueBrowser = jmsSession.createBrowser((Queue) destination);
 
 			int numOfTries = 3;
 			Enumeration<Object> queueBrowserEnumeration = null;
@@ -694,7 +703,7 @@ public class ActionsTest extends Mockito {
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
 					+ "'tokens':'token123'}";
 			ServiceData producerData = JavaAgent.getAgent("100",null).serve("jms.jmsProducer", payLoad,PayloadType.JSON);
-			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
+			QueueBrowser queueBrowser = jmsSession.createBrowser((Queue) destination);
 
 			int numOfTries = 3;
 			Enumeration<Object> queueBrowserEnumeration = null;
@@ -722,7 +731,7 @@ public class ActionsTest extends Mockito {
 	public void jmsQueueConsumerTest() {
 		try {
 			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
-			QueueBrowser queueBrowser = queueSession.createBrowser((Queue) destination);
+			QueueBrowser queueBrowser = jmsSession.createBrowser((Queue) destination);
 			int numOfTries = 3;
 			Enumeration queueBrowserEnumeration = null;
 			for (numOfTries = 3; numOfTries > 0; numOfTries--) {

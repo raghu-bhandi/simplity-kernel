@@ -22,7 +22,6 @@
 package org.simplity.kernel;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.simplity.json.JSONWriter;
 import org.simplity.json.Jsonable;
@@ -173,16 +172,20 @@ public class FormattedMessage implements Jsonable {
 		}
 		writer.endObject();
 	}
-	
-	public void addData(String data){
+
+	/**
+	 * add data to a formatted message
+	 * @param d
+	 */
+	public void addData(String d){
 		if(this.data==null){
 			this.data = new String[1];
-			this.data[0] = data;
+			this.data[0] = d;
 			return;
 		}
 		String[] tempData = Arrays.copyOf(this.data, this.data.length+1);
-		tempData[this.data.length] = data;
+		tempData[this.data.length] = d;
 		this.data = tempData;
-		return;		
+		return;
 	}
 }

@@ -24,14 +24,11 @@ package org.simplity.jms;
 
 import java.util.Properties;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
-import javax.jms.QueueSession;
 import javax.jms.Session;
-import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
-import javax.jms.TopicSession;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 
@@ -48,31 +45,22 @@ import org.simplity.kernel.Tracer;
  */
 public class JmsConnector {
 
-	/**
-	 * non-jta queue connection
-	 */
-	private static QueueConnectionFactory queueConnectionFactory;
-
-	/**
-	 * for jta-managed queue connection
-	 */
-	private static QueueConnectionFactory xaQueueConnectionFactory;
 
 	/**
 	 * non-jta connection
 	 */
-	private static TopicConnectionFactory topicConnectionFactory;
+	private static ConnectionFactory factory;
 
 	/**
 	 * for jta-managed connection
 	 */
-	private static TopicConnectionFactory xaTopicConnectionFactory;
-	
+	private static ConnectionFactory xaFactory;
+
 	/**
 	 * initial setup. Called by Application on startup
 	 *
-	 * @param queueConnectionFactory
-	 * @param xaQueueConnectionFactory
+	 * @param connectionFactory
+	 * @param xaConnectionFactory
 	 * @param properties
 	 *            additional properties like user name etc.. that are required
 	 *            to be set to teh context for getting the connection
@@ -81,7 +69,7 @@ public class JmsConnector {
 	 * @throws ApplicationError
 	 *             : in case of any issue with the set-up
 	 */
-	public static String setup(String queueFactory, String xaQueueFactory, String topicFactory, String xaTopicFactory, Property[] properties) {
+	public static String setup(String connectionFactory, String xaConnectionFactory, Property[] properties) {
 		Context ctx = null;
 
 		try {
@@ -94,25 +82,13 @@ public class JmsConnector {
 			} else {
 				ctx = new InitialContext();
 			}
-			
-			if (queueFactory != null) {
-				queueConnectionFactory = (QueueConnectionFactory) ctx.lookup(queueFactory);
-				Tracer.trace("queueConnectionFactory successfully set to " + queueConnectionFactory.getClass().getName());
+			if (connectionFactory != null) {
+				factory = (QueueConnectionFactory) ctx.lookup(connectionFactory);
+				Tracer.trace("queueConnectionFactory successfully set to " + factory.getClass().getName());
 			}
-			
-			if (xaQueueFactory != null) {
-				xaQueueConnectionFactory = (QueueConnectionFactory) ctx.lookup(xaQueueFactory);
-				Tracer.trace("xaQueueConnectionFactory successfully set to " + xaQueueConnectionFactory.getClass().getName());
-			}
-			
-			if (topicFactory != null) {
-				topicConnectionFactory = (TopicConnectionFactory) ctx.lookup(topicFactory);
-				Tracer.trace("topicConnectionFactory successfully set to " + topicConnectionFactory.getClass().getName());
-			}
-			
-			if (xaTopicFactory != null) {
-				xaTopicConnectionFactory = (TopicConnectionFactory) ctx.lookup(xaTopicFactory);
-				Tracer.trace("xaTopicConnectionFactory successfully set to " + xaTopicConnectionFactory.getClass().getName());
+			if (xaConnectionFactory != null) {
+				xaFactory = (QueueConnectionFactory) ctx.lookup(xaConnectionFactory);
+				Tracer.trace("xaQueueConnectionFactory successfully set to " + xaFactory.getClass().getName());
 			}
 		} catch (Exception e) {
 			return e.getMessage();
@@ -148,50 +124,30 @@ public class JmsConnector {
 	private static JmsConnector borrow(JmsUsage jmsUsage, boolean multi) {
 
 		try {
-			QueueConnection queueConnection = null;
-			TopicConnection topicConnection = null;
+			Connection con = null;
 			boolean transacted = false;
-			QueueSession queueSession = null;
-			TopicSession topicSession = null;
+			Session session = null;
 			if (jmsUsage == JmsUsage.EXTERNALLY_MANAGED) {
-				if (xaQueueConnectionFactory == null && xaTopicConnectionFactory == null) {
+				if (xaFactory == null) {
 					throw new ApplicationError("Application is not set up for JMS with JTA/JCA/XA");
-				} else if(xaQueueConnectionFactory != null) {
-					queueConnection = xaQueueConnectionFactory.createQueueConnection();
-				} else if(xaTopicConnectionFactory != null) {
-					topicConnection = xaTopicConnectionFactory.createTopicConnection();
 				}
+				con = xaFactory.createConnection();
 			} else {
-				if (queueConnectionFactory == null && topicConnectionFactory == null) {
+				if (factory == null) {
 					throw new ApplicationError("Application is not set up for JMS local session managed operations");
-				} else if(queueConnectionFactory != null) {
-					queueConnection = queueConnectionFactory.createQueueConnection();
-				} else if(topicConnectionFactory != null) {
-					topicConnection = topicConnectionFactory.createTopicConnection();
 				}
-				
+				con = factory.createConnection();
 				if (jmsUsage == JmsUsage.SERVICE_MANAGED) {
 					transacted = true;
 				}
 			}
-			
-			if(queueConnection != null) {
-				queueSession = queueConnection.createQueueSession(transacted, Session.AUTO_ACKNOWLEDGE);
-				/*
-				 * not very well advertised.. but this method is a MUST for
-				 * consuming queues, though production works without that
-				 */
-				queueConnection.start();
-			}
-			if(topicConnection != null) {
-				topicSession = topicConnection.createTopicSession(transacted, Session.AUTO_ACKNOWLEDGE);
-				/*
-				 * not very well advertised.. but this method is a MUST for
-				 * consuming queues, though production works without that
-				 */
-				topicConnection.start();
-			}
-			return new JmsConnector(queueConnection, topicConnection, queueSession, topicSession, jmsUsage, multi);
+			session = con.createSession(transacted, Session.AUTO_ACKNOWLEDGE);
+			/*
+			 * not very well advertised.. but this method is a MUST for
+			 * consuming queues, though production works without that
+			 */
+			con.start();
+			return new JmsConnector(con, session, jmsUsage, multi);
 		} catch (Exception e) {
 			throw new ApplicationError(e, "Error while creating jms session");
 		}
@@ -209,23 +165,13 @@ public class JmsConnector {
 	/**
 	 * jndi name of queueConnection factory non-JTA connection
 	 */
-	private final QueueConnection queueConnection;
+	private final Connection connection;
 
 	/**
 	 * jndi name of queueConnection factory non-JTA connection
 	 */
-	private final TopicConnection topicConnection;
-	
-	/**
-	 * jndi name of queueConnection factory non-JTA connection
-	 */
-	private final QueueSession queueSession;
+	private final Session session;
 
-	/**
-	 * jndi name of queueConnection factory non-JTA connection
-	 */
-	private final TopicSession topicSession;
-	
 	/**
 	 * usage for which this instance is created
 	 */
@@ -234,20 +180,16 @@ public class JmsConnector {
 	private boolean forMultiTrans;
 
 	/**
-	 * @param queueConnection
-	 * @param topicConnection
-	 * @param queueSession
-	 * @param topicSession
+	 * @param con
+	 * @param session
 	 * @param jmsUsage
 	 */
-	private JmsConnector(QueueConnection queueConnection, TopicConnection topicConnection, 
-			QueueSession queueSession, TopicSession topicSession, JmsUsage jmsUsage, boolean multi) {
-		this.queueConnection = queueConnection;
-		this.queueSession = queueSession;
-		this.topicConnection = topicConnection;
-		this.topicSession = topicSession;
+	private JmsConnector(Connection con, Session session, JmsUsage jmsUsage, boolean multi) {
+		this.connection = con;
+		this.session = session;
 		this.jmsUsage = jmsUsage;
 		this.forMultiTrans = multi;
+
 	}
 
 	private void close(boolean allOk) {
@@ -256,18 +198,10 @@ public class JmsConnector {
 				if (this.jmsUsage == JmsUsage.SERVICE_MANAGED) {
 					if (allOk) {
 						Tracer.trace("Jms session committed.");
-						if(this.queueSession != null) {
-							this.queueSession.commit();
-						} else if(this.topicSession != null) {
-							this.topicSession.commit();
-						}
+						this.session.commit();
 					} else {
 						Tracer.trace("Jms session rolled-back.");
-						if(this.queueSession != null) {
-							this.queueSession.rollback();
-						} else if(this.topicSession != null) {
-							this.topicSession.rollback();
-						}
+						this.session.rollback();
 					}
 				} else {
 					Tracer.trace("non-transactional JMS session closed.");
@@ -277,20 +211,12 @@ public class JmsConnector {
 			}
 		}
 		try {
-			if(this.queueSession != null) {
-				this.queueSession.close();
-			} else if(this.topicSession != null) {
-				this.topicSession.close();
-			}
+			this.session.close();
 		} catch (Exception ignore) {
 			//
 		}
 		try {
-			if(this.queueConnection != null) {
-				this.queueConnection.close();
-			} else if(this.topicConnection != null) {
-				this.topicConnection.close();
-			}
+			this.connection.close();
 		} catch (Exception ignore) {
 			//
 		}
@@ -308,11 +234,7 @@ public class JmsConnector {
 	 */
 	public void commit() throws JMSException{
 		this.checkMulti();
-		if(this.queueSession != null) {
-			this.queueSession.commit();
-		} else if(this.topicSession != null) {
-			this.topicSession.commit();
-		}
+		this.session.commit();
 	}
 	/**
 	 * roll-back current transaction. Valid only if the connection is borrowed for multi-trnsactions
@@ -320,21 +242,12 @@ public class JmsConnector {
 	 */
 	public void rollback() throws JMSException{
 		this.checkMulti();
-		if(this.queueSession != null) {
-			this.queueSession.rollback();
-		} else if(this.topicSession != null) {
-			this.topicSession.rollback();
-		}
+		this.session.rollback();
 	}
 	/**
 	 * @return session associated with this connector
 	 */
 	public Session getSession() {
-		if(this.queueSession != null) {
-			return this.queueSession;
-		} else if(this.topicSession != null) {
-			return this.topicSession;
-		}
-		return null;
+		return this.session;
 	}
 }

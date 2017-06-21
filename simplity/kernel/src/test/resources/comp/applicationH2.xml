@@ -7,7 +7,7 @@
 	dbVendor="h2"
 	dbDriverClassName="org.h2.Driver"
 	connectionString="jdbc:h2:file:${project.build.directory}/${defaultDB};user=sa;" 
-	queueConnectionFactory="vm://localhost?broker.persistent=false">
+	jmsConnectionFactory="vm://localhost?broker.persistent=false">
 	<schemaDetails>
 		<schemaDetail
 			schemaName="TESTSCHEMA"

@@ -368,14 +368,8 @@ public class Application {
 	 * if JMS is used by this application, connection factory for local/session
 	 * managed operations
 	 */
-	String queueConnectionFactory;
-	
-	/**
-	 * if JMS is used by this application, connection factory for local/session
-	 * managed operations
-	 */
-	String topicConnectionFactory;
-	
+	String jmsConnectionFactory;
+
 	/**
 	 * properties of jms connection, like user name password and other flags
 	 */
@@ -384,7 +378,7 @@ public class Application {
 	 * if JMS is used by this application, connection factory for JTA/JCA/XA
 	 * managed operations
 	 */
-	String xaQueueConnectionFactory;
+	String xaJmsConnectionFactory;
 
 	/**
 	 * if JMS is used by this application, connection factory for JTA/JCA/XA
@@ -511,10 +505,9 @@ public class Application {
 		/*
 		 * Setup JMS Connection factory
 		 */
-		if (this.queueConnectionFactory != null || this.xaQueueConnectionFactory != null 
-				|| this.topicConnectionFactory != null || this.xaTopicConnectionFactory != null) {
-			String msg = JmsConnector.setup(this.queueConnectionFactory, this.xaQueueConnectionFactory, 
-					this.topicConnectionFactory, this.xaTopicConnectionFactory, this.jmsProperties);
+		if (this.jmsConnectionFactory != null || this.xaJmsConnectionFactory != null) {
+			String msg = JmsConnector.setup(this.jmsConnectionFactory, this.xaJmsConnectionFactory,
+					this.jmsProperties);
 			if (msg != null) {
 				msgs.add(msg);
 			}
