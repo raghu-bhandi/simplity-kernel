@@ -386,6 +386,9 @@ public class HttpClient extends Action {
 		if (this.urlString != null) {
 			this.parsedUrlString = TextUtil.getFieldName(this.urlString);
 		}
+		if(this.requestData!=null){
+			this.requestData.getReady();
+		}
 	}
 
 	/*
