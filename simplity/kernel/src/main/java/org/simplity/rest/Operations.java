@@ -26,6 +26,7 @@ import java.io.File;
 
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Tracer;
+import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.JsonUtil;
 
@@ -262,10 +263,21 @@ public class Operations {
 	 */
 	public static void main(String[] args) {
 		String rootFolder = "C:/repos/simplity/test/WebContent/WEB-INF/api/";
+		String txt = FileManager.readFile(new File(rootFolder + "troubleTicket.json.txt"));
+		JSONObject swagger = new JSONObject(txt);
+		JSONObject defs = swagger.optJSONObject(Tags.DEFS_ATTR);
+		if(defs == null){
+			Tracer.trace("No defintions found");
+			return;
+		}
+
+		Tracer.trace("going to scan " + defs.length() + " schemas at the root level");
+		Record[] recs = Record.fromSwaggerDefinitions(null, defs);
+		Tracer.trace(recs.length + " records generated");
+		/*
 		loadFromFile(rootFolder+"junk.json");
 		Operation op = rootNode.getChild("app").getChild("t").getOpertion("post");
 		System.out.print("");
-		/*
 		loadAll(rootFolder);
 		JSONObject params = new JSONObject();
 		Operation spec = getServiceSpec("/app/troubleTicket/1234", "get", params);

@@ -124,7 +124,7 @@ public abstract class Parameter {
 		 */
 		this.name = paramSpec.optString(Tags.PARAM_NAME_ATTR, "array-item");
 		this.fieldName = paramSpec.optString(Tags.FIELD_NAME_ATTR, this.name);
-		this.defaultValue = paramSpec.opt(Tags.DEFAULT_ATT);
+		this.defaultValue = paramSpec.opt(Tags.DEFAULT_ATTR);
 		this.isRequired = paramSpec.optBoolean(Tags.REQUIRED_ATTR, false);
 
 		JSONArray vals = paramSpec.optJSONArray(Tags.ENUM_ATT);
