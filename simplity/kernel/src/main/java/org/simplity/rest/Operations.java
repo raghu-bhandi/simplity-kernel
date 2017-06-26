@@ -57,7 +57,7 @@ public class Operations {
 	 * @param params
 	 * @return spec or null if there is no spec for this url
 	 */
-	public static Operation getServiceSpec(String path, String method, JSONObject params) {
+	public static Operation getOperation(String path, String method, JSONObject params) {
 		if (path == null || path.isEmpty()) {
 			return null;
 		}
@@ -70,7 +70,7 @@ public class Operations {
 		while (node != null) {
 			Tracer.trace("Looking for spec at " + node.getPathPrefix());
 			if (node.isValidPath()) {
-				Operation spec = node.getServiceSpec(method);
+				Operation spec = node.getOpertion(method);
 				if (spec == null) {
 					Tracer.trace(method + " is not valid for path " + path);
 					return null;
@@ -263,6 +263,8 @@ public class Operations {
 	public static void main(String[] args) {
 		String rootFolder = "C:/repos/simplity/test/WebContent/WEB-INF/api/";
 		loadFromFile(rootFolder+"junk.json");
+		Operation op = rootNode.getChild("app").getChild("t").getOpertion("post");
+		System.out.print("");
 		/*
 		loadAll(rootFolder);
 		JSONObject params = new JSONObject();
