@@ -46,7 +46,7 @@ public class HttpUtil {
 	 *         body. null in case of error.
 	 * @throws IOException
 	 */
-	public static String readInput(HttpServletRequest req) throws IOException {
+	public static String readBody(HttpServletRequest req) throws IOException {
 		BufferedReader reader = null;
 		StringBuilder sbf = new StringBuilder();
 		try {
@@ -69,24 +69,60 @@ public class HttpUtil {
 	}
 
 	/**
+	 * @param req
+	 * @param existingJson
+	 *            if you want form fields to be copied to an existing json.null if
+	 *            you want a new one to be created for this.
+	 * @return json to which form fields, if any are copied to. it is
+	 *         existingJson if it were non-null. it is a new json object if
+	 *         existingJson was null
+	 * @throws IOException
+	 */
+	public static JSONObject getFormAsJson(HttpServletRequest req, JSONObject existingJson) throws IOException {
+		JSONObject params = existingJson == null ? new JSONObject() : existingJson;
+
+		parseQueryString(req, params);
+		return params;
+	}
+
+	/**
 	 * extract query string parameters into json
 	 *
 	 * @param req
-	 * @param params
+	 * @param existingJson
+	 *            null if you want a new json to be created and returned for
+	 *            this.
+	 * @return json to which query string parameters, if any are copied. always
+	 *         non-null.
 	 */
-	public static void parseQueryString(HttpServletRequest req, JSONObject params) {
-		String text = req.getQueryString();
-		if(text == null){
+	public static JSONObject parseQueryString(HttpServletRequest req, JSONObject existingJson) {
+		JSONObject params = existingJson;
+		if (params == null) {
+			params = new JSONObject();
+		}
+		parseFields(req.getQueryString(), params);
+		return params;
+	}
+
+	/**
+	 * extract query string parameters into json
+	 *
+	 * @param uriEncodedString
+	 * @param params
+	 *            to which fields are to be extracted
+	 */
+	public static void parseFields(String uriEncodedString, JSONObject params) {
+		if (uriEncodedString == null) {
 			return;
 		}
-		text = text.trim();
-		if(text.isEmpty()){
+		String text = uriEncodedString.trim();
+		if (text.isEmpty()) {
 			return;
 		}
 		String[] parts = text.split("&");
 		try {
 			for (String part : parts) {
-				if(part.isEmpty()){
+				if (part.isEmpty()) {
 					continue;
 				}
 				String[] pair = part.split("=");

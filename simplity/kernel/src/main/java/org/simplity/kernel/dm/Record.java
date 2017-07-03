@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Struct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,11 +54,14 @@ import org.simplity.kernel.data.DataSerializationType;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.FlatFileRowType;
+import org.simplity.kernel.data.InputRecord;
 import org.simplity.kernel.data.MultiRowsSheet;
+import org.simplity.kernel.data.OutputRecord;
 import org.simplity.kernel.data.SingleRowSheet;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.dt.DataTypeSuggester;
+import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.util.XmlUtil;
@@ -68,8 +72,6 @@ import org.simplity.kernel.value.ValueType;
 import org.simplity.service.ResponseWriter;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
-import org.simplity.tp.InputRecord;
-import org.simplity.tp.OutputRecord;
 
 /**
  *
@@ -1930,7 +1932,7 @@ public class Record implements Component {
 		int nbrPrimaries = 0;
 		int nbrParents = 0;
 		int nbrEncrypted = 0;
-
+		List<Field> pkeys = new ArrayList<Field>();
 		for (int i = 0; i < this.fields.length; i++) {
 			Field field = this.fields[i];
 			if (this.forFixedWidthRow) {
@@ -1948,6 +1950,7 @@ public class Record implements Component {
 			}
 			FieldType ft = field.getFieldType();
 			if (FieldType.isPrimaryKey(ft)) {
+				pkeys.add(field);
 				nbrPrimaries++;
 			}
 			if (FieldType.isParentKey(ft)) {
@@ -1966,6 +1969,8 @@ public class Record implements Component {
 				this.isComplexStruct = true;
 			}
 		}
+		if(pkeys.size()>0)
+			this.allPrimaryKeys = pkeys.toArray(new Field[pkeys.size()]);
 		/*
 		 * last field is allowed to be flexible in a fixed width record
 		 */
@@ -3710,6 +3715,241 @@ public class Record implements Component {
 		}
 		texts[nbr] = inText.substring(beginIdx);
 		return texts;
+	}
+
+	/**
+	 * definitions object
+	 */
+	private static final String DEFS_ATTR = "definitions";
+	private static final String REF_ATTR = "$ref";
+	private static final String DEFAULT_ATTR = "default";
+	private static final String FIELD_NAME_ATTR = "x-fieldName";
+	private static final String COLN_FORMAT_ATT = "collectionFormat";
+	private static final String FORMAT_ATT = "format";
+	private static final String REQ_ATTR = "required";
+	private static final String PROPERTIES_ATTR = "properties";
+	private static final String TYPE_ATTR = "type";
+
+	/**
+	 * creates a record component based on schema specification from a swagger
+	 * document
+	 *
+	 * @param schema
+	 *            non-null non-empty object with each attribute representing a
+	 *            field
+	 * @param recordName
+	 *            non-null simple name of the record
+	 * @param moduleName
+	 *            can be null. module name. Full name of record would be
+	 *            moduleName.recordNme
+	 * @return record, or null in case the schema is not valid.
+	 */
+	public static Record fromSwagger(JSONObject schema, String recordName, String moduleName,String[] defNames) {
+		if (schema == null) {
+			Tracer.trace("schema for record " + recordName + " is null");
+			return null;
+		}
+		JSONObject attrs = schema.optJSONObject(PROPERTIES_ATTR);
+		if(attrs == null ||attrs.length() == 0){
+			Tracer.trace("Schema for record " + recordName + " has no fields");
+			return null;
+		}
+		/*
+		 * list of required fields
+		 */
+		JSONArray arr = schema.optJSONArray(REQ_ATTR);
+		Set<String> reqs = null;
+		if(arr != null){
+			reqs = new HashSet<String>();
+			for(Object r : reqs){
+				reqs.add(r.toString());
+			}
+		}
+
+		Record record = new Record();
+		record.name = recordName;
+		record.moduleName = moduleName;
+		List<String> childRecs = new ArrayList<String>();
+		String[] names = JSONObject.getNames(attrs);
+		int nbr = names.length;
+		List<Field> fieldsList = new ArrayList<Field>();
+		Field[] fields = new Field[nbr];
+		for (int i = 0; i < fields.length; i++) {
+			String fn = names[i];
+			JSONObject attr = attrs.optJSONObject(fn);
+			if (attr == null) {
+				Tracer.trace("Schema has improper details for field " + fn);
+				return null;
+			}
+			Field field = new Field();			
+			field.name = attr.optString(FIELD_NAME_ATTR, fn);
+			field.isRequired = reqs !=null && reqs.contains(fn);
+			Object def = attr.opt(DEFAULT_ATTR);
+			if (def != null) {
+				field.defaultValue = def.toString();
+			}
+			setTypeForSwaggerType(field, attr);
+			/*
+			 * if this is an object, we have to recurse
+			 */
+			if(field.fieldType == FieldType.RECORD || field.fieldType == FieldType.VALUE_ARRAY){
+				/*
+				 * good practice is to define all records at the root level, and refer them anywhere. Hence we will not do this recursion
+				 */
+	
+				for(String s: defNames){
+					String refDefinition = attr.optJSONObject("items").optString(REF_ATTR);
+					if(s.equalsIgnoreCase(refDefinition.substring(refDefinition.lastIndexOf('/')+1))){
+						if(moduleName != null){
+							childRecs.add(moduleName+"."+s);
+						}else{
+							childRecs.add(s);
+						}
+						break;
+					}
+				}
+				continue;
+			}
+			fieldsList.add(field);
+		}
+		int nbrOfChildRecs = childRecs.size();
+		if(nbrOfChildRecs > 0){
+			record.childrenToBeSaved = new String[nbrOfChildRecs];
+			record.childrenToBeRead = new String[nbrOfChildRecs];
+			record.childrenToBeSaved = childRecs.toArray(record.childrenToBeSaved);
+			record.childrenToBeRead = childRecs.toArray(record.childrenToBeRead);
+		}
+		fields = fieldsList.toArray(new Field[0]);
+		record.okToSelectAll = true;
+		record.fields = fields;
+		return record;
+	}
+
+	/**
+	 * @param parm
+	 */
+	public static void setTypeForSwaggerType(Field field, JSONObject parm) {
+		String type = parm.optString(TYPE_ATTR, null);
+		String format = parm.optString(FORMAT_ATT, null);
+		/*
+		 * default text
+		 */
+		field.dataType = DataType.DEFAULT_TEXT;
+		if (type == null) {
+			return;
+		}
+		if (type.equals("string")) {
+			if (format != null) {
+				if (format.equals("date")) {
+					field.dataType = DataType.DEFAULT_DATE;
+				} else if (format.equals("date-time")) {
+					field.dataType = DataType.DEFAULT_DATE_TIME;
+				}
+			}
+			return;
+		}
+		if (type.equals("integer")) {
+			field.dataType = DataType.DEFAULT_NUMBER;
+			return;
+		}
+		if (type.equals("number")) {
+			field.dataType = DataType.DEFAULT_DECIMAL;
+			return;
+		}
+		if (type.equals("boolean")) {
+			field.dataType = DataType.DEFAULT_BOOLEAN;
+			return;
+		}
+		if (type.equals("file")) {
+			Tracer.trace("Simplity does not handle files as a dat type in dat amodels. text/string is assumed");
+			return;
+		}
+		if (type.equals("array")) {
+			if (parm.opt(COLN_FORMAT_ATT) != null) {
+				Tracer.trace("array with a serialization type has been defined as text.");
+				return;
+			}
+			field.fieldType = FieldType.VALUE_ARRAY;
+			return;
+		}
+
+		if (type.equals("object")) {
+			field.fieldType = FieldType.RECORD;
+			return;
+		}
+		/*
+		 * use text as default
+		 */
+		Tracer.trace("Unable to determine the type, and hence resporting to text");
+		return;
+	}
+
+	/**
+	 * create record for each of the schema defined in the swagger in the
+	 * definitions section
+	 *
+	 * @param moduleName
+	 * @param defs
+	 * @return array of records generated
+	 */
+	public static Record[] fromSwaggerDefinitions(String moduleName, JSONObject defs) {
+		Record[] empty = new Record[0];
+		if (defs == null) {
+			return empty;
+		}
+		String[] names = JSONObject.getNames(defs);
+		if (names.length == 0) {
+			return empty;
+		}
+
+		List<Record> records = new ArrayList<Record>();
+		for (String recName : names) {
+			parseSchema(recName, moduleName, defs.getJSONObject(recName), records,names);
+		}
+
+		if (records.size() == 0) {
+			return empty;
+		}
+		return records.toArray(empty);
+	}
+
+	/**
+	 *
+	 * @param recName
+	 * @param schema
+	 * @param records
+	 */
+
+	private static void parseSchema(String recName, String moduleName, JSONObject schema, List<Record> records,String[] defNames) {
+		if (schema.opt(REF_ATTR) != null) {
+			Tracer.trace("schema " + recName + " is referencing another schema, and hence ignored.");
+			return;
+		}
+		Record record = fromSwagger(schema, recName, moduleName,defNames);
+		if (record != null) {
+			records.add(record);
+		}
+	}
+	/**
+	 *
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		String rootFolder = "D:/";
+		String txt = FileManager.readFile(new File(rootFolder + "troubleTicket.json"));
+		JSONObject swagger = new JSONObject(txt);
+		JSONObject defs = swagger.optJSONObject(DEFS_ATTR);
+		if(defs == null){
+			Tracer.trace("No defintions found");
+			return;
+		}
+
+		Tracer.trace("going to scan " + defs.length() + " schemas at the root level");
+		Record[] recs = Record.fromSwaggerDefinitions(null, defs);
+		for(Record rec : recs){
+			Tracer.trace(XmlUtil.objectToXmlString(rec));
+		}
+
 	}
 }
 

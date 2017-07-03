@@ -20,27 +20,60 @@
  * SOFTWARE.
  */
 
-package org.simplity.openapi;
+package org.simplity.rest.param;
+
+import java.util.List;
 
 import org.simplity.json.JSONObject;
+import org.simplity.kernel.FormattedMessage;
 
 /**
- * utility class that maps a service request from this channel/client into
- * desired name/format for the server
- *
  * @author simplity.org
  *
  */
-public class ServiceMapper {
+public class BooleanParameter extends Parameter {
+	private static String[] TRUE_VALUES = {"true", "1", "yes"};
+	private static String[] FALSE_VALUES = {"false", "0", "no"};
 
 	/**
-	 * translate client request into name/format that this server understands
-	 * @param serviceName
-	 * @param params input parameters. We may alter the contents to suit the server
-	 * @return service name that the server understands
+	 * spec when name is not part of it, For example inside a schema
+	 * @param paramSpec
+	 * @param fieldName
+	 * @param name
 	 */
-	public static String translate(String serviceName, JSONObject params){
-		params.put("_serviceName", serviceName);
-		return "junk";
+	protected BooleanParameter(String name, String fieldName, JSONObject paramSpec) {
+		super(paramSpec);
 	}
+	/**
+	 * construct based on api spec
+	 * @param paramSpec
+	 */
+	protected BooleanParameter(JSONObject paramSpec){
+		super(paramSpec);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.rest.parm.Parameter#validate(java.lang.Object, java.util.List)
+	 */
+	@Override
+	public Object doValidate(Object value, List<FormattedMessage> messages) {
+		if(value instanceof Boolean ){
+			return value;
+		}
+
+		String val = value.toString();
+		for(String text : TRUE_VALUES){
+			if(text.equals(val)){
+				return Boolean.TRUE;
+			}
+		}
+		for(String text : FALSE_VALUES){
+			if(text.equals(val)){
+				return Boolean.FALSE;
+			}
+		}
+
+		return this.invalidValue(messages);
+	}
+
 }

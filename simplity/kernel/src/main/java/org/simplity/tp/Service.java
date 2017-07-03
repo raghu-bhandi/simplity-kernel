@@ -33,6 +33,7 @@ import javax.transaction.UserTransaction;
 
 import org.simplity.jms.JmsConnector;
 import org.simplity.jms.JmsUsage;
+import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
@@ -46,6 +47,11 @@ import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataPurpose;
 import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.data.InputData;
+import org.simplity.kernel.data.InputField;
+import org.simplity.kernel.data.InputRecord;
+import org.simplity.kernel.data.OutputData;
+import org.simplity.kernel.data.OutputRecord;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
@@ -161,6 +167,7 @@ public class Service implements ServiceInterface {
 	 * it so long as the input values for these fields are same.
 	 */
 	String canBeCachedByFields;
+	String invalidateCache;
 	/**
 	 * does this service use jms? if so with what kind of transaction management
 	 */
@@ -619,11 +626,11 @@ public class Service implements ServiceInterface {
 		 * what is to be input
 		 */
 		InputRecord inRec = new InputRecord();
-		inRec.recordName = recordName;
-		inRec.purpose = DataPurpose.READ;
+		inRec.setRecordName(recordName);
+		inRec.setPurpose(DataPurpose.READ);
 		InputRecord[] inRecs = { inRec };
 		InputData inData = new InputData();
-		inData.inputRecords = inRecs;
+		inData.setRecords(inRecs);
 		service.inputData = inData;
 
 		/*
@@ -640,7 +647,7 @@ public class Service implements ServiceInterface {
 		 */
 		OutputRecord[] outRecs = getOutputRecords(record);
 		OutputData outData = new OutputData();
-		outData.outputRecords = outRecs;
+		outData.setOutputRecords(outRecs);
 		service.outputData = outData;
 
 		return service;
@@ -664,11 +671,11 @@ public class Service implements ServiceInterface {
 		 * input for filter
 		 */
 		InputRecord inRec = new InputRecord();
-		inRec.recordName = recordName;
-		inRec.purpose = DataPurpose.FILTER;
+		inRec.setRecordName(recordName);
+		inRec.setPurpose(DataPurpose.FILTER);
 		InputRecord[] inRecs = { inRec };
 		InputData inData = new InputData();
-		inData.inputRecords = inRecs;
+		inData.setRecords(inRecs);
 		service.inputData = inData;
 
 		Action action;
@@ -680,11 +687,11 @@ public class Service implements ServiceInterface {
 		 */
 		if (record.getChildrenToOutput() == null) {
 			action = new FilterToJson(record);
-			outData.outputFromWriter = true;
+			outData.enableOutputFromWriter();
 		} else {
 			action = new Filter(record);
 			OutputRecord[] outRecs = getOutputRecords(record);
-			outData.outputRecords = outRecs;
+			outData.setOutputRecords(outRecs);
 		}
 		action.failureMessageName = Messages.NO_ROWS;
 		Action[] actions = { action };
@@ -717,7 +724,7 @@ public class Service implements ServiceInterface {
 
 		InputField[] inFields = { f1, f2 };
 		InputData inData = new InputData();
-		inData.inputFields = inFields;
+		inData.setInputFields(inFields);
 		service.inputData = inData;
 
 		/*
@@ -734,7 +741,7 @@ public class Service implements ServiceInterface {
 		OutputRecord outRec = new OutputRecord(record);
 		OutputRecord[] outRecs = { outRec };
 		OutputData outData = new OutputData();
-		outData.outputRecords = outRecs;
+		outData.setOutputRecords(outRecs);
 		service.outputData = outData;
 
 		/*
@@ -770,7 +777,7 @@ public class Service implements ServiceInterface {
 		InputField f1 = new InputField(ServiceProtocol.LIST_SERVICE_KEY, DataType.DEFAULT_TEXT, false, null);
 		InputField[] inFields = { f1 };
 		InputData inData = new InputData();
-		inData.inputFields = inFields;
+		inData.setInputFields(inFields);
 		service.inputData = inData;
 		/*
 		 * use a List action to do the job
@@ -785,7 +792,7 @@ public class Service implements ServiceInterface {
 		OutputRecord outRec = new OutputRecord(record);
 		OutputRecord[] outRecs = { outRec };
 		OutputData outData = new OutputData();
-		outData.outputRecords = outRecs;
+		outData.setOutputRecords(outRecs);
 		service.outputData = outData;
 
 		/*
@@ -815,7 +822,7 @@ public class Service implements ServiceInterface {
 		 * child-records in data sheets
 		 */
 		InputData inData = new InputData();
-		inData.inputRecords = getInputRecords(record);
+		inData.setRecords(getInputRecords(record));
 		service.inputData = inData;
 
 		/*
@@ -841,10 +848,10 @@ public class Service implements ServiceInterface {
 		 * fields
 		 */
 		OutputRecord outRec = new OutputRecord();
-		outRec.recordName = recordName;
+		outRec.setRecordName(recordName);
 		OutputData outData = new OutputData();
 		OutputRecord[] outRecs = { outRec };
-		outData.outputRecords = outRecs;
+		outData.setOutputRecords(outRecs);
 		service.outputData = outData;
 
 		return service;
@@ -907,14 +914,14 @@ public class Service implements ServiceInterface {
 		}
 
 		InputRecord inRec = new InputRecord();
-		inRec.recordName = recordName;
-		inRec.purpose = DataPurpose.SAVE;
-		inRec.saveActionExpected = true;
+		inRec.setRecordName(recordName);
+		inRec.setPurpose(DataPurpose.SAVE);
+		inRec.enableSaveAction();
 		/*
 		 * inputRecord is lenient about sheetName. It is okay to specify that.
 		 * In case one row comes from client as fields, inputRecord manages that
 		 */
-		inRec.sheetName = record.getDefaultSheetName();
+		inRec.setSheetName(record.getDefaultSheetName());
 		InputRecord[] recs = new InputRecord[nrecs];
 		recs[0] = inRec;
 		if (children != null) {
@@ -1084,4 +1091,262 @@ public class Service implements ServiceInterface {
 		Tracer.trace("We have no on-the-fly service generator for operation " + operation);
 		return null;
 	}
+
+	/**
+	 * definitions object
+	 */
+	private static final String REF_ATTR = "$ref";
+	private static final String SERVICE_NAME_ATTR = "x-serviceName";
+	private static final String MODULE_NAME_ATTR = "x-moduleName";
+	private static final String FORMAT_ATT = "format";
+	private static final String PARAMETERSS_ATTR = "parameters";
+	private static final String RESPONSES_ATTR = "responses";
+	private static final String SCHEMA_ATTR = "schema";
+	private static final String TYPE_ATTR = "type";
+	
+		
+	public static Service[] fromSwaggerPaths(String moduleName, JSONObject pathsObj, JSONObject defs) {
+		Service[] empty = new Service[0];
+		if (pathsObj == null) {
+			return empty;
+		}
+		String[] paths = JSONObject.getNames(pathsObj);
+		if (paths.length == 0) {
+			return empty;
+		}
+
+		List<Service> services = new ArrayList<Service>();
+		for (String path : paths) {
+			parsePathSchema(path, moduleName, pathsObj.getJSONObject(path), services,paths,defs);
+		}
+
+		if (services.size() == 0) {
+			return empty;
+		}
+		return services.toArray(empty);
+	}
+
+	private static void parsePathSchema(String servName, String moduleName, JSONObject pathObject, List<Service> services,
+			String[] names, JSONObject defs) {
+		Service[] pathServices = fromSwagger(pathObject, servName, moduleName,names,defs);
+		if (pathServices != null) {
+			for(Service service : pathServices){
+				services.add(service);
+			}
+		}
+	}
+
+	private static Service[] fromSwagger(JSONObject pathObject, String servName, String moduleName2, String[] names, JSONObject defs) {
+		if (pathObject == null) {
+			//Tracer.trace("schema for record " + recordName + " is null");
+			return null;
+		}
+		String[] methods = JSONObject.getNames(pathObject);
+		if(methods == null || methods.length == 0){
+			Tracer.trace("Path " +pathObject+ " doesn't have any methods");
+			return null;
+		}
+		Service[] services = new Service[methods.length];
+		int count = 0;
+		for(String method : methods){
+			JSONObject methodObj = (JSONObject) pathObject.get(method);
+			String moduleName = null;
+			String serviceName = null;
+			moduleName = methodObj.optString(MODULE_NAME_ATTR);
+			serviceName = methodObj.optString(SERVICE_NAME_ATTR);
+			if(serviceName == null || serviceName.isEmpty()){
+				serviceName = methodObj.optString("operationId");
+			}
+			Service service = new Service();
+			service.moduleName = moduleName;
+			service.setName(serviceName);	
+			JSONArray parameters = null;
+			JSONObject responses = null;
+			if(methodObj.has(PARAMETERSS_ATTR)){
+				parameters = methodObj.getJSONArray("PARAMETERSS_ATTR");
+				service.inputData = getInputDataFromSwagger(parameters, defs);
+			}	
+			if(methodObj.has(RESPONSES_ATTR)){
+				responses = methodObj.getJSONObject("RESPONSES_ATTR");
+				service.outputData = getOuputDataFromSwagger(responses, defs);
+			}
+			
+			if(method.equals("get")){
+				service.dbAccessType = DbAccessType.READ_ONLY;
+				if (responses == null || responses.length() == 0 || !responses.has("200")) {
+					return null;
+				}
+				JSONObject response = responses.getJSONObject("200");
+				if(response.has(SCHEMA_ATTR)){
+					JSONObject schema = response.getJSONObject(SCHEMA_ATTR);
+					String ref = schema.optString(REF_ATTR);
+					String def = ref.substring(ref.lastIndexOf('/') + 1);
+					if (def != null) {
+						Record rec = ComponentManager.getRecord(def);
+						RelatedRecord[] childRecs = getChildRecords(rec, false);
+						Action action = new Read(rec,childRecs);
+						Action[] actions = { action };
+						service.actions = actions;
+					} 
+				}	
+			}
+			
+			if (method.equals("post") || method.equals("put") || method.equals("patch")) {
+				service.dbAccessType = DbAccessType.READ_WRITE;
+				if (parameters == null || parameters.length() == 0) {
+					return null;
+				}		
+				int nbr = parameters.length();
+				for (int i = 0; i < nbr; i++) {
+					JSONObject params = parameters.getJSONObject(i);
+					String def = null;
+					if (params.has(SCHEMA_ATTR)) {
+						JSONObject schema = params.getJSONObject(SCHEMA_ATTR);
+						String ref = schema.optString(REF_ATTR);
+						def = ref.substring(ref.lastIndexOf('/') + 1);
+						if (def != null) {
+							Record rec = ComponentManager.getRecord(def);
+							RelatedRecord[] childRecs = getChildRecords(rec, false);
+							Action action = new Save(rec,childRecs);
+							Action[] actions = { action };
+							service.actions = actions;
+						}
+					}
+				}				
+			}			
+			services[count] = service;
+			count++;
+		}	
+	return services;
+	}
+
+	private static InputData getInputDataFromSwagger(JSONArray parameters,JSONObject defs){
+		InputData inData = new InputData();
+		if (parameters == null || parameters.length() == 0) {
+				return null;
+		}		
+		int nbr = parameters.length();
+		List<InputField> inFields = new ArrayList<InputField>();
+		List<InputRecord> inputRecords = new ArrayList<InputRecord>();
+		for (int i = 0; i < nbr; i++) {
+			JSONObject params = parameters.getJSONObject(i);
+			InputField field = new InputField();			
+			String def = null;
+			if (params.has(SCHEMA_ATTR)) {
+				JSONObject schema = params.getJSONObject(SCHEMA_ATTR);
+				String ref = schema.optString(REF_ATTR);
+				def = ref.substring(ref.lastIndexOf('/') + 1);
+				if (def != null) {
+					Record rec = Record.fromSwagger(defs.getJSONObject(def), def, null,
+							JSONObject.getNames(defs));
+					for(InputRecord inrec:getInputRecords(rec)){
+						inputRecords.add(inrec);
+					}
+				}
+			} else {
+				field.setName(params.getString("name"));
+				setTypeForSwaggerType(field, params);
+				inFields.add(field);
+			}
+		}	
+		inData.setInputFields(inFields.toArray(new InputField[inFields.size()]));
+		inData.setRecords(inputRecords.toArray(new InputRecord[inputRecords.size()]));
+		return inData;
+	}
+	
+	private static OutputData getOuputDataFromSwagger(JSONObject responses,JSONObject defs){
+		OutputData outData = new OutputData();
+		List<String> outFields = new ArrayList<String>();
+		List<OutputRecord> outputRecords = new ArrayList<OutputRecord>();
+		
+		if (responses == null || responses.length() == 0 || !responses.has("200")) {
+			return null;
+		}
+		JSONObject response = responses.getJSONObject("200");
+		JSONArray parameters = null;
+		if(response.has(PARAMETERSS_ATTR)){
+			parameters = response.getJSONArray(PARAMETERSS_ATTR);
+			int nbr = parameters.length();
+			for (int i = 0; i < nbr; i++) {
+				JSONObject params = parameters.getJSONObject(i);
+				String def = null;
+				if (params.has(SCHEMA_ATTR)) {
+					JSONObject schema = params.getJSONObject(SCHEMA_ATTR);
+					String ref = schema.optString(REF_ATTR);
+					def = ref.substring(ref.lastIndexOf('/') + 1);
+					if (def != null) {
+						Record rec = ComponentManager.getRecord(def);
+						rec.getReady();
+						for(OutputRecord outrec:getOutputRecords(rec)){
+							outputRecords.add(outrec);
+						}					
+					} 
+				}else {
+					outFields.add(params.get("name").toString());
+				}
+			}
+		}
+		if(response.has(SCHEMA_ATTR)){
+			JSONObject schema = response.getJSONObject(SCHEMA_ATTR);
+			String ref = schema.optString(REF_ATTR);
+			String def = ref.substring(ref.lastIndexOf('/') + 1);
+			if (def != null) {
+				Record rec = ComponentManager.getRecord(def);
+				rec.getReady();
+				for(OutputRecord outrec:getOutputRecords(rec)){
+					outputRecords.add(outrec);
+				}					
+			} 
+		}		
+		outData.setOutputFields(outFields.toArray(new String[outFields.size()]));
+		outData.setOutputRecords(outputRecords.toArray(new OutputRecord[outputRecords.size()]));
+	return outData;
+	}
+	
+	/**
+	 * @param param
+	 */
+	public static void setTypeForSwaggerType(InputField field, JSONObject param) {
+		String type = param.optString(TYPE_ATTR, null);
+		String format = param.optString(FORMAT_ATT, null);
+		/*
+		 * default text
+		 */
+		field.setDataType(DataType.DEFAULT_TEXT);
+		if (type == null) {
+			return;
+		}
+		if (type.equals("string")) {
+			if (format != null) {
+				if (format.equals("date")) {
+					field.setDataType(DataType.DEFAULT_DATE);
+				} else if (format.equals("date-time")) {
+					field.setDataType(DataType.DEFAULT_DATE_TIME);
+				}
+			}
+			return;
+		}
+		if (type.equals("integer")) {
+			field.setDataType(DataType.DEFAULT_NUMBER);
+			return;
+		}
+		if (type.equals("number")) {
+			field.setDataType(DataType.DEFAULT_DECIMAL);
+			return;
+		}
+		if (type.equals("boolean")) {
+			field.setDataType(DataType.DEFAULT_BOOLEAN);
+			return;
+		}
+		/*
+		 * use text as default
+		 */
+		Tracer.trace("Unable to determine the type, and hence resporting to text");
+		return;
+	}
+
+	public String getFieldsToCache() {
+		return this.canBeCachedByFields;
+	}
+
 }

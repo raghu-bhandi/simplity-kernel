@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 simplity.org
+ * Copyright (c) 2016 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,23 +20,31 @@
  * SOFTWARE.
  */
 
-package org.simplity.service;
+package org.simplity.rest;
+
+import org.simplity.json.JSONObject;
 
 /**
- * utility to take data elements from a service context and format them as a
- * text
- *
  * @author simplity.org
  *
  */
-public interface DataFormatter {
-	/**
-	 * pick values for data elements from service contract and format a text that
-	 * can be used to transport this
-	 *
-	 * @param ctx
-	 *            service context
-	 * @return serialized/formatted text
+public class TestTranslator implements ServiceTranslator {
+
+	/* (non-Javadoc)
+	 * @see org.simplity.rest.ServiceTranslator#translateInput(java.lang.String, org.simplity.json.JSONObject)
 	 */
-	public String format(ServiceContext ctx);
+	@Override
+	public String translateInput(String serviceName, JSONObject params) {
+		return "junk";
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.rest.ServiceTranslator#translateOutput(java.lang.String, org.simplity.json.JSONObject)
+	 */
+	@Override
+	public void translateOutput(String serviceName, JSONObject params) {
+		// TODO Auto-generated method stub
+
+	}
+
 }

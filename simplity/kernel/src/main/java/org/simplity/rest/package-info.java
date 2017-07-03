@@ -25,4 +25,4 @@
  * @author simplity.org
  *
  */
-package org.simplity.openapi;
+package org.simplity.rest;
