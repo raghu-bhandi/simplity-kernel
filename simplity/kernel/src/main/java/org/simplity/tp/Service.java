@@ -1105,7 +1105,7 @@ public class Service implements ServiceInterface {
 	private static final String TYPE_ATTR = "type";
 	
 		
-	public static Service[] fromSwaggerPaths(String moduleName, JSONObject pathsObj, JSONObject defs) {
+	public static Service[] fromSwaggerPaths(JSONObject pathsObj, JSONObject defs) {
 		Service[] empty = new Service[0];
 		if (pathsObj == null) {
 			return empty;
@@ -1117,7 +1117,7 @@ public class Service implements ServiceInterface {
 
 		List<Service> services = new ArrayList<Service>();
 		for (String path : paths) {
-			parsePathSchema(path, moduleName, pathsObj.getJSONObject(path), services,paths,defs);
+			parsePathSchema(pathsObj.getJSONObject(path), services,paths,defs);
 		}
 
 		if (services.size() == 0) {
@@ -1126,9 +1126,9 @@ public class Service implements ServiceInterface {
 		return services.toArray(empty);
 	}
 
-	private static void parsePathSchema(String servName, String moduleName, JSONObject pathObject, List<Service> services,
+	private static void parsePathSchema(JSONObject pathObject, List<Service> services,
 			String[] names, JSONObject defs) {
-		Service[] pathServices = fromSwagger(pathObject, servName, moduleName,names,defs);
+		Service[] pathServices = fromSwagger(pathObject,names,defs);
 		if (pathServices != null) {
 			for(Service service : pathServices){
 				services.add(service);
@@ -1136,7 +1136,7 @@ public class Service implements ServiceInterface {
 		}
 	}
 
-	private static Service[] fromSwagger(JSONObject pathObject, String servName, String moduleName2, String[] names, JSONObject defs) {
+	private static Service[] fromSwagger(JSONObject pathObject,String[] names, JSONObject defs) {
 		if (pathObject == null) {
 			//Tracer.trace("schema for record " + recordName + " is null");
 			return null;

@@ -283,11 +283,6 @@ public class ServiceAgent {
 				}
 			}
 			
-			String invalidateCache = (String) inputData.get("invalidateCache");
-			String[] servicesToInvalidate = invalidateCache.split(",");
-			for(String servName: servicesToInvalidate){
-				invalidateCache(servName, inputData);
-			}
 			
 			/*
 			 * is this to be run in the background always?
@@ -307,6 +302,13 @@ public class ServiceAgent {
 					Tracer.trace(serviceName + " returned with errors.");
 				} else {
 					Tracer.trace(serviceName + " responded with all OK signal");
+					String invalidateCache = (String) inputData.get("invalidateCache");
+					if(invalidateCache != null){
+						String[] servicesToInvalidate = invalidateCache.split(",");
+						for(String servName: servicesToInvalidate){
+							invalidateCache(servName, inputData);
+						}
+					}
 				}
 				if (this.cacheManager != null && hasErrors == false) {
 					this.cacheManager.cache(inputData, response);
