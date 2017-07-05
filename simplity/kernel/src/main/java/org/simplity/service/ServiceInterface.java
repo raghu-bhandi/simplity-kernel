@@ -64,7 +64,7 @@ public interface ServiceInterface extends Component {
 	 *
 	 * @return true if caching is ok, false otherwise
 	 */
-	public boolean okToCache();
+	public boolean okToCache(ServiceData inData);
 
 	/**
 	 * @return data base access required by this service
