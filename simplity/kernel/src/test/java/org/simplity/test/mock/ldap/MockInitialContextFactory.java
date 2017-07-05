@@ -7,6 +7,8 @@ import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSession;
+import javax.jms.TopicConnection;
+import javax.jms.TopicSession;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.spi.InitialContextFactory;
@@ -30,6 +32,12 @@ public class MockInitialContextFactory implements InitialContextFactory {
 				Mockito.when(context.lookup("jms/Queue01")).thenReturn(destination);
 				Destination destination1 = queueSession.createQueue("jms/Queue02");
 				Mockito.when(context.lookup("jms/Queue02")).thenReturn(destination1);
+				
+				TopicConnection topicConnection = (TopicConnection) connectionFactory.createConnection();
+				TopicSession topicSession = topicConnection.createTopicSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
+				topicConnection.start();
+				Destination destination2 = topicSession.createTopic("jms/Topic01");
+				Mockito.when(context.lookup("jms/Topic01")).thenReturn(destination2);
 			} catch (JMSException e) {
 				e.printStackTrace();
 			}

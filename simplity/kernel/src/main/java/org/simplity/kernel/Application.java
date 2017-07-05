@@ -369,6 +369,7 @@ public class Application {
 	 * managed operations
 	 */
 	String jmsConnectionFactory;
+
 	/**
 	 * properties of jms connection, like user name password and other flags
 	 */
@@ -379,6 +380,12 @@ public class Application {
 	 */
 	String xaJmsConnectionFactory;
 
+	/**
+	 * if JMS is used by this application, connection factory for JTA/JCA/XA
+	 * managed operations
+	 */
+	String xaTopicConnectionFactory;
+	
 	/**
 	 * batch job to fire after boot-strapping.
 	 */
@@ -505,7 +512,7 @@ public class Application {
 				msgs.add(msg);
 			}
 		}
-
+		
 		/*
 		 * Setup Mail Agent
 		 */

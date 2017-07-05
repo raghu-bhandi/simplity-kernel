@@ -17,6 +17,7 @@ import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.jms.DeliveryMode;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -27,6 +28,12 @@ import javax.jms.QueueBrowser;
 import javax.jms.ConnectionFactory;
 import javax.jms.QueueSender;
 import javax.jms.TextMessage;
+import javax.jms.Topic;
+import javax.jms.TopicConnection;
+import javax.jms.TopicConnectionFactory;
+import javax.jms.TopicPublisher;
+import javax.jms.TopicSession;
+import javax.jms.TopicSubscriber;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -61,6 +68,7 @@ import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.FormattedMessage;
+import org.simplity.kernel.Property;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
@@ -670,7 +678,7 @@ public class ActionsTest extends Mockito {
 
 	
 	@Test
-	public void jmsProducerTest() {
+	public void jmsQueueProducerTest() {
 		try {
 			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
 			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
@@ -701,7 +709,7 @@ public class ActionsTest extends Mockito {
 	}
 
 	@Test
-	public void jmsConsumerTest() {
+	public void jmsQueueConsumerTest() {
 		try {
 			Destination destination = (Destination) initialContext.lookup("jms/Queue01");
 			QueueBrowser queueBrowser = jmsSession.createBrowser((Queue) destination);
@@ -730,6 +738,64 @@ public class ActionsTest extends Mockito {
 			e.printStackTrace();
 		}
 	}
+	
+	@SuppressWarnings("unused")
+	@Test
+	public void jmsTopicProducerTest() {
+		try {
+			Topic topic = (Topic) initialContext.lookup("jms/Topic01");
+			TopicSubscriber topicSubscriber01 = ((TopicSession)jmsSession).createSubscriber(topic);
+			TopicSubscriber topicSubscriber02 = ((TopicSession)jmsSession).createSubscriber(topic);
+		    TopicPublisher topicPublisher = ((TopicSession)jmsSession).createPublisher(topic);
+			
+			String payLoad = "{'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
+					+ "'tokens':'token123'}";
+			ServiceData producerData = JavaAgent.getAgent("100",null).serve("jms.jmsTopicProducer", payLoad,PayloadType.JSON);
+			
+			ActiveMQMessage topicMessage01 = (ActiveMQMessage) topicSubscriber01.receive();
+			assertEquals(topicMessage01.getProperty("personId"), "personid123");
+			assertEquals(topicMessage01.getProperty("comments"), "comments123");
+			assertEquals(topicMessage01.getProperty("tokens"), "token123");
+			
+			ActiveMQMessage topicMessage02 = (ActiveMQMessage) topicSubscriber02.receive();
+			assertEquals(topicMessage02.getProperty("personId"), "personid123");
+			assertEquals(topicMessage02.getProperty("comments"), "comments123");
+			assertEquals(topicMessage02.getProperty("tokens"), "token123");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/*@SuppressWarnings("unused")
+	@Test
+	public void jmsTopicConsumerTest() {
+		try {
+			Topic topic = (Topic) initialContext.lookup("jms/Topic01");
+			TopicSubscriber topicSubscriber = ((TopicSession)jmsSession).createSubscriber(topic);
+		    TopicPublisher topicPublisher = ((TopicSession)jmsSession).createPublisher(topic);
+		    topicPublisher.setTimeToLive(10000);
+		    topicPublisher.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
+			TextMessage message = ((TopicSession)jmsSession).createTextMessage();
+			String payLoad = "commentSheet={'id':'1'," + "'personId':'personid123'," + "'comments':'comments123',"
+					+ "'tokens':'token123'}";
+			message.setText(payLoad);
+			topicPublisher.publish(message);
+			
+			ServiceData consumerData = JavaAgent.getAgent("100",null).serve("jms.jmsTopicConsumer", null,PayloadType.JSON);
+			JSONObject consumerObject = new JSONObject(consumerData.getPayLoad());
+			JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");				
+			for (int i = 0; i < commentSheet.length(); i++) {
+				JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
+				assertEquals(commentSheetRow.get("personId"), "personid123");
+				assertEquals(commentSheetRow.get("comments"), "comments123");
+				assertEquals(commentSheetRow.get("tokens"), "token123");
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}*/
 	
 	@Test
 	public void hystricsTestSynchronous() {
