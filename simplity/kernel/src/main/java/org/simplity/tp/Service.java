@@ -1099,7 +1099,7 @@ public class Service implements ServiceInterface {
 	private static final String SERVICE_NAME_ATTR = "x-serviceName";
 	private static final String MODULE_NAME_ATTR = "x-moduleName";
 	private static final String FORMAT_ATT = "format";
-	private static final String PARAMETERSS_ATTR = "parameters";
+	private static final String PARAMETERS_ATTR = "parameters";
 	private static final String RESPONSES_ATTR = "responses";
 	private static final String SCHEMA_ATTR = "schema";
 	private static final String TYPE_ATTR = "type";
@@ -1162,12 +1162,12 @@ public class Service implements ServiceInterface {
 			service.setName(serviceName);	
 			JSONArray parameters = null;
 			JSONObject responses = null;
-			if(methodObj.has(PARAMETERSS_ATTR)){
-				parameters = methodObj.getJSONArray("PARAMETERSS_ATTR");
+			if(methodObj.has(PARAMETERS_ATTR)){
+				parameters = methodObj.getJSONArray(PARAMETERS_ATTR);
 				service.inputData = getInputDataFromSwagger(parameters, defs);
 			}	
 			if(methodObj.has(RESPONSES_ATTR)){
-				responses = methodObj.getJSONObject("RESPONSES_ATTR");
+				responses = methodObj.getJSONObject(RESPONSES_ATTR);
 				service.outputData = getOuputDataFromSwagger(responses, defs);
 			}
 			
@@ -1264,8 +1264,8 @@ public class Service implements ServiceInterface {
 		}
 		JSONObject response = responses.getJSONObject("200");
 		JSONArray parameters = null;
-		if(response.has(PARAMETERSS_ATTR)){
-			parameters = response.getJSONArray(PARAMETERSS_ATTR);
+		if(response.has(PARAMETERS_ATTR)){
+			parameters = response.getJSONArray(PARAMETERS_ATTR);
 			int nbr = parameters.length();
 			for (int i = 0; i < nbr; i++) {
 				JSONObject params = parameters.getJSONObject(i);
@@ -1347,6 +1347,10 @@ public class Service implements ServiceInterface {
 
 	public String getFieldsToCache() {
 		return this.canBeCachedByFields;
+	}
+
+	public InputData getInputData() {
+		return this.inputData;
 	}
 
 }

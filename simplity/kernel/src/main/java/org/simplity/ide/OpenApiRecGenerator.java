@@ -26,6 +26,7 @@ public class OpenApiRecGenerator {
 		JSONObject defs = swagger.optJSONObject("definitions");
 		if (defs == null) {
 			Tracer.trace("No defintions found");
+			sc.close();
 			return;
 		}
 		Tracer.trace("going to scan " + defs.length() + " schemas at the root level");

@@ -1,6 +1,8 @@
 package org.simplity.ide;
 
 import java.io.File;
+import java.util.Scanner;
+
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.Tracer;
@@ -20,24 +22,29 @@ public class OpenApiServicesGenerator {
 	 * @throws Exception 
 	 */
 	public static void main(String[] args) throws Exception {
-		File jarPath = new File(OpenApiServicesGenerator.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		String targetPath = jarPath.getParent();
-		String folder = targetPath + File.separator + "comp" + File.separator;
-		Application.bootStrap(folder);
-	
-		String txt = FileManager.readFile(new File(folder +"openapi/troubleTicket.json"));
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Provide the swagger json file path");
+		String inputFile = sc.nextLine();
+		String txt = FileManager.readFile(new File(inputFile));
+		System.out.println("Provide path for comp folder of your project");
+		String compPath = sc.nextLine();
+		System.out.println("Provide path for output files");
+		String outPath = sc.nextLine();
+		Application.bootStrap(compPath);
 		JSONObject swagger = new JSONObject(txt);
 		JSONObject paths = swagger.optJSONObject("paths");
 		JSONObject defs = swagger.optJSONObject(DEFS_ATTR);
 		if(paths == null){
 			Tracer.trace("No paths found");
+			sc.close();
 			return;
 		}
 
 		Service[] services = Service.fromSwaggerPaths(paths,defs);
 		for(Service service : services){
 			String text = XmlUtil.objectToXmlString(service);
-			FileManager.writeFile(new File( targetPath + "/" + service.getSimpleName() + ".xml"), text);		
+			FileManager.writeFile(new File( outPath+ "/" + service.getSimpleName() + ".xml"), text);		
 		}
+		sc.close();
 	}
 }
