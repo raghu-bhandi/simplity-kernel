@@ -252,4 +252,5 @@ public class JmsConnector {
   public Session getSession() {
     return this.session;
   }
+
 }

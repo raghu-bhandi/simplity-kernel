@@ -302,12 +302,33 @@ public class InputField {
     } else if (this.defaultValue != null) {
       Value val = dt.parseValue(this.defaultValue);
 
-      if (val == null) {
-        ctx.addError(
-            "Default value of " + this.defaultValue + " is invalid for field " + this.name);
-        count++;
-      }
-    }
-    return count;
-  }
+			if (val == null) {
+				ctx.addError("Default value of " + this.defaultValue
+						+ " is invalid for field " + this.name);
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public boolean isRequired() {
+		return isRequired;
+	}
+
+	public void setRequired(boolean isRequired) {
+		this.isRequired = isRequired;
+	}
+
+	public void setDataType(String dataType) {
+		this.dataType = dataType;
+	}
+
 }

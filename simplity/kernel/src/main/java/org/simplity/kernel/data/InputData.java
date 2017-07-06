@@ -378,8 +378,20 @@ public class InputData {
     this.inputRecords = inRecs;
   }
 
-  /** @param inFields */
-  public void setInputFields(InputField[] inFields) {
-    this.inputFields = inFields;
-  }
+/**
+ *
+ * @param inFields
+ */
+public void setInputFields(InputField[] inFields){
+	this.inputFields = inFields;
+}
+
+/**
+ * 
+ * @return
+ */
+public InputField[] getInputFields() {
+	return inputFields;
+}
+
 }

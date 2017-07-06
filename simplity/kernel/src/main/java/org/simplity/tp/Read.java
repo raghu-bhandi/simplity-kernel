@@ -73,6 +73,13 @@ public class Read extends DbAction {
     this.cascadeFilterForChildren = true;
   }
 
+	public Read(Record record,RelatedRecord[] children) {
+		this.recordName = record.getQualifiedName();
+		this.actionName = "read_" + record.getSimpleName();
+		this.cascadeFilterForChildren = true;
+		this.childRecords = children;
+	}
+
   @Override
   protected int doDbAct(ServiceContext ctx, DbDriver driver) {
     Record record = ComponentManager.getRecord(this.recordName);
@@ -106,7 +113,6 @@ public class Read extends DbAction {
     if (this.childRecords != null) {
       for (RelatedRecord rr : this.childRecords) {
         Record cr = ComponentManager.getRecord(rr.recordName);
-
         logger.log(Level.INFO, "Going to read child record ");
         Tracer.trace("Going to read child record ");
         cr.filterForParents(outSheet, driver, rr.sheetName, this.cascadeFilterForChildren, ctx);

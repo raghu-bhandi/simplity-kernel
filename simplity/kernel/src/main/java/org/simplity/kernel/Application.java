@@ -66,6 +66,7 @@ import org.simplity.tp.ContextInterface;
  * @author simplity.org
  */
 public class Application {
+
   static final Logger logger = Logger.getLogger(Application.class.getName());
 
   /** any exception thrown by service may need to be reported to a central system. */

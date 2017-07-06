@@ -97,3 +97,4 @@ public class JmsConsumer extends Block {
     return count;
   }
 }
+

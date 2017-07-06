@@ -55,6 +55,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class BatchRowProcessor {
+
   static final Logger logger = Logger.getLogger(BatchRowProcessor.class.getName());
 
   /** if the rows are from a SQL */
@@ -732,3 +733,4 @@ public class BatchRowProcessor {
     }
   }
 }
+

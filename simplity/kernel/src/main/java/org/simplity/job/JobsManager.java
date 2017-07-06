@@ -1,4 +1,6 @@
+package org.simplity.job;
 /*
+
  * Copyright (c) 2017 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -20,7 +22,7 @@
  * SOFTWARE.
  */
 
-package org.simplity.job;
+
 
 import java.io.BufferedReader;
 import java.io.IOException;

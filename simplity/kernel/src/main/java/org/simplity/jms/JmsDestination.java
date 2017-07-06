@@ -1057,3 +1057,4 @@ public class JmsDestination {
     }
   }
 }
+
