@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,7 +54,7 @@ import org.simplity.service.ServiceContext;
  * @author infosys.com
  */
 public class HttpClient extends Action {
-  static final Logger logger = Logger.getLogger(HttpClient.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
 
   private static final char DOLLAR = '$';
   private static final String JSON = "/json";
@@ -253,8 +253,8 @@ public class HttpClient extends Action {
       String req = ctx.getTextValue(this.requestFieldName);
       if (req == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "No value for field "
                 + this.requestFieldName
                 + " in context, and hence no data is sent with the http request.");

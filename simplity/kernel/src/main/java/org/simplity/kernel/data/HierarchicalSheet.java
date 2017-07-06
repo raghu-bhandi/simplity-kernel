@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -38,7 +38,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public class HierarchicalSheet {
-  static final Logger logger = Logger.getLogger(HierarchicalSheet.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(HierarchicalSheet.class);
 
   private final String name;
   private final String[] fieldNames;
@@ -95,8 +95,8 @@ public class HierarchicalSheet {
     List<Value[]> rows = this.data.get(key);
     if (rows == null) {
 
-      logger.log(
-          Level.INFO, "No rows found in child sheet " + this.name + " for parent key " + key);
+      logger.info(
+           "No rows found in child sheet " + this.name + " for parent key " + key);
       Tracer.trace("No rows found in child sheet " + this.name + " for parent key " + key);
       return;
     }

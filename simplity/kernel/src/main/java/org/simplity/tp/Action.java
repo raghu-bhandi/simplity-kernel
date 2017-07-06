@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MessageType;
@@ -41,7 +41,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public abstract class Action {
-  static final Logger logger = Logger.getLogger(Action.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Action.class);
 
   private static final String ACTION_NAME_PREFIX = "_a";
 
@@ -107,15 +107,15 @@ public abstract class Action {
         Value val = this.executeOnCondition.evaluate(ctx);
         if (Value.intepretAsBoolean(val)) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Cleared the condition " + this.executeOnCondition + " for action to proceed.");
           Tracer.trace(
               "Cleared the condition " + this.executeOnCondition + " for action to proceed.");
         } else {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Condition " + this.executeOnCondition + " and hence skipping this action.");
           Tracer.trace("Condition " + this.executeOnCondition + " and hence skipping this action.");
           return null;

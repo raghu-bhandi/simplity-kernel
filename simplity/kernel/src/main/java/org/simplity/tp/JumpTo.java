@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
@@ -34,7 +34,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class JumpTo extends org.simplity.tp.Action {
-  static final Logger logger = Logger.getLogger(JumpTo.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(JumpTo.class);
 
   /** returns either a name of action to go to, or "_stop", "_error", "_continue", "_break" */
   String toAction;
@@ -45,7 +45,7 @@ public class JumpTo extends org.simplity.tp.Action {
   @Override
   protected Value doAct(ServiceContext ctx) {
 
-    logger.log(Level.INFO, "Trying to jump with value = " + this.returnValue);
+    logger.info("Trying to jump with value = " + this.returnValue);
     Tracer.trace("Trying to jump with value = " + this.returnValue);
     return this.returnValue;
   }

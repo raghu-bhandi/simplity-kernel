@@ -22,8 +22,8 @@
 
 package org.simplity.rest;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class Operation {
-  static final Logger logger = Logger.getLogger(Operation.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Operation.class);
 
   /**
    * service name that this operation maps to. This is calculated/determined based on logic, if it
@@ -106,8 +106,8 @@ public class Operation {
     JSONObject resps = operationSpec.optJSONObject(Tags.RESP_ATTR);
     if (resps == null || resps.length() == 0) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Response spec is missing for operation "
               + serviceName
               + ". Applicaiton level defult will be used for formatting response.");
@@ -136,7 +136,7 @@ public class Operation {
       } catch (Exception e) {
         throw new ApplicationError(
             e,
-            cls + " could not be used to get an instance of " + ServiceTranslator.class.getName());
+            cls + " could not be used to get an instance of " + ServiceTranslator.class);
       }
     }
     this.acceptAll = spec.optBoolean(Tags.ACCEPT_ALL_ATTR, false);
@@ -205,8 +205,8 @@ public class Operation {
         header.add(parm);
       } else {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Parameter "
                 + parm.getName()
                 + " ignored as it has an invalid 'in' attribute of "
@@ -299,7 +299,7 @@ public class Operation {
     String payload = HttpUtil.readBody(req);
     if (this.acceptAll) {
 
-      logger.log(Level.INFO, "We are to accept all data. we assume there are no data in header");
+      logger.info("We are to accept all data. we assume there are no data in header");
       Tracer.trace("We are to accept all data. we assume there are no data in header");
       if (payload != null) {
         try {
@@ -311,7 +311,7 @@ public class Operation {
           }
         } catch (Exception e) {
 
-          logger.log(Level.INFO, "payload is not a valid json. ignored");
+          logger.info("payload is not a valid json. ignored");
           Tracer.trace("payload is not a valid json. ignored");
         }
       }
@@ -367,24 +367,24 @@ public class Operation {
        */
       if (this.bodyParameter instanceof ObjectParameter) {
 
-        logger.log(Level.INFO, "body is being parsed as json object");
+        logger.info("body is being parsed as json object");
         Tracer.trace("body is being parsed as json object");
         body = new JSONObject(payload);
       } else if (this.bodyParameter instanceof ArrayParameter) {
         if (((ArrayParameter) this.bodyParameter).expectsTextValue() == false) {
 
-          logger.log(Level.INFO, "body is being parsed as josn array");
+          logger.info("body is being parsed as josn array");
           Tracer.trace("body is being parsed as josn array");
           obj = "Array";
           body = new JSONArray(payload);
         } else {
 
-          logger.log(Level.INFO, "payload is treated as serialized text value for an array field");
+          logger.info("payload is treated as serialized text value for an array field");
           Tracer.trace("payload is treated as serialized text value for an array field");
         }
       } else {
 
-        logger.log(Level.INFO, "payload is treated as a value for a single field");
+        logger.info("payload is treated as a value for a single field");
         Tracer.trace("payload is treated as a value for a single field");
       }
     } catch (Exception e) {
@@ -456,8 +456,8 @@ public class Operation {
     if (response == null) {
       response = Response.getDefaultForSuccess();
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Default Success Response is used as we could not get any definition for success");
       Tracer.trace(
           "Default Success Response is used as we could not get any definition for success");
@@ -484,8 +484,8 @@ public class Operation {
       }
     }
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "We are unable to pick a response from multiple choices, and hence choosing the first one");
     Tracer.trace(
         "We are unable to pick a response from multiple choices, and hence choosing the first one");
@@ -503,8 +503,8 @@ public class Operation {
     if (response == null) {
       response = Response.getDefaultForFailure();
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Default Failure Response is used as we could not get any definition for failure");
       Tracer.trace(
           "Default Failure Response is used as we could not get any definition for failure");

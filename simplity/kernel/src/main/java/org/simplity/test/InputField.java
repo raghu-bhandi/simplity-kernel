@@ -22,8 +22,8 @@
 
 package org.simplity.test;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
@@ -35,7 +35,7 @@ import org.simplity.kernel.util.JsonUtil;
  * @author simplity.org
  */
 public class InputField {
-  static final Logger logger = Logger.getLogger(InputField.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(InputField.class);
 
   /** field name. qualified name is relative to its parent. */
   String fieldSelector;
@@ -66,8 +66,8 @@ public class InputField {
   public void setInputValue(Object json, TestContext ctx) {
     if (this.fieldValue == null) {
 
-      logger.log(
-          Level.INFO, this.fieldSelector + " has no value, and hence is not added to the input");
+      logger.info(
+           this.fieldSelector + " has no value, and hence is not added to the input");
       Tracer.trace(this.fieldSelector + " has no value, and hence is not added to the input");
       return;
     }

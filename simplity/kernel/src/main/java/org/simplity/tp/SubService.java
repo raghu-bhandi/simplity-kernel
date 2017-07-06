@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
@@ -39,7 +39,7 @@ import org.simplity.service.ServiceInterface;
  * @author simplity.org
  */
 public class SubService extends Action {
-  static final Logger logger = Logger.getLogger(SubService.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(SubService.class);
 
   String serviceName;
 
@@ -49,11 +49,11 @@ public class SubService extends Action {
   protected Value delegate(ServiceContext ctx, DbDriver driver) {
     ServiceInterface service = ComponentManager.getService(this.serviceName);
 
-    logger.log(Level.INFO, "service " + this.serviceName + " started as sub service.");
+    logger.info("service " + this.serviceName + " started as sub service.");
     Tracer.trace("service " + this.serviceName + " started as sub service.");
     Value result = service.executeAsAction(ctx, driver, this.transactionIsDelegated);
 
-    logger.log(Level.INFO, "service " + this.serviceName + " returned control back.");
+    logger.info("service " + this.serviceName + " returned control back.");
     Tracer.trace("service " + this.serviceName + " returned control back.");
     return result;
   }

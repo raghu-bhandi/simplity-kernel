@@ -22,8 +22,8 @@
 
 package org.simplity.job;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 
@@ -35,7 +35,7 @@ import org.simplity.kernel.Tracer;
  * @author simplity.org
  */
 public class TimeOfDayScheduler implements Runnable {
-  static final Logger logger = Logger.getLogger(TimeOfDayScheduler.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(TimeOfDayScheduler.class);
 
   private static final int MAX_MINUTES = 24 * 60;
 
@@ -81,7 +81,7 @@ public class TimeOfDayScheduler implements Runnable {
   public void run() {
     this.thread = Thread.currentThread();
 
-    logger.log(Level.INFO, "TimeOfDay scheduler started.");
+    logger.info("TimeOfDay scheduler started.");
     Tracer.trace("TimeOfDay scheduler started.");
     while (true) {
       int nextDue = MAX_MINUTES;
@@ -90,7 +90,7 @@ public class TimeOfDayScheduler implements Runnable {
       for (ScheduledJob job : this.pollers) {
         int n = job.poll(minutes);
 
-        logger.log(Level.INFO, "Job " + job.scheduledJob.name + " can wait for " + n + " minutes");
+        logger.info("Job " + job.scheduledJob.name + " can wait for " + n + " minutes");
         Tracer.trace("Job " + job.scheduledJob.name + " can wait for " + n + " minutes");
         if (n > 0 && n < nextDue) {
           nextDue = n;
@@ -98,7 +98,7 @@ public class TimeOfDayScheduler implements Runnable {
       }
       try {
 
-        logger.log(Level.INFO, "TimeOfDay scheduler taking a nap for " + nextDue + " minutes.");
+        logger.info("TimeOfDay scheduler taking a nap for " + nextDue + " minutes.");
         Tracer.trace("TimeOfDay scheduler taking a nap for " + nextDue + " minutes.");
         Thread.sleep(nextDue * 60000);
       } catch (InterruptedException e) {
@@ -106,7 +106,7 @@ public class TimeOfDayScheduler implements Runnable {
           this.wakeupRequested = false;
         } else {
 
-          logger.log(Level.INFO, "TimeOfDayScheduler interrupted");
+          logger.info("TimeOfDayScheduler interrupted");
           Tracer.trace("TimeOfDayScheduler interrupted");
           return;
         }

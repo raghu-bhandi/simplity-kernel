@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel.util;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -124,7 +124,7 @@ import org.xml.sax.SAXParseException;
  * </pre>
  */
 public class XmlUtil {
-  static final Logger logger = Logger.getLogger(XmlUtil.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(XmlUtil.class);
 
   private static final String DEFAULT_MAP_KEY = "name";
   private static final String TRUE_VALUE = "true";
@@ -158,7 +158,7 @@ public class XmlUtil {
       return true;
     } catch (Exception e) {
 
-      logger.log(Level.INFO, "Error while reading resource " + e.getMessage());
+      logger.info("Error while reading resource " + e.getMessage());
       Tracer.trace("Error while reading resource " + e.getMessage());
       return false;
     }
@@ -178,7 +178,7 @@ public class XmlUtil {
       stream = FileManager.getResourceStream(fileName);
       if (stream == null) {
 
-        logger.log(Level.INFO, "Resource " + fileName + " not found.");
+        logger.info("Resource " + fileName + " not found.");
         Tracer.trace("Resource " + fileName + " not found.");
         return false;
       }
@@ -187,7 +187,7 @@ public class XmlUtil {
       return true;
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "Resource " + fileName + " failed to load.", e);
+    	logger.error("Resource " + fileName + " failed to load.", e);
       Tracer.trace(e, "Resource " + fileName + " failed to load.");
       return false;
     } finally {
@@ -244,7 +244,7 @@ public class XmlUtil {
      * we did not get the component element at all
      */
 
-    logger.log(Level.INFO, "XML has no components in it.");
+    logger.info("XML has no components in it.");
     Tracer.trace("XML has no components in it.");
   }
 
@@ -264,7 +264,7 @@ public class XmlUtil {
       stream = FileManager.getResourceStream(fileName);
       if (stream == null) {
 
-        logger.log(Level.INFO, "Unable to open file " + fileName + " failed to load.");
+        logger.info("Unable to open file " + fileName + " failed to load.");
         Tracer.trace("Unable to open file " + fileName + " failed to load.");
         return false;
       }
@@ -272,7 +272,7 @@ public class XmlUtil {
       return true;
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "Resource " + fileName + " failed to load.", e);
+    	logger.error( "Resource " + fileName + " failed to load.", e);
       Tracer.trace(e, "Resource " + fileName + " failed to load.");
       return false;
     } finally {
@@ -309,8 +309,8 @@ public class XmlUtil {
           String compName = ele.getAttribute(NAME_ATTRIBUTE);
           if (objects.containsKey(compName)) {
 
-            logger.log(
-                Level.INFO,
+            logger.info(
+                
                 compName + " is a duplicate " + className + ". Component definition skipped.");
             Tracer.trace(
                 compName + " is a duplicate " + className + ". Component definition skipped.");
@@ -320,8 +320,8 @@ public class XmlUtil {
           }
         } catch (ClassNotFoundException e) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               className
                   + " is not a valid class in package "
                   + packageName
@@ -333,8 +333,8 @@ public class XmlUtil {
                   + ". element ignored while loading components");
         } catch (InstantiationException e) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               className
                   + " in package "
                   + packageName
@@ -348,8 +348,8 @@ public class XmlUtil {
                   + e.getMessage());
         } catch (IllegalAccessException e) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               className
                   + " in package "
                   + packageName
@@ -386,8 +386,8 @@ public class XmlUtil {
           String className = ele.getAttribute(CLASS_NAME_ATTRIBUTE);
           if (compName == null || className == null) {
 
-            logger.log(
-                Level.INFO,
+            logger.info(
+                
                 "We expect attributes "
                     + NAME_ATTRIBUTE
                     + " and "
@@ -406,8 +406,8 @@ public class XmlUtil {
           } else {
             if (objects.containsKey(compName)) {
 
-              logger.log(
-                  Level.INFO, compName + " is a duplicate entry. class name definition ignored.");
+              logger.info(
+                   compName + " is a duplicate entry. class name definition ignored.");
               Tracer.trace(compName + " is a duplicate entry. class name definition ignored.");
             } else {
               objects.put(compName, className);
@@ -415,8 +415,8 @@ public class XmlUtil {
           }
         } else {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Expecting an element named "
                   + ENTRY
                   + " but found "
@@ -523,8 +523,8 @@ public class XmlUtil {
           }
         } else {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "xml element "
                   + child.getNodeName()
                   + " is ignored because there is no target field with that name");
@@ -705,7 +705,7 @@ public class XmlUtil {
           field.set(object, fieldObject);
         } else {
 
-          logger.log(Level.INFO, "No instance provided for field " + field.getName());
+          logger.info("No instance provided for field " + field.getName());
           Tracer.trace("No instance provided for field " + field.getName());
         }
         return;
@@ -981,7 +981,7 @@ public class XmlUtil {
       return true;
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, eleName + " could not be saved as xml. ", e);
+    	logger.error( eleName + " could not be saved as xml. ", e);
       Tracer.trace(e, eleName + " could not be saved as xml. ");
       return false;
     }
@@ -1237,8 +1237,8 @@ public class XmlUtil {
         nbrExtracted += n;
       }
 
-      logger.log(
-          Level.INFO, nbrExtracted + " fields extracted from root node. " + node.getNodeName());
+      logger.info(
+           nbrExtracted + " fields extracted from root node. " + node.getNodeName());
       Tracer.trace(nbrExtracted + " fields extracted from root node. " + node.getNodeName());
       return nbrExtracted;
     } catch (Exception e) {

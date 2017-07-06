@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel.dt;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.InvalidValueException;
@@ -32,7 +32,7 @@ import org.simplity.kernel.value.ValueType;
 
 /** @author simplity.org */
 public class BooleanDataType extends DataType {
-  static final Logger logger = Logger.getLogger(BooleanDataType.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(BooleanDataType.class);
 
   private static final String DESC = "1 for yes/true and 0 for false/no";
 
@@ -68,8 +68,8 @@ public class BooleanDataType extends DataType {
       }
     } catch (InvalidValueException e) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Boolean data type is asked to format  non-boolean value. False value assumed");
       Tracer.trace("Boolean data type is asked to format  non-boolean value. False value assumed");
     }

@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.comp.ComponentType;
 
@@ -34,7 +34,7 @@ import org.simplity.kernel.comp.ComponentType;
  * @author simplity.org
  */
 public class Messages {
-  static final Logger logger = Logger.getLogger(Messages.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Messages.class);
 
   /*
    * messages used internally
@@ -119,7 +119,7 @@ public class Messages {
     msg.name = messageName;
     msg.text = messageName + " : description for this message is not found.";
 
-    logger.log(Level.INFO, "Missing message : " + messageName);
+    logger.info("Missing message : " + messageName);
     Tracer.trace("Missing message : " + messageName);
     return msg;
   }

@@ -21,8 +21,8 @@
  */
 package org.simplity.http;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,7 +46,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class Stream extends HttpServlet {
-  static final Logger logger = Logger.getLogger(Stream.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Stream.class);
 
   private static final String DOWNLOAD = "download=";
   /** */
@@ -65,12 +65,12 @@ public class Stream extends HttpServlet {
       if (ServiceProtocol.SERVICE_DELETE_FILE.equals(serviceName)) {
         String token = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
 
-        logger.log(Level.INFO, "Received a request to discard temp file token " + token);
+        logger.info("Received a request to discard temp file token " + token);
         Tracer.trace("Received a request to discard temp file token " + token);
         FileManager.deleteTempFile(token);
       } else {
 
-        logger.log(Level.INFO, "Going to upload file ");
+        logger.info("Going to upload file ");
         Tracer.trace("Going to upload file ");
         InputStream inStream = req.getInputStream();
         try {
@@ -89,7 +89,7 @@ public class Stream extends HttpServlet {
       }
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "Error while trying to upload a file.", e);
+    	logger.error( "Error while trying to upload a file.", e);
       Tracer.trace(e, "Error while trying to upload a file.");
       throw new ApplicationError(e, "Error while trying to upload a file.");
     }
@@ -109,7 +109,7 @@ public class Stream extends HttpServlet {
      */
     if (token == null) {
 
-      logger.log(Level.INFO, "No file/token specified for file download request");
+      logger.info("No file/token specified for file download request");
       Tracer.trace("No file/token specified for file download request");
       resp.setStatus(404);
       return;
@@ -117,13 +117,13 @@ public class Stream extends HttpServlet {
     boolean toDownload = false;
     if (token.indexOf(DOWNLOAD) == 0) {
 
-      logger.log(Level.INFO, "Received a download request for token " + token);
+      logger.info("Received a download request for token " + token);
       Tracer.trace("Received a download request for token " + token);
       toDownload = true;
       token = token.substring(DOWNLOAD.length());
     } else {
 
-      logger.log(Level.INFO, "Received request to stream token " + token);
+      logger.info("Received request to stream token " + token);
       Tracer.trace("Received request to stream token " + token);
     }
     /*
@@ -136,7 +136,7 @@ public class Stream extends HttpServlet {
       return;
     }
 
-    logger.log(Level.INFO, "No file available for token " + token);
+    logger.info("No file available for token " + token);
     Tracer.trace("No file available for token " + token);
     resp.setStatus(404);
   }
@@ -170,7 +170,7 @@ public class Stream extends HttpServlet {
       }
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "Error while copying file to response", e);
+    	logger.error( "Error while copying file to response", e);
       Tracer.trace(e, "Error while copying file to response");
       resp.setStatus(404);
     } finally {

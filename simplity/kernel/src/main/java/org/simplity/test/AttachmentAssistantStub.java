@@ -22,8 +22,8 @@
 
 package org.simplity.test;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 
@@ -44,7 +44,7 @@ import org.simplity.test.TestRun;
  * @author simplity.org
  */
 public class AttachmentAssistantStub implements AttachmentAssistant {
-  static final Logger logger = Logger.getLogger(AttachmentAssistantStub.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(AttachmentAssistantStub.class);
 
   private static final String PREFIX = "saved_";
   private static final String TOKEN = PREFIX + "token";
@@ -116,7 +116,7 @@ public class AttachmentAssistantStub implements AttachmentAssistant {
     JsonUtil.addObject(writer, ctx.getReport());
     writer.endObject();
 
-    logger.log(Level.INFO, writer.toString());
+    logger.info(writer.toString());
     Tracer.trace(writer.toString());
   }
 }

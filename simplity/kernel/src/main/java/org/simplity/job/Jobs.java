@@ -22,8 +22,8 @@
 
 package org.simplity.job;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,7 +46,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public class Jobs implements Component {
-  static final Logger logger = Logger.getLogger(Jobs.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Jobs.class);
 
   private static Jobs jobsInstance;
 
@@ -179,7 +179,7 @@ public class Jobs implements Component {
     ScheduledJob job = this.scheduledJobs.get(jobName);
     if (job == null) {
 
-      logger.log(Level.INFO, "No job named " + jobName);
+      logger.info("No job named " + jobName);
       Tracer.trace("No job named " + jobName);
       return;
     }
@@ -190,14 +190,14 @@ public class Jobs implements Component {
   public void reschedule(String jobName) {
     if (jobName == null || jobName.isEmpty()) {
 
-      logger.log(Level.INFO, "No job name specified for rescheduling");
+      logger.info("No job name specified for rescheduling");
       Tracer.trace("No job name specified for rescheduling");
       return;
     }
     ScheduledJob job = this.scheduledJobs.get(jobName);
     if (job == null) {
 
-      logger.log(Level.INFO, "No job named " + jobName);
+      logger.info("No job named " + jobName);
       Tracer.trace("No job named " + jobName);
       return;
     }
@@ -220,7 +220,7 @@ public class Jobs implements Component {
     ScheduledJob job = this.scheduledJobs.get(jobName);
     if (job == null) {
 
-      logger.log(Level.INFO, "No job named " + jobName);
+      logger.info("No job named " + jobName);
       Tracer.trace("No job named " + jobName);
       return;
     }
@@ -237,7 +237,7 @@ public class Jobs implements Component {
     ScheduledJob job = this.scheduledJobs.get(jobName);
     if (job == null) {
 
-      logger.log(Level.INFO, "No job named " + jobName);
+      logger.info("No job named " + jobName);
       Tracer.trace("No job named " + jobName);
       return;
     }
@@ -266,7 +266,7 @@ public class Jobs implements Component {
     ScheduledJob job = this.scheduledJobs.get(jobName);
     if (job == null) {
 
-      logger.log(Level.INFO, "No job named " + jobName);
+      logger.info("No job named " + jobName);
       Tracer.trace("No job named " + jobName);
       return inf;
     }
@@ -350,8 +350,8 @@ public class Jobs implements Component {
       return userId;
     }
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "Default User Id is not specified either at app level or at Jobs level. If they are indeed required in a service, and the job has not speicified, we will end up using a dummy value of 100");
     Tracer.trace(
         "Default User Id is not specified either at app level or at Jobs level. If they are indeed required in a service, and the job has not speicified, we will end up using a dummy value of 100");

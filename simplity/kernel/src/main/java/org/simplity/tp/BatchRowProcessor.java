@@ -22,8 +22,8 @@
 
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +56,7 @@ import org.simplity.service.ServiceContext;
  */
 public class BatchRowProcessor {
 
-  static final Logger logger = Logger.getLogger(BatchRowProcessor.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(BatchRowProcessor.class);
 
   /** if the rows are from a SQL */
   String inputSql;
@@ -555,8 +555,8 @@ public class BatchRowProcessor {
         }
         if (this.isInterruptible && Thread.interrupted()) {
 
-          logger.log(
-              Level.INFO, "Detected an interrupt. Going to stop processing rows from sql output");
+          logger.info(
+               "Detected an interrupt. Going to stop processing rows from sql output");
           Tracer.trace("Detected an interrupt. Going to stop processing rows from sql output");
           Thread.currentThread().interrupt();
           break;
@@ -580,8 +580,8 @@ public class BatchRowProcessor {
 
       if (this.isInterruptible && Thread.interrupted()) {
 
-        logger.log(
-            Level.INFO, "Detected an interrupt. Going to stop processing rows from sql output");
+        logger.info(
+             "Detected an interrupt. Going to stop processing rows from sql output");
         Tracer.trace("Detected an interrupt. Going to stop processing rows from sql output");
         Thread.currentThread().interrupt();
         return false;
@@ -691,7 +691,7 @@ public class BatchRowProcessor {
         boolean ok = this.batchInput.inputARow(errors, this.ctx);
         if (!ok) {
 
-          logger.log(Level.INFO, "No rows in file child file");
+          logger.info("No rows in file child file");
           Tracer.trace("No rows in file child file");
           return 0;
         }

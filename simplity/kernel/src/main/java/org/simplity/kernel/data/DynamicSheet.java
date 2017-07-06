@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +45,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class DynamicSheet implements DataSheet {
-  static final Logger logger = Logger.getLogger(DynamicSheet.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(DynamicSheet.class);
 
   private final Map<String, Value> fieldValues = new HashMap<String, Value>();
 
@@ -199,11 +199,11 @@ public class DynamicSheet implements DataSheet {
   @Override
   public void trace() {
 
-    logger.log(Level.INFO, "(Dynamic Sheet)");
+    logger.info("(Dynamic Sheet)");
     Tracer.trace("(Dynamic Sheet)");
     for (Map.Entry<String, Value> field : this.fieldValues.entrySet()) {
 
-      logger.log(Level.INFO, field.getKey() + '=' + field.getValue());
+      logger.info(field.getKey() + '=' + field.getValue());
       Tracer.trace(field.getKey() + '=' + field.getValue());
     }
   }
@@ -242,7 +242,7 @@ public class DynamicSheet implements DataSheet {
       i++;
     }
 
-    logger.log(Level.INFO, "We did not find column " + columnName + " in this dynamic sheet");
+    logger.info("We did not find column " + columnName + " in this dynamic sheet");
     Tracer.trace("We did not find column " + columnName + " in this dynamic sheet");
     return -1;
   }

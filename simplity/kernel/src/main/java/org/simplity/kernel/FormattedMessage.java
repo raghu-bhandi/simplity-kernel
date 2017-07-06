@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -36,7 +36,7 @@ import org.simplity.kernel.comp.ComponentType;
  * @author simplity.org
  */
 public class FormattedMessage implements Jsonable {
-  static final Logger logger = Logger.getLogger(FormattedMessage.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(FormattedMessage.class);
 
   /** name of the message */
   public final String name;
@@ -91,7 +91,7 @@ public class FormattedMessage implements Jsonable {
       this.text = messageName + " : description for this message is not found.";
       this.messageType = MessageType.WARNING;
 
-      logger.log(Level.INFO, "Missing message : " + messageName);
+      logger.info("Missing message : " + messageName);
       Tracer.trace("Missing message : " + messageName);
     } else {
       this.name = msg.getQualifiedName();

@@ -22,8 +22,8 @@
 
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
@@ -76,7 +76,7 @@ public enum DataSerializationType {
       Value value = field.getDataType().parseValue(text);
       if (value == null) {
 
-        logger.log(Level.INFO, text + " is not a valid value for field " + field.getName());
+        logger.info(text + " is not a valid value for field " + field.getName());
         Tracer.trace(text + " is not a valid value for field " + field.getName());
         return 0;
       }
@@ -186,8 +186,8 @@ public enum DataSerializationType {
         if (m > n) {
           sbf.append(txt.substring(0, n));
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Value "
                   + txt
                   + " is wider than the alotted width of "
@@ -420,8 +420,8 @@ public enum DataSerializationType {
         values[i] = fields[i].getDataType().parseValue(texts[i]);
         if (fields[i].getDataType().getValueType() == ValueType.DATE) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "text ="
                   + texts[i]
                   + " value = "
@@ -613,7 +613,7 @@ public enum DataSerializationType {
   /** serialized object - special case of Map */
   ,
   MAP;
-  static final Logger logger = Logger.getLogger(DataSerializationType.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(DataSerializationType.class);
 
   protected static final String NL = "\\r?\\n";
   protected static final char COMMA = ',';

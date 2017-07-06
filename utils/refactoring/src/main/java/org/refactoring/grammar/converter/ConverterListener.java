@@ -67,7 +67,7 @@ public class ConverterListener extends AbstractJavaListener {
 
 			if (!flagImportDecDone) {
 				// add the required imports
-				String field = "\nimport java.util.logging.Level;";
+				String field = "\nimport org.slf4j.Logger;";
 				rewriter.insertAfter(startImportToken, field);
 				field = "\nimport java.util.logging.Logger;";
 				rewriter.insertAfter(startImportToken, field);

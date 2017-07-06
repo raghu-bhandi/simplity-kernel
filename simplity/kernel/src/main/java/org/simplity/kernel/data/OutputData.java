@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,7 +51,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class OutputData {
-  static final Logger logger = Logger.getLogger(OutputData.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(OutputData.class);
 
   static final String EMPTY_RESPONSE =
       "{\"" + ServiceProtocol.REQUEST_STATUS + "\":\"" + ServiceProtocol.STATUS_OK + "\"}";
@@ -103,7 +103,7 @@ public class OutputData {
        * payload is ready in the writer
        */
 
-      logger.log(Level.INFO, "Picking up response from writer");
+      logger.info("Picking up response from writer");
       Tracer.trace("Picking up response from writer");
       ResponseWriter writer = ctx.getWriter();
       /*
@@ -124,8 +124,8 @@ public class OutputData {
       }
       if (obj == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "We expected a ready response in service context with name "
                 + this.responseTextFieldName
                 + " . We are sorry that we could not locate it, and we are sending an empty response.");
@@ -212,8 +212,8 @@ public class OutputData {
         DataSheet sheet = ctx.getDataSheet(sheetName);
         if (sheet == null) {
 
-          logger.log(
-              Level.INFO, "Service context has no sheet with name " + sheetName + " for output.");
+          logger.info(
+               "Service context has no sheet with name " + sheetName + " for output.");
           Tracer.trace("Service context has no sheet with name " + sheetName + " for output.");
         } else {
           outData.put(sheetName, ctx.getDataSheet(sheetName));
@@ -232,8 +232,8 @@ public class OutputData {
           Value value = ctx.getValue(arrayName);
           if (value == null) {
 
-            logger.log(
-                Level.INFO, "Service context has no sheet with name " + arrayName + " for output.");
+            logger.info(
+                 "Service context has no sheet with name " + arrayName + " for output.");
             Tracer.trace("Service context has no sheet with name " + arrayName + " for output.");
             continue;
           }
@@ -286,8 +286,8 @@ public class OutputData {
         DataSheet sheet = ctx.getDataSheet(sheetName);
         if (sheet == null) {
 
-          logger.log(
-              Level.INFO, "Service context has no sheet with name " + sheetName + " for output.");
+          logger.info(
+               "Service context has no sheet with name " + sheetName + " for output.");
           Tracer.trace("Service context has no sheet with name " + sheetName + " for output.");
         } else {
           writer.key(sheetName);
@@ -307,8 +307,8 @@ public class OutputData {
           Value value = ctx.getValue(arrayName);
           if (value == null) {
 
-            logger.log(
-                Level.INFO, "Service context has no sheet with name " + arrayName + " for output.");
+            logger.info(
+                 "Service context has no sheet with name " + arrayName + " for output.");
             Tracer.trace("Service context has no sheet with name " + arrayName + " for output.");
             continue;
           }
@@ -345,7 +345,7 @@ public class OutputData {
   public void onServiceStart(ServiceContext ctx) {
     if (this.outputFromWriter) {
 
-      logger.log(Level.INFO, "Started Writer for this service");
+      logger.info("Started Writer for this service");
       Tracer.trace("Started Writer for this service");
       ResponseWriter writer = new JSONWriter();
       writer.init();

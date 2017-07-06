@@ -22,8 +22,8 @@
 
 package org.simplity.job;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.Future;
@@ -38,7 +38,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public class ListenerJob extends ScheduledJob {
-  static final Logger logger = Logger.getLogger(ListenerJob.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ListenerJob.class);
 
   private RunningJob[] runningJobs;
   private Object[] futures;
@@ -83,7 +83,7 @@ public class ListenerJob extends ScheduledJob {
   public void incrmentThread(ScheduledExecutorService executor) {
     if (this.isScheduled == false) {
 
-      logger.log(Level.INFO, this.scheduledJob.name + " is not scheduled");
+      logger.info(this.scheduledJob.name + " is not scheduled");
       Tracer.trace(this.scheduledJob.name + " is not scheduled");
       return;
     }
@@ -117,15 +117,15 @@ public class ListenerJob extends ScheduledJob {
   public void decrmentThread(ScheduledExecutorService executor) {
     if (this.isScheduled == false) {
 
-      logger.log(Level.INFO, this.scheduledJob.name + " is not scheduled");
+      logger.info(this.scheduledJob.name + " is not scheduled");
       Tracer.trace(this.scheduledJob.name + " is not scheduled");
       return;
     }
     int nbr = this.runningJobs.length - 1;
     if (nbr == 0) {
 
-      logger.log(
-          Level.INFO, "Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
+      logger.info(
+           "Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
       Tracer.trace("Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
       return;
     }

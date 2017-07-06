@@ -36,10 +36,11 @@ public class DefaultExceptionListener implements ExceptionListener {
    */
   @Override
   public void listen(ServiceData inputData, Exception e) {
-    ServiceLogger.error("******************** FATAL ERROR **************************");
-    if (inputData != null) {
-      ServiceLogger.error("Input : \n" + inputData.getPayLoad());
-    }
-    ServiceLogger.error("Error :\n " + e.getMessage());
+//	  
+//    ServiceLogger.error("******************** FATAL ERROR **************************");
+//    if (inputData != null) {
+//      ServiceLogger.error("Input : \n" + inputData.getPayLoad());
+//    }
+//    ServiceLogger.error("Error :\n " + e.getMessage());
   }
 }

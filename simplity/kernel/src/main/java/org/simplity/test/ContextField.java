@@ -22,8 +22,8 @@
 
 package org.simplity.test;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Tracer;
@@ -31,7 +31,7 @@ import org.simplity.kernel.util.JsonUtil;
 
 /** Specification for a field from output of a service test to be added to the test context */
 public class ContextField {
-  static final Logger logger = Logger.getLogger(ContextField.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ContextField.class);
 
   /**
    * source of this field in the output JSON e.g. customerName or orders.lines[2].price. Special
@@ -54,8 +54,8 @@ public class ContextField {
     Object value = JsonUtil.getValue(this.fieldSelector, json);
     if (value == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Value for " + this.fieldSelector + " is null and hence is not added to the context");
       Tracer.trace(
           "Value for " + this.fieldSelector + " is null and hence is not added to the context");

@@ -22,8 +22,8 @@
  */
 package org.simplity.rest;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -41,7 +41,7 @@ import org.simplity.kernel.Tracer;
  * @author simplity.org
  */
 public class Serve extends HttpServlet {
-  static final Logger logger = Logger.getLogger(Serve.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Serve.class);
 
   private static final long serialVersionUID = 1L;
 
@@ -54,7 +54,7 @@ public class Serve extends HttpServlet {
     } catch (Exception e) {
       String msg = "We have an internal error. ";
 
-      logger.log(Level.SEVERE, msg, e);
+      logger.error( msg, e);
       Tracer.trace(e, msg);
       RestAgent.respondWithError(resp, msg + e.getMessage());
       return;

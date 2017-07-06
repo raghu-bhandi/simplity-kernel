@@ -22,8 +22,8 @@
  */
 package org.simplity.http;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -48,7 +48,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class DefaultLogin extends HttpServlet {
-  static final Logger logger = Logger.getLogger(DefaultLogin.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(DefaultLogin.class);
 
   /*
    * of course we will have several other issues like logging....
@@ -61,7 +61,7 @@ public class DefaultLogin extends HttpServlet {
     String text = req.getHeader(ServiceProtocol.USER_TOKEN);
     if (text == null) {
 
-      logger.log(Level.INFO, "No credentials received in header for login.");
+      logger.info("No credentials received in header for login.");
       Tracer.trace("No credentials received in header for login.");
       return;
     }

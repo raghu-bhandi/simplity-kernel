@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
@@ -39,7 +39,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Filter extends DbAction {
-  static final Logger logger = Logger.getLogger(Filter.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Filter.class);
 
   /** record that is used for inputting and creating filter criteria */
   String filterRecordName;
@@ -91,8 +91,8 @@ public class Filter extends DbAction {
       DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
       if (inSheet == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Filter Action "
                 + this.actionName
                 + " did not execute because input sheet "

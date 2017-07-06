@@ -1,7 +1,7 @@
 package org.simplity.ide;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import org.simplity.tp.Service;
  * @author simplity.org
  */
 public class GetService implements LogicInterface {
-  static final Logger logger = Logger.getLogger(GetService.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(GetService.class);
 
   /*
    * (non-Javadoc)
@@ -93,7 +93,7 @@ public class GetService implements LogicInterface {
     InputStream in = cls.getResourceAsStream(sourceName);
     if (in == null) {
 
-      logger.log(Level.INFO, "Unable to locate source for " + sourceName);
+      logger.info("Unable to locate source for " + sourceName);
       Tracer.trace("Unable to locate source for " + sourceName);
       return null;
     }
@@ -103,7 +103,7 @@ public class GetService implements LogicInterface {
       return out.toString();
     } catch (IOException e) {
 
-      logger.log(Level.INFO, "Error while copying reource " + e.getMessage());
+      logger.info("Error while copying reource " + e.getMessage());
       Tracer.trace("Error while copying reource " + e.getMessage());
       return null;
     } finally {

@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel.dt;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -37,7 +37,7 @@ import org.simplity.kernel.value.ValueType;
 
 /** @author simplity.org */
 public class DateDataType extends DataType {
-  static final Logger logger = Logger.getLogger(DateDataType.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(DateDataType.class);
 
   /** do we keep time as well? */
   boolean hasTime;
@@ -178,8 +178,8 @@ public class DateDataType extends DataType {
       date = value.toDate();
     } catch (InvalidValueException e) {
 
-      logger.log(
-          Level.INFO, "Value of type " + value.getValueType() + " passed for frmatting as date.");
+      logger.info(
+           "Value of type " + value.getValueType() + " passed for frmatting as date.");
       Tracer.trace("Value of type " + value.getValueType() + " passed for frmatting as date.");
       return "";
     }

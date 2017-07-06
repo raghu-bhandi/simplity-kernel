@@ -22,8 +22,8 @@
 
 package org.simplity.kernel.util;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.StringWriter;
 import java.io.Writer;
@@ -60,7 +60,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class JsonUtil {
-  static final Logger logger = Logger.getLogger(JsonUtil.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(JsonUtil.class);
 
   /**
    * create a data sheet out of a well-formed json array of simple jsonObject.
@@ -97,8 +97,8 @@ public class JsonUtil {
       JSONObject exampleObject = arr.optJSONObject(0);
       if (exampleObject == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Json array has its first object as null, and hence we abandoned parsing it.");
         Tracer.trace("Json array has its first object as null, and hence we abandoned parsing it.");
         return null;
@@ -125,8 +125,8 @@ public class JsonUtil {
       }
       if (parentIdx == -1) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Parent field name "
                 + parentFieldName
                 + " not found in the fields list for child. Filed will not be populated from parent sheet.");
@@ -145,7 +145,7 @@ public class JsonUtil {
       JSONObject obj = arr.optJSONObject(i);
       if (obj == null) {
 
-        logger.log(Level.INFO, "Row " + (i + 1) + " is null. Not extracted");
+        logger.info("Row " + (i + 1) + " is null. Not extracted");
         Tracer.trace("Row " + (i + 1) + " is null. Not extracted");
         continue;
       }
@@ -256,7 +256,7 @@ public class JsonUtil {
     if (ds == null || nbrRows == 0 || nbrCols == 0) {
       writer.value(null);
 
-      logger.log(Level.INFO, "Sheet  has no data. json is not added");
+      logger.info("Sheet  has no data. json is not added");
       Tracer.trace("Sheet  has no data. json is not added");
       return;
     }
@@ -616,12 +616,12 @@ public class JsonUtil {
         DataSheet sheet = JsonUtil.getSheet(arr, null, null, true, null, null);
         if (sheet == null) {
 
-          logger.log(Level.INFO, "Table " + key + " could not be extracted");
+          logger.info("Table " + key + " could not be extracted");
           Tracer.trace("Table " + key + " could not be extracted");
         } else {
           ctx.putDataSheet(key, sheet);
 
-          logger.log(Level.INFO, "Table " + key + " extracted with " + sheet.length() + " rows");
+          logger.info("Table " + key + " extracted with " + sheet.length() + " rows");
           Tracer.trace("Table " + key + " extracted with " + sheet.length() + " rows");
         }
         continue;
@@ -634,7 +634,7 @@ public class JsonUtil {
          */
         ctx.setObject(key, obj);
 
-        logger.log(Level.INFO, key + " retained as a JSON into ctx");
+        logger.info(key + " retained as a JSON into ctx");
         Tracer.trace(key + " retained as a JSON into ctx");
         continue;
       }
@@ -643,11 +643,11 @@ public class JsonUtil {
       if (value != null) {
         ctx.setValue(key, value);
 
-        logger.log(Level.INFO, key + " = " + value + " extracted");
+        logger.info(key + " = " + value + " extracted");
         Tracer.trace(key + " = " + value + " extracted");
       } else {
 
-        logger.log(Level.INFO, key + " = " + val + " is not extracted");
+        logger.info(key + " = " + val + " is not extracted");
         Tracer.trace(key + " = " + val + " is not extracted");
       }
     }
@@ -681,11 +681,11 @@ public class JsonUtil {
     }
     if (arr == null) {
 
-      logger.log(Level.INFO, "No data found for sheet " + arrName);
+      logger.info("No data found for sheet " + arrName);
       Tracer.trace("No data found for sheet " + arrName);
     } else if (ds == null) {
 
-      logger.log(Level.INFO, "Sheet " + arrName + " has only null data. Data not extracted");
+      logger.info("Sheet " + arrName + " has only null data. Data not extracted");
       Tracer.trace("Sheet " + arrName + " has only null data. Data not extracted");
     } else {
       ctx.putDataSheet(sheetName, ds);
@@ -779,8 +779,8 @@ public class JsonUtil {
         addObject(writer, entry.getValue().get(obj));
       } catch (Exception e) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Unable to get value for object attribute " + entry.getKey() + ". null assumed");
         Tracer.trace(
             "Unable to get value for object attribute " + entry.getKey() + ". null assumed");
@@ -875,8 +875,8 @@ public class JsonUtil {
       }
       if (obj instanceof JSONObject || obj instanceof JSONArray) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Element no (zero based) "
                 + i
                 + " is not a primitive, and hence unable to convert the JSONArray into an array of primitives");
@@ -925,7 +925,7 @@ public class JsonUtil {
      */
     if (fieldSelector == null || fieldSelector.isEmpty()) {
 
-      logger.log(Level.INFO, "Null/empty selector for get/setValue");
+      logger.info("Null/empty selector for get/setValue");
       Tracer.trace("Null/empty selector for get/setValue");
       if (option == 0) {
         return null;
@@ -1037,8 +1037,8 @@ public class JsonUtil {
     if (fieldSelector.equals(".")) {
       if (value instanceof JSONObject == false || json instanceof JSONObject == false) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "We expected a JSONObjects for source and destination, but got "
                 + json.getClass().getName()
                 + " as object, and  "
@@ -1146,7 +1146,7 @@ public class JsonUtil {
     JSONObject defs = json.optJSONObject("definitions");
     if (defs == null) {
 
-      logger.log(Level.INFO, "No definitions in this json");
+      logger.info("No definitions in this json");
       Tracer.trace("No definitions in this json");
       return;
     }
@@ -1238,8 +1238,8 @@ public class JsonUtil {
     Object subObj = definitions.opt(ref);
     if (subObj == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "defintion for " + ref + " not found. reference replaced with an empty object");
       Tracer.trace("defintion for " + ref + " not found. reference replaced with an empty object");
       subObj = new JSONObject();
@@ -1254,7 +1254,7 @@ public class JsonUtil {
       }
     }
 
-    logger.log(Level.INFO, "Replacing " + ref);
+    logger.info("Replacing " + ref);
     Tracer.trace("Replacing " + ref);
     return subObj;
   }
@@ -1271,12 +1271,12 @@ public class JsonUtil {
     }
     if (ref.indexOf(REF_PREFIX) != 0) {
 
-      logger.log(Level.INFO, "$ref is to be set to a value starting with " + REF_PREFIX);
+      logger.info("$ref is to be set to a value starting with " + REF_PREFIX);
       Tracer.trace("$ref is to be set to a value starting with " + REF_PREFIX);
       return null;
     }
 
-    logger.log(Level.INFO, "Found a ref entry for " + ref);
+    logger.info("Found a ref entry for " + ref);
     Tracer.trace("Found a ref entry for " + ref);
     return ref.substring(REF_PREFIX_LEN);
   }

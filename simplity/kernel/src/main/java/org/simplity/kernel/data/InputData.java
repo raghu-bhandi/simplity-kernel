@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
@@ -41,7 +41,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class InputData {
-  static final Logger logger = Logger.getLogger(InputData.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(InputData.class);
 
   /** do not parse the request text. Just set it to this field. Service will take care of that */
   String setInputToFieldName;
@@ -97,8 +97,8 @@ public class InputData {
     if (this.setInputToFieldName != null) {
       ctx.setTextValue(this.setInputToFieldName, json.toString());
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Request text is not parsed but set as object value of " + this.setInputToFieldName);
       Tracer.trace(
           "Request text is not parsed but set as object value of " + this.setInputToFieldName);
@@ -117,7 +117,7 @@ public class InputData {
         }
       }
 
-      logger.log(Level.INFO, n + " fields extracted for input");
+      logger.info(n + " fields extracted for input");
       Tracer.trace(n + " fields extracted for input");
     }
     if (this.inputRecords != null) {
@@ -153,8 +153,8 @@ public class InputData {
       DataSheet sheet = ctx.getDataSheet(sheetName);
       if (sheet == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Data sheet "
                 + sheetName
                 + " not input. Hence no attachment management on its column "
@@ -169,8 +169,8 @@ public class InputData {
       idx = sheet.getColIdx(colName);
       if (idx == -1) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Data sheet "
                 + sheetName
                 + " does not have a column named "
@@ -187,8 +187,8 @@ public class InputData {
       int nbr = sheet.length();
       if (nbr == 0) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Data sheet " + sheetName + " has no rows. No attachment management on this column");
         Tracer.trace(
             "Data sheet " + sheetName + " has no rows. No attachment management on this column");
@@ -211,8 +211,8 @@ public class InputData {
               "Unable to move attachment content with key=" + key + " from/to temp area");
         }
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Attachment key "
                 + key
                 + " replaced with "
@@ -239,7 +239,7 @@ public class InputData {
       String key = ctx.getTextValue(af);
       if (key == null || key.isEmpty()) {
 
-        logger.log(Level.INFO, "Attachment field " + af + " is not specified. Skipping it.");
+        logger.info("Attachment field " + af + " is not specified. Skipping it.");
         Tracer.trace("Attachment field " + af + " is not specified. Skipping it.");
         continue;
       }
@@ -251,13 +251,13 @@ public class InputData {
       }
       if (newKey == null) {
 
-        logger.log(Level.INFO, "Error while managing attachment key " + key);
+        logger.info("Error while managing attachment key " + key);
         Tracer.trace("Error while managing attachment key " + key);
         ctx.addValidationMessage(Messages.INVALID_ATTACHMENT_KEY, af, null, null, 0, newKey);
       } else {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Attachment key "
                 + key
                 + " replaced with "
@@ -342,8 +342,8 @@ public class InputData {
       String token = ctx.getTextValue(fieldName);
       if (token == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             attId
                 + " is an attachment input field. No value found in "
                 + fieldName
@@ -356,8 +356,8 @@ public class InputData {
       } else {
         AttachmentManager.removeFromStorage(token);
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Attachment field "
                 + attId
                 + " had an existing token "

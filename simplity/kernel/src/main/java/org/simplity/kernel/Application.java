@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
@@ -67,7 +67,7 @@ import org.simplity.tp.ContextInterface;
  */
 public class Application {
 
-  static final Logger logger = Logger.getLogger(Application.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Application.class);
 
   /** any exception thrown by service may need to be reported to a central system. */
   private static ExceptionListener currentExceptionListener = new DefaultExceptionListener();
@@ -188,7 +188,7 @@ public class Application {
     }
     if (msg == null) {
 
-      logger.log(Level.INFO, "Bootstrapping with " + componentFolder);
+      logger.info("Bootstrapping with " + componentFolder);
       Tracer.trace("Bootstrapping with " + componentFolder);
       Application app = new Application();
       try {
@@ -370,7 +370,7 @@ public class Application {
     if (this.traceWrapper != null) {
       try {
         TraceWrapper wrapper = Application.getBean(this.traceWrapper, TraceWrapper.class);
-        ServiceLogger.setWrapper(wrapper);
+        //ServiceLogger.setWrapper(wrapper);
 
       } catch (Exception e) {
         msgs.add(
@@ -451,8 +451,8 @@ public class Application {
                   + userTransactionInstance.getClass().getName());
         } else {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "userTransactionInstance set to " + userTransactionInstance.getClass().getName());
           Tracer.trace(
               "userTransactionInstance set to " + userTransactionInstance.getClass().getName());
@@ -524,15 +524,15 @@ public class Application {
      */
     if (this.loggingFramework == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "No logging framework set by application designer. All service logs will be emitted to console. (System.out)");
       Tracer.trace(
           "No logging framework set by application designer. All service logs will be emitted to console. (System.out)");
     } else {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Logging framework is set to "
               + this.loggingFramework
               + ". Will try to locate the right class and connect to it.");
@@ -541,10 +541,10 @@ public class Application {
               + this.loggingFramework
               + ". Will try to locate the right class and connect to it.");
       try {
-        ServiceLogger.setLogger(this.loggingFramework);
+       // ServiceLogger.setLogger(this.loggingFramework);
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Service logs successfully diverted to the logging framework " + this.loggingFramework);
         Tracer.trace(
             "Service logs successfully diverted to the logging framework " + this.loggingFramework);
@@ -556,7 +556,7 @@ public class Application {
                 + e.getMessage()
                 + "\nAre you missing required jar file?. ";
 
-        logger.log(Level.INFO, msg);
+        logger.info(msg);
         Tracer.trace(msg);
         msgs.add(msg);
       }
@@ -623,8 +623,8 @@ public class Application {
       try {
         threadFactory = (ThreadFactory) new InitialContext().lookup(this.threadFactoryJndiName);
 
-        logger.log(
-            Level.INFO, "Thread factory instantiated as " + threadFactory.getClass().getName());
+        logger.info(
+             "Thread factory instantiated as " + threadFactory.getClass().getName());
         Tracer.trace("Thread factory instantiated as " + threadFactory.getClass().getName());
       } catch (Exception e) {
         msgs.add(
@@ -640,8 +640,8 @@ public class Application {
         threadPoolExecutor =
             (ScheduledExecutorService) new InitialContext().lookup(this.scheduledExecutorJndiName);
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "ScheduledThreadPoolExecutor instantiated as "
                 + threadPoolExecutor.getClass().getName());
         Tracer.trace(
@@ -678,7 +678,7 @@ public class Application {
       }
       result = err.toString();
 
-      logger.log(Level.INFO, result);
+      logger.info(result);
       Tracer.trace(result);
     } else if (this.jobsToRunOnStartup != null) {
       /*
@@ -686,7 +686,7 @@ public class Application {
        */
       Jobs.startJobs(this.jobsToRunOnStartup);
 
-      logger.log(Level.INFO, "Scheduler started for Batch " + this.jobsToRunOnStartup);
+      logger.info("Scheduler started for Batch " + this.jobsToRunOnStartup);
       Tracer.trace("Scheduler started for Batch " + this.jobsToRunOnStartup);
     }
     return result;

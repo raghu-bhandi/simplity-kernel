@@ -22,8 +22,8 @@
 
 package org.simplity.jms;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
@@ -46,7 +46,7 @@ import org.simplity.kernel.Tracer;
  * @author simplity.org
  */
 public class JmsConnector {
-  static final Logger logger = Logger.getLogger(JmsConnector.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(JmsConnector.class);
 
   /** non-jta connection */
   private static ConnectionFactory factory;
@@ -81,16 +81,16 @@ public class JmsConnector {
       if (connectionFactory != null) {
         factory = (QueueConnectionFactory) ctx.lookup(connectionFactory);
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "queueConnectionFactory successfully set to " + factory.getClass().getName());
         Tracer.trace("queueConnectionFactory successfully set to " + factory.getClass().getName());
       }
       if (xaConnectionFactory != null) {
         xaFactory = (QueueConnectionFactory) ctx.lookup(xaConnectionFactory);
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "xaQueueConnectionFactory successfully set to " + xaFactory.getClass().getName());
         Tracer.trace(
             "xaQueueConnectionFactory successfully set to " + xaFactory.getClass().getName());
@@ -193,18 +193,18 @@ public class JmsConnector {
         if (this.jmsUsage == JmsUsage.SERVICE_MANAGED) {
           if (allOk) {
 
-            logger.log(Level.INFO, "Jms session committed.");
+            logger.info("Jms session committed.");
             Tracer.trace("Jms session committed.");
             this.session.commit();
           } else {
 
-            logger.log(Level.INFO, "Jms session rolled-back.");
+            logger.info("Jms session rolled-back.");
             Tracer.trace("Jms session rolled-back.");
             this.session.rollback();
           }
         } else {
 
-          logger.log(Level.INFO, "non-transactional JMS session closed.");
+          logger.info("non-transactional JMS session closed.");
           Tracer.trace("non-transactional JMS session closed.");
         }
       } catch (Exception e) {

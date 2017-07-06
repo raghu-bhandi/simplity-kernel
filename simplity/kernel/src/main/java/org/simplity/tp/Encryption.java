@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -37,7 +37,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity
  */
 public class Encryption extends Action {
-  static final Logger logger = Logger.getLogger(Encryption.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Encryption.class);
 
   private static final String ENCRYPT = "encrypt";
   private static final String DECRYPT = "decrypt";
@@ -64,7 +64,7 @@ public class Encryption extends Action {
         Value value = ctx.getValue(fieldName);
         if (value == null) {
 
-          logger.log(Level.INFO, fieldName + " not found in service context. Field not encrypted.");
+          logger.info(fieldName + " not found in service context. Field not encrypted.");
           Tracer.trace(fieldName + " not found in service context. Field not encrypted.");
         } else {
           ctx.setValue(fieldName, this.crypt(value));
@@ -77,8 +77,8 @@ public class Encryption extends Action {
         DataSheet ds = ctx.getDataSheet(sheetName);
         if (ds == null) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Datasheet"
                   + sheetName
                   + " not found in service context. "
@@ -95,8 +95,8 @@ public class Encryption extends Action {
         int nbrRows = ds.length();
         if (nbrRows == 0) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Datasheet" + sheetName + " has no data. " + this.columnNames[i] + " not encrypted.");
           Tracer.trace(
               "Datasheet" + sheetName + " has no data. " + this.columnNames[i] + " not encrypted.");
@@ -106,8 +106,8 @@ public class Encryption extends Action {
         int colIdx = ds.getColIdx(colName);
         if (colIdx == -1) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Coulmn"
                   + colName
                   + " does not exist in datasheet "
@@ -133,7 +133,7 @@ public class Encryption extends Action {
           row[colIdx] = this.crypt(row[colIdx]);
         }
 
-        logger.log(Level.INFO, nbrRows + " values transformed in data sheet " + sheetName);
+        logger.info(nbrRows + " values transformed in data sheet " + sheetName);
         Tracer.trace(nbrRows + " values transformed in data sheet " + sheetName);
       }
     }

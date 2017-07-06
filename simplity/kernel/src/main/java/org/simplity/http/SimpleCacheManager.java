@@ -22,8 +22,8 @@
 
 package org.simplity.http;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +42,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class SimpleCacheManager implements ClientCacheManager {
-  static final Logger logger = Logger.getLogger(SimpleCacheManager.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(SimpleCacheManager.class);
 
   /** user id specific responses are saved in session in this name */
   private static final String NAME_IN_SESSION = "_CACHE";
@@ -74,12 +74,12 @@ public class SimpleCacheManager implements ClientCacheManager {
     }
     if (payLoad == null) {
 
-      logger.log(Level.INFO, "Service not available in cached responses.");
+      logger.info("Service not available in cached responses.");
       Tracer.trace("Service not available in cached responses.");
       return null;
     }
 
-    logger.log(Level.INFO, "Responding from cache");
+    logger.info("Responding from cache");
     Tracer.trace("Responding from cache");
     ServiceData outData = new ServiceData(inData.getUserId(), serviceName);
     outData.setPayLoad(payLoad);
@@ -98,7 +98,7 @@ public class SimpleCacheManager implements ClientCacheManager {
     String text = outData.getCacheForInput();
     if (text == null) {
 
-      logger.log(Level.INFO, "NOt to be cached.");
+      logger.info("NOt to be cached.");
       Tracer.trace("NOt to be cached.");
       return;
     }
@@ -122,12 +122,12 @@ public class SimpleCacheManager implements ClientCacheManager {
     CachedService cs = null;
     if (forUserId) {
 
-      logger.log(Level.INFO, "Going to cache for specific user");
+      logger.info("Going to cache for specific user");
       Tracer.trace("Going to cache for specific user");
       cs = this.getSessionCache(inData.getServiceName(), fields, session);
     } else {
 
-      logger.log(Level.INFO, "Going to cache in general...");
+      logger.info("Going to cache in general...");
       Tracer.trace("Going to cache in general...");
       cs = this.getCache(inData.getServiceName(), fields);
     }

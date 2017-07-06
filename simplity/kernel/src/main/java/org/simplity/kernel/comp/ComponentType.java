@@ -22,8 +22,8 @@
 
 package org.simplity.kernel.comp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -102,8 +102,7 @@ public enum ComponentType {
             obj = Class.forName(fname).newInstance();
           } catch (Exception e) {
 
-            logger.log(
-                Level.SEVERE,
+        	  logger.error(
                 "Unable to create an instance of Function based on class " + fname,
                 e);
             Tracer.trace(e, "Unable to create an instance of Function based on class " + fname);
@@ -113,8 +112,8 @@ public enum ComponentType {
               entry.setValue(obj);
             } else {
 
-              logger.log(
-                  Level.INFO,
+              logger.info(
+                  
                   fname
                       + " is a valid class but not a sub-class of Function. Function entry ignored.");
               Tracer.trace(
@@ -124,13 +123,12 @@ public enum ComponentType {
           }
         }
 
-        logger.log(Level.INFO, this.cachedOnes.size() + " " + this + " loaded.");
+        logger.info(this.cachedOnes.size() + " " + this + " loaded.");
         Tracer.trace(this.cachedOnes.size() + " " + this + " loaded.");
       } catch (Exception e) {
         this.cachedOnes.clear();
 
-        logger.log(
-            Level.SEVERE,
+        logger.error(
             this
                 + " pre-loading failed. No component of this type is available till we successfully pre-load them again.",
             e);
@@ -143,8 +141,8 @@ public enum ComponentType {
         String fname = fn.getSimpleName();
         if (this.cachedOnes.get(fname) != null) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               fname
                   + " is a built-in function and can not be over-ridden. User defined function with the same name is discarded.");
           Tracer.trace(
@@ -161,7 +159,7 @@ public enum ComponentType {
 
   /** test cases for service */
   JOBS(8, Jobs.class, "batch/", false);
-  static final Logger logger = Logger.getLogger(ComponentType.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ComponentType.class);
 
   /*
    * constants
@@ -383,13 +381,13 @@ public enum ComponentType {
 
     if (exp != null) {
 
-      logger.log(Level.SEVERE, "error while loading component " + compName, exp);
+    	logger.error( "error while loading component " + compName, exp);
       Tracer.trace(exp, "error while loading component " + compName);
       return null;
     }
     if (obj == null) {
 
-      logger.log(Level.INFO, "error while loading component " + compName);
+      logger.info("error while loading component " + compName);
       Tracer.trace("error while loading component " + compName);
       return null;
     }
@@ -401,8 +399,8 @@ public enum ComponentType {
 
     if (compName.equalsIgnoreCase(fullName) == false) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Component has a qualified name of "
               + fullName
               + " that is different from its storage name "
@@ -435,13 +433,12 @@ public enum ComponentType {
         ((Component) obj).getReady();
       }
 
-      logger.log(Level.INFO, this.cachedOnes.size() + " " + this + " loaded.");
+      logger.info(this.cachedOnes.size() + " " + this + " loaded.");
       Tracer.trace(this.cachedOnes.size() + " " + this + " loaded.");
     } catch (Exception e) {
       this.cachedOnes.clear();
 
-      logger.log(
-          Level.SEVERE,
+      logger.error(
           this
               + " pre-loading failed. No component of this type is available till we successfully pre-load them again.",
           e);
@@ -472,18 +469,18 @@ public enum ComponentType {
     for (String resName : FileManager.getResources(componentFolder + folderName)) {
       if (resName.endsWith(EXTN) == false) {
 
-        logger.log(Level.INFO, "Skipping Non-resource " + resName);
+        logger.info("Skipping Non-resource " + resName);
         Tracer.trace("Skipping Non-resource " + resName);
         continue;
       }
 
-      logger.log(Level.INFO, "Going to load components from " + resName);
+      logger.info("Going to load components from " + resName);
       Tracer.trace("Going to load components from " + resName);
       try {
         XmlUtil.xmlToCollection(resName, objects, packageName);
       } catch (Exception e) {
 
-        logger.log(Level.SEVERE, "Resource " + resName + " failed to load.", e);
+    	  logger.error("Resource " + resName + " failed to load.", e);
         Tracer.trace(e, "Resource " + resName + " failed to load.");
       }
     }
@@ -500,7 +497,7 @@ public enum ComponentType {
     serviceAliases.clear();
     loadGroups(CLASS_FOLDER, null, serviceAliases);
 
-    logger.log(Level.INFO, serviceAliases.size() + " java class names loaded as services.");
+    logger.info(serviceAliases.size() + " java class names loaded as services.");
     Tracer.trace(serviceAliases.size() + " java class names loaded as services.");
     /*
      * clean and pre-load if required
@@ -552,7 +549,7 @@ public enum ComponentType {
       componentFolder += FOLDER_CHAR;
     }
 
-    logger.log(Level.INFO, "component folder set to " + componentFolder);
+    logger.info("component folder set to " + componentFolder);
     Tracer.trace("component folder set to " + componentFolder);
     /*
      * Some components like data-type are to be pre-loaded for the app to
@@ -560,7 +557,7 @@ public enum ComponentType {
      */
     preLoad();
 
-    logger.log(Level.INFO, "components pre-loaded");
+    logger.info("components pre-loaded");
     Tracer.trace("components pre-loaded");
     return componentFolder;
   }

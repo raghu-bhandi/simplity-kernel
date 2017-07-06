@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -45,7 +45,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Save extends DbAction {
-  static final Logger logger = Logger.getLogger(Save.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Save.class);
 
   /** qualified record name */
   String recordName;
@@ -95,7 +95,7 @@ public class Save extends DbAction {
     }
     int nbrRows = inSheet.length();
 
-    logger.log(Level.INFO, "Starting save for a sheet with " + nbrRows);
+    logger.info("Starting save for a sheet with " + nbrRows);
     Tracer.trace("Starting save for a sheet with " + nbrRows);
     if (nbrRows == 0) {
       return nbrRows;
@@ -117,8 +117,8 @@ public class Save extends DbAction {
     }
     if (this.childRecords != null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Child records are valid only when parent is for a single row. Data if any, ignored.");
       Tracer.trace(
           "Child records are valid only when parent is for a single row. Data if any, ignored.");
@@ -199,8 +199,8 @@ public class Save extends DbAction {
         nbr += record.deleteWithParent(ctx, driver, userId);
         if (relatedSheet == null || relatedSheet.length() == 0) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Rows in record "
                   + rr.recordName
                   + " deleted, as there were no rows to replace them.");
@@ -212,8 +212,8 @@ public class Save extends DbAction {
         }
         nbr += record.insertWithParent(relatedSheet, ctx, driver, userId);
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Rows in record "
                 + rr.recordName
                 + " replaced based on "
@@ -232,8 +232,8 @@ public class Save extends DbAction {
 
       if (relatedSheet == null || relatedSheet.length() == 0) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Related record "
                 + rr.recordName
                 + " not saved as there is no data in sheet "
@@ -246,8 +246,8 @@ public class Save extends DbAction {
         continue;
       }
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Saving children is a noble cause!! Going to save child record "
               + rr.recordName
               + " for action = "

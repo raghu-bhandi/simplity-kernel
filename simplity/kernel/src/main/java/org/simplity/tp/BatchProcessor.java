@@ -22,8 +22,8 @@
 
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -47,7 +47,7 @@ import org.simplity.service.ServiceData;
 
 /** @author simplity.org */
 public class BatchProcessor extends Action {
-  static final Logger logger = Logger.getLogger(BatchProcessor.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(BatchProcessor.class);
 
   private static final String FIELD_PREFIX = "$";
   private static final String FOLDER_SEP = "/";
@@ -210,7 +210,7 @@ public class BatchProcessor extends Action {
 
     if (files == null) {
 
-      logger.log(Level.INFO, "BatchProcesser " + this.actionName + " had nothing to process.");
+      logger.info("BatchProcesser " + this.actionName + " had nothing to process.");
       Tracer.trace("BatchProcesser " + this.actionName + " had nothing to process.");
       return Value.VALUE_ZERO;
     }
@@ -301,7 +301,7 @@ public class BatchProcessor extends Action {
           "No folder named " + folderName + "and hence batch processor cannot proceed.");
     }
 
-    logger.log(Level.INFO, "Going to process files in folder " + folderName);
+    logger.info("Going to process files in folder " + folderName);
     Tracer.trace("Going to process files in folder " + folderName);
 
     String fileName = this.batchRowProcessor.inputFile.fileName;
@@ -313,8 +313,8 @@ public class BatchProcessor extends Action {
       File[] files = folder.listFiles(TextUtil.getFileNameFilter(fileName));
       if (files == null || files.length == 0) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "No file found in folder "
                 + this.inputFolder
                 + " matching name "

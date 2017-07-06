@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ import org.simplity.service.ServiceContext;
 
 /** represents a record/row/table that is used as input/output of a service */
 public class OutputRecord {
-  static final Logger logger = Logger.getLogger(OutputRecord.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(OutputRecord.class);
 
   /**
    * sheet into which output should get into. If null, then recordName should be specified are
@@ -169,8 +169,8 @@ public class OutputRecord {
       writer.key(this.sheetName);
       if (obj == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "No Object found for complex structure " + this.sheetName + ". Null sent to client");
         Tracer.trace(
             "No Object found for complex structure " + this.sheetName + ". Null sent to client");
@@ -187,8 +187,8 @@ public class OutputRecord {
      */
     if (this.parentSheetName != null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Sheet "
               + this.sheetName
               + " will be output as part of its parent sheet "
@@ -209,7 +209,7 @@ public class OutputRecord {
       Value value = ctx.getValue(fieldName);
       if (value == null) {
 
-        logger.log(Level.INFO, fieldName + " has no value and hence is not added to output");
+        logger.info(fieldName + " has no value and hence is not added to output");
         Tracer.trace(fieldName + " has no value and hence is not added to output");
       } else {
         writer.key(fieldName).value(value.toObject());
@@ -226,8 +226,8 @@ public class OutputRecord {
       if (this.fields != null) {
         if (this.myParentData.okToOutputFieldsFromRecord(this.fields)) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Service context has no sheet with name "
                   + this.sheetName
                   + " for output. We try and output fields.");
@@ -238,8 +238,8 @@ public class OutputRecord {
           this.fieldsToJson(writer, this.fields, ctx);
         } else {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Service context has no sheet with name "
                   + this.sheetName
                   + " for output. We decided against trying fields collection because it will create duplicate keys in response.");
@@ -284,7 +284,7 @@ public class OutputRecord {
     DataSheet mySheet = ctx.getDataSheet(this.sheetName);
     if (mySheet == null) {
 
-      logger.log(Level.INFO, "Sheet " + this.sheetName + " has no data to output");
+      logger.info("Sheet " + this.sheetName + " has no data to output");
       Tracer.trace("Sheet " + this.sheetName + " has no data to output");
       return null;
     }
@@ -403,7 +403,7 @@ public class OutputRecord {
         this.fields = record.getFields();
         if (this.fields == null) {
 
-          logger.log(Level.INFO, "Record " + this.recordName + " yielded no fields");
+          logger.info("Record " + this.recordName + " yielded no fields");
           Tracer.trace("Record " + this.recordName + " yielded no fields");
         }
       }

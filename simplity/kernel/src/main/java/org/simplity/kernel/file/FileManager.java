@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel.file;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,7 +52,7 @@ import org.simplity.kernel.Tracer;
  * @author simplity.org
  */
 public class FileManager {
-  static final Logger logger = Logger.getLogger(FileManager.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 
   private static final int MAX_TRY = 1000;
   private static final String MSG = "error while writing to a temp file";
@@ -120,7 +120,7 @@ public class FileManager {
     File file = new File(parentFolder);
     if (file.exists() == false) {
 
-      logger.log(Level.INFO, "Unusual that " + parentFolder + " is not a valid path.");
+      logger.info("Unusual that " + parentFolder + " is not a valid path.");
       Tracer.trace("Unusual that " + parentFolder + " is not a valid path.");
       return;
     }
@@ -193,7 +193,7 @@ public class FileManager {
       return new FileInputStream(file);
     }
 
-    logger.log(Level.INFO, "file " + fileName + " does not exist.");
+    logger.info("file " + fileName + " does not exist.");
     Tracer.trace("file " + fileName + " does not exist.");
     return null;
   }
@@ -208,7 +208,7 @@ public class FileManager {
     try {
       file.createNewFile();
 
-      logger.log(Level.INFO, "Creating and returning an empty file");
+      logger.info("Creating and returning an empty file");
       Tracer.trace("Creating and returning an empty file");
       return file;
     } catch (IOException e) {
@@ -283,8 +283,8 @@ public class FileManager {
       return file;
     }
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "Rare condition of a file-name clash for temp file "
             + fileName
             + " going to try suffixing..");
@@ -320,7 +320,7 @@ public class FileManager {
       return file;
     }
 
-    logger.log(Level.INFO, "Non-existing temp file " + fileName + " requested. returning null");
+    logger.info("Non-existing temp file " + fileName + " requested. returning null");
     Tracer.trace("Non-existing temp file " + fileName + " requested. returning null");
     return null;
   }
@@ -359,7 +359,7 @@ public class FileManager {
       return true;
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "Error while writing to file " + file.getAbsolutePath(), e);
+    	logger.error( "Error while writing to file " + file.getAbsolutePath(), e);
       Tracer.trace(e, "Error while writing to file " + file.getAbsolutePath());
       return false;
     } finally {

@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.util;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -49,7 +49,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class TextUtil {
-  static final Logger logger = Logger.getLogger(TextUtil.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(TextUtil.class);
 
   private static final Pattern FIELD = Pattern.compile("[$][{][\\w]*[}]");
   private static final String[] TRUE_VALUES = {"1", "TRUE", "YES"};
@@ -209,8 +209,8 @@ public class TextUtil {
         return Class.forName(value).newInstance();
       } catch (Exception e) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             value
                 + " is expected to be an implementation/extension of class "
                 + type.getName()

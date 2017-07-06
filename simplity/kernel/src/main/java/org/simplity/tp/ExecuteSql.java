@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
@@ -42,7 +42,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class ExecuteSql extends DbAction {
-  static final Logger logger = Logger.getLogger(ExecuteSql.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ExecuteSql.class);
 
   /** qualified sql name */
   String sqlName;
@@ -67,8 +67,8 @@ public class ExecuteSql extends DbAction {
       return sql.execute(inSheet, driver, this.treatSqlErrorAsNoResult);
     }
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "Sql Save Action "
             + this.actionName
             + " did not execute because input sheet "

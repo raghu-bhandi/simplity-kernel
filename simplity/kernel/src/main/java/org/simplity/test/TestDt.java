@@ -22,8 +22,8 @@
 
 package org.simplity.test;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -42,7 +42,7 @@ import org.simplity.service.ServiceData;
 
 /** @author simplity.org */
 public class TestDt extends AbstractService {
-  static final Logger logger = Logger.getLogger(TestDt.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(TestDt.class);
 
   /*
    * (non-Javadoc)
@@ -74,7 +74,7 @@ public class TestDt extends AbstractService {
       if (parsedValue == null) {
         nbrNotOk++;
 
-        logger.log(Level.INFO, "Invalid value : " + val);
+        logger.info("Invalid value : " + val);
         Tracer.trace("Invalid value : " + val);
       } else {
         nbrOk++;
@@ -135,8 +135,8 @@ public class TestDt extends AbstractService {
           return DateUtil.formatDate(date);
         } catch (Exception e) {
 
-          logger.log(
-              Level.INFO, "Did not parse " + value + " as special date value : " + e.getMessage());
+          logger.info(
+               "Did not parse " + value + " as special date value : " + e.getMessage());
           Tracer.trace("Did not parse " + value + " as special date value : " + e.getMessage());
         }
       }

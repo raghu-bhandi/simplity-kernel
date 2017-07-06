@@ -22,8 +22,8 @@
 
 package org.simplity.job;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.Future;
@@ -39,7 +39,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public class IntervalJob extends ScheduledJob {
-  static final Logger logger = Logger.getLogger(IntervalJob.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(IntervalJob.class);
 
   /*
    * we have only one job
@@ -105,8 +105,8 @@ public class IntervalJob extends ScheduledJob {
 
   private void noChange() {
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
     Tracer.trace(
         "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");

@@ -22,8 +22,8 @@
 
 package org.simplity.job;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
@@ -38,7 +38,7 @@ import org.simplity.service.ServiceInterface;
 
 /** @author simplity.org */
 public class Job {
-  static final Logger logger = Logger.getLogger(Job.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Job.class);
 
   /** name of the job, unique within a jobs collection */
   String name;
@@ -101,7 +101,7 @@ public class Job {
     }
     if (this.runInterval == 0 && this.nbrDedicatedThreads == 0) {
 
-      logger.log(Level.INFO, "Job " + this.name + " will be run once");
+      logger.info("Job " + this.name + " will be run once");
       Tracer.trace("Job " + this.name + " will be run once");
       this.nbrDedicatedThreads = 1;
     }

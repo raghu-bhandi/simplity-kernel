@@ -43,7 +43,7 @@ public class Tracer {
    * @param text text to be logged
    */
   public static void trace(String text) {
-    ServiceLogger.log(Tracer.NEW_LINE + text);
+    //ServiceLogger.log(Tracer.NEW_LINE + text);
   }
 
   /**

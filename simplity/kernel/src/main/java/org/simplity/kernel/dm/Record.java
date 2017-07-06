@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.dm;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -93,7 +93,7 @@ import org.simplity.service.ServiceProtocol;
  */
 public class Record implements Component {
 
-	static final Logger logger = Logger.getLogger(Record.class.getName());
+	static final Logger logger = LoggerFactory.getLogger(Record.class);
 
 	/** header row of returned sheet when there is only one column */
 	private static String[] SINGLE_HEADER = { "value" };
@@ -538,7 +538,7 @@ public class Record implements Component {
 			Value[] values = this.getPrimaryValues(inSheet, 0);
 			if (values == null) {
 
-				logger.log(Level.INFO, "Primary key value not available and hence no read operation.");
+				logger.info("Primary key value not available and hence no read operation.");
 				Tracer.trace("Primary key value not available and hence no read operation.");
 				return 0;
 			}
@@ -550,7 +550,7 @@ public class Record implements Component {
 			Value[] vals = this.getPrimaryValues(inSheet, i);
 			if (vals == null) {
 
-				logger.log(Level.INFO, "Primary key value not available and hence no read operation.");
+				logger.info("Primary key value not available and hence no read operation.");
 				Tracer.trace("Primary key value not available and hence no read operation.");
 				return 0;
 			}
@@ -612,7 +612,7 @@ public class Record implements Component {
 	public int readOne(FieldsInterface inData, DataSheet outData, DbDriver driver, Value userId) {
 		if (this.allPrimaryKeys == null) {
 
-			logger.log(Level.INFO, "Record " + this.name
+			logger.info("Record " + this.name
 					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
 			Tracer.trace("Record " + this.name
 					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
@@ -621,7 +621,7 @@ public class Record implements Component {
 		Value[] values = this.getPrimaryValues(inData, false);
 		if (values == null) {
 
-			logger.log(Level.INFO, "Value for primary key not present, and hence no read operation.");
+			logger.info("Value for primary key not present, and hence no read operation.");
 			Tracer.trace("Value for primary key not present, and hence no read operation.");
 			return 0;
 		}
@@ -645,7 +645,7 @@ public class Record implements Component {
 	public boolean rowExistsForKey(FieldsInterface inData, String keyFieldName, DbDriver driver, Value userId) {
 		if (this.allPrimaryKeys == null) {
 
-			logger.log(Level.INFO, "Record " + this.name
+			logger.info("Record " + this.name
 					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
 			Tracer.trace("Record " + this.name
 					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
@@ -656,7 +656,7 @@ public class Record implements Component {
 		if (keyFieldName != null) {
 			if (this.allPrimaryKeys.length > 1) {
 
-				logger.log(Level.INFO, "There are more than one primary keys, and hence supplied name keyFieldName of "
+				logger.info("There are more than one primary keys, and hence supplied name keyFieldName of "
 						+ keyFieldName + " is ognored");
 				Tracer.trace("There are more than one primary keys, and hence supplied name keyFieldName of "
 						+ keyFieldName + " is ognored");
@@ -665,7 +665,7 @@ public class Record implements Component {
 				Value value = inData.getValue(keyFieldName);
 				if (Value.isNull(value)) {
 
-					logger.log(Level.INFO,
+					logger.info(
 							"Primary key field " + keyFieldName + " has no value, and hence no read operation.");
 					Tracer.trace("Primary key field " + keyFieldName + " has no value, and hence no read operation.");
 					return false;
@@ -1177,7 +1177,7 @@ public class Record implements Component {
 			Value parentKey = inData.getValue(parentKeyName);
 			if (Value.isNull(parentKey)) {
 
-				logger.log(Level.INFO, "No value found for parent key field " + parentKeyName
+				logger.info("No value found for parent key field " + parentKeyName
 						+ " and hence no column is going to be added to child table");
 				Tracer.trace("No value found for parent key field " + parentKeyName
 						+ " and hence no column is going to be added to child table");
@@ -1202,7 +1202,7 @@ public class Record implements Component {
 			Value value = inData.getValue(field.referredField);
 			if (Value.isNull(value)) {
 
-				logger.log(Level.INFO, "No value found for parent key field " + field.referredField
+				logger.info("No value found for parent key field " + field.referredField
 						+ " and hence no column is going to be added to child table");
 				Tracer.trace("No value found for parent key field " + field.referredField
 						+ " and hence no column is going to be added to child table");
@@ -1357,7 +1357,7 @@ public class Record implements Component {
 		Value[] values = this.getParentValues(parentRow);
 		if (values == null) {
 
-			logger.log(Level.INFO, "Delete with parent has nothing to delete as parent key is null");
+			logger.info("Delete with parent has nothing to delete as parent key is null");
 			Tracer.trace("Delete with parent has nothing to delete as parent key is null");
 			return 0;
 		}
@@ -1394,7 +1394,7 @@ public class Record implements Component {
 		}
 		if (generatedKeys != null) {
 
-			logger.log(Level.INFO,
+			logger.info(
 					"Generated key retrieval is NOT supported for batch. Keys for child table are to be retrieved automatically");
 			Tracer.trace(
 					"Generated key retrieval is NOT supported for batch. Keys for child table are to be retrieved automatically");
@@ -1467,7 +1467,7 @@ public class Record implements Component {
 		Value[] whereValues = this.getPrimaryValues(inData, true);
 		if (whereValues == null) {
 
-			logger.log(Level.INFO, "Primary keys not available and hence update operaiton aborted.");
+			logger.info("Primary keys not available and hence update operaiton aborted.");
 			Tracer.trace("Primary keys not available and hence update operaiton aborted.");
 			return 0;
 		}
@@ -1683,7 +1683,7 @@ public class Record implements Component {
 		int nbrRows = sheet.length();
 		if (nbrRows == 0) {
 
-			logger.log(Level.INFO, "Data sheet has no data and hance no encryption.");
+			logger.info("Data sheet has no data and hance no encryption.");
 			Tracer.trace("Data sheet has no data and hance no encryption.");
 			return;
 		}
@@ -1691,7 +1691,7 @@ public class Record implements Component {
 			int colIdx = sheet.getColIdx(field.name);
 			if (colIdx == -1) {
 
-				logger.log(Level.INFO, "Data sheet has no column named " + field.name + " hance no encryption.");
+				logger.info("Data sheet has no column named " + field.name + " hance no encryption.");
 				Tracer.trace("Data sheet has no column named " + field.name + " hance no encryption.");
 				continue;
 			}
@@ -1701,7 +1701,7 @@ public class Record implements Component {
 			}
 		}
 
-		logger.log(Level.INFO, nbrRows + " rows and " + this.encryptedFields.length + " columns "
+		logger.info(nbrRows + " rows and " + this.encryptedFields.length + " columns "
 				+ (toDecrypt ? "un-" : "") + "obsfuscated");
 		Tracer.trace(nbrRows + " rows and " + this.encryptedFields.length + " columns " + (toDecrypt ? "un-" : "")
 				+ "obsfuscated");
@@ -1837,7 +1837,7 @@ public class Record implements Component {
 			sbf.append('}');
 		}
 
-		logger.log(Level.INFO, sbf.toString());
+		logger.info(sbf.toString());
 		Tracer.trace(sbf.toString());
 		return false;
 		// throw new ApplicationError(sbf.toString());
@@ -1849,7 +1849,7 @@ public class Record implements Component {
 		RefHistory history = referenceHistory.get();
 		if (history == null) {
 
-			logger.log(Level.INFO, "There is an issue with the way Record " + recName
+			logger.info("There is an issue with the way Record " + recName
 					+ "  is trying to detect circular reference. History has disappeared.");
 			Tracer.trace("There is an issue with the way Record " + recName
 					+ "  is trying to detect circular reference. History has disappeared.");
@@ -1866,7 +1866,7 @@ public class Record implements Component {
 				sbf.append(s).append(' ');
 			}
 
-			logger.log(Level.INFO, "There is an issue with the way Record " + recName
+			logger.info("There is an issue with the way Record " + recName
 					+ "  is trying to detect circular reference. pending list remained as " + sbf.toString());
 			Tracer.trace("There is an issue with the way Record " + recName
 					+ "  is trying to detect circular reference. pending list remained as " + sbf.toString());
@@ -1897,7 +1897,7 @@ public class Record implements Component {
 				if (this.sequenceName == null) {
 					this.sequence = this.tableName + DEFAULT_SEQ_SUFFIX;
 
-					logger.log(Level.INFO, "sequence not specified for table " + this.tableName
+					logger.info("sequence not specified for table " + this.tableName
 							+ ". default sequence name  " + this.sequence + " is assumed.");
 					Tracer.trace("sequence not specified for table " + this.tableName + ". default sequence name  "
 							+ this.sequence + " is assumed.");
@@ -2425,7 +2425,7 @@ public class Record implements Component {
 		Field[] fieldsToExtract = this.getFieldsToBeExtracted(namesToExtract, purpose, saveActionExpected);
 		if (purpose == DataPurpose.FILTER) {
 
-			logger.log(Level.INFO, "Extracting filter fields");
+			logger.info("Extracting filter fields");
 			Tracer.trace("Extracting filter fields");
 			return this.extractFilterFields(inData, extractedValues, fieldsToExtract, errors);
 		}
@@ -2598,7 +2598,7 @@ public class Record implements Component {
 		 */
 		if (this.allPrimaryKeys == null) {
 
-			logger.log(Level.INFO, "Record " + this.getQualifiedName() + " has defined childrenToBeRead="
+			logger.info("Record " + this.getQualifiedName() + " has defined childrenToBeRead="
 					+ this.childrenToBeRead + " but it has not defined a primary key.");
 			Tracer.trace("Record " + this.getQualifiedName() + " has defined childrenToBeRead=" + this.childrenToBeRead
 					+ " but it has not defined a primary key.");
@@ -2968,7 +2968,7 @@ public class Record implements Component {
 			Object obj = json.opt(field.name);
 			if (obj == null) {
 
-				logger.log(Level.INFO, "No value for attribute " + field.name);
+				logger.info("No value for attribute " + field.name);
 				Tracer.trace("No value for attribute " + field.name);
 				continue;
 			}
@@ -3281,7 +3281,7 @@ public class Record implements Component {
 				msg += " in schema " + schemaName;
 			}
 
-			logger.log(Level.INFO, msg);
+			logger.info(msg);
 			Tracer.trace(msg);
 			return null;
 		}
@@ -3337,11 +3337,11 @@ public class Record implements Component {
 		if (folder.exists() == false) {
 			folder.mkdirs();
 
-			logger.log(Level.INFO, "Folder created for path " + folder.getAbsolutePath());
+			logger.info("Folder created for path " + folder.getAbsolutePath());
 			Tracer.trace("Folder created for path " + folder.getAbsolutePath());
 		} else if (folder.isDirectory() == false) {
 
-			logger.log(Level.INFO,
+			logger.info(
 					folder.getAbsolutePath() + " is a file but not a folder. Record generation abandoned.");
 			Tracer.trace(folder.getAbsolutePath() + " is a file but not a folder. Record generation abandoned.");
 			return 0;
@@ -3350,12 +3350,12 @@ public class Record implements Component {
 		DataSheet tables = DbDriver.getTables(null, null);
 		if (tables == null) {
 
-			logger.log(Level.INFO, "No tables in the db. Records not created.");
+			logger.info("No tables in the db. Records not created.");
 			Tracer.trace("No tables in the db. Records not created.");
 			return 0;
 		}
 
-		logger.log(Level.INFO, "Found " + tables.length() + " tables for which we are going to create records.");
+		logger.info("Found " + tables.length() + " tables for which we are going to create records.");
 		Tracer.trace("Found " + tables.length() + " tables for which we are going to create records.");
 		DataTypeSuggester suggester = new DataTypeSuggester();
 		String[][] rows = tables.getRawData();
@@ -3378,7 +3378,7 @@ public class Record implements Component {
 			Record record = Record.createFromTable(schemaName, recordName, tableName, conversion, suggester);
 			if (record == null) {
 
-				logger.log(Level.INFO, "Record " + recordName + " could not be generated from table/view " + tableName);
+				logger.info("Record " + recordName + " could not be generated from table/view " + tableName);
 				Tracer.trace("Record " + recordName + " could not be generated from table/view " + tableName);
 				continue;
 			}
@@ -3398,7 +3398,7 @@ public class Record implements Component {
 				}
 			} catch (Exception e) {
 
-				logger.log(Level.SEVERE, "Record " + recordName + " generated from table/view " + tableName
+				logger.error("Record " + recordName + " generated from table/view " + tableName
 						+ " but could not be saved. ", e);
 				Tracer.trace(e, "Record " + recordName + " generated from table/view " + tableName
 						+ " but could not be saved. ");

@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -46,7 +46,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class Suggest extends DbAction {
-  static final Logger logger = Logger.getLogger(Suggest.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Suggest.class);
 
   /** record that is to be used */
   String recordName;
@@ -74,8 +74,8 @@ public class Suggest extends DbAction {
     Value value = ctx.getValue(this.fieldToMatch);
     if (value == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "No value is available in field "
               + this.fieldToMatch
               + " for us to suggest. No suggestions sent to client");
@@ -93,8 +93,8 @@ public class Suggest extends DbAction {
       }
     } catch (InvalidValueException e) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "we expected boolean value in "
               + ServiceProtocol.SUGGEST_STARTING
               + " but encountered "

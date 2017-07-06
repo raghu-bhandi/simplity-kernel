@@ -22,8 +22,8 @@
 
 package org.simplity.service;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +34,7 @@ import org.simplity.kernel.value.Value;
 
 /** @author simplity.org */
 public class JavaAgent {
-  static final Logger logger = Logger.getLogger(JavaAgent.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(JavaAgent.class);
 
   /**
    * a client agent that can be used by java classes within the same VM where the app is hosted.
@@ -91,11 +91,11 @@ public class JavaAgent {
     FormattedMessage[] msgs = outData.getMessages();
     if (msgs != null && msgs.length > 0) {
 
-      logger.log(Level.INFO, "**** Server returned with following messages ***");
+      logger.info("**** Server returned with following messages ***");
       Tracer.trace("**** Server returned with following messages ***");
       for (FormattedMessage msg : msgs) {
 
-        logger.log(Level.INFO, msg.messageType + " : " + msg.text);
+        logger.info(msg.messageType + " : " + msg.text);
         Tracer.trace(msg.messageType + " : " + msg.text);
       }
     }
@@ -126,8 +126,8 @@ public class JavaAgent {
       Object uid = outData.get(ServiceProtocol.USER_ID);
       if (uid == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
         Tracer.trace(
             "Server came back with no userId and hence HttpAgent assumes that the login did not succeed");

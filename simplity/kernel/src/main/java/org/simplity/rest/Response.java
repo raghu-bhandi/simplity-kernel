@@ -22,8 +22,8 @@
 
 package org.simplity.rest;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -47,7 +47,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class Response {
-  static final Logger logger = Logger.getLogger(Response.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Response.class);
 
   /*
    * default success and failure responses in case of emergency!!
@@ -164,7 +164,7 @@ public class Response {
 
     if (data == null) {
 
-      logger.log(Level.INFO, "No response object suplied for response. no body response.");
+      logger.info("No response object suplied for response. no body response.");
       Tracer.trace("No response object suplied for response. no body response.");
       return;
     }
@@ -174,8 +174,8 @@ public class Response {
       bodyData = data.opt(this.bodyFieldName);
       if (bodyData == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Response field " + this.bodyFieldName + " has no value. No response sent.");
         Tracer.trace("Response field " + this.bodyFieldName + " has no value. No response sent.");
         return;
@@ -186,8 +186,8 @@ public class Response {
         this.bodyParameter.toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
       } else {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "We expected a JSON Object as response value with bodyFieldName="
                 + this.bodyFieldName
                 + " but we got "

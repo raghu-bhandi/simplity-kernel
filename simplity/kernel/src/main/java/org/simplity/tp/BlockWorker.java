@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.Map;
@@ -41,7 +41,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class BlockWorker implements DbClientInterface, MessageClient {
-  static final Logger logger = Logger.getLogger(BlockWorker.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(BlockWorker.class);
 
   /** field name with which result of an action is available in service context */
   public static final String RESULT_SUFFIX = "Result";
@@ -124,8 +124,8 @@ public class BlockWorker implements DbClientInterface, MessageClient {
       result = action.act(this.ctx, driver);
       currentIdx++;
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Action "
               + action.actionName
               + " finished with result="

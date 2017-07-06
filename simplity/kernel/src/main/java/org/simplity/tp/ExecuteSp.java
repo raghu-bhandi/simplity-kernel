@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -42,7 +42,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class ExecuteSp extends DbAction {
-  static final Logger logger = Logger.getLogger(ExecuteSp.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ExecuteSp.class);
 
   /** qualified name */
   String procedureName;
@@ -97,8 +97,8 @@ public class ExecuteSp extends DbAction {
     DataSheet[] outSheets = sp.execute(inSheet, outSheet, driver, ctx);
     if (outSheets == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Stored procedure " + this.actionName + " execution completed with no sheets.");
       Tracer.trace("Stored procedure " + this.actionName + " execution completed with no sheets.");
       return 1;
@@ -106,8 +106,8 @@ public class ExecuteSp extends DbAction {
 
     int nbrOutSheets = outSheets.length;
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "Stored procedure action "
             + this.actionName
             + " returned "

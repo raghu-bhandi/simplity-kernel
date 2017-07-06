@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -43,7 +43,7 @@ import org.simplity.service.ServiceContext;
  * @author admin
  */
 public class AddColumn extends Action {
-  static final Logger logger = Logger.getLogger(AddColumn.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(AddColumn.class);
 
   /** sheet to which we want to add a column */
   String sheetName;
@@ -89,8 +89,8 @@ public class AddColumn extends Action {
       }
       if (value == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Value is null for column "
                 + this.columnName
                 + " for addColumn action "

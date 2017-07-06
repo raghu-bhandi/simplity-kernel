@@ -23,8 +23,8 @@
 package org.simplity.kernel;
 
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.util.DateUtil;
 
@@ -164,7 +164,7 @@ public abstract class ServiceLogger {
 }
 
 class JulWorker extends ServiceLogger {
-  Logger logger = Logger.getLogger(LOGGER_NAME);
+  Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
   /*
    * (non-Javadoc)
@@ -180,13 +180,13 @@ class JulWorker extends ServiceLogger {
    */
   @Override
   protected void myError(String msg) {
-    this.logger.log(Level.SEVERE, msg);
+    this.logger.error(msg);
   }
 }
 
 class Log4JWorker extends ServiceLogger {
-  org.apache.logging.log4j.Logger logger =
-      org.apache.logging.log4j.LogManager.getLogger(ServiceLogger.LOGGER_NAME);
+ // org.apache.logging.log4j.Logger logger =
+ //     org.apache.logging.log4j.LogManager.getLogger(ServiceLogger.LOGGER_NAME);
 
   /*
    * (non-Javadoc)
@@ -195,7 +195,7 @@ class Log4JWorker extends ServiceLogger {
    */
   @Override
   protected void info(String msg) {
-    this.logger.info(msg);
+    //this.logger.info(msg);
   }
 
   /* (non-Javadoc)
@@ -203,12 +203,12 @@ class Log4JWorker extends ServiceLogger {
    */
   @Override
   protected void myError(String msg) {
-    this.logger.error(msg);
+   // this.logger.error(msg);
   }
 }
 
 class Log4JClassicWorker extends ServiceLogger {
-  org.apache.log4j.Logger logger = org.apache.log4j.LogManager.getLogger(ServiceLogger.LOGGER_NAME);
+//  org.apache.log4j.Logger logger = org.apache.log4j.LogManager.getLogger(ServiceLogger.LOGGER_NAME);
 
   /*
    * (non-Javadoc)
@@ -217,7 +217,7 @@ class Log4JClassicWorker extends ServiceLogger {
    */
   @Override
   protected void info(String msg) {
-    this.logger.info(msg);
+//    this.logger.info(msg);
   }
 
   /* (non-Javadoc)
@@ -225,7 +225,7 @@ class Log4JClassicWorker extends ServiceLogger {
    */
   @Override
   protected void myError(String msg) {
-    this.logger.error(msg);
+    //this.logger.error(msg);
   }
 }
 

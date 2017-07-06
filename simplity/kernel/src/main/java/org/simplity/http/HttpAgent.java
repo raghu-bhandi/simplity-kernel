@@ -22,8 +22,8 @@
  */
 package org.simplity.http;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -66,7 +66,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class HttpAgent {
-  static final Logger logger = Logger.getLogger(HttpAgent.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(HttpAgent.class);
 
   /*
    * session parameter name with which user token is saved. This token is the
@@ -150,7 +150,7 @@ public class HttpAgent {
     String fileToken = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
     if (fileToken != null) {
 
-      logger.log(Level.INFO, "Checking for pending service with token " + fileToken);
+      logger.info("Checking for pending service with token " + fileToken);
       Tracer.trace("Checking for pending service with token " + fileToken);
       getPendingResponse(req, resp, fileToken);
       return;
@@ -166,7 +166,7 @@ public class HttpAgent {
     long elapsed = 0;
     ServiceData outData = null;
 
-    logger.log(Level.INFO, "Request received for service " + serviceName);
+    logger.info("Request received for service " + serviceName);
     Tracer.trace("Request received for service " + serviceName);
     FormattedMessage message = null;
     /*
@@ -252,14 +252,14 @@ public class HttpAgent {
        * we got error
        */
 
-      logger.log(Level.INFO, "Error on web tier : " + message.text);
+      logger.info("Error on web tier : " + message.text);
       Tracer.trace("Error on web tier : " + message.text);
       messages = new FormattedMessage[1];
       messages[0] = message;
       response = getResponseForError(messages);
     } else if (outData.hasErrors()) {
 
-      logger.log(Level.INFO, "Service returned with errors");
+      logger.info("Service returned with errors");
       Tracer.trace("Service returned with errors");
       response = getResponseForError(outData.getMessages());
     } else {
@@ -268,8 +268,8 @@ public class HttpAgent {
        */
       response = outData.getPayLoad();
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Service succeeded and has "
               + (response == null ? "no " : (response.length()) + " chars ")
               + " payload");
@@ -363,8 +363,8 @@ public class HttpAgent {
       Object uid = outData.get(ServiceProtocol.USER_ID);
       if (uid == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
         Tracer.trace(
             "Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
@@ -383,7 +383,7 @@ public class HttpAgent {
     newSession(session, userId);
     setSessionData(session, outData);
 
-    logger.log(Level.INFO, "Login succeeded for loginId " + loginId);
+    logger.info("Login succeeded for loginId " + loginId);
     Tracer.trace("Login succeeded for loginId " + loginId);
     String result = outData.getPayLoad();
     if (result == null || result.length() == 0) {
@@ -406,7 +406,7 @@ public class HttpAgent {
     ServiceData inData = createServiceData(session, true);
     if (inData == null) {
 
-      logger.log(Level.INFO, "No active session found, and hence logout not called");
+      logger.info("No active session found, and hence logout not called");
       Tracer.trace("No active session found, and hence logout not called");
       return;
     }
@@ -488,11 +488,11 @@ public class HttpAgent {
         return null;
       }
 
-      logger.log(Level.INFO, "Request by non-logged-in session detected.");
+      logger.info("Request by non-logged-in session detected.");
       Tracer.trace("Request by non-logged-in session detected.");
       if (autoLoginUserId == null) {
 
-        logger.log(Level.INFO, "Login is required.");
+        logger.info("Login is required.");
         Tracer.trace("Login is required.");
         return null;
       }
@@ -500,8 +500,8 @@ public class HttpAgent {
       userId = (Value) session.getAttribute(SESSION_NAME_FOR_USER_ID);
       if (userId == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "autoLoginUserId is set to "
                 + autoLoginUserId
                 + " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in application.xml and ensure that your service clears this dummy userId with no credentials");
@@ -512,7 +512,7 @@ public class HttpAgent {
         return null;
       }
 
-      logger.log(Level.INFO, "User " + userId + " auto logged-in");
+      logger.info("User " + userId + " auto logged-in");
       Tracer.trace("User " + userId + " auto logged-in");
     }
 
@@ -539,12 +539,12 @@ public class HttpAgent {
     Object obj = session.getAttribute(SESSION_NAME_FOR_USER_ID);
     if (obj == null) {
 
-      logger.log(Level.INFO, "Remove session : No session to remove");
+      logger.info("Remove session : No session to remove");
       Tracer.trace("Remove session : No session to remove");
       return;
     }
 
-    logger.log(Level.INFO, "Session removed for " + obj);
+    logger.info("Session removed for " + obj);
     Tracer.trace("Session removed for " + obj);
     session.removeAttribute(SESSION_NAME_FOR_USER_ID);
     session.removeAttribute(SESSION_NAME_FOR_MAP);
@@ -561,8 +561,8 @@ public class HttpAgent {
 
     if (sessionData == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Unexpected situation. setSession invoked with no active session. Action ignored");
       Tracer.trace(
           "Unexpected situation. setSession invoked with no active session. Action ignored");
@@ -591,7 +591,7 @@ public class HttpAgent {
     session.setAttribute(SESSION_NAME_FOR_USER_ID, userId);
     session.setAttribute(SESSION_NAME_FOR_MAP, sessionData);
 
-    logger.log(Level.INFO, "New session data created for " + userId);
+    logger.info("New session data created for " + userId);
     Tracer.trace("New session data created for " + userId);
     return sessionData;
   }

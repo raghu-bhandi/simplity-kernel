@@ -22,8 +22,8 @@
 
 package org.simplity.test;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.Component;
@@ -32,7 +32,7 @@ import org.simplity.kernel.comp.ValidationContext;
 
 /** Sequence of test cases that are run in that order */
 public class TestRun implements Component {
-  static final Logger logger = Logger.getLogger(TestRun.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(TestRun.class);
 
   String testName;
   String moduleName;
@@ -48,7 +48,7 @@ public class TestRun implements Component {
   public int run(TestContext ctx) {
     if (this.testCases == null) {
 
-      logger.log(Level.INFO, "No test cases to run.. reporting success by default");
+      logger.info("No test cases to run.. reporting success by default");
       Tracer.trace("No test cases to run.. reporting success by default");
       return 0;
     }

@@ -22,8 +22,8 @@
 
 package org.simplity.rest;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -39,7 +39,7 @@ import org.simplity.kernel.util.JsonUtil;
  * @author simplity.org
  */
 public class Operations {
-  static final Logger logger = Logger.getLogger(Operations.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Operations.class);
 
   /** root node of the path-tree that holds service spec for paths */
   private static PathNode rootNode = new PathNode(null, null, null);
@@ -67,13 +67,13 @@ public class Operations {
      */
     while (node != null) {
 
-      logger.log(Level.INFO, "Looking for spec at " + node.getPathPrefix());
+      logger.info("Looking for spec at " + node.getPathPrefix());
       Tracer.trace("Looking for spec at " + node.getPathPrefix());
       if (node.isValidPath()) {
         Operation spec = node.getOpertion(method);
         if (spec == null) {
 
-          logger.log(Level.INFO, method + " is not valid for path " + path);
+          logger.info(method + " is not valid for path " + path);
           Tracer.trace(method + " is not valid for path " + path);
           return null;
         }
@@ -86,7 +86,7 @@ public class Operations {
      * no spec found at any part of this path
      */
 
-    logger.log(Level.INFO, path + " is not a valid path");
+    logger.info(path + " is not a valid path");
     Tracer.trace(path + " is not a valid path");
     return null;
   }
@@ -109,7 +109,7 @@ public class Operations {
         continue;
       }
 
-      logger.log(Level.INFO, "looking at node=" + node.getPathPrefix() + " for part=" + part);
+      logger.info("looking at node=" + node.getPathPrefix() + " for part=" + part);
       Tracer.trace("looking at node=" + node.getPathPrefix() + " for part=" + part);
       PathNode child = node.getChild(part);
       if (child == null) {
@@ -131,7 +131,7 @@ public class Operations {
       node = child;
     }
 
-    logger.log(Level.INFO, "leaf node is " + node.getPathPrefix());
+    logger.info("leaf node is " + node.getPathPrefix());
     Tracer.trace("leaf node is " + node.getPathPrefix());
     return node;
   }
@@ -145,21 +145,21 @@ public class Operations {
     File folder = new File(apiFolder);
     if (folder.exists() == false || folder.isDirectory() == false) {
 
-      logger.log(Level.INFO, "Api spec folder " + apiFolder + " is not a folder.");
+      logger.info("Api spec folder " + apiFolder + " is not a folder.");
       Tracer.trace("Api spec folder " + apiFolder + " is not a folder.");
       return;
     }
     String[] files = FileManager.getResources(apiFolder);
     if (files.length == 0) {
 
-      logger.log(Level.INFO, "Api spec folder " + apiFolder + " has no files.");
+      logger.info("Api spec folder " + apiFolder + " has no files.");
       Tracer.trace("Api spec folder " + apiFolder + " has no files.");
       return;
     }
     for (String fileName : files) {
       if (fileName.endsWith(".json") == false) {
 
-        logger.log(Level.INFO, "Skipping non-joson file " + fileName);
+        logger.info("Skipping non-joson file " + fileName);
         Tracer.trace("Skipping non-joson file " + fileName);
         continue;
       }
@@ -171,14 +171,14 @@ public class Operations {
   /** @param fileName */
   public static void loadFromFile(String fileName) {
 
-    logger.log(Level.INFO, "Going to load file " + fileName);
+    logger.info("Going to load file " + fileName);
     Tracer.trace("Going to load file " + fileName);
     try {
       String json = FileManager.readResource(fileName);
       loadFromJsonText(json);
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "Error while loading open-api spec " + fileName, e);
+    	logger.error( "Error while loading open-api spec " + fileName, e);
       Tracer.trace(e, "Error while loading open-api spec " + fileName);
     }
   }
@@ -198,7 +198,7 @@ public class Operations {
     JSONObject paths = json.optJSONObject(Tags.PATHS_ATTR);
     if (paths == null || paths.length() == 0) {
 
-      logger.log(Level.INFO, " No paths in the API");
+      logger.info(" No paths in the API");
       Tracer.trace(" No paths in the API");
       return;
     }
@@ -231,7 +231,7 @@ public class Operations {
         for (String part : parts) {
           if (part.isEmpty()) {
 
-            logger.log(Level.INFO, "Empty part found in path.Igonred");
+            logger.info("Empty part found in path.Igonred");
             Tracer.trace("Empty part found in path.Igonred");
             continue;
           }
@@ -276,16 +276,16 @@ public class Operations {
     JSONObject defs = swagger.optJSONObject(Tags.DEFS_ATTR);
     if (defs == null) {
 
-      logger.log(Level.INFO, "No defintions found");
+      logger.info("No defintions found");
       Tracer.trace("No defintions found");
       return;
     }
 
-    logger.log(Level.INFO, "going to scan " + defs.length() + " schemas at the root level");
+    logger.info("going to scan " + defs.length() + " schemas at the root level");
     Tracer.trace("going to scan " + defs.length() + " schemas at the root level");
     Record[] recs = Record.fromSwaggerDefinitions(null, defs);
 
-    logger.log(Level.INFO, recs.length + " records generated");
+    logger.info(recs.length + " records generated");
     Tracer.trace(recs.length + " records generated");
     /*
     loadFromFile(rootFolder+"junk.json");

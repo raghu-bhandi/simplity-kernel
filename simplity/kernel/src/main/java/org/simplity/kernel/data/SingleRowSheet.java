@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class SingleRowSheet implements DataSheet {
-  static final Logger logger = Logger.getLogger(SingleRowSheet.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(SingleRowSheet.class);
 
   private static final char TAB = '\t';
   private String[] columnNames;
@@ -293,7 +293,7 @@ public class SingleRowSheet implements DataSheet {
   @Override
   public void trace() {
 
-    logger.log(Level.INFO, "(Single row sheet)\n");
+    logger.info("(Single row sheet)\n");
     Tracer.trace("(Single row sheet)\n");
     StringBuilder hdr = new StringBuilder("Header:");
     StringBuilder row = new StringBuilder("Data  :");
@@ -302,10 +302,10 @@ public class SingleRowSheet implements DataSheet {
       row.append(TAB).append(this.fieldValues.get(col));
     }
 
-    logger.log(Level.INFO, hdr.toString());
+    logger.info(hdr.toString());
     Tracer.trace(hdr.toString());
 
-    logger.log(Level.INFO, row.toString());
+    logger.info(row.toString());
     Tracer.trace(row.toString());
   }
 
@@ -348,7 +348,7 @@ public class SingleRowSheet implements DataSheet {
       i++;
     }
 
-    logger.log(Level.INFO, "We did not find column " + columnName + " in this single-row sheet");
+    logger.info("We did not find column " + columnName + " in this single-row sheet");
     Tracer.trace("We did not find column " + columnName + " in this single-row sheet");
     return -1;
   }

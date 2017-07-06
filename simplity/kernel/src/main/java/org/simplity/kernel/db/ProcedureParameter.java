@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.db;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Array;
 import java.sql.CallableStatement;
@@ -54,7 +54,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class ProcedureParameter {
-  static final Logger logger = Logger.getLogger(ProcedureParameter.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ProcedureParameter.class);
 
   /** name in which field value is found in input */
   String name;
@@ -332,8 +332,8 @@ public class ProcedureParameter {
     if (this.isArray) {
       if (obj instanceof JSONArray == false) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Service Context has an object as source for stored procedure "
                 + this.name
                 + " but while we expected it to be an instance of JSONArray (array of objects) it turned out to be "
@@ -355,8 +355,8 @@ public class ProcedureParameter {
     }
     if (obj instanceof JSONObject == false) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Service Context has an object as source for stored procedure "
               + this.name
               + " but while we expected it to be an instance of JSONObject it turned out to be "
@@ -398,8 +398,8 @@ public class ProcedureParameter {
       Value value = this.getValueType().extractFromSp(stmt, this.myPosn);
       if (Value.isNull(value)) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Null value received for stored procedure parameter "
                 + this.name
                 + ". Data is not added to context.");
@@ -418,8 +418,8 @@ public class ProcedureParameter {
     Object object = stmt.getObject(this.myPosn);
     if (object == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Got null as value of stored procedure parameter "
               + this.name
               + ". Data is not added to context.");
@@ -538,8 +538,8 @@ public class ProcedureParameter {
     for (Object struct : array) {
       if (struct == null || struct instanceof Struct == false) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Found an empty row or a non-struct object for stored procedure parameter "
                 + this.name
                 + ". skipping this row, but not throwing an error.");

@@ -22,8 +22,8 @@
 
 package org.simplity.aggr;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -39,7 +39,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public abstract class MathAggregator implements AggregationWorker {
-  static final Logger logger = Logger.getLogger(MathAggregator.class.getName());
+  static final Logger logger =  LoggerFactory.getLogger(MathAggregator.class);
 
   /** field name from which to accumulate sum */
   private final String inputName;
@@ -105,7 +105,7 @@ public abstract class MathAggregator implements AggregationWorker {
     Value val = currentRow.getValue(this.inputName);
     if (Value.isNull(val)) {
 
-      logger.log(Level.INFO, this.inputName + " has no value to accumulate");
+      logger.info(this.inputName + " has no value to accumulate");
       Tracer.trace(this.inputName + " has no value to accumulate");
       return;
     }

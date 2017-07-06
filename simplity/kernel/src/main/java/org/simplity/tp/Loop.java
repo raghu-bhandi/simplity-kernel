@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -42,7 +42,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Loop extends Block {
-  static final Logger logger = Logger.getLogger(Loop.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Loop.class);
 
   /** data sheet on which to loop */
   String dataSheetName;
@@ -80,8 +80,8 @@ public class Loop extends Block {
     }
     if (this.executeOnCondition == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Loop action "
               + this.actionName
               + " has niether data sheet, nor condition. This is a run-for-ever loop,but could be interrupted");
@@ -137,7 +137,7 @@ public class Loop extends Block {
       }
       if (interrupted) {
 
-        logger.log(Level.INFO, "Coming out of loop because the thread is interrupted");
+        logger.info("Coming out of loop because the thread is interrupted");
         Tracer.trace("Coming out of loop because the thread is interrupted");
         Thread.currentThread().interrupt();
       }
@@ -159,8 +159,8 @@ public class Loop extends Block {
     DataSheet ds = ctx.getDataSheet(this.dataSheetName);
     if (ds == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Data Sheet "
               + this.dataSheetName
               + " not found in the context. Loop action has no work.");
@@ -172,8 +172,8 @@ public class Loop extends Block {
     }
     if (ds.length() == 0) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Data Sheet " + this.dataSheetName + " has no data. Loop action has no work.");
       Tracer.trace("Data Sheet " + this.dataSheetName + " has no data. Loop action has no work.");
       return Value.VALUE_TRUE;
@@ -227,7 +227,7 @@ public class Loop extends Block {
     }
     if (interrupted) {
 
-      logger.log(Level.INFO, "Coming out of loop because the thread is interrupted");
+      logger.info("Coming out of loop because the thread is interrupted");
       Tracer.trace("Coming out of loop because the thread is interrupted");
       Thread.currentThread().interrupt();
     }

@@ -22,8 +22,8 @@
 
 package org.simplity.rest.param;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -39,7 +39,7 @@ import org.simplity.rest.Tags;
 
 /** @author simplity.org */
 public class ArrayParameter extends Parameter {
-  static final Logger logger = Logger.getLogger(ArrayParameter.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ArrayParameter.class);
 
   private CollectionType colnType;
   private Parameter item;
@@ -67,8 +67,8 @@ public class ArrayParameter extends Parameter {
       }
       if (this.colnType == CollectionType.multi) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "We handle multi-format array in query and form fields while form input Json, and hence this attribute is ignored and an array value is assumed");
         Tracer.trace(
             "We handle multi-format array in query and form fields while form input Json, and hence this attribute is ignored and an array value is assumed");
@@ -115,8 +115,8 @@ public class ArrayParameter extends Parameter {
        */
       if (value instanceof JSONArray == false) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Field " + this.name + " expects an array but got " + value.getClass().getName());
         Tracer.trace(
             "Field " + this.name + " expects an array but got " + value.getClass().getName());
@@ -155,8 +155,8 @@ public class ArrayParameter extends Parameter {
     int len = arr.length();
     if (len < this.minItems || (this.maxItems != 0 && len > this.maxItems)) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Array field "
               + this.name
               + " has minItems="
@@ -187,8 +187,8 @@ public class ArrayParameter extends Parameter {
         for (int j = i + 1; j < len; j++) {
           if (arr.get(i).equals(arr.get(j))) {
 
-            logger.log(
-                Level.INFO,
+            logger.info(
+                
                 "Array field "
                     + this.name
                     + " got duplicate values at (0 based)"
@@ -267,8 +267,8 @@ public class ArrayParameter extends Parameter {
       JSONArray arr = (JSONArray) data;
       if (this.colnType == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Field "
                 + this.name
                 + " is an array, and is being used to write to header, but it has no collectionType. comma separation is assumed");

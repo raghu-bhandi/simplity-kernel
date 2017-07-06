@@ -22,8 +22,8 @@
 
 package org.simplity.test;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
@@ -39,7 +39,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class TestCase {
-  static final Logger logger = Logger.getLogger(TestCase.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(TestCase.class);
 
   /** unique name given to this test case. */
   String testCaseName;
@@ -108,7 +108,7 @@ public class TestCase {
   public String run(TestContext ctx) {
     String json = this.getInput(ctx);
 
-    logger.log(Level.INFO, "Input Json : " + json);
+    logger.info("Input Json : " + json);
     Tracer.trace("Input Json : " + json);
     long startedAt = new Date().getTime();
     String msg = null;
@@ -118,11 +118,11 @@ public class TestCase {
     } catch (Exception e) {
       msg = "Service or serviceTest has a fatal error : " + e.getMessage();
 
-      logger.log(Level.SEVERE, this.serviceName + " raised fatal error during testing.", e);
+      logger.error( this.serviceName + " raised fatal error during testing.", e);
       Tracer.trace(e, this.serviceName + " raised fatal error during testing.");
     }
 
-    logger.log(Level.INFO, "Output JSON : " + json);
+    logger.info("Output JSON : " + json);
     Tracer.trace("Output JSON : " + json);
     int millis = (int) (new Date().getTime() - startedAt);
     TestResult result = new TestResult(this.serviceName, this.testCaseName, millis, msg);

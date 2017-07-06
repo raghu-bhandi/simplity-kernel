@@ -22,8 +22,8 @@
 
 package org.simplity.job;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +37,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public class PeriodicJob extends IntervalJob {
-  static final Logger logger = Logger.getLogger(PeriodicJob.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(PeriodicJob.class);
 
   private static final int MINUTES = 24 * 60;
 
@@ -81,14 +81,14 @@ public class PeriodicJob extends IntervalJob {
     Calendar cal = Calendar.getInstance();
     int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         cal.get(Calendar.HOUR_OF_DAY) + "hr " + cal.get(Calendar.MINUTE) + "mn  " + minutes);
     Tracer.trace(
         cal.get(Calendar.HOUR_OF_DAY) + "hr " + cal.get(Calendar.MINUTE) + "mn  " + minutes);
     for (int i = 0; i < this.timesOfDay.length; i++) {
 
-      logger.log(Level.INFO, i + " = " + this.timesOfDay[i]);
+      logger.info(i + " = " + this.timesOfDay[i]);
       Tracer.trace(i + " = " + this.timesOfDay[i]);
       if (this.timesOfDay[i] >= minutes) {
         return i;
@@ -146,8 +146,8 @@ public class PeriodicJob extends IntervalJob {
        */
       this.nextIdx = -1;
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Job "
               + this.scheduledJob.name
               + " has run for the last time for the day. It will be run tomorrow "
@@ -176,8 +176,8 @@ public class PeriodicJob extends IntervalJob {
         && this.future.isCancelled() == false
         && this.future.isDone() == false) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Job "
               + this.scheduledJob.name
               + " is still running when it is time to run it again.. Will wait for next poll");
