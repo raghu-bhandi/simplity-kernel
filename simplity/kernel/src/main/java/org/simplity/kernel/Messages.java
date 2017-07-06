@@ -22,144 +22,105 @@
  */
 package org.simplity.kernel;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.comp.ComponentType;
 
 /**
- * This class works as a wrapper on top of component manager to deal with
- * messages. It also serves as a place to define al internally used messages
+ * This class works as a wrapper on top of component manager to deal with messages. It also serves
+ * as a place to define al internally used messages
  *
  * @author simplity.org
- *
  */
 public class Messages {
-	/*
-	 * messages used internally
-	 *
-	 * these are defined in kernel.xml under msg folder. we have to ensure that
-	 * this list and that file are in synch.
-	 */
-	/**
-	 * a min number of rows expected
-	 */
-	public static final String INVALID_VALUE = "kernel.invalidValue";
-	/**
-	 * a max nbr of rows expected
-	 */
-	public static final String INVALID_DATA = "kernel.invalidData";
-	/**
-	 *
-	 */
-	public static final String INVALID_FIELD = "kernel.invalidField";
-	/**
-	 *
-	 */
-	public static final String INVALID_COMPARATOR = "kernel.invalidComparator";
+  static final Logger logger = Logger.getLogger(Messages.class.getName());
 
-	/**
-	 *
-	 */
-	public static final String INVALID_ENTITY_LIST = "kernel.invalidEntityList";
+  /*
+   * messages used internally
+   *
+   * these are defined in kernel.xml under msg folder. we have to ensure that
+   * this list and that file are in synch.
+   */
+  /** a min number of rows expected */
+  public static final String INVALID_VALUE = "kernel.invalidValue";
+  /** a max nbr of rows expected */
+  public static final String INVALID_DATA = "kernel.invalidData";
+  /** */
+  public static final String INVALID_FIELD = "kernel.invalidField";
+  /** */
+  public static final String INVALID_COMPARATOR = "kernel.invalidComparator";
 
-	/**
-	 *
-	 */
-	public static final String VALUE_REQUIRED = "kernel.valueRequired";
-	/**
-	 *
-	 */
-	public static final String INVALID_FROM_TO = "kernel.invalidFromTo";
-	/**
-	 *
-	 */
-	public static final String INVALID_OTHER_FIELD = "kernel.invalidOtherField";
-	/**
-	 *
-	 */
-	public static final String INVALID_SORT_ORDER = "kernel.invalidSortOrder";
-	/**
-	 *
-	 */
-	public static final String INVALID_BASED_ON_FIELD = "kernel.invalidBasedOnField";
-	/**
-	 *
-	 */
-	public static final String INTERNAL_ERROR = "kernel.internalError";
+  /** */
+  public static final String INVALID_ENTITY_LIST = "kernel.invalidEntityList";
 
-	/**
-	 *
-	 */
-	public static final String INVALID_TABLE_ACTION = "kernel.invalidTableAction";
+  /** */
+  public static final String VALUE_REQUIRED = "kernel.valueRequired";
+  /** */
+  public static final String INVALID_FROM_TO = "kernel.invalidFromTo";
+  /** */
+  public static final String INVALID_OTHER_FIELD = "kernel.invalidOtherField";
+  /** */
+  public static final String INVALID_SORT_ORDER = "kernel.invalidSortOrder";
+  /** */
+  public static final String INVALID_BASED_ON_FIELD = "kernel.invalidBasedOnField";
+  /** */
+  public static final String INTERNAL_ERROR = "kernel.internalError";
 
-	/**
-	 *
-	 */
-	public static final String INVALID_SERIALIZED_DATA = "kernel.invalidInputStream";
-	/**
-	 *
-	 */
-	public static final String NO_SERVICE = "kernel.noService";
-	/**
-	 *
-	 */
-	public static final String NO_ACCESS = "kernel.noAccess";
-	/**
-	 *
-	 */
-	public static final String SUCCESS = "kernel.success";
+  /** */
+  public static final String INVALID_TABLE_ACTION = "kernel.invalidTableAction";
 
-	/**
-	 *
-	 */
-	public static final String ERROR = "kernel.error";
-	/**
-	 * warning
-	 */
-	public static final String WARNING = "kernel.warning";
+  /** */
+  public static final String INVALID_SERIALIZED_DATA = "kernel.invalidInputStream";
+  /** */
+  public static final String NO_SERVICE = "kernel.noService";
+  /** */
+  public static final String NO_ACCESS = "kernel.noAccess";
+  /** */
+  public static final String SUCCESS = "kernel.success";
 
-	/**
-	 * info
-	 */
-	public static final String INFO = "kernel.info";
+  /** */
+  public static final String ERROR = "kernel.error";
+  /** warning */
+  public static final String WARNING = "kernel.warning";
 
-	/**
-	 * no rows were selected
-	 */
-	public static final String NO_ROWS = "kernel.noRows";
+  /** info */
+  public static final String INFO = "kernel.info";
 
-	/**
-	 * no rows were inserted/updated
-	 */
-	public static final String NO_UPDATE = "kernel.noUpdate";
+  /** no rows were selected */
+  public static final String NO_ROWS = "kernel.noRows";
 
-	/**
-	 * client has sent an invalid attachment key. Client should send only the
-	 * key that it would have received after a successful upload of attachment
-	 */
-	public static final String INVALID_ATTACHMENT_KEY = "kernel.invalidAttachmentKey";
+  /** no rows were inserted/updated */
+  public static final String NO_UPDATE = "kernel.noUpdate";
 
-	/**
-	 * get message text for this message after formatting based on parameters
-	 *
-	 * @param messageName
-	 * @param parameters
-	 * @return formatted message text
-	 */
-	public static FormattedMessage getMessage(String messageName,
-			String... parameters) {
-		Message message = (Message) ComponentType.MSG
-				.getComponentOrNull(messageName);
-		if (message == null) {
-			message = defaultMessage(messageName);
-		}
-		return message.getFormattedMessage(parameters);
-	}
+  /**
+   * client has sent an invalid attachment key. Client should send only the key that it would have
+   * received after a successful upload of attachment
+   */
+  public static final String INVALID_ATTACHMENT_KEY = "kernel.invalidAttachmentKey";
 
-	private static Message defaultMessage(String messageName) {
-		Message msg = new Message();
-		msg.name = messageName;
-		msg.text = messageName
-				+ " : description for this message is not found.";
-		Tracer.trace("Missing message : " + messageName);
-		return msg;
-	}
+  /**
+   * get message text for this message after formatting based on parameters
+   *
+   * @param messageName
+   * @param parameters
+   * @return formatted message text
+   */
+  public static FormattedMessage getMessage(String messageName, String... parameters) {
+    Message message = (Message) ComponentType.MSG.getComponentOrNull(messageName);
+    if (message == null) {
+      message = defaultMessage(messageName);
+    }
+    return message.getFormattedMessage(parameters);
+  }
+
+  private static Message defaultMessage(String messageName) {
+    Message msg = new Message();
+    msg.name = messageName;
+    msg.text = messageName + " : description for this message is not found.";
+
+    logger.log(Level.INFO, "Missing message : " + messageName);
+    Tracer.trace("Missing message : " + messageName);
+    return msg;
+  }
 }

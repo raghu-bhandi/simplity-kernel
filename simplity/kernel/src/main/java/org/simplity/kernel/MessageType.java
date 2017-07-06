@@ -26,30 +26,22 @@ package org.simplity.kernel;
  * we believe these are better than the generic severity
  *
  * @author simplity.org
- *
  */
 public enum MessageType {
-	/**
-	 * like order is created, records modified
-	 */
-	SUCCESS,
+  /** like order is created, records modified */
+  SUCCESS,
 
-	/**
-	 * for information, nothing to celebrate, and nothing to worry
-	 */
-	INFO,
+  /** for information, nothing to celebrate, and nothing to worry */
+  INFO,
 
-	/**
-	 * for attention, but there is no error
-	 */
-	WARNING,
+  /** for attention, but there is no error */
+  WARNING,
 
-	/**
-	 * something is not right
-	 */
-	ERROR;
-	@Override
-	public String toString() {
-		return this.name().toLowerCase();
-	}
+  /** something is not right */
+  ERROR;
+
+  @Override
+  public String toString() {
+    return this.name().toLowerCase();
+  }
 }

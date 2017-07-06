@@ -31,39 +31,37 @@ import org.simplity.service.ServiceContext;
  * logic that is implemented in a java code
  *
  * @author simplity.org
- *
  */
 public class Logic extends Action {
-	String className;
-	private LogicInterface logic;
+  String className;
+  private LogicInterface logic;
 
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		this.logic = Application.getBean(this.className, LogicInterface.class);
-	}
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    this.logic = Application.getBean(this.className, LogicInterface.class);
+  }
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		return this.logic.execute(ctx);
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    return this.logic.execute(ctx);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.Action#validate(org.simplity.kernel.comp.
-	 * ValidationContext , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if (this.className == null) {
-			ctx.addError("Logic action requires className");
-			count++;
-		} else {
-			count += ctx.checkClassName(this.className, LogicInterface.class);
-		}
-		return count;
-	}
-
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.tp.Action#validate(org.simplity.kernel.comp.
+   * ValidationContext , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if (this.className == null) {
+      ctx.addError("Logic action requires className");
+      count++;
+    } else {
+      count += ctx.checkClassName(this.className, LogicInterface.class);
+    }
+    return count;
+  }
 }

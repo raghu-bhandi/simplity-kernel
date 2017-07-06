@@ -27,46 +27,41 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 
 /**
- * common logging class used by all core simplity classes to provide a log that
- * is naturally sequenced in chronological order
+ * common logging class used by all core simplity classes to provide a log that is naturally
+ * sequenced in chronological order
  *
  * @author simplity.org
- *
  */
 public class Tracer {
-	private static final char NEW_LINE = '\n';
+  private static final char NEW_LINE = '\n';
 
-	/**
-	 * reports just a trace information. This should be used to trace
-	 * application level data/state that helps in tracing the progress of
-	 * service execution. It should not be used for debugging internal APIs
-	 *
-	 * @param text
-	 *            text to be logged
-	 */
-	public static void trace(String text) {
-			ServiceLogger.log(Tracer.NEW_LINE + text);
-	}
+  /**
+   * reports just a trace information. This should be used to trace application level data/state
+   * that helps in tracing the progress of service execution. It should not be used for debugging
+   * internal APIs
+   *
+   * @param text text to be logged
+   */
+  public static void trace(String text) {
+    ServiceLogger.log(Tracer.NEW_LINE + text);
+  }
 
-	/**
-	 * @param e
-	 *            exception being caught
-	 * @param msg
-	 *            additional message
-	 */
-	public static void trace(Throwable e, String msg) {
-		Throwable ex = e;
-		if (ex instanceof SQLException) {
-			Exception ex1 = ((SQLException) ex).getNextException();
-			if (ex1 != null) {
-				ex = ex1;
-			}
-		}
-		StringWriter writer = new StringWriter();
-		PrintWriter pw = new PrintWriter(writer);
-		ex.printStackTrace(pw);
-		trace(msg);
-		trace(writer.getBuffer().toString());
-
-	}
+  /**
+   * @param e exception being caught
+   * @param msg additional message
+   */
+  public static void trace(Throwable e, String msg) {
+    Throwable ex = e;
+    if (ex instanceof SQLException) {
+      Exception ex1 = ((SQLException) ex).getNextException();
+      if (ex1 != null) {
+        ex = ex1;
+      }
+    }
+    StringWriter writer = new StringWriter();
+    PrintWriter pw = new PrintWriter(writer);
+    ex.printStackTrace(pw);
+    trace(msg);
+    trace(writer.getBuffer().toString());
+  }
 }

@@ -22,6 +22,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
@@ -30,37 +33,40 @@ import org.simplity.service.ServiceContext;
 /**
  * Rename a data sheet. Returns true if renaming is successful, false otherwise
  *
- *
  * @author simplity.org
- *
  */
 public class RenameSheet extends Action {
+  static final Logger logger = Logger.getLogger(RenameSheet.class.getName());
 
-	/**
-	 * current name
-	 */
-	String sheetName;
+  /** current name */
+  String sheetName;
 
-	/**
-	 * new name
-	 */
-	String newSheetName;
+  /** new name */
+  String newSheetName;
 
-	/*
-	 * true if sheet got renamed. false otherwise. No error raised even if sheet
-	 * is missing
-	 */
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		DataSheet sheet = ctx.removeDataSheet(this.sheetName);
-		if (sheet == null) {
-			Tracer.trace("Data sheet " + this.sheetName
-					+ " not found, and hence is not renamed to "
-					+ this.newSheetName);
-			return Value.VALUE_FALSE;
-		}
-		ctx.putDataSheet(this.newSheetName, sheet);
-		return Value.VALUE_TRUE;
+  /*
+   * true if sheet got renamed. false otherwise. No error raised even if sheet
+   * is missing
+   */
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    DataSheet sheet = ctx.removeDataSheet(this.sheetName);
+    if (sheet == null) {
 
-	}
+      logger.log(
+          Level.INFO,
+          "Data sheet "
+              + this.sheetName
+              + " not found, and hence is not renamed to "
+              + this.newSheetName);
+      Tracer.trace(
+          "Data sheet "
+              + this.sheetName
+              + " not found, and hence is not renamed to "
+              + this.newSheetName);
+      return Value.VALUE_FALSE;
+    }
+    ctx.putDataSheet(this.newSheetName, sheet);
+    return Value.VALUE_TRUE;
+  }
 }

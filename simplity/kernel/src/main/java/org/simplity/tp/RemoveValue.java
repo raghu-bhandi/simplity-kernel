@@ -22,6 +22,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.db.DbAccessType;
@@ -32,57 +35,64 @@ import org.simplity.service.ServiceContext;
 /**
  * simply set value for a field
  *
- *
  * @author simplity.org
- *
  */
 public class RemoveValue extends Action {
+  static final Logger logger = Logger.getLogger(RemoveValue.class.getName());
 
-	/**
-	 * field name. Can be $fieldName, in which case we get the value from
-	 * service context, and use that value as the name of the field to be
-	 * removed from the context
-	 */
-	String fieldName;
+  /**
+   * field name. Can be $fieldName, in which case we get the value from service context, and use
+   * that value as the name of the field to be removed from the context
+   */
+  String fieldName;
 
-	/*
-	 * if fieldName is of the form $fieldName then we keep that run-time field
-	 * name
-	 */
-	private String runTimeFieldName;
+  /*
+   * if fieldName is of the form $fieldName then we keep that run-time field
+   * name
+   */
+  private String runTimeFieldName;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		if (this.runTimeFieldName == null) {
-			ctx.removeValue(this.fieldName);
-		} else {
-			Value field = ctx.getValue(this.runTimeFieldName);
-			if (field == null) {
-				Tracer.trace("No value for found in service context for field name " + this.runTimeFieldName
-						+ ". RemoveValue action could not continue.");
-			} else {
-				ctx.removeValue(field.toString());
-			}
-		}
-		return Value.newBooleanValue(true);
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    if (this.runTimeFieldName == null) {
+      ctx.removeValue(this.fieldName);
+    } else {
+      Value field = ctx.getValue(this.runTimeFieldName);
+      if (field == null) {
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.NONE;
-	}
+        logger.log(
+            Level.INFO,
+            "No value for found in service context for field name "
+                + this.runTimeFieldName
+                + ". RemoveValue action could not continue.");
+        Tracer.trace(
+            "No value for found in service context for field name "
+                + this.runTimeFieldName
+                + ". RemoveValue action could not continue.");
+      } else {
+        ctx.removeValue(field.toString());
+      }
+    }
+    return Value.newBooleanValue(true);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.Action#getReady()
-	 */
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		if (this.fieldName == null) {
-			throw new ApplicationError("RemoveValue action '" + this.actionName + "' requires either fieldName");
-		}
-		this.runTimeFieldName = TextUtil.getFieldName(this.fieldName);
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.NONE;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.tp.Action#getReady()
+   */
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    if (this.fieldName == null) {
+      throw new ApplicationError(
+          "RemoveValue action '" + this.actionName + "' requires either fieldName");
+    }
+    this.runTimeFieldName = TextUtil.getFieldName(this.fieldName);
+  }
 }

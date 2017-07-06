@@ -22,6 +22,9 @@
 
 package org.simplity.test;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,130 +38,121 @@ import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.service.JavaAgent;
 
-/**
- * Context that holds name-value pairs and test results during a test run.
- *
- */
+/** Context that holds name-value pairs and test results during a test run. */
 public class TestContext {
-	private Map<String, Object> values = new HashMap<String, Object>();
-	private List<TestResult> results = new ArrayList<TestResult>();
-	private JavaAgent serviceAgent;
-	private int nbrFailed = 0;
+  static final Logger logger = Logger.getLogger(TestContext.class.getName());
 
-	/**
-	 * start a context for testing. you MUST start() before firing test();
-	 *
-	 * @param userId
-	 * @param pwd
-	 */
-	public void start(String userId, String pwd) {
-		this.serviceAgent = JavaAgent.getAgent(userId, pwd);
-	}
+  private Map<String, Object> values = new HashMap<String, Object>();
+  private List<TestResult> results = new ArrayList<TestResult>();
+  private JavaAgent serviceAgent;
+  private int nbrFailed = 0;
 
-	/**
-	 * add a test result to the context
-	 *
-	 * @param result
-	 */
-	public void addResult(TestResult result) {
-		if (result.cleared() == false) {
-			this.nbrFailed++;
-		}
-		this.results.add(result);
-	}
+  /**
+   * start a context for testing. you MUST start() before firing test();
+   *
+   * @param userId
+   * @param pwd
+   */
+  public void start(String userId, String pwd) {
+    this.serviceAgent = JavaAgent.getAgent(userId, pwd);
+  }
 
-	/**
-	 *
-	 * @return number of failed test
-	 */
-	public int getNbrFailed() {
-		return this.nbrFailed;
-	}
+  /**
+   * add a test result to the context
+   *
+   * @param result
+   */
+  public void addResult(TestResult result) {
+    if (result.cleared() == false) {
+      this.nbrFailed++;
+    }
+    this.results.add(result);
+  }
 
-	/**
-	 * get a report of all tests run.
-	 *
-	 * @return first row is header. One row per test.
-	 */
-	public String[][] getReport() {
-		int n = this.results.size() + 1;
-		String[][] result = new String[n][];
-		result[0] = TestResult.HEADR;
-		for (int i = 1; i < result.length; i++) {
-			result[i] = this.results.get(i - 1).toRow();
-		}
-		return result;
-	}
+  /** @return number of failed test */
+  public int getNbrFailed() {
+    return this.nbrFailed;
+  }
 
-	/**
-	 * save a key-value pair
-	 *
-	 * @param key
-	 * @param value
-	 */
-	public void setValue(String key, Object value) {
-		this.values.put(key, value);
-	}
+  /**
+   * get a report of all tests run.
+   *
+   * @return first row is header. One row per test.
+   */
+  public String[][] getReport() {
+    int n = this.results.size() + 1;
+    String[][] result = new String[n][];
+    result[0] = TestResult.HEADR;
+    for (int i = 1; i < result.length; i++) {
+      result[i] = this.results.get(i - 1).toRow();
+    }
+    return result;
+  }
 
-	/**
-	 * get a value for the key
-	 *
-	 * @param key
-	 * @return value, or null if no such key was added earlier
-	 */
-	public Object getValue(String key) {
-		return this.values.get(key);
-	}
+  /**
+   * save a key-value pair
+   *
+   * @param key
+   * @param value
+   */
+  public void setValue(String key, Object value) {
+    this.values.put(key, value);
+  }
 
-	/**
-	 *
-	 * @return a service agent who can serve services for this test run
-	 */
-	public JavaAgent getServiceAgent() {
-		return this.serviceAgent;
-	}
+  /**
+   * get a value for the key
+   *
+   * @param key
+   * @return value, or null if no such key was added earlier
+   */
+  public Object getValue(String key) {
+    return this.values.get(key);
+  }
 
-	/**
-	 *
-	 * @param serviceName
-	 * @param input
-	 *            JSON to service
-	 * @return output JSON from service
-	 */
+  /** @return a service agent who can serve services for this test run */
+  public JavaAgent getServiceAgent() {
+    return this.serviceAgent;
+  }
 
-	public String runService(String serviceName, String input) {
-		if (this.serviceAgent == null) {
-			throw new ApplicationError(
-					"TestContext has to be started before running");
-		}
-		return this.serviceAgent.serve(serviceName, input).getResponseJson();
-	}
+  /**
+   * @param serviceName
+   * @param input JSON to service
+   * @return output JSON from service
+   */
+  public String runService(String serviceName, String input) {
+    if (this.serviceAgent == null) {
+      throw new ApplicationError("TestContext has to be started before running");
+    }
+    return this.serviceAgent.serve(serviceName, input).getResponseJson();
+  }
 
-	/**
-	 * run a test run
-	 * @param testRun
-	 * @return number of failures
-	 */
-	public int runTest(TestRun testRun){
-		return testRun.run(this);
-	}
-	/**
-	 *
-	 * @param args
-	 * @throws Exception
-	 */
-	public static void main(String[] args) throws Exception {
-		String root = "c:/repos/simplity/test/WebContent/WEB-INF/comp/";
-		Application.bootStrap(root);
-		TestContext ctx = new TestContext();
-		ctx.start("100", "abrakadabra");
-		TestRun testRun = ComponentManager.getTestRunOrNull("service.input");
-		testRun.run(ctx);
-		JSONWriter writer = new JSONWriter();
-		writer.object();
-		writer.key("report");
-		JsonUtil.addObject(writer, ctx.getReport());
-		writer.endObject();
-		Tracer.trace(writer.toString());
-	}
+  /**
+   * run a test run
+   *
+   * @param testRun
+   * @return number of failures
+   */
+  public int runTest(TestRun testRun) {
+    return testRun.run(this);
+  }
+  /**
+   * @param args
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    String root = "c:/repos/simplity/test/WebContent/WEB-INF/comp/";
+    Application.bootStrap(root);
+    TestContext ctx = new TestContext();
+    ctx.start("100", "abrakadabra");
+    TestRun testRun = ComponentManager.getTestRunOrNull("service.input");
+    testRun.run(ctx);
+    JSONWriter writer = new JSONWriter();
+    writer.object();
+    writer.key("report");
+    JsonUtil.addObject(writer, ctx.getReport());
+    writer.endObject();
+
+    logger.log(Level.INFO, writer.toString());
+    Tracer.trace(writer.toString());
+  }
 }

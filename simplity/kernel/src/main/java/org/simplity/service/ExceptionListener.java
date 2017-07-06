@@ -22,18 +22,13 @@
  */
 package org.simplity.service;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public interface ExceptionListener {
 
-	/**
-	 * @param inputData
-	 *            Service data as delivered to a service request. Could be null
-	 *            if that is not the context where error is detected
-	 * @param e
-	 */
-	void listen(ServiceData inputData, Exception e);
-
+  /**
+   * @param inputData Service data as delivered to a service request. Could be null if that is not
+   *     the context where error is detected
+   * @param e
+   */
+  void listen(ServiceData inputData, Exception e);
 }

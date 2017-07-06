@@ -30,52 +30,47 @@ import org.simplity.kernel.util.TextUtil;
  * convenient class to work with related records as part of record based action.
  *
  * @author simplity.org
- *
  */
 public class RelatedRecord {
 
-	String recordName;
-	String sheetName;
-	/**
-	 * child rows can either be saved individually, or we can insert new rows
-	 * after deleting existing rows
-	 */
-	boolean replaceRows;
+  String recordName;
+  String sheetName;
+  /**
+   * child rows can either be saved individually, or we can insert new rows after deleting existing
+   * rows
+   */
+  boolean replaceRows;
 
-	/**
-	 * default constructor
-	 */
-	public RelatedRecord() {
+  /** default constructor */
+  public RelatedRecord() {}
 
-	}
+  /**
+   * constructor with record name and sheet name
+   *
+   * @param recordName
+   * @param sheetName
+   */
+  public RelatedRecord(String recordName, String sheetName) {
+    this.recordName = recordName;
+    this.sheetName = sheetName;
+  }
 
-	/**
-	 * constructor with record name and sheet name
-	 * 
-	 * @param recordName
-	 * @param sheetName
-	 */
-	public RelatedRecord(String recordName, String sheetName) {
-		this.recordName = recordName;
-		this.sheetName = sheetName;
-	}
+  void getReady() {
+    if (this.sheetName == null) {
+      this.sheetName = TextUtil.getSimpleName(this.recordName);
+    }
+  }
 
-	void getReady() {
-		if (this.sheetName == null) {
-			this.sheetName = TextUtil.getSimpleName(this.recordName);
-		}
-	}
-
-	/**
-	 * @param ctx
-	 * @return number of errors added
-	 */
-	public int validate(ValidationContext ctx) {
-		if (this.recordName == null) {
-			ctx.addError("Record name is required for save action");
-			return 1;
-		}
-		ctx.addReference(ComponentType.REC, this.recordName);
-		return 0;
-	}
+  /**
+   * @param ctx
+   * @return number of errors added
+   */
+  public int validate(ValidationContext ctx) {
+    if (this.recordName == null) {
+      ctx.addError("Record name is required for save action");
+      return 1;
+    }
+    ctx.addReference(ComponentType.REC, this.recordName);
+    return 0;
+  }
 }

@@ -22,6 +22,9 @@
  */
 package org.simplity.http;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.IOException;
 import java.io.Writer;
 
@@ -35,52 +38,54 @@ import org.simplity.kernel.Tracer;
 import org.simplity.service.ServiceProtocol;
 
 /**
- * Our recommendation is that the client application should be designed to
- * handle login-service...-logout paradigm. It should keep track of login
- * status. Hence we have a separate url for login, service, and logout.
+ * Our recommendation is that the client application should be designed to handle
+ * login-service...-logout paradigm. It should keep track of login status. Hence we have a separate
+ * url for login, service, and logout.
  *
- * This is a dummy servlet that is useful during development. we expect a call
- * from ours standard client script. Refer to login() in simplity.js
+ * <p>This is a dummy servlet that is useful during development. we expect a call from ours standard
+ * client script. Refer to login() in simplity.js
  *
  * @author simplity.org
- *
  */
 public class DefaultLogin extends HttpServlet {
+  static final Logger logger = Logger.getLogger(DefaultLogin.class.getName());
 
-	/*
-	 * of course we will have several other issues like logging....
-	 */
-	private static final long serialVersionUID = 1L;
+  /*
+   * of course we will have several other issues like logging....
+   */
+  private static final long serialVersionUID = 1L;
 
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		String text = req.getHeader(ServiceProtocol.USER_TOKEN);
-		if (text == null) {
-			Tracer.trace("No credentials received in header for login.");
-			return;
-		}
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String text = req.getHeader(ServiceProtocol.USER_TOKEN);
+    if (text == null) {
 
-		/*
-		 * we expect text to be userId + space + password. space and password
-		 * being optional.
-		 */
-		int idx = text.indexOf(' ');
-		String userId = text;
-		String pwd = null;
-		if (idx != -1) {
-			userId = text.substring(0, idx);
-			pwd = text.substring(idx + 1);
-		}
+      logger.log(Level.INFO, "No credentials received in header for login.");
+      Tracer.trace("No credentials received in header for login.");
+      return;
+    }
 
-		text = HttpAgent.login(userId, pwd, req.getSession(true));
-		if (text == null) {
-			FormattedMessage msg = HttpAgent.LOGIN_FAILED;
-			FormattedMessage[] messages = { msg };
-			text = HttpAgent.getResponseForError(messages);
-		}
-		Writer writer = resp.getWriter();
-		writer.write(text);
-		writer.close();
-	}
+    /*
+     * we expect text to be userId + space + password. space and password
+     * being optional.
+     */
+    int idx = text.indexOf(' ');
+    String userId = text;
+    String pwd = null;
+    if (idx != -1) {
+      userId = text.substring(0, idx);
+      pwd = text.substring(idx + 1);
+    }
+
+    text = HttpAgent.login(userId, pwd, req.getSession(true));
+    if (text == null) {
+      FormattedMessage msg = HttpAgent.LOGIN_FAILED;
+      FormattedMessage[] messages = {msg};
+      text = HttpAgent.getResponseForError(messages);
+    }
+    Writer writer = resp.getWriter();
+    writer.write(text);
+    writer.close();
+  }
 }

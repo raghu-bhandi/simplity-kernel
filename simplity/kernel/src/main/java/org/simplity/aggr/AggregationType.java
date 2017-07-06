@@ -22,80 +22,71 @@
 
 package org.simplity.aggr;
 
-/**
- * @author simplity.org
- *
- */
-public enum AggregationType{
-	/**
-	 * sum of numeric column
-	 */
-	SUM {
-		@Override
-		public AggregationWorker getAggregator(String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
-			return new Sum(inputFieldName, outputFieldName, outputAsDecimal);
-		}
-	},
-	/**
-	 * average
-	 */
-	AVERAGE{
-		@Override
-		public AggregationWorker getAggregator(String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
-			return new Average(inputFieldName, outputFieldName, outputAsDecimal);
-		}
-	},
-	/**
-	 * count
-	 */
-	COUNT{
-		@Override
-		public AggregationWorker getAggregator(String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
-			return new Count(inputFieldName, outputFieldName);
-		}
-	},
-	/**
-	 * max
-	 */
-	MAX{
-		@Override
-		public AggregationWorker getAggregator(String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
-			return new Max(inputFieldName, outputFieldName, outputAsDecimal);
-		}
-	},
-	/**
-	 * min
-	 */
-	MIN{
-		@Override
-		public AggregationWorker getAggregator(String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
-			return new Min(inputFieldName, outputFieldName, outputAsDecimal);
-		}
-	},
-	/**
-	 * first
-	 */
-	FIRST{
-		@Override
-		public AggregationWorker getAggregator(String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
-			return new First(inputFieldName, outputFieldName);
-		}
-	},
-	/**
-	 * last
-	 */
-	LAST{
-		@Override
-		public AggregationWorker getAggregator(String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
-			return new Last(inputFieldName, outputFieldName);
-		}
-	};
+/** @author simplity.org */
+public enum AggregationType {
+  /** sum of numeric column */
+  SUM {
+    @Override
+    public AggregationWorker getAggregator(
+        String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
+      return new Sum(inputFieldName, outputFieldName, outputAsDecimal);
+    }
+  },
+  /** average */
+  AVERAGE {
+    @Override
+    public AggregationWorker getAggregator(
+        String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
+      return new Average(inputFieldName, outputFieldName, outputAsDecimal);
+    }
+  },
+  /** count */
+  COUNT {
+    @Override
+    public AggregationWorker getAggregator(
+        String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
+      return new Count(inputFieldName, outputFieldName);
+    }
+  },
+  /** max */
+  MAX {
+    @Override
+    public AggregationWorker getAggregator(
+        String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
+      return new Max(inputFieldName, outputFieldName, outputAsDecimal);
+    }
+  },
+  /** min */
+  MIN {
+    @Override
+    public AggregationWorker getAggregator(
+        String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
+      return new Min(inputFieldName, outputFieldName, outputAsDecimal);
+    }
+  },
+  /** first */
+  FIRST {
+    @Override
+    public AggregationWorker getAggregator(
+        String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
+      return new First(inputFieldName, outputFieldName);
+    }
+  },
+  /** last */
+  LAST {
+    @Override
+    public AggregationWorker getAggregator(
+        String inputFieldName, String outputFieldName, boolean outputAsDecimal) {
+      return new Last(inputFieldName, outputFieldName);
+    }
+  };
 
-	/**
-	 * @param inputFieldName input field for aggregation
-	 * @param outputFieldName output field for aggregation
-	 * @param outputAsDecimal true or false
-	 * @return an aggregation worker
-	 */
-	public abstract  AggregationWorker getAggregator(String inputFieldName, String outputFieldName, boolean outputAsDecimal);
+  /**
+   * @param inputFieldName input field for aggregation
+   * @param outputFieldName output field for aggregation
+   * @param outputAsDecimal true or false
+   * @return an aggregation worker
+   */
+  public abstract AggregationWorker getAggregator(
+      String inputFieldName, String outputFieldName, boolean outputAsDecimal);
 }

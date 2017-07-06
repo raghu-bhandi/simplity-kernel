@@ -32,37 +32,32 @@ import org.simplity.service.ServiceContext;
 /**
  * Check if a row exists in this record for the primary key
  *
- *
  * @author simplity.org
- *
  */
 public class RowExists extends Action {
 
-	/**
-	 * qualified record name
-	 */
-	String recordName;
+  /** qualified record name */
+  String recordName;
 
-	/**
-	 * specify the field that has the value for the key. Defaults to key
-	 * specified in record. In case the primary is a composite key, then this
-	 * feature is not applicable. Field names are always taken from record.
-	 */
-	String fieldName;
+  /**
+   * specify the field that has the value for the key. Defaults to key specified in record. In case
+   * the primary is a composite key, then this feature is not applicable. Field names are always
+   * taken from record.
+   */
+  String fieldName;
 
-	@Override
-	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		Record record = ComponentManager.getRecord(this.recordName);
-		boolean result = record.rowExistsForKey(ctx, this.fieldName, driver, ctx
-				.getUserId());
-		if (result) {
-			return Value.VALUE_TRUE;
-		}
-		return Value.VALUE_FALSE;
-	}
+  @Override
+  protected Value delegate(ServiceContext ctx, DbDriver driver) {
+    Record record = ComponentManager.getRecord(this.recordName);
+    boolean result = record.rowExistsForKey(ctx, this.fieldName, driver, ctx.getUserId());
+    if (result) {
+      return Value.VALUE_TRUE;
+    }
+    return Value.VALUE_FALSE;
+  }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_ONLY;
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_ONLY;
+  }
 }

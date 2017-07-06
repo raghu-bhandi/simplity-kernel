@@ -23,24 +23,24 @@
 package org.simplity.kernel;
 
 /**
- * Rudimentary messaging using a common shared object within the jvm amongst concurrent objects/runs. It is  free-for-all free-format set/get as of now. Not otimized high level of activity.Use it only to exchange occasional messages like progress reporting from a batch job
- * @author simplity.org
+ * Rudimentary messaging using a common shared object within the jvm amongst concurrent
+ * objects/runs. It is free-for-all free-format set/get as of now. Not otimized high level of
+ * activity.Use it only to exchange occasional messages like progress reporting from a batch job
  *
+ * @author simplity.org
  */
 public class MessageBox {
-	private Object message;
-	/**
-	 *
-	 * @return  message object from this box
-	 */
-	public Object getMessage(){
-		return this.message;
-	}
-	/**
-	 * set an object as message inside this message box
-	 * @param message
-	 */
-	public void setMessage(Object message){
-		this.message = message;
-	}
+  private Object message;
+  /** @return message object from this box */
+  public Object getMessage() {
+    return this.message;
+  }
+  /**
+   * set an object as message inside this message box
+   *
+   * @param message
+   */
+  public void setMessage(Object message) {
+    this.message = message;
+  }
 }

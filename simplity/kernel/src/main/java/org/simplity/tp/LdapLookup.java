@@ -37,84 +37,75 @@ import org.simplity.kernel.ldap.Exists;
 import org.simplity.kernel.ldap.MultiAttrs;
 import org.simplity.kernel.ldap.SingleAttr;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class LdapLookup extends Action {
 
-	Exists exists;
+  Exists exists;
 
-	SingleAttr singleAttr;
+  SingleAttr singleAttr;
 
-	MultiAttrs multiAttrs;
+  MultiAttrs multiAttrs;
 
-	/**
-	 * object instance for re-use
-	 */
-	private DataExtractor dataExtractor;
+  /** object instance for re-use */
+  private DataExtractor dataExtractor;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		boolean returnValue = false;
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    boolean returnValue = false;
 
-		try {
+    try {
 
-			if (exists != null) {
-				exists.getfieldValues(ctx);
-				returnValue = exists.doesObjectExist(ctx);
-			}
+      if (exists != null) {
+        exists.getfieldValues(ctx);
+        returnValue = exists.doesObjectExist(ctx);
+      }
 
-			if (singleAttr != null) {
-				singleAttr.getfieldValues(ctx);
-				returnValue = singleAttr.getAttribute(ctx);
-				if (ctx.isInError()) {
-					return Value.VALUE_FALSE;
-				}
-			}
+      if (singleAttr != null) {
+        singleAttr.getfieldValues(ctx);
+        returnValue = singleAttr.getAttribute(ctx);
+        if (ctx.isInError()) {
+          return Value.VALUE_FALSE;
+        }
+      }
 
-			if (multiAttrs != null) {
-				multiAttrs.getfieldValues(ctx);
-				returnValue = multiAttrs.getAttributes(ctx);
-				if (ctx.isInError()) {
-					return Value.VALUE_FALSE;
-				}
-			}
+      if (multiAttrs != null) {
+        multiAttrs.getfieldValues(ctx);
+        returnValue = multiAttrs.getAttributes(ctx);
+        if (ctx.isInError()) {
+          return Value.VALUE_FALSE;
+        }
+      }
 
-		} catch (NamingException e) {
-			e.printStackTrace();
-		}
-		return Value.newBooleanValue(returnValue);
-	}
+    } catch (NamingException e) {
+      e.printStackTrace();
+    }
+    return Value.newBooleanValue(returnValue);
+  }
 
+  public NamingEnumeration getObjects(String base, String filter, SearchControls controls) {
+    NamingEnumeration answer = null;
+    DirContext ldapCtx = null;
+    try {
+      answer = ldapCtx.search(base, filter, controls);
+    } catch (NamingException ne) {
+      throw new ApplicationError("LdapRead : NamingException" + ne.getMessage());
+    }
+    return answer;
+  }
 
-	public NamingEnumeration getObjects(String base, String filter, SearchControls controls) {
-		NamingEnumeration answer = null;
-		DirContext ldapCtx = null;
-		try {
-			answer = ldapCtx.search(base, filter, controls);
-		} catch (NamingException ne) {
-			throw new ApplicationError("LdapRead : NamingException" + ne.getMessage());
-		}
-		return answer;
-	}
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+  }
 
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-	}
-
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if ((this.exists == null ^ singleAttr == null ^ multiAttrs == null)
-				^ (this.exists == null && singleAttr == null && multiAttrs == null)) {
-			ctx.addError("one of lookup types are required");
-			count++;
-		}
-		return count;
-
-	}
-
-
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if ((this.exists == null ^ singleAttr == null ^ multiAttrs == null)
+        ^ (this.exists == null && singleAttr == null && multiAttrs == null)) {
+      ctx.addError("one of lookup types are required");
+      count++;
+    }
+    return count;
+  }
 }

@@ -24,52 +24,44 @@ package org.simplity.kernel;
 import java.io.InputStream;
 
 /**
- * An assistant to AttachmentManager who can store/retrieve file/media in a
- * permanent way. We provide a simple assistant who uses a designated folder on
- * the file system for this.
+ * An assistant to AttachmentManager who can store/retrieve file/media in a permanent way. We
+ * provide a simple assistant who uses a designated folder on the file system for this.
  *
  * @author simplity.org
- *
  */
 public interface AttachmentAssistant {
 
-	/**
-	 * store a file into corporate storage area. IMP : we DO NOT close stream.
-	 * We believe the creator has to destroy it.
-	 *
-	 * @param inStream
-	 *            stream to read he media from. Kept open on return. Caller need
-	 *            to close it.
-	 * @return key/token that can be used to retrieve this attachment any time.
-	 */
-	public String store(InputStream inStream);
+  /**
+   * store a file into corporate storage area. IMP : we DO NOT close stream. We believe the creator
+   * has to destroy it.
+   *
+   * @param inStream stream to read he media from. Kept open on return. Caller need to close it.
+   * @return key/token that can be used to retrieve this attachment any time.
+   */
+  public String store(InputStream inStream);
 
-	/**
-	 * store a file into corporate storage area from its temp-area
-	 *
-	 * @param tempKey
-	 *            key to temp-storage area
-	 * @return key/token that can be used to retrieve this attachment any time.
-	 */
-	public String store(String tempKey);
+  /**
+   * store a file into corporate storage area from its temp-area
+   *
+   * @param tempKey key to temp-storage area
+   * @return key/token that can be used to retrieve this attachment any time.
+   */
+  public String store(String tempKey);
 
-	/**
-	 * retrieve a media file from central storage
-	 *
-	 * @param storageKey
-	 *
-	 * @return file-token that is to be used to access the retrieved content for
-	 *         sending to client or re-storage
-	 * @throws ApplicationError
-	 *             if storageKey is not valid
-	 */
-	public String retrieve(String storageKey);
+  /**
+   * retrieve a media file from central storage
+   *
+   * @param storageKey
+   * @return file-token that is to be used to access the retrieved content for sending to client or
+   *     re-storage
+   * @throws ApplicationError if storageKey is not valid
+   */
+  public String retrieve(String storageKey);
 
-	/**
-	 * remove a media file from central storage
-	 *
-	 * @param storageKey
-	 *
-	 */
-	public void remove(String storageKey);
+  /**
+   * remove a media file from central storage
+   *
+   * @param storageKey
+   */
+  public void remove(String storageKey);
 }

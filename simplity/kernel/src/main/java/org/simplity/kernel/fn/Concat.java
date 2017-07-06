@@ -26,53 +26,47 @@ import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class Concat extends AbstractFunction {
-	/**
-	 * null as the last entry means var args..
-	 */
-	private static final ValueType[] MY_ARG_TYPES = { ValueType.TEXT, null };
+  /** null as the last entry means var args.. */
+  private static final ValueType[] MY_ARG_TYPES = {ValueType.TEXT, null};
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.kernel.fn.Function#execute(org.simplity.kernel.value.Value
-	 * [], org.simplity.kernel.data.FieldsInterface)
-	 */
-	@Override
-	public Value execute(Value[] arguments, FieldsInterface data) {
-		if (arguments == null || arguments.length == 0) {
-			return Value.VALUE_EMPTY;
-		}
-		StringBuilder sbf = new StringBuilder();
-		for (Value val : arguments) {
-			sbf.append(val);
-		}
-		return Value.newTextValue(sbf.toString());
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.kernel.fn.Function#execute(org.simplity.kernel.value.Value
+   * [], org.simplity.kernel.data.FieldsInterface)
+   */
+  @Override
+  public Value execute(Value[] arguments, FieldsInterface data) {
+    if (arguments == null || arguments.length == 0) {
+      return Value.VALUE_EMPTY;
+    }
+    StringBuilder sbf = new StringBuilder();
+    for (Value val : arguments) {
+      sbf.append(val);
+    }
+    return Value.newTextValue(sbf.toString());
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.fn.Function#getReturnType()
-	 */
-	@Override
-	public ValueType getReturnType() {
-		return ValueType.TEXT;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.fn.Function#getReturnType()
+   */
+  @Override
+  public ValueType getReturnType() {
+    return ValueType.TEXT;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.fn.Function#getArgDataTypes()
-	 */
-	@Override
-	public ValueType[] getArgDataTypes() {
-		return MY_ARG_TYPES;
-	}
-
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.fn.Function#getArgDataTypes()
+   */
+  @Override
+  public ValueType[] getArgDataTypes() {
+    return MY_ARG_TYPES;
+  }
 }

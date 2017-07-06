@@ -29,32 +29,29 @@ import org.simplity.service.ServiceContext;
  * get message in the message box
  *
  * @author simplity.org
- *
  */
 public class PickupFromMessageBox extends Action {
-	/**
-	 * field/table names to be logged
-	 */
-	String fieldName;
+  /** field/table names to be logged */
+  String fieldName;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		Object val = ctx.getMessageFromBox();
-		if(val == null){
-			return Value.VALUE_FALSE;
-		}
-		if (this.fieldName != null) {
-			ctx.setTextValue(this.fieldName,val.toString());
-		}
-		return Value.VALUE_TRUE;
-	}
-	/* (non-Javadoc)
-	 * @see org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext, org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext vtx, Service service) {
-		int count = super.validate(vtx, service);
-		count += vtx.checkMandatoryField("fieldName", this.fieldName);
-		return count;
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    Object val = ctx.getMessageFromBox();
+    if (val == null) {
+      return Value.VALUE_FALSE;
+    }
+    if (this.fieldName != null) {
+      ctx.setTextValue(this.fieldName, val.toString());
+    }
+    return Value.VALUE_TRUE;
+  }
+  /* (non-Javadoc)
+   * @see org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext, org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext vtx, Service service) {
+    int count = super.validate(vtx, service);
+    count += vtx.checkMandatoryField("fieldName", this.fieldName);
+    return count;
+  }
 }

@@ -22,6 +22,9 @@
 
 package org.simplity.test;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.JsonUtil;
@@ -30,51 +33,48 @@ import org.simplity.kernel.util.JsonUtil;
  * represents a field to be provided as input to a service
  *
  * @author simplity.org
- *
  */
 public class InputField {
-	/**
-	 * field name. qualified name is relative to its parent.
-	 */
-	String fieldSelector;
-	/**
-	 * field value. $variableName to get value from test context
-	 */
-	String fieldValue;
+  static final Logger logger = Logger.getLogger(InputField.class.getName());
 
-	/**
-	 *
-	 * @param vtx
-	 * @return number of errors added
-	 */
-	int validate(ValidationContext vtx) {
-		int nbr = 0;
-		if (this.fieldSelector == null) {
-			vtx.addError("fieldSelector is a required attribute for a test field");
-			nbr++;
-		}
-		if (this.fieldValue == null) {
-			vtx.addError("fieldValue is required for an input field");
-			nbr++;
-		}
-		return nbr;
-	}
+  /** field name. qualified name is relative to its parent. */
+  String fieldSelector;
+  /** field value. $variableName to get value from test context */
+  String fieldValue;
 
-	/**
-	 * @param json
-	 *            json array or object to which this field is to be assigned to
-	 * @param ctx
-	 */
-	public void setInputValue(Object json, TestContext ctx) {
-		if (this.fieldValue == null) {
-			Tracer.trace(this.fieldSelector
-					+ " has no value, and hence is not added to the input");
-			return;
-		}
-		Object value = this.fieldValue;
-		if (this.fieldValue.charAt(0) == '$') {
-			value = ctx.getValue(this.fieldValue.substring(1));
-		}
-		JsonUtil.setValueWorker(this.fieldSelector, json, value);
-	}
+  /**
+   * @param vtx
+   * @return number of errors added
+   */
+  int validate(ValidationContext vtx) {
+    int nbr = 0;
+    if (this.fieldSelector == null) {
+      vtx.addError("fieldSelector is a required attribute for a test field");
+      nbr++;
+    }
+    if (this.fieldValue == null) {
+      vtx.addError("fieldValue is required for an input field");
+      nbr++;
+    }
+    return nbr;
+  }
+
+  /**
+   * @param json json array or object to which this field is to be assigned to
+   * @param ctx
+   */
+  public void setInputValue(Object json, TestContext ctx) {
+    if (this.fieldValue == null) {
+
+      logger.log(
+          Level.INFO, this.fieldSelector + " has no value, and hence is not added to the input");
+      Tracer.trace(this.fieldSelector + " has no value, and hence is not added to the input");
+      return;
+    }
+    Object value = this.fieldValue;
+    if (this.fieldValue.charAt(0) == '$') {
+      value = ctx.getValue(this.fieldValue.substring(1));
+    }
+    JsonUtil.setValueWorker(this.fieldSelector, json, value);
+  }
 }

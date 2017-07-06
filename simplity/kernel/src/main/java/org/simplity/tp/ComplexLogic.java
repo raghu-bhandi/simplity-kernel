@@ -29,62 +29,52 @@ import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
- * complex logic that is implemented in a java code. Complexity in this is the
- * driver. We believe that a logic that requires db operations in between is
- * leads to maintenance issues, and hence must be developed and reviewed by
- * experienced folks. For enabling such a process, we have separated simple and
- * complex logic interfaces.
+ * complex logic that is implemented in a java code. Complexity in this is the driver. We believe
+ * that a logic that requires db operations in between is leads to maintenance issues, and hence
+ * must be developed and reviewed by experienced folks. For enabling such a process, we have
+ * separated simple and complex logic interfaces.
  *
  * @author simplity.org
- *
  */
 public class ComplexLogic extends Action {
-	/**
-	 * fully qualified class name
-	 */
-	String className;
+  /** fully qualified class name */
+  String className;
 
-	/**
-	 * cached for performance
-	 */
-	private ComplexLogicInterface logic;
+  /** cached for performance */
+  private ComplexLogicInterface logic;
 
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		try {
-			this.logic = Application.getBean(className, ComplexLogicInterface.class);
-		} catch (Exception e) {
-			throw new ApplicationError(
-					e,
-					this.className
-							+ " is not a valid class that implements ComplexLogicInterface.");
-		}
-	}
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    try {
+      this.logic = Application.getBean(className, ComplexLogicInterface.class);
+    } catch (Exception e) {
+      throw new ApplicationError(
+          e, this.className + " is not a valid class that implements ComplexLogicInterface.");
+    }
+  }
 
-	@Override
-	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-			return this.logic.execute(ctx, driver);
-	}
+  @Override
+  protected Value delegate(ServiceContext ctx, DbDriver driver) {
+    return this.logic.execute(ctx, driver);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if (this.className == null) {
-			ctx.addError("COmplexLogic action requires className");
-			count++;
-		} else {
-			count += ctx.checkClassName(this.className,
-					ComplexLogicInterface.class);
-		}
-		return count;
-	}
-
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if (this.className == null) {
+      ctx.addError("COmplexLogic action requires className");
+      count++;
+    } else {
+      count += ctx.checkClassName(this.className, ComplexLogicInterface.class);
+    }
+    return count;
+  }
 }

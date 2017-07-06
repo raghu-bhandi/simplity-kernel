@@ -27,56 +27,55 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.JsonUtil;
 
 /**
- * represents a JSON object. Has attributes and values. Allows setting
- * assertions on such an item
- *
+ * represents a JSON object. Has attributes and values. Allows setting assertions on such an item
  */
 public class InputItem {
 
-	/**
-	 * qualified name to get the row data. 0 for first row, a.2 to get third row
-	 * of the array with attribute a etc..
-	 */
-	String itemSelector;
-	/**
-	 * fields specified for this row. This is a must. If you want to assert that
-	 * this should not be there, you may as well define that as a Field
-	 */
-	InputField[] inputFields;
+  /**
+   * qualified name to get the row data. 0 for first row, a.2 to get third row of the array with
+   * attribute a etc..
+   */
+  String itemSelector;
+  /**
+   * fields specified for this row. This is a must. If you want to assert that this should not be
+   * there, you may as well define that as a Field
+   */
+  InputField[] inputFields;
 
-	/**
-	 * is this component designed ok?
-	 *
-	 * @param vtx
-	 * @return number of errors
-	 */
-	int validate(ValidationContext vtx) {
-		int nbr = 0;
-		if (this.itemSelector == null) {
-			vtx.addError("itemSelector is a must.");
-			nbr = 1;
-		}
-		if (this.inputFields == null) {
-			vtx.addError("Item must have fields. Use field instead if you want to assert that this item is not present.");
-			nbr++;
-			return nbr;
-		}
-		for (InputField field : this.inputFields) {
-			nbr += field.validate(vtx);
-		}
-		return nbr;
-	}
+  /**
+   * is this component designed ok?
+   *
+   * @param vtx
+   * @return number of errors
+   */
+  int validate(ValidationContext vtx) {
+    int nbr = 0;
+    if (this.itemSelector == null) {
+      vtx.addError("itemSelector is a must.");
+      nbr = 1;
+    }
+    if (this.inputFields == null) {
+      vtx.addError(
+          "Item must have fields. Use field instead if you want to assert that this item is not present.");
+      nbr++;
+      return nbr;
+    }
+    for (InputField field : this.inputFields) {
+      nbr += field.validate(vtx);
+    }
+    return nbr;
+  }
 
-	/**
-	 * set values for this item into the root json object. parent objects are
-	 * created if required as per selector
-	 *
-	 * @param json
-	 */
-	void setInputValues(JSONObject json, TestContext ctx) {
-		Object obj = JsonUtil.getObjectValue(this.itemSelector, json);
-		for (InputField field : this.inputFields) {
-			field.setInputValue(obj, ctx);
-		}
-	}
+  /**
+   * set values for this item into the root json object. parent objects are created if required as
+   * per selector
+   *
+   * @param json
+   */
+  void setInputValues(JSONObject json, TestContext ctx) {
+    Object obj = JsonUtil.getObjectValue(this.itemSelector, json);
+    for (InputField field : this.inputFields) {
+      field.setInputValue(obj, ctx);
+    }
+  }
 }

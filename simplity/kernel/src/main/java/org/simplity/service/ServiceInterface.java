@@ -28,56 +28,46 @@ import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 
-/***
- * Defines a Service
- *
- */
+/** * Defines a Service */
 public interface ServiceInterface extends Component {
 
-	/**
-	 * this service is called as a step in another service.
-	 *
-	 * @param ctx
-	 * @param driver
-	 * @param useOwnDriverForTransaction
-	 *            if true, supplied driver is for read-only. Parent service is
-	 *            not managing transactions, and this service should manage its
-	 *            transaction if needed
-	 * @return return 0 if this service did not do intended work. positive
-	 *         number if it did its work. This returned value is used as
-	 *         workDone for the action.
-	 */
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction);
+  /**
+   * this service is called as a step in another service.
+   *
+   * @param ctx
+   * @param driver
+   * @param useOwnDriverForTransaction if true, supplied driver is for read-only. Parent service is
+   *     not managing transactions, and this service should manage its transaction if needed
+   * @return return 0 if this service did not do intended work. positive number if it did its work.
+   *     This returned value is used as workDone for the action.
+   */
+  public Value executeAsAction(
+      ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction);
 
-	/**
-	 * should the service be fired in the background (in a separate thread)?
-	 *
-	 * @return true if this service is marked for background execution
-	 */
-	public boolean toBeRunInBackground();
+  /**
+   * should the service be fired in the background (in a separate thread)?
+   *
+   * @return true if this service is marked for background execution
+   */
+  public boolean toBeRunInBackground();
 
-	/**
-	 * can this service instance be cached for performance. caching is enabled
-	 * only during production. During development, caching is disabled to ensure
-	 * that the developer gets to execute the latest version of the service
-	 * always
-	 *
-	 * @return true if caching is ok, false otherwise
-	 */
-	public boolean okToCache(ServiceData inData);
+  /**
+   * can this service instance be cached for performance. caching is enabled only during production.
+   * During development, caching is disabled to ensure that the developer gets to execute the latest
+   * version of the service always
+   *
+   * @return true if caching is ok, false otherwise
+   */
+  public boolean okToCache(ServiceData inData);
 
-	/**
-	 * @return data base access required by this service
-	 */
-	public DbAccessType getDataAccessType();
+  /** @return data base access required by this service */
+  public DbAccessType getDataAccessType();
 
-	/**
-	 * @param inputData
-	 *            input data, possibly a pay-load that came from a client
-	 * @param payloadType
-	 *            if this is meant to be communicated back to client
-	 * @return service data that has response to be sent to client, as well as
-	 *         data meant for client-agent
-	 */
-	public ServiceData respond(ServiceData inputData, PayloadType payloadType);
+  /**
+   * @param inputData input data, possibly a pay-load that came from a client
+   * @param payloadType if this is meant to be communicated back to client
+   * @return service data that has response to be sent to client, as well as data meant for
+   *     client-agent
+   */
+  public ServiceData respond(ServiceData inputData, PayloadType payloadType);
 }

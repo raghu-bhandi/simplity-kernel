@@ -30,71 +30,61 @@ import org.simplity.service.ResponseWriter;
 import org.simplity.service.ServiceContext;
 
 /**
- * Read a row from a record, and possibly read relevant rows from related
- * records
- *
+ * Read a row from a record, and possibly read relevant rows from related records
  *
  * @author simplity.org
- *
  */
 public class FilterToJson extends DbAction {
 
-	/**
-	 * record that is used for inputting and creating filter criteria
-	 */
-	String filterRecordName;
-	/**
-	 * optional. defaults to filterRecordName
-	 */
-	String outputRecordName;
-	/**
-	 * it is common practice to have each row as an object. However, if we use
-	 * each row as an array of values, with first row as array of names, the size
-	 * of json would come down.
-	 */
-	boolean useCompactFormat;
+  /** record that is used for inputting and creating filter criteria */
+  String filterRecordName;
+  /** optional. defaults to filterRecordName */
+  String outputRecordName;
+  /**
+   * it is common practice to have each row as an object. However, if we use each row as an array of
+   * values, with first row as array of names, the size of json would come down.
+   */
+  boolean useCompactFormat;
 
-	String outputSheetName;
+  String outputSheetName;
 
-	/**
-	 * get a default filterAction for a record, possibly with child rows
-	 *
-	 * @param record
-	 */
-	public FilterToJson(Record record) {
-		this.actionName = "filter_" + record.getSimpleName();
-		String recordName = record.getQualifiedName();
-		this.filterRecordName = recordName;
-		this.outputRecordName = recordName;
-		this.outputSheetName = record.getDefaultSheetName();
-	}
+  /**
+   * get a default filterAction for a record, possibly with child rows
+   *
+   * @param record
+   */
+  public FilterToJson(Record record) {
+    this.actionName = "filter_" + record.getSimpleName();
+    String recordName = record.getQualifiedName();
+    this.filterRecordName = recordName;
+    this.outputRecordName = recordName;
+    this.outputSheetName = record.getDefaultSheetName();
+  }
 
-	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		Record record = ComponentManager.getRecord(this.filterRecordName);
-		Record outRecord = record;
-		if (this.outputRecordName != null) {
-			outRecord = ComponentManager.getRecord(this.outputRecordName);
-		}
-		ResponseWriter writer = ctx.getWriter();
-		writer.key(this.outputSheetName).array();
-		outRecord.filterToJson(record, ctx, driver, this.useCompactFormat, writer);
-		writer.endArray();
-		return 1;
-	}
+  @Override
+  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+    Record record = ComponentManager.getRecord(this.filterRecordName);
+    Record outRecord = record;
+    if (this.outputRecordName != null) {
+      outRecord = ComponentManager.getRecord(this.outputRecordName);
+    }
+    ResponseWriter writer = ctx.getWriter();
+    writer.key(this.outputSheetName).array();
+    outRecord.filterToJson(record, ctx, driver, this.useCompactFormat, writer);
+    writer.endArray();
+    return 1;
+  }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_ONLY;
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_ONLY;
+  }
 
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		count += ctx.checkRecordExistence(this.filterRecordName,
-				"filterRecordName", true);
-		count += ctx.checkRecordExistence(this.outputRecordName,
-				"outputRecordName", false);
-		return count;
-	}
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    count += ctx.checkRecordExistence(this.filterRecordName, "filterRecordName", true);
+    count += ctx.checkRecordExistence(this.outputRecordName, "outputRecordName", false);
+    return count;
+  }
 }

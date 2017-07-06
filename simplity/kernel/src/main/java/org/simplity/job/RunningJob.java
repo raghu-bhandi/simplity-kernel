@@ -22,6 +22,9 @@
 
 package org.simplity.job;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MessageBox;
@@ -34,68 +37,68 @@ import org.simplity.service.ServiceInterface;
  * a thread that runs a service with given input data
  *
  * @author simplity.org
- *
  */
 public class RunningJob implements Runnable {
-	private final ServiceInterface service;
-	private final ServiceData inData;
-	private final MessageBox messageBox;
-	private JobStatus jobStatus = JobStatus.SCHEDULED;
+  static final Logger logger = Logger.getLogger(RunningJob.class.getName());
 
-	/**
-	 * create a job thread to run a service with the input data
-	 *
-	 * @param service
-	 *            to be run as part of this job
-	 * @param inData
-	 *            input data to the service
-	 */
-	public RunningJob(ServiceInterface service, ServiceData inData) {
-		this.service = service;
-		this.inData = inData;
-		this.messageBox = new MessageBox();
-		this.inData.setMessageBox(this.messageBox);
-	}
+  private final ServiceInterface service;
+  private final ServiceData inData;
+  private final MessageBox messageBox;
+  private JobStatus jobStatus = JobStatus.SCHEDULED;
 
-	@Override
-	public void run() {
-		/*
-		 * remember : this is the thread that would run as long as the service
-		 * wants it.The service may be designed to run for ever, or it may be
-		 * a batch job and return once known set of work is finished. It is
-		 * possible that getJobStatus() be invoked from another thread, and
-		 * hence we keep that field updated
-		 */
-		this.jobStatus = JobStatus.RUNNING;
-		Tracer.trace("Job status set to  " + this.jobStatus);
-		try {
-			this.service.respond(this.inData, PayloadType.JSON);
-			Tracer.trace("Service " + this.service.getQualifiedName() + " is done..");
-			this.jobStatus = JobStatus.DONE;
-			Tracer.trace("Reset to  " + this.jobStatus);
-		} catch (Exception e) {
-			this.jobStatus = JobStatus.FAILED;
-			String msg = "Error while running service " + this.service.getQualifiedName() + " as a batch job.";
-			Application.reportApplicationError(this.inData, new ApplicationError(e, msg));
-		}
-	}
+  /**
+   * create a job thread to run a service with the input data
+   *
+   * @param service to be run as part of this job
+   * @param inData input data to the service
+   */
+  public RunningJob(ServiceInterface service, ServiceData inData) {
+    this.service = service;
+    this.inData = inData;
+    this.messageBox = new MessageBox();
+    this.inData.setMessageBox(this.messageBox);
+  }
 
-	/**
-	 *
-	 * @return current job status
-	 */
-	public JobStatus getJobStatus() {
-		return this.jobStatus;
-	}
-	/**
-	 *
-	 * @return current job status
-	 */
-	public String getServiceStatus() {
-		Object msg = this.messageBox.getMessage();
-		if(msg == null){
-			return "unknown";
-		}
-		return msg.toString();
-	}
+  @Override
+  public void run() {
+    /*
+     * remember : this is the thread that would run as long as the service
+     * wants it.The service may be designed to run for ever, or it may be
+     * a batch job and return once known set of work is finished. It is
+     * possible that getJobStatus() be invoked from another thread, and
+     * hence we keep that field updated
+     */
+    this.jobStatus = JobStatus.RUNNING;
+
+    logger.log(Level.INFO, "Job status set to  " + this.jobStatus);
+    Tracer.trace("Job status set to  " + this.jobStatus);
+    try {
+      this.service.respond(this.inData, PayloadType.JSON);
+
+      logger.log(Level.INFO, "Service " + this.service.getQualifiedName() + " is done..");
+      Tracer.trace("Service " + this.service.getQualifiedName() + " is done..");
+      this.jobStatus = JobStatus.DONE;
+
+      logger.log(Level.INFO, "Reset to  " + this.jobStatus);
+      Tracer.trace("Reset to  " + this.jobStatus);
+    } catch (Exception e) {
+      this.jobStatus = JobStatus.FAILED;
+      String msg =
+          "Error while running service " + this.service.getQualifiedName() + " as a batch job.";
+      Application.reportApplicationError(this.inData, new ApplicationError(e, msg));
+    }
+  }
+
+  /** @return current job status */
+  public JobStatus getJobStatus() {
+    return this.jobStatus;
+  }
+  /** @return current job status */
+  public String getServiceStatus() {
+    Object msg = this.messageBox.getMessage();
+    if (msg == null) {
+      return "unknown";
+    }
+    return msg.toString();
+  }
 }

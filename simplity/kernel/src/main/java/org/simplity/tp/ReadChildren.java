@@ -34,53 +34,46 @@ import org.simplity.service.ServiceContext;
 /**
  * Read rows from a record for a given value of its parent key
  *
- *
  * @author simplity.org
- *
  */
 public class ReadChildren extends DbAction {
 
-	/**
-	 * qualified record name
-	 */
-	String recordName;
-	/**
-	 * sheet name in which output is read into. defaults to simple name of
-	 * record
-	 */
-	String outputSheetName;
+  /** qualified record name */
+  String recordName;
+  /** sheet name in which output is read into. defaults to simple name of record */
+  String outputSheetName;
 
-	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		Record record = ComponentManager.getRecord(this.recordName);
-		DataSheet outSheet = record.filterForAParent(ctx, driver);
-		ctx.putDataSheet(this.outputSheetName, outSheet);
-		return outSheet.length();
-	}
+  @Override
+  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+    Record record = ComponentManager.getRecord(this.recordName);
+    DataSheet outSheet = record.filterForAParent(ctx, driver);
+    ctx.putDataSheet(this.outputSheetName, outSheet);
+    return outSheet.length();
+  }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_ONLY;
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_ONLY;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
 
-		if (this.recordName == null) {
-			ctx.addError("RecordName is required to read child records.");
-			count++;
-		} else {
-			ctx.addReference(ComponentType.REC, this.recordName);
-		}
+    if (this.recordName == null) {
+      ctx.addError("RecordName is required to read child records.");
+      count++;
+    } else {
+      ctx.addReference(ComponentType.REC, this.recordName);
+    }
 
-		return count;
-	}
+    return count;
+  }
 }

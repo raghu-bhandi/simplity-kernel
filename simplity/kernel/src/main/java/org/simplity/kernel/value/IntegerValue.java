@@ -30,98 +30,95 @@ import java.sql.Types;
  * represents whole number
  *
  * @author simplity.org
- *
  */
 public class IntegerValue extends Value {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
-	private long value;
+  /** */
+  private static final long serialVersionUID = 1L;
 
-	protected IntegerValue(long value) {
-		this.value = value;
-	}
+  private long value;
 
-	protected IntegerValue() {
-		this.valueIsNull = true;
-	}
+  protected IntegerValue(long value) {
+    this.value = value;
+  }
 
-	@Override
-	public ValueType getValueType() {
-		return ValueType.INTEGER;
-	}
+  protected IntegerValue() {
+    this.valueIsNull = true;
+  }
 
-	@Override
-	protected void format() {
-		this.textValue = "" + this.value;
-	}
+  @Override
+  public ValueType getValueType() {
+    return ValueType.INTEGER;
+  }
 
-	@Override
-	protected boolean equalValue(Value otherValue) {
-		if (otherValue instanceof IntegerValue) {
-			return ((IntegerValue) otherValue).value == this.value;
-		}
+  @Override
+  protected void format() {
+    this.textValue = "" + this.value;
+  }
 
-		if (otherValue instanceof DecimalValue) {
-			return ((DecimalValue) otherValue).getLong() == this.value;
-		}
+  @Override
+  protected boolean equalValue(Value otherValue) {
+    if (otherValue instanceof IntegerValue) {
+      return ((IntegerValue) otherValue).value == this.value;
+    }
 
-		return false;
-	}
+    if (otherValue instanceof DecimalValue) {
+      return ((DecimalValue) otherValue).getLong() == this.value;
+    }
 
-	@Override
-	public long toInteger() throws InvalidValueException {
-		return this.value;
-	}
+    return false;
+  }
 
-	@Override
-	public double toDecimal() throws InvalidValueException {
-		return this.value;
-	}
+  @Override
+  public long toInteger() throws InvalidValueException {
+    return this.value;
+  }
 
-	/**
-	 * preferred method if this concrete class is used. Avoids exception
-	 *
-	 * @return long value
-	 */
-	public long getLong() {
-		return this.value;
-	}
+  @Override
+  public double toDecimal() throws InvalidValueException {
+    return this.value;
+  }
 
-	/**
-	 * preferred method if this concrete class is used. Avoids exception
-	 *
-	 * @return long value cast as decimal
-	 */
-	public double getDouble() {
-		return this.value;
-	}
+  /**
+   * preferred method if this concrete class is used. Avoids exception
+   *
+   * @return long value
+   */
+  public long getLong() {
+    return this.value;
+  }
 
-	@Override
-	public void setToStatement(PreparedStatement statement, int idx)
-			throws SQLException {
-		if (this.isUnknown()) {
-			statement.setNull(idx, Types.BIGINT);
-		} else {
-			statement.setLong(idx, this.value);
-		}
-	}
+  /**
+   * preferred method if this concrete class is used. Avoids exception
+   *
+   * @return long value cast as decimal
+   */
+  public double getDouble() {
+    return this.value;
+  }
 
-	@Override
-	public Object getObject() {
-		return new Long(this.value);
-	}
+  @Override
+  public void setToStatement(PreparedStatement statement, int idx) throws SQLException {
+    if (this.isUnknown()) {
+      statement.setNull(idx, Types.BIGINT);
+    } else {
+      statement.setLong(idx, this.value);
+    }
+  }
 
-	@Override
-	public Object[] toArray(Value[] values) {
-		int n = values.length;
-		Long[] arr = new Long[n];
-		for (int i = 0; i < n; i++) {
-			IntegerValue val = (IntegerValue) values[i];
-			arr[i] = new Long(val.value);
-		}
-		return arr;
-	}
+  @Override
+  public Object getObject() {
+    return new Long(this.value);
+  }
+
+  @Override
+  public Object[] toArray(Value[] values) {
+    int n = values.length;
+    Long[] arr = new Long[n];
+    for (int i = 0; i < n; i++) {
+      IntegerValue val = (IntegerValue) values[i];
+      arr[i] = new Long(val.value);
+    }
+    return arr;
+  }
 }

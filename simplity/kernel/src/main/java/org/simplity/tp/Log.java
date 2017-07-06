@@ -21,6 +21,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.Map;
 
 import org.simplity.json.JSONWriter;
@@ -34,51 +37,60 @@ import org.simplity.service.ServiceContext;
  * show values of fields/table : meant for debugging
  *
  * @author simplity.org
- *
  */
 public class Log extends Action {
-	/**
-	 * field/table names to be logged
-	 */
-	String[] names;
+  static final Logger logger = Logger.getLogger(Log.class.getName());
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		if (this.names == null) {
-			return Value.VALUE_FALSE;
-		}
-		if(this.names[0].equals("*")){
-			this.logAll(ctx);
-			return Value.VALUE_TRUE;
-		}
-		Tracer.trace("Values at log action " + this.actionName);
-		boolean found = false;
-		for (String nam : this.names) {
-			if (ctx.hasValue(nam)) {
-				found = true;
-				Tracer.trace(nam + " = " + ctx.getValue(nam));
-			}
-			if (ctx.hasDataSheet(nam)) {
-				found = true;
-				ctx.getDataSheet(nam).trace();
-			}
-			if (!found) {
-				Tracer.trace(nam + " is not a field or sheet name");
-			}
-		}
-		return Value.VALUE_TRUE;
-	}
+  /** field/table names to be logged */
+  String[] names;
 
-	private void logAll(ServiceContext ctx){
-		for(Map.Entry<String, Value> entry : ctx.getAllFields()){
-			Tracer.trace(entry.getKey() + " = " + entry.getValue());
-		}
-		JSONWriter writer = new JSONWriter();
-		writer.object();
-		Tracer.trace("Data Sheets = ");
-		for(Map.Entry<String, DataSheet> entry : ctx.getAllSheets()){
-			writer.key(entry.getKey());
-			JsonUtil.sheetToJson(writer, entry.getValue(), null, false);
-		}
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    if (this.names == null) {
+      return Value.VALUE_FALSE;
+    }
+    if (this.names[0].equals("*")) {
+      this.logAll(ctx);
+      return Value.VALUE_TRUE;
+    }
+
+    logger.log(Level.INFO, "Values at log action " + this.actionName);
+    Tracer.trace("Values at log action " + this.actionName);
+    boolean found = false;
+    for (String nam : this.names) {
+      if (ctx.hasValue(nam)) {
+        found = true;
+
+        logger.log(Level.INFO, nam + " = " + ctx.getValue(nam));
+        Tracer.trace(nam + " = " + ctx.getValue(nam));
+      }
+      if (ctx.hasDataSheet(nam)) {
+        found = true;
+        ctx.getDataSheet(nam).trace();
+      }
+      if (!found) {
+
+        logger.log(Level.INFO, nam + " is not a field or sheet name");
+        Tracer.trace(nam + " is not a field or sheet name");
+      }
+    }
+    return Value.VALUE_TRUE;
+  }
+
+  private void logAll(ServiceContext ctx) {
+    for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
+
+      logger.log(Level.INFO, entry.getKey() + " = " + entry.getValue());
+      Tracer.trace(entry.getKey() + " = " + entry.getValue());
+    }
+    JSONWriter writer = new JSONWriter();
+    writer.object();
+
+    logger.log(Level.INFO, "Data Sheets = ");
+    Tracer.trace("Data Sheets = ");
+    for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
+      writer.key(entry.getKey());
+      JsonUtil.sheetToJson(writer, entry.getValue(), null, false);
+    }
+  }
 }

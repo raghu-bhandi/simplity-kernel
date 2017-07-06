@@ -25,16 +25,15 @@ package org.simplity.service;
  * decide whether the user has access to the requested service
  *
  * @author simplity.org
- *
  */
 public interface AccessController {
 
-	/**
-	 * should we execute this service for this customer?
-	 *
-	 * @param service
-	 * @param inData
-	 * @return true if the user has access, false if prohibited
-	 */
-	public boolean okToServe(ServiceInterface service, ServiceData inData);
+  /**
+   * should we execute this service for this customer?
+   *
+   * @param service
+   * @param inData
+   * @return true if the user has access, false if prohibited
+   */
+  public boolean okToServe(ServiceInterface service, ServiceData inData);
 }

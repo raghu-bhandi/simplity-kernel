@@ -22,6 +22,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -36,77 +39,84 @@ import org.simplity.service.ServiceContext;
 /**
  * execute a sql
  *
- *
  * @author simplity.org
- *
  */
 public class ExecuteSql extends DbAction {
+  static final Logger logger = Logger.getLogger(ExecuteSql.class.getName());
 
-	/**
-	 * qualified sql name
-	 */
-	String sqlName;
-	/**
-	 * sheet name for input data
-	 */
-	String inputSheetName;
-	/**
-	 * many a times, we put constraints in db, and it may be convenient to use
-	 * that to do the validation. for example we insert a row, and db may raise
-	 * an error because of a duplicate columns. In such a case, we treat this
-	 * error as "failure", rather than an exception
-	 */
-	boolean treatSqlErrorAsNoResult;
+  /** qualified sql name */
+  String sqlName;
+  /** sheet name for input data */
+  String inputSheetName;
+  /**
+   * many a times, we put constraints in db, and it may be convenient to use that to do the
+   * validation. for example we insert a row, and db may raise an error because of a duplicate
+   * columns. In such a case, we treat this error as "failure", rather than an exception
+   */
+  boolean treatSqlErrorAsNoResult;
 
-	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		Sql sql = ComponentManager.getSql(this.sqlName);
-		if (this.inputSheetName == null) {
-			return sql.execute(ctx, driver, this.treatSqlErrorAsNoResult);
-		}
+  @Override
+  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+    Sql sql = ComponentManager.getSql(this.sqlName);
+    if (this.inputSheetName == null) {
+      return sql.execute(ctx, driver, this.treatSqlErrorAsNoResult);
+    }
 
-		DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
-		if (inSheet != null) {
-			return sql.execute(inSheet, driver, this.treatSqlErrorAsNoResult);
-		}
-		Tracer.trace("Sql Save Action " + this.actionName + " did not execute because input sheet "
-				+ this.inputSheetName + " is not found.");
-		return 0;
-	}
+    DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
+    if (inSheet != null) {
+      return sql.execute(inSheet, driver, this.treatSqlErrorAsNoResult);
+    }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_WRITE;
-	}
+    logger.log(
+        Level.INFO,
+        "Sql Save Action "
+            + this.actionName
+            + " did not execute because input sheet "
+            + this.inputSheetName
+            + " is not found.");
+    Tracer.trace(
+        "Sql Save Action "
+            + this.actionName
+            + " did not execute because input sheet "
+            + this.inputSheetName
+            + " is not found.");
+    return 0;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.
-	 * ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if (this.sqlName == null) {
-			ctx.addError("Sql name is required for ExecuteSql action");
-			count++;
-		} else {
-			Sql sql = ComponentManager.getSqlOrNull(this.sqlName);
-			if (sql == null) {
-				ctx.addError("Sql " + this.sqlName + " is not defined");
-				count++;
-			} else if (sql.getSqlType() != SqlType.UPDATE) {
-				ctx.addError(
-						"Sql " + this.sqlName + " is designed for extracting data. It is not meant to be executed.");
-				count++;
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_WRITE;
+  }
 
-			}
-		}
-		ctx.addReference(ComponentType.SQL, this.sqlName);
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.
+   * ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if (this.sqlName == null) {
+      ctx.addError("Sql name is required for ExecuteSql action");
+      count++;
+    } else {
+      Sql sql = ComponentManager.getSqlOrNull(this.sqlName);
+      if (sql == null) {
+        ctx.addError("Sql " + this.sqlName + " is not defined");
+        count++;
+      } else if (sql.getSqlType() != SqlType.UPDATE) {
+        ctx.addError(
+            "Sql "
+                + this.sqlName
+                + " is designed for extracting data. It is not meant to be executed.");
+        count++;
+      }
+    }
+    ctx.addReference(ComponentType.SQL, this.sqlName);
 
-		return count;
-	}
+    return count;
+  }
 }

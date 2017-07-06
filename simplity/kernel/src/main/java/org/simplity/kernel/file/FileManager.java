@@ -22,6 +22,9 @@
  */
 package org.simplity.kernel.file;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -42,421 +45,403 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 
 /**
- * File has a simple connotation to most programmers : it is available on the
- * disk. if you write to it, you should be able to read it later, even across
- * layers. file manager will try to provide that view
+ * File has a simple connotation to most programmers : it is available on the disk. if you write to
+ * it, you should be able to read it later, even across layers. file manager will try to provide
+ * that view
  *
  * @author simplity.org
- *
  */
 public class FileManager {
-	private static final int MAX_TRY = 1000;
-	private static final String MSG = "error while writing to a temp file";
-	private static final int BUFFER_SIZE = 8 * 1024;
-	private static final String WEB_TEMP = "javax.servlet.context.tempdir";
-	private static final String TEMP = "java.io.tmpdir";
-	/**
-	 * to be set by boot-strapper as the root folder. All references to "file"
-	 * in this application are assumed to be relative to this folder.
-	 */
-	private static final char FOLDER_CHAR = '/';
-	private static final String FOLDER_STR = "/";
-	private static final long MAX_SIZE = 10 * 1024 * 1024;
+  static final Logger logger = Logger.getLogger(FileManager.class.getName());
 
-	private static ServletContext myContext = null;
+  private static final int MAX_TRY = 1000;
+  private static final String MSG = "error while writing to a temp file";
+  private static final int BUFFER_SIZE = 8 * 1024;
+  private static final String WEB_TEMP = "javax.servlet.context.tempdir";
+  private static final String TEMP = "java.io.tmpdir";
+  /**
+   * to be set by boot-strapper as the root folder. All references to "file" in this application are
+   * assumed to be relative to this folder.
+   */
+  private static final char FOLDER_CHAR = '/';
 
-	private static File tempFolder = new File(System.getProperty(TEMP));
+  private static final String FOLDER_STR = "/";
+  private static final long MAX_SIZE = 10 * 1024 * 1024;
 
-	/**
-	 * @param ctx
-	 *            servlet context
-	 */
-	public static void setContext(ServletContext ctx) {
-		myContext = ctx;
-		tempFolder = (File) ctx.getAttribute(WEB_TEMP);
+  private static ServletContext myContext = null;
 
-	}
+  private static File tempFolder = new File(System.getProperty(TEMP));
 
-	/**
-	 * get a collection suitable for for-in loop.
-	 *
-	 * e.g (for File file : FileManager.getCollection(folder, extension){}
-	 *
-	 * @param parentFolder
-	 * @return collection of file names prefixed with the parent folder. never
-	 *         null. will be an empty collection in case of any error. (like
-	 *         non-existing folder)
-	 */
-	public static String[] getResources(String parentFolder) {
-		String[] empty = new String[0];
-		List<String> resources = new ArrayList<String>();
-		if (new File(parentFolder).exists()) {
-			addAllResourcesWithFs(parentFolder, resources);
-		}
-		return resources.toArray(empty);
-	}
+  /** @param ctx servlet context */
+  public static void setContext(ServletContext ctx) {
+    myContext = ctx;
+    tempFolder = (File) ctx.getAttribute(WEB_TEMP);
+  }
 
-	@SuppressWarnings("unused")
-	private static void addAllResourcesWithCtx(String parentFolder,
-			List<String> resources) {
-		@SuppressWarnings("unchecked")
-		Set<String> paths = myContext
-				.getResourcePaths(FOLDER_CHAR + parentFolder);
-		if (paths == null) {
-			return;
-		}
-		for (String path : paths) {
-			if (path.endsWith(FOLDER_STR)) {
-				addAllResourcesWithCtx(path, resources);
-			} else {
-				resources.add(path);
-			}
-		}
-	}
+  /**
+   * get a collection suitable for for-in loop.
+   *
+   * <p>e.g (for File file : FileManager.getCollection(folder, extension){}
+   *
+   * @param parentFolder
+   * @return collection of file names prefixed with the parent folder. never null. will be an empty
+   *     collection in case of any error. (like non-existing folder)
+   */
+  public static String[] getResources(String parentFolder) {
+    String[] empty = new String[0];
+    List<String> resources = new ArrayList<String>();
+    if (new File(parentFolder).exists()) {
+      addAllResourcesWithFs(parentFolder, resources);
+    }
+    return resources.toArray(empty);
+  }
 
-	private static void addAllResourcesWithFs(String folderName,
-			List<String> resources) {
-		String parentFolder = folderName;
-		if(parentFolder.endsWith("/") == false){
-			parentFolder += '/';
-		}
-		File file = new File(parentFolder);
-		if (file.exists() == false) {
-			Tracer.trace(
-					"Unusual that " + parentFolder + " is not a valid path.");
-			return;
-		}
-		String[] files = file.list();
-		if (files == null) {
-			return;
-		}
-		/*
-		 * files has only the simple name. Caller wants path relative to the
-		 * parent
-		 */
-		for (String path : files) {
-			path = parentFolder + path;
-			File childFile = new File(path);
-			if (childFile.isDirectory()) {
-				addAllResourcesWithFs(path + FOLDER_CHAR, resources);
-			} else {
-				resources.add(path);
-			}
-		}
-	}
+  @SuppressWarnings("unused")
+  private static void addAllResourcesWithCtx(String parentFolder, List<String> resources) {
+    @SuppressWarnings("unchecked")
+    Set<String> paths = myContext.getResourcePaths(FOLDER_CHAR + parentFolder);
+    if (paths == null) {
+      return;
+    }
+    for (String path : paths) {
+      if (path.endsWith(FOLDER_STR)) {
+        addAllResourcesWithCtx(path, resources);
+      } else {
+        resources.add(path);
+      }
+    }
+  }
 
-	/**
-	 * read a resource file and return its contents
-	 *
-	 * @param fileName
-	 *            file name relative to application root to be read
-	 * @return file content
-	 * @throws Exception
-	 *             in case of any issue while reading this file
-	 */
-	public static String readResource(String fileName) throws Exception {
-		InputStream in = null;
-		try {
-			in = getResourceStream(fileName);
-			if (in == null) {
-				throw new ApplicationError("File " + fileName
-						+ " could not be opened for reading in a "
-						+ (myContext == null ? "non-" : "")
-						+ "web environment");
-			}
-			Reader reader = new InputStreamReader(in, "UTF-8");
-			StringBuilder sbf = new StringBuilder();
-			int ch;
-			while ((ch = reader.read()) != -1) {
-				sbf.append((char) ch);
-			}
-			return sbf.toString();
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (Exception e) {
-					//
-				}
-			}
-		}
+  private static void addAllResourcesWithFs(String folderName, List<String> resources) {
+    String parentFolder = folderName;
+    if (parentFolder.endsWith("/") == false) {
+      parentFolder += '/';
+    }
+    File file = new File(parentFolder);
+    if (file.exists() == false) {
 
-	}
+      logger.log(Level.INFO, "Unusual that " + parentFolder + " is not a valid path.");
+      Tracer.trace("Unusual that " + parentFolder + " is not a valid path.");
+      return;
+    }
+    String[] files = file.list();
+    if (files == null) {
+      return;
+    }
+    /*
+     * files has only the simple name. Caller wants path relative to the
+     * parent
+     */
+    for (String path : files) {
+      path = parentFolder + path;
+      File childFile = new File(path);
+      if (childFile.isDirectory()) {
+        addAllResourcesWithFs(path + FOLDER_CHAR, resources);
+      } else {
+        resources.add(path);
+      }
+    }
+  }
 
-	/**
-	 * get input stream for a resource. Typically used by XML util to create a
-	 * document
-	 *
-	 * @param fileName
-	 *            file name relative to application root to be read
-	 *
-	 * @return stream, or null if resource could not be located
-	 * @throws Exception
-	 *             in case of any issue while reading this file
-	 */
-	public static InputStream getResourceStream(String fileName)
-			throws Exception {
-		File file = new File(fileName);
-		if (file.exists()) {
-			return new FileInputStream(file);
-		}
-		Tracer.trace("file " + fileName + " does not exist.");
-		return null;
-	}
+  /**
+   * read a resource file and return its contents
+   *
+   * @param fileName file name relative to application root to be read
+   * @return file content
+   * @throws Exception in case of any issue while reading this file
+   */
+  public static String readResource(String fileName) throws Exception {
+    InputStream in = null;
+    try {
+      in = getResourceStream(fileName);
+      if (in == null) {
+        throw new ApplicationError(
+            "File "
+                + fileName
+                + " could not be opened for reading in a "
+                + (myContext == null ? "non-" : "")
+                + "web environment");
+      }
+      Reader reader = new InputStreamReader(in, "UTF-8");
+      StringBuilder sbf = new StringBuilder();
+      int ch;
+      while ((ch = reader.read()) != -1) {
+        sbf.append((char) ch);
+      }
+      return sbf.toString();
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (Exception e) {
+          //
+        }
+      }
+    }
+  }
 
-	/**
-	 * create an empty temp file
-	 *
-	 * @return file, never null.
-	 */
-	public static File createTempFile() {
-		File file = getNewFile();
-		try {
-			file.createNewFile();
-			Tracer.trace("Creating and returning an empty file");
-			return file;
-		} catch (IOException e) {
-			throw new ApplicationError(e, MSG);
-		}
-	}
+  /**
+   * get input stream for a resource. Typically used by XML util to create a document
+   *
+   * @param fileName file name relative to application root to be read
+   * @return stream, or null if resource could not be located
+   * @throws Exception in case of any issue while reading this file
+   */
+  public static InputStream getResourceStream(String fileName) throws Exception {
+    File file = new File(fileName);
+    if (file.exists()) {
+      return new FileInputStream(file);
+    }
 
-	/**
-	 * create a temp file using the bytes in the stream. We DO NOT close
-	 * inStream, based on the tradition creator-should-close after reading
-	 *
-	 * @param inStream
-	 *            from which to create the content of the file.
-	 *
-	 * @return file, in which this inStream is saved. file.getName() is unique,
-	 *         and can be used for next readFile() calls
-	 */
-	public static File createTempFile(InputStream inStream) {
-		File file = getNewFile();
+    logger.log(Level.INFO, "file " + fileName + " does not exist.");
+    Tracer.trace("file " + fileName + " does not exist.");
+    return null;
+  }
 
-		OutputStream outStream = null;
-		try {
-			outStream = new FileOutputStream(file);
-			copyOut(inStream, outStream);
-			return file;
-		} catch (Exception e) {
-			throw new ApplicationError(e, MSG);
-		} finally {
-			if (outStream != null) {
-				try {
-					outStream.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
-	}
+  /**
+   * create an empty temp file
+   *
+   * @return file, never null.
+   */
+  public static File createTempFile() {
+    File file = getNewFile();
+    try {
+      file.createNewFile();
 
-	/**
-	 * create a temp file using the reader. reader is not closed, simply because
-	 * we did not create it
-	 *
-	 * @param reader
-	 *            from which to create the content of the file.
-	 * @return file, in which this reader is saved. file.getName() is unique,
-	 *         and can be used for next readFile() calls
-	 */
-	public static File createTempFile(Reader reader) {
-		File file = getNewFile();
+      logger.log(Level.INFO, "Creating and returning an empty file");
+      Tracer.trace("Creating and returning an empty file");
+      return file;
+    } catch (IOException e) {
+      throw new ApplicationError(e, MSG);
+    }
+  }
 
-		Writer writer = null;
-		try {
-			writer = new FileWriter(file);
-			for (int ch = reader.read(); ch != -1; ch = reader.read()) {
-				writer.write(ch);
-			}
-			return file;
-		} catch (Exception e) {
-			throw new ApplicationError(e, MSG);
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
-	}
+  /**
+   * create a temp file using the bytes in the stream. We DO NOT close inStream, based on the
+   * tradition creator-should-close after reading
+   *
+   * @param inStream from which to create the content of the file.
+   * @return file, in which this inStream is saved. file.getName() is unique, and can be used for
+   *     next readFile() calls
+   */
+  public static File createTempFile(InputStream inStream) {
+    File file = getNewFile();
 
-	private static File getNewFile() {
-		long nano = System.nanoTime();
-		String fileName = "" + nano;
-		File file = new File(tempFolder, fileName);
-		if (file.exists() == false) {
-			return file;
-		}
+    OutputStream outStream = null;
+    try {
+      outStream = new FileOutputStream(file);
+      copyOut(inStream, outStream);
+      return file;
+    } catch (Exception e) {
+      throw new ApplicationError(e, MSG);
+    } finally {
+      if (outStream != null) {
+        try {
+          outStream.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+    }
+  }
 
-		Tracer.trace("Rare condition of a file-name clash for temp file "
-				+ fileName + " going to try suffixing..");
-		/*
-		 * increase the digits and start incrementing. Only way this can fail is
-		 * when MAX_TRY processes simultaneously use this same technique to
-		 * create temp file at this same nano-second!!!
-		 */
-		nano *= MAX_TRY;
-		for (int i = 0; i < MAX_TRY; i++) {
-			fileName = "" + ++nano;
-			file = new File(tempFolder, fileName);
-			if (file.exists() == false) {
-				return file;
-			}
-		}
-		throw new ApplicationError(
-				"Unable to create a temp file even after " + MAX_TRY);
-	}
+  /**
+   * create a temp file using the reader. reader is not closed, simply because we did not create it
+   *
+   * @param reader from which to create the content of the file.
+   * @return file, in which this reader is saved. file.getName() is unique, and can be used for next
+   *     readFile() calls
+   */
+  public static File createTempFile(Reader reader) {
+    File file = getNewFile();
 
-	/**
-	 * get an output stream for this temp file.
-	 *
-	 * @param fileName
-	 *            file name that was returned from an earlier call to
-	 *            createTempFile()
-	 * @return stream, or null if file not found.
-	 */
-	public static File getTempFile(String fileName) {
-		File file = new File(tempFolder, fileName);
-		if (file.exists()) {
-			return file;
-		}
-		Tracer.trace("Non-existing temp file " + fileName
-				+ " requested. returning null");
-		return null;
-	}
+    Writer writer = null;
+    try {
+      writer = new FileWriter(file);
+      for (int ch = reader.read(); ch != -1; ch = reader.read()) {
+        writer.write(ch);
+      }
+      return file;
+    } catch (Exception e) {
+      throw new ApplicationError(e, MSG);
+    } finally {
+      if (writer != null) {
+        try {
+          writer.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+    }
+  }
 
-	/**
-	 * tray and delete a temp file with the given name. No error is raised even
-	 * if the delete operation fails.
-	 *
-	 * @param fileName
-	 *            to be deleted.
-	 */
-	public static void deleteTempFile(String fileName) {
-		try {
-			File file = new File(tempFolder, fileName);
-			if (file.exists()) {
-				file.delete();
-			}
-		} catch (Exception ignore) {
-			//
-		}
-	}
+  private static File getNewFile() {
+    long nano = System.nanoTime();
+    String fileName = "" + nano;
+    File file = new File(tempFolder, fileName);
+    if (file.exists() == false) {
+      return file;
+    }
 
-	/**
-	 * creates a file, (or re-writes its contents) from an input stream. Use nio
-	 * package instead of this utility if you use java 7 or later.
-	 *
-	 * @param file
-	 *            File is created if required. contents over-ridden if file
-	 *            exists.
-	 * @param inputStream
-	 *            from which to read. Should not have been opened. we will open
-	 *            and close it.
-	 * @return true if all okay. False otherwise. we do do not tell you what
-	 *         happened, but write that to trace.
-	 */
-	public static boolean streamToFile(File file, InputStream inputStream) {
-		OutputStream out = null;
-		try {
-			out = new FileOutputStream(file);
-			copyOut(inputStream, out);
-			return true;
-		} catch (Exception e) {
-			Tracer.trace(e,
-					"Error while writing to file " + file.getAbsolutePath());
-			return false;
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
-	}
+    logger.log(
+        Level.INFO,
+        "Rare condition of a file-name clash for temp file "
+            + fileName
+            + " going to try suffixing..");
+    Tracer.trace(
+        "Rare condition of a file-name clash for temp file "
+            + fileName
+            + " going to try suffixing..");
+    /*
+     * increase the digits and start incrementing. Only way this can fail is
+     * when MAX_TRY processes simultaneously use this same technique to
+     * create temp file at this same nano-second!!!
+     */
+    nano *= MAX_TRY;
+    for (int i = 0; i < MAX_TRY; i++) {
+      fileName = "" + ++nano;
+      file = new File(tempFolder, fileName);
+      if (file.exists() == false) {
+        return file;
+      }
+    }
+    throw new ApplicationError("Unable to create a temp file even after " + MAX_TRY);
+  }
 
-	/**
-	 * copy bytes one stream to the other. Note that we do not close the
-	 * streams, because we follow the golden rule that open-close should happen
-	 * in the same method.
-	 *
-	 * @param in
-	 *            input stream to copy from
-	 * @param out
-	 *            output stream to copy to
-	 * @throws IOException
-	 *             in case of any io error during copy
-	 */
-	public static void copyOut(InputStream in, OutputStream out)
-			throws IOException {
-		byte[] buffer = new byte[BUFFER_SIZE];
-		for (int n = in.read(buffer); n > 0; n = in.read(buffer)) {
-			out.write(buffer, 0, n);
-		}
-	}
+  /**
+   * get an output stream for this temp file.
+   *
+   * @param fileName file name that was returned from an earlier call to createTempFile()
+   * @return stream, or null if file not found.
+   */
+  public static File getTempFile(String fileName) {
+    File file = new File(tempFolder, fileName);
+    if (file.exists()) {
+      return file;
+    }
 
-	/**
-	 * if the file is small, why the fuss. Just get it as string as UTF-8
-	 *
-	 * @param file
-	 * @return file content as UTF-8 text
-	 */
-	public static String readFile(File file) {
-		InputStream is = null;
-		try {
-			is = new FileInputStream(file);
-			long len = file.length();
-			if (len > MAX_SIZE) {
-				throw new IOException("File " + file.getAbsolutePath()
-						+ " too large, was " + len + " bytes.");
-			}
-			byte[] bytes = new byte[(int) len];
-			is.read(bytes);
-			return new String(bytes, "UTF-8");
-		} catch (Exception e) {
-			throw new ApplicationError(e,
-					"Error while reading file " + file.getAbsolutePath());
-		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
-	}
+    logger.log(Level.INFO, "Non-existing temp file " + fileName + " requested. returning null");
+    Tracer.trace("Non-existing temp file " + fileName + " requested. returning null");
+    return null;
+  }
 
-	/**
-	 * if the file is small, why the fuss. Just get it as string as UTF-8
-	 *
-	 * @param file
-	 * @param text file content to be written as  UTF-8
-	 */
-	public static void writeFile(File file, String text) {
-		OutputStream os = null;
-		try {
-			byte[] bytes = text.getBytes("UTF-8");
-			os = new FileOutputStream(file);
-			os.write(bytes);
-			os.flush();
-		} catch (Exception e) {
-			throw new ApplicationError(e,
-					"Error while reading file " + file.getAbsolutePath());
-		} finally {
-			if (os != null) {
-				try {
-					os.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
+  /**
+   * tray and delete a temp file with the given name. No error is raised even if the delete
+   * operation fails.
+   *
+   * @param fileName to be deleted.
+   */
+  public static void deleteTempFile(String fileName) {
+    try {
+      File file = new File(tempFolder, fileName);
+      if (file.exists()) {
+        file.delete();
+      }
+    } catch (Exception ignore) {
+      //
+    }
+  }
 
-	}
+  /**
+   * creates a file, (or re-writes its contents) from an input stream. Use nio package instead of
+   * this utility if you use java 7 or later.
+   *
+   * @param file File is created if required. contents over-ridden if file exists.
+   * @param inputStream from which to read. Should not have been opened. we will open and close it.
+   * @return true if all okay. False otherwise. we do do not tell you what happened, but write that
+   *     to trace.
+   */
+  public static boolean streamToFile(File file, InputStream inputStream) {
+    OutputStream out = null;
+    try {
+      out = new FileOutputStream(file);
+      copyOut(inputStream, out);
+      return true;
+    } catch (Exception e) {
+
+      logger.log(Level.SEVERE, "Error while writing to file " + file.getAbsolutePath(), e);
+      Tracer.trace(e, "Error while writing to file " + file.getAbsolutePath());
+      return false;
+    } finally {
+      if (out != null) {
+        try {
+          out.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+    }
+  }
+
+  /**
+   * copy bytes one stream to the other. Note that we do not close the streams, because we follow
+   * the golden rule that open-close should happen in the same method.
+   *
+   * @param in input stream to copy from
+   * @param out output stream to copy to
+   * @throws IOException in case of any io error during copy
+   */
+  public static void copyOut(InputStream in, OutputStream out) throws IOException {
+    byte[] buffer = new byte[BUFFER_SIZE];
+    for (int n = in.read(buffer); n > 0; n = in.read(buffer)) {
+      out.write(buffer, 0, n);
+    }
+  }
+
+  /**
+   * if the file is small, why the fuss. Just get it as string as UTF-8
+   *
+   * @param file
+   * @return file content as UTF-8 text
+   */
+  public static String readFile(File file) {
+    InputStream is = null;
+    try {
+      is = new FileInputStream(file);
+      long len = file.length();
+      if (len > MAX_SIZE) {
+        throw new IOException(
+            "File " + file.getAbsolutePath() + " too large, was " + len + " bytes.");
+      }
+      byte[] bytes = new byte[(int) len];
+      is.read(bytes);
+      return new String(bytes, "UTF-8");
+    } catch (Exception e) {
+      throw new ApplicationError(e, "Error while reading file " + file.getAbsolutePath());
+    } finally {
+      if (is != null) {
+        try {
+          is.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+    }
+  }
+
+  /**
+   * if the file is small, why the fuss. Just get it as string as UTF-8
+   *
+   * @param file
+   * @param text file content to be written as UTF-8
+   */
+  public static void writeFile(File file, String text) {
+    OutputStream os = null;
+    try {
+      byte[] bytes = text.getBytes("UTF-8");
+      os = new FileOutputStream(file);
+      os.write(bytes);
+      os.flush();
+    } catch (Exception e) {
+      throw new ApplicationError(e, "Error while reading file " + file.getAbsolutePath());
+    } finally {
+      if (os != null) {
+        try {
+          os.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+    }
+  }
 }

@@ -5,32 +5,31 @@ import com.netflix.hystrix.HystrixCommandGroupKey;
 
 public class HystrixCommandHelloWorld extends HystrixCommand<String> {
 
-    private final String name;
+  private final String name;
 
-    public HystrixCommandHelloWorld(String name) {
-        super(HystrixCommandGroupKey.Factory.asKey("default"));
-        this.name = name;
-    }
+  public HystrixCommandHelloWorld(String name) {
+    super(HystrixCommandGroupKey.Factory.asKey("default"));
+    this.name = name;
+  }
 
-    @Override
-    protected String run() {
-    	if(name.equals("Passed")) {
-    		return "Test Passed";
-    	}  
-    	if(name.equals("Fallback")){
-    		throw new RuntimeException("Failed");
-    	}
-    	return null;
+  @Override
+  protected String run() {
+    if (name.equals("Passed")) {
+      return "Test Passed";
     }
-    
-    @Override
-    protected String getCacheKey() {
-        return this.name;
+    if (name.equals("Fallback")) {
+      throw new RuntimeException("Failed");
     }
-    
-    @Override
-    protected String getFallback() {
-        return "Fallback activated";
-    }
-    
+    return null;
+  }
+
+  @Override
+  protected String getCacheKey() {
+    return this.name;
+  }
+
+  @Override
+  protected String getFallback() {
+    return "Fallback activated";
+  }
 }

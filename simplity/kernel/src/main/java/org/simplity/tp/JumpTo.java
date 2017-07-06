@@ -21,51 +21,46 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
- * service has actions that are executed in a sequence. JumpTo allows you to
- * change this sequence.
- *
+ * service has actions that are executed in a sequence. JumpTo allows you to change this sequence.
  *
  * @author simplity.org
- *
  */
 public class JumpTo extends org.simplity.tp.Action {
+  static final Logger logger = Logger.getLogger(JumpTo.class.getName());
 
-	/**
-	 * returns either a name of action to go to, or "_stop", "_error",
-	 * "_continue", "_break"
-	 */
-	String toAction;
+  /** returns either a name of action to go to, or "_stop", "_error", "_continue", "_break" */
+  String toAction;
 
-	/**
-	 * cached for performance
-	 */
-	private Value returnValue;
+  /** cached for performance */
+  private Value returnValue;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		Tracer.trace("Trying to jump with value = " + this.returnValue);
-		return this.returnValue;
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
 
-	/**
-	 *
-	 * @return if this is for a signal, then signal, else null
-	 */
-	public boolean canJumpOut() {
-		if (JumpSignal._BREAK.equals(this.toAction) || JumpSignal._STOP.equals(this.toAction)) {
-			return true;
-		}
-		return false;
-	}
+    logger.log(Level.INFO, "Trying to jump with value = " + this.returnValue);
+    Tracer.trace("Trying to jump with value = " + this.returnValue);
+    return this.returnValue;
+  }
 
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		this.returnValue = Value.newTextValue(this.toAction);
-	}
+  /** @return if this is for a signal, then signal, else null */
+  public boolean canJumpOut() {
+    if (JumpSignal._BREAK.equals(this.toAction) || JumpSignal._STOP.equals(this.toAction)) {
+      return true;
+    }
+    return false;
+  }
+
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    this.returnValue = Value.newTextValue(this.toAction);
+  }
 }

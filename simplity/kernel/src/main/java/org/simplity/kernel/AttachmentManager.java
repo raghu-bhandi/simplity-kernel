@@ -22,6 +22,9 @@
 
 package org.simplity.kernel;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -29,167 +32,157 @@ import java.io.InputStream;
 import org.simplity.kernel.file.FileManager;
 
 /**
- * Most corporate have central service that stores files. Attachment Manager is
- * the interface between such a service and this application.
+ * Most corporate have central service that stores files. Attachment Manager is the interface
+ * between such a service and this application.
  *
- * Process to upload a file.
+ * <p>Process to upload a file.
  *
- * 1. client uploads the file thru attachmentAgent who in-turn uses this class
- * to save the file into temp storage, and returns a key to client.
+ * <p>1. client uploads the file thru attachmentAgent who in-turn uses this class to save the file
+ * into temp storage, and returns a key to client.
  *
- * 2. client uses this key as part of its data while submitting data to server
- * as part of its save transaction
+ * <p>2. client uses this key as part of its data while submitting data to server as part of its
+ * save transaction
  *
- * 3. HttpAgent copies all saved media in session to serviceData while
- * requesting service from app layer.
+ * <p>3. HttpAgent copies all saved media in session to serviceData while requesting service from
+ * app layer.
  *
- * 4. service has to know about the field in which this key us expected from
- * client. This is specified as part of InputData specification. This class is
- * invoked by the service to save the attachment into permanent storage. This
- * key is stored as part of transaction data record in RDBMS.
+ * <p>4. service has to know about the field in which this key us expected from client. This is
+ * specified as part of InputData specification. This class is invoked by the service to save the
+ * attachment into permanent storage. This key is stored as part of transaction data record in
+ * RDBMS.
  *
- * process to send a file to client.
+ * <p>process to send a file to client.
  *
- * 1. Service retrieves all data from db, including the storage token for the
- * file.
+ * <p>1. Service retrieves all data from db, including the storage token for the file.
  *
- * 2. Field that represent such a key are specified as part of OutputData
- * specification. Service uses this class to retrieve the stored attachment into
- * a temp area. Value of the field is changed to this new temp-key.
+ * <p>2. Field that represent such a key are specified as part of OutputData specification. Service
+ * uses this class to retrieve the stored attachment into a temp area. Value of the field is changed
+ * to this new temp-key.
  *
- * 3. client application has to have the knowledge about the field that has the
- * key for file to be downloaded. It calls back the AttachmentAgent to down load
- * the file to client. This is a get method that is easy to be used as url for
- * image or url for a new window
- *
- *
+ * <p>3. client application has to have the knowledge about the field that has the key for file to
+ * be downloaded. It calls back the AttachmentAgent to down load the file to client. This is a get
+ * method that is easy to be used as url for image or url for a new window
  *
  * @author simplity.org
- *
  */
 public class AttachmentManager {
+  static final Logger logger = Logger.getLogger(AttachmentManager.class.getName());
 
-	private static final String MSG = "No assistant is assigned to AttachmentManager. Manager expressed her regret that she is unable to manage media.";
-	/**
-	 * store room assistant instance.
-	 */
-	private static AttachmentAssistant assistant = null;
+  private static final String MSG =
+      "No assistant is assigned to AttachmentManager. Manager expressed her regret that she is unable to manage media.";
+  /** store room assistant instance. */
+  private static AttachmentAssistant assistant = null;
 
-	/**
-	 * Save media into a temp/buffer area and return a Media data structure for
-	 * the same. This is suitable for client-facing class that receive files
-	 * from client to put it into temp area.
-	 *
-	 * @param inStream
-	 *            from which to read from
-	 * @return key to the saved file. Always non-null
-	 */
-	public static String saveToTempArea(InputStream inStream) {
-		return FileManager.createTempFile(inStream).getName();
-	}
+  /**
+   * Save media into a temp/buffer area and return a Media data structure for the same. This is
+   * suitable for client-facing class that receive files from client to put it into temp area.
+   *
+   * @param inStream from which to read from
+   * @return key to the saved file. Always non-null
+   */
+  public static String saveToTempArea(InputStream inStream) {
+    return FileManager.createTempFile(inStream).getName();
+  }
 
-	/**
-	 * delete a file from temp storage.
-	 *
-	 * @param key
-	 *            key/name
-	 *
-	 */
-	public static void removeFromTempArea(String key) {
-		FileManager.deleteTempFile(key);
-	}
+  /**
+   * delete a file from temp storage.
+   *
+   * @param key key/name
+   */
+  public static void removeFromTempArea(String key) {
+    FileManager.deleteTempFile(key);
+  }
 
-	/**
-	 * save this attachment to permanent storage
-	 *
-	 * @param inStream
-	 *            from which to read the contents
-	 * @return string that is the key to this stored attachment. This can be
-	 *         used to retrieve this attachment.
-	 */
-	public static String saveToStorage(InputStream inStream) {
-		checkAssistant();
-		return assistant.store(inStream);
-	}
+  /**
+   * save this attachment to permanent storage
+   *
+   * @param inStream from which to read the contents
+   * @return string that is the key to this stored attachment. This can be used to retrieve this
+   *     attachment.
+   */
+  public static String saveToStorage(InputStream inStream) {
+    checkAssistant();
+    return assistant.store(inStream);
+  }
 
-	/**
-	 * move the media from temp area to permanent area
-	 *
-	 * @param key
-	 *            points to the temp-storage of attachment to be stored
-	 * @return key that can be used to retrieve this from permanent storage
-	 */
-	public static String moveToStorage(String key) {
-		checkAssistant();
-		File file = FileManager.getTempFile(key);
-		if (file == null) {
-			return null;
-		}
-		InputStream in = null;
-		String newKey = null;
-		try {
+  /**
+   * move the media from temp area to permanent area
+   *
+   * @param key points to the temp-storage of attachment to be stored
+   * @return key that can be used to retrieve this from permanent storage
+   */
+  public static String moveToStorage(String key) {
+    checkAssistant();
+    File file = FileManager.getTempFile(key);
+    if (file == null) {
+      return null;
+    }
+    InputStream in = null;
+    String newKey = null;
+    try {
 
-			in = new FileInputStream(file);
-			newKey = assistant.store(in);
-		} catch (Exception e) {
-			Tracer.trace(e, "Error while moving attachment " + key
-					+ " from temp area to storage");
-			return null;
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
-		file.delete();
-		return newKey;
-	}
+      in = new FileInputStream(file);
+      newKey = assistant.store(in);
+    } catch (Exception e) {
 
-	/**
-	 * get it back from storage
-	 *
-	 * @param key
-	 *            that was returned while storing it
-	 * @return key to temp storage area. Null if the input key is not valid
-	 */
-	public static String moveFromStorage(String key) {
-		checkAssistant();
-		return assistant.retrieve(key);
-	}
+      logger.log(
+          Level.SEVERE, "Error while moving attachment " + key + " from temp area to storage", e);
+      Tracer.trace(e, "Error while moving attachment " + key + " from temp area to storage");
+      return null;
+    } finally {
+      if (in != null) {
+        try {
+          in.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+    }
+    file.delete();
+    return newKey;
+  }
 
-	/**
-	 * get it back from storage
-	 *
-	 * @param key
-	 *            that was returned while storing it
-	 */
-	public static void removeFromStorage(String key) {
-		checkAssistant();
-		assistant.remove(key);
-	}
+  /**
+   * get it back from storage
+   *
+   * @param key that was returned while storing it
+   * @return key to temp storage area. Null if the input key is not valid
+   */
+  public static String moveFromStorage(String key) {
+    checkAssistant();
+    return assistant.retrieve(key);
+  }
 
-	/**
-	 * to be called before the manager is pressed into action. Part of
-	 * application set-up action
-	 *
-	 * @param ast
-	 *            a thread-safe assistant who would be cached and used for all
-	 *            media storage operations
-	 */
-	public static void setAssistant(AttachmentAssistant ast) {
-		assistant = ast;
-		Tracer.trace("Attachment Manager is happy to announce that she got an assistant, and is ready to serve attachment files now.");
-	}
+  /**
+   * get it back from storage
+   *
+   * @param key that was returned while storing it
+   */
+  public static void removeFromStorage(String key) {
+    checkAssistant();
+    assistant.remove(key);
+  }
 
-	/**
-	 * avoid confusing run-time error in case the assistant is not set
-	 */
-	private static void checkAssistant() {
-		if (assistant == null) {
-			throw new ApplicationError(MSG);
-		}
-	}
+  /**
+   * to be called before the manager is pressed into action. Part of application set-up action
+   *
+   * @param ast a thread-safe assistant who would be cached and used for all media storage
+   *     operations
+   */
+  public static void setAssistant(AttachmentAssistant ast) {
+    assistant = ast;
+
+    logger.log(
+        Level.INFO,
+        "Attachment Manager is happy to announce that she got an assistant, and is ready to serve attachment files now.");
+    Tracer.trace(
+        "Attachment Manager is happy to announce that she got an assistant, and is ready to serve attachment files now.");
+  }
+
+  /** avoid confusing run-time error in case the assistant is not set */
+  private static void checkAssistant() {
+    if (assistant == null) {
+      throw new ApplicationError(MSG);
+    }
+  }
 }

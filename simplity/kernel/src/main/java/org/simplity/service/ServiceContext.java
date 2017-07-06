@@ -46,345 +46,309 @@ import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
 /**
- * Context is created for an execution of a service. A service execution
- * requires a number of actions to be performed. However, each action is on its
- * own, and does not assume presence of any other action. Of course, it expects
- * that certain data is available, and it's job may be to extract some more
- * data.
+ * Context is created for an execution of a service. A service execution requires a number of
+ * actions to be performed. However, each action is on its own, and does not assume presence of any
+ * other action. Of course, it expects that certain data is available, and it's job may be to
+ * extract some more data.
  *
- * We use a common (we can call this global for the service) data context for
- * all such action. While a DataScape is good enough data structure, we would
- * like to make use this concept for other design aspects, like accumulating
- * messages and tracking error states etc.. Hence this class extends DataScape.
+ * <p>We use a common (we can call this global for the service) data context for all such action.
+ * While a DataScape is good enough data structure, we would like to make use this concept for other
+ * design aspects, like accumulating messages and tracking error states etc.. Hence this class
+ * extends DataScape.
  *
  * @author simplity.org
- *
  */
 public class ServiceContext extends CommonData {
 
-	private final String serviceName;
-	private final Value userId;
-	private List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
-	private int nbrErrors = 0;
+  private final String serviceName;
+  private final Value userId;
+  private List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
+  private int nbrErrors = 0;
 
-	/**
-	 * writer that can be used by actions to write directly to the response
-	 */
-	private ResponseWriter responseWriter;
-	/**
-	 * jms session associated with this service
-	 */
-	private Session jmsSession;
+  /** writer that can be used by actions to write directly to the response */
+  private ResponseWriter responseWriter;
+  /** jms session associated with this service */
+  private Session jmsSession;
 
-	/**
-	 * message box
-	 */
-	private MessageBox messageBox;
+  /** message box */
+  private MessageBox messageBox;
 
-	/**
-	 * @param serviceName
-	 * @param userId
-	 */
-	public ServiceContext(String serviceName, Value userId) {
-		this.userId = userId;
-		this.serviceName = serviceName;
-	}
+  /**
+   * @param serviceName
+   * @param userId
+   */
+  public ServiceContext(String serviceName, Value userId) {
+    this.userId = userId;
+    this.serviceName = serviceName;
+  }
 
-	/**
-	 * add a message that is associated with a data element in the input data
-	 *
-	 * @param messageName
-	 * @param referredField
-	 *            if this is about a specific field, so that client can
-	 *            associate this message with a field/column
-	 * @param otherReferredField
-	 *            if the message has more than one referred field, like from-to
-	 *            validation failed
-	 * @param referredTable
-	 *            if the referred field is actually a column in a table
-	 * @param rowNumber
-	 *            if table is referred, 1 based.
-	 * @param params
-	 *            if the message is parameterized, provide values for those
-	 *            parameters. $name means name is a field, and the field value
-	 *            is to be taken from context
-	 * @return type of message that got added
-	 */
-	public MessageType addValidationMessage(String messageName, String referredField, String otherReferredField,
-			String referredTable, int rowNumber, String... params) {
-		String[] values = null;
-		if (params != null && params.length > 0) {
-			values = new String[params.length];
-			for (int i = 0; i < values.length; i++) {
-				String val = params[i];
-				/*
-				 * if it is a field name, we get its value
-				 */
-				String fieldName = TextUtil.getFieldName(val);
-				if (fieldName != null) {
-					Value v = this.getValue(fieldName);
-					if (v != null) {
-						val = v.toString();
-					}
-				}
-				values[i] = val;
-			}
-		}
+  /**
+   * add a message that is associated with a data element in the input data
+   *
+   * @param messageName
+   * @param referredField if this is about a specific field, so that client can associate this
+   *     message with a field/column
+   * @param otherReferredField if the message has more than one referred field, like from-to
+   *     validation failed
+   * @param referredTable if the referred field is actually a column in a table
+   * @param rowNumber if table is referred, 1 based.
+   * @param params if the message is parameterized, provide values for those parameters. $name means
+   *     name is a field, and the field value is to be taken from context
+   * @return type of message that got added
+   */
+  public MessageType addValidationMessage(
+      String messageName,
+      String referredField,
+      String otherReferredField,
+      String referredTable,
+      int rowNumber,
+      String... params) {
+    String[] values = null;
+    if (params != null && params.length > 0) {
+      values = new String[params.length];
+      for (int i = 0; i < values.length; i++) {
+        String val = params[i];
+        /*
+         * if it is a field name, we get its value
+         */
+        String fieldName = TextUtil.getFieldName(val);
+        if (fieldName != null) {
+          Value v = this.getValue(fieldName);
+          if (v != null) {
+            val = v.toString();
+          }
+        }
+        values[i] = val;
+      }
+    }
 
-		FormattedMessage msg = Messages.getMessage(messageName, values);
-		if (msg.messageType == MessageType.ERROR) {
-			this.nbrErrors++;
-		}
-		msg.fieldName = referredField;
-		msg.relatedFieldName = otherReferredField;
-		msg.tableName = referredTable;
-		msg.rowNumber = rowNumber;
-		this.messages.add(msg);
-		return msg.messageType;
-	}
+    FormattedMessage msg = Messages.getMessage(messageName, values);
+    if (msg.messageType == MessageType.ERROR) {
+      this.nbrErrors++;
+    }
+    msg.fieldName = referredField;
+    msg.relatedFieldName = otherReferredField;
+    msg.tableName = referredTable;
+    msg.rowNumber = rowNumber;
+    this.messages.add(msg);
+    return msg.messageType;
+  }
 
-	/**
-	 * add a message that has no reference to a data element
-	 *
-	 * @param messageName
-	 * @param paramValues
-	 *            if the message is parameterized, provide values for those
-	 *            parameters
-	 * @return type of message that got added
-	 */
-	public MessageType addMessage(String messageName, String... paramValues) {
-		return this.addValidationMessage(messageName, null, null, null, 0, paramValues);
-	}
+  /**
+   * add a message that has no reference to a data element
+   *
+   * @param messageName
+   * @param paramValues if the message is parameterized, provide values for those parameters
+   * @return type of message that got added
+   */
+  public MessageType addMessage(String messageName, String... paramValues) {
+    return this.addValidationMessage(messageName, null, null, null, 0, paramValues);
+  }
 
-	/**
-	 * add row to the messages list, but after checking for error status
-	 *
-	 * @param messageName
-	 * @param messageType
-	 * @param messageText
-	 * @param referredField
-	 * @param otherReferredField
-	 * @param referredTable
-	 * @param rowNumber
-	 */
-	public void addMessageRow(String messageName, MessageType messageType, String messageText, String referredField,
-			String otherReferredField, String referredTable, int rowNumber) {
-		if (messageType == MessageType.ERROR) {
-			this.nbrErrors++;
-		}
-		FormattedMessage msg = new FormattedMessage(messageName, messageType, messageText);
-		msg.fieldName = referredField;
-		msg.relatedFieldName = otherReferredField;
-		msg.tableName = referredTable;
-		msg.rowNumber = rowNumber;
-		this.messages.add(msg);
-	}
+  /**
+   * add row to the messages list, but after checking for error status
+   *
+   * @param messageName
+   * @param messageType
+   * @param messageText
+   * @param referredField
+   * @param otherReferredField
+   * @param referredTable
+   * @param rowNumber
+   */
+  public void addMessageRow(
+      String messageName,
+      MessageType messageType,
+      String messageText,
+      String referredField,
+      String otherReferredField,
+      String referredTable,
+      int rowNumber) {
+    if (messageType == MessageType.ERROR) {
+      this.nbrErrors++;
+    }
+    FormattedMessage msg = new FormattedMessage(messageName, messageType, messageText);
+    msg.fieldName = referredField;
+    msg.relatedFieldName = otherReferredField;
+    msg.tableName = referredTable;
+    msg.rowNumber = rowNumber;
+    this.messages.add(msg);
+  }
 
-	/**
-	 * has any one raised an error message?
-	 *
-	 * @return true if any error message is added. False otherwise
-	 */
-	public boolean isInError() {
-		return this.nbrErrors > 0;
-	}
+  /**
+   * has any one raised an error message?
+   *
+   * @return true if any error message is added. False otherwise
+   */
+  public boolean isInError() {
+    return this.nbrErrors > 0;
+  }
 
-	/**
-	 * get all messages
-	 *
-	 * @return messages
-	 */
-	public List<FormattedMessage> getMessages() {
-		return this.messages;
-	}
+  /**
+   * get all messages
+   *
+   * @return messages
+   */
+  public List<FormattedMessage> getMessages() {
+    return this.messages;
+  }
 
-	/**
-	 * get all messages as a DataSheet
-	 *
-	 * @return messages
-	 */
-	public DataSheet getMessagesAsDs() {
-		String[] columnNames = { "name", "text", "messageType", "fieldName" };
-		Collection<FormattedMessage> msgs = this.getMessages();
-		int nbr = msgs.size();
-		if (nbr == 0) {
-			ValueType[] types = { ValueType.TEXT, ValueType.TEXT, ValueType.TEXT, ValueType.TEXT };
-			return new MultiRowsSheet(columnNames, types);
-		}
-		/*
-		 * data is by column
-		 */
-		Value[][] data = new Value[4][nbr];
+  /**
+   * get all messages as a DataSheet
+   *
+   * @return messages
+   */
+  public DataSheet getMessagesAsDs() {
+    String[] columnNames = {"name", "text", "messageType", "fieldName"};
+    Collection<FormattedMessage> msgs = this.getMessages();
+    int nbr = msgs.size();
+    if (nbr == 0) {
+      ValueType[] types = {ValueType.TEXT, ValueType.TEXT, ValueType.TEXT, ValueType.TEXT};
+      return new MultiRowsSheet(columnNames, types);
+    }
+    /*
+     * data is by column
+     */
+    Value[][] data = new Value[4][nbr];
 
-		int i = 0;
-		for (FormattedMessage msg : msgs) {
-			data[0][i] = Value.newTextValue(msg.name);
-			data[1][i] = Value.newTextValue(msg.text);
-			data[2][i] = Value.newTextValue(msg.messageType.name());
-			data[3][i] = Value.newTextValue(msg.fieldName);
-			i++;
-		}
+    int i = 0;
+    for (FormattedMessage msg : msgs) {
+      data[0][i] = Value.newTextValue(msg.name);
+      data[1][i] = Value.newTextValue(msg.text);
+      data[2][i] = Value.newTextValue(msg.messageType.name());
+      data[3][i] = Value.newTextValue(msg.fieldName);
+      i++;
+    }
 
-		return new MultiRowsSheet(columnNames, data);
+    return new MultiRowsSheet(columnNames, data);
+  }
 
-	}
+  /** sreset/remove all messages */
+  public void resetMessages() {
+    this.messages.clear();
+    this.nbrErrors = 0;
+  }
 
-	/**
-	 * sreset/remove all messages
-	 *
-	 */
-	public void resetMessages() {
-		this.messages.clear();
-		this.nbrErrors = 0;
-	}
+  /** @return userId for whom this context is created */
+  public Value getUserId() {
+    return this.userId;
+  }
 
-	/**
-	 *
-	 * @return userId for whom this context is created
-	 */
-	public Value getUserId() {
-		return this.userId;
-	}
+  /** @return service for which this context is created */
+  public String getServiceName() {
+    return this.serviceName;
+  }
 
-	/**
-	 *
-	 * @return service for which this context is created
-	 */
-	public String getServiceName() {
-		return this.serviceName;
-	}
+  /** @param dataRow */
+  public void copyFrom(FieldsInterface dataRow) {
+    for (Entry<String, Value> entry : dataRow.getAllFields()) {
+      this.allFields.put(entry.getKey(), entry.getValue());
+    }
+  }
 
-	/**
-	 * @param dataRow
-	 */
-	public void copyFrom(FieldsInterface dataRow) {
-		for (Entry<String, Value> entry : dataRow.getAllFields()) {
-			this.allFields.put(entry.getKey(), entry.getValue());
-		}
+  /** @return set of all sheets that you can iterate over */
+  public Set<Map.Entry<String, DataSheet>> getAllSheets() {
+    return this.allSheets.entrySet();
+  }
 
-	}
+  /** @return summary for tracing */
+  public String getSummaryInfo() {
+    StringBuilder sbf = new StringBuilder("Context has ");
+    sbf.append(this.allFields.size())
+        .append(" fields and ")
+        .append(this.allSheets.size())
+        .append(" sheets and ")
+        .append(this.messages.size())
+        .append(" messages.");
+    return sbf.toString();
+  }
 
-	/**
-	 *
-	 * @return set of all sheets that you can iterate over
-	 */
-	public Set<Map.Entry<String, DataSheet>> getAllSheets() {
-		return this.allSheets.entrySet();
-	}
+  /**
+   * add error messages from an accumulated list
+   *
+   * @param errors
+   */
+  public void addMessages(List<FormattedMessage> errors) {
+    if (errors == null) {
+      return;
+    }
+    for (FormattedMessage msg : errors) {
+      this.messages.add(msg);
+      if (msg.messageType == MessageType.ERROR) {
+        this.nbrErrors++;
+      }
+    }
+  }
 
-	/**
-	 * @return summary for tracing
-	 */
-	public String getSummaryInfo() {
-		StringBuilder sbf = new StringBuilder("Context has ");
-		sbf.append(this.allFields.size()).append(" fields and ").append(this.allSheets.size()).append(" sheets and ")
-				.append(this.messages.size()).append(" messages.");
-		return sbf.toString();
-	}
+  /**
+   * @param sheetName
+   * @return 0 if sheet does not exist
+   */
+  public int nbrRowsInSheet(String sheetName) {
+    DataSheet ds = this.getDataSheet(sheetName);
+    if (ds == null) {
+      return 0;
+    }
+    return ds.length();
+  }
 
-	/**
-	 * add error messages from an accumulated list
-	 *
-	 * @param errors
-	 */
-	public void addMessages(List<FormattedMessage> errors) {
-		if (errors == null) {
-			return;
-		}
-		for (FormattedMessage msg : errors) {
-			this.messages.add(msg);
-			if (msg.messageType == MessageType.ERROR) {
-				this.nbrErrors++;
-			}
-		}
+  /**
+   * set a default response writer to the context
+   *
+   * @param writer
+   */
+  public void setWriter(ResponseWriter writer) {
+    this.responseWriter = writer;
+  }
 
-	}
+  /** @return writer, never null */
+  public ResponseWriter getWriter() {
+    if (this.responseWriter == null) {
+      this.setWriter(new JSONWriter());
+      this.responseWriter.init();
+    }
+    return this.responseWriter;
+  }
 
-	/**
-	 *
-	 * @param sheetName
-	 * @return 0 if sheet does not exist
-	 */
-	public int nbrRowsInSheet(String sheetName) {
-		DataSheet ds = this.getDataSheet(sheetName);
-		if (ds == null) {
-			return 0;
-		}
-		return ds.length();
-	}
+  /** @param session */
+  public void setJmsSession(Session session) {
+    this.jmsSession = session;
+  }
 
-	/**
-	 * set a default response writer to the context
-	 *
-	 * @param writer
-	 */
-	public void setWriter(ResponseWriter writer) {
-		this.responseWriter = writer;
+  /**
+   * @return jms connector associated with this service. never null.
+   * @throws ApplicationError in case this service is not associated with a connector
+   */
+  public Session getJmsSession() {
+    if (this.jmsSession == null) {
+      throw new ApplicationError("This service is not set up for a JMS operation.");
+    }
+    return this.jmsSession;
+  }
 
-	}
+  /** @param message */
+  public void putMessageInBox(Object message) {
+    if (this.messageBox == null) {
+      this.messageBox = new MessageBox();
+    }
+    this.messageBox.setMessage(message);
+  }
 
-	/**
-	 * @return writer, never null
-	 */
-	public ResponseWriter getWriter() {
-		if (this.responseWriter == null) {
-			this.setWriter(new JSONWriter());
-			this.responseWriter.init();
-		}
-		return this.responseWriter;
+  /** @return message, or null if there is none */
+  public Object getMessageFromBox() {
+    if (this.messageBox == null) {
+      return null;
+    }
+    return this.messageBox.getMessage();
+  }
 
-	}
+  /** @param box */
+  public void setMessageBox(MessageBox box) {
+    this.messageBox = box;
+  }
 
-	/**
-	 * @param session
-	 */
-	public void setJmsSession(Session session) {
-		this.jmsSession = session;
-	}
-
-	/**
-	 * @return jms connector associated with this service. never null.
-	 * @throws ApplicationError
-	 *             in case this service is not associated with a connector
-	 */
-	public Session getJmsSession() {
-		if (this.jmsSession == null) {
-			throw new ApplicationError("This service is not set up for a JMS operation.");
-		}
-		return this.jmsSession;
-	}
-
-	/**
-	 * @param message
-	 */
-	public void putMessageInBox(Object message) {
-		if (this.messageBox == null) {
-			this.messageBox = new MessageBox();
-		}
-		this.messageBox.setMessage(message);
-	}
-
-	/**
-	 * @return message, or null if there is none
-	 */
-	public Object getMessageFromBox() {
-		if (this.messageBox == null) {
-			return null;
-		}
-		return this.messageBox.getMessage();
-	}
-
-	/**
-	 * @param box
-	 */
-	public void setMessageBox(MessageBox box) {
-		this.messageBox = box;
-	}
-
-	/**
-	 * @return message box, or null if there is none
-	 */
-	public MessageBox getMessageBox() {
-		return this.messageBox;
-	}
+  /** @return message box, or null if there is none */
+  public MessageBox getMessageBox() {
+    return this.messageBox;
+  }
 }

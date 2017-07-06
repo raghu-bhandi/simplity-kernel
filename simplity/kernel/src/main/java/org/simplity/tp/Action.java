@@ -22,6 +22,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Tracer;
@@ -36,206 +39,199 @@ import org.simplity.service.ServiceContext;
  * An action inside a service
  *
  * @author simplity.org
- *
  */
 public abstract class Action {
-	private static final String ACTION_NAME_PREFIX = "_a";
+  static final Logger logger = Logger.getLogger(Action.class.getName());
 
-	/**
-	 * unique name within a service
-	 */
-	protected String actionName = null;
+  private static final String ACTION_NAME_PREFIX = "_a";
 
-	/**
-	 * precondition to be met for this step to be executed.
-	 */
-	protected Expression executeOnCondition = null;
+  /** unique name within a service */
+  protected String actionName = null;
 
-	/**
-	 * if you want to execute this step if a sheet exists and has at least one
-	 * row
-	 */
-	protected String executeIfRowsInSheet;
+  /** precondition to be met for this step to be executed. */
+  protected Expression executeOnCondition = null;
 
-	/**
-	 * execute if there is no sheet, or sheet has no rows
-	 */
-	protected String executeIfNoRowsInSheet;
+  /** if you want to execute this step if a sheet exists and has at least one row */
+  protected String executeIfRowsInSheet;
 
-	/**
-	 * if the sql succeeds in extracting at least one row, or affecting one
-	 * update, do we need to put a message?
-	 */
-	String successMessageName;
-	/**
-	 * comma separated list of parameters, to be used to populate success
-	 * message
-	 */
-	String[] successMessageParameters;
+  /** execute if there is no sheet, or sheet has no rows */
+  protected String executeIfNoRowsInSheet;
 
-	/**
-	 * if the sql fails to extract/update even a single row, should we flash any
-	 * message?
-	 */
-	String failureMessageName;
-	/**
-	 * parameters to be used to format failure message
-	 */
-	String[] failureMessageParameters;
+  /**
+   * if the sql succeeds in extracting at least one row, or affecting one update, do we need to put
+   * a message?
+   */
+  String successMessageName;
+  /** comma separated list of parameters, to be used to populate success message */
+  String[] successMessageParameters;
 
-	/**
-	 * should we stop this service in case the message added is of type error.
-	 */
-	boolean stopIfMessageTypeIsError;
+  /** if the sql fails to extract/update even a single row, should we flash any message? */
+  String failureMessageName;
+  /** parameters to be used to format failure message */
+  String[] failureMessageParameters;
 
-	/**
-	 * name of action to navigate to within this block, (_stop, _continue and
-	 * _break are special commands, as in jumpTo)
-	 */
-	String actionNameOnSuccess;
-	/**
-	 * name of action to navigate to within this block, (_stop, _continue and
-	 * _break are special commands, as in jumpTo)
-	 */
-	String actionNameOnFailure;
+  /** should we stop this service in case the message added is of type error. */
+  boolean stopIfMessageTypeIsError;
 
-	private int serviceIdx;
+  /**
+   * name of action to navigate to within this block, (_stop, _continue and _break are special
+   * commands, as in jumpTo)
+   */
+  String actionNameOnSuccess;
+  /**
+   * name of action to navigate to within this block, (_stop, _continue and _break are special
+   * commands, as in jumpTo)
+   */
+  String actionNameOnFailure;
 
-	private boolean requiresPostProcessing;
+  private int serviceIdx;
 
-	/**
-	 * main method called by service.
-	 *
-	 * @param ctx
-	 * @param driver
-	 * @return an indicator of what the action did. This value is saved as a
-	 *         field named actionNameResult that can be used by subsequent
-	 *         actions. null implies no such feature
-	 */
-	public final Value act(ServiceContext ctx, DbDriver driver) {
-		/*
-		 * is this a conditional step? i.e. to be executed only if the condition
-		 * is met
-		 */
+  private boolean requiresPostProcessing;
 
-		if (this.executeOnCondition != null) {
-			try{
-				Value val = this.executeOnCondition.evaluate(ctx);
-				if(Value.intepretAsBoolean(val)){
-					Tracer.trace("Cleared the condition " + this.executeOnCondition + " for action to proceed.");
-				}else{
-					Tracer.trace("Condition " + this.executeOnCondition + " and hence skipping this action.");
-					return null;
-				}
-			} catch (Exception e) {
-				throw new ApplicationError("Action " + this.actionName + " has an executOnCondition="
-						+ this.executeOnCondition.toString() + " that is invalid. \nError : " + e.getMessage());
-			}
-		}
-		if (this.executeIfNoRowsInSheet != null && ctx.nbrRowsInSheet(this.executeIfNoRowsInSheet) > 0) {
-			return null;
-		}
-		if (this.executeIfRowsInSheet != null && ctx.nbrRowsInSheet(this.executeIfRowsInSheet) == 0) {
-			return null;
-		}
-		Value result = this.delegate(ctx, driver);
-		if (this.requiresPostProcessing == false) {
-			return result;
-		}
-		boolean ok = Value.intepretAsBoolean(result);
-		if (ok) {
-			if (this.actionNameOnSuccess != null) {
-				return Value.newTextValue(this.actionNameOnSuccess);
-			}
-			if (this.successMessageName != null) {
-				MessageType msgType = ctx.addMessage(this.successMessageName, this.successMessageParameters);
-				if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
-					return Service.STOP_VALUE;
-				}
-			}
-			return result;
-		}
-		if (this.actionNameOnFailure != null) {
-			return Value.newTextValue(this.actionNameOnFailure);
-		}
-		if (this.failureMessageName != null) {
-			MessageType msgType = ctx.addMessage(this.failureMessageName, this.failureMessageParameters);
-			if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
-				return Service.STOP_VALUE;
-			}
-		}
-		return result;
-	}
+  /**
+   * main method called by service.
+   *
+   * @param ctx
+   * @param driver
+   * @return an indicator of what the action did. This value is saved as a field named
+   *     actionNameResult that can be used by subsequent actions. null implies no such feature
+   */
+  public final Value act(ServiceContext ctx, DbDriver driver) {
+    /*
+     * is this a conditional step? i.e. to be executed only if the condition
+     * is met
+     */
 
-	/**
-	 * This is the intermediate method that can be implemented by actions that
-	 * actually use db driver. We provide a default delegate that does not use
-	 * driver
-	 *
-	 * @param ctx
-	 * @param driver
-	 * @return value from action
-	 */
-	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		return this.doAct(ctx);
-	}
+    if (this.executeOnCondition != null) {
+      try {
+        Value val = this.executeOnCondition.evaluate(ctx);
+        if (Value.intepretAsBoolean(val)) {
 
-	/**
-	 * Method to be implemented by actions that do not use a driver.
-	 * We provide it as a dummy, rather than making it abstract to provide
-	 * concrete actions to wither have a method with driver or without
-	 *
-	 * @param ctx
-	 * @return
-	 */
-	protected Value doAct(ServiceContext ctx) {
-		return Value.VALUE_TRUE;
-	}
+          logger.log(
+              Level.INFO,
+              "Cleared the condition " + this.executeOnCondition + " for action to proceed.");
+          Tracer.trace(
+              "Cleared the condition " + this.executeOnCondition + " for action to proceed.");
+        } else {
 
-	/***
-	 * what type of data access does this action require?
-	 *
-	 * @return data base access type required by this step.
-	 */
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.NONE;
-	}
+          logger.log(
+              Level.INFO,
+              "Condition " + this.executeOnCondition + " and hence skipping this action.");
+          Tracer.trace("Condition " + this.executeOnCondition + " and hence skipping this action.");
+          return null;
+        }
+      } catch (Exception e) {
+        throw new ApplicationError(
+            "Action "
+                + this.actionName
+                + " has an executOnCondition="
+                + this.executeOnCondition.toString()
+                + " that is invalid. \nError : "
+                + e.getMessage());
+      }
+    }
+    if (this.executeIfNoRowsInSheet != null
+        && ctx.nbrRowsInSheet(this.executeIfNoRowsInSheet) > 0) {
+      return null;
+    }
+    if (this.executeIfRowsInSheet != null && ctx.nbrRowsInSheet(this.executeIfRowsInSheet) == 0) {
+      return null;
+    }
+    Value result = this.delegate(ctx, driver);
+    if (this.requiresPostProcessing == false) {
+      return result;
+    }
+    boolean ok = Value.intepretAsBoolean(result);
+    if (ok) {
+      if (this.actionNameOnSuccess != null) {
+        return Value.newTextValue(this.actionNameOnSuccess);
+      }
+      if (this.successMessageName != null) {
+        MessageType msgType =
+            ctx.addMessage(this.successMessageName, this.successMessageParameters);
+        if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
+          return Service.STOP_VALUE;
+        }
+      }
+      return result;
+    }
+    if (this.actionNameOnFailure != null) {
+      return Value.newTextValue(this.actionNameOnFailure);
+    }
+    if (this.failureMessageName != null) {
+      MessageType msgType = ctx.addMessage(this.failureMessageName, this.failureMessageParameters);
+      if (msgType == MessageType.ERROR && this.stopIfMessageTypeIsError) {
+        return Service.STOP_VALUE;
+      }
+    }
+    return result;
+  }
 
-	/**
-	 * @return name of this action
-	 */
-	public String getName() {
-		return this.actionName;
-	}
+  /**
+   * This is the intermediate method that can be implemented by actions that actually use db driver.
+   * We provide a default delegate that does not use driver
+   *
+   * @param ctx
+   * @param driver
+   * @return value from action
+   */
+  protected Value delegate(ServiceContext ctx, DbDriver driver) {
+    return this.doAct(ctx);
+  }
 
-	/**
-	 * if there is anything this class wants to do after loading its attributes,
-	 * but before being used, here is the method to do that.
-	 *
-	 * @param idx
-	 *            0 based index of actions in service
-	 * @param service
-	 *            to which this action belongs to
-	 */
-	public void getReady(int idx, Service service) {
-		this.serviceIdx = idx;
-		if (this.actionName == null) {
-			this.actionName = ACTION_NAME_PREFIX + this.serviceIdx;
-		}
-		this.requiresPostProcessing = this.actionNameOnFailure != null || this.actionNameOnSuccess != null
-				|| this.failureMessageName != null || this.successMessageName != null;
+  /**
+   * Method to be implemented by actions that do not use a driver. We provide it as a dummy, rather
+   * than making it abstract to provide concrete actions to wither have a method with driver or
+   * without
+   *
+   * @param ctx
+   * @return
+   */
+  protected Value doAct(ServiceContext ctx) {
+    return Value.VALUE_TRUE;
+  }
 
-	}
+  /**
+   * * what type of data access does this action require?
+   *
+   * @return data base access type required by this step.
+   */
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.NONE;
+  }
 
-	/**
-	 * validate this action
-	 *
-	 * @param vtx
-	 * @param service
-	 *            parent service
-	 * @return number of errors added to the list
-	 */
-	public int validate(ValidationContext vtx, Service service) {
-		return 0;
-	}
+  /** @return name of this action */
+  public String getName() {
+    return this.actionName;
+  }
+
+  /**
+   * if there is anything this class wants to do after loading its attributes, but before being
+   * used, here is the method to do that.
+   *
+   * @param idx 0 based index of actions in service
+   * @param service to which this action belongs to
+   */
+  public void getReady(int idx, Service service) {
+    this.serviceIdx = idx;
+    if (this.actionName == null) {
+      this.actionName = ACTION_NAME_PREFIX + this.serviceIdx;
+    }
+    this.requiresPostProcessing =
+        this.actionNameOnFailure != null
+            || this.actionNameOnSuccess != null
+            || this.failureMessageName != null
+            || this.successMessageName != null;
+  }
+
+  /**
+   * validate this action
+   *
+   * @param vtx
+   * @param service parent service
+   * @return number of errors added to the list
+   */
+  public int validate(ValidationContext vtx, Service service) {
+    return 0;
+  }
 }

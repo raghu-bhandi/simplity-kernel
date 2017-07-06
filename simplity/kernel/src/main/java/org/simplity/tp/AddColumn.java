@@ -22,6 +22,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.AlreadyIteratingException;
@@ -38,90 +41,91 @@ import org.simplity.service.ServiceContext;
  * add a column to a data sheet.
  *
  * @author admin
- *
  */
 public class AddColumn extends Action {
+  static final Logger logger = Logger.getLogger(AddColumn.class.getName());
 
-	/**
-	 * sheet to which we want to add a column
-	 */
-	String sheetName;
+  /** sheet to which we want to add a column */
+  String sheetName;
 
-	/**
-	 * name of column to be added
-	 */
-	String columnName;
+  /** name of column to be added */
+  String columnName;
 
-	/**
-	 * value type of the column
-	 */
-	ValueType columnValueType = ValueType.TEXT;
+  /** value type of the column */
+  ValueType columnValueType = ValueType.TEXT;
 
-	/**
-	 * if the value of the column is known at design time, provide the value. In
-	 * case it is the value of a field, use $fieldName as the value
-	 */
-	String columnValue;
+  /**
+   * if the value of the column is known at design time, provide the value. In case it is the value
+   * of a field, use $fieldName as the value
+   */
+  String columnValue;
 
-	/**
-	 * if the column value is to be calculated as an expression that involves
-	 * other columns, then provide the expression. NOTE : watch out for
-	 * performance if you end up adding column after column to a sheet with
-	 * large number of rows
-	 */
-	Expression columnValueExpression;
+  /**
+   * if the column value is to be calculated as an expression that involves other columns, then
+   * provide the expression. NOTE : watch out for performance if you end up adding column after
+   * column to a sheet with large number of rows
+   */
+  Expression columnValueExpression;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		DataSheet sheet = ctx.getDataSheet(this.sheetName);
-		if (sheet == null) {
-			return Value.VALUE_FALSE;
-		}
-		if (this.columnValue != null) {
-			Value value = null;
-			String fieldName = TextUtil.getFieldName(this.columnValue);
-				if (fieldName != null) {
-					/*
-					 * it is a field name
-					 */
-					value = ctx.getValue(fieldName);
-				} else {
-				/*
-				 * it is a constant
-				 */
-				value = Value
-						.parseValue(this.columnValue, this.columnValueType);
-			}
-			if (value == null) {
-				Tracer.trace("Value is null for column " + this.columnName
-						+ " for addColumn action " + this.actionName
-						+ ". Colum nnot added.");
-				return Value.VALUE_FALSE;
-			}
-			sheet.addColumn(this.columnName, value);
-			return Value.VALUE_TRUE;
-		}
-		try {
-			int nbrRows = sheet.length();
-			if (nbrRows == 0) {
-				sheet.addColumn(this.columnName, this.columnValueType, null);
-				return Value.VALUE_TRUE;
-			}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    DataSheet sheet = ctx.getDataSheet(this.sheetName);
+    if (sheet == null) {
+      return Value.VALUE_FALSE;
+    }
+    if (this.columnValue != null) {
+      Value value = null;
+      String fieldName = TextUtil.getFieldName(this.columnValue);
+      if (fieldName != null) {
+        /*
+         * it is a field name
+         */
+        value = ctx.getValue(fieldName);
+      } else {
+        /*
+         * it is a constant
+         */
+        value = Value.parseValue(this.columnValue, this.columnValueType);
+      }
+      if (value == null) {
 
-			Value[] values = new Value[nbrRows];
-			DataSheetIterator iterator = ctx.startIteration(this.sheetName);
-			int i = 0;
-			while (iterator.moveToNextRow()) {
-				values[i++] = this.columnValueExpression.evaluate(ctx);
-			}
-			sheet.addColumn(this.columnName, values[0].getValueType(), values);
-			return Value.VALUE_TRUE;
-		} catch (InvalidOperationException e) {
-			throw new ApplicationError(e,
-					"Error while adding a column to a grid." + e.getMessage());
-		} catch (AlreadyIteratingException e) {
-			throw new ApplicationError(e,
-					"Error while adding a column to a grid." + e.getMessage());
-		}
-	}
+        logger.log(
+            Level.INFO,
+            "Value is null for column "
+                + this.columnName
+                + " for addColumn action "
+                + this.actionName
+                + ". Colum nnot added.");
+        Tracer.trace(
+            "Value is null for column "
+                + this.columnName
+                + " for addColumn action "
+                + this.actionName
+                + ". Colum nnot added.");
+        return Value.VALUE_FALSE;
+      }
+      sheet.addColumn(this.columnName, value);
+      return Value.VALUE_TRUE;
+    }
+    try {
+      int nbrRows = sheet.length();
+      if (nbrRows == 0) {
+        sheet.addColumn(this.columnName, this.columnValueType, null);
+        return Value.VALUE_TRUE;
+      }
+
+      Value[] values = new Value[nbrRows];
+      DataSheetIterator iterator = ctx.startIteration(this.sheetName);
+      int i = 0;
+      while (iterator.moveToNextRow()) {
+        values[i++] = this.columnValueExpression.evaluate(ctx);
+      }
+      sheet.addColumn(this.columnName, values[0].getValueType(), values);
+      return Value.VALUE_TRUE;
+    } catch (InvalidOperationException e) {
+      throw new ApplicationError(e, "Error while adding a column to a grid." + e.getMessage());
+    } catch (AlreadyIteratingException e) {
+      throw new ApplicationError(e, "Error while adding a column to a grid." + e.getMessage());
+    }
+  }
 }

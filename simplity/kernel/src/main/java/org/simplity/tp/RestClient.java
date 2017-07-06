@@ -43,131 +43,119 @@ import org.simplity.service.ServiceContext;
  * Open an url connection and make a rest call with the configurations
  *
  * @author infosys.com
- *
  */
 public class RestClient extends Action {
-	final static String JSONFormat = "application/json";
-	final static String XMLFormat = "application/xml";
+  static final String JSONFormat = "application/json";
+  static final String XMLFormat = "application/xml";
 
-	/**
-	 * The HTTP method call
-	 */
-	String restMethod;
-	/**
-	 * The HTTP URL string
-	 */
-	String urlString;
-	String parsedUrlString;
-	/**
-	 * The HTTP expected content type
-	 */
-	String contentType;
-	/**
-	 * name of the output data
-	 */
-	String outputFieldName;
-	/**
-	 * value of the output data 
-	 */
-	String 	outputFieldValue;
-	/**
-	 * Proxy details
-	 */
-	String proxy;
-	int proxyport;
-	/**
-	 * Proxy username
-	 */
-	String proxyUserName;
-	/**
-	 * Proxy pwd
-	 */
-	String proxyPassword;
+  /** The HTTP method call */
+  String restMethod;
+  /** The HTTP URL string */
+  String urlString;
 
-	/**
-	 * default
-	 */
-	public RestClient() {
+  String parsedUrlString;
+  /** The HTTP expected content type */
+  String contentType;
+  /** name of the output data */
+  String outputFieldName;
+  /** value of the output data */
+  String outputFieldValue;
+  /** Proxy details */
+  String proxy;
 
-	}
+  int proxyport;
+  /** Proxy username */
+  String proxyUserName;
+  /** Proxy pwd */
+  String proxyPassword;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		try {
-			if(parsedUrlString!=null){
-				urlString = ctx.getTextValue(parsedUrlString);
-			}
-			
-			URL url = new URL(urlString);
-			HttpURLConnection conn;
-			if (proxy != null) {
-				Proxy proxycon = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy, proxyport));
-				Authenticator authenticator = new Authenticator() {
-					public PasswordAuthentication getPasswordAuthentication() {
-						return (new PasswordAuthentication(proxyUserName, proxyPassword.toCharArray()));
-					}
-				};
-				Authenticator.setDefault(authenticator);
-				conn = (HttpURLConnection) url.openConnection(proxycon);
-			} else {
-				conn = (HttpURLConnection) url.openConnection();
-			}
+  /** default */
+  public RestClient() {}
 
-			conn.setRequestMethod(restMethod);
-			conn.setRequestProperty("Accept", contentType);
-			if (conn.getResponseCode() != 200) {
-				return null;
-			}
-			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-			StringBuffer output = new StringBuffer();
-			String line;
-			while ((line = br.readLine()) != null) {
-				output.append(line);
-			}
-			if (contentType.equals(JSONFormat)) {
-				ctx.setValue(outputFieldName,
-						Value.newTextValue(new JSONObject(output.toString()).getJSONArray(outputFieldValue).toString()));
-				return Value.newBooleanValue(true);
-			}
-			if (contentType.equals(XMLFormat)) {
-				ctx.setValue(outputFieldName, Value
-						.newTextValue(XML.toJSONObject(output.toString()).getJSONObject(outputFieldValue).toString()));
-				return Value.newBooleanValue(true);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return Value.newBooleanValue(false);
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    try {
+      if (parsedUrlString != null) {
+        urlString = ctx.getTextValue(parsedUrlString);
+      }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.NONE;
-	}
+      URL url = new URL(urlString);
+      HttpURLConnection conn;
+      if (proxy != null) {
+        Proxy proxycon = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxy, proxyport));
+        Authenticator authenticator =
+            new Authenticator() {
+              public PasswordAuthentication getPasswordAuthentication() {
+                return (new PasswordAuthentication(proxyUserName, proxyPassword.toCharArray()));
+              }
+            };
+        Authenticator.setDefault(authenticator);
+        conn = (HttpURLConnection) url.openConnection(proxycon);
+      } else {
+        conn = (HttpURLConnection) url.openConnection();
+      }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.simplity.tp.Action#getReady()
-	 */
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		if (this.restMethod == null) {
-			throw new ApplicationError("Rest Client action requires rest method");
-		}
-		if (this.urlString == null) {
-			throw new ApplicationError("Rest Client action requires URL string");
-		}
-		if (this.contentType == null) {
-			throw new ApplicationError("Rest Client action requires content-type");
-		}
-		if (this.outputFieldName == null) {
-			throw new ApplicationError("Rest Client action requires output sheet for putting the fetched values");
-		}
-		if (this.outputFieldValue == null) {
-			throw new ApplicationError("Rest Client action requires output sheet for putting the fetched values");
-		}		
-		this.parsedUrlString = TextUtil.getFieldName(this.urlString);
-	}
+      conn.setRequestMethod(restMethod);
+      conn.setRequestProperty("Accept", contentType);
+      if (conn.getResponseCode() != 200) {
+        return null;
+      }
+      BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+      StringBuffer output = new StringBuffer();
+      String line;
+      while ((line = br.readLine()) != null) {
+        output.append(line);
+      }
+      if (contentType.equals(JSONFormat)) {
+        ctx.setValue(
+            outputFieldName,
+            Value.newTextValue(
+                new JSONObject(output.toString()).getJSONArray(outputFieldValue).toString()));
+        return Value.newBooleanValue(true);
+      }
+      if (contentType.equals(XMLFormat)) {
+        ctx.setValue(
+            outputFieldName,
+            Value.newTextValue(
+                XML.toJSONObject(output.toString()).getJSONObject(outputFieldValue).toString()));
+        return Value.newBooleanValue(true);
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return Value.newBooleanValue(false);
+  }
+
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.NONE;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.tp.Action#getReady()
+   */
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    if (this.restMethod == null) {
+      throw new ApplicationError("Rest Client action requires rest method");
+    }
+    if (this.urlString == null) {
+      throw new ApplicationError("Rest Client action requires URL string");
+    }
+    if (this.contentType == null) {
+      throw new ApplicationError("Rest Client action requires content-type");
+    }
+    if (this.outputFieldName == null) {
+      throw new ApplicationError(
+          "Rest Client action requires output sheet for putting the fetched values");
+    }
+    if (this.outputFieldValue == null) {
+      throw new ApplicationError(
+          "Rest Client action requires output sheet for putting the fetched values");
+    }
+    this.parsedUrlString = TextUtil.getFieldName(this.urlString);
+  }
 }

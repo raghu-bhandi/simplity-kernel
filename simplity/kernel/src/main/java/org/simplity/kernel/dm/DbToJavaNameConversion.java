@@ -24,92 +24,81 @@ package org.simplity.kernel.dm;
 
 import org.simplity.kernel.util.TextUtil;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public enum DbToJavaNameConversion {
-	/**
-	 * no change
-	 */
-	NONE {
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.simplity.kernel.dm.ColumnToFieldNameConvertion#convert(java.lang
-		 * .String)
-		 */
-		@Override
-		public String toJavaName(String dbEntityname) {
-			return dbEntityname;
-		}
+  /** no change */
+  NONE {
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.simplity.kernel.dm.ColumnToFieldNameConvertion#convert(java.lang
+     * .String)
+     */
+    @Override
+    public String toJavaName(String dbEntityname) {
+      return dbEntityname;
+    }
 
-		@Override
-		public String toDbEntityName(String javaName) {
-			return javaName;
-		}
-	},
+    @Override
+    public String toDbEntityName(String javaName) {
+      return javaName;
+    }
+  },
 
-	/**
-	 * convert to lower case CUST_NAME becomes cust_name
-	 */
-	LOWER_CASE {
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.simplity.kernel.dm.ColumnToFieldNameConvertion#convert(java.lang
-		 * .String)
-		 */
-		@Override
-		public String toJavaName(String dbEntityname) {
-			if (dbEntityname == null) {
-				return null;
-			}
-			return dbEntityname.toLowerCase();
-		}
+  /** convert to lower case CUST_NAME becomes cust_name */
+  LOWER_CASE {
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.simplity.kernel.dm.ColumnToFieldNameConvertion#convert(java.lang
+     * .String)
+     */
+    @Override
+    public String toJavaName(String dbEntityname) {
+      if (dbEntityname == null) {
+        return null;
+      }
+      return dbEntityname.toLowerCase();
+    }
 
-		@Override
-		public String toDbEntityName(String javaName) {
-			if (javaName == null) {
-				return null;
-			}
-			return javaName.toUpperCase();
-		}
-	},
-	/**
-	 * change'_' convention to camelCase CUST_NAME becomes custName
-	 */
-	CAMEL_CASE {
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.simplity.kernel.dm.ColumnToFieldNameConvertion#convert(java.lang
-		 * .String)
-		 */
-		@Override
-		public String toJavaName(String dbEntityname) {
-			return TextUtil.undoUnderscore(dbEntityname);
-		}
+    @Override
+    public String toDbEntityName(String javaName) {
+      if (javaName == null) {
+        return null;
+      }
+      return javaName.toUpperCase();
+    }
+  },
+  /** change'_' convention to camelCase CUST_NAME becomes custName */
+  CAMEL_CASE {
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.simplity.kernel.dm.ColumnToFieldNameConvertion#convert(java.lang
+     * .String)
+     */
+    @Override
+    public String toJavaName(String dbEntityname) {
+      return TextUtil.undoUnderscore(dbEntityname);
+    }
 
-		@Override
-		public String toDbEntityName(String javaName) {
-			return TextUtil.toUnderscore(javaName);
-		}
-	};
-	/**
-	 *
-	 * @param dbEntityName
-	 * @return java name for this column name
-	 */
-	public abstract String toJavaName(String dbEntityName);
+    @Override
+    public String toDbEntityName(String javaName) {
+      return TextUtil.toUnderscore(javaName);
+    }
+  };
+  /**
+   * @param dbEntityName
+   * @return java name for this column name
+   */
+  public abstract String toJavaName(String dbEntityName);
 
-	/**
-	 *
-	 * @param javaName
-	 * @return name to be used in db as per standard
-	 */
-	public abstract String toDbEntityName(String javaName);
+  /**
+   * @param javaName
+   * @return name to be used in db as per standard
+   */
+  public abstract String toDbEntityName(String javaName);
 }

@@ -25,36 +25,32 @@ import javax.servlet.http.HttpSession;
 
 import org.simplity.service.ServiceData;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public interface ClientCacheManager {
 
-	/**
-	 * get a cached response
-	 *
-	 * @param inData
-	 * @param session
-	 * @return service data that is the response to this request
-	 */
-	public ServiceData respond(ServiceData inData, HttpSession session);
+  /**
+   * get a cached response
+   *
+   * @param inData
+   * @param session
+   * @return service data that is the response to this request
+   */
+  public ServiceData respond(ServiceData inData, HttpSession session);
 
-	/**
-	 * Cache this response, if you want
-	 *
-	 * @param inData
-	 * @param outData
-	 * @param session
-	 */
-	public void cache(ServiceData inData, ServiceData outData,
-			HttpSession session);
+  /**
+   * Cache this response, if you want
+   *
+   * @param inData
+   * @param outData
+   * @param session
+   */
+  public void cache(ServiceData inData, ServiceData outData, HttpSession session);
 
-	/**
-	 * remove/invalidate any cache for this service
-	 *
-	 * @param serviceName
-	 * @param session
-	 */
-	public void invalidate(String serviceName, HttpSession session);
+  /**
+   * remove/invalidate any cache for this service
+   *
+   * @param serviceName
+   * @param session
+   */
+  public void invalidate(String serviceName, HttpSession session);
 }

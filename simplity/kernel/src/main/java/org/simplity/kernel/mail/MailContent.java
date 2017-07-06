@@ -2,55 +2,51 @@ package org.simplity.kernel.mail;
 
 public class MailContent {
 
-	MailContentType type;
-	String templatePath;
-	String template;
-	String[] inputSheetName;
-	String text;
+  MailContentType type;
+  String templatePath;
+  String template;
+  String[] inputSheetName;
+  String text;
 
-	public MailContent() {
-	
-	}
-	
-	public MailContentType getType() {
-		return type;
-	}
+  public MailContent() {}
 
-	public void setType(MailContentType type) {
-		this.type = type;
-	}
+  public MailContentType getType() {
+    return type;
+  }
 
-	public String getTemplatePath() {
-		return templatePath;
-	}
+  public void setType(MailContentType type) {
+    this.type = type;
+  }
 
-	public void setTemplatePath(String templatePath) {
-		this.templatePath = templatePath;
-	}
+  public String getTemplatePath() {
+    return templatePath;
+  }
 
-	public String getTemplate() {
-		return template;
-	}
+  public void setTemplatePath(String templatePath) {
+    this.templatePath = templatePath;
+  }
 
-	public void setTemplate(String template) {
-		this.template = template;
-	}
+  public String getTemplate() {
+    return template;
+  }
 
-	public String[] getInputSheetName() {
-		return inputSheetName;
-	}
+  public void setTemplate(String template) {
+    this.template = template;
+  }
 
-	public void setInputSheetName(String[] inputSheetName) {
-		this.inputSheetName = inputSheetName;
-	}
+  public String[] getInputSheetName() {
+    return inputSheetName;
+  }
 
-	public String getText() {
-		return text;
-	}
+  public void setInputSheetName(String[] inputSheetName) {
+    this.inputSheetName = inputSheetName;
+  }
 
-	public void setText(String text) {
-		this.text = text;
-	}
+  public String getText() {
+    return text;
+  }
 
+  public void setText(String text) {
+    this.text = text;
+  }
 }
-

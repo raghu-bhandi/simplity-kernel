@@ -23,28 +23,22 @@
 package org.simplity.kernel;
 
 /**
- * Application developers may choose to wrap the service trace before pushing it
- * to the logging stream
+ * Application developers may choose to wrap the service trace before pushing it to the logging
+ * stream
  *
  * @author simplity.org
- *
  */
 public interface TraceWrapper {
-	/**
-	 * wrap service trace text to suit your logging standard.
-	 *
-	 * @param serviceName
-	 *            name of service
-	 * @param userId
-	 *            userId on whose request this service was executed
-	 * @param elapsedMillis
-	 *            number of milli-seconds taken by the service
-	 * @param traceText
-	 *            accumulated chronological emits during execution of service
-	 * @return wrapped text ready to be pushed to the logging stream. If null is
-	 *         returned, we assume that you do not want this to be logged.
-	 *         Either you have pushed it somewhere, or burnt it :-)
-	 */
-	public String wrap(String serviceName, String userId, int elapsedMillis,
-			String traceText);
+  /**
+   * wrap service trace text to suit your logging standard.
+   *
+   * @param serviceName name of service
+   * @param userId userId on whose request this service was executed
+   * @param elapsedMillis number of milli-seconds taken by the service
+   * @param traceText accumulated chronological emits during execution of service
+   * @return wrapped text ready to be pushed to the logging stream. If null is returned, we assume
+   *     that you do not want this to be logged. Either you have pushed it somewhere, or burnt it
+   *     :-)
+   */
+  public String wrap(String serviceName, String userId, int elapsedMillis, String traceText);
 }

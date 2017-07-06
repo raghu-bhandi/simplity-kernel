@@ -26,15 +26,10 @@ package org.simplity.kernel.data;
  * how a row in a flat file is formatted
  *
  * @author simplity.org
- *
  */
 public enum FlatFileRowType {
-	/**
-	 * field values in a predefined sequence and fixed width for each field
-	 */
-	FIXED_WIDTH,
-	/**
-	 * comma separated
-	 */
-	COMMA_SEPARATED
+  /** field values in a predefined sequence and fixed width for each field */
+  FIXED_WIDTH,
+  /** comma separated */
+  COMMA_SEPARATED
 }

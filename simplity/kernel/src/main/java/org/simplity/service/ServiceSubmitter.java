@@ -22,6 +22,9 @@
 
 package org.simplity.service;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.Date;
@@ -34,73 +37,83 @@ import org.simplity.kernel.Tracer;
  * convenient class that can be used to run a service in the background
  *
  * @author simplity.org
- *
  */
 public class ServiceSubmitter implements Runnable {
-	private final ServiceData inData;
-	private final ServiceInterface service;
-	private final ObjectOutputStream outStream;
-	private final PayloadType payloadType;
+  static final Logger logger = Logger.getLogger(ServiceSubmitter.class.getName());
 
-	/***
-	 * instantiate with required attributes
-	 *
-	 * @param inData
-	 * @param service
-	 * @param outStream
-	 * @param payloadType
-	 *
-	 */
-	public ServiceSubmitter(ServiceData inData, ServiceInterface service, ObjectOutputStream outStream, PayloadType payloadType) {
-		this.inData = inData;
-		this.service = service;
-		this.outStream = outStream;
-		this.payloadType = payloadType;
+  private final ServiceData inData;
+  private final ServiceInterface service;
+  private final ObjectOutputStream outStream;
+  private final PayloadType payloadType;
 
-	}
+  /**
+   * * instantiate with required attributes
+   *
+   * @param inData
+   * @param service
+   * @param outStream
+   * @param payloadType
+   */
+  public ServiceSubmitter(
+      ServiceData inData,
+      ServiceInterface service,
+      ObjectOutputStream outStream,
+      PayloadType payloadType) {
+    this.inData = inData;
+    this.service = service;
+    this.outStream = outStream;
+    this.payloadType = payloadType;
+  }
 
-	@Override
-	public void run() {
-		Date startTime = new Date();
-		ServiceData outData = null;
-		String serviceName = this.service.getQualifiedName();
-		try {
-			outData = this.service.respond(this.inData, this.payloadType);
-		} catch (Exception e) {
-			Application.reportApplicationError(this.inData, e);
-			outData = new ServiceData(this.inData.getUserId(), serviceName);
-			Tracer.trace(e, "Service " + serviceName + " resulted in fatal error");
-			outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()));
-		}
-		/*
-		 * no way to communicate back
-		 */
-		Tracer.trace("Background service completed with following trace");
-		if (this.outStream == null) {
-			return;
-		}
+  @Override
+  public void run() {
+    Date startTime = new Date();
+    ServiceData outData = null;
+    String serviceName = this.service.getQualifiedName();
+    try {
+      outData = this.service.respond(this.inData, this.payloadType);
+    } catch (Exception e) {
+      Application.reportApplicationError(this.inData, e);
+      outData = new ServiceData(this.inData.getUserId(), serviceName);
 
-		Date endTime = new Date();
-		long diffTime = endTime.getTime() - startTime.getTime();
-		outData.setExecutionTime((int) diffTime);
-		Object obj = this.inData.get(ServiceProtocol.HEADER_FILE_TOKEN);
-		String token = obj == null ? null : obj.toString();
-		if (token == null) {
-			return;
-		}
+      logger.log(Level.SEVERE, "Service " + serviceName + " resulted in fatal error", e);
+      Tracer.trace(e, "Service " + serviceName + " resulted in fatal error");
+      outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()));
+    }
+    /*
+     * no way to communicate back
+     */
 
-		outData.put(ServiceProtocol.HEADER_FILE_TOKEN, token);
+    logger.log(Level.INFO, "Background service completed with following trace");
+    Tracer.trace("Background service completed with following trace");
+    if (this.outStream == null) {
+      return;
+    }
 
-		try {
-			this.outStream.writeObject(outData);
-		} catch (IOException e) {
-			Tracer.trace(e, "Error while writing response from background service onto stream");
-		} finally {
-			try {
-				this.outStream.close();
-			} catch (Exception ignore) {
-				//
-			}
-		}
-	}
+    Date endTime = new Date();
+    long diffTime = endTime.getTime() - startTime.getTime();
+    outData.setExecutionTime((int) diffTime);
+    Object obj = this.inData.get(ServiceProtocol.HEADER_FILE_TOKEN);
+    String token = obj == null ? null : obj.toString();
+    if (token == null) {
+      return;
+    }
+
+    outData.put(ServiceProtocol.HEADER_FILE_TOKEN, token);
+
+    try {
+      this.outStream.writeObject(outData);
+    } catch (IOException e) {
+
+      logger.log(
+          Level.SEVERE, "Error while writing response from background service onto stream", e);
+      Tracer.trace(e, "Error while writing response from background service onto stream");
+    } finally {
+      try {
+        this.outStream.close();
+      } catch (Exception ignore) {
+        //
+      }
+    }
+  }
 }

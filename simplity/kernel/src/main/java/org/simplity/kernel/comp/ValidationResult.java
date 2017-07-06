@@ -26,47 +26,38 @@ package org.simplity.kernel.comp;
  * data structure that holds results of validation of components
  *
  * @author simplity.org
- *
  */
 public class ValidationResult {
-	private final String[][] allMessages;
-	private final String[][] allComps;
-	private final String[][] allReferences;
+  private final String[][] allMessages;
+  private final String[][] allComps;
+  private final String[][] allReferences;
 
-	/**
-	 * this being a data structure, we want all data right at he beginning. We
-	 * would have loved to make it immutable, but you know we can not do that
-	 * with arrays :-(
-	 *
-	 * @param allMessages
-	 * @param allComps
-	 * @param allReferences
-	 */
-	public ValidationResult(String[][] allMessages, String[][] allComps,
-			String[][] allReferences) {
-		this.allMessages = allMessages;
-		this.allComps = allComps;
-		this.allReferences = allReferences;
-	}
+  /**
+   * this being a data structure, we want all data right at he beginning. We would have loved to
+   * make it immutable, but you know we can not do that with arrays :-(
+   *
+   * @param allMessages
+   * @param allComps
+   * @param allReferences
+   */
+  public ValidationResult(String[][] allMessages, String[][] allComps, String[][] allReferences) {
+    this.allMessages = allMessages;
+    this.allComps = allComps;
+    this.allReferences = allReferences;
+  }
 
-	/**
-	 * @return the allComps
-	 */
-	public String[][] getAllComps() {
-		return this.allComps;
-	}
+  /** @return the allComps */
+  public String[][] getAllComps() {
+    return this.allComps;
+  }
 
-	/**
-	 * @return the allMessages
-	 */
-	public String[][] getAllMessages() {
-		return this.allMessages;
-	}
+  /** @return the allMessages */
+  public String[][] getAllMessages() {
+    return this.allMessages;
+  }
 
-	/**
-	 * @return the allReferences
-	 */
-	public String[][] getAllReferences() {
-		return this.allReferences;
-	}
+  /** @return the allReferences */
+  public String[][] getAllReferences() {
+    return this.allReferences;
+  }
 }

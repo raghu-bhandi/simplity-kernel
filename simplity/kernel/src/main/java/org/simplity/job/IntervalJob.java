@@ -22,6 +22,9 @@
 
 package org.simplity.job;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,94 +34,101 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 
 /**
- * A job that is added to a scheduler. manages running jobs for the job that is
- * scheduled
+ * A job that is added to a scheduler. manages running jobs for the job that is scheduled
  *
  * @author simplity.org
- *
  */
 public class IntervalJob extends ScheduledJob {
-	/*
-	 * we have only one job
-	 */
-	protected RunningJob runningJob;
-	protected Future<?> future;
+  static final Logger logger = Logger.getLogger(IntervalJob.class.getName());
 
-	IntervalJob(Job job, Value uid) {
-		super(job, uid);
-	}
+  /*
+   * we have only one job
+   */
+  protected RunningJob runningJob;
+  protected Future<?> future;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.job.ScheduledJob#schedule(java.util.concurrent.
-	 * ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public boolean scheduleJobs(ScheduledExecutorService executor) {
-		this.runningJob = this.scheduledJob.createRunningJob(this.userId);
-		this.future = executor.scheduleAtFixedRate(this.runningJob, 0, this.scheduledJob.runInterval, TimeUnit.SECONDS);
-		return false;
-	}
+  IntervalJob(Job job, Value uid) {
+    super(job, uid);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.job.ScheduledJob#shutDownGracefully(java.util.concurrent.
-	 * ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public void cancel() {
-		if (this.future != null) {
-			this.future.cancel(true);
-		}
-		this.isScheduled = false;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.job.ScheduledJob#schedule(java.util.concurrent.
+   * ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public boolean scheduleJobs(ScheduledExecutorService executor) {
+    this.runningJob = this.scheduledJob.createRunningJob(this.userId);
+    this.future =
+        executor.scheduleAtFixedRate(
+            this.runningJob, 0, this.scheduledJob.runInterval, TimeUnit.SECONDS);
+    return false;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.job.ScheduledJob#incrmentThread(java.util.concurrent.
-	 * ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public void incrmentThread(ScheduledExecutorService executor) {
-		this.noChange();
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.job.ScheduledJob#shutDownGracefully(java.util.concurrent.
+   * ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public void cancel() {
+    if (this.future != null) {
+      this.future.cancel(true);
+    }
+    this.isScheduled = false;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.job.ScheduledJob#decrmentThread(java.util.concurrent.
-	 * ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public void decrmentThread(ScheduledExecutorService executor) {
-		this.noChange();
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.job.ScheduledJob#incrmentThread(java.util.concurrent.
+   * ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public void incrmentThread(ScheduledExecutorService executor) {
+    this.noChange();
+  }
 
-	private void noChange() {
-		Tracer.trace("Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.job.ScheduledJob#decrmentThread(java.util.concurrent.
+   * ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public void decrmentThread(ScheduledExecutorService executor) {
+    this.noChange();
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.job.ScheduledJob#putStatus(java.util.List)
-	 */
-	@Override
-	public void putJobStatusStub(JobStatus sts, List<RunningJobInfo> infoList) {
-		this.putJobStatus(sts, this.runningJob, infoList, 0);
-	}
+  private void noChange() {
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.job.ScheduledJob#poll(int)
-	 */
-	@Override
-	public int poll(int referenceMinutes) {
-		return ScheduledJob.NEVER;
-	}
+    logger.log(
+        Level.INFO,
+        "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
+    Tracer.trace(
+        "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.job.ScheduledJob#putStatus(java.util.List)
+   */
+  @Override
+  public void putJobStatusStub(JobStatus sts, List<RunningJobInfo> infoList) {
+    this.putJobStatus(sts, this.runningJob, infoList, 0);
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.job.ScheduledJob#poll(int)
+   */
+  @Override
+  public int poll(int referenceMinutes) {
+    return ScheduledJob.NEVER;
+  }
 }

@@ -22,6 +22,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
@@ -37,109 +40,124 @@ import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
 
 /**
- * Save (add/modify/delete) a row from a record, and possibly save relevant rows
- * from related records
- *
+ * Save (add/modify/delete) a row from a record, and possibly save relevant rows from related
+ * records
  *
  * @author simplity.org
- *
  */
 public class ReplaceAttachment extends DbAction {
+  static final Logger logger = Logger.getLogger(ReplaceAttachment.class.getName());
 
-	/**
-	 * rdbms table that has this column
-	 */
-	String recordName;
+  /** rdbms table that has this column */
+  String recordName;
 
-	/**
-	 * field name of this attachment. This is the name that we refer in our
-	 * service context. This is the name that is known to client
-	 */
-	String attachmentFieldName;
+  /**
+   * field name of this attachment. This is the name that we refer in our service context. This is
+   * the name that is known to client
+   */
+  String attachmentFieldName;
 
-	private String selectSql;
-	private String updateSql;
-	private String keyFieldName;
-	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		Value tokenValue = ctx.getValue(this.attachmentFieldName);
-		Value keyValue = ctx.getValue(this.keyFieldName);
-		Value[] values = { keyValue };
-		String[] columnNames = { this.attachmentFieldName };
-		ValueType[] valueTypes = { ValueType.TEXT };
-		DataSheet outData = new SingleRowSheet(columnNames, valueTypes);
-		int res = driver.extractFromSql(this.selectSql, values, outData, true);
-		if (res == 0) {
-			Tracer.trace("No row found while reading from record "
-					+ this.recordName + " for key value " + keyValue
-					+ " and hence no update.");
-			return 0;
-		}
-		/*
-		 * save this token into fieldNameOld. Service will take care of removing
-		 * this on exit
-		 */
-		ctx.setValue(this.attachmentFieldName + ServiceProtocol.OLD_ATT_TOKEN_SUFFIX, outData.getRow(0)[0]);
+  private String selectSql;
+  private String updateSql;
+  private String keyFieldName;
 
-		/*
-		 * update row with new value
-		 */
-		Value[] updateValues = { tokenValue, keyValue };
-		return driver.executeSql(this.updateSql, updateValues, false);
-	}
+  @Override
+  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+    Value tokenValue = ctx.getValue(this.attachmentFieldName);
+    Value keyValue = ctx.getValue(this.keyFieldName);
+    Value[] values = {keyValue};
+    String[] columnNames = {this.attachmentFieldName};
+    ValueType[] valueTypes = {ValueType.TEXT};
+    DataSheet outData = new SingleRowSheet(columnNames, valueTypes);
+    int res = driver.extractFromSql(this.selectSql, values, outData, true);
+    if (res == 0) {
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_WRITE;
-	}
+      logger.log(
+          Level.INFO,
+          "No row found while reading from record "
+              + this.recordName
+              + " for key value "
+              + keyValue
+              + " and hence no update.");
+      Tracer.trace(
+          "No row found while reading from record "
+              + this.recordName
+              + " for key value "
+              + keyValue
+              + " and hence no update.");
+      return 0;
+    }
+    /*
+     * save this token into fieldNameOld. Service will take care of removing
+     * this on exit
+     */
+    ctx.setValue(
+        this.attachmentFieldName + ServiceProtocol.OLD_ATT_TOKEN_SUFFIX, outData.getRow(0)[0]);
 
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		count += ctx.checkMandatoryField("attachmentFieldName", this.attachmentFieldName);
-		count += ctx.checkMandatoryField("recordName", this.recordName);
-		int j = ctx.checkRecordExistence(this.recordName, "recordName", true);
-		if (j == 0) {
-			Record record = ComponentManager.getRecordOrNull(this.recordName);
-			Field field = record.getField(this.attachmentFieldName);
-			if (field == null) {
-				ctx.addError(this.attachmentFieldName
-						+ " is defined an an attachmentField, but this field is not defined in this record");
-			}
-			Field[] keyFields = record.getPrimaryKeyFields();
-			if(keyFields == null || keyFields.length > 1) {
-				ctx.addError("Record " + this.recordName + " has " + (keyFields == null ? "not defined a primary key." : "defined a primary key with more than one columns.")
-						+ ". Our designe require sthat this record defines a single primary key.");
-			}
-		} else {
-			count++;
-		}
-		return count;
-	}
+    /*
+     * update row with new value
+     */
+    Value[] updateValues = {tokenValue, keyValue};
+    return driver.executeSql(this.updateSql, updateValues, false);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.Action#getReady(int)
-	 */
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		this.createSqls();
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_WRITE;
+  }
 
-	private void createSqls() {
-		Record record = ComponentManager.getRecord(this.recordName);
-		this.keyFieldName = record.getPrimaryKeyFields()[0].getName();
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    count += ctx.checkMandatoryField("attachmentFieldName", this.attachmentFieldName);
+    count += ctx.checkMandatoryField("recordName", this.recordName);
+    int j = ctx.checkRecordExistence(this.recordName, "recordName", true);
+    if (j == 0) {
+      Record record = ComponentManager.getRecordOrNull(this.recordName);
+      Field field = record.getField(this.attachmentFieldName);
+      if (field == null) {
+        ctx.addError(
+            this.attachmentFieldName
+                + " is defined an an attachmentField, but this field is not defined in this record");
+      }
+      Field[] keyFields = record.getPrimaryKeyFields();
+      if (keyFields == null || keyFields.length > 1) {
+        ctx.addError(
+            "Record "
+                + this.recordName
+                + " has "
+                + (keyFields == null
+                    ? "not defined a primary key."
+                    : "defined a primary key with more than one columns.")
+                + ". Our designe require sthat this record defines a single primary key.");
+      }
+    } else {
+      count++;
+    }
+    return count;
+  }
 
-		String tableName = record.getTableName();
-		String attColName = record.getField(this.attachmentFieldName)
-				.getColumnName();
-		String keyColName = record.getField(this.keyFieldName).getColumnName();
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.tp.Action#getReady(int)
+   */
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    this.createSqls();
+  }
 
-		this.selectSql = "SELECT " + attColName + " FROM " + tableName
-				+ " WHERE " + keyColName + " =?";
-		this.updateSql = "UPDATE " + tableName + " SET " + attColName + " = ? "
-				+ " WHERE " + keyColName + " =?";
-	}
+  private void createSqls() {
+    Record record = ComponentManager.getRecord(this.recordName);
+    this.keyFieldName = record.getPrimaryKeyFields()[0].getName();
+
+    String tableName = record.getTableName();
+    String attColName = record.getField(this.attachmentFieldName).getColumnName();
+    String keyColName = record.getField(this.keyFieldName).getColumnName();
+
+    this.selectSql = "SELECT " + attColName + " FROM " + tableName + " WHERE " + keyColName + " =?";
+    this.updateSql =
+        "UPDATE " + tableName + " SET " + attColName + " = ? " + " WHERE " + keyColName + " =?";
+  }
 }

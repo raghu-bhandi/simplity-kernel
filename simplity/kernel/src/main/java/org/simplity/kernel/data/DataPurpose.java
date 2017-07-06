@@ -25,34 +25,29 @@ package org.simplity.kernel.data;
  * why is the data being input?
  *
  * @author simplity.org
- *
  */
 public enum DataPurpose {
-	/**
-	 * only primary key is expected as input
-	 */
-	READ
+  /** only primary key is expected as input */
+  READ
 
-	/**
-	 * fields are used for selection of rows. typically for filtering rows from
-	 * a view. filter fields may also be there
-	 */
-	, FILTER
+  /**
+   * fields are used for selection of rows. typically for filtering rows from a view. filter fields
+   * may also be there
+   */
+  ,
+  FILTER
 
-	/**
-	 * each row may ask for different action. specific field will have the
-	 * desired action.
-	 */
-	, SAVE
-	/**
-	 * meant for elective update or any other purpose where we accept any subset
-	 * of expected fields. That is, every field is optional.
-	 */
-	, SUBSET
+  /** each row may ask for different action. specific field will have the desired action. */
+  ,
+  SAVE
+  /**
+   * meant for elective update or any other purpose where we accept any subset of expected fields.
+   * That is, every field is optional.
+   */
+  ,
+  SUBSET
 
-	/**
-	 * when the purpose is not directly related to rdbms operations.
-	 */
-	,OTHERS
-
+  /** when the purpose is not directly related to rdbms operations. */
+  ,
+  OTHERS
 }

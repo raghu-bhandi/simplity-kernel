@@ -22,6 +22,9 @@
 
 package org.simplity.job;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.Arrays;
 
 import org.simplity.kernel.Application;
@@ -33,206 +36,207 @@ import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class Job {
-	/**
-	 * name of the job, unique within a jobs collection
-	 */
-	String name;
+  static final Logger logger = Logger.getLogger(Job.class.getName());
 
-	/**
-	 * service to be run as a job
-	 */
-	String serviceName;
-	/**
-	 * this job is to be fired at these times on a 24 hour clock.
-	 */
-	String[] runAtTheseTimes;
-	/**
-	 * this job is to be run every so many seconds
-	 */
-	int runInterval;
+  /** name of the job, unique within a jobs collection */
+  String name;
 
-	/**
-	 * is this a job that runs for ever left to itself? In that case specify
-	 * number of such instances. In this case, runInterval and runAtTheseTimes
-	 * are ignored.
-	 */
-	int nbrDedicatedThreads;
+  /** service to be run as a job */
+  String serviceName;
+  /** this job is to be fired at these times on a 24 hour clock. */
+  String[] runAtTheseTimes;
+  /** this job is to be run every so many seconds */
+  int runInterval;
 
-	/**
-	 * parameters that this service expects as input are supplied with this
-	 * mechanism
-	 */
-	String inputJson;
+  /**
+   * is this a job that runs for ever left to itself? In that case specify number of such instances.
+   * In this case, runInterval and runAtTheseTimes are ignored.
+   */
+  int nbrDedicatedThreads;
 
-	/**
-	 * if this job is to be fired with a specific userId. Defaults to scheduler
-	 * level setting
-	 */
-	String userId;
+  /** parameters that this service expects as input are supplied with this mechanism */
+  String inputJson;
 
-	/**
-	 * input fields
-	 */
-	InputField[] inputFields;
-	/**
-	 * cached during getReady();
-	 */
-	private Value userIdValue;
+  /** if this job is to be fired with a specific userId. Defaults to scheduler level setting */
+  String userId;
 
-	/**
-	 * number of minutes elapsed for the day
-	 */
-	private int[] timesOfDay;
+  /** input fields */
+  InputField[] inputFields;
+  /** cached during getReady(); */
+  private Value userIdValue;
 
+  /** number of minutes elapsed for the day */
+  private int[] timesOfDay;
 
-	/**
-	 * @param jobName
-	 * @param service
-	 * @param interval
-	 * @param nbrThreads
-	 * @param times
-	 */
-	public Job(String jobName, String service, int interval, int nbrThreads, String times) {
-		this.name = jobName;
-		this.serviceName = service;
-		this.runInterval = interval;
-		this.nbrDedicatedThreads = nbrThreads;
-		if(times!= null){
-			this.runAtTheseTimes = times.split(",");
-		}
-	}
+  /**
+   * @param jobName
+   * @param service
+   * @param interval
+   * @param nbrThreads
+   * @param times
+   */
+  public Job(String jobName, String service, int interval, int nbrThreads, String times) {
+    this.name = jobName;
+    this.serviceName = service;
+    this.runInterval = interval;
+    this.nbrDedicatedThreads = nbrThreads;
+    if (times != null) {
+      this.runAtTheseTimes = times.split(",");
+    }
+  }
 
-	/**
-	 *
-	 */
-	public Job(){
-		//default
-	}
-	/**
-	 *
-	 */
-	public void getReady() {
-		if(this.runInterval > 0 && this.nbrDedicatedThreads > 0){
-			throw new ApplicationError("Job " + this.name + " has set both runInterval and nbrDedicatedThreads. You shoudl specify one of them : either to run as batch every so often, or as a background job");
-		}
-		if(this.runInterval == 0 && this.nbrDedicatedThreads == 0){
-			Tracer.trace("Job " + this.name + " will be run once");
-			this.nbrDedicatedThreads = 1;
-		}
-		if(this.userId != null){
-			if(Application.userIdIsNumeric()){
-				try{
-					this.userIdValue = Value.newIntegerValue(Long.parseLong(this.userId));
-				}catch(Exception e){
-					throw new ApplicationError("Job " + this.name + " has a wrong numeric value of " + this.userId + " as user id");
-				}
-			}else{
-				this.userIdValue = Value.newTextValue(this.userId);
-			}
-		}
-		if(this.inputFields != null){
-			for(InputField field : this.inputFields){
-				field.getReady();
-			}
-		}
-		if(this.runAtTheseTimes != null){
-			this.timesOfDay = this.getTimes(this.runAtTheseTimes);
-		}
-	}
+  /** */
+  public Job() {
+    //default
+  }
+  /** */
+  public void getReady() {
+    if (this.runInterval > 0 && this.nbrDedicatedThreads > 0) {
+      throw new ApplicationError(
+          "Job "
+              + this.name
+              + " has set both runInterval and nbrDedicatedThreads. You shoudl specify one of them : either to run as batch every so often, or as a background job");
+    }
+    if (this.runInterval == 0 && this.nbrDedicatedThreads == 0) {
 
-	/**
-	 * @param uid
-	 * @return instance of a scheduled job
-	 */
-	public ScheduledJob createScheduledJob(Value uid) {
-		Value val = this.userIdValue;
-		if(val == null){
-			val = uid;
-		}
-		if(this.timesOfDay != null){
-			return new PeriodicJob(this, val, this.timesOfDay);
-		}
-		if(this.runInterval > 0){
-			return new IntervalJob(this, val);
-		}
-		return new ListenerJob(this, val);
-	}
+      logger.log(Level.INFO, "Job " + this.name + " will be run once");
+      Tracer.trace("Job " + this.name + " will be run once");
+      this.nbrDedicatedThreads = 1;
+    }
+    if (this.userId != null) {
+      if (Application.userIdIsNumeric()) {
+        try {
+          this.userIdValue = Value.newIntegerValue(Long.parseLong(this.userId));
+        } catch (Exception e) {
+          throw new ApplicationError(
+              "Job " + this.name + " has a wrong numeric value of " + this.userId + " as user id");
+        }
+      } else {
+        this.userIdValue = Value.newTextValue(this.userId);
+      }
+    }
+    if (this.inputFields != null) {
+      for (InputField field : this.inputFields) {
+        field.getReady();
+      }
+    }
+    if (this.runAtTheseTimes != null) {
+      this.timesOfDay = this.getTimes(this.runAtTheseTimes);
+    }
+  }
 
-	/**
-	 *
-	 * @param uid
-	 * @return a running job
-	 */
-	public RunningJob createRunningJob(Value uid){
-		Value val = this.userIdValue;
-		if(val == null){
-			val = uid;
-		}
-		ServiceInterface service = ComponentManager.getService(this.serviceName);
-		ServiceData inData = new ServiceData(val, this.serviceName);
-		if(this.inputJson != null){
-			inData.setPayLoad(this.inputJson);
-		}
-		if(this.inputFields != null){
-			for(InputField field : this.inputFields){
-				field.setInputValue(inData);
-			}
-		}
-		return new RunningJob(service, inData);
-	}
+  /**
+   * @param uid
+   * @return instance of a scheduled job
+   */
+  public ScheduledJob createScheduledJob(Value uid) {
+    Value val = this.userIdValue;
+    if (val == null) {
+      val = uid;
+    }
+    if (this.timesOfDay != null) {
+      return new PeriodicJob(this, val, this.timesOfDay);
+    }
+    if (this.runInterval > 0) {
+      return new IntervalJob(this, val);
+    }
+    return new ListenerJob(this, val);
+  }
 
-	private int[] getTimes(String[] texts){
+  /**
+   * @param uid
+   * @return a running job
+   */
+  public RunningJob createRunningJob(Value uid) {
+    Value val = this.userIdValue;
+    if (val == null) {
+      val = uid;
+    }
+    ServiceInterface service = ComponentManager.getService(this.serviceName);
+    ServiceData inData = new ServiceData(val, this.serviceName);
+    if (this.inputJson != null) {
+      inData.setPayLoad(this.inputJson);
+    }
+    if (this.inputFields != null) {
+      for (InputField field : this.inputFields) {
+        field.setInputValue(inData);
+      }
+    }
+    return new RunningJob(service, inData);
+  }
 
-		int times[] = new int[texts.length];
-		for(int i = 0; i < texts.length; i++){
-			String[] pair = texts[i].split(":");
-			if(pair.length != 2){
-				this.wrongOne(i);
-			}
-			try{
-				int hh = Integer.parseInt(pair[0].trim(), 10);
-				int mm = Integer.parseInt(pair[1].trim(), 10);
-				if(hh < 0 || mm < 0 || hh > 23 || mm > 59){
-					this.wrongOne(i);
-				}
-				times[i] = hh * 60 + mm;
-			}catch(Exception e){
-				this.wrongOne(i);
-			}
-		}
-		Arrays.sort(times);
-		return times;
-	}
+  private int[] getTimes(String[] texts) {
 
-	private void wrongOne(int i){
-		throw new ApplicationError("Job " + this.name + " has an invalied time-of-day " + this.runAtTheseTimes[i] + ". hh:mm, hh:mm,..  format is expected.");
-	}
-	/**
-	 * @param vtx
-	 * @return number of errors
-	 */
-	int validate(ValidationContext vtx) {
-		int count = 0;
-		count += vtx.checkMandatoryField("name", this.name);
-		count += vtx.checkMandatoryField("serviceName", this.serviceName);
-		if(this.runInterval == 0 && this.nbrDedicatedThreads == 0 && this.runAtTheseTimes == null){
-			vtx.reportUnusualSetting("Job " + this.name + " has not specified any attributes for running. Assumed nbrDedicatedThread=1");
-		}
-		if(this.runAtTheseTimes != null){
-			if(this.runInterval > 0){
-				vtx.reportUnusualSetting("Job " + this.name + " has specified runAtTheseTimes, and hence runInterval=" + this.runInterval + " ignored.");
-			}
-			if(this.nbrDedicatedThreads > 0){
-				vtx.reportUnusualSetting("Job " + this.name + " has specified runAtTheseTimes, and hence nbrDedicatedThreads=" + this.nbrDedicatedThreads + " ignored");
-			}
-		}else if(this.runInterval > 0 && this.nbrDedicatedThreads > 0){
-			vtx.reportUnusualSetting("Job " + this.name + " has specified nbrDedicatedThreads, and hence runInterval=" + this.runInterval + " ignored");
-		}
-		return count;
-	}
+    int times[] = new int[texts.length];
+    for (int i = 0; i < texts.length; i++) {
+      String[] pair = texts[i].split(":");
+      if (pair.length != 2) {
+        this.wrongOne(i);
+      }
+      try {
+        int hh = Integer.parseInt(pair[0].trim(), 10);
+        int mm = Integer.parseInt(pair[1].trim(), 10);
+        if (hh < 0 || mm < 0 || hh > 23 || mm > 59) {
+          this.wrongOne(i);
+        }
+        times[i] = hh * 60 + mm;
+      } catch (Exception e) {
+        this.wrongOne(i);
+      }
+    }
+    Arrays.sort(times);
+    return times;
+  }
+
+  private void wrongOne(int i) {
+    throw new ApplicationError(
+        "Job "
+            + this.name
+            + " has an invalied time-of-day "
+            + this.runAtTheseTimes[i]
+            + ". hh:mm, hh:mm,..  format is expected.");
+  }
+  /**
+   * @param vtx
+   * @return number of errors
+   */
+  int validate(ValidationContext vtx) {
+    int count = 0;
+    count += vtx.checkMandatoryField("name", this.name);
+    count += vtx.checkMandatoryField("serviceName", this.serviceName);
+    if (this.runInterval == 0 && this.nbrDedicatedThreads == 0 && this.runAtTheseTimes == null) {
+      vtx.reportUnusualSetting(
+          "Job "
+              + this.name
+              + " has not specified any attributes for running. Assumed nbrDedicatedThread=1");
+    }
+    if (this.runAtTheseTimes != null) {
+      if (this.runInterval > 0) {
+        vtx.reportUnusualSetting(
+            "Job "
+                + this.name
+                + " has specified runAtTheseTimes, and hence runInterval="
+                + this.runInterval
+                + " ignored.");
+      }
+      if (this.nbrDedicatedThreads > 0) {
+        vtx.reportUnusualSetting(
+            "Job "
+                + this.name
+                + " has specified runAtTheseTimes, and hence nbrDedicatedThreads="
+                + this.nbrDedicatedThreads
+                + " ignored");
+      }
+    } else if (this.runInterval > 0 && this.nbrDedicatedThreads > 0) {
+      vtx.reportUnusualSetting(
+          "Job "
+              + this.name
+              + " has specified nbrDedicatedThreads, and hence runInterval="
+              + this.runInterval
+              + " ignored");
+    }
+    return count;
+  }
 }

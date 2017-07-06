@@ -22,6 +22,9 @@
 
 package org.simplity.job;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -32,115 +35,121 @@ import org.simplity.kernel.value.Value;
  * Wrapper on a job when it is scheduled
  *
  * @author simplity.org
- *
  */
 public abstract class ScheduledJob {
-	/**
-	 * due at value to denote that this job will nt submit again
-	 */
-	public static final int NEVER = -1;
+  static final Logger logger = Logger.getLogger(ScheduledJob.class.getName());
 
-	protected final Job scheduledJob;
-	protected boolean isScheduled;
-	protected Value userId;
-	ScheduledJob(Job job, Value uid) {
-		this.scheduledJob = job;
-		this.userId = uid;
-	}
+  /** due at value to denote that this job will nt submit again */
+  public static final int NEVER = -1;
 
-	/**
-	 * schedule running jobs using the executor
-	 *
-	 * @param executor
-	 * @return true if this needs polling. false if executor can manage its
-	 *         scheduling
-	 */
-	public boolean schedule(ScheduledExecutorService executor) {
-		if (this.isScheduled) {
-			Tracer.trace(this.scheduledJob.name + " is already scheduled");
-			return false;
-		}
-		this.isScheduled = true;
-		return this.scheduleJobs(executor);
-	}
+  protected final Job scheduledJob;
+  protected boolean isScheduled;
+  protected Value userId;
 
-	abstract boolean scheduleJobs(ScheduledExecutorService executor);
-	/**
-	 * cancel this job
-	 */
-	abstract void cancel();
+  ScheduledJob(Job job, Value uid) {
+    this.scheduledJob = job;
+    this.userId = uid;
+  }
 
-	/**
-	 * add another thread to this job. ignored if this is a batch job, or if
-	 * there is only one thread at this time
-	 *
-	 * @param executor
-	 */
-	public void incrmentThread(ScheduledExecutorService executor) {
-		this.noChange();
-	}
+  /**
+   * schedule running jobs using the executor
+   *
+   * @param executor
+   * @return true if this needs polling. false if executor can manage its scheduling
+   */
+  public boolean schedule(ScheduledExecutorService executor) {
+    if (this.isScheduled) {
 
-	/**
-	 * reduce a thread from this job. ignored if this is a batch job, or if
-	 * there is only one thread at this time
-	 *
-	 * @param executor
-	 */
-	public void decrmentThread(ScheduledExecutorService executor) {
-		this.noChange();
-	}
+      logger.log(Level.INFO, this.scheduledJob.name + " is already scheduled");
+      Tracer.trace(this.scheduledJob.name + " is already scheduled");
+      return false;
+    }
+    this.isScheduled = true;
+    return this.scheduleJobs(executor);
+  }
 
-	private void noChange() {
-		Tracer.trace("Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
-	}
+  abstract boolean scheduleJobs(ScheduledExecutorService executor);
+  /** cancel this job */
+  abstract void cancel();
 
-	/**
-	 * add status of running jobs into the list
-	 *
-	 * @param infoList
-	 */
-	public void putStatus(List<RunningJobInfo> infoList) {
-		JobStatus sts = null;
-		if(this.isScheduled == false){
-			sts = JobStatus.CANCELLED;
-		}
-		 this.putJobStatusStub(sts, infoList);
-	}
+  /**
+   * add another thread to this job. ignored if this is a batch job, or if there is only one thread
+   * at this time
+   *
+   * @param executor
+   */
+  public void incrmentThread(ScheduledExecutorService executor) {
+    this.noChange();
+  }
 
-	/**
-	 * @param sts
-	 * @param infoList
-	 */
-	protected abstract void putJobStatusStub(JobStatus sts, List<RunningJobInfo> infoList);
+  /**
+   * reduce a thread from this job. ignored if this is a batch job, or if there is only one thread
+   * at this time
+   *
+   * @param executor
+   */
+  public void decrmentThread(ScheduledExecutorService executor) {
+    this.noChange();
+  }
 
-	/**
-	 * @param sts
-	 * @param runningJob2
-	 * @param infoList
-	 */
-	protected void putJobStatus(JobStatus sts, RunningJob rj, List<RunningJobInfo> infoList, int seq) {
-		JobStatus status = sts;
-		String serviceStatus = "unknown";
-		if(rj != null){
-			if(sts == null){
-				status = rj.getJobStatus();
-			}
-			serviceStatus =  rj.getServiceStatus();
-		}
-		RunningJobInfo info = new RunningJobInfo(this.scheduledJob.name, this.scheduledJob.serviceName, status, seq, serviceStatus);
-		infoList.add(info);
-	}
+  private void noChange() {
 
-	/**
-	 * poll wake-up for the scheduled job to check whether it should submit
-	 * returned value is the number of minutes remaining for this job. This can
-	 * be used by the caller to optimize polling, if at all required. Since we
-	 * are talking about minutes, blind polling itself should be fine
-	 *
-	 * @param referenceMinutes
-	 * @return number of minutes. NEVER to indicate that this job need not be
-	 */
-	public int poll(int referenceMinutes) {
-		return ScheduledJob.NEVER;
-	}
+    logger.log(
+        Level.INFO,
+        "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
+    Tracer.trace(
+        "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
+  }
+
+  /**
+   * add status of running jobs into the list
+   *
+   * @param infoList
+   */
+  public void putStatus(List<RunningJobInfo> infoList) {
+    JobStatus sts = null;
+    if (this.isScheduled == false) {
+      sts = JobStatus.CANCELLED;
+    }
+    this.putJobStatusStub(sts, infoList);
+  }
+
+  /**
+   * @param sts
+   * @param infoList
+   */
+  protected abstract void putJobStatusStub(JobStatus sts, List<RunningJobInfo> infoList);
+
+  /**
+   * @param sts
+   * @param runningJob2
+   * @param infoList
+   */
+  protected void putJobStatus(
+      JobStatus sts, RunningJob rj, List<RunningJobInfo> infoList, int seq) {
+    JobStatus status = sts;
+    String serviceStatus = "unknown";
+    if (rj != null) {
+      if (sts == null) {
+        status = rj.getJobStatus();
+      }
+      serviceStatus = rj.getServiceStatus();
+    }
+    RunningJobInfo info =
+        new RunningJobInfo(
+            this.scheduledJob.name, this.scheduledJob.serviceName, status, seq, serviceStatus);
+    infoList.add(info);
+  }
+
+  /**
+   * poll wake-up for the scheduled job to check whether it should submit returned value is the
+   * number of minutes remaining for this job. This can be used by the caller to optimize polling,
+   * if at all required. Since we are talking about minutes, blind polling itself should be fine
+   *
+   * @param referenceMinutes
+   * @return number of minutes. NEVER to indicate that this job need not be
+   */
+  public int poll(int referenceMinutes) {
+    return ScheduledJob.NEVER;
+  }
 }

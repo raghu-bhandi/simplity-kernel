@@ -21,6 +21,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
@@ -37,117 +40,134 @@ import org.simplity.service.ServiceContext;
  * execute a stored procedure
  *
  * @author simplity.org
- *
  */
 public class ExecuteSp extends DbAction {
+  static final Logger logger = Logger.getLogger(ExecuteSp.class.getName());
 
-	/**
-	 * qualified name
-	 */
-	String procedureName;
-	/**
-	 * sheet name for input data. Null implies that input, if any, would be from
-	 * fields collection of ctx
-	 */
-	String sheetNameForInputParameters;
+  /** qualified name */
+  String procedureName;
+  /**
+   * sheet name for input data. Null implies that input, if any, would be from fields collection of
+   * ctx
+   */
+  String sheetNameForInputParameters;
 
-	/**
-	 * output parameters from this SP may be extracted out to a sheet. Else, if
-	 * present, they will be extracted to fields collection of ctx
-	 */
-	String sheetNameForOutputParameters;
+  /**
+   * output parameters from this SP may be extracted out to a sheet. Else, if present, they will be
+   * extracted to fields collection of ctx
+   */
+  String sheetNameForOutputParameters;
 
-	/**
-	 * if this procedure has defined outputRecordNames, then you may specify the
-	 * sheet names. Default is to use definition from record.
-	 */
-	String[] outputSheetNames;
+  /**
+   * if this procedure has defined outputRecordNames, then you may specify the sheet names. Default
+   * is to use definition from record.
+   */
+  String[] outputSheetNames;
 
-	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		FieldsInterface inSheet = ctx;
-		FieldsInterface outSheet = ctx;
+  @Override
+  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+    FieldsInterface inSheet = ctx;
+    FieldsInterface outSheet = ctx;
 
-		if (this.sheetNameForInputParameters != null) {
-			inSheet = ctx.getDataSheet(this.sheetNameForInputParameters);
-			if (inSheet == null) {
-				throw new ApplicationError("Store Procedure Action "
-						+ this.actionName + " requires data sheet "
-						+ this.sheetNameForInputParameters
-						+ " for its input parameters.");
-			}
-		}
+    if (this.sheetNameForInputParameters != null) {
+      inSheet = ctx.getDataSheet(this.sheetNameForInputParameters);
+      if (inSheet == null) {
+        throw new ApplicationError(
+            "Store Procedure Action "
+                + this.actionName
+                + " requires data sheet "
+                + this.sheetNameForInputParameters
+                + " for its input parameters.");
+      }
+    }
 
-		if (this.sheetNameForOutputParameters != null) {
-			outSheet = ctx.getDataSheet(this.sheetNameForOutputParameters);
-			if (outSheet == null) {
-				throw new ApplicationError("Store Procedure Action "
-						+ this.actionName + " requires data sheet "
-						+ this.sheetNameForOutputParameters
-						+ " for its output parameters.");
-			}
-		}
+    if (this.sheetNameForOutputParameters != null) {
+      outSheet = ctx.getDataSheet(this.sheetNameForOutputParameters);
+      if (outSheet == null) {
+        throw new ApplicationError(
+            "Store Procedure Action "
+                + this.actionName
+                + " requires data sheet "
+                + this.sheetNameForOutputParameters
+                + " for its output parameters.");
+      }
+    }
 
-		StoredProcedure sp = ComponentManager
-				.getStoredProcedure(this.procedureName);
-		DataSheet[] outSheets = sp.execute(inSheet, outSheet, driver, ctx);
-		if (outSheets == null) {
-			Tracer.trace("Stored procedure " + this.actionName
-					+ " execution completed with no sheets.");
-			return 1;
-		}
+    StoredProcedure sp = ComponentManager.getStoredProcedure(this.procedureName);
+    DataSheet[] outSheets = sp.execute(inSheet, outSheet, driver, ctx);
+    if (outSheets == null) {
 
-		int nbrOutSheets = outSheets.length;
-		Tracer.trace("Stored procedure action " + this.actionName
-				+ " returned " + nbrOutSheets + " sheets of data");
-		String[] names = null;
-		if (this.outputSheetNames != null) {
-			if (this.outputSheetNames.length != nbrOutSheets) {
-				throw new ApplicationError("Store Procedure Action "
-						+ this.actionName + " uses stored procedure "
-						+ this.procedureName + " with "
-						+ this.outputSheetNames.length
-						+ " output sheets, but the stored procedure requires "
-						+ nbrOutSheets);
-			}
-			names = this.outputSheetNames;
-		} else {
-			names = sp.getDefaultSheetNames();
-		}
-		for (int i = 0; i < nbrOutSheets; i++) {
-			ctx.putDataSheet(names[i], outSheets[i]);
-		}
-		return nbrOutSheets;
-	}
+      logger.log(
+          Level.INFO,
+          "Stored procedure " + this.actionName + " execution completed with no sheets.");
+      Tracer.trace("Stored procedure " + this.actionName + " execution completed with no sheets.");
+      return 1;
+    }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_WRITE;
-	}
+    int nbrOutSheets = outSheets.length;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if (this.procedureName == null) {
-			ctx.addError("Procedure name is required for ExecuteSp action");
-			count++;
-		}
-		StoredProcedure proc = ComponentManager
-				.getStoredProcedureOrNull(this.procedureName);
-		if (proc == null) {
-			ctx.addError("Stored Procedure " + this.procedureName
-					+ " is not defined");
-			count++;
-		}
-		ctx.addReference(ComponentType.SP, this.procedureName);
+    logger.log(
+        Level.INFO,
+        "Stored procedure action "
+            + this.actionName
+            + " returned "
+            + nbrOutSheets
+            + " sheets of data");
+    Tracer.trace(
+        "Stored procedure action "
+            + this.actionName
+            + " returned "
+            + nbrOutSheets
+            + " sheets of data");
+    String[] names = null;
+    if (this.outputSheetNames != null) {
+      if (this.outputSheetNames.length != nbrOutSheets) {
+        throw new ApplicationError(
+            "Store Procedure Action "
+                + this.actionName
+                + " uses stored procedure "
+                + this.procedureName
+                + " with "
+                + this.outputSheetNames.length
+                + " output sheets, but the stored procedure requires "
+                + nbrOutSheets);
+      }
+      names = this.outputSheetNames;
+    } else {
+      names = sp.getDefaultSheetNames();
+    }
+    for (int i = 0; i < nbrOutSheets; i++) {
+      ctx.putDataSheet(names[i], outSheets[i]);
+    }
+    return nbrOutSheets;
+  }
 
-		return count;
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_WRITE;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if (this.procedureName == null) {
+      ctx.addError("Procedure name is required for ExecuteSp action");
+      count++;
+    }
+    StoredProcedure proc = ComponentManager.getStoredProcedureOrNull(this.procedureName);
+    if (proc == null) {
+      ctx.addError("Stored Procedure " + this.procedureName + " is not defined");
+      count++;
+    }
+    ctx.addReference(ComponentType.SP, this.procedureName);
+
+    return count;
+  }
 }

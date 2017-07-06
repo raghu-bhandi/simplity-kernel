@@ -26,37 +26,35 @@ package org.simplity.aggr;
  * sum of a column
  *
  * @author simplity.org
- *
  */
 public class Sum extends MathAggregator {
 
-	/**
-	 * @param inputName input name
-	 * @param outputName output name
-	 * @param outputIsDecimal true or false
-	 */
-	public Sum(String inputName, String outputName, boolean outputIsDecimal) {
-		super(inputName, outputName, outputIsDecimal);
-	}
+  /**
+   * @param inputName input name
+   * @param outputName output name
+   * @param outputIsDecimal true or false
+   */
+  public Sum(String inputName, String outputName, boolean outputIsDecimal) {
+    super(inputName, outputName, outputIsDecimal);
+  }
 
-	@Override
-	protected void accumulateInteger(long value) {
-		this.accumulatedValue += value;
+  @Override
+  protected void accumulateInteger(long value) {
+    this.accumulatedValue += value;
+  }
 
-	}
+  @Override
+  protected void accumulateDecimal(double value) {
+    this.accumulatedValue += value;
+  }
 
-	@Override
-	protected void accumulateDecimal(double value) {
-		this.accumulatedValue += value;
-	}
+  @Override
+  protected double getDecimalResult() {
+    return this.accumulatedValue;
+  }
 
-	@Override
-	protected double getDecimalResult() {
-		return this.accumulatedValue;
-	}
-
-	@Override
-	protected long getIntegerResult() {
-		return Math.round(this.accumulatedValue);
-	}
+  @Override
+  protected long getIntegerResult() {
+    return Math.round(this.accumulatedValue);
+  }
 }

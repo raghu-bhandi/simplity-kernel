@@ -21,6 +21,9 @@
  */
 package org.simplity.kernel.data;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.List;
 import java.util.Map;
 
@@ -29,102 +32,108 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 
 /**
- * represents a data sheet that is organized as a child of another sheet. Used
- * for outputting merged hierarchical data
+ * represents a data sheet that is organized as a child of another sheet. Used for outputting merged
+ * hierarchical data
  *
  * @author simplity.org
- *
  */
 public class HierarchicalSheet {
-	private final String name;
-	private final String[] fieldNames;
-	private final Map<String, List<Value[]>> data;
-	private final HierarchicalSheet[] children;
-	private final int parentKeyIdx;
-	/**
-	 * non-null if special case of combined keys
-	 */
-	private final int[] parentIndexes;
+  static final Logger logger = Logger.getLogger(HierarchicalSheet.class.getName());
 
-	/**
-	 * create a Hierarchical sheet that is immutable
-	 * @param name
-	 * @param fieldNames
-	 * @param data
-	 * @param children
-	 * @param idx
-	 * @param indexes
-	 */
-	public HierarchicalSheet(String name, String[] fieldNames, Map<String, List<Value[]>> data,
-			HierarchicalSheet[] children, int idx, int[] indexes) {
-		this.name = name;
-		this.fieldNames = fieldNames;
-		this.data = data;
-		this.children = children;
-		this.parentIndexes = indexes;
-		if(indexes == null){
-			this.parentKeyIdx = idx;
-		}else{
-			//not relevant
-			this.parentKeyIdx = -1;
+  private final String name;
+  private final String[] fieldNames;
+  private final Map<String, List<Value[]>> data;
+  private final HierarchicalSheet[] children;
+  private final int parentKeyIdx;
+  /** non-null if special case of combined keys */
+  private final int[] parentIndexes;
 
-		}
-	}
+  /**
+   * create a Hierarchical sheet that is immutable
+   *
+   * @param name
+   * @param fieldNames
+   * @param data
+   * @param children
+   * @param idx
+   * @param indexes
+   */
+  public HierarchicalSheet(
+      String name,
+      String[] fieldNames,
+      Map<String, List<Value[]>> data,
+      HierarchicalSheet[] children,
+      int idx,
+      int[] indexes) {
+    this.name = name;
+    this.fieldNames = fieldNames;
+    this.data = data;
+    this.children = children;
+    this.parentIndexes = indexes;
+    if (indexes == null) {
+      this.parentKeyIdx = idx;
+    } else {
+      //not relevant
+      this.parentKeyIdx = -1;
+    }
+  }
 
-	/**
-	 * write out rows from this sheet for the given parent row. This includes a
-	 * recursive writing of rows from children
-	 *
-	 * @param writer
-	 * @param parentRow
-	 */
-	public void toJson(JSONWriter writer, Value[] parentRow) {
-		String key;
-		if(this.parentIndexes == null){
-			key = parentRow[this.parentKeyIdx].toString();
-		}else{
-			key = getKey(parentRow, this.parentIndexes);
-		}
-		List<Value[]> rows = this.data.get(key);
-		if (rows == null) {
-			Tracer.trace("No rows found in child sheet " + this.name + " for parent key " + key);
-			return;
-		}
-		writer.key(this.name);
-		writer.array();
-		for (Value[] row : rows) {
-			writer.object();
-			int i = 0;
-			for (String fieldName : this.fieldNames) {
-				Value value = row[i];
-				if (value != null) {
-					writer.key(fieldName).value(value.toObject());
-				}
-				i++;
-			}
-			/*
-			 * do we have children?
-			 */
-			if (this.children != null) {
-				for (HierarchicalSheet child : this.children) {
-					child.toJson(writer, row);
-				}
-			}
-			writer.endObject();
-		}
-		writer.endArray();
-	}
-	/**
-	 *
-	 * @param values
-	 * @param indexes
-	 * @return string that combines all values
-	 */
-	public static String getKey(Value[] values, int[]indexes){
-		StringBuilder sbf = new StringBuilder();
-		for(int idx : indexes){
-			sbf.append(values[idx]).append('_');
-		}
-		return sbf.toString();
-	}
+  /**
+   * write out rows from this sheet for the given parent row. This includes a recursive writing of
+   * rows from children
+   *
+   * @param writer
+   * @param parentRow
+   */
+  public void toJson(JSONWriter writer, Value[] parentRow) {
+    String key;
+    if (this.parentIndexes == null) {
+      key = parentRow[this.parentKeyIdx].toString();
+    } else {
+      key = getKey(parentRow, this.parentIndexes);
+    }
+    List<Value[]> rows = this.data.get(key);
+    if (rows == null) {
+
+      logger.log(
+          Level.INFO, "No rows found in child sheet " + this.name + " for parent key " + key);
+      Tracer.trace("No rows found in child sheet " + this.name + " for parent key " + key);
+      return;
+    }
+    writer.key(this.name);
+    writer.array();
+    for (Value[] row : rows) {
+      writer.object();
+      int i = 0;
+      for (String fieldName : this.fieldNames) {
+        Value value = row[i];
+        if (value != null) {
+          writer.key(fieldName).value(value.toObject());
+        }
+        i++;
+      }
+      /*
+       * do we have children?
+       */
+      if (this.children != null) {
+        for (HierarchicalSheet child : this.children) {
+          child.toJson(writer, row);
+        }
+      }
+      writer.endObject();
+    }
+    writer.endArray();
+  }
+  /**
+   * @param values
+   * @param indexes
+   * @return string that combines all values
+   */
+  public static String getKey(Value[] values, int[] indexes) {
+    StringBuilder sbf = new StringBuilder();
+    for (int idx : indexes) {
+      sbf.append(values[idx]).append('_');
+    }
+    return sbf.toString();
+  }
 }

@@ -30,74 +30,65 @@ import java.sql.Types;
  * represents a value that has string/text value
  *
  * @author simplity.org
- *
  */
 public class TextValue extends Value {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
-	protected final String value;
+  /** */
+  private static final long serialVersionUID = 1L;
 
-	/**
-	 *
-	 * @param textValue
-	 *            empty string is not null.
-	 */
-	protected TextValue(String textValue) {
-		if (textValue == null) {
-			this.valueIsNull = true;
-		}
-		this.value = textValue;
-	}
+  protected final String value;
 
-	/**
-	 * create a TextValue with null as its value
-	 */
-	protected TextValue() {
-		this.valueIsNull = true;
-		this.value = null;
-	}
+  /** @param textValue empty string is not null. */
+  protected TextValue(String textValue) {
+    if (textValue == null) {
+      this.valueIsNull = true;
+    }
+    this.value = textValue;
+  }
 
-	@Override
-	public ValueType getValueType() {
-		return ValueType.TEXT;
-	}
+  /** create a TextValue with null as its value */
+  protected TextValue() {
+    this.valueIsNull = true;
+    this.value = null;
+  }
 
-	@Override
-	protected void format() {
-		this.textValue = this.value;
-	}
+  @Override
+  public ValueType getValueType() {
+    return ValueType.TEXT;
+  }
 
-	@Override
-	protected boolean equalValue(Value otherValue) {
-		return this.value.equalsIgnoreCase(otherValue.toString());
-	}
+  @Override
+  protected void format() {
+    this.textValue = this.value;
+  }
 
-	@Override
-	public void setToStatement(PreparedStatement statement, int idx)
-			throws SQLException {
-		if (this.isUnknown()) {
-			statement.setNull(idx, Types.NVARCHAR);
-		} else {
-			statement.setString(idx, this.value);
-		}
-	}
+  @Override
+  protected boolean equalValue(Value otherValue) {
+    return this.value.equalsIgnoreCase(otherValue.toString());
+  }
 
-	@Override
-	public Object getObject() {
-		return this.value;
-	}
+  @Override
+  public void setToStatement(PreparedStatement statement, int idx) throws SQLException {
+    if (this.isUnknown()) {
+      statement.setNull(idx, Types.NVARCHAR);
+    } else {
+      statement.setString(idx, this.value);
+    }
+  }
 
-	@Override
-	public  String[] toArray(Value[] values) {
-		int n = values.length;
-		String[] arr = new String[n];
-		for (int i = 0; i < n; i++) {
-			TextValue val = (TextValue) values[i];
-			arr[i] = val.value;
-		}
-		return arr;
-	}
+  @Override
+  public Object getObject() {
+    return this.value;
+  }
+
+  @Override
+  public String[] toArray(Value[] values) {
+    int n = values.length;
+    String[] arr = new String[n];
+    for (int i = 0; i < n; i++) {
+      TextValue val = (TextValue) values[i];
+      arr[i] = val.value;
+    }
+    return arr;
+  }
 }

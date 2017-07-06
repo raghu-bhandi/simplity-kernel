@@ -28,19 +28,16 @@ import org.simplity.kernel.value.Value;
  * Functionality for an object to be called back for each row from db
  *
  * @author simplity.org
- *
  */
 public interface DbRowProcessor {
 
-	/**
-	 * A row has been extracted from db. Process it.
-	 *
-	 * @param outputNames
-	 * @param values
-	 * @return true if all OK, and the process should continue; false means we
-	 *         are not interested in any more rows, and teh driver can stop
-	 *         processing any remaining rows
-	 */
-	public boolean callBackOnDbRow(String[] outputNames, Value[] values);
-
+  /**
+   * A row has been extracted from db. Process it.
+   *
+   * @param outputNames
+   * @param values
+   * @return true if all OK, and the process should continue; false means we are not interested in
+   *     any more rows, and teh driver can stop processing any remaining rows
+   */
+  public boolean callBackOnDbRow(String[] outputNames, Value[] values);
 }

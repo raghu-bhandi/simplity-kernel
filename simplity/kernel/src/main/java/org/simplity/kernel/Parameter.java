@@ -26,37 +26,28 @@ import org.simplity.kernel.value.ValueType;
 
 /**
  * parameter has name, value-type
- * 
- * @author simplity.org
  *
+ * @author simplity.org
  */
 public class Parameter {
-	/**
-	 * name of this parameter
-	 */
-	String name;
-	/**
-	 * value type
-	 */
-	ValueType valueType;
+  /** name of this parameter */
+  String name;
+  /** value type */
+  ValueType valueType;
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return this.name;
-	}
+  /** @return the name */
+  public String getName() {
+    return this.name;
+  }
 
-	/**
-	 * parse a text value
-	 * 
-	 * @param value
-	 *            text value to be parsed
-	 * @return parsed value.
-	 * @throws ApplicationError
-	 *             in case the value is not the right type
-	 */
-	public Value parseValue(String value) {
-		return Value.parseValue(value, this.valueType);
-	}
+  /**
+   * parse a text value
+   *
+   * @param value text value to be parsed
+   * @return parsed value.
+   * @throws ApplicationError in case the value is not the right type
+   */
+  public Value parseValue(String value) {
+    return Value.parseValue(value, this.valueType);
+  }
 }

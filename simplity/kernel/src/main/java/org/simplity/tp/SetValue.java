@@ -22,6 +22,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.db.DbAccessType;
@@ -34,87 +37,85 @@ import org.simplity.service.ServiceContext;
 /**
  * simply set value for a field
  *
- *
  * @author simplity.org
- *
  */
 public class SetValue extends Action {
+  static final Logger logger = Logger.getLogger(SetValue.class.getName());
 
-	/**
-	 * field name
-	 */
-	String fieldName;
+  /** field name */
+  String fieldName;
 
-	/**
-	 * value, if it is known at design time, or a single field, like 23 or
-	 * $customerName
-	 */
-	String fieldValue;
-	/**
-	 * if value is more complex..
-	 */
-	Expression expression;
+  /** value, if it is known at design time, or a single field, like 23 or $customerName */
+  String fieldValue;
+  /** if value is more complex.. */
+  Expression expression;
 
-	/*
-	 * parsed and cached value
-	 */
-	private Value parsedValue;
-	/*
-	 * if fieldValue is a field, then we keep that parsed name
-	 */
-	private String parsedField;
+  /*
+   * parsed and cached value
+   */
+  private Value parsedValue;
+  /*
+   * if fieldValue is a field, then we keep that parsed name
+   */
+  private String parsedField;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		Value value = null;
-		if (this.parsedValue != null) {
-			value = this.parsedValue;
-		} else if (this.parsedField != null) {
-			value = ctx.getValue(this.parsedField);
-		} else if (this.expression != null) {
-			try {
-				value = this.expression.evaluate(ctx);
-			} catch (InvalidOperationException e) {
-				throw new ApplicationError("Expression = "
-						+ this.expression.toString()
-						+ "\n error while evaluating : " + e.getMessage());
-			}
-		} else {
-			Tracer.trace("Field " + this.fieldName + " is removed from context");
-		}
-		ctx.setValue(this.fieldName, value);
-		return value;
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    Value value = null;
+    if (this.parsedValue != null) {
+      value = this.parsedValue;
+    } else if (this.parsedField != null) {
+      value = ctx.getValue(this.parsedField);
+    } else if (this.expression != null) {
+      try {
+        value = this.expression.evaluate(ctx);
+      } catch (InvalidOperationException e) {
+        throw new ApplicationError(
+            "Expression = "
+                + this.expression.toString()
+                + "\n error while evaluating : "
+                + e.getMessage());
+      }
+    } else {
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.NONE;
-	}
+      logger.log(Level.INFO, "Field " + this.fieldName + " is removed from context");
+      Tracer.trace("Field " + this.fieldName + " is removed from context");
+    }
+    ctx.setValue(this.fieldName, value);
+    return value;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.Action#getReady()
-	 */
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		if (this.fieldValue != null) {
-			if (this.expression != null) {
-				throw new ApplicationError(
-						"SetValue action '"
-								+ this.actionName
-								+ "' has confused me by specifying both expression and fieldValue. Only one of this should be specified ");
-			}
-			this.parsedField = TextUtil.getFieldName(this.fieldValue);
-			if (this.parsedField == null) {
-				this.parsedValue = Value.parseValue(this.fieldValue);
-				if (this.parsedValue == null) {
-					throw new ApplicationError("SetValue action "
-							+ this.actionName + " has an invalid fieldValue="
-							+ this.fieldValue);
-				}
-			}
-		}
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.NONE;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.tp.Action#getReady()
+   */
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    if (this.fieldValue != null) {
+      if (this.expression != null) {
+        throw new ApplicationError(
+            "SetValue action '"
+                + this.actionName
+                + "' has confused me by specifying both expression and fieldValue. Only one of this should be specified ");
+      }
+      this.parsedField = TextUtil.getFieldName(this.fieldValue);
+      if (this.parsedField == null) {
+        this.parsedValue = Value.parseValue(this.fieldValue);
+        if (this.parsedValue == null) {
+          throw new ApplicationError(
+              "SetValue action "
+                  + this.actionName
+                  + " has an invalid fieldValue="
+                  + this.fieldValue);
+        }
+      }
+    }
+  }
 }

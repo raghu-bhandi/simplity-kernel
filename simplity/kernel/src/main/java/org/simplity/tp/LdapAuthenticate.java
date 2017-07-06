@@ -34,75 +34,74 @@ import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class LdapAuthenticate extends Action {
-	private DirContext ldapCtx;
+  private DirContext ldapCtx;
 
-	String principal;
-	String credentials;
+  String principal;
+  String credentials;
 
-	private String parsedPrincipal;
-	private String parsedCredentials;
+  private String parsedPrincipal;
+  private String parsedCredentials;
 
-	private Value parsedPrincipalValue;
-	private Value parsedCredentialsValue;
+  private Value parsedPrincipalValue;
+  private Value parsedCredentialsValue;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		if (this.parsedPrincipal != null) {
-			this.parsedPrincipalValue = ctx.getValue(this.parsedPrincipal);
-		} else {
-			this.parsedPrincipalValue = Value.newTextValue(this.principal);
-		}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    if (this.parsedPrincipal != null) {
+      this.parsedPrincipalValue = ctx.getValue(this.parsedPrincipal);
+    } else {
+      this.parsedPrincipalValue = Value.newTextValue(this.principal);
+    }
 
-		if (this.parsedCredentials != null) {
-			this.parsedCredentialsValue = ctx.getValue(this.parsedCredentials);
-		} else {
-			this.parsedCredentialsValue = Value.newTextValue(this.credentials);
-		}
+    if (this.parsedCredentials != null) {
+      this.parsedCredentialsValue = ctx.getValue(this.parsedCredentials);
+    } else {
+      this.parsedCredentialsValue = Value.newTextValue(this.credentials);
+    }
 
-		Hashtable<String, String> env = new Hashtable<String, String>(11);
-		DirContext ldapCtx = null;
-		try {
-			// Create initial context
-			ldapCtx = LdapProperties.getInitialDirContext(parsedPrincipalValue.toText(), parsedCredentialsValue.toText());
-			if (ldapCtx == null) {
-				ctx.addMessage("kernel.invalidLogin", "");
-				return Value.VALUE_FALSE;
-			}
-		} finally {
-			if (ldapCtx != null)
-				try {
-					ldapCtx.close();
-				} catch (NamingException e) {
-					e.printStackTrace();
-				}
-		}
-		ctx.setValue(ServiceProtocol.USER_ID, Value.newTextValue(parsedPrincipalValue.toText()));
-		return Value.VALUE_TRUE;
-	}
+    Hashtable<String, String> env = new Hashtable<String, String>(11);
+    DirContext ldapCtx = null;
+    try {
+      // Create initial context
+      ldapCtx =
+          LdapProperties.getInitialDirContext(
+              parsedPrincipalValue.toText(), parsedCredentialsValue.toText());
+      if (ldapCtx == null) {
+        ctx.addMessage("kernel.invalidLogin", "");
+        return Value.VALUE_FALSE;
+      }
+    } finally {
+      if (ldapCtx != null)
+        try {
+          ldapCtx.close();
+        } catch (NamingException e) {
+          e.printStackTrace();
+        }
+    }
+    ctx.setValue(ServiceProtocol.USER_ID, Value.newTextValue(parsedPrincipalValue.toText()));
+    return Value.VALUE_TRUE;
+  }
 
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		this.parsedPrincipal = TextUtil.getFieldName(this.principal);
-		this.parsedCredentials = TextUtil.getFieldName(this.credentials);
-	}
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    this.parsedPrincipal = TextUtil.getFieldName(this.principal);
+    this.parsedCredentials = TextUtil.getFieldName(this.credentials);
+  }
 
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if (this.principal == null) {
-			ctx.addError("principal is a required field");
-			count++;
-		}
-		if (this.credentials == null) {
-			ctx.addError("credentials is a required field");
-			count++;
-		}
-		return count;
-	}
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if (this.principal == null) {
+      ctx.addError("principal is a required field");
+      count++;
+    }
+    if (this.credentials == null) {
+      ctx.addError("credentials is a required field");
+      count++;
+    }
+    return count;
+  }
 }

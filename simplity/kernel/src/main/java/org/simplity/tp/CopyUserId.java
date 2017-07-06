@@ -28,26 +28,22 @@ import org.simplity.service.ServiceContext;
 /**
  * set the special value userId that has the logged-in user id.
  *
- *
  * @author simplity.org
- *
  */
 public class CopyUserId extends Action {
 
-	/**
-	 * field name to which user id is to be set to
-	 */
-	String fieldName;
+  /** field name to which user id is to be set to */
+  String fieldName;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		Value value = ctx.getUserId();
-		ctx.setValue(this.fieldName, value);
-		return value;
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    Value value = ctx.getUserId();
+    ctx.setValue(this.fieldName, value);
+    return value;
+  }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.NONE;
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.NONE;
+  }
 }

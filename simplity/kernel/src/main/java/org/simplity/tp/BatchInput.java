@@ -30,88 +30,72 @@ import javax.jms.JMSException;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.service.ServiceContext;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public interface BatchInput {
 
-	/**
-	 * gear up for write session. Resources may be acquired, s a closeShop() is
-	 * guaranteed after a call to openShop()
-	 *
-	 * @param ctx
-	 * @throws IOException
-	 * @throws JMSException
-	 */
-	public void openShop(ServiceContext ctx) throws IOException, JMSException;
+  /**
+   * gear up for write session. Resources may be acquired, s a closeShop() is guaranteed after a
+   * call to openShop()
+   *
+   * @param ctx
+   * @throws IOException
+   * @throws JMSException
+   */
+  public void openShop(ServiceContext ctx) throws IOException, JMSException;
 
-	/**
-	 * guaranteed call at the end of processing
-	 *
-	 * @param ctx
-	 */
-	public void closeShop(ServiceContext ctx);
+  /**
+   * guaranteed call at the end of processing
+   *
+   * @param ctx
+   */
+  public void closeShop(ServiceContext ctx);
 
-	/**
-	 * is this class designed to read possibly multiple rows for a given parent
-	 * row
-	 *
-	 * @return false if at most one row is read for a parent row. And there will
-	 *         be calls to read() and not to readForParent(); If true, user of
-	 *         this class initially calls getKeyValue() for a parent, and will
-	 *         invoke readForPrent();
-	 */
-	public boolean possiblyMultipleRowsPerParent();
+  /**
+   * is this class designed to read possibly multiple rows for a given parent row
+   *
+   * @return false if at most one row is read for a parent row. And there will be calls to read()
+   *     and not to readForParent(); If true, user of this class initially calls getKeyValue() for a
+   *     parent, and will invoke readForPrent();
+   */
+  public boolean possiblyMultipleRowsPerParent();
 
-	/**
-	 * read an input row.
-	 *
-	 * @param errors
-	 *            list to which any validation errors are added
-	 *
-	 * @param ctx
-	 * @return false means the row was not read. Either there is no row for the
-	 *         current parent, or EOF.
-	 * @throws InvalidRowException
-	 * @throws Exception
-	 */
-	public boolean inputARow(List<FormattedMessage> errors, ServiceContext ctx) throws Exception, InvalidRowException;
+  /**
+   * read an input row.
+   *
+   * @param errors list to which any validation errors are added
+   * @param ctx
+   * @return false means the row was not read. Either there is no row for the current parent, or
+   *     EOF.
+   * @throws InvalidRowException
+   * @throws Exception
+   */
+  public boolean inputARow(List<FormattedMessage> errors, ServiceContext ctx)
+      throws Exception, InvalidRowException;
 
-	/**
-	 * read an input row for the specified parent key. This key is fetched with
-	 * an earlier call to getParentKeyValue()
-	 *
-	 * @param parentKey
-	 * @param errors
-	 *            list to which any validation errors during input shuld be
-	 *            added
-	 *
-	 * @param ctx
-	 * @return false means the row was not read. Either there is no row for the
-	 *         current parent, or EOF.
-	 * @throws InvalidRowException
-	 * @throws Exception
-	 */
-	public boolean inputARow(List<FormattedMessage> errors, String parentKey, ServiceContext ctx)
-			throws Exception, InvalidRowException;
+  /**
+   * read an input row for the specified parent key. This key is fetched with an earlier call to
+   * getParentKeyValue()
+   *
+   * @param parentKey
+   * @param errors list to which any validation errors during input shuld be added
+   * @param ctx
+   * @return false means the row was not read. Either there is no row for the current parent, or
+   *     EOF.
+   * @throws InvalidRowException
+   * @throws Exception
+   */
+  public boolean inputARow(List<FormattedMessage> errors, String parentKey, ServiceContext ctx)
+      throws Exception, InvalidRowException;
 
-	/**
-	 * get parent key value as designed by this object.
-	 *
-	 * @param errors
-	 *            list to which any validation errors during input should be
-	 *            added
-	 *
-	 * @param ctx
-	 * @return String, possibly concatenated as values of individual key parent
-	 *         key fields.
-	 */
-	public String getParentKeyValue(List<FormattedMessage> errors, ServiceContext ctx);
+  /**
+   * get parent key value as designed by this object.
+   *
+   * @param errors list to which any validation errors during input should be added
+   * @param ctx
+   * @return String, possibly concatenated as values of individual key parent key fields.
+   */
+  public String getParentKeyValue(List<FormattedMessage> errors, ServiceContext ctx);
 
-	/**
-	 * @return actual name of input file, if relevant. null if there is no such
-	 *         file
-	 */
-	public String getFileName();
+  /** @return actual name of input file, if relevant. null if there is no such file */
+  public String getFileName();
 }

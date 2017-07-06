@@ -26,77 +26,71 @@ package org.simplity.test;
  * Data structure to hold all attributes of a test result
  *
  * @author simplity.org
- *
  */
 public class TestResult {
-	/**
-	 * service that we tested
-	 */
-	private final String serviceName;
-	/**
-	 * test case that we ran
-	 */
-	private final String testCaseName;
+  /** service that we tested */
+  private final String serviceName;
+  /** test case that we ran */
+  private final String testCaseName;
 
-	/**
-	 * number of milliseconds that the service took to respond back
-	 */
-	private final int millis;
+  /** number of milliseconds that the service took to respond back */
+  private final int millis;
 
-	/**
-	 * error message. null implies that the service succeeded
-	 */
-	private final String errorMessage;
+  /** error message. null implies that the service succeeded */
+  private final String errorMessage;
 
-	/**
-	 * header fields for the row of data toRow() would return
-	 */
-	public static final String[] HEADR = { "serviceName", "testCaseName",
-			"millis", "cleared", "errorMessage" };
+  /** header fields for the row of data toRow() would return */
+  public static final String[] HEADR = {
+    "serviceName", "testCaseName", "millis", "cleared", "errorMessage"
+  };
 
-	/**
-	 * construct with all its attributes
-	 *
-	 * @param serviceName
-	 * @param testCaseName
-	 * @param millis
-	 * @param errorMessage
-	 */
-	public TestResult(String serviceName, String testCaseName, int millis,
-			String errorMessage) {
-		this.serviceName = serviceName;
-		this.testCaseName = testCaseName;
-		this.millis = millis;
-		this.errorMessage = errorMessage;
-	}
+  /**
+   * construct with all its attributes
+   *
+   * @param serviceName
+   * @param testCaseName
+   * @param millis
+   * @param errorMessage
+   */
+  public TestResult(String serviceName, String testCaseName, int millis, String errorMessage) {
+    this.serviceName = serviceName;
+    this.testCaseName = testCaseName;
+    this.millis = millis;
+    this.errorMessage = errorMessage;
+  }
 
-	/**
-	 * did this test case cleared it?
-	 *
-	 * @return true if the service cleared the test, false if it failed
-	 */
-	public boolean cleared() {
-		return this.errorMessage == null;
-	}
+  /**
+   * did this test case cleared it?
+   *
+   * @return true if the service cleared the test, false if it failed
+   */
+  public boolean cleared() {
+    return this.errorMessage == null;
+  }
 
-	/**
-	 * @return an array of field values. They are in the same order as
-	 *         TestResult.HEADER
-	 */
-	public String[] toRow() {
-		String[] row = { this.serviceName, this.testCaseName, this.millis + "",
-				(this.errorMessage == null) + "", this.errorMessage };
-		return row;
-	}
+  /** @return an array of field values. They are in the same order as TestResult.HEADER */
+  public String[] toRow() {
+    String[] row = {
+      this.serviceName,
+      this.testCaseName,
+      this.millis + "",
+      (this.errorMessage == null) + "",
+      this.errorMessage
+    };
+    return row;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return this.testCaseName + " for service " + this.serviceName
-				+ " has msg = " + this.errorMessage;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return this.testCaseName
+        + " for service "
+        + this.serviceName
+        + " has msg = "
+        + this.errorMessage;
+  }
 }

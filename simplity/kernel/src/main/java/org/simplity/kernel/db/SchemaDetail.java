@@ -23,11 +23,11 @@
 package org.simplity.kernel.db;
 
 /**
- * @author simplity.org data structure that has the details to use a schema that
- *         is different from the default for the project
+ * @author simplity.org data structure that has the details to use a schema that is different from
+ *     the default for the project
  */
 public class SchemaDetail {
-	String schemaName;
-	String dataSourceName;
-	String connectionString;
+  String schemaName;
+  String dataSourceName;
+  String connectionString;
 }

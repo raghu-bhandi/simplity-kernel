@@ -22,6 +22,9 @@
 
 package org.simplity.job;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,119 +34,126 @@ import org.simplity.kernel.value.Value;
 
 /**
  * A job that is added to a scheduler. manages running jobs for the job that is scheduled
- * @author simplity.org
  *
+ * @author simplity.org
  */
-public class ListenerJob extends ScheduledJob{
+public class ListenerJob extends ScheduledJob {
+  static final Logger logger = Logger.getLogger(ListenerJob.class.getName());
 
-	private RunningJob[] runningJobs;
-	private Object[] futures;
+  private RunningJob[] runningJobs;
+  private Object[] futures;
 
-	ListenerJob(Job job, Value userId){
-		super(job, userId);
-		int nbr = job.nbrDedicatedThreads;
-		this.runningJobs = new RunningJob[nbr];
-		this.futures = new Object[nbr];
-	}
+  ListenerJob(Job job, Value userId) {
+    super(job, userId);
+    int nbr = job.nbrDedicatedThreads;
+    this.runningJobs = new RunningJob[nbr];
+    this.futures = new Object[nbr];
+  }
 
-	/* (non-Javadoc)
-	 * @see org.simplity.job.ScheduledJob#schedule(java.util.concurrent.ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public boolean scheduleJobs(ScheduledExecutorService executor) {
-		for(int i = 0; i < this.runningJobs.length;i++){
-			RunningJob rj = this.scheduledJob.createRunningJob(this.userId);
-			this.runningJobs[i] = rj;
-			this.futures[i] = executor.submit(rj);
-		}
-		return false;
-	}
+  /* (non-Javadoc)
+   * @see org.simplity.job.ScheduledJob#schedule(java.util.concurrent.ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public boolean scheduleJobs(ScheduledExecutorService executor) {
+    for (int i = 0; i < this.runningJobs.length; i++) {
+      RunningJob rj = this.scheduledJob.createRunningJob(this.userId);
+      this.runningJobs[i] = rj;
+      this.futures[i] = executor.submit(rj);
+    }
+    return false;
+  }
 
-	/* (non-Javadoc)
-	 * @see org.simplity.job.ScheduledJob#shutDownGracefully(java.util.concurrent.ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public void cancel() {
-		for(Object obj : this.futures){
-			if(obj != null){
-				((Future<?>)obj).cancel(true);
-			}
-		}
-		this.isScheduled = false;
-	}
+  /* (non-Javadoc)
+   * @see org.simplity.job.ScheduledJob#shutDownGracefully(java.util.concurrent.ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public void cancel() {
+    for (Object obj : this.futures) {
+      if (obj != null) {
+        ((Future<?>) obj).cancel(true);
+      }
+    }
+    this.isScheduled = false;
+  }
 
-	/* (non-Javadoc)
-	 * @see org.simplity.job.ScheduledJob#incrmentThread(java.util.concurrent.ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public void incrmentThread(ScheduledExecutorService executor) {
-		if(this.isScheduled == false){
-			Tracer.trace(this.scheduledJob.name + " is not scheduled");
-			return;
-		}
-		int nbr = this.runningJobs.length;
-		RunningJob[] newJobs = new RunningJob[nbr + 1];
-		this.copyJobs(this.runningJobs, newJobs, nbr);
-		Object[] newFutures = new Object[nbr + 1];
-		this.copyObjects(this.futures, newFutures, nbr);
-		RunningJob rj  = this.scheduledJob.createRunningJob(this.userId);
-		newJobs[nbr] = rj;
-		newFutures[nbr] = executor.submit(rj);
-		this.runningJobs = newJobs;
-		this.futures = newFutures;
+  /* (non-Javadoc)
+   * @see org.simplity.job.ScheduledJob#incrmentThread(java.util.concurrent.ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public void incrmentThread(ScheduledExecutorService executor) {
+    if (this.isScheduled == false) {
 
-	}
+      logger.log(Level.INFO, this.scheduledJob.name + " is not scheduled");
+      Tracer.trace(this.scheduledJob.name + " is not scheduled");
+      return;
+    }
+    int nbr = this.runningJobs.length;
+    RunningJob[] newJobs = new RunningJob[nbr + 1];
+    this.copyJobs(this.runningJobs, newJobs, nbr);
+    Object[] newFutures = new Object[nbr + 1];
+    this.copyObjects(this.futures, newFutures, nbr);
+    RunningJob rj = this.scheduledJob.createRunningJob(this.userId);
+    newJobs[nbr] = rj;
+    newFutures[nbr] = executor.submit(rj);
+    this.runningJobs = newJobs;
+    this.futures = newFutures;
+  }
 
-	private void copyJobs(RunningJob[] fromJobs, RunningJob[] toJobs, int nbr){
-		for(int i = 0; i < nbr; i++){
-			toJobs[i] = fromJobs[i];
-		}
-	}
+  private void copyJobs(RunningJob[] fromJobs, RunningJob[] toJobs, int nbr) {
+    for (int i = 0; i < nbr; i++) {
+      toJobs[i] = fromJobs[i];
+    }
+  }
 
-	private void copyObjects(Object[] fromObjs, Object[] toObjs, int nbr){
-		for(int i = 0; i < nbr; i++){
-			toObjs[i] = fromObjs[i];
-		}
-	}
-	/* (non-Javadoc)
-	 * @see org.simplity.job.ScheduledJob#decrmentThread(java.util.concurrent.ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public void decrmentThread(ScheduledExecutorService executor) {
-		if(this.isScheduled == false){
-			Tracer.trace(this.scheduledJob.name + " is not scheduled");
-			return;
-		}
-		int nbr = this.runningJobs.length - 1;
-		if(nbr == 0){
-			Tracer.trace("Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
-			return;
-		}
-		RunningJob[] newJobs = new RunningJob[nbr];
-		this.copyJobs(this.runningJobs, newJobs, nbr);
-		Object[] newFutures = new Object[nbr];
-		this.copyObjects(this.futures, newFutures, nbr);
-		((Future<?>)this.futures[nbr]).cancel(true);
+  private void copyObjects(Object[] fromObjs, Object[] toObjs, int nbr) {
+    for (int i = 0; i < nbr; i++) {
+      toObjs[i] = fromObjs[i];
+    }
+  }
+  /* (non-Javadoc)
+   * @see org.simplity.job.ScheduledJob#decrmentThread(java.util.concurrent.ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public void decrmentThread(ScheduledExecutorService executor) {
+    if (this.isScheduled == false) {
 
-		this.futures = newFutures;
-		this.runningJobs = newJobs;
-	}
+      logger.log(Level.INFO, this.scheduledJob.name + " is not scheduled");
+      Tracer.trace(this.scheduledJob.name + " is not scheduled");
+      return;
+    }
+    int nbr = this.runningJobs.length - 1;
+    if (nbr == 0) {
 
-	/* (non-Javadoc)
-	 * @see org.simplity.job.ScheduledJob#putJobStatusStub(org.simplity.job.JobStatus, java.util.List)
-	 */
-	@Override
-	protected void putJobStatusStub(JobStatus sts, List<RunningJobInfo> infoList) {
-		int i = 1;
-		for(RunningJob job : this.runningJobs){
-			this.putJobStatus(sts, job, infoList, i++);
-		}
-	}
-	/* (non-Javadoc)
-	 * @see org.simplity.job.ScheduledJob#poll(int)
-	 */
-	@Override
-	public int poll(int referenceMinutes) {
-		return ScheduledJob.NEVER;
-	}
+      logger.log(
+          Level.INFO, "Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
+      Tracer.trace("Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
+      return;
+    }
+    RunningJob[] newJobs = new RunningJob[nbr];
+    this.copyJobs(this.runningJobs, newJobs, nbr);
+    Object[] newFutures = new Object[nbr];
+    this.copyObjects(this.futures, newFutures, nbr);
+    ((Future<?>) this.futures[nbr]).cancel(true);
+
+    this.futures = newFutures;
+    this.runningJobs = newJobs;
+  }
+
+  /* (non-Javadoc)
+   * @see org.simplity.job.ScheduledJob#putJobStatusStub(org.simplity.job.JobStatus, java.util.List)
+   */
+  @Override
+  protected void putJobStatusStub(JobStatus sts, List<RunningJobInfo> infoList) {
+    int i = 1;
+    for (RunningJob job : this.runningJobs) {
+      this.putJobStatus(sts, job, infoList, i++);
+    }
+  }
+  /* (non-Javadoc)
+   * @see org.simplity.job.ScheduledJob#poll(int)
+   */
+  @Override
+  public int poll(int referenceMinutes) {
+    return ScheduledJob.NEVER;
+  }
 }

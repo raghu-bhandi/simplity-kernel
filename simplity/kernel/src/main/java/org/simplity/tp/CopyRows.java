@@ -30,37 +30,32 @@ import org.simplity.service.ServiceContext;
  * copy rows from a compatible sheet.
  *
  * @author simplity.org
- *
  */
 public class CopyRows extends Action {
 
-	/**
-	 * sheet to which we want to add rows
-	 */
-	String toSheetName;
+  /** sheet to which we want to add rows */
+  String toSheetName;
 
-	/**
-	 * sheet from which to copy rows
-	 */
-	String fromSheetName;
+  /** sheet from which to copy rows */
+  String fromSheetName;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		DataSheet fromSheet = ctx.getDataSheet(this.fromSheetName);
-		if (fromSheet == null) {
-			return Value.VALUE_ZERO;
-		}
-		int nbrRows = fromSheet.length();
-		if (nbrRows == 0) {
-			return Value.VALUE_ZERO;
-		}
-		DataSheet toSheet = ctx.getDataSheet(this.toSheetName);
-		if (toSheet == null) {
-			ctx.putDataSheet(this.toSheetName, fromSheet);
-		} else {
-			toSheet.appendRows(fromSheet);
-		}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    DataSheet fromSheet = ctx.getDataSheet(this.fromSheetName);
+    if (fromSheet == null) {
+      return Value.VALUE_ZERO;
+    }
+    int nbrRows = fromSheet.length();
+    if (nbrRows == 0) {
+      return Value.VALUE_ZERO;
+    }
+    DataSheet toSheet = ctx.getDataSheet(this.toSheetName);
+    if (toSheet == null) {
+      ctx.putDataSheet(this.toSheetName, fromSheet);
+    } else {
+      toSheet.appendRows(fromSheet);
+    }
 
-		return Value.newIntegerValue(nbrRows);
-	}
+    return Value.newIntegerValue(nbrRows);
+  }
 }

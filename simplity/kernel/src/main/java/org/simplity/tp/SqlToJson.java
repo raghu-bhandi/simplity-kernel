@@ -34,55 +34,51 @@ import org.simplity.service.ServiceContext;
 /**
  * Read a row/s from as output of a prepared statement/sql
  *
- *
  * @author simplity.org
- *
  */
 public class SqlToJson extends DbAction {
 
-	/**
-	 * fully qualified sql name
-	 */
-	String sqlName;
+  /** fully qualified sql name */
+  String sqlName;
 
-	String jsonName;
+  String jsonName;
 
-	boolean useCompactFormat;
+  boolean useCompactFormat;
 
-	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		Sql sql = ComponentManager.getSql(this.sqlName);
-		JSONWriter writer = new JSONWriter();
-		writer.object().key(this.jsonName).array();
-		sql.sqlToJson(ctx, driver, this.useCompactFormat, writer);
-		writer.endArray().endObject();
-		ctx.setObject(this.jsonName, writer.toString());
-		return 1;
-	}
+  @Override
+  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+    Sql sql = ComponentManager.getSql(this.sqlName);
+    JSONWriter writer = new JSONWriter();
+    writer.object().key(this.jsonName).array();
+    sql.sqlToJson(ctx, driver, this.useCompactFormat, writer);
+    writer.endArray().endObject();
+    ctx.setObject(this.jsonName, writer.toString());
+    return 1;
+  }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_ONLY;
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_ONLY;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
 
-		if (this.sqlName == null) {
-			ctx.addError("ReadWithSql requires sql name.");
-			count++;
-		} else {
-			ctx.addReference(ComponentType.SQL, this.sqlName);
-		}
+    if (this.sqlName == null) {
+      ctx.addError("ReadWithSql requires sql name.");
+      count++;
+    } else {
+      ctx.addReference(ComponentType.SQL, this.sqlName);
+    }
 
-		return count;
-	}
+    return count;
+  }
 }

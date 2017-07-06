@@ -21,6 +21,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.Date;
 import java.util.Map;
 
@@ -33,170 +36,170 @@ import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
- * block of actions. we have created this as a class to improve re-use across
- * service and loopAction
+ * block of actions. we have created this as a class to improve re-use across service and loopAction
  *
  * @author simplity.org
- *
  */
 public class BlockWorker implements DbClientInterface, MessageClient {
+  static final Logger logger = Logger.getLogger(BlockWorker.class.getName());
 
-	/**
-	 * field name with which result of an action is available in service context
-	 */
-	public static final String RESULT_SUFFIX = "Result";
-	/**
-	 * actions we have to take care of
-	 */
-	private final Action[] actions;
+  /** field name with which result of an action is available in service context */
+  public static final String RESULT_SUFFIX = "Result";
+  /** actions we have to take care of */
+  private final Action[] actions;
 
-	/**
-	 * in case there is a goto action, we need the map
-	 */
-	private final Map<String, Integer> indexedActions;
+  /** in case there is a goto action, we need the map */
+  private final Map<String, Integer> indexedActions;
 
-	/**
-	 * service context
-	 */
-	private final ServiceContext ctx;
+  /** service context */
+  private final ServiceContext ctx;
 
-	/**
-	 * db driver that this is initialized with. Used for JMS
-	 */
-	private final DbDriver initialDriver;
+  /** db driver that this is initialized with. Used for JMS */
+  private final DbDriver initialDriver;
 
-	private boolean keepGoing = true;
-	/**
-	 *
-	 * @param actions
-	 * @param indexedActions
-	 * @param ctx
-	 */
-	public BlockWorker(Action[] actions, Map<String, Integer> indexedActions,
-			ServiceContext ctx) {
-		this.actions = actions;
-		this.indexedActions = indexedActions;
-		this.ctx = ctx;
-		this.initialDriver = null;
-	}
+  private boolean keepGoing = true;
+  /**
+   * @param actions
+   * @param indexedActions
+   * @param ctx
+   */
+  public BlockWorker(Action[] actions, Map<String, Integer> indexedActions, ServiceContext ctx) {
+    this.actions = actions;
+    this.indexedActions = indexedActions;
+    this.ctx = ctx;
+    this.initialDriver = null;
+  }
 
-	/**
-	 *
-	 * @param actions
-	 * @param indexedActions
-	 * @param ctx
-	 * @param driver
-	 */
-	public BlockWorker(Action[] actions, Map<String, Integer> indexedActions,
-			ServiceContext ctx, DbDriver driver) {
-		this.actions = actions;
-		this.indexedActions = indexedActions;
-		this.ctx = ctx;
-		this.initialDriver = driver;
-	}
+  /**
+   * @param actions
+   * @param indexedActions
+   * @param ctx
+   * @param driver
+   */
+  public BlockWorker(
+      Action[] actions, Map<String, Integer> indexedActions, ServiceContext ctx, DbDriver driver) {
+    this.actions = actions;
+    this.indexedActions = indexedActions;
+    this.ctx = ctx;
+    this.initialDriver = driver;
+  }
 
-	@Override
-	public boolean workWithDriver(DbDriver driver) {
-		this.act(driver);
-		if (this.ctx.isInError()) {
-			return false;
-		}
-		return true;
-	}
+  @Override
+  public boolean workWithDriver(DbDriver driver) {
+    this.act(driver);
+    if (this.ctx.isInError()) {
+      return false;
+    }
+    return true;
+  }
 
-	/**
-	 * act on all the actions
-	 *
-	 * @param driver
-	 * @return true if we completed all actions. False if a stop was encountered
-	 *         and we stopped in between.
-	 */
-	public boolean act(DbDriver driver) {
-		int nbrActions = this.actions == null ? 0 : this.actions.length;
-		if (nbrActions == 0) {
-			return true;
-		}
-		return this.execute(driver) !=  JumpSignal.STOP;
-	}
+  /**
+   * act on all the actions
+   *
+   * @param driver
+   * @return true if we completed all actions. False if a stop was encountered and we stopped in
+   *     between.
+   */
+  public boolean act(DbDriver driver) {
+    int nbrActions = this.actions == null ? 0 : this.actions.length;
+    if (nbrActions == 0) {
+      return true;
+    }
+    return this.execute(driver) != JumpSignal.STOP;
+  }
 
-	/**
-	 * execute this block once
-	 * @param driver
-	 * @return null if it is a normal exit, or a specific signal
-	 */
-	public JumpSignal execute(DbDriver driver) {
-		int nbrActions = this.actions.length;
-		int currentIdx = 0;
-		Value result = null;
-		while (currentIdx < nbrActions) {
-			Action action = this.actions[currentIdx];
-			long startedAt = new Date().getTime();
-			result = action.act(this.ctx, driver);
-			currentIdx++;
-			Tracer.trace("Action " + action.actionName
-					+ " finished with result=" + result + " in "
-					+ (new Date().getTime() - startedAt) + " ms");
+  /**
+   * execute this block once
+   *
+   * @param driver
+   * @return null if it is a normal exit, or a specific signal
+   */
+  public JumpSignal execute(DbDriver driver) {
+    int nbrActions = this.actions.length;
+    int currentIdx = 0;
+    Value result = null;
+    while (currentIdx < nbrActions) {
+      Action action = this.actions[currentIdx];
+      long startedAt = new Date().getTime();
+      result = action.act(this.ctx, driver);
+      currentIdx++;
 
-			if (result == null) {
-				continue;
-			}
-			/*
-			 * did the caller signal a stop ?
-			 */
-			if (result.equals(Service.STOP_VALUE)) {
-				return JumpSignal.STOP;
-			}
+      logger.log(
+          Level.INFO,
+          "Action "
+              + action.actionName
+              + " finished with result="
+              + result
+              + " in "
+              + (new Date().getTime() - startedAt)
+              + " ms");
+      Tracer.trace(
+          "Action "
+              + action.actionName
+              + " finished with result="
+              + result
+              + " in "
+              + (new Date().getTime() - startedAt)
+              + " ms");
 
-			if(action instanceof JumpTo == false){
-				this.ctx.setValue(action.actionName + BlockWorker.RESULT_SUFFIX,
-						result);
-				continue;
-			}
-			String destn = result.toString();
-			/*
-			 * process special case of jumpAction.
-			 * Re we to jump out?
-			 */
-			if (destn.equals(JumpSignal._CONTINUE)) {
-				return JumpSignal.CONTINUE;
-			}
+      if (result == null) {
+        continue;
+      }
+      /*
+       * did the caller signal a stop ?
+       */
+      if (result.equals(Service.STOP_VALUE)) {
+        return JumpSignal.STOP;
+      }
 
-			if (destn.equals(JumpSignal._BREAK)) {
-				return JumpSignal.BREAK;
-			}
+      if (action instanceof JumpTo == false) {
+        this.ctx.setValue(action.actionName + BlockWorker.RESULT_SUFFIX, result);
+        continue;
+      }
+      String destn = result.toString();
+      /*
+       * process special case of jumpAction.
+       * Re we to jump out?
+       */
+      if (destn.equals(JumpSignal._CONTINUE)) {
+        return JumpSignal.CONTINUE;
+      }
 
-			if (destn.equals(JumpSignal._STOP)) {
-				return JumpSignal.STOP;
-			}
+      if (destn.equals(JumpSignal._BREAK)) {
+        return JumpSignal.BREAK;
+      }
 
-			/*
-			 * jump is within this block to another action
-			 */
-			Integer idx = this.indexedActions.get(destn);
-			if (idx != null) {
-				/*
-				 * we are to go to this step.
-				 */
-				currentIdx = idx.intValue();
-			}else{
-				throw new ApplicationError(result
-						+ " is not a valid action to jump to.");
-			}
-		}
-		return null;
-	}
+      if (destn.equals(JumpSignal._STOP)) {
+        return JumpSignal.STOP;
+      }
 
-	@Override
-	public boolean process(ServiceContext sameCtxComingBack) {
-		JumpSignal signal = this.execute(this.initialDriver);
-		if(signal == JumpSignal.STOP){
-			this.keepGoing = false;
-		}
-		return true;
-	}
+      /*
+       * jump is within this block to another action
+       */
+      Integer idx = this.indexedActions.get(destn);
+      if (idx != null) {
+        /*
+         * we are to go to this step.
+         */
+        currentIdx = idx.intValue();
+      } else {
+        throw new ApplicationError(result + " is not a valid action to jump to.");
+      }
+    }
+    return null;
+  }
 
-	@Override
-	public boolean toContinue() {
-		return this.keepGoing;
-	}
+  @Override
+  public boolean process(ServiceContext sameCtxComingBack) {
+    JumpSignal signal = this.execute(this.initialDriver);
+    if (signal == JumpSignal.STOP) {
+      this.keepGoing = false;
+    }
+    return true;
+  }
+
+  @Override
+  public boolean toContinue() {
+    return this.keepGoing;
+  }
 }

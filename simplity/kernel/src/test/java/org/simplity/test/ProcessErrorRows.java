@@ -10,23 +10,23 @@ import org.simplity.tp.LogicInterface;
 
 public class ProcessErrorRows extends AbstractService implements LogicInterface {
 
-	@Override
-	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction) {
+  @Override
+  public Value executeAsAction(
+      ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction) {
 
-		System.out.println("Hello");
-		List<FormattedMessage> msgs = ctx.getMessages();
-		for (FormattedMessage msg : msgs) {
-			System.out.println(msg.text);
-			System.out.println(msg.data[0]);
-			System.out.println(msg.fieldName);
-		}
+    System.out.println("Hello");
+    List<FormattedMessage> msgs = ctx.getMessages();
+    for (FormattedMessage msg : msgs) {
+      System.out.println(msg.text);
+      System.out.println(msg.data[0]);
+      System.out.println(msg.fieldName);
+    }
 
-		return super.executeAsAction(ctx, driver, useOwnDriverForTransaction);
-	}
+    return super.executeAsAction(ctx, driver, useOwnDriverForTransaction);
+  }
 
-	@Override
-	public Value execute(ServiceContext ctx) {
-		return this.executeAsAction(ctx, null, false);
-	}
-
+  @Override
+  public Value execute(ServiceContext ctx) {
+    return this.executeAsAction(ctx, null, false);
+  }
 }

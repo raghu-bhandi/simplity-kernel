@@ -22,6 +22,9 @@
 
 package org.simplity.aggr;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.FieldsInterface;
@@ -34,176 +37,152 @@ import org.simplity.service.ServiceContext;
  * sum of a column
  *
  * @author simplity.org
- *
  */
 public abstract class MathAggregator implements AggregationWorker {
-	/**
-	 * field name from which to accumulate sum
-	 */
-	private final String inputName;
+  static final Logger logger = Logger.getLogger(MathAggregator.class.getName());
 
-	/**
-	 * field name to which sum is to be written out
-	 */
-	private final String outputName;
+  /** field name from which to accumulate sum */
+  private final String inputName;
 
-	/**
-	 * is the output decimal or int?
-	 */
-	private final boolean outputAsDecimal;
+  /** field name to which sum is to be written out */
+  private final String outputName;
 
-	/**
-	 * state variable. Current sum
-	 */
-	protected double accumulatedValue;
+  /** is the output decimal or int? */
+  private final boolean outputAsDecimal;
 
-	/**
-	 * not all of them need count, but it is not a big deal!!
-	 */
-	protected int count;
-	/**
-	 * keep track of accumulation and throw an exception in case of concurrency
-	 * issues
-	 */
-	private boolean inProgress;
+  /** state variable. Current sum */
+  protected double accumulatedValue;
 
-	/**
-	 * create an an instance with the required parameters
-	 *
-	 * @param inputName
-	 *            field/column name that is being accumulated. non-empty,
-	 *            non-null;
-	 * @param outputName
-	 *            field/column name that is to be written out as sum. non-empty,
-	 *            non-null;
-	 * @param outputIsDecimal
-	 *            true if the output is a decimal value, else it is an integral
-	 *            value
-	 */
-	public MathAggregator(String inputName, String outputName, boolean outputIsDecimal) {
-		this.inputName = inputName;
-		this.outputName = outputName;
-		this.outputAsDecimal = outputIsDecimal;
-	}
+  /** not all of them need count, but it is not a big deal!! */
+  protected int count;
+  /** keep track of accumulation and throw an exception in case of concurrency issues */
+  private boolean inProgress;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#init(org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void init(ServiceContext ctx) {
-		if (this.inProgress) {
-			this.throwError();
-		}
-		this.inProgress = true;
-	}
+  /**
+   * create an an instance with the required parameters
+   *
+   * @param inputName field/column name that is being accumulated. non-empty, non-null;
+   * @param outputName field/column name that is to be written out as sum. non-empty, non-null;
+   * @param outputIsDecimal true if the output is a decimal value, else it is an integral value
+   */
+  public MathAggregator(String inputName, String outputName, boolean outputIsDecimal) {
+    this.inputName = inputName;
+    this.outputName = outputName;
+    this.outputAsDecimal = outputIsDecimal;
+  }
 
-	private void throwError() {
-		throw new ApplicationError("Aggregator instance should be ideally not re-used across aggregations."
-				+ " In case it is used, it is to be ensured that the the sequence of calls is  "
-				+ " init(), accumulate(), writeOut()/discard(), reset()");
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#init(org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void init(ServiceContext ctx) {
+    if (this.inProgress) {
+      this.throwError();
+    }
+    this.inProgress = true;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#accumulate(org.simplity.kernel.data.FieldsInterface,
-	 * org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void accumulate(FieldsInterface currentRow, ServiceContext ctx){
-		if (this.inProgress == false) {
-			this.throwError();
-		}
-		Value val = currentRow.getValue(this.inputName);
-		if (Value.isNull(val)) {
-			Tracer.trace(this.inputName + " has no value to accumulate");
-			return;
-		}
-		this.count++;
-		try{
-		if (val instanceof DecimalValue) {
-			this.accumulateDecimal(val.toDecimal());
-		} else {
-			this.accumulateInteger(val.toInteger());
-		}
-		}catch(InvalidValueException e){
-			throw new ApplicationError(e, "Aggregator has a data type that is not suitable for the designed operation.");
-		}
-	}
+  private void throwError() {
+    throw new ApplicationError(
+        "Aggregator instance should be ideally not re-used across aggregations."
+            + " In case it is used, it is to be ensured that the the sequence of calls is  "
+            + " init(), accumulate(), writeOut()/discard(), reset()");
+  }
 
-	/**
-	 * @param value
-	 *            value to be accumulated
-	 */
-	protected abstract void accumulateInteger(long value);
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#accumulate(org.simplity.kernel.data.FieldsInterface,
+   * org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void accumulate(FieldsInterface currentRow, ServiceContext ctx) {
+    if (this.inProgress == false) {
+      this.throwError();
+    }
+    Value val = currentRow.getValue(this.inputName);
+    if (Value.isNull(val)) {
 
-	/**
-	 * @param value
-	 *            value to be accumulated
-	 */
-	protected abstract void accumulateDecimal(double value);
+      logger.log(Level.INFO, this.inputName + " has no value to accumulate");
+      Tracer.trace(this.inputName + " has no value to accumulate");
+      return;
+    }
+    this.count++;
+    try {
+      if (val instanceof DecimalValue) {
+        this.accumulateDecimal(val.toDecimal());
+      } else {
+        this.accumulateInteger(val.toInteger());
+      }
+    } catch (InvalidValueException e) {
+      throw new ApplicationError(
+          e, "Aggregator has a data type that is not suitable for the designed operation.");
+    }
+  }
 
-	/**
-	 * @return result of the accumulation
-	 */
-	protected abstract double getDecimalResult();
+  /** @param value value to be accumulated */
+  protected abstract void accumulateInteger(long value);
 
-	/**
-	 * @return result of the accumulation
-	 */
-	protected abstract long getIntegerResult();
+  /** @param value value to be accumulated */
+  protected abstract void accumulateDecimal(double value);
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#writeOut(org.simplity.kernel.data.FieldsInterface,
-	 * org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void writeOut(FieldsInterface outputRow, ServiceContext ctx) {
-		if (this.inProgress == false) {
-			this.throwError();
-		}
-		Value value = null;
-		if (this.outputAsDecimal) {
-			double result = 0;
-			if (this.count != 0) {
-				result = this.getDecimalResult();
-			}
-			value = Value.newDecimalValue(result);
-		} else {
-			long result = 0;
-			if (this.count != 0) {
-				result = this.getIntegerResult();
-			}
-			value = Value.newIntegerValue(result);
-		}
-		outputRow.setValue(this.outputName, value);
-		this.discard(ctx);
-	}
+  /** @return result of the accumulation */
+  protected abstract double getDecimalResult();
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#reset(org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void reset(ServiceContext ctx) {
-		this.accumulatedValue = 0;
-		this.count = 0;
-		this.inProgress = false;
-	}
+  /** @return result of the accumulation */
+  protected abstract long getIntegerResult();
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#discard(org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void discard(ServiceContext ctx) {
-		this.accumulatedValue = 0;
-		this.count = 0;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#writeOut(org.simplity.kernel.data.FieldsInterface,
+   * org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void writeOut(FieldsInterface outputRow, ServiceContext ctx) {
+    if (this.inProgress == false) {
+      this.throwError();
+    }
+    Value value = null;
+    if (this.outputAsDecimal) {
+      double result = 0;
+      if (this.count != 0) {
+        result = this.getDecimalResult();
+      }
+      value = Value.newDecimalValue(result);
+    } else {
+      long result = 0;
+      if (this.count != 0) {
+        result = this.getIntegerResult();
+      }
+      value = Value.newIntegerValue(result);
+    }
+    outputRow.setValue(this.outputName, value);
+    this.discard(ctx);
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#reset(org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void reset(ServiceContext ctx) {
+    this.accumulatedValue = 0;
+    this.count = 0;
+    this.inProgress = false;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#discard(org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void discard(ServiceContext ctx) {
+    this.accumulatedValue = 0;
+    this.count = 0;
+  }
 }
