@@ -39,7 +39,6 @@ public class OpenApiServicesGenerator {
 			sc.close();
 			return;
 		}
-
 		Service[] services = Service.fromSwaggerPaths(paths,defs);
 		for(Service service : services){
 			String text = XmlUtil.objectToXmlString(service);

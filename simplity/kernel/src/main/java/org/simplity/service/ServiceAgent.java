@@ -38,6 +38,7 @@ import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.simplity.tp.Service;
 
 /***
  * Sole agent to be approached for any service from the app. App functionality
@@ -304,7 +305,8 @@ public class ServiceAgent {
 					Tracer.trace(serviceName + " returned with errors.");
 				} else {
 					Tracer.trace(serviceName + " responded with all OK signal");
-					String invalidateCache = (String) inputData.get("invalidateCache");
+					Service serv = (Service)service;
+					String invalidateCache = serv.getServicesToInvalidate();
 					if(invalidateCache != null){
 						String[] servicesToInvalidate = invalidateCache.split(",");
 						for(String servName: servicesToInvalidate){
