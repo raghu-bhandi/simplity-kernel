@@ -21,6 +21,9 @@
  */
 package org.simplity.rest;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -42,138 +45,152 @@ import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
 
 /**
- * internal servlet that handles all requests coming in as open-api. To be
- * called by the designated servlet that receives request from the web server
+ * internal servlet that handles all requests coming in as open-api. To be called by the designated
+ * servlet that receives request from the web server
  *
  * @author simplity.org
- *
  */
 public class RestAgent {
-	private static final String UTF = "UTF-8";
+  static final Logger logger = Logger.getLogger(RestAgent.class.getName());
 
-	/**
-	 * message to be sent to client if there is any internal error
-	 */
-	private static final FormattedMessage INTERNAL_ERROR = new FormattedMessage("internalError", MessageType.ERROR,
-			"We are sorry. There was an internal error on server. Support team has been notified.");
+  private static final String UTF = "UTF-8";
 
-	/**
-	 * serve this service. Main entrance to the server from an http client.
-	 *
-	 * @param req
-	 *            http request
-	 * @param resp
-	 *            http response
-	 * @throws ServletException
-	 *             Servlet exception
-	 * @throws IOException
-	 *             IO exception
-	 *
-	 */
+  /** message to be sent to client if there is any internal error */
+  private static final FormattedMessage INTERNAL_ERROR =
+      new FormattedMessage(
+          "internalError",
+          MessageType.ERROR,
+          "We are sorry. There was an internal error on server. Support team has been notified.");
 
-	public static void serve(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		resp.setContentType("text/json");
-		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-		resp.setDateHeader("Expires", 0);
+  /**
+   * serve this service. Main entrance to the server from an http client.
+   *
+   * @param req http request
+   * @param resp http response
+   * @throws ServletException Servlet exception
+   * @throws IOException IO exception
+   */
+  public static void serve(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    resp.setContentType("text/json");
+    resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    resp.setDateHeader("Expires", 0);
 
-		/*
-		 * assuming http://www.simplity.org:8020/app1/subapp/a/b/c?a=b&c=d
-		 *
-		 * we need to get a/b/c as RESTful path
-		 */
-		String path = URLDecoder.decode(req.getRequestURI(), UTF);
-		Tracer.trace("Started serving URI=" + path );
-		/*
-		 * path now is set to /app1/subapp/a/b/c
-		 */
+    /*
+     * assuming http://www.simplity.org:8020/app1/subapp/a/b/c?a=b&c=d
+     *
+     * we need to get a/b/c as RESTful path
+     */
+    String path = URLDecoder.decode(req.getRequestURI(), UTF);
 
-		int idx = req.getContextPath().length();
-		/*
-		 * contextPath is set to /app1/subapp
-		 */
-		if(idx >= path.length()){
-			/*
-			 * this should never happen though..
-			 */
-			Tracer.trace("oooooops. URI is shorter than contextpath ???");
-			path = "";
-		}else{
-			path = path.substring(idx);
-			Tracer.trace("Going to use path=" + path + " for mapping this request to an operation/service");
-		}
-		/*
-		 * parse body and query string into json object
-		 */
-		JSONObject pathJson = new JSONObject();
-		Operation operation = Operations.getOperation(path, req.getMethod().toLowerCase(), pathJson);
-		if (operation == null) {
-			respondWithError(resp, "We do not serve that request path");
-			return;
-		}
+    logger.log(Level.INFO, "Started serving URI=" + path);
+    Tracer.trace("Started serving URI=" + path);
+    /*
+     * path now is set to /app1/subapp/a/b/c
+     */
 
-		/*
-		 * using operation specification, get service name and input data
-		 */
-		JSONObject json = new JSONObject();
-		List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
-		String serviceName = operation.prepareRequest(req, json, pathJson, messages);
+    int idx = req.getContextPath().length();
+    /*
+     * contextPath is set to /app1/subapp
+     */
+    if (idx >= path.length()) {
+      /*
+       * this should never happen though..
+       */
 
-		if(messages.size() > 0){
-			Tracer.trace("Input data has validation errors. Responding back without calling the service");
-			operation.writeResponse(resp, messages.toArray(new FormattedMessage[0]));
-			return;
-		}
+      logger.log(Level.INFO, "oooooops. URI is shorter than contextpath ???");
+      Tracer.trace("oooooops. URI is shorter than contextpath ???");
+      path = "";
+    } else {
+      path = path.substring(idx);
 
-		Tracer.trace("Request received for service " + serviceName);
-		FormattedMessage message = null;
-		//TODO : get user ID
-		Value userId = Value.newTextValue("100");
-		ServiceData inData = new ServiceData(userId, serviceName);
-		Tracer.trace("Parsed JSON is \n" + json.toString(2));
-		inData.setPayLoad(json.toString());
-		/*
-		 * discard heavy objects as early as possible
-		 */
-		pathJson = null;
-		json = null;
+      logger.log(
+          Level.INFO,
+          "Going to use path=" + path + " for mapping this request to an operation/service");
+      Tracer.trace(
+          "Going to use path=" + path + " for mapping this request to an operation/service");
+    }
+    /*
+     * parse body and query string into json object
+     */
+    JSONObject pathJson = new JSONObject();
+    Operation operation = Operations.getOperation(path, req.getMethod().toLowerCase(), pathJson);
+    if (operation == null) {
+      respondWithError(resp, "We do not serve that request path");
+      return;
+    }
 
-		ServiceData outData = null;
-		try {
-			outData = ServiceAgent.getAgent().executeService(inData, PayloadType.JSON);
-		} catch (ApplicationError e) {
-			Application.reportApplicationError(inData, e);
-			message = INTERNAL_ERROR;
-		} catch (Exception e) {
-			Application.reportApplicationError(inData, new ApplicationError(e, "Error while processing request"));
-			message = INTERNAL_ERROR;
-		}
+    /*
+     * using operation specification, get service name and input data
+     */
+    JSONObject json = new JSONObject();
+    List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
+    String serviceName = operation.prepareRequest(req, json, pathJson, messages);
 
-		if (outData == null) {
-			if (message == null) {
-				message = INTERNAL_ERROR;
-			}
-			FormattedMessage[] msgs = {message};
-			operation.writeResponse(resp, msgs);
-		}else if(outData.hasErrors()){
-			operation.writeResponse(resp, outData.getMessages());
-		}else{
-			String payload = outData.getPayLoad();
-			if(payload == null || payload.isEmpty()){
-				json = new JSONObject();
-			}else{
-				json = new JSONObject(payload);
-			}
-			operation.writeResponse(resp, json, outData.getServiceName());
-		}
-	}
+    if (messages.size() > 0) {
 
-	/**
-	 * @param resp
-	 * @param message
-	 * @throws IOException
-	 */
-	public static void respondWithError(HttpServletResponse resp, String message) throws IOException {
-		resp.setStatus(500);
-		resp.getWriter().write(message);
-	}
+      logger.log(
+          Level.INFO,
+          "Input data has validation errors. Responding back without calling the service");
+      Tracer.trace("Input data has validation errors. Responding back without calling the service");
+      operation.writeResponse(resp, messages.toArray(new FormattedMessage[0]));
+      return;
+    }
+
+    logger.log(Level.INFO, "Request received for service " + serviceName);
+    Tracer.trace("Request received for service " + serviceName);
+    FormattedMessage message = null;
+    //TODO : get user ID
+    Value userId = Value.newTextValue("100");
+    ServiceData inData = new ServiceData(userId, serviceName);
+
+    logger.log(Level.INFO, "Parsed JSON is \n" + json.toString(2));
+    Tracer.trace("Parsed JSON is \n" + json.toString(2));
+    inData.setPayLoad(json.toString());
+    /*
+     * discard heavy objects as early as possible
+     */
+    pathJson = null;
+    json = null;
+
+    ServiceData outData = null;
+    try {
+      outData = ServiceAgent.getAgent().executeService(inData, PayloadType.JSON);
+    } catch (ApplicationError e) {
+      Application.reportApplicationError(inData, e);
+      message = INTERNAL_ERROR;
+    } catch (Exception e) {
+      Application.reportApplicationError(
+          inData, new ApplicationError(e, "Error while processing request"));
+      message = INTERNAL_ERROR;
+    }
+
+    if (outData == null) {
+      if (message == null) {
+        message = INTERNAL_ERROR;
+      }
+      FormattedMessage[] msgs = {message};
+      operation.writeResponse(resp, msgs);
+    } else if (outData.hasErrors()) {
+      operation.writeResponse(resp, outData.getMessages());
+    } else {
+      String payload = outData.getPayLoad();
+      if (payload == null || payload.isEmpty()) {
+        json = new JSONObject();
+      } else {
+        json = new JSONObject(payload);
+      }
+      operation.writeResponse(resp, json, outData.getServiceName());
+    }
+  }
+
+  /**
+   * @param resp
+   * @param message
+   * @throws IOException
+   */
+  public static void respondWithError(HttpServletResponse resp, String message) throws IOException {
+    resp.setStatus(500);
+    resp.getWriter().write(message);
+  }
 }

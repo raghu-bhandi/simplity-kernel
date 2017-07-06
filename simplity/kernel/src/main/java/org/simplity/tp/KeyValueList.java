@@ -30,65 +30,58 @@ import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
 
 /**
- * typical list of values for a drop-down. Action is designed in case you need
- * this in addition to other things. In case you have a service with only one
- * keyValueList action, consider using a record based on-the-fly service
+ * typical list of values for a drop-down. Action is designed in case you need this in addition to
+ * other things. In case you have a service with only one keyValueList action, consider using a
+ * record based on-the-fly service
  *
  * @author simplity.org
- *
  */
 public class KeyValueList extends DbAction {
 
-	/**
-	 * record that is to be used
-	 */
-	String recordName;
-	/**
-	 * defaults to setting in the record
-	 */
-	String outputSheetName;
+  /** record that is to be used */
+  String recordName;
+  /** defaults to setting in the record */
+  String outputSheetName;
 
-	/**
-	 * defaults
-	 */
-	public KeyValueList() {
-		//
-	}
+  /** defaults */
+  public KeyValueList() {
+    //
+  }
 
-	/**
-	 * list action for the record
-	 *
-	 * @param record
-	 */
-	public KeyValueList(Record record) {
-		this.actionName = "list_" + record.getSimpleName();
-		this.recordName = record.getQualifiedName();
-		this.outputSheetName = record.getDefaultSheetName();
-	}
+  /**
+   * list action for the record
+   *
+   * @param record
+   */
+  public KeyValueList(Record record) {
+    this.actionName = "list_" + record.getSimpleName();
+    this.recordName = record.getQualifiedName();
+    this.outputSheetName = record.getDefaultSheetName();
+  }
 
-	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		Record record = ComponentManager.getRecord(this.recordName);
-		String value = null;
-		String keyName = record.getValueListKeyName();
-		if (keyName != null) {
-			value = ctx.getTextValue(keyName);
-			if (value == null) {
-				value = ctx.getTextValue(ServiceProtocol.LIST_SERVICE_KEY);
-			}
-		}
-		DataSheet sheet = record.list(value, driver, ctx.getUserId());
-		if (sheet == null) {
-			return 0;
-		}
-		String sheetName = this.outputSheetName == null ? record
-				.getDefaultSheetName() : this.outputSheetName;
-		ctx.putDataSheet(sheetName, sheet);
-		return sheet.length();
-	}
+  @Override
+  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+    Record record = ComponentManager.getRecord(this.recordName);
+    String value = null;
+    String keyName = record.getValueListKeyName();
+    if (keyName != null) {
+      value = ctx.getTextValue(keyName);
+      if (value == null) {
+        value = ctx.getTextValue(ServiceProtocol.LIST_SERVICE_KEY);
+      }
+    }
+    DataSheet sheet = record.list(value, driver, ctx.getUserId());
+    if (sheet == null) {
+      return 0;
+    }
+    String sheetName =
+        this.outputSheetName == null ? record.getDefaultSheetName() : this.outputSheetName;
+    ctx.putDataSheet(sheetName, sheet);
+    return sheet.length();
+  }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_ONLY;
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_ONLY;
+  }
 }

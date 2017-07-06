@@ -30,157 +30,140 @@ import org.simplity.kernel.comp.ValidationContext;
  * messages externalize text and allow multi-lingual features.
  *
  * @author simplity.org
- *
  */
 public class Message implements Component {
-	private static final ComponentType MY_TYPE = ComponentType.MSG;
-	private static String DELIMITER = ": ";
-	private static String PREFIX = "$";
-	/**
-	 * name to be unique in a project. If we use
-	 */
-	String name;
-	/**
-	 * text in English with place holders like $1 for run-time values. We will
-	 * have these in multiple languages (like resource bundle)
-	 */
-	String text;
+  private static final ComponentType MY_TYPE = ComponentType.MSG;
+  private static String DELIMITER = ": ";
+  private static String PREFIX = "$";
+  /** name to be unique in a project. If we use */
+  String name;
+  /**
+   * text in English with place holders like $1 for run-time values. We will have these in multiple
+   * languages (like resource bundle)
+   */
+  String text;
 
-	MessageType messageType = MessageType.ERROR;
+  MessageType messageType = MessageType.ERROR;
 
-	@Override
-	public String getSimpleName() {
-		return this.name;
-	}
+  @Override
+  public String getSimpleName() {
+    return this.name;
+  }
 
-	@Override
-	public String getQualifiedName() {
-		return this.name;
-	}
+  @Override
+  public String getQualifiedName() {
+    return this.name;
+  }
 
-	@Override
-	public void getReady() {
-		//
-	}
+  @Override
+  public void getReady() {
+    //
+  }
 
-	/**
-	 *
-	 * @return message type
-	 */
-	public MessageType getMessageType() {
-		return this.messageType;
-	}
+  /** @return message type */
+  public MessageType getMessageType() {
+    return this.messageType;
+  }
 
-	/**
-	 * Lots of cops around ask for identity!!
-	 *
-	 * @return message name
-	 */
-	public String getName() {
-		return this.name;
-	}
+  /**
+   * Lots of cops around ask for identity!!
+   *
+   * @return message name
+   */
+  public String getName() {
+    return this.name;
+  }
 
-	@Override
-	public String toString() {
-		return this.name + Message.DELIMITER + this.text;
-	}
+  @Override
+  public String toString() {
+    return this.name + Message.DELIMITER + this.text;
+  }
 
-	/**
-	 * not yet implemented. You will get it in English
-	 *
-	 * @param language
-	 *            ignored as of now
-	 * @return text for the desired language
-	 */
-	public String toString(String language) {
-		return this.name + Message.DELIMITER + this.text;
-	}
+  /**
+   * not yet implemented. You will get it in English
+   *
+   * @param language ignored as of now
+   * @return text for the desired language
+   */
+  public String toString(String language) {
+    return this.name + Message.DELIMITER + this.text;
+  }
 
-	/**
-	 * substitute parameter values into text
-	 *
-	 * @param params
-	 *            parameters for message
-	 * @return formatted text
-	 */
-	public String toString(String[] params) {
-		String txt = this.text;
-		if (params != null && params.length > 0) {
-			for (int i = 0; i < params.length; i++) {
-				String parm = Message.PREFIX + (i + 1);
-				if (txt.indexOf(parm) == -1) {
-					txt += params[i];
-				} else {
-					txt = txt.replace(parm, params[i]);
-				}
-			}
-		}
-		return txt;
-	}
+  /**
+   * substitute parameter values into text
+   *
+   * @param params parameters for message
+   * @return formatted text
+   */
+  public String toString(String[] params) {
+    String txt = this.text;
+    if (params != null && params.length > 0) {
+      for (int i = 0; i < params.length; i++) {
+        String parm = Message.PREFIX + (i + 1);
+        if (txt.indexOf(parm) == -1) {
+          txt += params[i];
+        } else {
+          txt = txt.replace(parm, params[i]);
+        }
+      }
+    }
+    return txt;
+  }
 
-	/**
-	 * get message after substituting parameters. Language specific feature not
-	 * yet implemented.
-	 *
-	 * @param language
-	 *            ignored as of now
-	 *
-	 * @param params
-	 *            parameters for message
-	 * @return formatted text
-	 */
-	public String toString(String language, String[] params) {
-		return this.toString(params);
-	}
+  /**
+   * get message after substituting parameters. Language specific feature not yet implemented.
+   *
+   * @param language ignored as of now
+   * @param params parameters for message
+   * @return formatted text
+   */
+  public String toString(String language, String[] params) {
+    return this.toString(params);
+  }
 
-	/**
-	 * substitute parameter values into text
-	 *
-	 * @param params
-	 *            additional parameters
-	 * @return formatted text
-	 */
-	public FormattedMessage getFormattedMessage(String[] params) {
-		FormattedMessage msg = new FormattedMessage(this.getName(),
-				this.messageType, this.toString(params));
-		return msg;
-	}
+  /**
+   * substitute parameter values into text
+   *
+   * @param params additional parameters
+   * @return formatted text
+   */
+  public FormattedMessage getFormattedMessage(String[] params) {
+    FormattedMessage msg =
+        new FormattedMessage(this.getName(), this.messageType, this.toString(params));
+    return msg;
+  }
 
-	/**
-	 * get message after substituting parameters. Language specific feature not
-	 * yet implemented.
-	 *
-	 * @param language
-	 *            not yet implemented. ignored as of now.
-	 *
-	 * @param params
-	 *            additional parameters for the message
-	 * @return formatted text
-	 */
-	public FormattedMessage getFormattedMessage(String language, String[] params) {
-		FormattedMessage msg = new FormattedMessage(this.getName(),
-				this.messageType, this.toString(params));
-		return msg;
-	}
+  /**
+   * get message after substituting parameters. Language specific feature not yet implemented.
+   *
+   * @param language not yet implemented. ignored as of now.
+   * @param params additional parameters for the message
+   * @return formatted text
+   */
+  public FormattedMessage getFormattedMessage(String language, String[] params) {
+    FormattedMessage msg =
+        new FormattedMessage(this.getName(), this.messageType, this.toString(params));
+    return msg;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.comp.Component#validate()
-	 */
-	@Override
-	public int validate(ValidationContext ctx) {
-		if (this.text != null) {
-			return 0;
-		}
-		ctx.beginValidation(MY_TYPE, this.name);
-		ctx.addError("Text is required for message");
-		ctx.endValidation();
-		return 1;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.comp.Component#validate()
+   */
+  @Override
+  public int validate(ValidationContext ctx) {
+    if (this.text != null) {
+      return 0;
+    }
+    ctx.beginValidation(MY_TYPE, this.name);
+    ctx.addError("Text is required for message");
+    ctx.endValidation();
+    return 1;
+  }
 
-	@Override
-	public ComponentType getComponentType() {
-		return MY_TYPE;
-	}
+  @Override
+  public ComponentType getComponentType() {
+    return MY_TYPE;
+  }
 }

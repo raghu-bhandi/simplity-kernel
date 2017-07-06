@@ -22,6 +22,9 @@
  */
 package org.simplity.service;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -40,11 +43,12 @@ import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.tp.Service;
 
-/***
- * Sole agent to be approached for any service from the app. App functionality
+/**
+ * * Sole agent to be approached for any service from the app. App functionality
  * is delivered strictly thru this one class. Agent prepares the right
  * infrastructure for the service before calling it.
  *
+ * <p>
  * This is to be used "internally" by another class, after taking care of
  * authentication, session management etc.. ServiceAgent assumes that the caller
  * is entitled for this service, and it is up to service to do any additional
@@ -52,17 +56,15 @@ import org.simplity.tp.Service;
  * the userId.
  */
 public class ServiceAgent {
+	static final Logger logger = Logger.getLogger(ServiceAgent.class.getName());
 
-	/**
-	 * singleton instance that is instantiated with right parameters
-	 */
+	/** singleton instance that is instantiated with right parameters */
 	private static ServiceAgent instance;
 
 	/**
 	 * Set plugins and parameters for agent
 	 *
 	 * @param autoLoginUserId
-	 *
 	 * @param userIdIsNumber
 	 * @param login
 	 * @param logout
@@ -74,9 +76,7 @@ public class ServiceAgent {
 		instance = new ServiceAgent(autoLoginUserId, userIdIsNumber, login, logout, cacher, guard);
 	}
 
-	/**
-	 * @return an instance for use
-	 */
+	/** @return an instance for use */
 	public static ServiceAgent getAgent() {
 		if (instance == null) {
 			throw new ApplicationError("Service Agent is not set up, but there are requests for service!!");
@@ -84,9 +84,7 @@ public class ServiceAgent {
 		return instance;
 	}
 
-	/**
-	 * is user Id a numeric value? default is text
-	 */
+	/** is user Id a numeric value? default is text */
 	private final boolean numericUserId;
 	/**
 	 * login service to be called. If null, we use a dummy user id of 100 to
@@ -94,9 +92,7 @@ public class ServiceAgent {
 	 */
 	private final String loginService;
 
-	/**
-	 * application may need to so something on logout
-	 */
+	/** application may need to so something on logout */
 	private final String logoutService;
 
 	/**
@@ -104,17 +100,13 @@ public class ServiceAgent {
 	 * responses during development
 	 */
 	private final ServiceCacheManager cacheManager;
-	/**
-	 * registered access control class
-	 */
+	/** registered access control class */
 	private final AccessController securityManager;
-	/**
-	 * auto login ID
-	 */
+	/** auto login ID */
 	private final String autoLoginUserId;
 
-	/***
-	 * We create an immutable instance fully equipped with all plug-ins
+	/**
+	 * * We create an immutable instance fully equipped with all plug-ins
 	 *
 	 * @param autoLoginUserId
 	 */
@@ -132,7 +124,6 @@ public class ServiceAgent {
 	 * ask service to handle this special service
 	 *
 	 * @param inputData
-	 *
 	 * @return fields to be put into session. Note that we do not return any
 	 *         response to client to data returned by standard service call.
 	 *         This is typically used as global fields for the user session.
@@ -156,6 +147,9 @@ public class ServiceAgent {
 		if (result.hasErrors() == false) {
 			Object uid = result.get(ServiceProtocol.USER_ID);
 			if (uid == null) {
+
+				logger.log(Level.INFO, "Login service did not set value for " + ServiceProtocol.USER_ID
+						+ ". This implies that the login has failed.");
 				Tracer.trace("Login service did not set value for " + ServiceProtocol.USER_ID
 						+ ". This implies that the login has failed.");
 			} else {
@@ -178,6 +172,8 @@ public class ServiceAgent {
 	 */
 	private ServiceData dummyLogin(ServiceData inData) {
 		ServiceData result = new ServiceData();
+
+		logger.log(Level.INFO, "No login service is attached. we use a dummy login.");
 		Tracer.trace("No login service is attached. we use a dummy login.");
 		/*
 		 * choosing a number, just in case the application uses a numeric field
@@ -191,8 +187,13 @@ public class ServiceAgent {
 		Value userIdValue = this.numericUserId ? Value.parseValue(userId, ValueType.INTEGER)
 				: Value.newTextValue(userId);
 		if (Value.isNull(userIdValue)) {
+
+			logger.log(Level.INFO,
+					"we would have cleared userId " + userId + " but for the fact that we insist on a number");
 			Tracer.trace("we would have cleared userId " + userId + " but for the fact that we insist on a number");
 		} else {
+
+			logger.log(Level.INFO, "we cleared userId=" + userId + " with no authentication whatsoever.");
 			Tracer.trace("we cleared userId=" + userId + " with no authentication whatsoever.");
 			result.put(ServiceProtocol.USER_ID, userIdValue);
 		}
@@ -218,7 +219,6 @@ public class ServiceAgent {
 	 *         fields collection is data to be set to session. Null if the
 	 *         service not found or the logged-in user is not entitled for the
 	 *         service
-	 *
 	 */
 	public ServiceData executeService(ServiceData inputData) {
 		return this.executeService(inputData, PayloadType.NONE);
@@ -233,7 +233,6 @@ public class ServiceAgent {
 	 *         fields collection is data to be set to session. Null if the
 	 *         service not found or the logged-in user is not entitled for the
 	 *         service
-	 *
 	 */
 	public ServiceData executeService(ServiceData inputData, PayloadType payloadType) {
 		/*
@@ -256,6 +255,8 @@ public class ServiceAgent {
 			 * do we have this service?
 			 */
 			if (service == null) {
+
+				logger.log(Level.INFO, "Service " + serviceName + " is missing in action !!");
 				Tracer.trace("Service " + serviceName + " is missing in action !!");
 				response = this.defaultResponse(inputData);
 				response.addMessage(Messages.getMessage(Messages.NO_SERVICE, serviceName));
@@ -270,6 +271,8 @@ public class ServiceAgent {
 				/*
 				 * should we say you are not authorized?
 				 */
+
+				logger.log(Level.INFO, "Logged in user " + userId + " is not granted access to this service");
 				Tracer.trace("Logged in user " + userId + " is not granted access to this service");
 				response.addMessage(Messages.getMessage(Messages.NO_ACCESS));
 				break;
@@ -285,8 +288,6 @@ public class ServiceAgent {
 					}
 				}
 			}
-			
-			
 			/*
 			 * is this to be run in the background always?
 			 */
@@ -298,12 +299,18 @@ public class ServiceAgent {
 			 * OK. here we go and call the actual service
 			 */
 			try {
+
+				logger.log(Level.INFO, "Invoking service " + serviceName);
 				Tracer.trace("Invoking service " + serviceName);
 				response = service.respond(inputData, payloadType);
 				boolean hasErrors = response != null && response.hasErrors();
 				if (hasErrors) {
+
+					logger.log(Level.INFO, serviceName + " returned with errors.");
 					Tracer.trace(serviceName + " returned with errors.");
 				} else {
+
+					logger.log(Level.INFO, serviceName + " responded with all OK signal");
 					Tracer.trace(serviceName + " responded with all OK signal");
 					Service serv = (Service)service;
 					String invalidateCache = serv.getServicesToInvalidate();
@@ -319,6 +326,8 @@ public class ServiceAgent {
 				}
 			} catch (Exception e) {
 				Application.reportApplicationError(inputData, e);
+
+				logger.log(Level.SEVERE, "Exception thrown by service " + serviceName, e);
 				Tracer.trace(e, "Exception thrown by service " + serviceName);
 				response = this.defaultResponse(inputData);
 				response.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()));
@@ -375,10 +384,9 @@ public class ServiceAgent {
 	 *
 	 * @param serviceName
 	 */
-	public static void invalidateCache(String serviceName,ServiceData inData) {
+	public static void invalidateCache(String serviceName, ServiceData inData) {
 		if (instance.cacheManager != null) {
-			instance.cacheManager.invalidate(serviceName,inData);
+			instance.cacheManager.invalidate(serviceName, inData);
 		}
 	}
-
 }

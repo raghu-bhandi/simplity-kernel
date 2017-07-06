@@ -33,133 +33,125 @@ import org.simplity.service.ServiceContext;
 /**
  * Base class for all action that deal with db
  *
- *
  * @author simplity.org
- *
  */
 public abstract class DbAction extends Action {
-	/**
-	 * schema name, different from the default schema, to be used specifically
-	 * for this service
-	 */
-	String schemaName;
+  /** schema name, different from the default schema, to be used specifically for this service */
+  String schemaName;
 
-	@Override
-	public Value delegate(ServiceContext ctx, DbDriver driver) {
-		int result = 0;
-		if (this.useNewDriver(driver)) {
-			/*
-			 * service has delegated transactions to its actions...
-			 * We have to directly deal with the driver for this
-			 */
-			Worker worker = new Worker(ctx);
-			if (DbDriver.workWithDriver(worker, this.getDataAccessType(),
-					this.schemaName)) {
-				result = worker.getResult();
-			}
-		} else {
-			result = this.doDbAct(ctx, driver);
-		}
-		return Value.newIntegerValue(result);
-	}
+  @Override
+  public Value delegate(ServiceContext ctx, DbDriver driver) {
+    int result = 0;
+    if (this.useNewDriver(driver)) {
+      /*
+       * service has delegated transactions to its actions...
+       * We have to directly deal with the driver for this
+       */
+      Worker worker = new Worker(ctx);
+      if (DbDriver.workWithDriver(worker, this.getDataAccessType(), this.schemaName)) {
+        result = worker.getResult();
+      }
+    } else {
+      result = this.doDbAct(ctx, driver);
+    }
+    return Value.newIntegerValue(result);
+  }
 
-	private boolean useNewDriver(DbDriver driver){
-		/*
-		 * read-only is always fine with called driver
-		 */
-		DbAccessType dat = this.getDataAccessType();
-		if (dat == null || dat.updatesDb() == false){
-			return false;
-		}
-		/*
-		 * is the driver equipped to do updates?
-		 */
-		if(driver == null){
-			return true;
-		}
+  private boolean useNewDriver(DbDriver driver) {
+    /*
+     * read-only is always fine with called driver
+     */
+    DbAccessType dat = this.getDataAccessType();
+    if (dat == null || dat.updatesDb() == false) {
+      return false;
+    }
+    /*
+     * is the driver equipped to do updates?
+     */
+    if (driver == null) {
+      return true;
+    }
 
-		dat = driver.getAccessType();
-		if(dat == null || dat.updatesDb() == false) {
-			return true;
-		}
-		/*
-		 * caller can update
-		 */
-		return false;
-	}
-	/**
-	 * let the concrete action do its job.
-	 *
-	 * @param ctx
-	 * @param driver
-	 * @return
-	 */
-	protected abstract int doDbAct(ServiceContext ctx, DbDriver driver);
+    dat = driver.getAccessType();
+    if (dat == null || dat.updatesDb() == false) {
+      return true;
+    }
+    /*
+     * caller can update
+     */
+    return false;
+  }
+  /**
+   * let the concrete action do its job.
+   *
+   * @param ctx
+   * @param driver
+   * @return
+   */
+  protected abstract int doDbAct(ServiceContext ctx, DbDriver driver);
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.
-	 * ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if (this.failureMessageName != null) {
-			ctx.addReference(ComponentType.MSG, this.failureMessageName);
-		}
-		if (this.successMessageName != null) {
-			ctx.addReference(ComponentType.MSG, this.successMessageName);
-		}
-		return count;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.Action#validate(org.simplity.kernel.comp.
+   * ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if (this.failureMessageName != null) {
+      ctx.addReference(ComponentType.MSG, this.failureMessageName);
+    }
+    if (this.successMessageName != null) {
+      ctx.addReference(ComponentType.MSG, this.successMessageName);
+    }
+    return count;
+  }
 
-	/*
-	 * as per our design, this method should never be invoked
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.Action#doAct(org.simplity.service.ServiceContext)
-	 */
-	@Override
-	protected final Value doAct(ServiceContext ctx) {
-		throw new ApplicationError(
-				"Design Error : DbActionis called without a driver");
-	}
+  /*
+   * as per our design, this method should never be invoked
+   * (non-Javadoc)
+   *
+   * @see org.simplity.tp.Action#doAct(org.simplity.service.ServiceContext)
+   */
+  @Override
+  protected final Value doAct(ServiceContext ctx) {
+    throw new ApplicationError("Design Error : DbActionis called without a driver");
+  }
 
-	/**
-	 * worker class to work with the driver
-	 *
-	 * @author simplity.org
-	 *
-	 */
-	protected class Worker implements DbClientInterface {
-		private final ServiceContext ctx;
-		private int result = 0;
+  /**
+   * worker class to work with the driver
+   *
+   * @author simplity.org
+   */
+  protected class Worker implements DbClientInterface {
+    private final ServiceContext ctx;
+    private int result = 0;
 
-		Worker(ServiceContext ctx) {
-			this.ctx = ctx;
-		}
+    Worker(ServiceContext ctx) {
+      this.ctx = ctx;
+    }
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see
-		 * org.simplity.kernel.db.DbClientInterface#workWithDriver(org.simplity.
-		 * kernel.db.DbDriver)
-		 */
-		@Override
-		public boolean workWithDriver(DbDriver driver) {
-			this.result = DbAction.this.doDbAct(this.ctx, driver);
-			if (this.ctx.isInError()) {
-				return false;
-			}
-			return true;
-		}
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.simplity.kernel.db.DbClientInterface#workWithDriver(org.simplity.
+     * kernel.db.DbDriver)
+     */
+    @Override
+    public boolean workWithDriver(DbDriver driver) {
+      this.result = DbAction.this.doDbAct(this.ctx, driver);
+      if (this.ctx.isInError()) {
+        return false;
+      }
+      return true;
+    }
 
-		int getResult(){
-			return this.result;
-		}
-	}
+    int getResult() {
+      return this.result;
+    }
+  }
 }

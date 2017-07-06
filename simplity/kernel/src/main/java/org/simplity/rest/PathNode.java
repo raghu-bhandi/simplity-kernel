@@ -22,6 +22,9 @@
 
 package org.simplity.rest;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,204 +33,199 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 
 /**
- * represents a node of the path tree we construct to map a request url/path to
- * a service
+ * represents a node of the path tree we construct to map a request url/path to a service
  *
  * @author simplity.org
- *
  */
 public class PathNode {
-	/**
-	 * non-null only if this this node is for a field
-	 */
-	private String fieldName = null;
-	/**
-	 * non-null when fieldName is non-null. This is the sole child from this
-	 * node irrespective of the field value
-	 */
-	private PathNode fieldChild = null;
-	/**
-	 * child paths from here. one entry for each possible value of the path part
-	 * from here. null if this is a field
-	 */
-	private Map<String, PathNode> children;
-	/**
-	 * specs at this level. It is possible to have children as well as spec.
-	 * That
-	 * is, this path is valid and sub-paths are also valid
-	 */
-	private Map<String, Operation> operations;
-	/**
-	 * path without the field-part. Also it is in "." notation. for example
-	 * inv.item
-	 */
-	private String pathPrefix;
+  static final Logger logger = Logger.getLogger(PathNode.class.getName());
 
-	/**
-	 * module name to be used for service name
-	 */
-	private String moduleName;
+  /** non-null only if this this node is for a field */
+  private String fieldName = null;
+  /**
+   * non-null when fieldName is non-null. This is the sole child from this node irrespective of the
+   * field value
+   */
+  private PathNode fieldChild = null;
+  /**
+   * child paths from here. one entry for each possible value of the path part from here. null if
+   * this is a field
+   */
+  private Map<String, PathNode> children;
+  /**
+   * specs at this level. It is possible to have children as well as spec. That is, this path is
+   * valid and sub-paths are also valid
+   */
+  private Map<String, Operation> operations;
+  /** path without the field-part. Also it is in "." notation. for example inv.item */
+  private String pathPrefix;
 
-	/**
-	 * way to go up the path. required when when spec may be assigned at a
-	 * sub-path and not at full path.
-	 */
-	private final PathNode parent;
+  /** module name to be used for service name */
+  private String moduleName;
 
-	PathNode(PathNode parent, String pathPrefix, String moduleName) {
-		this.parent = parent;
-		this.pathPrefix = pathPrefix;
-		this.moduleName = moduleName;
-		Tracer.trace("Node created with prefix=" + pathPrefix);
-	}
+  /**
+   * way to go up the path. required when when spec may be assigned at a sub-path and not at full
+   * path.
+   */
+  private final PathNode parent;
 
-	/**
-	 * @return if this path has a spec to accept methods
-	 */
-	public boolean isValidPath() {
-		return this.operations != null;
-	}
+  PathNode(PathNode parent, String pathPrefix, String moduleName) {
+    this.parent = parent;
+    this.pathPrefix = pathPrefix;
+    this.moduleName = moduleName;
 
-	/**
-	 * @param fieldName
-	 *            the fieldName to set
-	 * @param moduleName
-	 * @return child-node associated with this field
-	 */
-	public PathNode setFieldName(String fieldName, String moduleName) {
-		if (this.fieldName == null) {
-			this.fieldName = fieldName;
-			this.fieldChild = new PathNode(this, this.pathPrefix, moduleName);
+    logger.log(Level.INFO, "Node created with prefix=" + pathPrefix);
+    Tracer.trace("Node created with prefix=" + pathPrefix);
+  }
 
-			Tracer.trace("field-child added at " + this.pathPrefix + " with field name=" + fieldName);
-		} else if (this.fieldName.equals(fieldName) == false) {
-			/*
-			 * two paths can not have different field names at the same
-			 * location
-			 */
-			throw new ApplicationError(Tags.INVALID_API);
-		}
-		return this.fieldChild;
-	}
+  /** @return if this path has a spec to accept methods */
+  public boolean isValidPath() {
+    return this.operations != null;
+  }
 
-	/**
-	 * @return the fieldName
-	 */
-	public String getFieldName() {
-		return this.fieldName;
-	}
+  /**
+   * @param fieldName the fieldName to set
+   * @param moduleName
+   * @return child-node associated with this field
+   */
+  public PathNode setFieldName(String fieldName, String moduleName) {
+    if (this.fieldName == null) {
+      this.fieldName = fieldName;
+      this.fieldChild = new PathNode(this, this.pathPrefix, moduleName);
 
-	/**
-	 * set a child path for this path-part
-	 *
-	 * @param pathPart
-	 * @param moduleName
-	 * @return child node for this path-part
-	 */
-	public PathNode setChild(String pathPart, String moduleName) {
-		PathNode child = null;
-		if (this.children == null) {
-			this.children = new HashMap<String, PathNode>();
-		} else {
-			child = this.children.get(pathPart);
-		}
-		if (child == null) {
-			String prefix = pathPart;
-			if (this.pathPrefix != null) {
-				prefix = this.pathPrefix + Tags.SERVICE_SEP_CHAR + pathPart;
-			}
-			child = new PathNode(this, prefix, moduleName);
-			this.children.put(pathPart, child);
-			Tracer.trace("New Child added at " + this.pathPrefix + " for sub path " + pathPart);
-		}
-		return child;
-	}
+      logger.log(
+          Level.INFO, "field-child added at " + this.pathPrefix + " with field name=" + fieldName);
+      Tracer.trace("field-child added at " + this.pathPrefix + " with field name=" + fieldName);
+    } else if (this.fieldName.equals(fieldName) == false) {
+      /*
+       * two paths can not have different field names at the same
+       * location
+       */
+      throw new ApplicationError(Tags.INVALID_API);
+    }
+    return this.fieldChild;
+  }
 
-	/**
-	 *
-	 * @param pathPart
-	 *            as received from client. can be value of field in case this
-	 *            node is for a field
-	 * @return child node for this pathPart. null if no child node for this
-	 *         part.
-	 */
-	public PathNode getChild(String pathPart) {
-		PathNode child = null;
-		if (this.children != null) {
-			child = this.children.get(pathPart);
-		}
-		return child;
-	}
+  /** @return the fieldName */
+  public String getFieldName() {
+    return this.fieldName;
+  }
 
-	/**
-	 *
-	 * @return child associated with the field
-	 *
-	 */
-	public PathNode getFieldChild() {
-		return this.fieldChild;
-	}
+  /**
+   * set a child path for this path-part
+   *
+   * @param pathPart
+   * @param moduleName
+   * @return child node for this path-part
+   */
+  public PathNode setChild(String pathPart, String moduleName) {
+    PathNode child = null;
+    if (this.children == null) {
+      this.children = new HashMap<String, PathNode>();
+    } else {
+      child = this.children.get(pathPart);
+    }
+    if (child == null) {
+      String prefix = pathPart;
+      if (this.pathPrefix != null) {
+        prefix = this.pathPrefix + Tags.SERVICE_SEP_CHAR + pathPart;
+      }
+      child = new PathNode(this, prefix, moduleName);
+      this.children.put(pathPart, child);
 
-	/**
-	 * set service specs associated with methods
-	 *
-	 * @param methods
-	 */
-	public void setPathSpec(JSONObject methods) {
-		if (this.operations != null) {
-			Tracer.trace("Duplicate spec for path /" + this.pathPrefix);
-			return;
-		}
+      logger.log(Level.INFO, "New Child added at " + this.pathPrefix + " for sub path " + pathPart);
+      Tracer.trace("New Child added at " + this.pathPrefix + " for sub path " + pathPart);
+    }
+    return child;
+  }
 
-		this.operations = new HashMap<String, Operation>();
-		for (String method : methods.keySet()) {
-			JSONObject obj = methods.getJSONObject(method);
-			String serviceName = obj.optString(Tags.SERVICE_NAME_ATTR, null);
-			if (serviceName == null) {
-				serviceName = obj.optString(Tags.OP_ID_ATTR, null);
-			}
-			if (serviceName == null) {
-				/*
-				 * use path.method
-				 */
-				serviceName = this.pathPrefix + Tags.SERVICE_SEP_CHAR + method;
-			} else {
-				if (this.moduleName != null) {
-					serviceName = this.moduleName + Tags.SERVICE_SEP_CHAR + serviceName;
-				}
-			}
-			this.operations.put(method, new Operation(obj, serviceName));
-			Tracer.trace(
-					"Service spec added at prefix=" + this.pathPrefix + " for method=" + method + " and service name="
-							+ serviceName + (this.parent != null ? (" and parent at " + this.parent.pathPrefix) : ""));
-		}
-	}
+  /**
+   * @param pathPart as received from client. can be value of field in case this node is for a field
+   * @return child node for this pathPart. null if no child node for this part.
+   */
+  public PathNode getChild(String pathPart) {
+    PathNode child = null;
+    if (this.children != null) {
+      child = this.children.get(pathPart);
+    }
+    return child;
+  }
 
-	/**
-	 *
-	 * @param method
-	 * @return service spec associated with this method, or null if no such spec
-	 */
-	public Operation getOpertion(String method) {
-		if (this.operations == null) {
-			return null;
-		}
-		return this.operations.get(method);
-	}
+  /** @return child associated with the field */
+  public PathNode getFieldChild() {
+    return this.fieldChild;
+  }
 
-	/**
-	 *
-	 * @return the parent node. null for the root node
-	 */
-	public PathNode getParent() {
-		return this.parent;
-	}
+  /**
+   * set service specs associated with methods
+   *
+   * @param methods
+   */
+  public void setPathSpec(JSONObject methods) {
+    if (this.operations != null) {
 
-	/**
-	 * @return path-prefix of this node
-	 */
-	public String getPathPrefix() {
-		return this.pathPrefix;
-	}
+      logger.log(Level.INFO, "Duplicate spec for path /" + this.pathPrefix);
+      Tracer.trace("Duplicate spec for path /" + this.pathPrefix);
+      return;
+    }
 
+    this.operations = new HashMap<String, Operation>();
+    for (String method : methods.keySet()) {
+      JSONObject obj = methods.getJSONObject(method);
+      String serviceName = obj.optString(Tags.SERVICE_NAME_ATTR, null);
+      if (serviceName == null) {
+        serviceName = obj.optString(Tags.OP_ID_ATTR, null);
+      }
+      if (serviceName == null) {
+        /*
+         * use path.method
+         */
+        serviceName = this.pathPrefix + Tags.SERVICE_SEP_CHAR + method;
+      } else {
+        if (this.moduleName != null) {
+          serviceName = this.moduleName + Tags.SERVICE_SEP_CHAR + serviceName;
+        }
+      }
+      this.operations.put(method, new Operation(obj, serviceName));
+
+      logger.log(
+          Level.INFO,
+          "Service spec added at prefix="
+              + this.pathPrefix
+              + " for method="
+              + method
+              + " and service name="
+              + serviceName
+              + (this.parent != null ? (" and parent at " + this.parent.pathPrefix) : ""));
+      Tracer.trace(
+          "Service spec added at prefix="
+              + this.pathPrefix
+              + " for method="
+              + method
+              + " and service name="
+              + serviceName
+              + (this.parent != null ? (" and parent at " + this.parent.pathPrefix) : ""));
+    }
+  }
+
+  /**
+   * @param method
+   * @return service spec associated with this method, or null if no such spec
+   */
+  public Operation getOpertion(String method) {
+    if (this.operations == null) {
+      return null;
+    }
+    return this.operations.get(method);
+  }
+
+  /** @return the parent node. null for the root node */
+  public PathNode getParent() {
+    return this.parent;
+  }
+
+  /** @return path-prefix of this node */
+  public String getPathPrefix() {
+    return this.pathPrefix;
+  }
 }

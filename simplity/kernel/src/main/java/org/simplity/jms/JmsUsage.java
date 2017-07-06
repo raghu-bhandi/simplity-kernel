@@ -26,20 +26,15 @@ package org.simplity.jms;
  * how a service uses messaging services and resources.
  *
  * @author simplity.org
- *
  */
 public enum JmsUsage {
-	/**
-	 * un-managed. activities are not part of ant transactions.
-	 */
-	NOT_MANAGED
+  /** un-managed. activities are not part of ant transactions. */
+  NOT_MANAGED
 
-	/**
-	 * managed as part of a session/service
-	 */
-	,SERVICE_MANAGED
-	/**
-	 * managed using JTA/JCA/Xa, part of larger transaction
-	 */
-	,EXTERNALLY_MANAGED
+  /** managed as part of a session/service */
+  ,
+  SERVICE_MANAGED
+  /** managed using JTA/JCA/Xa, part of larger transaction */
+  ,
+  EXTERNALLY_MANAGED
 }

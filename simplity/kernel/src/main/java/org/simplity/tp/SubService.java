@@ -21,6 +21,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
@@ -34,52 +37,55 @@ import org.simplity.service.ServiceInterface;
  * Service that is to be executed as a step/action in side another service.
  *
  * @author simplity.org
- *
  */
 public class SubService extends Action {
-	String serviceName;
+  static final Logger logger = Logger.getLogger(SubService.class.getName());
 
-	private boolean transactionIsDelegated;
+  String serviceName;
 
-	@Override
-	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		ServiceInterface service = ComponentManager
-				.getService(this.serviceName);
-		Tracer.trace("service " +this.serviceName + " started as sub service.");
-		Value result = service.executeAsAction(ctx, driver, this.transactionIsDelegated);
-		Tracer.trace("service " + this.serviceName + " returned control back.");
-		return result;
-	}
+  private boolean transactionIsDelegated;
 
-	/* (non-Javadoc)
-	 * @see org.simplity.tp.Action#getReady(int)
-	 */
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		if(service.dbAccessType == DbAccessType.SUB_SERVICE){
-			this.transactionIsDelegated = true;
-		}
-	}
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if (this.serviceName == null) {
-			ctx.addError("subService action requires serviceName");
-			count++;
-		} else {
-			if (ctx.checkServiceName(this.serviceName, "serviceName")) {
-				count++;
-			}
-		}
-		return count;
-	}
+  @Override
+  protected Value delegate(ServiceContext ctx, DbDriver driver) {
+    ServiceInterface service = ComponentManager.getService(this.serviceName);
 
+    logger.log(Level.INFO, "service " + this.serviceName + " started as sub service.");
+    Tracer.trace("service " + this.serviceName + " started as sub service.");
+    Value result = service.executeAsAction(ctx, driver, this.transactionIsDelegated);
+
+    logger.log(Level.INFO, "service " + this.serviceName + " returned control back.");
+    Tracer.trace("service " + this.serviceName + " returned control back.");
+    return result;
+  }
+
+  /* (non-Javadoc)
+   * @see org.simplity.tp.Action#getReady(int)
+   */
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    if (service.dbAccessType == DbAccessType.SUB_SERVICE) {
+      this.transactionIsDelegated = true;
+    }
+  }
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if (this.serviceName == null) {
+      ctx.addError("subService action requires serviceName");
+      count++;
+    } else {
+      if (ctx.checkServiceName(this.serviceName, "serviceName")) {
+        count++;
+      }
+    }
+    return count;
+  }
 }

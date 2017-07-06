@@ -23,20 +23,17 @@
 package org.simplity.service;
 
 /**
- * utility to take data elements from a service context and format them as a
- * text
+ * utility to take data elements from a service context and format them as a text
  *
  * @author simplity.org
- *
  */
 public interface DataFormatter {
-	/**
-	 * pick values for data elements from service contract and format a text that
-	 * can be used to transport this
-	 *
-	 * @param ctx
-	 *            service context
-	 * @return serialized/formatted text
-	 */
-	public String format(ServiceContext ctx);
+  /**
+   * pick values for data elements from service contract and format a text that can be used to
+   * transport this
+   *
+   * @param ctx service context
+   * @return serialized/formatted text
+   */
+  public String format(ServiceContext ctx);
 }

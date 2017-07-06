@@ -26,36 +26,31 @@ package org.simplity.kernel.comp;
  * Simple data structure to represent a dependence between two components
  *
  * @author simplity.org
- *
  */
 public class ReferredComponent {
-	/**
-	 * component name
-	 */
-	public final String compName;
-	/**
-	 * component type
-	 */
-	public final ComponentType compType;
+  /** component name */
+  public final String compName;
+  /** component type */
+  public final ComponentType compType;
 
-	/**
-	 * create a new reference. All fields are to be non-null
-	 *
-	 * @param compType
-	 * @param compName
-	 */
-	public ReferredComponent(ComponentType compType, String compName) {
-		this.compType = compType;
-		this.compName = compName;
-	}
+  /**
+   * create a new reference. All fields are to be non-null
+   *
+   * @param compType
+   * @param compName
+   */
+  public ReferredComponent(ComponentType compType, String compName) {
+    this.compType = compType;
+    this.compName = compName;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return this.compType + " : " + this.compName;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return this.compType + " : " + this.compName;
+  }
 }

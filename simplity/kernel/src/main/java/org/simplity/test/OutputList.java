@@ -31,72 +31,61 @@ import org.simplity.kernel.util.JsonUtil;
  * Represents a list/array of items in a json
  *
  * @author simplity.org
- *
  */
 public class OutputList {
-	/**
-	 * qualified name that would fetch this list (array) for example a.2.b would
-	 * get json[a][2][b]
-	 */
-	String listSelector;
-	/**
-	 * min rows expected
-	 */
-	int minRows;
-	/**
-	 * max rows expected
-	 */
-	int maxRows;
+  /** qualified name that would fetch this list (array) for example a.2.b would get json[a][2][b] */
+  String listSelector;
+  /** min rows expected */
+  int minRows;
+  /** max rows expected */
+  int maxRows;
 
-	/**
-	 * check for any semantic errors
-	 *
-	 * @param vtx
-	 * @return
-	 */
-	int validate(ValidationContext vtx) {
-		int nbr = 0;
-		if (this.listSelector == null) {
-			vtx.addError("name is mandatory for list in a test case");
-			nbr++;
-		}
-		if (this.maxRows < this.minRows) {
-			vtx.addError("max rows is set to " + this.maxRows
-					+ " while minRows is set to " + this.minRows);
-			nbr++;
-		}
-		if (this.minRows == 0 && this.maxRows == 0) {
-			vtx.addError("max rows and min rows are not set. This list has no assertion.");
-			nbr++;
-		}
-		return nbr;
-	}
+  /**
+   * check for any semantic errors
+   *
+   * @param vtx
+   * @return
+   */
+  int validate(ValidationContext vtx) {
+    int nbr = 0;
+    if (this.listSelector == null) {
+      vtx.addError("name is mandatory for list in a test case");
+      nbr++;
+    }
+    if (this.maxRows < this.minRows) {
+      vtx.addError(
+          "max rows is set to " + this.maxRows + " while minRows is set to " + this.minRows);
+      nbr++;
+    }
+    if (this.minRows == 0 && this.maxRows == 0) {
+      vtx.addError("max rows and min rows are not set. This list has no assertion.");
+      nbr++;
+    }
+    return nbr;
+  }
 
-	/**
-	 * @param ctx
-	 * @param arr
-	 * @return
-	 */
-	String match(JSONObject parentJson, TestContext ctx) {
-		Object json = JsonUtil.getObjectValue(this.listSelector, parentJson);
-		if (json == null) {
-			if (this.minRows != 0) {
-				return "List " + this.listSelector + " should have at least "
-						+ this.minRows + " rows.";
-			}
-		}
-		if (json instanceof JSONArray == false) {
-			return this.listSelector + " should be a list/array";
-		}
-		int nbrRows = ((JSONArray) json).length();
-		if (this.minRows > 0 && nbrRows < this.minRows) {
-			return "List " + this.listSelector + " should have at least "
-					+ this.minRows + " rows.";
-		}
-		if (this.maxRows > 0 && nbrRows > this.maxRows) {
-			return "List " + this.listSelector + " should have at most "
-					+ this.maxRows + " rows.";
-		}
-		return null;
-	}
+  /**
+   * @param ctx
+   * @param arr
+   * @return
+   */
+  String match(JSONObject parentJson, TestContext ctx) {
+    Object json = JsonUtil.getObjectValue(this.listSelector, parentJson);
+    if (json == null) {
+      if (this.minRows != 0) {
+        return "List " + this.listSelector + " should have at least " + this.minRows + " rows.";
+      }
+    }
+    if (json instanceof JSONArray == false) {
+      return this.listSelector + " should be a list/array";
+    }
+    int nbrRows = ((JSONArray) json).length();
+    if (this.minRows > 0 && nbrRows < this.minRows) {
+      return "List " + this.listSelector + " should have at least " + this.minRows + " rows.";
+    }
+    if (this.maxRows > 0 && nbrRows > this.maxRows) {
+      return "List " + this.listSelector + " should have at most " + this.maxRows + " rows.";
+    }
+    return null;
+  }
 }

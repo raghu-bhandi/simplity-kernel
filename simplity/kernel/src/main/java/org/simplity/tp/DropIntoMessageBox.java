@@ -32,47 +32,46 @@ import org.simplity.service.ServiceContext;
  * set message in the message box
  *
  * @author simplity.org
- *
  */
 public class DropIntoMessageBox extends Action {
-	/**
-	 * field/table names to be logged
-	 */
-	String fieldName;
+  /** field/table names to be logged */
+  String fieldName;
 
-	Expression expression;
+  Expression expression;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		String val = null;
-		if (this.fieldName != null) {
-			val = ctx.getTextValue(this.fieldName);
-		}else if(this.expression != null){
-			try {
-				val = this.expression.evaluate(ctx).toString();
-			} catch (InvalidOperationException e) {
-				throw new ApplicationError("Error while evaluating expression " + this.expression.toString());
-			}
-		}
-		ctx.putMessageInBox(val);
-		return null;
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    String val = null;
+    if (this.fieldName != null) {
+      val = ctx.getTextValue(this.fieldName);
+    } else if (this.expression != null) {
+      try {
+        val = this.expression.evaluate(ctx).toString();
+      } catch (InvalidOperationException e) {
+        throw new ApplicationError(
+            "Error while evaluating expression " + this.expression.toString());
+      }
+    }
+    ctx.putMessageInBox(val);
+    return null;
+  }
 
-	/* (non-Javadoc)
-	 * @see org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext, org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext vtx, Service service) {
-		int count = super.validate(vtx, service);
-		if(this.fieldName == null ){
-			if(this.expression == null){
-				vtx.addError("fieldName is required for dropIntoMessageBox action");
-				count++;
-			}
-		}else if(this.expression != null){
-				vtx.addError("Specify either fieldName, or expression, but not both for a dropIntoMessageBox action");
-				count++;
-		}
-		return count;
-	}
+  /* (non-Javadoc)
+   * @see org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext, org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext vtx, Service service) {
+    int count = super.validate(vtx, service);
+    if (this.fieldName == null) {
+      if (this.expression == null) {
+        vtx.addError("fieldName is required for dropIntoMessageBox action");
+        count++;
+      }
+    } else if (this.expression != null) {
+      vtx.addError(
+          "Specify either fieldName, or expression, but not both for a dropIntoMessageBox action");
+      count++;
+    }
+    return count;
+  }
 }

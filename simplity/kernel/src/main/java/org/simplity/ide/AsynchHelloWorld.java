@@ -22,47 +22,55 @@
 
 package org.simplity.ide;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.tp.LogicInterface;
 
 /**
- * An example logic action that consumes some elapsed time. This is useful in
- * demo/test services with asynchronous actions. This action will take anywhere
- * from 1 to 10 seconds to complete.
+ * An example logic action that consumes some elapsed time. This is useful in demo/test services
+ * with asynchronous actions. This action will take anywhere from 1 to 10 seconds to complete.
  *
  * @author simplity.org
- *
  */
 public class AsynchHelloWorld implements LogicInterface {
+  static final Logger logger = Logger.getLogger(AsynchHelloWorld.class.getName());
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.LogicInterface#execute(org.simplity.service.
-	 * ServiceContext)
-	 */
-	@Override
-	public Value execute(ServiceContext ctx) {
-		// pick a time up to 10 seconds
-		long l = Math.round(10000 * Math.random());
-		Tracer.trace("Hello World logic " + "will take a nap for " + l + "ms");
-		boolean interrupted = false;
-		try {
-			Thread.sleep(l);
-		} catch (InterruptedException e) {
-			Tracer.trace("Hello World logic got woken...");
-			interrupted = true;
-		}
-		Tracer.trace("Hello World... rather belated-");
-		/*
-		 * be a responsible method -we should not digest the interrupt. We are
-		 * to relay that.
-		 */
-		if (interrupted) {
-			Thread.currentThread().interrupt();
-		}
-		return Value.VALUE_TRUE;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.tp.LogicInterface#execute(org.simplity.service.
+   * ServiceContext)
+   */
+  @Override
+  public Value execute(ServiceContext ctx) {
+    // pick a time up to 10 seconds
+    long l = Math.round(10000 * Math.random());
+
+    logger.log(Level.INFO, "Hello World logic " + "will take a nap for " + l + "ms");
+    Tracer.trace("Hello World logic " + "will take a nap for " + l + "ms");
+    boolean interrupted = false;
+    try {
+      Thread.sleep(l);
+    } catch (InterruptedException e) {
+
+      logger.log(Level.INFO, "Hello World logic got woken...");
+      Tracer.trace("Hello World logic got woken...");
+      interrupted = true;
+    }
+
+    logger.log(Level.INFO, "Hello World... rather belated-");
+    Tracer.trace("Hello World... rather belated-");
+    /*
+     * be a responsible method -we should not digest the interrupt. We are
+     * to relay that.
+     */
+    if (interrupted) {
+      Thread.currentThread().interrupt();
+    }
+    return Value.VALUE_TRUE;
+  }
 }

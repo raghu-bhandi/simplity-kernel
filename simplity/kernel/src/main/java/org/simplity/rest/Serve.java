@@ -22,6 +22,9 @@
  */
 package org.simplity.rest;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -32,78 +35,82 @@ import javax.servlet.http.HttpServletResponse;
 import org.simplity.kernel.Tracer;
 
 /**
- * this is an example servlet to demonstrate how a project can use HttpAgent to
- * deliver services in the App layer to http clients
+ * this is an example servlet to demonstrate how a project can use HttpAgent to deliver services in
+ * the App layer to http clients
  *
  * @author simplity.org
- *
  */
 public class Serve extends HttpServlet {
+  static final Logger logger = Logger.getLogger(Serve.class.getName());
 
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
+  /** post is to be used by client in AJAX call. */
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    try {
+      RestAgent.serve(req, resp);
+    } catch (Exception e) {
+      String msg = "We have an internal error. ";
 
-	/**
-	 * post is to be used by client in AJAX call.
-	 */
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		try {
-			RestAgent.serve(req, resp);
-		} catch (Exception e) {
-			String msg = "We have an internal error. ";
-			Tracer.trace(e, msg);
-			RestAgent.respondWithError(resp, msg + e.getMessage());
-			return;
-		}
-	}
+      logger.log(Level.SEVERE, msg, e);
+      Tracer.trace(e, msg);
+      RestAgent.respondWithError(resp, msg + e.getMessage());
+      return;
+    }
+  }
 
-	/**
-	 * Get is to be used ONLY IF POST is not possible for some reason. From
-	 * security angle POST is preferred
-	 */
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		this.doPost(req, resp);
-	}
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doDelete(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.doPost(req, resp);
-	}
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doHead(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.doPost(req, resp);
-	}
+  /**
+   * Get is to be used ONLY IF POST is not possible for some reason. From security angle POST is
+   * preferred
+   */
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    this.doPost(req, resp);
+  }
+  /* (non-Javadoc)
+   * @see javax.servlet.http.HttpServlet#doDelete(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   */
+  @Override
+  protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    this.doPost(req, resp);
+  }
+  /* (non-Javadoc)
+   * @see javax.servlet.http.HttpServlet#doHead(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   */
+  @Override
+  protected void doHead(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    this.doPost(req, resp);
+  }
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doOptions(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.doPost(req, resp);
-	}
+  /* (non-Javadoc)
+   * @see javax.servlet.http.HttpServlet#doOptions(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   */
+  @Override
+  protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    this.doPost(req, resp);
+  }
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doPut(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.doPost(req, resp);
-	}
+  /* (non-Javadoc)
+   * @see javax.servlet.http.HttpServlet#doPut(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   */
+  @Override
+  protected void doPut(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    this.doPost(req, resp);
+  }
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doTrace(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	@Override
-	protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		this.doPost(req, resp);
-	}
+  /* (non-Javadoc)
+   * @see javax.servlet.http.HttpServlet#doTrace(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   */
+  @Override
+  protected void doTrace(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    this.doPost(req, resp);
+  }
 }

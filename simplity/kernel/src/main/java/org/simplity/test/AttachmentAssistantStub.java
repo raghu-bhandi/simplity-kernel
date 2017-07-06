@@ -22,6 +22,9 @@
 
 package org.simplity.test;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.InputStream;
 
 import org.simplity.json.JSONWriter;
@@ -35,88 +38,85 @@ import org.simplity.test.TestContext;
 import org.simplity.test.TestRun;
 
 /**
- * stub to test attachment handling. Prefixes saved_ before token to simulate
- * storage, and expected the same prefix for retrieval
+ * stub to test attachment handling. Prefixes saved_ before token to simulate storage, and expected
+ * the same prefix for retrieval
  *
  * @author simplity.org
- *
  */
 public class AttachmentAssistantStub implements AttachmentAssistant {
+  static final Logger logger = Logger.getLogger(AttachmentAssistantStub.class.getName());
 
-	private static final String PREFIX = "saved_";
-	private static final String TOKEN = PREFIX + "token";
-	private static final int START = PREFIX.length();
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.AttachmentAssistant#remove(java.lang.String)
-	 */
-	@Override
-	public void remove(String tokan) {
-		// what to remove when we never kept anything !!!
-	}
+  private static final String PREFIX = "saved_";
+  private static final String TOKEN = PREFIX + "token";
+  private static final int START = PREFIX.length();
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.AttachmentAssistant#remove(java.lang.String)
+   */
+  @Override
+  public void remove(String tokan) {
+    // what to remove when we never kept anything !!!
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.AttachmentAssistant#retrieve(java.lang.String)
-	 */
-	@Override
-	/**
-	 * we expect that the token starts with "saved_" and we return the the token
-	 * after removing this prefix. Raise ApplicationError if this prefix is not found
-	 */
-	public String retrieve(String token) {
-		if(token == null || token.startsWith(PREFIX) == false){
-			throw new ApplicationError("No attachment found with token " + token);
-		}
-		return token.substring(START);
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.AttachmentAssistant#retrieve(java.lang.String)
+   */
+  @Override
+  /**
+   * we expect that the token starts with "saved_" and we return the the token after removing this
+   * prefix. Raise ApplicationError if this prefix is not found
+   */
+  public String retrieve(String token) {
+    if (token == null || token.startsWith(PREFIX) == false) {
+      throw new ApplicationError("No attachment found with token " + token);
+    }
+    return token.substring(START);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.AttachmentAssistant#store(java.io.InputStream)
-	 */
-	@Override
-	/**
-	 * we return a token named saved_token always
-	 */
-	public String store(InputStream arg0) {
-		return TOKEN;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.AttachmentAssistant#store(java.io.InputStream)
+   */
+  @Override
+  /** we return a token named saved_token always */
+  public String store(InputStream arg0) {
+    return TOKEN;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.AttachmentAssistant#store(java.lang.String)
-	 */
-	@Override
-	/**
-	 * we return a token named saved_token always
-	 */
-	public String store(String arg0) {
-		return TOKEN;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.AttachmentAssistant#store(java.lang.String)
+   */
+  @Override
+  /** we return a token named saved_token always */
+  public String store(String arg0) {
+    return TOKEN;
+  }
 
-	public static void main(String[] args) {
-		String root = "c:/repos/simplity/test/WebContent/WEB-INF/comp/";
-		try {
-			Application.bootStrap(root);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		TestContext ctx = new TestContext();
-		ctx.start("111", null);
-		TestRun tr =  ComponentManager.getTestRun("action.httpClient");
-		tr.run(ctx);
-		JSONWriter writer = new JSONWriter();
-		writer.object();
-		writer.key("report");
-		JsonUtil.addObject(writer, ctx.getReport());
-		writer.endObject();
-		Tracer.trace(writer.toString());
-	}
+  public static void main(String[] args) {
+    String root = "c:/repos/simplity/test/WebContent/WEB-INF/comp/";
+    try {
+      Application.bootStrap(root);
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    TestContext ctx = new TestContext();
+    ctx.start("111", null);
+    TestRun tr = ComponentManager.getTestRun("action.httpClient");
+    tr.run(ctx);
+    JSONWriter writer = new JSONWriter();
+    writer.object();
+    writer.key("report");
+    JsonUtil.addObject(writer, ctx.getReport());
+    writer.endObject();
 
+    logger.log(Level.INFO, writer.toString());
+    Tracer.trace(writer.toString());
+  }
 }

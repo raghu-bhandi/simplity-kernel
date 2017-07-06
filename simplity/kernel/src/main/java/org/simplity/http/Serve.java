@@ -22,6 +22,9 @@
  */
 package org.simplity.http;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -34,88 +37,94 @@ import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Tracer;
 
 /**
- * this is an example servlet to demonstrate how a project can use HttpAgent to
- * deliver services in the App layer to http clients
+ * this is an example servlet to demonstrate how a project can use HttpAgent to deliver services in
+ * the App layer to http clients
  *
  * @author simplity.org
- *
  */
 public class Serve extends HttpServlet {
+  static final Logger logger = Logger.getLogger(Serve.class.getName());
 
-	/*
-	 * we may have to co-exist with other application. It is possible that our
-	 * start-up never started. One check may not be too expensive. Our start-up
-	 * calls keep this as marker..
-	 */
-	private static boolean startedUp = false;
-	private static boolean startUpFailed = false;
-	/*
-	 * of course we will have several other issues like logging....
-	 */
-	private static final long serialVersionUID = 1L;
+  /*
+   * we may have to co-exist with other application. It is possible that our
+   * start-up never started. One check may not be too expensive. Our start-up
+   * calls keep this as marker..
+   */
+  private static boolean startedUp = false;
+  private static boolean startUpFailed = false;
+  /*
+   * of course we will have several other issues like logging....
+   */
+  private static final long serialVersionUID = 1L;
 
-	/**
-	 * notify that the start-up is successful, and we can go ahead and serve
-	 *
-	 * @param succeeded
-	 *            Success flag
-	 */
-	public static void updateStartupStatus(boolean succeeded) {
-		if (succeeded) {
-			startedUp = true;
-			Tracer.trace("Web Agent is given a green signal by Startup to start serving.");
-		} else {
-			startUpFailed = true;
-			Tracer.trace("Web agent Serve will not be available on this server as Startup reported a failure on boot-strap.");
-		}
-	}
+  /**
+   * notify that the start-up is successful, and we can go ahead and serve
+   *
+   * @param succeeded Success flag
+   */
+  public static void updateStartupStatus(boolean succeeded) {
+    if (succeeded) {
+      startedUp = true;
 
-	/**
-	 * post is to be used by client in AJAX call.
-	 */
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		if (startedUp == false) {
-			if (startUpFailed == false) {
-				Startup.bootStrap(this.getServletContext());
-			}
-			if (startUpFailed) {
-				/*
-				 * application had error during bootstrap.
-				 */
-				this.reportError(
-						resp,
-						"Application start-up had an error. Please refer to the logs. No service is possible.");
-				return;
-			}
-		}
-		try {
-			HttpAgent.serve(req, resp);
-		} catch (Exception e) {
-			String msg = "We have an internal error. ";
-			Tracer.trace(e, msg);
-			this.reportError(resp, msg + e.getMessage());
-		}
-	}
+      logger.log(Level.INFO, "Web Agent is given a green signal by Startup to start serving.");
+      Tracer.trace("Web Agent is given a green signal by Startup to start serving.");
+    } else {
+      startUpFailed = true;
 
-	/**
-	 * Get is to be used ONLY IF POST is not possible for some reason. From
-	 * security angle POST is preferred
-	 */
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		this.doPost(req, resp);
-	}
+      logger.log(
+          Level.INFO,
+          "Web agent Serve will not be available on this server as Startup reported a failure on boot-strap.");
+      Tracer.trace(
+          "Web agent Serve will not be available on this server as Startup reported a failure on boot-strap.");
+    }
+  }
 
-	private void reportError(HttpServletResponse resp, String msg)
-			throws IOException {
-		Tracer.trace(msg);
-		FormattedMessage message = new FormattedMessage("internalerror",
-				MessageType.ERROR, msg);
-		FormattedMessage[] messages = { message };
-		String response = HttpAgent.getResponseForError(messages);
-		resp.getWriter().write(response);
-	}
+  /** post is to be used by client in AJAX call. */
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    if (startedUp == false) {
+      if (startUpFailed == false) {
+        Startup.bootStrap(this.getServletContext());
+      }
+      if (startUpFailed) {
+        /*
+         * application had error during bootstrap.
+         */
+        this.reportError(
+            resp,
+            "Application start-up had an error. Please refer to the logs. No service is possible.");
+        return;
+      }
+    }
+    try {
+      HttpAgent.serve(req, resp);
+    } catch (Exception e) {
+      String msg = "We have an internal error. ";
+
+      logger.log(Level.SEVERE, msg, e);
+      Tracer.trace(e, msg);
+      this.reportError(resp, msg + e.getMessage());
+    }
+  }
+
+  /**
+   * Get is to be used ONLY IF POST is not possible for some reason. From security angle POST is
+   * preferred
+   */
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    this.doPost(req, resp);
+  }
+
+  private void reportError(HttpServletResponse resp, String msg) throws IOException {
+
+    logger.log(Level.INFO, msg);
+    Tracer.trace(msg);
+    FormattedMessage message = new FormattedMessage("internalerror", MessageType.ERROR, msg);
+    FormattedMessage[] messages = {message};
+    String response = HttpAgent.getResponseForError(messages);
+    resp.getWriter().write(response);
+  }
 }

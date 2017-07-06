@@ -22,6 +22,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,9 +71,10 @@ import org.simplity.service.ServiceProtocol;
  * Transaction Processing Service
  *
  * @author simplity.org
- *
  */
 public class Service implements ServiceInterface {
+
+	static final Logger logger = Logger.getLogger(Service.class.getName());
 
 	/*
 	 * constants used by on-the-fly services
@@ -79,19 +83,13 @@ public class Service implements ServiceInterface {
 	private static final String GET = "get";
 	private static final String FILTER = "filter";
 	private static final String SAVE = "save";
-	/**
-	 * used by suggestion service as well
-	 */
+	/** used by suggestion service as well */
 	public static final String SUGGEST = "suggest";
 
-	/**
-	 * list service needs to use this
-	 */
+	/** list service needs to use this */
 	private static final String LIST = "list";
 
-	/**
-	 * stop the execution of this service as success
-	 */
+	/** stop the execution of this service as success */
 	public static final Value STOP_VALUE = Value.newTextValue("_s");
 	/**
 	 * field name with which result of an action is available in service context
@@ -100,14 +98,10 @@ public class Service implements ServiceInterface {
 
 	private static final ComponentType MY_TYPE = ComponentType.SERVICE;
 
-	/**
-	 * simple name
-	 */
+	/** simple name */
 	String name;
 
-	/**
-	 * module name.simpleName would be fully qualified name.
-	 */
+	/** module name.simpleName would be fully qualified name. */
 	String moduleName;
 
 	/**
@@ -116,9 +110,7 @@ public class Service implements ServiceInterface {
 	 */
 	String className;
 
-	/**
-	 * database access type
-	 */
+	/** database access type */
 	DbAccessType dbAccessType = DbAccessType.NONE;
 
 	/**
@@ -127,13 +119,9 @@ public class Service implements ServiceInterface {
 	 */
 	InputData inputData;
 
-	/**
-	 * copy input records from another service
-	 */
+	/** copy input records from another service */
 	String referredServiceForInput;
-	/**
-	 * copy output records from another service
-	 */
+	/** copy output records from another service */
 	String referredServiceForOutput;
 
 	/**
@@ -147,14 +135,10 @@ public class Service implements ServiceInterface {
 	 */
 	OutputData outputData;
 
-	/**
-	 * actions that make up this service
-	 */
+	/** actions that make up this service */
 	Action[] actions;
 
-	/**
-	 * should this be executed in the background ALWAYS?.
-	 */
+	/** should this be executed in the background ALWAYS?. */
 	boolean executeInBackground;
 
 	/**
@@ -173,19 +157,13 @@ public class Service implements ServiceInterface {
 	 */
 	JmsUsage jmsUsage;
 
-	/**
-	 * action names indexed to respond to navigation requests
-	 */
+	/** action names indexed to respond to navigation requests */
 	private final HashMap<String, Integer> indexedActions = new HashMap<String, Integer>();
 
-	/**
-	 * flag to avoid repeated getReady() calls
-	 */
+	/** flag to avoid repeated getReady() calls */
 	private boolean gotReady;
 
-	/**
-	 * instance of className to be used as body of this service
-	 */
+	/** instance of className to be used as body of this service */
 	private ServiceInterface serviceInstance;
 
 	@Override
@@ -342,6 +320,8 @@ public class Service implements ServiceInterface {
 				if (exception == null && ctx.isInError() == false) {
 					userTransaciton.commit();
 				} else {
+
+					logger.log(Level.INFO, "Service is in error. User transaction rolled-back");
 					Tracer.trace("Service is in error. User transaction rolled-back");
 					userTransaciton.rollback();
 				}
@@ -387,17 +367,20 @@ public class Service implements ServiceInterface {
 	}
 
 	/**
-	 *
 	 * @param ctx
 	 * @param requestText
 	 * @param paylodType
 	 */
 	protected void extractInput(ServiceContext ctx, Object payload, PayloadType payloadType) {
 		if (payload == null) {
+
+			logger.log(Level.INFO, "No input received from client");
 			Tracer.trace("No input received from client");
 			return;
 		}
 		if (this.inputData == null) {
+
+			logger.log(Level.INFO, "We received input data, but this service is designed not to make use of input.");
 			Tracer.trace("We received input data, but this service is designed not to make use of input.");
 			return;
 		}
@@ -431,6 +414,8 @@ public class Service implements ServiceInterface {
 			return;
 		}
 		if (this.outputData == null) {
+
+			logger.log(Level.INFO, "Service " + this.name + " is designed to send no response.");
 			Tracer.trace("Service " + this.name + " is designed to send no response.");
 			return;
 		}
@@ -447,6 +432,9 @@ public class Service implements ServiceInterface {
 		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
 			Object obj = response.put(entry.getKey(), entry.getValue());
 			if (obj != null) {
+
+				logger.log(Level.INFO, "Warning: " + entry.getKey()
+						+ " is used as a field nae as well as data sheet name in service context. field value is ignored and only data sheet is copied to output servie data.");
 				Tracer.trace("Warning: " + entry.getKey()
 						+ " is used as a field nae as well as data sheet name in service context. field value is ignored and only data sheet is copied to output servie data.");
 			}
@@ -526,6 +514,9 @@ public class Service implements ServiceInterface {
 	@Override
 	public void getReady() {
 		if (this.gotReady) {
+
+			logger.log(Level.INFO, "Service " + this.getQualifiedName()
+					+ " is being harassed by repeatedly asking it to getReady(). Please look into this..");
 			Tracer.trace("Service " + this.getQualifiedName()
 					+ " is being harassed by repeatedly asking it to getReady(). Please look into this..");
 			return;
@@ -540,6 +531,8 @@ public class Service implements ServiceInterface {
 			}
 		}
 		if (this.actions == null) {
+
+			logger.log(Level.INFO, "Service " + this.getQualifiedName() + " has no actions.");
 			Tracer.trace("Service " + this.getQualifiedName() + " has no actions.");
 			this.actions = new Action[0];
 		} else {
@@ -607,7 +600,6 @@ public class Service implements ServiceInterface {
 						"Service " + this.getQualifiedName() + " uses dbAccessTYpe=" + this.dbAccessType
 								+ " but action " + action.getName() + " requires " + action.getDataAccessType());
 			}
-
 		}
 	}
 
@@ -656,7 +648,6 @@ public class Service implements ServiceInterface {
 	}
 
 	/**
-	 *
 	 * @param serviceName
 	 * @param record
 	 * @return service that filter rows from table associated with this record,
@@ -706,7 +697,6 @@ public class Service implements ServiceInterface {
 	}
 
 	/**
-	 *
 	 * @param serviceName
 	 * @param record
 	 * @return service that returns a sheet with suggested rows for the supplied
@@ -753,7 +743,6 @@ public class Service implements ServiceInterface {
 	}
 
 	/**
-	 *
 	 * @param serviceName
 	 * @param record
 	 * @return service that returns a sheet with suggested rows for the supplied
@@ -871,6 +860,8 @@ public class Service implements ServiceInterface {
 			this.name = possiblyQualifiedName.substring(idx + 1);
 			this.moduleName = possiblyQualifiedName.substring(0, idx);
 		}
+
+		logger.log(Level.INFO, "service name set to " + this.name + " and " + this.moduleName);
 		Tracer.trace("service name set to " + this.name + " and " + this.moduleName);
 	}
 
@@ -903,7 +894,6 @@ public class Service implements ServiceInterface {
 	}
 
 	/**
-	 *
 	 * @param record
 	 * @return
 	 */
@@ -1053,6 +1043,8 @@ public class Service implements ServiceInterface {
 	 * @return service, or null if name is not a valid on-the-fly service name
 	 */
 	public static ServiceInterface generateService(String serviceName) {
+
+		logger.log(Level.INFO, "Trying to generate service " + serviceName + " on-the-fly");
 		Tracer.trace("Trying to generate service " + serviceName + " on-the-fly");
 		int idx = serviceName.indexOf(PREFIX_DELIMITER);
 		if (idx == -1) {
@@ -1068,6 +1060,10 @@ public class Service implements ServiceInterface {
 
 		Record record = ComponentManager.getRecordOrNull(recordName);
 		if (record == null) {
+
+			logger.log(Level.INFO,
+					recordName + " is not defined as a record, and hence we are unable to generate a service named "
+							+ serviceName);
 			Tracer.trace(
 					recordName + " is not defined as a record, and hence we are unable to generate a service named "
 							+ serviceName);
@@ -1090,6 +1086,7 @@ public class Service implements ServiceInterface {
 			return getSuggestionService(serviceName, record);
 		}
 
+		logger.log(Level.INFO, "We have no on-the-fly service generator for operation " + operation);
 		Tracer.trace("We have no on-the-fly service generator for operation " + operation);
 		return null;
 	}
@@ -1105,8 +1102,7 @@ public class Service implements ServiceInterface {
 	private static final String RESPONSES_ATTR = "responses";
 	private static final String SCHEMA_ATTR = "schema";
 	private static final String TYPE_ATTR = "type";
-	
-		
+
 	public static Service[] fromSwaggerPaths(JSONObject pathsObj, JSONObject defs) {
 		Service[] empty = new Service[0];
 		if (pathsObj == null) {
@@ -1119,7 +1115,7 @@ public class Service implements ServiceInterface {
 
 		List<Service> services = new ArrayList<Service>();
 		for (String path : paths) {
-			parsePathSchema(pathsObj.getJSONObject(path), services,paths,defs);
+			parsePathSchema(pathsObj.getJSONObject(path), services, paths, defs);
 		}
 
 		if (services.size() == 0) {
@@ -1128,76 +1124,76 @@ public class Service implements ServiceInterface {
 		return services.toArray(empty);
 	}
 
-	private static void parsePathSchema(JSONObject pathObject, List<Service> services,
-			String[] names, JSONObject defs) {
-		Service[] pathServices = fromSwagger(pathObject,names,defs);
+	private static void parsePathSchema(JSONObject pathObject, List<Service> services, String[] names,
+			JSONObject defs) {
+		Service[] pathServices = fromSwagger(pathObject, names, defs);
 		if (pathServices != null) {
-			for(Service service : pathServices){
+			for (Service service : pathServices) {
 				services.add(service);
 			}
 		}
 	}
 
-	private static Service[] fromSwagger(JSONObject pathObject,String[] names, JSONObject defs) {
+	private static Service[] fromSwagger(JSONObject pathObject, String[] names, JSONObject defs) {
 		if (pathObject == null) {
-			//Tracer.trace("schema for record " + recordName + " is null");
+			// Tracer.trace("schema for record " + recordName + " is null");
 			return null;
 		}
 		String[] methods = JSONObject.getNames(pathObject);
-		if(methods == null || methods.length == 0){
-			Tracer.trace("Path " +pathObject+ " doesn't have any methods");
+		if (methods == null || methods.length == 0) {
+			Tracer.trace("Path " + pathObject + " doesn't have any methods");
 			return null;
 		}
 		Service[] services = new Service[methods.length];
 		int count = 0;
-		for(String method : methods){
+		for (String method : methods) {
 			JSONObject methodObj = (JSONObject) pathObject.get(method);
 			String moduleName = null;
 			String serviceName = null;
 			moduleName = methodObj.optString(MODULE_NAME_ATTR);
 			serviceName = methodObj.optString(SERVICE_NAME_ATTR);
-			if(serviceName == null || serviceName.isEmpty()){
+			if (serviceName == null || serviceName.isEmpty()) {
 				serviceName = methodObj.optString("operationId");
 			}
 			Service service = new Service();
 			service.moduleName = moduleName;
-			service.setName(serviceName);	
+			service.setName(serviceName);
 			JSONArray parameters = null;
 			JSONObject responses = null;
-			if(methodObj.has(PARAMETERS_ATTR)){
+			if (methodObj.has(PARAMETERS_ATTR)) {
 				parameters = methodObj.getJSONArray(PARAMETERS_ATTR);
 				service.inputData = getInputDataFromSwagger(parameters, defs);
-			}	
-			if(methodObj.has(RESPONSES_ATTR)){
+			}
+			if (methodObj.has(RESPONSES_ATTR)) {
 				responses = methodObj.getJSONObject(RESPONSES_ATTR);
 				service.outputData = getOuputDataFromSwagger(responses, defs);
 			}
-			
-			if(method.equals("get")){
+
+			if (method.equals("get")) {
 				service.dbAccessType = DbAccessType.READ_ONLY;
 				if (responses == null || responses.length() == 0 || !responses.has("200")) {
 					return null;
 				}
 				JSONObject response = responses.getJSONObject("200");
-				if(response.has(SCHEMA_ATTR)){
+				if (response.has(SCHEMA_ATTR)) {
 					JSONObject schema = response.getJSONObject(SCHEMA_ATTR);
 					String ref = schema.optString(REF_ATTR);
 					String def = ref.substring(ref.lastIndexOf('/') + 1);
 					if (def != null) {
 						Record rec = ComponentManager.getRecord(def);
 						RelatedRecord[] childRecs = getChildRecords(rec, false);
-						Action action = new Read(rec,childRecs);
+						Action action = new Read(rec, childRecs);
 						Action[] actions = { action };
 						service.actions = actions;
-					} 
-				}	
+					}
+				}
 			}
-			
+
 			if (method.equals("post") || method.equals("put") || method.equals("patch")) {
 				service.dbAccessType = DbAccessType.READ_WRITE;
 				if (parameters == null || parameters.length() == 0) {
 					return null;
-				}		
+				}
 				int nbr = parameters.length();
 				for (int i = 0; i < nbr; i++) {
 					JSONObject params = parameters.getJSONObject(i);
@@ -1209,39 +1205,38 @@ public class Service implements ServiceInterface {
 						if (def != null) {
 							Record rec = ComponentManager.getRecord(def);
 							RelatedRecord[] childRecs = getChildRecords(rec, false);
-							Action action = new Save(rec,childRecs);
+							Action action = new Save(rec, childRecs);
 							Action[] actions = { action };
 							service.actions = actions;
 						}
 					}
-				}				
-			}			
+				}
+			}
 			services[count] = service;
 			count++;
-		}	
-	return services;
+		}
+		return services;
 	}
 
-	private static InputData getInputDataFromSwagger(JSONArray parameters,JSONObject defs){
+	private static InputData getInputDataFromSwagger(JSONArray parameters, JSONObject defs) {
 		InputData inData = new InputData();
 		if (parameters == null || parameters.length() == 0) {
-				return null;
-		}		
+			return null;
+		}
 		int nbr = parameters.length();
 		List<InputField> inFields = new ArrayList<InputField>();
 		List<InputRecord> inputRecords = new ArrayList<InputRecord>();
 		for (int i = 0; i < nbr; i++) {
 			JSONObject params = parameters.getJSONObject(i);
-			InputField field = new InputField();			
+			InputField field = new InputField();
 			String def = null;
 			if (params.has(SCHEMA_ATTR)) {
 				JSONObject schema = params.getJSONObject(SCHEMA_ATTR);
 				String ref = schema.optString(REF_ATTR);
 				def = ref.substring(ref.lastIndexOf('/') + 1);
 				if (def != null) {
-					Record rec = Record.fromSwagger(defs.getJSONObject(def), def, null,
-							JSONObject.getNames(defs));
-					for(InputRecord inrec:getInputRecords(rec)){
+					Record rec = Record.fromSwagger(defs.getJSONObject(def), def, null, JSONObject.getNames(defs));
+					for (InputRecord inrec : getInputRecords(rec)) {
 						inputRecords.add(inrec);
 					}
 				}
@@ -1250,23 +1245,23 @@ public class Service implements ServiceInterface {
 				setTypeForSwaggerType(field, params);
 				inFields.add(field);
 			}
-		}	
+		}
 		inData.setInputFields(inFields.toArray(new InputField[inFields.size()]));
 		inData.setRecords(inputRecords.toArray(new InputRecord[inputRecords.size()]));
 		return inData;
 	}
-	
-	private static OutputData getOuputDataFromSwagger(JSONObject responses,JSONObject defs){
+
+	private static OutputData getOuputDataFromSwagger(JSONObject responses, JSONObject defs) {
 		OutputData outData = new OutputData();
 		List<String> outFields = new ArrayList<String>();
 		List<OutputRecord> outputRecords = new ArrayList<OutputRecord>();
-		
+
 		if (responses == null || responses.length() == 0 || !responses.has("200")) {
 			return null;
 		}
 		JSONObject response = responses.getJSONObject("200");
 		JSONArray parameters = null;
-		if(response.has(PARAMETERS_ATTR)){
+		if (response.has(PARAMETERS_ATTR)) {
 			parameters = response.getJSONArray(PARAMETERS_ATTR);
 			int nbr = parameters.length();
 			for (int i = 0; i < nbr; i++) {
@@ -1279,32 +1274,32 @@ public class Service implements ServiceInterface {
 					if (def != null) {
 						Record rec = ComponentManager.getRecord(def);
 						rec.getReady();
-						for(OutputRecord outrec:getOutputRecords(rec)){
+						for (OutputRecord outrec : getOutputRecords(rec)) {
 							outputRecords.add(outrec);
-						}					
-					} 
-				}else {
+						}
+					}
+				} else {
 					outFields.add(params.get("name").toString());
 				}
 			}
 		}
-		if(response.has(SCHEMA_ATTR)){
+		if (response.has(SCHEMA_ATTR)) {
 			JSONObject schema = response.getJSONObject(SCHEMA_ATTR);
 			String ref = schema.optString(REF_ATTR);
 			String def = ref.substring(ref.lastIndexOf('/') + 1);
 			if (def != null) {
 				Record rec = ComponentManager.getRecord(def);
 				rec.getReady();
-				for(OutputRecord outrec:getOutputRecords(rec)){
+				for (OutputRecord outrec : getOutputRecords(rec)) {
 					outputRecords.add(outrec);
-				}					
-			} 
-		}		
+				}
+			}
+		}
 		outData.setOutputFields(outFields.toArray(new String[outFields.size()]));
 		outData.setOutputRecords(outputRecords.toArray(new OutputRecord[outputRecords.size()]));
-	return outData;
+		return outData;
 	}
-	
+
 	/**
 	 * @param param
 	 */
@@ -1358,5 +1353,4 @@ public class Service implements ServiceInterface {
 	public String getServicesToInvalidate() {
 		return this.referredServicesToInvalidate;
 	}
-
 }

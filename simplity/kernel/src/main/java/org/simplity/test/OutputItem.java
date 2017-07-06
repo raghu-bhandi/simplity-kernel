@@ -26,63 +26,62 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.JsonUtil;
 
 /**
- * represents a JSON object. Has attributes and values. Allows setting
- * assertions on such an item
- *
+ * represents a JSON object. Has attributes and values. Allows setting assertions on such an item
  */
 public class OutputItem {
 
-	/**
-	 * qualified name to get the row data. 0 for first row, a.2 to get third row
-	 * of the array with attribute a etc..
-	 */
-	String itemSelector;
-	/**
-	 * fields specified for this row. This is a must. If you want to assert that
-	 * this should not be there, you may as well define that as a Field
-	 */
-	OutputField[] outputFields;
+  /**
+   * qualified name to get the row data. 0 for first row, a.2 to get third row of the array with
+   * attribute a etc..
+   */
+  String itemSelector;
+  /**
+   * fields specified for this row. This is a must. If you want to assert that this should not be
+   * there, you may as well define that as a Field
+   */
+  OutputField[] outputFields;
 
-	/**
-	 * is this component designed ok?
-	 *
-	 * @param vtx
-	 * @return number of errors
-	 */
-	int validate(ValidationContext vtx) {
-		int nbr = 0;
-		if (this.itemSelector == null) {
-			vtx.addError("itemSelector is a must.");
-			nbr = 1;
-		}
-		if (this.outputFields == null) {
-			vtx.addError("Item must have fields. Use field instead if you want to assert that this item is not present.");
-			nbr++;
-			return nbr;
-		}
-		for (OutputField field : this.outputFields) {
-			nbr += field.validate(vtx);
-		}
-		return nbr;
-	}
+  /**
+   * is this component designed ok?
+   *
+   * @param vtx
+   * @return number of errors
+   */
+  int validate(ValidationContext vtx) {
+    int nbr = 0;
+    if (this.itemSelector == null) {
+      vtx.addError("itemSelector is a must.");
+      nbr = 1;
+    }
+    if (this.outputFields == null) {
+      vtx.addError(
+          "Item must have fields. Use field instead if you want to assert that this item is not present.");
+      nbr++;
+      return nbr;
+    }
+    for (OutputField field : this.outputFields) {
+      nbr += field.validate(vtx);
+    }
+    return nbr;
+  }
 
-	/**
-	 * take care of assertions
-	 *
-	 * @param arr
-	 * @return
-	 */
-	String match(Object data, TestContext ctx) {
-		Object json = JsonUtil.getValue(this.itemSelector, data);
-		if (json == null) {
-			return "No data found for item " + this.itemSelector;
-		}
-		for (OutputField field : this.outputFields) {
-			String resp = field.match(json, ctx);
-			if (resp != null) {
-				return resp;
-			}
-		}
-		return null;
-	}
+  /**
+   * take care of assertions
+   *
+   * @param arr
+   * @return
+   */
+  String match(Object data, TestContext ctx) {
+    Object json = JsonUtil.getValue(this.itemSelector, data);
+    if (json == null) {
+      return "No data found for item " + this.itemSelector;
+    }
+    for (OutputField field : this.outputFields) {
+      String resp = field.match(json, ctx);
+      if (resp != null) {
+        return resp;
+      }
+    }
+    return null;
+  }
 }

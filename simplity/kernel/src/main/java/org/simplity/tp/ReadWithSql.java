@@ -22,6 +22,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -37,116 +40,116 @@ import org.simplity.service.ServiceContext;
 /**
  * Read a row/s from as output of a prepared statement/sql
  *
- *
  * @author simplity.org
- *
  */
 public class ReadWithSql extends DbAction {
+  static final Logger logger = Logger.getLogger(ReadWithSql.class.getName());
 
-	/**
-	 * fully qualified sql name
-	 */
-	String sqlName;
-	/**
-	 * input sheet name
-	 */
-	String inputSheetName;
-	/**
-	 * output sheet name
-	 */
-	String outputSheetName;
+  /** fully qualified sql name */
+  String sqlName;
+  /** input sheet name */
+  String inputSheetName;
+  /** output sheet name */
+  String outputSheetName;
 
-	/**
-	 * any other child records to be read for this record?
-	 */
-	RelatedRecord[] childRecords;
+  /** any other child records to be read for this record? */
+  RelatedRecord[] childRecords;
 
-	/**
-	 * should child records for this filter/record be filtered automatically?
-	 */
-	boolean cascadeFilterForChildren;
+  /** should child records for this filter/record be filtered automatically? */
+  boolean cascadeFilterForChildren;
 
-	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		Sql sql = ComponentManager.getSql(this.sqlName);
-		DataSheet outSheet = null;
-		if (this.inputSheetName == null) {
-			outSheet = sql.extract(ctx, driver);
-		} else {
-			DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
-			if (inSheet == null) {
-				Tracer.trace("Read Action " + this.actionName
-						+ " did not execute because input sheet "
-						+ this.inputSheetName + " is not found.");
-				return 0;
-			}
-			outSheet = sql.extract(inSheet, driver);
-		}
-		/*
-		 * did we get any data at all?
-		 */
-		int nbrRows = outSheet.length();
-		if (this.outputSheetName == null) {
-			if (nbrRows > 0) {
-				ctx.copyFrom(outSheet);
-			}
-		} else {
-			/*
-			 * we would put an empty sheet. That is the design, not a bug
-			 */
-			ctx.putDataSheet(this.outputSheetName, outSheet);
-		}
+  @Override
+  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+    Sql sql = ComponentManager.getSql(this.sqlName);
+    DataSheet outSheet = null;
+    if (this.inputSheetName == null) {
+      outSheet = sql.extract(ctx, driver);
+    } else {
+      DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
+      if (inSheet == null) {
 
-		/*
-		 * be a responsible parent :-)
-		 */
-		if (this.childRecords != null && nbrRows > 0) {
-			for (RelatedRecord rr : this.childRecords) {
-				Record record = ComponentManager.getRecord(rr.recordName);
-				record.filterForParents(outSheet, driver, rr.sheetName,
-						this.cascadeFilterForChildren, ctx);
-			}
-		}
-		return nbrRows;
-	}
+        logger.log(
+            Level.INFO,
+            "Read Action "
+                + this.actionName
+                + " did not execute because input sheet "
+                + this.inputSheetName
+                + " is not found.");
+        Tracer.trace(
+            "Read Action "
+                + this.actionName
+                + " did not execute because input sheet "
+                + this.inputSheetName
+                + " is not found.");
+        return 0;
+      }
+      outSheet = sql.extract(inSheet, driver);
+    }
+    /*
+     * did we get any data at all?
+     */
+    int nbrRows = outSheet.length();
+    if (this.outputSheetName == null) {
+      if (nbrRows > 0) {
+        ctx.copyFrom(outSheet);
+      }
+    } else {
+      /*
+       * we would put an empty sheet. That is the design, not a bug
+       */
+      ctx.putDataSheet(this.outputSheetName, outSheet);
+    }
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_ONLY;
-	}
+    /*
+     * be a responsible parent :-)
+     */
+    if (this.childRecords != null && nbrRows > 0) {
+      for (RelatedRecord rr : this.childRecords) {
+        Record record = ComponentManager.getRecord(rr.recordName);
+        record.filterForParents(outSheet, driver, rr.sheetName, this.cascadeFilterForChildren, ctx);
+      }
+    }
+    return nbrRows;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_ONLY;
+  }
 
-		if (this.sqlName == null) {
-			ctx.addError("ReadWithSql requires sql name.");
-			count++;
-		} else {
-			ctx.addReference(ComponentType.SQL, this.sqlName);
-			Sql sql = ComponentManager.getSqlOrNull(this.sqlName);
-			if(sql == null){
-				ctx.addError("sql " + this.sqlName + " is not defined.");
-				count++;
-			}else if(sql.getSqlType() == SqlType.UPDATE){
-				ctx.addError("sql " + this.sqlName + " is designed for update. It cannot be used to read data.");
-				count++;
-			}
-		}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.DbAction#validate(org.simplity.kernel.comp.ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
 
-		if (this.childRecords != null) {
-			for (RelatedRecord rec : this.childRecords) {
-				count += rec.validate(ctx);
-			}
-		}
+    if (this.sqlName == null) {
+      ctx.addError("ReadWithSql requires sql name.");
+      count++;
+    } else {
+      ctx.addReference(ComponentType.SQL, this.sqlName);
+      Sql sql = ComponentManager.getSqlOrNull(this.sqlName);
+      if (sql == null) {
+        ctx.addError("sql " + this.sqlName + " is not defined.");
+        count++;
+      } else if (sql.getSqlType() == SqlType.UPDATE) {
+        ctx.addError(
+            "sql " + this.sqlName + " is designed for update. It cannot be used to read data.");
+        count++;
+      }
+    }
 
-		return count;
-	}
+    if (this.childRecords != null) {
+      for (RelatedRecord rec : this.childRecords) {
+        count += rec.validate(ctx);
+      }
+    }
+
+    return count;
+  }
 }

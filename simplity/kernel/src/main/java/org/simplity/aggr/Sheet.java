@@ -26,11 +26,11 @@ import org.simplity.kernel.expr.Expression;
 
 /**
  * accumulate rows into a sheet
- * @author simplity.org
  *
+ * @author simplity.org
  */
 public class Sheet {
-	String recordName;
-	String sheetName;
-	Expression conditionToAddRow;
+  String recordName;
+  String sheetName;
+  Expression conditionToAddRow;
 }

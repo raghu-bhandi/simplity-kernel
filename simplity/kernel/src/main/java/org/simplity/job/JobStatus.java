@@ -24,31 +24,25 @@ package org.simplity.job;
 
 /**
  * status of a job that is scheduled
- * @author simplity.org
  *
+ * @author simplity.org
  */
 public enum JobStatus {
-	/**
-	 * scheduled, and waiting to run
-	 */
-	SCHEDULED
+  /** scheduled, and waiting to run */
+  SCHEDULED
 
-	/**
-	 * completed normally. It is not going to to be run again.
-	 */
-	,DONE
+  /** completed normally. It is not going to to be run again. */
+  ,
+  DONE
 
-	/**
-	 * active and running
-	 */
-	,RUNNING
+  /** active and running */
+  ,
+  RUNNING
 
-	/**
-	 * failed with error. will not be re-run.
-	 */
-	,FAILED
-	/**
-	 * cancelled
-	 */
-	,CANCELLED
+  /** failed with error. will not be re-run. */
+  ,
+  FAILED
+  /** cancelled */
+  ,
+  CANCELLED
 }

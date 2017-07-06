@@ -22,54 +22,42 @@
 package org.simplity.kernel.comp;
 
 /**
- * component of this application engine. Every component has to have some
- * attributes, that are used by others. Hence we have some getters
+ * component of this application engine. Every component has to have some attributes, that are used
+ * by others. Hence we have some getters
  *
  * @author simplity.org
- *
  */
 public interface Component {
 
-	/**
-	 *
-	 * @return simple name, with no prefix (module). Component name is unique
-	 *         within a module, but may not be across modules. Hence a
-	 *         moduleName is to be used to refer to a components
-	 */
-	public String getSimpleName();
+  /**
+   * @return simple name, with no prefix (module). Component name is unique within a module, but may
+   *     not be across modules. Hence a moduleName is to be used to refer to a components
+   */
+  public String getSimpleName();
 
-	/**
-	 *
-	 * @return qualified name. Dotted if you use modules and sub-modules.
-	 *         Similar to java class and package notation.
-	 */
-	public String getQualifiedName();
+  /**
+   * @return qualified name. Dotted if you use modules and sub-modules. Similar to java class and
+   *     package notation.
+   */
+  public String getQualifiedName();
 
-	/**
-	 * Components may have to set-up their shops after loading the attributes.
-	 * Typically ensuring referential integrity, caching etc..
-	 *
-	 * In case of components having sub-components, it is generally a good idea
-	 * to have setUp() only for the parent component, from where you may trigger
-	 * set-up of child components
-	 *
-	 */
+  /**
+   * Components may have to set-up their shops after loading the attributes. Typically ensuring
+   * referential integrity, caching etc..
+   *
+   * <p>In case of components having sub-components, it is generally a good idea to have setUp()
+   * only for the parent component, from where you may trigger set-up of child components
+   */
+  public void getReady();
 
-	public void getReady();
+  /**
+   * Validate this component.
+   *
+   * @param ctx list to which errors if any are added
+   * @return return number of errors added to list
+   */
+  public int validate(ValidationContext ctx);
 
-	/**
-	 * Validate this component.
-	 *
-	 * @param ctx
-	 *            list to which errors if any are added
-	 * @return return number of errors added to list
-	 */
-
-	public int validate(ValidationContext ctx);
-
-	/**
-	 *
-	 * @return type of this component
-	 */
-	public ComponentType getComponentType();
+  /** @return type of this component */
+  public ComponentType getComponentType();
 }

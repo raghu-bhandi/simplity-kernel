@@ -24,27 +24,23 @@ package org.simplity.rest;
 
 import org.simplity.json.JSONObject;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class TestTranslator implements ServiceTranslator {
 
-	/* (non-Javadoc)
-	 * @see org.simplity.rest.ServiceTranslator#translateInput(java.lang.String, org.simplity.json.JSONObject)
-	 */
-	@Override
-	public String translateInput(String serviceName, JSONObject params) {
-		return "junk";
-	}
+  /* (non-Javadoc)
+   * @see org.simplity.rest.ServiceTranslator#translateInput(java.lang.String, org.simplity.json.JSONObject)
+   */
+  @Override
+  public String translateInput(String serviceName, JSONObject params) {
+    return "junk";
+  }
 
-	/* (non-Javadoc)
-	 * @see org.simplity.rest.ServiceTranslator#translateOutput(java.lang.String, org.simplity.json.JSONObject)
-	 */
-	@Override
-	public void translateOutput(String serviceName, JSONObject params) {
-		// TODO Auto-generated method stub
+  /* (non-Javadoc)
+   * @see org.simplity.rest.ServiceTranslator#translateOutput(java.lang.String, org.simplity.json.JSONObject)
+   */
+  @Override
+  public void translateOutput(String serviceName, JSONObject params) {
+    // TODO Auto-generated method stub
 
-	}
-
+  }
 }

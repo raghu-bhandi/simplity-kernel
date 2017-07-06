@@ -31,107 +31,105 @@ import java.text.DecimalFormat;
  * a numeric value with possible fraction
  *
  * @author simplity.org
- *
  */
 public class DecimalValue extends Value {
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
-	private double value;
-	/*
-	 * our objective of formatting is serialization, and not human readability.
-	 * Hence we optimize number of characters. Also, we deal with business
-	 * numbers. Hence we do not need accuracy beyond 2, but six wouldn't hurt.
-	 * If a specific business case requires more than this, we will deal with
-	 * that differently
-	 */
-	private static final DecimalFormat formatter = new DecimalFormat("#.#");
-	static {
-		DecimalValue.formatter.setMaximumFractionDigits(6);
-	}
+  /** */
+  private static final long serialVersionUID = 1L;
 
-	protected DecimalValue(double value) {
-		this.value = value;
-	}
+  private double value;
+  /*
+   * our objective of formatting is serialization, and not human readability.
+   * Hence we optimize number of characters. Also, we deal with business
+   * numbers. Hence we do not need accuracy beyond 2, but six wouldn't hurt.
+   * If a specific business case requires more than this, we will deal with
+   * that differently
+   */
+  private static final DecimalFormat formatter = new DecimalFormat("#.#");
 
-	protected DecimalValue() {
-		this.valueIsNull = true;
-	}
+  static {
+    DecimalValue.formatter.setMaximumFractionDigits(6);
+  }
 
-	@Override
-	public ValueType getValueType() {
-		return ValueType.DECIMAL;
-	}
+  protected DecimalValue(double value) {
+    this.value = value;
+  }
 
-	@Override
-	protected void format() {
-		this.textValue = DecimalValue.formatter.format(this.value);
-	}
+  protected DecimalValue() {
+    this.valueIsNull = true;
+  }
 
-	@Override
-	public long toInteger() throws InvalidValueException {
-		return Math.round(this.value);
-	}
+  @Override
+  public ValueType getValueType() {
+    return ValueType.DECIMAL;
+  }
 
-	@Override
-	public double toDecimal() throws InvalidValueException {
-		return this.value;
-	}
+  @Override
+  protected void format() {
+    this.textValue = DecimalValue.formatter.format(this.value);
+  }
 
-	@Override
-	protected boolean equalValue(Value otherValue) {
-		if (otherValue instanceof DecimalValue) {
-			return ((DecimalValue) otherValue).value == this.value;
-		}
+  @Override
+  public long toInteger() throws InvalidValueException {
+    return Math.round(this.value);
+  }
 
-		if (otherValue instanceof IntegerValue) {
-			return ((IntegerValue) otherValue).getLong() == (long) this.value;
-		}
-		return false;
-	}
+  @Override
+  public double toDecimal() throws InvalidValueException {
+    return this.value;
+  }
 
-	/**
-	 * preferred method if this concrete class is used. Avoids exception
-	 *
-	 * @return long value
-	 */
-	public long getLong() {
-		return Math.round(this.value);
-	}
+  @Override
+  protected boolean equalValue(Value otherValue) {
+    if (otherValue instanceof DecimalValue) {
+      return ((DecimalValue) otherValue).value == this.value;
+    }
 
-	/**
-	 * preferred method if this concrete class is used. Avoids exception
-	 *
-	 * @return long value cast as decimal
-	 */
-	public double getDouble() {
-		return this.value;
-	}
+    if (otherValue instanceof IntegerValue) {
+      return ((IntegerValue) otherValue).getLong() == (long) this.value;
+    }
+    return false;
+  }
 
-	@Override
-	public void setToStatement(PreparedStatement statement, int idx)
-			throws SQLException {
-		if (this.isUnknown()) {
-			statement.setNull(idx, Types.DECIMAL);
-		} else {
-			statement.setDouble(idx, this.value);
-		}
-	}
+  /**
+   * preferred method if this concrete class is used. Avoids exception
+   *
+   * @return long value
+   */
+  public long getLong() {
+    return Math.round(this.value);
+  }
 
-	@Override
-	public Object getObject() {
-		return new Double(this.value);
-	}
+  /**
+   * preferred method if this concrete class is used. Avoids exception
+   *
+   * @return long value cast as decimal
+   */
+  public double getDouble() {
+    return this.value;
+  }
 
-	@Override
-	public Object[] toArray(Value[] values) {
-		int n = values.length;
-		Double[] arr = new Double[n];
-		for (int i = 0; i < n; i++) {
-			DecimalValue val = (DecimalValue) values[i];
-			arr[i] = new Double(val.value);
-		}
-		return arr;
-	}
+  @Override
+  public void setToStatement(PreparedStatement statement, int idx) throws SQLException {
+    if (this.isUnknown()) {
+      statement.setNull(idx, Types.DECIMAL);
+    } else {
+      statement.setDouble(idx, this.value);
+    }
+  }
+
+  @Override
+  public Object getObject() {
+    return new Double(this.value);
+  }
+
+  @Override
+  public Object[] toArray(Value[] values) {
+    int n = values.length;
+    Double[] arr = new Double[n];
+    for (int i = 0; i < n; i++) {
+      DecimalValue val = (DecimalValue) values[i];
+      arr[i] = new Double(val.value);
+    }
+    return arr;
+  }
 }

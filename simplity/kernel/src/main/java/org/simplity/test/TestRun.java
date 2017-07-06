@@ -22,108 +22,111 @@
 
 package org.simplity.test;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.Component;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 
-/**
- * Sequence of test cases that are run in that order
- *
- */
+/** Sequence of test cases that are run in that order */
 public class TestRun implements Component {
-	String testName;
-	String moduleName;
+  static final Logger logger = Logger.getLogger(TestRun.class.getName());
 
-	TestCase[] testCases;
+  String testName;
+  String moduleName;
 
-	/**
-	 * run all test cases and report number of failure
-	 *
-	 * @param ctx
-	 * @return number of failures
-	 */
-	public int run(TestContext ctx) {
-		if (this.testCases == null) {
-			Tracer.trace("No test cases to run.. reporting success by default");
-			return 0;
-		}
-		int nbrFailure = 0;
+  TestCase[] testCases;
 
-		for (TestCase tc : this.testCases) {
-			String msg = tc.run(ctx);
-			if (msg != null) {
-				nbrFailure++;
-			}
-		}
-		return nbrFailure;
-	}
+  /**
+   * run all test cases and report number of failure
+   *
+   * @param ctx
+   * @return number of failures
+   */
+  public int run(TestContext ctx) {
+    if (this.testCases == null) {
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.comp.Component#getSimpleName()
-	 */
-	@Override
-	public String getSimpleName() {
-		return this.testName;
-	}
+      logger.log(Level.INFO, "No test cases to run.. reporting success by default");
+      Tracer.trace("No test cases to run.. reporting success by default");
+      return 0;
+    }
+    int nbrFailure = 0;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.comp.Component#getQualifiedName()
-	 */
-	@Override
-	public String getQualifiedName() {
-		if (this.moduleName == null) {
-			return this.testName;
-		}
-		return this.moduleName + '.' + this.testName;
-	}
+    for (TestCase tc : this.testCases) {
+      String msg = tc.run(ctx);
+      if (msg != null) {
+        nbrFailure++;
+      }
+    }
+    return nbrFailure;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.comp.Component#getReady()
-	 */
-	@Override
-	public void getReady() {
-		// This component is not saved and re-used in memory. Hence no
-		// preparation on load.
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.comp.Component#getSimpleName()
+   */
+  @Override
+  public String getSimpleName() {
+    return this.testName;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.comp.Component#getComponentType()
-	 */
-	@Override
-	public ComponentType getComponentType() {
-		return ComponentType.TEST_RUN;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.comp.Component#getQualifiedName()
+   */
+  @Override
+  public String getQualifiedName() {
+    if (this.moduleName == null) {
+      return this.testName;
+    }
+    return this.moduleName + '.' + this.testName;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
-	 * ValidationContext)
-	 */
-	@Override
-	public int validate(ValidationContext vtx) {
-		int nbrErrors = 0;
-		vtx.beginValidation(ComponentType.TEST_RUN, this.testName);
-		try{
-		if (this.testCases != null) {
-			for (TestCase testCase : this.testCases) {
-				nbrErrors += testCase.validate(vtx);
-			}
-		}
-		}finally{
-			vtx.endValidation();
-		}
-		return nbrErrors;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.comp.Component#getReady()
+   */
+  @Override
+  public void getReady() {
+    // This component is not saved and re-used in memory. Hence no
+    // preparation on load.
+  }
 
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.comp.Component#getComponentType()
+   */
+  @Override
+  public ComponentType getComponentType() {
+    return ComponentType.TEST_RUN;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.kernel.comp.Component#validate(org.simplity.kernel.comp.
+   * ValidationContext)
+   */
+  @Override
+  public int validate(ValidationContext vtx) {
+    int nbrErrors = 0;
+    vtx.beginValidation(ComponentType.TEST_RUN, this.testName);
+    try {
+      if (this.testCases != null) {
+        for (TestCase testCase : this.testCases) {
+          nbrErrors += testCase.validate(vtx);
+        }
+      }
+    } finally {
+      vtx.endValidation();
+    }
+    return nbrErrors;
+  }
 }

@@ -11,28 +11,25 @@ import javax.naming.spi.InitialContextFactory;
 import org.mockito.Mockito;
 
 public class MockInitialDirContextFactory implements InitialContextFactory {
-	private static InitialDirContext mockContext = null;
-	static {
-		synchronized (MockInitialDirContextFactory.class) {
-			if(mockContext==null)
-				mockContext =  Mockito.mock(InitialDirContext.class);
-		}
-	}
-	/**
-	 * Returns the last DirContext (which is a Mockito mock) retrieved from this
-	 * factory.
-	 */
-	public static DirContext getLatestMockContext() {
-		return mockContext;
-	}
+  private static InitialDirContext mockContext = null;
 
-	@Override
-	public Context getInitialContext(Hashtable<?, ?> env) throws NamingException {
-		if (env.get("java.naming.security.principal").equals("winner")
-				&& env.get("java.naming.security.credentials").equals("pwd")) {
-			return mockContext;
-		};
-		return null;
-	}
+  static {
+    synchronized (MockInitialDirContextFactory.class) {
+      if (mockContext == null) mockContext = Mockito.mock(InitialDirContext.class);
+    }
+  }
+  /** Returns the last DirContext (which is a Mockito mock) retrieved from this factory. */
+  public static DirContext getLatestMockContext() {
+    return mockContext;
+  }
 
+  @Override
+  public Context getInitialContext(Hashtable<?, ?> env) throws NamingException {
+    if (env.get("java.naming.security.principal").equals("winner")
+        && env.get("java.naming.security.credentials").equals("pwd")) {
+      return mockContext;
+    }
+    ;
+    return null;
+  }
 }

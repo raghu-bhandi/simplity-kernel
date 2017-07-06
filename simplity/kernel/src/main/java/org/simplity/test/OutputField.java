@@ -30,94 +30,90 @@ import org.simplity.kernel.util.JsonUtil;
  * represents a field to be provided as input to a service
  *
  * @author simplity.org
- *
  */
 public class OutputField {
-	/**
-	 * field name. Qualified name is relative to its parent
-	 */
-	String fieldSelector;
-	/**
-	 * field value. $variableName to get value from test context
-	 */
-	String fieldValue;
+  /** field name. Qualified name is relative to its parent */
+  String fieldSelector;
+  /** field value. $variableName to get value from test context */
+  String fieldValue;
 
-	/**
-	 * do you want test for non existence of this field?
-	 */
-	boolean shouldBeAbsent;
+  /** do you want test for non existence of this field? */
+  boolean shouldBeAbsent;
 
-	/**
-	 *
-	 * @param vtx
-	 * @return number of errors added
-	 */
-	int validate(ValidationContext vtx) {
-		int nbr = 0;
-		if (this.fieldSelector == null) {
-			vtx.addError("fieldSelector is a required attribute for a test field");
-			nbr++;
-		}
-		if (this.shouldBeAbsent && this.fieldValue != null) {
-			vtx.addError("Test field "
-					+ this.fieldSelector
-					+ " is marked as shouldBeAbsent, and hence setting fieldValue is irrelevant.");
-			nbr++;
-		}
-		return nbr;
-	}
+  /**
+   * @param vtx
+   * @return number of errors added
+   */
+  int validate(ValidationContext vtx) {
+    int nbr = 0;
+    if (this.fieldSelector == null) {
+      vtx.addError("fieldSelector is a required attribute for a test field");
+      nbr++;
+    }
+    if (this.shouldBeAbsent && this.fieldValue != null) {
+      vtx.addError(
+          "Test field "
+              + this.fieldSelector
+              + " is marked as shouldBeAbsent, and hence setting fieldValue is irrelevant.");
+      nbr++;
+    }
+    return nbr;
+  }
 
-	/**
-	 * does this json data match our test expectations?
-	 *
-	 * @param json
-	 * @return error message if test fails, null if all OK!!
-	 */
-	String match(Object json, TestContext ctx) {
-		Object val = JsonUtil.getValue(this.fieldSelector, json);
-		if (this.fieldValue != null && this.fieldValue.isEmpty() == false) {
-			/*
-			 * we expect some specific value for this field
-			 */
-			if (val == null) {
-				return "No value for " + this.fieldSelector;
-			}
+  /**
+   * does this json data match our test expectations?
+   *
+   * @param json
+   * @return error message if test fails, null if all OK!!
+   */
+  String match(Object json, TestContext ctx) {
+    Object val = JsonUtil.getValue(this.fieldSelector, json);
+    if (this.fieldValue != null && this.fieldValue.isEmpty() == false) {
+      /*
+       * we expect some specific value for this field
+       */
+      if (val == null) {
+        return "No value for " + this.fieldSelector;
+      }
 
-			String thisValue = this.fieldValue;
-			if (this.fieldValue.charAt(0) == '$') {
-				thisValue = ctx.getValue(this.fieldValue.substring(1))
-						.toString();
-			}
+      String thisValue = this.fieldValue;
+      if (this.fieldValue.charAt(0) == '$') {
+        thisValue = ctx.getValue(this.fieldValue.substring(1)).toString();
+      }
 
-			if (thisValue.equals(val.toString()) == false) {
-				return "Expected a value of " + thisValue + " for field "
-						+ this.fieldSelector + " but we got " + val;
-			}
-		}
-		boolean valMissing = false;
-		if (val != null) {
-			if (val instanceof JSONArray) {
-				if (((JSONArray) val).length() == 0) {
-					valMissing = true;
-				}
-			} else if (val.equals(null)) {
-				valMissing = true;
-			}
-		}
-		if (this.shouldBeAbsent) {
-			if (val != null && valMissing == false) {
-				return "Found a value of " + val.toString() + " for field "
-						+ this.fieldSelector
-						+ " but we are not looking for a value at all.";
-			}
-		}
-		if (this.fieldValue == null && this.shouldBeAbsent == false
-				&& (val == null || valMissing)) {
+      if (thisValue.equals(val.toString()) == false) {
+        return "Expected a value of "
+            + thisValue
+            + " for field "
+            + this.fieldSelector
+            + " but we got "
+            + val;
+      }
+    }
+    boolean valMissing = false;
+    if (val != null) {
+      if (val instanceof JSONArray) {
+        if (((JSONArray) val).length() == 0) {
+          valMissing = true;
+        }
+      } else if (val.equals(null)) {
+        valMissing = true;
+      }
+    }
+    if (this.shouldBeAbsent) {
+      if (val != null && valMissing == false) {
+        return "Found a value of "
+            + val.toString()
+            + " for field "
+            + this.fieldSelector
+            + " but we are not looking for a value at all.";
+      }
+    }
+    if (this.fieldValue == null && this.shouldBeAbsent == false && (val == null || valMissing)) {
 
-			return "Response did not contain an expected field named "
-					+ this.fieldSelector;
-		}
+      return "Response did not contain an expected field named " + this.fieldSelector;
+    }
 
-		return null;
-	}
+    return null;
+  }
 }

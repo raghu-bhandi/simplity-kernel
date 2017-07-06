@@ -22,46 +22,49 @@
 
 package org.simplity.test;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.util.JsonUtil;
 
-/**
- * Specification for a field from output of a service test to be added to the
- * test context
- *
- */
+/** Specification for a field from output of a service test to be added to the test context */
 public class ContextField {
-	/**
-	 * source of this field in the output JSON e.g. customerName or
-	 * orders.lines[2].price. Special case "." (just dot ) to select the entire
-	 * JSON itself
-	 */
-	String fieldSelector;
-	/**
-	 * name under which this is to be added to the context. This is the name
-	 * that the next service uses to retrieve this value. defaults to
-	 * fieldSelector
-	 */
-	String nameInContext;
+  static final Logger logger = Logger.getLogger(ContextField.class.getName());
 
-	/**
-	 * save/add this field value into context
-	 *
-	 * @param json
-	 * @param ctx
-	 */
-	public void addToContext(JSONObject json, TestContext ctx) {
-		Object value = JsonUtil.getValue(this.fieldSelector, json);
-		if (value == null) {
-			Tracer.trace("Value for " + this.fieldSelector
-					+ " is null and hence is not added to the context");
-			return;
-		}
-		if (this.nameInContext == null) {
-			ctx.setValue(this.fieldSelector, value);
-		} else {
-			ctx.setValue(this.nameInContext, value);
-		}
-	}
+  /**
+   * source of this field in the output JSON e.g. customerName or orders.lines[2].price. Special
+   * case "." (just dot ) to select the entire JSON itself
+   */
+  String fieldSelector;
+  /**
+   * name under which this is to be added to the context. This is the name that the next service
+   * uses to retrieve this value. defaults to fieldSelector
+   */
+  String nameInContext;
+
+  /**
+   * save/add this field value into context
+   *
+   * @param json
+   * @param ctx
+   */
+  public void addToContext(JSONObject json, TestContext ctx) {
+    Object value = JsonUtil.getValue(this.fieldSelector, json);
+    if (value == null) {
+
+      logger.log(
+          Level.INFO,
+          "Value for " + this.fieldSelector + " is null and hence is not added to the context");
+      Tracer.trace(
+          "Value for " + this.fieldSelector + " is null and hence is not added to the context");
+      return;
+    }
+    if (this.nameInContext == null) {
+      ctx.setValue(this.fieldSelector, value);
+    } else {
+      ctx.setValue(this.nameInContext, value);
+    }
+  }
 }

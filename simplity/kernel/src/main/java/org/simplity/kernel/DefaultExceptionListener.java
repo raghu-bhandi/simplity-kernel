@@ -25,26 +25,21 @@ package org.simplity.kernel;
 import org.simplity.service.ExceptionListener;
 import org.simplity.service.ServiceData;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class DefaultExceptionListener implements ExceptionListener {
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.service.ExceptionListener#listen(org.simplity.service.
-	 * ServiceData, java.lang.Exception)
-	 */
-	@Override
-	public void listen(ServiceData inputData, Exception e) {
-		ServiceLogger.error(
-				"******************** FATAL ERROR **************************");
-		if (inputData != null) {
-			ServiceLogger.error("Input : \n" + inputData.getPayLoad());
-		}
-		ServiceLogger.error("Error :\n " + e.getMessage());
-	}
-
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.service.ExceptionListener#listen(org.simplity.service.
+   * ServiceData, java.lang.Exception)
+   */
+  @Override
+  public void listen(ServiceData inputData, Exception e) {
+    ServiceLogger.error("******************** FATAL ERROR **************************");
+    if (inputData != null) {
+      ServiceLogger.error("Input : \n" + inputData.getPayLoad());
+    }
+    ServiceLogger.error("Error :\n " + e.getMessage());
+  }
 }

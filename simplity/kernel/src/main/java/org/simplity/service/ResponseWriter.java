@@ -25,106 +25,92 @@ package org.simplity.service;
 import org.simplity.kernel.value.Value;
 
 /**
- * Though we are using JSON as of now, let us use an interface so that we are
- * future-proof
+ * Though we are using JSON as of now, let us use an interface so that we are future-proof
  *
  * @author simplity.org
- *
  */
 public interface ResponseWriter {
-	/**
-	 * initialize. Typically start an outer object that contains everything.
-	 */
-	public void init();
+  /** initialize. Typically start an outer object that contains everything. */
+  public void init();
 
-	/**
-	 * done with writing. this MUST be called before getting the response. Else
-	 * response may not be well-formed etc..
-	 *
-	 * @throws ResponseWriterException if this is not in end() able
-	 */
-	public void end() throws ResponseWriterException;
+  /**
+   * done with writing. this MUST be called before getting the response. Else response may not be
+   * well-formed etc..
+   *
+   * @throws ResponseWriterException if this is not in end() able
+   */
+  public void end() throws ResponseWriterException;
 
-	/**
-	 * start an object
-	 *
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter object() throws ResponseWriterException;
+  /**
+   * start an object
+   *
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter object() throws ResponseWriterException;
 
-	/**
-	 *
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter endObject() throws ResponseWriterException;
+  /**
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter endObject() throws ResponseWriterException;
 
-	/**
-	 *
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter array() throws ResponseWriterException;
+  /**
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter array() throws ResponseWriterException;
 
-	/**
-	 *
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter endArray() throws ResponseWriterException;
+  /**
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter endArray() throws ResponseWriterException;
 
-	/**
-	 *
-	 * @param key
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter key(String key) throws ResponseWriterException;
+  /**
+   * @param key
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter key(String key) throws ResponseWriterException;
 
-	/**
-	 *
-	 * @param value
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter value(long value) throws ResponseWriterException;
-	/**
-	 *
-	 * @param value
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter value(boolean value) throws ResponseWriterException;
+  /**
+   * @param value
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter value(long value) throws ResponseWriterException;
+  /**
+   * @param value
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter value(boolean value) throws ResponseWriterException;
 
-	/**
-	 *
-	 * @param value
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter value(double value) throws ResponseWriterException;
+  /**
+   * @param value
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter value(double value) throws ResponseWriterException;
 
-	/**
-	 *
-	 * @param value
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter value(Value value) throws ResponseWriterException;
+  /**
+   * @param value
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter value(Value value) throws ResponseWriterException;
 
-	/**
-	 *
-	 * @param value
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public ResponseWriter value(Object value) throws ResponseWriterException;
+  /**
+   * @param value
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public ResponseWriter value(Object value) throws ResponseWriterException;
 
-	/**
-	 *
-	 * @return this for convenience
-	 * @throws ResponseWriterException
-	 */
-	public String getResponse() throws ResponseWriterException;
+  /**
+   * @return this for convenience
+   * @throws ResponseWriterException
+   */
+  public String getResponse() throws ResponseWriterException;
 }

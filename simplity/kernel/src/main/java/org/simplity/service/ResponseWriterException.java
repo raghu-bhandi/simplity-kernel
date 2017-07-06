@@ -23,55 +23,44 @@
 package org.simplity.service;
 
 /**
- * exception thrown by response writer whenever any method is invoked
- * out-of-sequence
+ * exception thrown by response writer whenever any method is invoked out-of-sequence
  *
  * @author simplity.org
- *
  */
 public class ResponseWriterException extends RuntimeException {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
-	//
-	/**
-	 *
-	 */
-	public ResponseWriterException(){
-		super();
-	}
-    /**
-     * Constructs a JSONException with an explanatory message.
-     *
-     * @param message
-     *            Detail about the reason for the exception.
-     */
-    public ResponseWriterException(final String message) {
-        super(message);
-    }
+  /** */
+  private static final long serialVersionUID = 1L;
+  //
+  /** */
+  public ResponseWriterException() {
+    super();
+  }
+  /**
+   * Constructs a JSONException with an explanatory message.
+   *
+   * @param message Detail about the reason for the exception.
+   */
+  public ResponseWriterException(final String message) {
+    super(message);
+  }
 
-    /**
-     * Constructs a JSONException with an explanatory message and cause.
-     *
-     * @param message
-     *            Detail about the reason for the exception.
-     * @param cause
-     *            The cause.
-     */
-    public ResponseWriterException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
+  /**
+   * Constructs a JSONException with an explanatory message and cause.
+   *
+   * @param message Detail about the reason for the exception.
+   * @param cause The cause.
+   */
+  public ResponseWriterException(final String message, final Throwable cause) {
+    super(message, cause);
+  }
 
-    /**
-     * Constructs a new JSONException with the specified cause.
-     *
-     * @param cause
-     *            The cause.
-     */
-    public ResponseWriterException(final Throwable cause) {
-        super(cause.getMessage(), cause);
-    }
-
+  /**
+   * Constructs a new JSONException with the specified cause.
+   *
+   * @param cause The cause.
+   */
+  public ResponseWriterException(final Throwable cause) {
+    super(cause.getMessage(), cause);
+  }
 }

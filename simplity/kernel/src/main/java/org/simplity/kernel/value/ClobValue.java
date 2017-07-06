@@ -38,98 +38,91 @@ import org.simplity.kernel.file.FileManager;
  * represents a CLOB as defined in an RDBMS.
  *
  * @author simplity.org
- *
  */
 public class ClobValue extends TextValue {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+  /** */
+  private static final long serialVersionUID = 1L;
 
-	ClobValue() {
-		super();
-	}
+  ClobValue() {
+    super();
+  }
 
-	/**
-	 * @param key
-	 */
-	ClobValue(String key) {
-		super(key);
-	}
+  /** @param key */
+  ClobValue(String key) {
+    super(key);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.simplity.kernel.value.TextValue#getValueType()
-	 */
-	@Override
-	public ValueType getValueType() {
-		return ValueType.CLOB;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.value.TextValue#getValueType()
+   */
+  @Override
+  public ValueType getValueType() {
+    return ValueType.CLOB;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.simplity.kernel.value.TextValue#setToStatement(java.sql.PreparedStatement
-	 * , int)
-	 */
-	@Override
-	public void setToStatement(PreparedStatement statement, int idx)
-			throws SQLException {
-		Clob clob = null;
-		if (this.valueIsNull == false) {
-			clob = this.getClob(statement.getConnection());
-		}
-		if (clob == null) {
-			statement.setNull(idx, Types.CLOB);
-		} else {
-			statement.setClob(idx, clob);
-		}
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.kernel.value.TextValue#setToStatement(java.sql.PreparedStatement
+   * , int)
+   */
+  @Override
+  public void setToStatement(PreparedStatement statement, int idx) throws SQLException {
+    Clob clob = null;
+    if (this.valueIsNull == false) {
+      clob = this.getClob(statement.getConnection());
+    }
+    if (clob == null) {
+      statement.setNull(idx, Types.CLOB);
+    } else {
+      statement.setClob(idx, clob);
+    }
+  }
 
-	/**
-	 * Create a Clob
-	 *
-	 * @param con
-	 * @return
-	 */
-	private Clob getClob(Connection con) {
-		File file = FileManager.getTempFile(this.value);
-		if (file == null) {
-			return null;
-		}
-		Writer writer = null;
-		Reader reader = null;
-		Clob clob = null;
-		try {
-			reader = new FileReader(file);
-			clob = con.createClob();
-			writer = clob.setCharacterStream(1);
-			int c;
-			while ((c = reader.read()) != -1) {
-				writer.write(c);
-			}
-		} catch (Exception e) {
-			throw new ApplicationError(e, "error while setting Blob using key "
-					+ this.value);
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-			if (reader != null) {
-				try {
-					reader.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
-		return clob;
-	}
+  /**
+   * Create a Clob
+   *
+   * @param con
+   * @return
+   */
+  private Clob getClob(Connection con) {
+    File file = FileManager.getTempFile(this.value);
+    if (file == null) {
+      return null;
+    }
+    Writer writer = null;
+    Reader reader = null;
+    Clob clob = null;
+    try {
+      reader = new FileReader(file);
+      clob = con.createClob();
+      writer = clob.setCharacterStream(1);
+      int c;
+      while ((c = reader.read()) != -1) {
+        writer.write(c);
+      }
+    } catch (Exception e) {
+      throw new ApplicationError(e, "error while setting Blob using key " + this.value);
+    } finally {
+      if (writer != null) {
+        try {
+          writer.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+    }
+    return clob;
+  }
 }

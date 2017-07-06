@@ -24,16 +24,16 @@ package org.simplity.service;
 
 /**
  * utility to extract data elements from a formatted text into service context
- * @author simplity.org
  *
+ * @author simplity.org
  */
 public interface DataExtractor {
 
-	/**
-	 * extract data elements from the input text into a service context
-	 * @param inputText
-	 * @param ctx service context
-	 */
-	public void extract(String inputText, ServiceContext ctx);
-
+  /**
+   * extract data elements from the input text into a service context
+   *
+   * @param inputText
+   * @param ctx service context
+   */
+  public void extract(String inputText, ServiceContext ctx);
 }

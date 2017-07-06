@@ -28,47 +28,46 @@ import org.simplity.service.ServiceContext;
  * sum of a column
  *
  * @author simplity.org
- *
  */
 public class Min extends MathAggregator {
 
-	/**
-	 * @param inputName input name
-	 * @param outputName output name
-	 * @param outputIsDecimal true or false
-	 */
-	public Min(String inputName, String outputName, boolean outputIsDecimal) {
-		super(inputName, outputName, outputIsDecimal);
-		this.accumulatedValue = Double.MAX_VALUE;
-	}
+  /**
+   * @param inputName input name
+   * @param outputName output name
+   * @param outputIsDecimal true or false
+   */
+  public Min(String inputName, String outputName, boolean outputIsDecimal) {
+    super(inputName, outputName, outputIsDecimal);
+    this.accumulatedValue = Double.MAX_VALUE;
+  }
 
-	@Override
-	protected void accumulateInteger(long value) {
-		if(value < this.accumulatedValue){
-		this.accumulatedValue = value;
-		}
-	}
+  @Override
+  protected void accumulateInteger(long value) {
+    if (value < this.accumulatedValue) {
+      this.accumulatedValue = value;
+    }
+  }
 
-	@Override
-	protected void accumulateDecimal(double value) {
-		if(value < this.accumulatedValue){
-		this.accumulatedValue = value;
-		}
-	}
+  @Override
+  protected void accumulateDecimal(double value) {
+    if (value < this.accumulatedValue) {
+      this.accumulatedValue = value;
+    }
+  }
 
-	@Override
-	protected double getDecimalResult() {
-		return this.accumulatedValue;
-	}
+  @Override
+  protected double getDecimalResult() {
+    return this.accumulatedValue;
+  }
 
-	@Override
-	protected long getIntegerResult() {
-		return Math.round(this.accumulatedValue);
-	}
+  @Override
+  protected long getIntegerResult() {
+    return Math.round(this.accumulatedValue);
+  }
 
-	@Override
-	public void discard(ServiceContext ctx) {
-		super.discard(ctx);
-		this.accumulatedValue = Double.MAX_VALUE;
-	}
+  @Override
+  public void discard(ServiceContext ctx) {
+    super.discard(ctx);
+    this.accumulatedValue = Double.MAX_VALUE;
+  }
 }

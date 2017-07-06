@@ -10,7 +10,7 @@ import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;
 
 /**
- * Hello world!
+ * Open API record generator
  *
  */
 public class OpenApiRecGenerator {

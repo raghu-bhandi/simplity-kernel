@@ -22,66 +22,69 @@
  */
 package org.simplity.kernel;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.sql.SQLException;
 
 /**
- * represents an application design error. We have decided to make it an
- * unchecked exception because there is no reason for this error to occur at run
- * time, except that the programmer has not run design-time validations. This is
- * like syntax error in a script language. We expect that the project has put
- * reasonable build procedure to catch such errors. Examples are missing
- * components, incompatible data-types etc..
+ * represents an application design error. We have decided to make it an unchecked exception because
+ * there is no reason for this error to occur at run time, except that the programmer has not run
+ * design-time validations. This is like syntax error in a script language. We expect that the
+ * project has put reasonable build procedure to catch such errors. Examples are missing components,
+ * incompatible data-types etc..
  *
- * Even sql exceptions are not to be handled at the component level, they are
- * actually re-thrown as ApplicationExcption We would like to catch all such
- * exceptions at the highest level and deal with them rather than each component
- * worrying about it.
+ * <p>Even sql exceptions are not to be handled at the component level, they are actually re-thrown
+ * as ApplicationExcption We would like to catch all such exceptions at the highest level and deal
+ * with them rather than each component worrying about it.
  *
  * @author simplity.org
- *
  */
 public class ApplicationError extends RuntimeException {
-	protected static final long serialVersionUID = 1L;
-	protected String msg;
+  static final Logger logger = Logger.getLogger(ApplicationError.class.getName());
 
-	/**
-	 * construct with cause of this error
-	 *
-	 * @param error
-	 *            error message
-	 */
-	public ApplicationError(String error) {
-		this.msg = error;
-	}
+  protected static final long serialVersionUID = 1L;
+  protected String msg;
 
-	/**
-	 * handles SqlException that is likely to be chained to get all messages
-	 *
-	 * @param e
-	 *            exception being caught
-	 * @param msg
-	 *            additional error message
-	 */
-	public ApplicationError(Exception e, String msg) {
-		Tracer.trace(e, msg);
-		if (e instanceof SQLException) {
-			this.msg = this.getSqlMessage((SQLException) e);
-		} else {
-			this.msg = e.getMessage();
-		}
-	}
+  /**
+   * construct with cause of this error
+   *
+   * @param error error message
+   */
+  public ApplicationError(String error) {
+    this.msg = error;
+  }
 
-	private String getSqlMessage(SQLException e) {
-		StringBuilder sbf = new StringBuilder();
-		for (Throwable t : e) {
-			sbf.append(t.getMessage()).append('\n');
-			Tracer.trace(e.getMessage());
-		}
-		return sbf.toString();
-	}
+  /**
+   * handles SqlException that is likely to be chained to get all messages
+   *
+   * @param e exception being caught
+   * @param msg additional error message
+   */
+  public ApplicationError(Exception e, String msg) {
 
-	@Override
-	public String getMessage() {
-		return this.msg;
-	}
+    logger.log(Level.SEVERE, msg, e);
+    Tracer.trace(e, msg);
+    if (e instanceof SQLException) {
+      this.msg = this.getSqlMessage((SQLException) e);
+    } else {
+      this.msg = e.getMessage();
+    }
+  }
+
+  private String getSqlMessage(SQLException e) {
+    StringBuilder sbf = new StringBuilder();
+    for (Throwable t : e) {
+      sbf.append(t.getMessage()).append('\n');
+
+      logger.log(Level.INFO, e.getMessage());
+      Tracer.trace(e.getMessage());
+    }
+    return sbf.toString();
+  }
+
+  @Override
+  public String getMessage() {
+    return this.msg;
+  }
 }

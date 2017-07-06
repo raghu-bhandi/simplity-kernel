@@ -22,7 +22,7 @@
 
 /**
  * classes that handle open-api requests
- * @author simplity.org
  *
+ * @author simplity.org
  */
 package org.simplity.rest;

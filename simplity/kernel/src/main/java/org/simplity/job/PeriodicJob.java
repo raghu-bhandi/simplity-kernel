@@ -22,6 +22,9 @@
 
 package org.simplity.job;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.Calendar;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -29,148 +32,176 @@ import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 
 /**
- * A job that is added to a scheduler. manages running jobs for the job that is
- * scheduled
+ * A job that is added to a scheduler. manages running jobs for the job that is scheduled
  *
  * @author simplity.org
- *
  */
 public class PeriodicJob extends IntervalJob {
-	private static final int MINUTES = 24 * 60;
+  static final Logger logger = Logger.getLogger(PeriodicJob.class.getName());
 
-	/*
-	 * number of elapsed minute for the day, sorted asc
-	 */
-	private final int[] timesOfDay;
+  private static final int MINUTES = 24 * 60;
 
-	private ScheduledExecutorService scheduleExecutor;
-	/*
-	 * which is the next run-time?
-	 */
-	private int nextIdx;
+  /*
+   * number of elapsed minute for the day, sorted asc
+   */
+  private final int[] timesOfDay;
 
-	PeriodicJob(Job job, Value userId) {
-		super(job, userId);
-		int[] dummy = { 1 };
-		this.timesOfDay = dummy;
-	}
+  private ScheduledExecutorService scheduleExecutor;
+  /*
+   * which is the next run-time?
+   */
+  private int nextIdx;
 
-	PeriodicJob(Job job, Value userId, int[] times) {
-		super(job, userId);
-		this.timesOfDay = times;
-	}
+  PeriodicJob(Job job, Value userId) {
+    super(job, userId);
+    int[] dummy = {1};
+    this.timesOfDay = dummy;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.job.BatchJob#schedule(java.util.concurrent.
-	 * ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public boolean scheduleJobs(ScheduledExecutorService executor) {
-		this.runningJob = this.scheduledJob.createRunningJob(this.userId);
-		this.scheduleExecutor = executor;
-		this.nextIdx = this.getTimeIdx();
-		return true;
-	}
+  PeriodicJob(Job job, Value userId, int[] times) {
+    super(job, userId);
+    this.timesOfDay = times;
+  }
 
-	private int getTimeIdx() {
-		Calendar cal = Calendar.getInstance();
-		int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
-		Tracer.trace(cal.get(Calendar.HOUR_OF_DAY) +"hr " + cal.get(Calendar.MINUTE)+"mn  " + minutes);
-		for (int i = 0; i < this.timesOfDay.length; i++) {
-			Tracer.trace(i + " = " + this.timesOfDay[i]);
-			if (this.timesOfDay[i] >= minutes) {
-				return i;
-			}
-		}
-		return -1;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.job.BatchJob#schedule(java.util.concurrent.
+   * ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public boolean scheduleJobs(ScheduledExecutorService executor) {
+    this.runningJob = this.scheduledJob.createRunningJob(this.userId);
+    this.scheduleExecutor = executor;
+    this.nextIdx = this.getTimeIdx();
+    return true;
+  }
 
-	/**
-	 * submit a job if it is time to do so.
-	 *
-	 * @param minutes
-	 * @return number of minutes remaining for the next run
-	 */
-	@Override
-	public int poll(int minutes) {
-		if (this.scheduleExecutor == null) {
-			/*
-			 * probably cancelled..
-			 */
-			return NEVER;
-		}
-		if (this.nextIdx < 0) {
-			/*
-			 * last job for day is done, and waiting for morning..
-			 *
-			 * is it morning?
-			 */
-			int n = this.timesOfDay[0] - minutes;
-			if (n >= 0) {
-				this.nextIdx = 0;
-				return n;
-			}
-			return MINUTES + n;
-		}
-		int n = minutes - this.timesOfDay[this.nextIdx];
-		if (n > 0) {
-			return n;
-		}
-		/*
-		 * time has come to submit
-		 */
-		boolean submitted = this.submit();
-		if (submitted == false) {
-			return 1;
-		}
+  private int getTimeIdx() {
+    Calendar cal = Calendar.getInstance();
+    int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
 
-		/*
-		 * move to next run-time
-		 */
-		this.nextIdx++;
-		if (this.nextIdx == this.timesOfDay.length) {
-			/*
-			 * done for the day.
-			 */
-			this.nextIdx = -1;
-			Tracer.trace("Job " + this.scheduledJob.name
-					+ " has run for the last time for the day. It will be run tomorrow " + this.timesOfDay[0]
-					+ " minutes into the day.");
-			return MINUTES - minutes + this.timesOfDay[0];
-		}
-		n = this.timesOfDay[this.nextIdx] - minutes;
-		/*
-		 * it is possible that we are terribly running behind schedule and the next one is already overdue
-		 */
-		if(n < 0){
-			return 1;
-		}
-		return n;
-	}
+    logger.log(
+        Level.INFO,
+        cal.get(Calendar.HOUR_OF_DAY) + "hr " + cal.get(Calendar.MINUTE) + "mn  " + minutes);
+    Tracer.trace(
+        cal.get(Calendar.HOUR_OF_DAY) + "hr " + cal.get(Calendar.MINUTE) + "mn  " + minutes);
+    for (int i = 0; i < this.timesOfDay.length; i++) {
 
-	private boolean submit() {
-		if (this.future != null && this.future.isCancelled() == false && this.future.isDone() == false) {
-			Tracer.trace("Job " + this.scheduledJob.name
-					+ " is still running when it is time to run it again.. Will wait for next poll");
-			return false;
-		}
+      logger.log(Level.INFO, i + " = " + this.timesOfDay[i]);
+      Tracer.trace(i + " = " + this.timesOfDay[i]);
+      if (this.timesOfDay[i] >= minutes) {
+        return i;
+      }
+    }
+    return -1;
+  }
 
-		this.future = this.scheduleExecutor.submit(this.runningJob);
-		return true;
-	}
+  /**
+   * submit a job if it is time to do so.
+   *
+   * @param minutes
+   * @return number of minutes remaining for the next run
+   */
+  @Override
+  public int poll(int minutes) {
+    if (this.scheduleExecutor == null) {
+      /*
+       * probably cancelled..
+       */
+      return NEVER;
+    }
+    if (this.nextIdx < 0) {
+      /*
+       * last job for day is done, and waiting for morning..
+       *
+       * is it morning?
+       */
+      int n = this.timesOfDay[0] - minutes;
+      if (n >= 0) {
+        this.nextIdx = 0;
+        return n;
+      }
+      return MINUTES + n;
+    }
+    int n = minutes - this.timesOfDay[this.nextIdx];
+    if (n > 0) {
+      return n;
+    }
+    /*
+     * time has come to submit
+     */
+    boolean submitted = this.submit();
+    if (submitted == false) {
+      return 1;
+    }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.job.ScheduledJob#shutDownGracefully(java.util.concurrent.
-	 * ScheduledThreadPoolExecutor)
-	 */
-	@Override
-	public void cancel() {
-		super.cancel();
-		this.scheduleExecutor = null;
-	}
+    /*
+     * move to next run-time
+     */
+    this.nextIdx++;
+    if (this.nextIdx == this.timesOfDay.length) {
+      /*
+       * done for the day.
+       */
+      this.nextIdx = -1;
+
+      logger.log(
+          Level.INFO,
+          "Job "
+              + this.scheduledJob.name
+              + " has run for the last time for the day. It will be run tomorrow "
+              + this.timesOfDay[0]
+              + " minutes into the day.");
+      Tracer.trace(
+          "Job "
+              + this.scheduledJob.name
+              + " has run for the last time for the day. It will be run tomorrow "
+              + this.timesOfDay[0]
+              + " minutes into the day.");
+      return MINUTES - minutes + this.timesOfDay[0];
+    }
+    n = this.timesOfDay[this.nextIdx] - minutes;
+    /*
+     * it is possible that we are terribly running behind schedule and the next one is already overdue
+     */
+    if (n < 0) {
+      return 1;
+    }
+    return n;
+  }
+
+  private boolean submit() {
+    if (this.future != null
+        && this.future.isCancelled() == false
+        && this.future.isDone() == false) {
+
+      logger.log(
+          Level.INFO,
+          "Job "
+              + this.scheduledJob.name
+              + " is still running when it is time to run it again.. Will wait for next poll");
+      Tracer.trace(
+          "Job "
+              + this.scheduledJob.name
+              + " is still running when it is time to run it again.. Will wait for next poll");
+      return false;
+    }
+
+    this.future = this.scheduleExecutor.submit(this.runningJob);
+    return true;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.job.ScheduledJob#shutDownGracefully(java.util.concurrent.
+   * ScheduledThreadPoolExecutor)
+   */
+  @Override
+  public void cancel() {
+    super.cancel();
+    this.scheduleExecutor = null;
+  }
 }

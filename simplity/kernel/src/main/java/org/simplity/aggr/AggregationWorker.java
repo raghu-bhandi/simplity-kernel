@@ -26,60 +26,52 @@ import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.service.ServiceContext;
 
 /**
- * Functionality required to accumulate/aggregate column value/s across rows.
- * init() is invoked once for a table/sheet/rows. accumulate() is called for
- * each row of data and writeOut() is called as and when the accumulated value
- * is to be written out. For example when the group-by fields change, or when
- * there are no more rows
+ * Functionality required to accumulate/aggregate column value/s across rows. init() is invoked once
+ * for a table/sheet/rows. accumulate() is called for each row of data and writeOut() is called as
+ * and when the accumulated value is to be written out. For example when the group-by fields change,
+ * or when there are no more rows
  *
  * @author simplity.org
- *
  */
 public interface AggregationWorker {
-	/**
-	 * set-up shop and get ready to start aggregation process. Utility for a
-	 * class to reset in case it is re-used across aggregation cycles.
-	 * Implementations should put safety against init() when accumulation is in
-	 * progress. Best practice would be a reset() and then init()
-	 *
-	 * @param ctx
-	 *            service context
-	 */
-	public void init(ServiceContext ctx);
+  /**
+   * set-up shop and get ready to start aggregation process. Utility for a class to reset in case it
+   * is re-used across aggregation cycles. Implementations should put safety against init() when
+   * accumulation is in progress. Best practice would be a reset() and then init()
+   *
+   * @param ctx service context
+   */
+  public void init(ServiceContext ctx);
 
-	/**
-	 * called with fields from the current row of data. Main method for keep
-	 * accumulating data
-	 *
-	 * @param currentRow
-	 *            fields from current row being aggregated
-	 * @param ctx
-	 *            service context
-	 */
-	public void accumulate(FieldsInterface currentRow, ServiceContext ctx);
+  /**
+   * called with fields from the current row of data. Main method for keep accumulating data
+   *
+   * @param currentRow fields from current row being aggregated
+   * @param ctx service context
+   */
+  public void accumulate(FieldsInterface currentRow, ServiceContext ctx);
 
-	/**
-	 * end of rows for the current accumulation. Write-out your result, and get
-	 * ready for the next accumulation. Note that init is NOT called after this.
-	 * Also, this is called when there are no more rows
-	 *
-	 * @param outputRow Output Row
-	 * @param ctx Service Context
-	 */
-	public void writeOut(FieldsInterface outputRow, ServiceContext ctx);
+  /**
+   * end of rows for the current accumulation. Write-out your result, and get ready for the next
+   * accumulation. Note that init is NOT called after this. Also, this is called when there are no
+   * more rows
+   *
+   * @param outputRow Output Row
+   * @param ctx Service Context
+   */
+  public void writeOut(FieldsInterface outputRow, ServiceContext ctx);
 
-	/**
-	 * invoked in case the accumulated value is to be discarded (opposite of
-	 * writeOut)
-	 *
-	 * @param ctx  Service Context
-	 */
-	public void discard(ServiceContext ctx);
+  /**
+   * invoked in case the accumulated value is to be discarded (opposite of writeOut)
+   *
+   * @param ctx Service Context
+   */
+  public void discard(ServiceContext ctx);
 
-	/**
-	 * reset to a state as if this was never called earlier..
-	 *
-	 * @param ctx  Service Context
-	 */
-	public void reset(ServiceContext ctx);
+  /**
+   * reset to a state as if this was never called earlier..
+   *
+   * @param ctx Service Context
+   */
+  public void reset(ServiceContext ctx);
 }

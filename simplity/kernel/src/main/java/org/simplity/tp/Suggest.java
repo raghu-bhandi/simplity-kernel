@@ -21,6 +21,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
@@ -36,109 +39,116 @@ import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
 
 /**
- * Get suggestions from the table associated with a record based on the inputs.
- * This action is "auto-generated" for on-the-fly service, but action is useful
- * for a service that has to do other things as well. This is a thin wrapper on
- * record.suggest()
+ * Get suggestions from the table associated with a record based on the inputs. This action is
+ * "auto-generated" for on-the-fly service, but action is useful for a service that has to do other
+ * things as well. This is a thin wrapper on record.suggest()
  *
  * @author simplity.org
- *
  */
 public class Suggest extends DbAction {
+  static final Logger logger = Logger.getLogger(Suggest.class.getName());
 
-	/**
-	 * record that is to be used
-	 */
-	String recordName;
-	/**
-	 * field to filter on. Defaults to specification in record
-	 */
-	String fieldToMatch;
-	/**
-	 * name of the output data sheet
-	 */
-	String outputSheetName;
+  /** record that is to be used */
+  String recordName;
+  /** field to filter on. Defaults to specification in record */
+  String fieldToMatch;
+  /** name of the output data sheet */
+  String outputSheetName;
 
-	/**
-	 * default
-	 */
-	public Suggest() {
+  /** default */
+  public Suggest() {}
 
-	}
+  /**
+   * suggestion action for the record
+   *
+   * @param record
+   */
+  public Suggest(Record record) {
+    this.actionName = "suggest" + record.getSimpleName();
+    this.recordName = record.getQualifiedName();
+  }
 
-	/**
-	 * suggestion action for the record
-	 *
-	 * @param record
-	 */
-	public Suggest(Record record) {
-		this.actionName = "suggest" + record.getSimpleName();
-		this.recordName = record.getQualifiedName();
-	}
+  @Override
+  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+    Record record = ComponentManager.getRecord(this.recordName);
+    Value value = ctx.getValue(this.fieldToMatch);
+    if (value == null) {
 
-	@Override
-	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-		Record record = ComponentManager.getRecord(this.recordName);
-		Value value = ctx.getValue(this.fieldToMatch);
-		if (value == null) {
-			Tracer.trace("No value is available in field " + this.fieldToMatch
-					+ " for us to suggest. No suggestions sent to client");
-			return 0;
-		}
-		boolean matchStarting = false;
-		Value v = ctx.getValue(ServiceProtocol.SUGGEST_STARTING);
-		try {
-			if (v != null && v.toBoolean()) {
-				matchStarting = true;
-			}
-		} catch (InvalidValueException e) {
-			Tracer.trace("we expected boolean value in "
-					+ ServiceProtocol.SUGGEST_STARTING + " but encountered "
-					+ v + ". Assumed false value.");
-		}
-		DataSheet sheet = record.suggest(value.toString(), matchStarting,
-				driver, ctx.getUserId());
-		if (sheet == null) {
-			return 0;
-		}
-		String sheetName = this.outputSheetName == null ? record
-				.getDefaultSheetName() : this.outputSheetName;
-				ctx.putDataSheet(sheetName, sheet);
-				return sheet.length();
-	}
+      logger.log(
+          Level.INFO,
+          "No value is available in field "
+              + this.fieldToMatch
+              + " for us to suggest. No suggestions sent to client");
+      Tracer.trace(
+          "No value is available in field "
+              + this.fieldToMatch
+              + " for us to suggest. No suggestions sent to client");
+      return 0;
+    }
+    boolean matchStarting = false;
+    Value v = ctx.getValue(ServiceProtocol.SUGGEST_STARTING);
+    try {
+      if (v != null && v.toBoolean()) {
+        matchStarting = true;
+      }
+    } catch (InvalidValueException e) {
 
-	@Override
-	public DbAccessType getDataAccessType() {
-		return DbAccessType.READ_ONLY;
-	}
+      logger.log(
+          Level.INFO,
+          "we expected boolean value in "
+              + ServiceProtocol.SUGGEST_STARTING
+              + " but encountered "
+              + v
+              + ". Assumed false value.");
+      Tracer.trace(
+          "we expected boolean value in "
+              + ServiceProtocol.SUGGEST_STARTING
+              + " but encountered "
+              + v
+              + ". Assumed false value.");
+    }
+    DataSheet sheet = record.suggest(value.toString(), matchStarting, driver, ctx.getUserId());
+    if (sheet == null) {
+      return 0;
+    }
+    String sheetName =
+        this.outputSheetName == null ? record.getDefaultSheetName() : this.outputSheetName;
+    ctx.putDataSheet(sheetName, sheet);
+    return sheet.length();
+  }
 
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		if (this.recordName == null) {
-			throw new ApplicationError("Suggest action requires recordName");
-		}
-		if (this.fieldToMatch == null) {
-			this.fieldToMatch = ServiceProtocol.LIST_SERVICE_KEY;
-		}
-	}
+  @Override
+  public DbAccessType getDataAccessType() {
+    return DbAccessType.READ_ONLY;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if (this.recordName == null) {
-			ctx.addError("Suggest action requires recordName");
-			count++;
-		} else {
-			ctx.addReference(ComponentType.REC, this.recordName);
-		}
-		return count;
-	}
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    if (this.recordName == null) {
+      throw new ApplicationError("Suggest action requires recordName");
+    }
+    if (this.fieldToMatch == null) {
+      this.fieldToMatch = ServiceProtocol.LIST_SERVICE_KEY;
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if (this.recordName == null) {
+      ctx.addError("Suggest action requires recordName");
+      count++;
+    } else {
+      ctx.addReference(ComponentType.REC, this.recordName);
+    }
+    return count;
+  }
 }

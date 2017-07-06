@@ -22,36 +22,29 @@
 
 package org.simplity.service;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public interface ServiceCacheManager {
-	/**
-	 * get a cached response
-	 *
-	 * @param inputData
-	 * @return response text to be sent to client. null if this service is not
-	 *         available in cache. Empty string if the cacher would like to
-	 *         cache the response on its way back from server.
-	 */
-	public ServiceData respond(ServiceData inputData);
+  /**
+   * get a cached response
+   *
+   * @param inputData
+   * @return response text to be sent to client. null if this service is not available in cache.
+   *     Empty string if the cacher would like to cache the response on its way back from server.
+   */
+  public ServiceData respond(ServiceData inputData);
 
-	/**
-	 * cache a response from server. This is called if a previous call to
-	 * respond() would have returned an empty string indicating desire to cache
-	 * this response
-	 *
-	 * @param inData
-	 * @param outData
-	 */
-	public void cache(ServiceData inData, ServiceData outData);
-
+  /**
+   * cache a response from server. This is called if a previous call to respond() would have
+   * returned an empty string indicating desire to cache this response
+   *
+   * @param inData
+   * @param outData
+   */
+  public void cache(ServiceData inData, ServiceData outData);
 	/**
 	 * remove/invalidate any cache for this service
 	 * 
 	 * @param serviceName
 	 */
 	public void invalidate(String serviceName,ServiceData inData);
-
 }

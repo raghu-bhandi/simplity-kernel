@@ -21,6 +21,9 @@
  */
 package org.simplity.kernel.dm;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -74,29 +77,29 @@ import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
 
 /**
- *
  * This is the main part of our data model. Every piece of data that the
  * application has to keep as part of "system of records" must be modeled into
  * this. Data structures that are used as input to, or output from a service are
  * modeled as records as well.
  *
+ * <p>
  * It is common industry practice to have "physical data model" and
  * "logical data model" for proper understanding. We encourage such designs
  * before recording them using the Record concept.
  *
+ * <p>
  * Record is a good candidate to represent any data structure that is used
  * across components, even if it is not persisted.
- *
  */
 public class Record implements Component {
-	/**
-	 * header row of returned sheet when there is only one column
-	 */
+
+	static final Logger logger = Logger.getLogger(Record.class.getName());
+
+	/** header row of returned sheet when there is only one column */
 	private static String[] SINGLE_HEADER = { "value" };
-	/**
-	 * header row of returned sheet when there are two columns
-	 */
+	/** header row of returned sheet when there are two columns */
 	private static String[] DOUBLE_HEADER = { "key", "value" };
+
 	private static final char COMMA = ',';
 	private static final char PARAM = '?';
 	private static final char EQUAL = '=';
@@ -116,9 +119,7 @@ public class Record implements Component {
 	 */
 	private static final String DEFAULT_SEQ_SUFFIX = "_SEQ.NEXTVAL";
 
-	/***
-	 * Name of this record/entity, as used in application
-	 */
+	/** * Name of this record/entity, as used in application */
 	String name;
 
 	/**
@@ -127,9 +128,7 @@ public class Record implements Component {
 	 * resource is stored in a folder structure that mimics module name
 	 */
 	String moduleName;
-	/**
-	 * type of this record
-	 */
+	/** type of this record */
 	RecordUsageType recordType = RecordUsageType.STORAGE;
 	/**
 	 * name of the rdbms table, if this is either a storage table, or a view
@@ -169,9 +168,7 @@ public class Record implements Component {
 	 * record
 	 */
 	String[] childrenToBeSaved = null;
-	/**
-	 * fields that this record is made-up of
-	 */
+	/** fields that this record is made-up of */
 	Field[] fields = new Field[0];
 
 	/**
@@ -199,13 +196,9 @@ public class Record implements Component {
 	 * search
 	 */
 	String suggestionKeyName;
-	/**
-	 * what fields do we respond back with for a suggestion service
-	 */
+	/** what fields do we respond back with for a suggestion service */
 	String[] suggestionOutputNames;
-	/**
-	 * is this record only for reading?
-	 */
+	/** is this record only for reading? */
 	boolean readOnly;
 
 	/**
@@ -268,33 +261,21 @@ public class Record implements Component {
 	private Field modifiedUserField;
 	private Field createdUserField;
 
-	/**
-	 * we need the set to validate field names at time
-	 */
+	/** we need the set to validate field names at time */
 	private final Map<String, Field> indexedFields = new HashMap<String, Field>();
 
-	/**
-	 * and field names of course. cached after loading
-	 */
+	/** and field names of course. cached after loading */
 	private String[] fieldNames;
-	/**
-	 * sql for reading a row for given primary key value
-	 */
+	/** sql for reading a row for given primary key value */
 	private String readSql;
 
-	/**
-	 * select f1,f2,..... WHERE used in filtering
-	 */
+	/** select f1,f2,..... WHERE used in filtering */
 	private String filterSql;
 
-	/**
-	 * sql ready to insert a row into the table
-	 */
+	/** sql ready to insert a row into the table */
 	private String insertSql;
 
-	/**
-	 * sql to update every field. (Not selective update)
-	 */
+	/** sql to update every field. (Not selective update) */
 	private String updateSql;
 
 	/**
@@ -303,27 +284,17 @@ public class Record implements Component {
 	 */
 	private String deleteSql;
 
-	/**
-	 * sql to be used for a list action
-	 */
+	/** sql to be used for a list action */
 	private String listSql;
-	/**
-	 * value types of fields selected for list action
-	 */
+	/** value types of fields selected for list action */
 	private ValueType[] valueListTypes;
-	/**
-	 * value type of key used in list action
-	 */
+	/** value type of key used in list action */
 	private ValueType valueListKeyType;
 
-	/**
-	 * sql to be used for a suggestion action
-	 */
+	/** sql to be used for a suggestion action */
 	private String suggestSql;
 
-	/**
-	 * sequence of oracle if required
-	 */
+	/** sequence of oracle if required */
 	private String sequence;
 
 	/**
@@ -332,9 +303,7 @@ public class Record implements Component {
 	 */
 	private boolean isComplexStruct;
 
-	/**
-	 * min length of record in case forFixedWidthRow = true
-	 */
+	/** min length of record in case forFixedWidthRow = true */
 	private int minRecordLength;
 
 	/**
@@ -345,14 +314,10 @@ public class Record implements Component {
 	 */
 	private Field[] allPrimaryKeys;
 
-	/**
-	 * parent key, in case parent has composite primary key
-	 */
+	/** parent key, in case parent has composite primary key */
 	private Field[] allParentKeys;
 
-	/**
-	 * " WHERE key1=?,key2=?
-	 */
+	/** " WHERE key1=?,key2=? */
 	private String primaryWhereClause;
 
 	private int nbrUpdateFields;
@@ -403,25 +368,17 @@ public class Record implements Component {
 		return this.moduleName + '.' + this.name;
 	}
 
-	/**
-	 * @return array of primary key fields.
-	 */
+	/** @return array of primary key fields. */
 	public Field[] getPrimaryKeyFields() {
 		return this.allPrimaryKeys;
 	}
 
-	/**
-	 *
-	 * @return dependent children to be input for saving
-	 */
+	/** @return dependent children to be input for saving */
 	public String[] getChildrenToInput() {
 		return this.childrenToBeSaved;
 	}
 
-	/**
-	 *
-	 * @return dependent child records that are read along
-	 */
+	/** @return dependent child records that are read along */
 	public String[] getChildrenToOutput() {
 		return this.childrenToBeRead;
 	}
@@ -475,7 +432,6 @@ public class Record implements Component {
 	 *
 	 * @param nam
 	 *            qualified name
-	 *
 	 */
 	public void setQualifiedName(String nam) {
 		int idx = nam.lastIndexOf('.');
@@ -488,7 +444,6 @@ public class Record implements Component {
 	}
 
 	/**
-	 *
 	 * @param moduleName
 	 */
 	public void setModuleName(String moduleName) {
@@ -496,7 +451,6 @@ public class Record implements Component {
 	}
 
 	/**
-	 *
 	 * @param tableName
 	 */
 	public void setTableName(String tableName) {
@@ -511,7 +465,6 @@ public class Record implements Component {
 	 * @param addActionColumn
 	 *            should we add a column to have action to be performed on each
 	 *            row
-	 *
 	 * @return an empty sheet ready to receive data
 	 */
 	public DataSheet createSheet(boolean forSingleRow, boolean addActionColumn) {
@@ -564,7 +517,6 @@ public class Record implements Component {
 	 *            one or more rows that has value for the primary key.
 	 * @param outSheet
 	 *            sheet to which rows are to be extracted
-	 *
 	 * @param driver
 	 * @param userId
 	 *            we may have a common security strategy to restrict output rows
@@ -585,6 +537,8 @@ public class Record implements Component {
 		if (singleRow) {
 			Value[] values = this.getPrimaryValues(inSheet, 0);
 			if (values == null) {
+
+				logger.log(Level.INFO, "Primary key value not available and hence no read operation.");
 				Tracer.trace("Primary key value not available and hence no read operation.");
 				return 0;
 			}
@@ -595,6 +549,8 @@ public class Record implements Component {
 		for (int i = 0; i < nbrRows; i++) {
 			Value[] vals = this.getPrimaryValues(inSheet, i);
 			if (vals == null) {
+
+				logger.log(Level.INFO, "Primary key value not available and hence no read operation.");
 				Tracer.trace("Primary key value not available and hence no read operation.");
 				return 0;
 			}
@@ -655,12 +611,17 @@ public class Record implements Component {
 	 */
 	public int readOne(FieldsInterface inData, DataSheet outData, DbDriver driver, Value userId) {
 		if (this.allPrimaryKeys == null) {
+
+			logger.log(Level.INFO, "Record " + this.name
+					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
 			Tracer.trace("Record " + this.name
 					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
 			return 0;
 		}
 		Value[] values = this.getPrimaryValues(inData, false);
 		if (values == null) {
+
+			logger.log(Level.INFO, "Value for primary key not present, and hence no read operation.");
 			Tracer.trace("Value for primary key not present, and hence no read operation.");
 			return 0;
 		}
@@ -683,6 +644,9 @@ public class Record implements Component {
 	 */
 	public boolean rowExistsForKey(FieldsInterface inData, String keyFieldName, DbDriver driver, Value userId) {
 		if (this.allPrimaryKeys == null) {
+
+			logger.log(Level.INFO, "Record " + this.name
+					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
 			Tracer.trace("Record " + this.name
 					+ " is not defined with a primary key, and hence we can not do a read operation on this.");
 			this.noPrimaryKey();
@@ -691,12 +655,18 @@ public class Record implements Component {
 		Value[] values;
 		if (keyFieldName != null) {
 			if (this.allPrimaryKeys.length > 1) {
+
+				logger.log(Level.INFO, "There are more than one primary keys, and hence supplied name keyFieldName of "
+						+ keyFieldName + " is ognored");
 				Tracer.trace("There are more than one primary keys, and hence supplied name keyFieldName of "
 						+ keyFieldName + " is ognored");
 				values = this.getPrimaryValues(inData, false);
 			} else {
 				Value value = inData.getValue(keyFieldName);
 				if (Value.isNull(value)) {
+
+					logger.log(Level.INFO,
+							"Primary key field " + keyFieldName + " has no value, and hence no read operation.");
 					Tracer.trace("Primary key field " + keyFieldName + " has no value, and hence no read operation.");
 					return false;
 				}
@@ -717,7 +687,6 @@ public class Record implements Component {
 	 * @param userId
 	 *            we may have a common security strategy to restrict output rows
 	 *            based on user. Not used as of now
-	 *
 	 * @param inData
 	 *            as per filtering conventions
 	 * @param driver
@@ -748,9 +717,7 @@ public class Record implements Component {
 				condition = FilterCondition.parse(otherValue.toText());
 			}
 
-			/**
-			 * handle the special case of in-list
-			 */
+			/** handle the special case of in-list */
 			if (condition == FilterCondition.In) {
 				Value[] values = Value.parse(value.toString().split(","), field.getValueType());
 				/*
@@ -1053,7 +1020,6 @@ public class Record implements Component {
 	 * insert row/s
 	 *
 	 * @param inSheet
-	 *
 	 * @param driver
 	 * @param userId
 	 * @param treatSqlErrorAsNoResult
@@ -1098,7 +1064,6 @@ public class Record implements Component {
 	 * insert row/s
 	 *
 	 * @param inData
-	 *
 	 * @param driver
 	 * @param userId
 	 * @param treatSqlErrorAsNoResult
@@ -1122,8 +1087,7 @@ public class Record implements Component {
 		int result = this.insertWorker(driver, this.insertSql, allValues, generatedKeys, treatSqlErrorAsNoResult);
 		if (result > 0) {
 			/*
-			 * generated key feature may not be available with some rdb
-			 * vendor
+			 * generated key feature may not be available with some rdb vendor
 			 */
 			long key = generatedKeys[0];
 			if (key > 0) {
@@ -1142,7 +1106,6 @@ public class Record implements Component {
 	 *            got inserted
 	 * @param parentRow
 	 *            fields/row that has the parent key
-	 *
 	 * @param driver
 	 * @param userId
 	 * @return number of rows saved. -1 in case of batch, and the driver is
@@ -1213,6 +1176,9 @@ public class Record implements Component {
 			String parentKeyName = field.referredField;
 			Value parentKey = inData.getValue(parentKeyName);
 			if (Value.isNull(parentKey)) {
+
+				logger.log(Level.INFO, "No value found for parent key field " + parentKeyName
+						+ " and hence no column is going to be added to child table");
 				Tracer.trace("No value found for parent key field " + parentKeyName
 						+ " and hence no column is going to be added to child table");
 				return;
@@ -1235,6 +1201,9 @@ public class Record implements Component {
 			Field field = this.allParentKeys[i];
 			Value value = inData.getValue(field.referredField);
 			if (Value.isNull(value)) {
+
+				logger.log(Level.INFO, "No value found for parent key field " + field.referredField
+						+ " and hence no column is going to be added to child table");
 				Tracer.trace("No value found for parent key field " + field.referredField
 						+ " and hence no column is going to be added to child table");
 				return null;
@@ -1387,6 +1356,8 @@ public class Record implements Component {
 		}
 		Value[] values = this.getParentValues(parentRow);
 		if (values == null) {
+
+			logger.log(Level.INFO, "Delete with parent has nothing to delete as parent key is null");
 			Tracer.trace("Delete with parent has nothing to delete as parent key is null");
 			return 0;
 		}
@@ -1422,6 +1393,9 @@ public class Record implements Component {
 			return driver.insertAndGetKeys(sql, values[0], generatedKeys, keyNames, treatSqlErrorAsNoResult);
 		}
 		if (generatedKeys != null) {
+
+			logger.log(Level.INFO,
+					"Generated key retrieval is NOT supported for batch. Keys for child table are to be retrieved automatically");
 			Tracer.trace(
 					"Generated key retrieval is NOT supported for batch. Keys for child table are to be retrieved automatically");
 		}
@@ -1492,6 +1466,8 @@ public class Record implements Component {
 		 */
 		Value[] whereValues = this.getPrimaryValues(inData, true);
 		if (whereValues == null) {
+
+			logger.log(Level.INFO, "Primary keys not available and hence update operaiton aborted.");
 			Tracer.trace("Primary keys not available and hence update operaiton aborted.");
 			return 0;
 		}
@@ -1652,7 +1628,6 @@ public class Record implements Component {
 	 * read rows from this record for a given parent record
 	 *
 	 * @param parentData
-	 *
 	 * @param driver
 	 * @return sheet that contains rows from this record for the parent rows
 	 */
@@ -1707,12 +1682,16 @@ public class Record implements Component {
 	private void crypt(DataSheet sheet, boolean toDecrypt) {
 		int nbrRows = sheet.length();
 		if (nbrRows == 0) {
+
+			logger.log(Level.INFO, "Data sheet has no data and hance no encryption.");
 			Tracer.trace("Data sheet has no data and hance no encryption.");
 			return;
 		}
 		for (Field field : this.encryptedFields) {
 			int colIdx = sheet.getColIdx(field.name);
 			if (colIdx == -1) {
+
+				logger.log(Level.INFO, "Data sheet has no column named " + field.name + " hance no encryption.");
 				Tracer.trace("Data sheet has no column named " + field.name + " hance no encryption.");
 				continue;
 			}
@@ -1721,6 +1700,9 @@ public class Record implements Component {
 				row[colIdx] = this.crypt(row[colIdx], toDecrypt);
 			}
 		}
+
+		logger.log(Level.INFO, nbrRows + " rows and " + this.encryptedFields.length + " columns "
+				+ (toDecrypt ? "un-" : "") + "obsfuscated");
 		Tracer.trace(nbrRows + " rows and " + this.encryptedFields.length + " columns " + (toDecrypt ? "un-" : "")
 				+ "obsfuscated");
 	}
@@ -1766,13 +1748,9 @@ public class Record implements Component {
 	static ThreadLocal<RefHistory> referenceHistory = new ThreadLocal<Record.RefHistory>();
 
 	class RefHistory {
-		/**
-		 * recursive reference history of record names
-		 */
+		/** recursive reference history of record names */
 		List<String> pendingOnes = new ArrayList<String>();
-		/**
-		 * records that have completed loading as part of this process
-		 */
+		/** records that have completed loading as part of this process */
 		Map<String, Record> finishedOnes = new HashMap<String, Record>();
 	}
 
@@ -1858,18 +1836,21 @@ public class Record implements Component {
 			sbf.append(nbr).append(". ").append(recName).append('\n');
 			sbf.append('}');
 		}
+
+		logger.log(Level.INFO, sbf.toString());
 		Tracer.trace(sbf.toString());
 		return false;
 		// throw new ApplicationError(sbf.toString());
 	}
 
-	/**
-	 * called at the end of getReady();
-	 */
+	/** called at the end of getReady(); */
 	private void recordGotReady(boolean originator) {
 		String recName = this.getQualifiedName();
 		RefHistory history = referenceHistory.get();
 		if (history == null) {
+
+			logger.log(Level.INFO, "There is an issue with the way Record " + recName
+					+ "  is trying to detect circular reference. History has disappeared.");
 			Tracer.trace("There is an issue with the way Record " + recName
 					+ "  is trying to detect circular reference. History has disappeared.");
 			return;
@@ -1884,6 +1865,9 @@ public class Record implements Component {
 			for (String s : history.pendingOnes) {
 				sbf.append(s).append(' ');
 			}
+
+			logger.log(Level.INFO, "There is an issue with the way Record " + recName
+					+ "  is trying to detect circular reference. pending list remained as " + sbf.toString());
 			Tracer.trace("There is an issue with the way Record " + recName
 					+ "  is trying to detect circular reference. pending list remained as " + sbf.toString());
 		}
@@ -1912,6 +1896,9 @@ public class Record implements Component {
 			if (DbDriver.generatorNameRequired()) {
 				if (this.sequenceName == null) {
 					this.sequence = this.tableName + DEFAULT_SEQ_SUFFIX;
+
+					logger.log(Level.INFO, "sequence not specified for table " + this.tableName
+							+ ". default sequence name  " + this.sequence + " is assumed.");
 					Tracer.trace("sequence not specified for table " + this.tableName + ". default sequence name  "
 							+ this.sequence + " is assumed.");
 				} else {
@@ -1932,7 +1919,7 @@ public class Record implements Component {
 		int nbrPrimaries = 0;
 		int nbrParents = 0;
 		int nbrEncrypted = 0;
-		List<Field> pkeys = new ArrayList<Field>();
+
 		for (int i = 0; i < this.fields.length; i++) {
 			Field field = this.fields[i];
 			if (this.forFixedWidthRow) {
@@ -1950,7 +1937,6 @@ public class Record implements Component {
 			}
 			FieldType ft = field.getFieldType();
 			if (FieldType.isPrimaryKey(ft)) {
-				pkeys.add(field);
 				nbrPrimaries++;
 			}
 			if (FieldType.isParentKey(ft)) {
@@ -1969,8 +1955,6 @@ public class Record implements Component {
 				this.isComplexStruct = true;
 			}
 		}
-		if(pkeys.size()>0)
-			this.allPrimaryKeys = pkeys.toArray(new Field[pkeys.size()]);
 		/*
 		 * last field is allowed to be flexible in a fixed width record
 		 */
@@ -2063,9 +2047,7 @@ public class Record implements Component {
 				+ savedField.fieldType.name() + ". This feature is not supported");
 	}
 
-	/**
-	 * Create read and filter sqls
-	 */
+	/** Create read and filter sqls */
 	private void createReadSqls() {
 
 		/*
@@ -2318,17 +2300,12 @@ public class Record implements Component {
 		return sheet;
 	}
 
-	/**
-	 *
-	 * @return all fields of this record.
-	 */
+	/** @return all fields of this record. */
 	public Field[] getFields() {
 		return this.fields;
 	}
 
-	/**
-	 * @return all fields mapped by their names
-	 */
+	/** @return all fields mapped by their names */
 	public Map<String, Field> getFieldsMap() {
 		Map<String, Field> map = new HashMap<String, Field>();
 		for (Field field : this.fields) {
@@ -2425,7 +2402,6 @@ public class Record implements Component {
 			}
 		}
 		return ds;
-
 	}
 
 	/**
@@ -2448,6 +2424,8 @@ public class Record implements Component {
 		 */
 		Field[] fieldsToExtract = this.getFieldsToBeExtracted(namesToExtract, purpose, saveActionExpected);
 		if (purpose == DataPurpose.FILTER) {
+
+			logger.log(Level.INFO, "Extracting filter fields");
 			Tracer.trace("Extracting filter fields");
 			return this.extractFilterFields(inData, extractedValues, fieldsToExtract, errors);
 		}
@@ -2566,9 +2544,7 @@ public class Record implements Component {
 		return result;
 	}
 
-	/**
-	 * @return field names in this record
-	 */
+	/** @return field names in this record */
 	public String[] getFieldNames() {
 		return this.fieldNames;
 	}
@@ -2598,15 +2574,12 @@ public class Record implements Component {
 		return result;
 	}
 
-	/**
-	 * @return are there fields with inter-field validations?
-	 */
+	/** @return are there fields with inter-field validations? */
 	public boolean hasInterFieldValidations() {
 		return this.hasInterFieldValidations;
 	}
 
 	/**
-	 *
 	 * @param recs
 	 *            list to which output records are to be added
 	 */
@@ -2624,6 +2597,9 @@ public class Record implements Component {
 		 * children can be output, but only if we have links...
 		 */
 		if (this.allPrimaryKeys == null) {
+
+			logger.log(Level.INFO, "Record " + this.getQualifiedName() + " has defined childrenToBeRead="
+					+ this.childrenToBeRead + " but it has not defined a primary key.");
 			Tracer.trace("Record " + this.getQualifiedName() + " has defined childrenToBeRead=" + this.childrenToBeRead
 					+ " but it has not defined a primary key.");
 			return;
@@ -2636,7 +2612,6 @@ public class Record implements Component {
 	}
 
 	/**
-	 *
 	 * @param recs
 	 *            list to which output records are to be added
 	 * @param parentSheetName
@@ -2686,23 +2661,17 @@ public class Record implements Component {
 				this.allParentKeys[0].name, this.allParentKeys[0].referredField);
 	}
 
-	/**
-	 * @return the suggestionKeyName
-	 */
+	/** @return the suggestionKeyName */
 	public String getSuggestionKeyName() {
 		return this.suggestionKeyName;
 	}
 
-	/**
-	 * @return the suggestionOutputNames
-	 */
+	/** @return the suggestionOutputNames */
 	public String[] getSuggestionOutputNames() {
 		return this.suggestionOutputNames;
 	}
 
-	/**
-	 * @return the valueListKeyName
-	 */
+	/** @return the valueListKeyName */
 	public String getValueListKeyName() {
 		return this.listGroupKeyName;
 	}
@@ -2935,16 +2904,12 @@ public class Record implements Component {
 		return this.schemaName;
 	}
 
-	/**
-	 *
-	 * @return is it okay to cache the list generated from this record?
-	 */
+	/** @return is it okay to cache the list generated from this record? */
 	public boolean getOkToCache() {
 		return this.listFieldName != null && this.okToCacheList;
 	}
 
 	/**
-	 *
 	 * @return this record is data object if any of its field is non-primitive
 	 */
 	public boolean isComplexStruct() {
@@ -2978,7 +2943,6 @@ public class Record implements Component {
 				return null;
 			}
 			structs[i] = this.createStructForSp((JSONObject) childObject, con, ctx, null);
-
 		}
 		return DbDriver.createStructArray(con, structs, sqlTypeName);
 	}
@@ -3003,6 +2967,8 @@ public class Record implements Component {
 			Field field = this.fields[i];
 			Object obj = json.opt(field.name);
 			if (obj == null) {
+
+				logger.log(Level.INFO, "No value for attribute " + field.name);
 				Tracer.trace("No value for attribute " + field.name);
 				continue;
 			}
@@ -3186,7 +3152,6 @@ public class Record implements Component {
 	 * Write an object to writer that represents a JOSONObject for this record
 	 *
 	 * @param array
-	 *
 	 * @param writer
 	 * @throws SQLException
 	 * @throws JSONException
@@ -3207,7 +3172,6 @@ public class Record implements Component {
 	 * Write an object to writer that represents a JOSONObject for this record
 	 *
 	 * @param struct
-	 *
 	 * @param writer
 	 * @throws SQLException
 	 * @throws JSONException
@@ -3316,6 +3280,8 @@ public class Record implements Component {
 			if (schemaName != null) {
 				msg += " in schema " + schemaName;
 			}
+
+			logger.log(Level.INFO, msg);
 			Tracer.trace(msg);
 			return null;
 		}
@@ -3370,17 +3336,26 @@ public class Record implements Component {
 	public static int createAllRecords(File folder, DbToJavaNameConversion conversion) {
 		if (folder.exists() == false) {
 			folder.mkdirs();
+
+			logger.log(Level.INFO, "Folder created for path " + folder.getAbsolutePath());
 			Tracer.trace("Folder created for path " + folder.getAbsolutePath());
 		} else if (folder.isDirectory() == false) {
+
+			logger.log(Level.INFO,
+					folder.getAbsolutePath() + " is a file but not a folder. Record generation abandoned.");
 			Tracer.trace(folder.getAbsolutePath() + " is a file but not a folder. Record generation abandoned.");
 			return 0;
 		}
 		String path = folder.getAbsolutePath() + '/';
 		DataSheet tables = DbDriver.getTables(null, null);
 		if (tables == null) {
+
+			logger.log(Level.INFO, "No tables in the db. Records not created.");
 			Tracer.trace("No tables in the db. Records not created.");
 			return 0;
 		}
+
+		logger.log(Level.INFO, "Found " + tables.length() + " tables for which we are going to create records.");
 		Tracer.trace("Found " + tables.length() + " tables for which we are going to create records.");
 		DataTypeSuggester suggester = new DataTypeSuggester();
 		String[][] rows = tables.getRawData();
@@ -3402,6 +3377,8 @@ public class Record implements Component {
 
 			Record record = Record.createFromTable(schemaName, recordName, tableName, conversion, suggester);
 			if (record == null) {
+
+				logger.log(Level.INFO, "Record " + recordName + " could not be generated from table/view " + tableName);
 				Tracer.trace("Record " + recordName + " could not be generated from table/view " + tableName);
 				continue;
 			}
@@ -3420,6 +3397,9 @@ public class Record implements Component {
 					nbrTables++;
 				}
 			} catch (Exception e) {
+
+				logger.log(Level.SEVERE, "Record " + recordName + " generated from table/view " + tableName
+						+ " but could not be saved. ", e);
 				Tracer.trace(e, "Record " + recordName + " generated from table/view " + tableName
 						+ " but could not be saved. ");
 				continue;
@@ -3432,20 +3412,16 @@ public class Record implements Component {
 					}
 				}
 			}
-
 		}
 		return nbrTables;
 	}
 
-	/**
-	 * @return table name for this record
-	 */
+	/** @return table name for this record */
 	public String getTableName() {
 		return this.tableName;
 	}
 
 	/**
-	 *
 	 * @param fields
 	 */
 	public void setFields(Field[] fields) {
@@ -3487,7 +3463,6 @@ public class Record implements Component {
 	 *            json writer to which we will output 0 or more objects or
 	 *            arrays. (Caller should have started an array. and shoudl end
 	 *            array after this call
-	 *
 	 */
 	public void filterToJson(Record inRecord, FieldsInterface inData, DbDriver driver, boolean useCompactFormat,
 			ResponseWriter writer) {
@@ -3540,9 +3515,7 @@ public class Record implements Component {
 				condition = FilterCondition.parse(otherValue.toText());
 			}
 
-			/**
-			 * handle the special case of in-list
-			 */
+			/** handle the special case of in-list */
 			if (condition == FilterCondition.In) {
 				Value[] values = Value.parse(value.toString().split(","), field.getValueType());
 				/*
@@ -3717,10 +3690,9 @@ public class Record implements Component {
 		return texts;
 	}
 
-	/**
-	 * definitions object
-	 */
+	/** definitions object */
 	private static final String DEFS_ATTR = "definitions";
+
 	private static final String REF_ATTR = "$ref";
 	private static final String DEFAULT_ATTR = "default";
 	private static final String FIELD_NAME_ATTR = "x-fieldName";
@@ -3744,13 +3716,13 @@ public class Record implements Component {
 	 *            moduleName.recordNme
 	 * @return record, or null in case the schema is not valid.
 	 */
-	public static Record fromSwagger(JSONObject schema, String recordName, String moduleName,String[] defNames) {
+	public static Record fromSwagger(JSONObject schema, String recordName, String moduleName, String[] defNames) {
 		if (schema == null) {
 			Tracer.trace("schema for record " + recordName + " is null");
 			return null;
 		}
 		JSONObject attrs = schema.optJSONObject(PROPERTIES_ATTR);
-		if(attrs == null ||attrs.length() == 0){
+		if (attrs == null || attrs.length() == 0) {
 			Tracer.trace("Schema for record " + recordName + " has no fields");
 			return null;
 		}
@@ -3759,9 +3731,9 @@ public class Record implements Component {
 		 */
 		JSONArray arr = schema.optJSONArray(REQ_ATTR);
 		Set<String> reqs = null;
-		if(arr != null){
+		if (arr != null) {
 			reqs = new HashSet<String>();
-			for(Object r : reqs){
+			for (Object r : reqs) {
 				reqs.add(r.toString());
 			}
 		}
@@ -3781,9 +3753,9 @@ public class Record implements Component {
 				Tracer.trace("Schema has improper details for field " + fn);
 				return null;
 			}
-			Field field = new Field();			
+			Field field = new Field();
 			field.name = attr.optString(FIELD_NAME_ATTR, fn);
-			field.isRequired = reqs !=null && reqs.contains(fn);
+			field.isRequired = reqs != null && reqs.contains(fn);
 			Object def = attr.opt(DEFAULT_ATTR);
 			if (def != null) {
 				field.defaultValue = def.toString();
@@ -3792,17 +3764,18 @@ public class Record implements Component {
 			/*
 			 * if this is an object, we have to recurse
 			 */
-			if(field.fieldType == FieldType.RECORD || field.fieldType == FieldType.VALUE_ARRAY){
+			if (field.fieldType == FieldType.RECORD || field.fieldType == FieldType.VALUE_ARRAY) {
 				/*
-				 * good practice is to define all records at the root level, and refer them anywhere. Hence we will not do this recursion
+				 * good practice is to define all records at the root level, and
+				 * refer them anywhere. Hence we will not do this recursion
 				 */
-	
-				for(String s: defNames){
+
+				for (String s : defNames) {
 					String refDefinition = attr.optJSONObject("items").optString(REF_ATTR);
-					if(s.equalsIgnoreCase(refDefinition.substring(refDefinition.lastIndexOf('/')+1))){
-						if(moduleName != null){
-							childRecs.add(moduleName+"."+s);
-						}else{
+					if (s.equalsIgnoreCase(refDefinition.substring(refDefinition.lastIndexOf('/') + 1))) {
+						if (moduleName != null) {
+							childRecs.add(moduleName + "." + s);
+						} else {
 							childRecs.add(s);
 						}
 						break;
@@ -3813,7 +3786,7 @@ public class Record implements Component {
 			fieldsList.add(field);
 		}
 		int nbrOfChildRecs = childRecs.size();
-		if(nbrOfChildRecs > 0){
+		if (nbrOfChildRecs > 0) {
 			record.childrenToBeSaved = new String[nbrOfChildRecs];
 			record.childrenToBeRead = new String[nbrOfChildRecs];
 			record.childrenToBeSaved = childRecs.toArray(record.childrenToBeSaved);
@@ -3904,7 +3877,7 @@ public class Record implements Component {
 
 		List<Record> records = new ArrayList<Record>();
 		for (String recName : names) {
-			parseSchema(recName, moduleName, defs.getJSONObject(recName), records,names);
+			parseSchema(recName, moduleName, defs.getJSONObject(recName), records, names);
 		}
 
 		if (records.size() == 0) {
@@ -3920,16 +3893,18 @@ public class Record implements Component {
 	 * @param records
 	 */
 
-	private static void parseSchema(String recName, String moduleName, JSONObject schema, List<Record> records,String[] defNames) {
+	private static void parseSchema(String recName, String moduleName, JSONObject schema, List<Record> records,
+			String[] defNames) {
 		if (schema.opt(REF_ATTR) != null) {
 			Tracer.trace("schema " + recName + " is referencing another schema, and hence ignored.");
 			return;
 		}
-		Record record = fromSwagger(schema, recName, moduleName,defNames);
+		Record record = fromSwagger(schema, recName, moduleName, defNames);
 		if (record != null) {
 			records.add(record);
 		}
 	}
+
 	/**
 	 *
 	 * @param args
@@ -3939,18 +3914,19 @@ public class Record implements Component {
 		String txt = FileManager.readFile(new File(rootFolder + "troubleTicket.json"));
 		JSONObject swagger = new JSONObject(txt);
 		JSONObject defs = swagger.optJSONObject(DEFS_ATTR);
-		if(defs == null){
+		if (defs == null) {
 			Tracer.trace("No defintions found");
 			return;
 		}
 
 		Tracer.trace("going to scan " + defs.length() + " schemas at the root level");
 		Record[] recs = Record.fromSwaggerDefinitions(null, defs);
-		for(Record rec : recs){
+		for (Record rec : recs) {
 			Tracer.trace(XmlUtil.objectToXmlString(rec));
 		}
 
 	}
+
 }
 
 class SqlAndValues {

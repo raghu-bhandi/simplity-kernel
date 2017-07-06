@@ -28,20 +28,17 @@ import org.simplity.kernel.ApplicationError;
  * sub-class of ApplicationError.
  *
  * @author simplity.org
- *
  */
 @SuppressWarnings("serial")
 public class MissingComponentError extends ApplicationError {
 
-	/**
-	 * Missing Component error
-	 *
-	 * @param componentType
-	 * @param componentName
-	 */
-	public MissingComponentError(ComponentType componentType,
-			String componentName) {
-		super("Component " + componentName + " of type " + componentType
-				+ " is missing in action!!");
-	}
+  /**
+   * Missing Component error
+   *
+   * @param componentType
+   * @param componentName
+   */
+  public MissingComponentError(ComponentType componentType, String componentName) {
+    super("Component " + componentName + " of type " + componentType + " is missing in action!!");
+  }
 }

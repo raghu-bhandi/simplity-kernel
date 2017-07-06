@@ -30,44 +30,35 @@ import org.simplity.service.ServiceContext;
  * Get response from a server using rest call
  *
  * @author infosys.com
- *
  */
 public class HystrixSynchronousClient extends Action {
-	
-	OutputData requestData;
-	/**
-	 * In case the data to be sent for request is prepared using some logic into
-	 * a field, we just send the value of that field
-	 */
-	String requestFieldName;
-	/**
-	 * By default, we extract all fields from response json/xml into service
-	 * context. You may specify expected fields on the lines of
-	 * inputSpecification for a service.
-	 *
-	 */
-	InputData responseData;
-	/**
-	 * in case you have logic that processes the response, we set the response
-	 * to this field
-	 */
-	String responseFieldName;
-	
-	public HystrixSynchronousClient() {
-		
-	}
-	
-	@Override
-	public Value doAct(ServiceContext ctx) {
-		String inputData = ctx.getTextValue("inputData");
-		HystrixCommandHelloWorld hystrixCommandHelloWorld = new HystrixCommandHelloWorld(inputData);
-		String responseText = hystrixCommandHelloWorld.execute();
-		boolean isResponseFromCache = hystrixCommandHelloWorld.isResponseFromCache();
-		
-		ctx.setTextValue("response", responseText);
-		ctx.setTextValue("isResponseFromCache", String.valueOf(isResponseFromCache));
-		
-		return Value.VALUE_TRUE;
-	}
 
+  OutputData requestData;
+  /**
+   * In case the data to be sent for request is prepared using some logic into a field, we just send
+   * the value of that field
+   */
+  String requestFieldName;
+  /**
+   * By default, we extract all fields from response json/xml into service context. You may specify
+   * expected fields on the lines of inputSpecification for a service.
+   */
+  InputData responseData;
+  /** in case you have logic that processes the response, we set the response to this field */
+  String responseFieldName;
+
+  public HystrixSynchronousClient() {}
+
+  @Override
+  public Value doAct(ServiceContext ctx) {
+    String inputData = ctx.getTextValue("inputData");
+    HystrixCommandHelloWorld hystrixCommandHelloWorld = new HystrixCommandHelloWorld(inputData);
+    String responseText = hystrixCommandHelloWorld.execute();
+    boolean isResponseFromCache = hystrixCommandHelloWorld.isResponseFromCache();
+
+    ctx.setTextValue("response", responseText);
+    ctx.setTextValue("isResponseFromCache", String.valueOf(isResponseFromCache));
+
+    return Value.VALUE_TRUE;
+  }
 }

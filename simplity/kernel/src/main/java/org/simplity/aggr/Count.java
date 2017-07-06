@@ -31,90 +31,83 @@ import org.simplity.service.ServiceContext;
  * number of rows
  *
  * @author simplity.org
- *
  */
 public class Count implements AggregationWorker {
-	/**
-	 * field name to count. If specified, rows with non-null values for this
-	 * field are counted. null, or '*' implies count every row. sum is to be
-	 * written out
-	 */
-	private String inputFeildName;
+  /**
+   * field name to count. If specified, rows with non-null values for this field are counted. null,
+   * or '*' implies count every row. sum is to be written out
+   */
+  private String inputFeildName;
 
-	/**
-	 * field name to which sum is to be written out
-	 */
-	private final String outputFieldName;
-	private int count;
-	/**
-	 * keep track of accumulation and throw an exception in case of concurrency
-	 * issues
-	 */
-	private boolean inProgress;
+  /** field name to which sum is to be written out */
+  private final String outputFieldName;
 
-	/**
-	 * create an an instance with the required parameters
-	 * @param inputFieldName Input field name
-	 *
-	 * @param outputFieldName
-	 *            field/column name that is to be written out as sum. non-empty,
-	 *            non-null;
-	 */
-	public Count(String inputFieldName, String outputFieldName) {
-		if(inputFieldName != null && inputFieldName.equals("*") == false){
-			this.inputFeildName = inputFieldName;
-		}
-		this.outputFieldName = outputFieldName;
-	}
+  private int count;
+  /** keep track of accumulation and throw an exception in case of concurrency issues */
+  private boolean inProgress;
 
-	@Override
-	public void init(ServiceContext ctx) {
-		if (this.inProgress) {
-			this.throwError();
-		}
-		this.inProgress = true;
-	}
+  /**
+   * create an an instance with the required parameters
+   *
+   * @param inputFieldName Input field name
+   * @param outputFieldName field/column name that is to be written out as sum. non-empty, non-null;
+   */
+  public Count(String inputFieldName, String outputFieldName) {
+    if (inputFieldName != null && inputFieldName.equals("*") == false) {
+      this.inputFeildName = inputFieldName;
+    }
+    this.outputFieldName = outputFieldName;
+  }
 
-	private void throwError() {
-		throw new ApplicationError("Aggregator instance should be ideally not re-used across aggregations."
-				+ " In case it is used, it is to be ensured that the the sequence of calls is  "
-				+ " init(), accumulate(), writeOut()/discard(), reset()");
-	}
+  @Override
+  public void init(ServiceContext ctx) {
+    if (this.inProgress) {
+      this.throwError();
+    }
+    this.inProgress = true;
+  }
 
-	@Override
-	public void accumulate(FieldsInterface currentRow, ServiceContext ctx) {
-		if (this.inProgress == false) {
-			this.throwError();
-		}
-		if(this.inputFeildName != null){
-			/*
-			 * count only if this field is non-null
-			 */
-			Value value = ctx.getValue(this.inputFeildName);
-			if(Value.isNull(value)){
-				return;
-			}
-		}
-		this.count++;
-	}
+  private void throwError() {
+    throw new ApplicationError(
+        "Aggregator instance should be ideally not re-used across aggregations."
+            + " In case it is used, it is to be ensured that the the sequence of calls is  "
+            + " init(), accumulate(), writeOut()/discard(), reset()");
+  }
 
-	@Override
-	public void writeOut(FieldsInterface outputRow, ServiceContext ctx) {
-		if (this.inProgress == false) {
-			this.throwError();
-		}
-		outputRow.setValue(this.outputFieldName, Value.newIntegerValue(this.count));
-		this.discard(ctx);
-	}
+  @Override
+  public void accumulate(FieldsInterface currentRow, ServiceContext ctx) {
+    if (this.inProgress == false) {
+      this.throwError();
+    }
+    if (this.inputFeildName != null) {
+      /*
+       * count only if this field is non-null
+       */
+      Value value = ctx.getValue(this.inputFeildName);
+      if (Value.isNull(value)) {
+        return;
+      }
+    }
+    this.count++;
+  }
 
-	@Override
-	public void reset(ServiceContext ctx) {
-		this.count = 0;
-		this.inProgress = false;
-	}
+  @Override
+  public void writeOut(FieldsInterface outputRow, ServiceContext ctx) {
+    if (this.inProgress == false) {
+      this.throwError();
+    }
+    outputRow.setValue(this.outputFieldName, Value.newIntegerValue(this.count));
+    this.discard(ctx);
+  }
 
-	@Override
-	public void discard(ServiceContext ctx) {
-		this.count = 0;
-	}
+  @Override
+  public void reset(ServiceContext ctx) {
+    this.count = 0;
+    this.inProgress = false;
+  }
+
+  @Override
+  public void discard(ServiceContext ctx) {
+    this.count = 0;
+  }
 }

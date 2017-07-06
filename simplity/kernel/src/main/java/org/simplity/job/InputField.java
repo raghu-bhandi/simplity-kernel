@@ -31,55 +31,50 @@ import org.simplity.service.ServiceData;
  * represents a field to be provided as input to a service
  *
  * @author simplity.org
- *
  */
 public class InputField {
 
-	/**
-	 * field name.
-	 */
-	String name;
-	/**
-	 * field value.
-	 */
-	String value;
+  /** field name. */
+  String name;
+  /** field value. */
+  String value;
 
-	/**
-	 * value type
-	 */
-	ValueType valueType;
-	/*
-	 * value parsed into object
-	 */
-	private Value valueObject;
+  /** value type */
+  ValueType valueType;
+  /*
+   * value parsed into object
+   */
+  private Value valueObject;
 
-	/**
-	 *
-	 */
-	public void getReady() {
-		if (this.name == null) {
-			throw new ApplicationError("name is a required attribute for an input field");
-		}
-		if (this.value == null) {
-			throw new ApplicationError("value is required for an input field");
-		}
-		if (this.valueType == null) {
-			throw new ApplicationError("valueType is required for an input field");
-		}
-		this.valueObject = Value.parseValue(this.value, this.valueType);
-		if (Value.isNull(this.valueObject)) {
-			throw new ApplicationError("Field " + this.name + " is of type " + this.valueType
-					+ " and has an invalid value of " + this.value);
-		}
-	}
+  /** */
+  public void getReady() {
+    if (this.name == null) {
+      throw new ApplicationError("name is a required attribute for an input field");
+    }
+    if (this.value == null) {
+      throw new ApplicationError("value is required for an input field");
+    }
+    if (this.valueType == null) {
+      throw new ApplicationError("valueType is required for an input field");
+    }
+    this.valueObject = Value.parseValue(this.value, this.valueType);
+    if (Value.isNull(this.valueObject)) {
+      throw new ApplicationError(
+          "Field "
+              + this.name
+              + " is of type "
+              + this.valueType
+              + " and has an invalid value of "
+              + this.value);
+    }
+  }
 
-	/**
-	 * add name-value pair to the fields collection
-	 *
-	 * @param inData
-	 *            input data
-	 */
-	public void setInputValue(ServiceData inData) {
-		inData.put(this.name,  this.valueObject);
-	}
+  /**
+   * add name-value pair to the fields collection
+   *
+   * @param inData input data
+   */
+  public void setInputValue(ServiceData inData) {
+    inData.put(this.name, this.valueObject);
+  }
 }

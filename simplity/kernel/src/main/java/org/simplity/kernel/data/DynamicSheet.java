@@ -21,6 +21,9 @@
  */
 package org.simplity.kernel.data;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,230 +38,231 @@ import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
 /**
- * represents a fields collection internally, but implements all methods of a
- * data sheet. This is to be used when you are likely to add/remove fields, and
- * if used as a row of data, the order of the columns is not important.
+ * represents a fields collection internally, but implements all methods of a data sheet. This is to
+ * be used when you are likely to add/remove fields, and if used as a row of data, the order of the
+ * columns is not important.
  *
  * @author simplity.org
- *
  */
 public class DynamicSheet implements DataSheet {
-	private final Map<String, Value> fieldValues = new HashMap<String, Value>();
+  static final Logger logger = Logger.getLogger(DynamicSheet.class.getName());
 
-	@Override
-	public String[][] getRawData() {
-		int n = this.fieldValues.size();
-		String[] header = new String[n];
-		String[] values = new String[n];
-		n = 0;
-		for (Entry<String, Value> entry : this.fieldValues.entrySet()) {
-			header[n] = entry.getKey();
-			values[n] = entry.getValue().toString();
-			n++;
-		}
-		String[][] rawData = { header, values };
-		return rawData;
-	}
+  private final Map<String, Value> fieldValues = new HashMap<String, Value>();
 
-	@Override
-	public int length() {
-		return 1;
-	}
+  @Override
+  public String[][] getRawData() {
+    int n = this.fieldValues.size();
+    String[] header = new String[n];
+    String[] values = new String[n];
+    n = 0;
+    for (Entry<String, Value> entry : this.fieldValues.entrySet()) {
+      header[n] = entry.getKey();
+      values[n] = entry.getValue().toString();
+      n++;
+    }
+    String[][] rawData = {header, values};
+    return rawData;
+  }
 
-	@Override
-	public int width() {
-		return this.fieldValues.size();
-	}
+  @Override
+  public int length() {
+    return 1;
+  }
 
-	@Override
-	public String[] getColumnNames() {
-		return this.fieldValues.keySet().toArray(new String[0]);
-	}
+  @Override
+  public int width() {
+    return this.fieldValues.size();
+  }
 
-	@Override
-	public ValueType[] getValueTypes() {
-		String[] names = this.getColumnNames();
-		ValueType[] types = new ValueType[names.length];
-		int i = 0;
-		for (String colName : names) {
-			types[i] = this.fieldValues.get(colName).getValueType();
-			i++;
-		}
-		return types;
-	}
+  @Override
+  public String[] getColumnNames() {
+    return this.fieldValues.keySet().toArray(new String[0]);
+  }
 
-	@Override
-	public Value[] getRow(int zeroBasedRowNumber) {
-		if (zeroBasedRowNumber != 0) {
-			return null;
-		}
-		String[] names = this.getColumnNames();
-		Value[] values = new Value[names.length];
-		int i = 0;
-		for (String colName : names) {
-			values[i] = this.fieldValues.get(colName);
-			i++;
-		}
-		return values;
-	}
+  @Override
+  public ValueType[] getValueTypes() {
+    String[] names = this.getColumnNames();
+    ValueType[] types = new ValueType[names.length];
+    int i = 0;
+    for (String colName : names) {
+      types[i] = this.fieldValues.get(colName).getValueType();
+      i++;
+    }
+    return types;
+  }
 
-	@Override
-	public List<Value[]> getAllRows() {
-		List<Value[]> rows = new ArrayList<Value[]>(1);
-		rows.add(this.getRow(0));
-		return rows;
-	}
+  @Override
+  public Value[] getRow(int zeroBasedRowNumber) {
+    if (zeroBasedRowNumber != 0) {
+      return null;
+    }
+    String[] names = this.getColumnNames();
+    Value[] values = new Value[names.length];
+    int i = 0;
+    for (String colName : names) {
+      values[i] = this.fieldValues.get(colName);
+      i++;
+    }
+    return values;
+  }
 
-	@Override
-	public Value getColumnValue(String columnName, int zeroBasedRowNumber) {
-		if (zeroBasedRowNumber != 0) {
-			return null;
-		}
-		return this.fieldValues.get(columnName);
-	}
+  @Override
+  public List<Value[]> getAllRows() {
+    List<Value[]> rows = new ArrayList<Value[]>(1);
+    rows.add(this.getRow(0));
+    return rows;
+  }
 
-	@Override
-	public void setColumnValue(String columnName, int zeroBasedRowNumber,
-			Value value) {
-		if (zeroBasedRowNumber != 0) {
-			return;
-		}
-		if (value == null) {
-			this.fieldValues.remove(columnName);
-		} else {
-			this.fieldValues.put(columnName, value);
-		}
-	}
+  @Override
+  public Value getColumnValue(String columnName, int zeroBasedRowNumber) {
+    if (zeroBasedRowNumber != 0) {
+      return null;
+    }
+    return this.fieldValues.get(columnName);
+  }
 
-	@Override
-	public Iterator<FieldsInterface> iterator() {
-		return new DataRows(this);
-	}
+  @Override
+  public void setColumnValue(String columnName, int zeroBasedRowNumber, Value value) {
+    if (zeroBasedRowNumber != 0) {
+      return;
+    }
+    if (value == null) {
+      this.fieldValues.remove(columnName);
+    } else {
+      this.fieldValues.put(columnName, value);
+    }
+  }
 
-	@Override
-	public Value getValue(String fieldName) {
-		return this.fieldValues.get(fieldName);
-	}
+  @Override
+  public Iterator<FieldsInterface> iterator() {
+    return new DataRows(this);
+  }
 
-	@Override
-	public void setValue(String fieldName, Value value) {
-		if (value == null) {
-			this.fieldValues.remove(fieldName);
-		} else {
-			this.fieldValues.put(fieldName, value);
-		}
-	}
+  @Override
+  public Value getValue(String fieldName) {
+    return this.fieldValues.get(fieldName);
+  }
 
-	@Override
-	public boolean hasValue(String fieldName) {
-		return this.fieldValues.containsKey(fieldName);
-	}
+  @Override
+  public void setValue(String fieldName, Value value) {
+    if (value == null) {
+      this.fieldValues.remove(fieldName);
+    } else {
+      this.fieldValues.put(fieldName, value);
+    }
+  }
 
-	@Override
-	public Value removeValue(String fieldName) {
-		return this.fieldValues.remove(fieldName);
-	}
+  @Override
+  public boolean hasValue(String fieldName) {
+    return this.fieldValues.containsKey(fieldName);
+  }
 
-	@Override
-	public void addRow(Value[] row) {
-		throw new ApplicationError(
-				"addRow() should not be called for SingleRowSheet");
+  @Override
+  public Value removeValue(String fieldName) {
+    return this.fieldValues.remove(fieldName);
+  }
 
-	}
+  @Override
+  public void addRow(Value[] row) {
+    throw new ApplicationError("addRow() should not be called for SingleRowSheet");
+  }
 
-	@Override
-	public Value[] getColumnValues(String columnName) {
-		Value value = this.getValue(columnName);
-		Value[] values = { value };
-		return values;
-	}
+  @Override
+  public Value[] getColumnValues(String columnName) {
+    Value value = this.getValue(columnName);
+    Value[] values = {value};
+    return values;
+  }
 
-	@Override
-	public void addColumn(String columnName, ValueType valueType,
-			Value[] columnValues) {
-		if (columnValues != null) {
-			this.fieldValues.put(columnName, columnValues[0]);
-		}
-	}
+  @Override
+  public void addColumn(String columnName, ValueType valueType, Value[] columnValues) {
+    if (columnValues != null) {
+      this.fieldValues.put(columnName, columnValues[0]);
+    }
+  }
 
-	@Override
-	public Set<Entry<String, Value>> getAllFields() {
-		return this.fieldValues.entrySet();
-	}
+  @Override
+  public Set<Entry<String, Value>> getAllFields() {
+    return this.fieldValues.entrySet();
+  }
 
-	@Override
-	public Set<Entry<String, Value>> getAllFields(int rowIdx) {
-		return this.fieldValues.entrySet();
-	}
+  @Override
+  public Set<Entry<String, Value>> getAllFields(int rowIdx) {
+    return this.fieldValues.entrySet();
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.data.DataSheet#trace()
-	 */
-	@Override
-	public void trace() {
-		Tracer.trace("(Dynamic Sheet)");
-		for (Map.Entry<String, Value> field : this.fieldValues.entrySet()) {
-			Tracer.trace(field.getKey() + '=' + field.getValue());
-		}
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.data.DataSheet#trace()
+   */
+  @Override
+  public void trace() {
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.kernel.data.DataSheet#appendRows(org.simplity.kernel.data.
-	 * DataSheet)
-	 */
-	@Override
-	public int appendRows(DataSheet sheet) {
-		throw new ApplicationError(
-				"Dynamic sheet can not have more than one rows, and hence appendRows operation is invalid");
-	}
+    logger.log(Level.INFO, "(Dynamic Sheet)");
+    Tracer.trace("(Dynamic Sheet)");
+    for (Map.Entry<String, Value> field : this.fieldValues.entrySet()) {
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.kernel.data.DataSheet#addColumn(java.lang.String,
-	 * org.simplity.kernel.value.Value)
-	 */
-	@Override
-	public void addColumn(String columnName, Value value) {
-		this.setValue(columnName, value);
-	}
+      logger.log(Level.INFO, field.getKey() + '=' + field.getValue());
+      Tracer.trace(field.getKey() + '=' + field.getValue());
+    }
+  }
 
-	@Override
-	public int getColIdx(String columnName) {
-		int i = 0;
-		for (String colName : this.getColumnNames()) {
-			if (colName.equals(columnName)) {
-				return i;
-			}
-			i++;
-		}
-		Tracer.trace("We did not find column " + columnName
-				+ " in this dynamic sheet");
-		return -1;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.kernel.data.DataSheet#appendRows(org.simplity.kernel.data.
+   * DataSheet)
+   */
+  @Override
+  public int appendRows(DataSheet sheet) {
+    throw new ApplicationError(
+        "Dynamic sheet can not have more than one rows, and hence appendRows operation is invalid");
+  }
 
-	/* (non-Javadoc)
-	 * @see org.simplity.kernel.data.DataSheet#toSerializedText(org.simplity.kernel.data.DataSerializationType)
-	 */
-	@Override
-	public String toSerializedText(DataSerializationType serializationType) {
-		throw new ApplicationError("Sorry, serialization is not yet implemented for Dynamic sheet");
-		//TODO to be built
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.data.DataSheet#addColumn(java.lang.String,
+   * org.simplity.kernel.value.Value)
+   */
+  @Override
+  public void addColumn(String columnName, Value value) {
+    this.setValue(columnName, value);
+  }
 
-	/* (non-Javadoc)
-	 * @see org.simplity.kernel.data.DataSheet#fromSerializedText(java.lang.String, org.simplity.kernel.data.DataSerializationType, boolean)
-	 */
-	@Override
-	public void fromSerializedText(String text,
-			DataSerializationType serializationType,
-			boolean replaceExistingRows) {
-		throw new ApplicationError("Sorry, de-serialization is not yet implemented for Dynamic sheet");
-		//TODO to be built
-	}
+  @Override
+  public int getColIdx(String columnName) {
+    int i = 0;
+    for (String colName : this.getColumnNames()) {
+      if (colName.equals(columnName)) {
+        return i;
+      }
+      i++;
+    }
+
+    logger.log(Level.INFO, "We did not find column " + columnName + " in this dynamic sheet");
+    Tracer.trace("We did not find column " + columnName + " in this dynamic sheet");
+    return -1;
+  }
+
+  /* (non-Javadoc)
+   * @see org.simplity.kernel.data.DataSheet#toSerializedText(org.simplity.kernel.data.DataSerializationType)
+   */
+  @Override
+  public String toSerializedText(DataSerializationType serializationType) {
+    throw new ApplicationError("Sorry, serialization is not yet implemented for Dynamic sheet");
+    //TODO to be built
+  }
+
+  /* (non-Javadoc)
+   * @see org.simplity.kernel.data.DataSheet#fromSerializedText(java.lang.String, org.simplity.kernel.data.DataSerializationType, boolean)
+   */
+  @Override
+  public void fromSerializedText(
+      String text, DataSerializationType serializationType, boolean replaceExistingRows) {
+    throw new ApplicationError("Sorry, de-serialization is not yet implemented for Dynamic sheet");
+    //TODO to be built
+  }
 }

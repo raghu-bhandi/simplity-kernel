@@ -23,58 +23,46 @@
 package org.simplity.kernel;
 
 /**
- * just a name-value pair, value being always string. Used to collect
- * configuration properties/attributes
+ * just a name-value pair, value being always string. Used to collect configuration
+ * properties/attributes
  *
  * @author simplity.org
- *
  */
 public class Property {
-	String name;
-	String value;
+  String name;
+  String value;
 
-	/**
-	 *
-	 */
-	public Property(){
-		//default constructor
-	}
-	/**
-	 * constructor with attributes
-	 * @param name
-	 * @param value
-	 */
-	public Property(String name, String value){
-		this.name = name;
-		this.value= value;
-	}
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return this.name;
-	}
+  /** */
+  public Property() {
+    //default constructor
+  }
+  /**
+   * constructor with attributes
+   *
+   * @param name
+   * @param value
+   */
+  public Property(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
+  /** @return the name */
+  public String getName() {
+    return this.name;
+  }
 
-	/**
-	 * @return the value
-	 */
-	public String getValue() {
-		return this.value;
-	}
+  /** @return the value */
+  public String getValue() {
+    return this.value;
+  }
 
-	/**
-	 * @param name
-	 *            the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+  /** @param name the name to set */
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	/**
-	 * @param value
-	 *            the value to set
-	 */
-	public void setValue(String value) {
-		this.value = value;
-	}
+  /** @param value the value to set */
+  public void setValue(String value) {
+    this.value = value;
+  }
 }

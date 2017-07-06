@@ -24,19 +24,17 @@ package org.simplity.kernel.dt;
 import org.simplity.kernel.value.ValueType;
 
 /**
- * Blob is a pseudo data type, because we actually do not allow this data type
- * to be used for data element. However, the RDBMS has this data type for
- * storage, and we need to store/retrieve this. BlobDataType is a wrapper on
- * textDataType to facilitate this. Actual Blob data is saved (before saving, or
- * after retrieving) in a temp-file. Field that is associated with BlobDataType
- * has a value of text that is the key to this file.
+ * Blob is a pseudo data type, because we actually do not allow this data type to be used for data
+ * element. However, the RDBMS has this data type for storage, and we need to store/retrieve this.
+ * BlobDataType is a wrapper on textDataType to facilitate this. Actual Blob data is saved (before
+ * saving, or after retrieving) in a temp-file. Field that is associated with BlobDataType has a
+ * value of text that is the key to this file.
  *
  * @author simplity.org
- *
  */
 public class BlobDataType extends ClobDataType {
-	@Override
-	public ValueType getValueType() {
-		return ValueType.BLOB;
-	}
+  @Override
+  public ValueType getValueType() {
+    return ValueType.BLOB;
+  }
 }

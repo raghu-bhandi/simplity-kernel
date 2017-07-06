@@ -25,26 +25,26 @@ package org.simplity.jms;
 import org.simplity.service.ServiceContext;
 
 /**
- * interface to be implemented by a class that wants to process a message that
- * is consumed by a queue.
+ * interface to be implemented by a class that wants to process a message that is consumed by a
+ * queue.
  *
  * @author simplity.org
- *
  */
 public interface MessageClient {
-	/**
-	 * process a message. Data content of the message is already extracted into the ctx.
-	 *
-	 * @param ctx
-	 *            service context where this is all happening. Data in the incoming message is extracted into this.
-	 * @return true if all ok, and the session should be committed. false if
-	 *         something went wrong, and the session is to be rolled back.
-	 */
-	public boolean process(ServiceContext ctx);
+  /**
+   * process a message. Data content of the message is already extracted into the ctx.
+   *
+   * @param ctx service context where this is all happening. Data in the incoming message is
+   *     extracted into this.
+   * @return true if all ok, and the session should be committed. false if something went wrong, and
+   *     the session is to be rolled back.
+   */
+  public boolean process(ServiceContext ctx);
 
-	/**
-	 * should the consumer continue to consume? Provides a way to interrupt or shut-down the operation
-	 * @return true if the consumer should continue. False means time to shut down.
-	 */
-	public boolean toContinue();
+  /**
+   * should the consumer continue to consume? Provides a way to interrupt or shut-down the operation
+   *
+   * @return true if the consumer should continue. False means time to shut down.
+   */
+  public boolean toContinue();
 }

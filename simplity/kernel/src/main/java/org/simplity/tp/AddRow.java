@@ -21,6 +21,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
@@ -31,50 +34,68 @@ import org.simplity.service.ServiceContext;
  * add a row to a data sheet using fields from the context.
  *
  * @author org.simplity
- *
  */
 public class AddRow extends Action {
+  static final Logger logger = Logger.getLogger(AddRow.class.getName());
 
-	/**
-	 * sheet to which row is to be added
-	 */
-	String sheetName;
+  /** sheet to which row is to be added */
+  String sheetName;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		DataSheet sheet = ctx.getDataSheet(this.sheetName);
-		if (sheet == null) {
-			return Value.VALUE_FALSE;
-		}
-		String[] names = sheet.getColumnNames();
-		Value[] row = new Value[names.length];
-		ValueType[] types = sheet.getValueTypes();
-		int i = 0;
-		for (String name : names) {
-			Value value = ctx.getValue(name);
-			ValueType vt = types[i];
-			if (value == null) {
-				/*
-				 * We prefer to avoid java null for obvious reasons
-				 */
-				value = Value.newUnknownValue(vt);
-			} else if (value.getValueType() != vt) {
-				/*
-				 * should we reject this value? possible that it is text but has valid number in it!!
-				 */
-				String txt = value.toString();
-				Tracer.trace("Found a value of type " + value.getValueType()
-						+ " for column " + name + " while we were expecting "
-						+ vt + ". We will try to convert it.");
-				value = Value.parseValue(txt, vt);
-				if(value == null){
-					Tracer.trace("Unable to convert " + txt + " to type " + vt + " . setting column to  NullValue" );
-				}
-			}
-			row[i] = value;
-			i++;
-		}
-		sheet.addRow(row);
-		return Value.VALUE_TRUE;
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    DataSheet sheet = ctx.getDataSheet(this.sheetName);
+    if (sheet == null) {
+      return Value.VALUE_FALSE;
+    }
+    String[] names = sheet.getColumnNames();
+    Value[] row = new Value[names.length];
+    ValueType[] types = sheet.getValueTypes();
+    int i = 0;
+    for (String name : names) {
+      Value value = ctx.getValue(name);
+      ValueType vt = types[i];
+      if (value == null) {
+        /*
+         * We prefer to avoid java null for obvious reasons
+         */
+        value = Value.newUnknownValue(vt);
+      } else if (value.getValueType() != vt) {
+        /*
+         * should we reject this value? possible that it is text but has valid number in it!!
+         */
+        String txt = value.toString();
+
+        logger.log(
+            Level.INFO,
+            "Found a value of type "
+                + value.getValueType()
+                + " for column "
+                + name
+                + " while we were expecting "
+                + vt
+                + ". We will try to convert it.");
+        Tracer.trace(
+            "Found a value of type "
+                + value.getValueType()
+                + " for column "
+                + name
+                + " while we were expecting "
+                + vt
+                + ". We will try to convert it.");
+        value = Value.parseValue(txt, vt);
+        if (value == null) {
+
+          logger.log(
+              Level.INFO,
+              "Unable to convert " + txt + " to type " + vt + " . setting column to  NullValue");
+          Tracer.trace(
+              "Unable to convert " + txt + " to type " + vt + " . setting column to  NullValue");
+        }
+      }
+      row[i] = value;
+      i++;
+    }
+    sheet.addRow(row);
+    return Value.VALUE_TRUE;
+  }
 }

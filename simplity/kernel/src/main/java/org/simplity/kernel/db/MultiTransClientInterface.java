@@ -24,24 +24,22 @@ package org.simplity.kernel.db;
 /**
  * Interface to be implemented by a class that wants to use a connection for multiple transaction.
  *
- * instance can use driver.commit() or driver.rollback();
+ * <p>instance can use driver.commit() or driver.rollback();
  *
  * @author simplity.org
- *
  */
 public interface MultiTransClientInterface {
-	/**
-	 * Method invoked by db driver asking the call back object to do its transactions.
-	 * This method is invoked after allotting the required resources. resources are released once this method returns. Object instance can use dbDriver to do commit() and rollback()
-	 * Note that the rdbDriver instance will work only inside this method. You
-	 * should not keep a pointer to this instance beyond this method. However,
-	 * even if you do, the instance CAN NOT be used for any rdb operation,
-	 * because it would have released all resources.
-	 *
-	 * @param driver
-	 * @return 0 if the transaction is to be rolled-back, > 0 if transaction is
-	 *         to be committed. < 0 (negative) if it is the end of transaction.
-	 *
-	 */
-	public int doMultiplTrans(DbDriver driver);
+  /**
+   * Method invoked by db driver asking the call back object to do its transactions. This method is
+   * invoked after allotting the required resources. resources are released once this method
+   * returns. Object instance can use dbDriver to do commit() and rollback() Note that the rdbDriver
+   * instance will work only inside this method. You should not keep a pointer to this instance
+   * beyond this method. However, even if you do, the instance CAN NOT be used for any rdb
+   * operation, because it would have released all resources.
+   *
+   * @param driver
+   * @return 0 if the transaction is to be rolled-back, > 0 if transaction is to be committed. < 0
+   *     (negative) if it is the end of transaction.
+   */
+  public int doMultiplTrans(DbDriver driver);
 }

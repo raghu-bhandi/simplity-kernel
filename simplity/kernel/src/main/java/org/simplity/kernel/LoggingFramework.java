@@ -23,32 +23,21 @@
 package org.simplity.kernel;
 
 /**
- * enumerates the popular logging framework that Simplity understands and can
- * attach itself to to emit service logs
+ * enumerates the popular logging framework that Simplity understands and can attach itself to to
+ * emit service logs
  *
  * @author simplity.org
- *
  */
 public enum LoggingFramework {
-	/**
-	 * log4j v1 that uses
-	 */
-	LOG4J_CLASSIC,
-	/**
-	 * log4j v2 that uses org.apache.logging.log4J.Logger
-	 */
-	LOG4J,
-	/**
-	 * commons logging, or JCL, that uses org.apache.coomons.Log
-	 */
-	COMMONS_LOGGING,
-	/**
-	 * SLF4J the stub that should be used by all future framework. logback uses this.
-	 */
-	SLF4J,
+  /** log4j v1 that uses */
+  LOG4J_CLASSIC,
+  /** log4j v2 that uses org.apache.logging.log4J.Logger */
+  LOG4J,
+  /** commons logging, or JCL, that uses org.apache.coomons.Log */
+  COMMONS_LOGGING,
+  /** SLF4J the stub that should be used by all future framework. logback uses this. */
+  SLF4J,
 
-	/**
-	 * standard java logging, or JULI, that uses java.util.Logger
-	 */
-	JULI
+  /** standard java logging, or JULI, that uses java.util.Logger */
+  JULI
 }

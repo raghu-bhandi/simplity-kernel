@@ -22,52 +22,57 @@
  */
 package org.simplity.kernel.dt;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class BooleanDataType extends DataType {
+  static final Logger logger = Logger.getLogger(BooleanDataType.class.getName());
 
-	private static final String DESC = "1 for yes/true and 0 for false/no";
+  private static final String DESC = "1 for yes/true and 0 for false/no";
 
-	@Override
-	public Value validateValue(Value value) {
-		return value;
-	}
+  @Override
+  public Value validateValue(Value value) {
+    return value;
+  }
 
-	@Override
-	public ValueType getValueType() {
-		return ValueType.BOOLEAN;
-	}
+  @Override
+  public ValueType getValueType() {
+    return ValueType.BOOLEAN;
+  }
 
-	@Override
-	public int getMaxLength() {
-		return 20;
-	}
+  @Override
+  public int getMaxLength() {
+    return 20;
+  }
 
-	@Override
-	protected String synthesiseDscription() {
-		return DESC;
-	}
+  @Override
+  protected String synthesiseDscription() {
+    return DESC;
+  }
 
-	/* (non-Javadoc)
-	 * @see org.simplity.kernel.dt.DataType#formtValue(org.simplity.kernel.value.Value)
-	 */
-	@Override
-	public String formatVal(Value value) {
+  /* (non-Javadoc)
+   * @see org.simplity.kernel.dt.DataType#formtValue(org.simplity.kernel.value.Value)
+   */
+  @Override
+  public String formatVal(Value value) {
 
-		try {
-			if(value.toBoolean()){
-				return Value.TRUE_TEXT_VALUE;
-			}
-		} catch (InvalidValueException e) {
-			Tracer.trace("Boolean data type is asked to format  non-boolean value. False value assumed");
-		}
-		return Value.FALSE_TEXT_VALUE;
-	}
+    try {
+      if (value.toBoolean()) {
+        return Value.TRUE_TEXT_VALUE;
+      }
+    } catch (InvalidValueException e) {
+
+      logger.log(
+          Level.INFO,
+          "Boolean data type is asked to format  non-boolean value. False value assumed");
+      Tracer.trace("Boolean data type is asked to format  non-boolean value. False value assumed");
+    }
+    return Value.FALSE_TEXT_VALUE;
+  }
 }

@@ -28,55 +28,48 @@ import org.simplity.service.ServiceContext;
  * sum of a column
  *
  * @author simplity.org
- *
  */
 public class Max extends MathAggregator {
 
-	/**
-	 * create an an instance with the required parameters
-	 *
-	 * @param inputName
-	 *            field/column name that is being accumulated. non-empty,
-	 *            non-null;
-	 * @param outputName
-	 *            field/column name that is to be written out as sum. non-empty,
-	 *            non-null;
-	 * @param outputIsDecimal
-	 *            true if the output is a decimal value, else it is an integral
-	 *            value
-	 */
-	public Max(String inputName, String outputName, boolean outputIsDecimal) {
-		super(inputName, outputName, outputIsDecimal);
-		this.accumulatedValue = - Double.MAX_VALUE;
-	}
+  /**
+   * create an an instance with the required parameters
+   *
+   * @param inputName field/column name that is being accumulated. non-empty, non-null;
+   * @param outputName field/column name that is to be written out as sum. non-empty, non-null;
+   * @param outputIsDecimal true if the output is a decimal value, else it is an integral value
+   */
+  public Max(String inputName, String outputName, boolean outputIsDecimal) {
+    super(inputName, outputName, outputIsDecimal);
+    this.accumulatedValue = -Double.MAX_VALUE;
+  }
 
-	@Override
-	protected void accumulateInteger(long value) {
-		if(value > this.accumulatedValue){
-			this.accumulatedValue = value;
-		}
-	}
+  @Override
+  protected void accumulateInteger(long value) {
+    if (value > this.accumulatedValue) {
+      this.accumulatedValue = value;
+    }
+  }
 
-	@Override
-	protected void accumulateDecimal(double value) {
-		if(value > this.accumulatedValue){
-			this.accumulatedValue = value;
-		}
-	}
+  @Override
+  protected void accumulateDecimal(double value) {
+    if (value > this.accumulatedValue) {
+      this.accumulatedValue = value;
+    }
+  }
 
-	@Override
-	protected double getDecimalResult() {
-		return this.accumulatedValue;
-	}
+  @Override
+  protected double getDecimalResult() {
+    return this.accumulatedValue;
+  }
 
-	@Override
-	protected long getIntegerResult() {
-		return Math.round(this.accumulatedValue);
-	}
+  @Override
+  protected long getIntegerResult() {
+    return Math.round(this.accumulatedValue);
+  }
 
-	@Override
-	public void reset(ServiceContext ctx) {
-		super.reset(ctx);
-		this.accumulatedValue = - Double.MAX_VALUE;
-	}
+  @Override
+  public void reset(ServiceContext ctx) {
+    super.reset(ctx);
+    this.accumulatedValue = -Double.MAX_VALUE;
+  }
 }

@@ -31,46 +31,38 @@ import org.simplity.service.ServiceContext;
  * add a message to the context
  *
  * @author simplity.org
- *
  */
 public class AddMessage extends Action {
-	/**
-	 * mandatory name of a predefined message
-	 */
-	String messageName;
-	/**
-	 * list of parameters
-	 */
-	String[] parameters;
-	/**
-	 * should we stop this service in case the message added is of type error.
-	 */
+  /** mandatory name of a predefined message */
+  String messageName;
+  /** list of parameters */
+  String[] parameters;
+  /** should we stop this service in case the message added is of type error. */
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    MessageType msgType = ctx.addMessage(this.messageName, this.parameters);
+    if (this.stopIfMessageTypeIsError && msgType == MessageType.ERROR) {
+      return Service.STOP_VALUE;
+    }
+    return Value.VALUE_TRUE;
+  }
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		MessageType msgType = ctx.addMessage(this.messageName, this.parameters);
-		if (this.stopIfMessageTypeIsError && msgType == MessageType.ERROR) {
-			return Service.STOP_VALUE;
-		}
-		return Value.VALUE_TRUE;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
-	 * , org.simplity.tp.Service)
-	 */
-	@Override
-	public int validate(ValidationContext ctx, Service service) {
-		int count = super.validate(ctx, service);
-		if (this.messageName == null) {
-			ctx.addError("Message name is required for addMessage action");
-			count++;
-		} else {
-			ctx.addReference(ComponentType.MSG, this.messageName);
-		}
-		return count;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.Action#validate(org.simplity.kernel.comp.ValidationContext
+   * , org.simplity.tp.Service)
+   */
+  @Override
+  public int validate(ValidationContext ctx, Service service) {
+    int count = super.validate(ctx, service);
+    if (this.messageName == null) {
+      ctx.addError("Message name is required for addMessage action");
+      count++;
+    } else {
+      ctx.addReference(ComponentType.MSG, this.messageName);
+    }
+    return count;
+  }
 }

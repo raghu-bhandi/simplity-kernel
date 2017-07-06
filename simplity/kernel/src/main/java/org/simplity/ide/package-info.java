@@ -22,7 +22,7 @@
 
 /**
  * contains classes that can be used to build an IDE for developing an application
- * @author simplity.org
  *
+ * @author simplity.org
  */
 package org.simplity.ide;

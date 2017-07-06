@@ -22,95 +22,95 @@
 
 package org.simplity.job;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.Calendar;
 
 import org.simplity.kernel.Tracer;
 
 /**
- * our own scheduler that schedules job based on time-of-day rather than
- * intervals
+ * our own scheduler that schedules job based on time-of-day rather than intervals
  *
  * @author simplity.org
- *
  */
 public class TimeOfDayScheduler implements Runnable {
-	private static final int MAX_MINUTES = 24 * 60;
+  static final Logger logger = Logger.getLogger(TimeOfDayScheduler.class.getName());
 
-	/*
-	 * design: polls on each of the job. next poll is the least of the values
-	 * returned. Not tracking NEVER returned by poll, and we continue to poll
-	 *
-	 * polling is very short, and hence most of the time this thread would
-	 * sleep. wakeUp() designed to facilitate any change in the polling needs.
-	 * interrupt (without wake-up) in honored as a request to shut down
-	 */
-	/**
-	 * jobs to be scheduled
-	 */
-	private ScheduledJob[] pollers;
+  private static final int MAX_MINUTES = 24 * 60;
 
-	/**
-	 * track a wake-up call
-	 */
-	private boolean wakeupRequested;
+  /*
+   * design: polls on each of the job. next poll is the least of the values
+   * returned. Not tracking NEVER returned by poll, and we continue to poll
+   *
+   * polling is very short, and hence most of the time this thread would
+   * sleep. wakeUp() designed to facilitate any change in the polling needs.
+   * interrupt (without wake-up) in honored as a request to shut down
+   */
+  /** jobs to be scheduled */
+  private ScheduledJob[] pollers;
 
-	/**
-	 * thread in which scheduler is running, or rather sleeping :-(
-	 */
-	private Thread thread;
+  /** track a wake-up call */
+  private boolean wakeupRequested;
 
-	/**
-	 * interrupt the infinite-loop.
-	 *
-	 * @param justWakeup
-	 *            true to request to wake-up. Typically when scheduler has been
-	 *            modified. false is to stop the agony of infinite work
-	 */
-	public void interrupt(boolean justWakeup) {
-		this.wakeupRequested = justWakeup;
-		this.thread.interrupt();
-	}
+  /** thread in which scheduler is running, or rather sleeping :-( */
+  private Thread thread;
 
-	/**
-	 *
-	 * @param jobs
-	 */
-	public TimeOfDayScheduler(ScheduledJob[] jobs) {
-		this.pollers = jobs;
-	}
+  /**
+   * interrupt the infinite-loop.
+   *
+   * @param justWakeup true to request to wake-up. Typically when scheduler has been modified. false
+   *     is to stop the agony of infinite work
+   */
+  public void interrupt(boolean justWakeup) {
+    this.wakeupRequested = justWakeup;
+    this.thread.interrupt();
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Runnable#run()
-	 */
-	@Override
-	public void run() {
-		this.thread = Thread.currentThread();
-		Tracer.trace("TimeOfDay scheduler started.");
-		while (true) {
-			int nextDue = MAX_MINUTES;
-			Calendar cal = Calendar.getInstance();
-			int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
-			for (ScheduledJob job : this.pollers) {
-				int n = job.poll(minutes);
-				Tracer.trace("Job " + job.scheduledJob.name + " can wait for " + n + " minutes");
-				if (n > 0 && n < nextDue) {
-					nextDue = n;
-				}
-			}
-			try {
-				Tracer.trace("TimeOfDay scheduler taking a nap for " + nextDue + " minutes.");
-				Thread.sleep(nextDue * 60000);
-			} catch (InterruptedException e) {
-				if (this.wakeupRequested) {
-					this.wakeupRequested = false;
-				} else {
-					Tracer.trace("TimeOfDayScheduler interrupted");
-					return;
-				}
-			}
-		}
-	}
+  /** @param jobs */
+  public TimeOfDayScheduler(ScheduledJob[] jobs) {
+    this.pollers = jobs;
+  }
 
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Runnable#run()
+   */
+  @Override
+  public void run() {
+    this.thread = Thread.currentThread();
+
+    logger.log(Level.INFO, "TimeOfDay scheduler started.");
+    Tracer.trace("TimeOfDay scheduler started.");
+    while (true) {
+      int nextDue = MAX_MINUTES;
+      Calendar cal = Calendar.getInstance();
+      int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
+      for (ScheduledJob job : this.pollers) {
+        int n = job.poll(minutes);
+
+        logger.log(Level.INFO, "Job " + job.scheduledJob.name + " can wait for " + n + " minutes");
+        Tracer.trace("Job " + job.scheduledJob.name + " can wait for " + n + " minutes");
+        if (n > 0 && n < nextDue) {
+          nextDue = n;
+        }
+      }
+      try {
+
+        logger.log(Level.INFO, "TimeOfDay scheduler taking a nap for " + nextDue + " minutes.");
+        Tracer.trace("TimeOfDay scheduler taking a nap for " + nextDue + " minutes.");
+        Thread.sleep(nextDue * 60000);
+      } catch (InterruptedException e) {
+        if (this.wakeupRequested) {
+          this.wakeupRequested = false;
+        } else {
+
+          logger.log(Level.INFO, "TimeOfDayScheduler interrupted");
+          Tracer.trace("TimeOfDayScheduler interrupted");
+          return;
+        }
+      }
+    }
+  }
 }

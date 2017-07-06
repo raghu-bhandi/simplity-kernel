@@ -30,66 +30,63 @@ import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.util.DateUtil;
 import org.simplity.rest.Tags;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class DateParameter extends Parameter {
-	private boolean hasTime;
+  private boolean hasTime;
 
-	/**
-	 * spec when name is not part of it, For example inside a schema
-	 *
-	 * @param paramSpec
-	 * @param name
-	 */
-	protected DateParameter(String name, String fieldName, JSONObject paramSpec) {
-		this(paramSpec);
-		this.name = name;
-		if(fieldName != null){
-			this.fieldName = fieldName;
-		}
-	}
+  /**
+   * spec when name is not part of it, For example inside a schema
+   *
+   * @param paramSpec
+   * @param name
+   */
+  protected DateParameter(String name, String fieldName, JSONObject paramSpec) {
+    this(paramSpec);
+    this.name = name;
+    if (fieldName != null) {
+      this.fieldName = fieldName;
+    }
+  }
 
-	/**
-	 * construct based on api spec
-	 *
-	 * @param paramSpec
-	 */
-	protected DateParameter(JSONObject paramSpec) {
-		super(paramSpec);
-		if (this.validValues != null) {
-			return;
-		}
+  /**
+   * construct based on api spec
+   *
+   * @param paramSpec
+   */
+  protected DateParameter(JSONObject paramSpec) {
+    super(paramSpec);
+    if (this.validValues != null) {
+      return;
+    }
 
-		String txt = paramSpec.optString(Tags.FORMAT_ATT, null);
-		if (txt != null && txt.equals(Tags.DATE_TIME_FORMAT)) {
-			this.hasTime = true;
-		}
-	}
+    String txt = paramSpec.optString(Tags.FORMAT_ATT, null);
+    if (txt != null && txt.equals(Tags.DATE_TIME_FORMAT)) {
+      this.hasTime = true;
+    }
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.rest.parm.Parameter#validate(java.lang.Object,
-	 * java.util.List)
-	 */
-	@Override
-	public Object doValidate(Object value, List<FormattedMessage> messages) {
-		Date date = null;
-		if (value instanceof Date) {
-			return value;
-		}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.rest.parm.Parameter#validate(java.lang.Object,
+   * java.util.List)
+   */
+  @Override
+  public Object doValidate(Object value, List<FormattedMessage> messages) {
+    Date date = null;
+    if (value instanceof Date) {
+      return value;
+    }
 
-		String val = value.toString();
-		if (this.hasTime) {
-			date = DateUtil.parseDateTime(val);
-		} else {
-			date = DateUtil.parseDate(val);
-		}
-		if (date == null) {
-			return this.invalidValue(messages);
-		}
-		return value;
-	}
+    String val = value.toString();
+    if (this.hasTime) {
+      date = DateUtil.parseDateTime(val);
+    } else {
+      date = DateUtil.parseDate(val);
+    }
+    if (date == null) {
+      return this.invalidValue(messages);
+    }
+    return value;
+  }
 }

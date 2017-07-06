@@ -28,17 +28,14 @@ import org.simplity.json.JSONObject;
  * custom class that asserts testing criterion for a test case.
  *
  * @author simplity.org
- *
  */
 public interface Inspector {
-	/**
-	 * carry out desired test and return error message if any.
-	 *
-	 * @param json
-	 *            as returned by the service
-	 * @param ctx
-	 *            Test context
-	 * @return null if all OK. Else message that describes the failure.
-	 */
-	public String test(JSONObject json, TestContext ctx);
+  /**
+   * carry out desired test and return error message if any.
+   *
+   * @param json as returned by the service
+   * @param ctx Test context
+   * @return null if all OK. Else message that describes the failure.
+   */
+  public String test(JSONObject json, TestContext ctx);
 }

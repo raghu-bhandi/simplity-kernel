@@ -22,6 +22,9 @@
 
 package org.simplity.ide;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentType;
@@ -32,93 +35,112 @@ import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class SampleFunction implements Function {
-	private static final String MY_FULL_NAME = "james.bond";
-	private static final String MY_NAME = "bond";
-	private static final ValueType[] ARG_TYPES = {ValueType.TEXT, ValueType.INTEGER};
-	@Override
-	public String getSimpleName() {
-		return MY_NAME;
-	}
+  static final Logger logger = Logger.getLogger(SampleFunction.class.getName());
 
-	@Override
-	public String getQualifiedName() {
-		return MY_FULL_NAME;
-	}
+  private static final String MY_FULL_NAME = "james.bond";
+  private static final String MY_NAME = "bond";
+  private static final ValueType[] ARG_TYPES = {ValueType.TEXT, ValueType.INTEGER};
 
-	@Override
-	public void getReady() {
-		// ever ready
-	}
+  @Override
+  public String getSimpleName() {
+    return MY_NAME;
+  }
 
-	@Override
-	public int validate(ValidationContext ctx) {
-		// always valid
-		return 0;
-	}
+  @Override
+  public String getQualifiedName() {
+    return MY_FULL_NAME;
+  }
 
-	@Override
-	public ComponentType getComponentType() {
-		return ComponentType.FUNCTION;
-	}
+  @Override
+  public void getReady() {
+    // ever ready
+  }
 
-	@Override
-	public ValueType getReturnType() {
-		return ValueType.BOOLEAN;
-	}
+  @Override
+  public int validate(ValidationContext ctx) {
+    // always valid
+    return 0;
+  }
 
-	@Override
-	public ValueType[] getArgDataTypes() {
-		return ARG_TYPES;
-	}
+  @Override
+  public ComponentType getComponentType() {
+    return ComponentType.FUNCTION;
+  }
 
-	@Override
-	public Value execute(Value[] arguments, FieldsInterface data) {
-		Tracer.trace(MY_FULL_NAME + " called with " + (arguments == null ? -1 : arguments.length) + " arguments with datat=" + data);
-		if(data == null){
-			this.oops();
-			return null;
-		}
-		if(arguments == null || arguments.length != 2){
-			this.oops();
-			return null;
-		}
-		Value val1 = arguments[0];
-		if( Value.isNull(val1) || val1.getValueType() != ValueType.TEXT ){
-			Tracer.trace("Trouble with 1 " + val1);
-			this.oops();
-			return null;
-		}
+  @Override
+  public ValueType getReturnType() {
+    return ValueType.BOOLEAN;
+  }
 
-		Value val2 = arguments[1];
-		if( Value.isNull(val2) || val2.getValueType() != ValueType.INTEGER ){
-			Tracer.trace("Trouble with 2 " + val2.getValueType() + "");
-			this.oops();
-			return null;
-		}
-		String fieldName = val1.toString();
-		val1 = data.getValue(fieldName);
-		if(Value.isNull(val1)){
-			return Value.VALUE_FALSE;
-		}
-		long nbr1 = 0;
-		long nbr2 = 0;
-		try {
-			nbr1 = val1.toInteger();
-			nbr2 = val2.toInteger();
-		} catch (InvalidValueException e) {
-			return Value.VALUE_FALSE;
-		}
+  @Override
+  public ValueType[] getArgDataTypes() {
+    return ARG_TYPES;
+  }
 
-		return Value.newBooleanValue(nbr1 > nbr2);
-	}
+  @Override
+  public Value execute(Value[] arguments, FieldsInterface data) {
 
-	private void oops(){
-		throw new ApplicationError("Function " + MY_FULL_NAME + " is to be called with a non-null fields collection and two argumants. 1:fieldName to use, 2:integer value to match the fiel dvalue with.");
-	}
+    logger.log(
+        Level.INFO,
+        MY_FULL_NAME
+            + " called with "
+            + (arguments == null ? -1 : arguments.length)
+            + " arguments with datat="
+            + data);
+    Tracer.trace(
+        MY_FULL_NAME
+            + " called with "
+            + (arguments == null ? -1 : arguments.length)
+            + " arguments with datat="
+            + data);
+    if (data == null) {
+      this.oops();
+      return null;
+    }
+    if (arguments == null || arguments.length != 2) {
+      this.oops();
+      return null;
+    }
+    Value val1 = arguments[0];
+    if (Value.isNull(val1) || val1.getValueType() != ValueType.TEXT) {
 
+      logger.log(Level.INFO, "Trouble with 1 " + val1);
+      Tracer.trace("Trouble with 1 " + val1);
+      this.oops();
+      return null;
+    }
+
+    Value val2 = arguments[1];
+    if (Value.isNull(val2) || val2.getValueType() != ValueType.INTEGER) {
+
+      logger.log(Level.INFO, "Trouble with 2 " + val2.getValueType() + "");
+      Tracer.trace("Trouble with 2 " + val2.getValueType() + "");
+      this.oops();
+      return null;
+    }
+    String fieldName = val1.toString();
+    val1 = data.getValue(fieldName);
+    if (Value.isNull(val1)) {
+      return Value.VALUE_FALSE;
+    }
+    long nbr1 = 0;
+    long nbr2 = 0;
+    try {
+      nbr1 = val1.toInteger();
+      nbr2 = val2.toInteger();
+    } catch (InvalidValueException e) {
+      return Value.VALUE_FALSE;
+    }
+
+    return Value.newBooleanValue(nbr1 > nbr2);
+  }
+
+  private void oops() {
+    throw new ApplicationError(
+        "Function "
+            + MY_FULL_NAME
+            + " is to be called with a non-null fields collection and two argumants. 1:fieldName to use, 2:integer value to match the fiel dvalue with.");
+  }
 }

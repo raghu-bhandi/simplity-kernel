@@ -17,7 +17,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 import org.mockito.Mockito;
 
 public class MockInitialContextFactory implements InitialContextFactory {
-	private static Context context;
+  private static Context context;
 
 	public Context getInitialContext(Hashtable<?, ?> arg0) throws NamingException {
 		if (context == null) {

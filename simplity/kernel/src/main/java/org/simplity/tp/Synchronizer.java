@@ -22,6 +22,9 @@
 
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Application;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.db.DbDriver;
@@ -29,121 +32,127 @@ import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
- * spawns its actions into asynch threads and wait for all of them to complete
- * to proceed beyond this block. That is, this block action, as seen by its
- * parent, is synchronous, but it allows its child-actions to work in parallel
+ * spawns its actions into asynch threads and wait for all of them to complete to proceed beyond
+ * this block. That is, this block action, as seen by its parent, is synchronous, but it allows its
+ * child-actions to work in parallel
  *
  * @author simplity.org
- *
  */
 public class Synchronizer extends Action {
+  static final Logger logger = Logger.getLogger(Synchronizer.class.getName());
 
-	/**
-	 * is there something to be done before spawning thread for child-actions?
-	 */
-	Action initialAction;
+  /** is there something to be done before spawning thread for child-actions? */
+  Action initialAction;
 
-	/**
-	 * is there something we want to do after all child-actions return?
-	 */
-	Action finalAction;
+  /** is there something we want to do after all child-actions return? */
+  Action finalAction;
 
-	/**
-	 *
-	 */
-	Action[] actions;
+  /** */
+  Action[] actions;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.simplity.tp.DbAction#doDbAct(org.simplity.service.ServiceContext,
-	 * org.simplity.kernel.db.DbDriver)
-	 */
-	@Override
-	protected Value delegate(ServiceContext ctx, DbDriver driver) {
-		if (this.initialAction != null) {
-			Value result = this.initialAction.act(ctx, driver);
-			if (Value.intepretAsBoolean(result) == false) {
-				Tracer.trace(
-						"initialAction of Synchronizer has returned a value of "
-								+ result
-								+ " and hence the asynch actions are not executed");
-				return Value.VALUE_TRUE;
-			}
-		}
-		Tracer.trace("Going to create child-actions in prallel.");
-		Thread[] threads = new Thread[this.actions.length];
-		AsynchWorker[] workers = new AsynchWorker[this.actions.length];
-		int i = 0;
-		for (Action action : this.actions) {
-			AsynchWorker worker = new AsynchWorker(ctx, action, driver);
-			workers[i] = worker;
-			Thread thread = Application.createThread(worker);
-			threads[i] = thread;
-			thread.start();
-			i++;
-		}
-		Tracer.trace(
-				"Parallel actions created. Waiting for all of them to finish their job.");
-		for (Thread thread : threads) {
-			try {
-				if (thread.isAlive()){
-					thread.join();
-				}
-			} catch (InterruptedException e) {
-				Tracer.trace(
-						"One of the threads got interrupted for Synchronizer "
-								+ this.actionName);
-			}
-		}
-		Tracer.trace("All child-actions returned");
-		if (this.finalAction != null) {
-			return this.finalAction.act(ctx, driver);
-		}
-		return Value.VALUE_TRUE;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.tp.DbAction#doDbAct(org.simplity.service.ServiceContext,
+   * org.simplity.kernel.db.DbDriver)
+   */
+  @Override
+  protected Value delegate(ServiceContext ctx, DbDriver driver) {
+    if (this.initialAction != null) {
+      Value result = this.initialAction.act(ctx, driver);
+      if (Value.intepretAsBoolean(result) == false) {
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.tp.Action#getReady(int)
-	 */
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		if (this.initialAction != null) {
-			this.initialAction.getReady(0, service);
-		}
-		if (this.finalAction != null) {
-			this.finalAction.getReady(0, service);
-		}
-		int i = 0;
-		for (Action action : this.actions) {
-			action.getReady(i++, service);
-		}
-	}
+        logger.log(
+            Level.INFO,
+            "initialAction of Synchronizer has returned a value of "
+                + result
+                + " and hence the asynch actions are not executed");
+        Tracer.trace(
+            "initialAction of Synchronizer has returned a value of "
+                + result
+                + " and hence the asynch actions are not executed");
+        return Value.VALUE_TRUE;
+      }
+    }
 
-	class AsynchWorker implements Runnable {
-		private final ServiceContext ctx;
-		private final Action action;
-		private final DbDriver driver;
+    logger.log(Level.INFO, "Going to create child-actions in prallel.");
+    Tracer.trace("Going to create child-actions in prallel.");
+    Thread[] threads = new Thread[this.actions.length];
+    AsynchWorker[] workers = new AsynchWorker[this.actions.length];
+    int i = 0;
+    for (Action action : this.actions) {
+      AsynchWorker worker = new AsynchWorker(ctx, action, driver);
+      workers[i] = worker;
+      Thread thread = Application.createThread(worker);
+      threads[i] = thread;
+      thread.start();
+      i++;
+    }
 
-		AsynchWorker(ServiceContext ctx, Action action, DbDriver driver) {
-			this.ctx = ctx;
-			this.action = action;
-			this.driver = driver;
-		}
+    logger.log(
+        Level.INFO, "Parallel actions created. Waiting for all of them to finish their job.");
+    Tracer.trace("Parallel actions created. Waiting for all of them to finish their job.");
+    for (Thread thread : threads) {
+      try {
+        if (thread.isAlive()) {
+          thread.join();
+        }
+      } catch (InterruptedException e) {
 
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see java.lang.Runnable#run()
-		 */
-		@Override
-		public void run() {
-			this.action.act(this.ctx, this.driver);
-		}
-	}
+        logger.log(
+            Level.INFO, "One of the threads got interrupted for Synchronizer " + this.actionName);
+        Tracer.trace("One of the threads got interrupted for Synchronizer " + this.actionName);
+      }
+    }
+
+    logger.log(Level.INFO, "All child-actions returned");
+    Tracer.trace("All child-actions returned");
+    if (this.finalAction != null) {
+      return this.finalAction.act(ctx, driver);
+    }
+    return Value.VALUE_TRUE;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.tp.Action#getReady(int)
+   */
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    if (this.initialAction != null) {
+      this.initialAction.getReady(0, service);
+    }
+    if (this.finalAction != null) {
+      this.finalAction.getReady(0, service);
+    }
+    int i = 0;
+    for (Action action : this.actions) {
+      action.getReady(i++, service);
+    }
+  }
+
+  class AsynchWorker implements Runnable {
+    private final ServiceContext ctx;
+    private final Action action;
+    private final DbDriver driver;
+
+    AsynchWorker(ServiceContext ctx, Action action, DbDriver driver) {
+      this.ctx = ctx;
+      this.action = action;
+      this.driver = driver;
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Runnable#run()
+     */
+    @Override
+    public void run() {
+      this.action.act(this.ctx, this.driver);
+    }
+  }
 }
-

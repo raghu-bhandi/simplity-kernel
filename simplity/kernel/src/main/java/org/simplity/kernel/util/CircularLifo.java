@@ -28,100 +28,85 @@ import java.util.Arrays;
  * Keeps last N entries in the history.
  *
  * @author simplity.org
- * @param <T>
- *            type being stored
- *
+ * @param <T> type being stored
  */
 public class CircularLifo<T> {
-	private static final int CAPACITY = 10;
-	Object[] storage;
-	int head;
-	int tail;
+  private static final int CAPACITY = 10;
+  Object[] storage;
+  int head;
+  int tail;
 
-	/**
-	 * default constructor with a capacity of 10 storage units
-	 */
-	public CircularLifo() {
-		this.storage = new Object[CAPACITY];
-	}
+  /** default constructor with a capacity of 10 storage units */
+  public CircularLifo() {
+    this.storage = new Object[CAPACITY];
+  }
 
-	/**
-	 * set capacity of storage
-	 *
-	 * @param capacity
-	 */
-	public CircularLifo(int capacity) {
-		this.storage = new Object[capacity];
-	}
+  /**
+   * set capacity of storage
+   *
+   * @param capacity
+   */
+  public CircularLifo(int capacity) {
+    this.storage = new Object[capacity];
+  }
 
-	/**
-	 *
-	 * @return the earliest entry. null if there is no such entry.
-	 */
-	@SuppressWarnings("unchecked")
-	public synchronized T get() {
-		if (this.head == this.tail) {
-			return null;
-		}
-		Object obj = this.storage[this.tail];
-		this.tail++;
-		if (this.tail == this.storage.length) {
-			this.tail = 0;
-		}
-		return (T) obj;
-	}
+  /** @return the earliest entry. null if there is no such entry. */
+  @SuppressWarnings("unchecked")
+  public synchronized T get() {
+    if (this.head == this.tail) {
+      return null;
+    }
+    Object obj = this.storage[this.tail];
+    this.tail++;
+    if (this.tail == this.storage.length) {
+      this.tail = 0;
+    }
+    return (T) obj;
+  }
 
-	/**
-	 *
-	 * @param entry
-	 */
-	public synchronized void put(T entry) {
-		this.storage[this.head] = entry;
-		this.head++;
-		if (this.head == this.storage.length) {
-			this.head = 0;
-		}
-	}
+  /** @param entry */
+  public synchronized void put(T entry) {
+    this.storage[this.head] = entry;
+    this.head++;
+    if (this.head == this.storage.length) {
+      this.head = 0;
+    }
+  }
 
-	/**
-	 * @param arr
-	 *            into which entries are to be populated. You may even send an
-	 *            array of zero length. If this has not enough capacity a new
-	 *            array is created.
-	 * @return all the entries in reverse chronological order
-	 */
-	@SuppressWarnings("unchecked")
-	public synchronized T[] getAll(T[] arr) {
-		int count = this.length();
-		if (count == 0) {
-			return arr;
-		}
-		T[] result = arr;
-		if (arr.length < count) {
-			result = Arrays.copyOf(arr, count);
-		}
-		int j = this.tail;
-		for (int i = 0; i < result.length; i++) {
-			result[i] = (T) this.storage[j];
-			j++;
-			if (j == this.storage.length) {
-				j = 0;
-			}
-		}
-		this.head = 0;
-		this.tail = 0;
-		return result;
-	}
+  /**
+   * @param arr into which entries are to be populated. You may even send an array of zero length.
+   *     If this has not enough capacity a new array is created.
+   * @return all the entries in reverse chronological order
+   */
+  @SuppressWarnings("unchecked")
+  public synchronized T[] getAll(T[] arr) {
+    int count = this.length();
+    if (count == 0) {
+      return arr;
+    }
+    T[] result = arr;
+    if (arr.length < count) {
+      result = Arrays.copyOf(arr, count);
+    }
+    int j = this.tail;
+    for (int i = 0; i < result.length; i++) {
+      result[i] = (T) this.storage[j];
+      j++;
+      if (j == this.storage.length) {
+        j = 0;
+      }
+    }
+    this.head = 0;
+    this.tail = 0;
+    return result;
+  }
 
-	/**
-	 *
-	 * @return number of entries
-	 */
-	public int length() {
-		int result = this.head - this.tail;
-		if (result < 0) {
-			result += this.storage.length;
-		}
-		return result;
-	}
+  /** @return number of entries */
+  public int length() {
+    int result = this.head - this.tail;
+    if (result < 0) {
+      result += this.storage.length;
+    }
+    return result;
+  }
 }

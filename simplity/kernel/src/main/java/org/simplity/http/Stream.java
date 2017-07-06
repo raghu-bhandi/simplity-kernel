@@ -21,6 +21,9 @@
  */
 package org.simplity.http;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -41,144 +44,150 @@ import org.simplity.service.ServiceProtocol;
  * servlet to be used to upload/download
  *
  * @author simplity.org
- *
  */
 public class Stream extends HttpServlet {
+  static final Logger logger = Logger.getLogger(Stream.class.getName());
 
-	private static final String DOWNLOAD = "download=";
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+  private static final String DOWNLOAD = "download=";
+  /** */
+  private static final long serialVersionUID = 1L;
 
-	/**
-	 * uploading a file, as well as discarding a file that was uploaded earlier.
-	 */
-	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		try {
-			/*
-			 * this put request could be to discard a file that was uploaded
-			 * earlier
-			 */
-			String serviceName = req.getHeader(ServiceProtocol.SERVICE_NAME);
-			if (ServiceProtocol.SERVICE_DELETE_FILE.equals(serviceName)) {
-				String token = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
-				Tracer.trace("Received a request to discard temp file token "
-						+ token);
-				FileManager.deleteTempFile(token);
-			} else {
+  /** uploading a file, as well as discarding a file that was uploaded earlier. */
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    try {
+      /*
+       * this put request could be to discard a file that was uploaded
+       * earlier
+       */
+      String serviceName = req.getHeader(ServiceProtocol.SERVICE_NAME);
+      if (ServiceProtocol.SERVICE_DELETE_FILE.equals(serviceName)) {
+        String token = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
 
-				Tracer.trace("Going to upload file ");
-				InputStream inStream = req.getInputStream();
-				try {
-					File file = FileManager.createTempFile(inStream);
-					/*
-					 * return the file key/token back to client. Client has to
-					 * use this key/token to refer to this media in a service
-					 * call later
-					 */
-					if (file != null) {
-						resp.setHeader(ServiceProtocol.HEADER_FILE_TOKEN,
-								file.getName());
-					}
-				} finally {
-					inStream.close();
-				}
-			}
-		} catch (Exception e) {
-			Tracer.trace(e, "Error while trying to upload a file.");
-			throw new ApplicationError(e,
-					"Error while trying to upload a file.");
-		}
-	}
+        logger.log(Level.INFO, "Received a request to discard temp file token " + token);
+        Tracer.trace("Received a request to discard temp file token " + token);
+        FileManager.deleteTempFile(token);
+      } else {
 
-	/**
-	 * get is used to download an attachment. syntax is just ?<token> where
-	 * token is the file-token for this. file-token would have been delivered to
-	 * the client as part of a service call.
-	 */
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		String token = req.getQueryString();
-		/*
-		 * syntax for asking for download is ?download=key, otherwise it is just
-		 * ?key
-		 */
-		if (token == null) {
-			Tracer.trace("No file/token specified for file download request");
-			resp.setStatus(404);
-			return;
-		}
-		boolean toDownload = false;
-		if (token.indexOf(DOWNLOAD) == 0) {
-			Tracer.trace("Received a download request for token " + token);
-			toDownload = true;
-			token = token.substring(DOWNLOAD.length());
-		} else {
-			Tracer.trace("Received request to stream token " + token);
-		}
-		/*
-		 * do we have a file for this token?
-		 */
+        logger.log(Level.INFO, "Going to upload file ");
+        Tracer.trace("Going to upload file ");
+        InputStream inStream = req.getInputStream();
+        try {
+          File file = FileManager.createTempFile(inStream);
+          /*
+           * return the file key/token back to client. Client has to
+           * use this key/token to refer to this media in a service
+           * call later
+           */
+          if (file != null) {
+            resp.setHeader(ServiceProtocol.HEADER_FILE_TOKEN, file.getName());
+          }
+        } finally {
+          inStream.close();
+        }
+      }
+    } catch (Exception e) {
 
-		File file = FileManager.getTempFile(token);
-		if (file != null) {
-			this.streamFile(resp, file, toDownload, null);
-			return;
-		}
-		Tracer.trace("No file available for token " + token);
-		resp.setStatus(404);
-	}
+      logger.log(Level.SEVERE, "Error while trying to upload a file.", e);
+      Tracer.trace(e, "Error while trying to upload a file.");
+      throw new ApplicationError(e, "Error while trying to upload a file.");
+    }
+  }
 
-	/**
-	 *
-	 * @param resp
-	 * @param file
-	 * @param toDownload
-	 * @param fileName
-	 */
-	private void streamFile(HttpServletResponse resp, File file,
-			boolean toDownload, String fileName) {
-		InputStream in = null;
-		OutputStream out = null;
-		try {
-			in = new FileInputStream(file);
-			out = resp.getOutputStream();
-			FileManager.copyOut(in, out);
-			if (toDownload) {
-				/*
-				 * we do not know the file name or mime type
-				 */
-				String hdr = "attachment; fileName=\"";
-				if (fileName == null) {
-					hdr += file.getName();
-				} else {
-					hdr += fileName;
-				}
-				hdr += '"';
-				resp.setHeader("Content-Disposition", hdr.toString());
-			}
-		} catch (Exception e) {
-			Tracer.trace(e, "Error while copying file to response");
-			resp.setStatus(404);
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-			if (in != null) {
-				try {
-					in.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
-	}
+  /**
+   * get is used to download an attachment. syntax is just ?<token> where token is the file-token
+   * for this. file-token would have been delivered to the client as part of a service call.
+   */
+  @Override
+  protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    String token = req.getQueryString();
+    /*
+     * syntax for asking for download is ?download=key, otherwise it is just
+     * ?key
+     */
+    if (token == null) {
+
+      logger.log(Level.INFO, "No file/token specified for file download request");
+      Tracer.trace("No file/token specified for file download request");
+      resp.setStatus(404);
+      return;
+    }
+    boolean toDownload = false;
+    if (token.indexOf(DOWNLOAD) == 0) {
+
+      logger.log(Level.INFO, "Received a download request for token " + token);
+      Tracer.trace("Received a download request for token " + token);
+      toDownload = true;
+      token = token.substring(DOWNLOAD.length());
+    } else {
+
+      logger.log(Level.INFO, "Received request to stream token " + token);
+      Tracer.trace("Received request to stream token " + token);
+    }
+    /*
+     * do we have a file for this token?
+     */
+
+    File file = FileManager.getTempFile(token);
+    if (file != null) {
+      this.streamFile(resp, file, toDownload, null);
+      return;
+    }
+
+    logger.log(Level.INFO, "No file available for token " + token);
+    Tracer.trace("No file available for token " + token);
+    resp.setStatus(404);
+  }
+
+  /**
+   * @param resp
+   * @param file
+   * @param toDownload
+   * @param fileName
+   */
+  private void streamFile(
+      HttpServletResponse resp, File file, boolean toDownload, String fileName) {
+    InputStream in = null;
+    OutputStream out = null;
+    try {
+      in = new FileInputStream(file);
+      out = resp.getOutputStream();
+      FileManager.copyOut(in, out);
+      if (toDownload) {
+        /*
+         * we do not know the file name or mime type
+         */
+        String hdr = "attachment; fileName=\"";
+        if (fileName == null) {
+          hdr += file.getName();
+        } else {
+          hdr += fileName;
+        }
+        hdr += '"';
+        resp.setHeader("Content-Disposition", hdr.toString());
+      }
+    } catch (Exception e) {
+
+      logger.log(Level.SEVERE, "Error while copying file to response", e);
+      Tracer.trace(e, "Error while copying file to response");
+      resp.setStatus(404);
+    } finally {
+      if (out != null) {
+        try {
+          out.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+      if (in != null) {
+        try {
+          in.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+    }
+  }
 }

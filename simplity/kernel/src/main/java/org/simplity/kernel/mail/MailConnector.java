@@ -41,76 +41,73 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 /**
- * class that manages to send mail. This is
- * similar to DbDriver in its functionality
+ * class that manages to send mail. This is similar to DbDriver in its functionality
  *
  * @author simplity.org
- *
  */
 public class MailConnector {
 
-	static Properties mailProps;
+  static Properties mailProps;
 
-	public Session initialize() {
-		return Session.getInstance(MailProperties.getProperties(), null);
-	}
+  public Session initialize() {
+    return Session.getInstance(MailProperties.getProperties(), null);
+  }
 
-	/**
-	 * create MimeMessage and values (fromId, toIds, ccIds, bccIds, subject, content, and attachment)
-	 * and send the object to MailConnector
-	 */
-	public void sendEmail(Mail mail) {
+  /**
+   * create MimeMessage and values (fromId, toIds, ccIds, bccIds, subject, content, and attachment)
+   * and send the object to MailConnector
+   */
+  public void sendEmail(Mail mail) {
 
-		try {
-			Session session = this.initialize();
-			MimeMessage msg = new MimeMessage(session );
-			msg.addHeader("Content-type", "text/html; charset=UTF-8");
-			msg.addHeader("Content-Transfer-Encoding", "8bit");
-			msg.setFrom(new InternetAddress(mail.fromId, "NoReply-JD"));
-			msg.setReplyTo(InternetAddress.parse(mail.fromId, false));
-			msg.setSubject(mail.subject, "UTF-8");
-			msg.setSentDate(new Date());
-			msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
-			msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(mail.ccIds, false));
-			msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(mail.bccIds, false));
+    try {
+      Session session = this.initialize();
+      MimeMessage msg = new MimeMessage(session);
+      msg.addHeader("Content-type", "text/html; charset=UTF-8");
+      msg.addHeader("Content-Transfer-Encoding", "8bit");
+      msg.setFrom(new InternetAddress(mail.fromId, "NoReply-JD"));
+      msg.setReplyTo(InternetAddress.parse(mail.fromId, false));
+      msg.setSubject(mail.subject, "UTF-8");
+      msg.setSentDate(new Date());
+      msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mail.toIds, false));
+      msg.setRecipients(Message.RecipientType.CC, InternetAddress.parse(mail.ccIds, false));
+      msg.setRecipients(Message.RecipientType.BCC, InternetAddress.parse(mail.bccIds, false));
 
-			Multipart multipart = new MimeMultipart();
+      Multipart multipart = new MimeMultipart();
 
-			MimeBodyPart bodyPart = new MimeBodyPart();
-			bodyPart.setText(mail.content, "US-ASCII", "html");
-			multipart.addBodyPart(bodyPart);
+      MimeBodyPart bodyPart = new MimeBodyPart();
+      bodyPart.setText(mail.content, "US-ASCII", "html");
+      multipart.addBodyPart(bodyPart);
 
-			if(mail.inlineAttachment != null) {
-				MailAttachment[] inlineMailAttachment = mail.inlineAttachment;
-				for(int i=0; i < inlineMailAttachment.length; i++) {
-					bodyPart = new MimeBodyPart();
-					bodyPart.setDisposition(Part.INLINE);
-					bodyPart.attachFile(inlineMailAttachment[i].filepath); // attach inline image file
-					bodyPart.setHeader("Content-ID", inlineMailAttachment[i].name);
-		            multipart.addBodyPart(bodyPart);
-				}
-			}
+      if (mail.inlineAttachment != null) {
+        MailAttachment[] inlineMailAttachment = mail.inlineAttachment;
+        for (int i = 0; i < inlineMailAttachment.length; i++) {
+          bodyPart = new MimeBodyPart();
+          bodyPart.setDisposition(Part.INLINE);
+          bodyPart.attachFile(inlineMailAttachment[i].filepath); // attach inline image file
+          bodyPart.setHeader("Content-ID", inlineMailAttachment[i].name);
+          multipart.addBodyPart(bodyPart);
+        }
+      }
 
-			if(mail.attachment != null) {
-				DataSource dataSource = null;
-				MailAttachment[] mailAttachment = mail.attachment;
-				for(int i=0; i < mailAttachment.length; i++) {
-					bodyPart = new MimeBodyPart();
-					dataSource = new FileDataSource(mailAttachment[i].filepath);
-					bodyPart.setDataHandler(new DataHandler(dataSource));
-					bodyPart.setFileName(mailAttachment[i].name);
-		            multipart.addBodyPart(bodyPart);
-				}
-			}
+      if (mail.attachment != null) {
+        DataSource dataSource = null;
+        MailAttachment[] mailAttachment = mail.attachment;
+        for (int i = 0; i < mailAttachment.length; i++) {
+          bodyPart = new MimeBodyPart();
+          dataSource = new FileDataSource(mailAttachment[i].filepath);
+          bodyPart.setDataHandler(new DataHandler(dataSource));
+          bodyPart.setFileName(mailAttachment[i].name);
+          multipart.addBodyPart(bodyPart);
+        }
+      }
 
-            msg.setContent(multipart);
-			Transport.send(msg);
+      msg.setContent(multipart);
+      Transport.send(msg);
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (MessagingException e) {
-			e.printStackTrace();
-		}
-	}
-
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (MessagingException e) {
+      e.printStackTrace();
+    }
+  }
 }

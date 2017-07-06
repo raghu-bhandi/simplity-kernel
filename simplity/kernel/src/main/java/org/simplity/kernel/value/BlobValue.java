@@ -21,6 +21,9 @@
  */
 package org.simplity.kernel.value;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -39,96 +42,102 @@ import org.simplity.kernel.file.FileManager;
  * represents a BLOB as defined in an RDBMS.
  *
  * @author simplity.org
- *
  */
 public class BlobValue extends TextValue {
+  static final Logger logger = Logger.getLogger(BlobValue.class.getName());
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = 1L;
+  /** */
+  private static final long serialVersionUID = 1L;
 
-	BlobValue() {
-		super();
-	}
+  BlobValue() {
+    super();
+  }
 
-	/**
-	 * @param key
-	 */
-	BlobValue(String key) {
-		super(key);
-	}
+  /** @param key */
+  BlobValue(String key) {
+    super(key);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.simplity.kernel.value.TextValue#getValueType()
-	 */
-	@Override
-	public ValueType getValueType() {
-		return ValueType.BLOB;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.value.TextValue#getValueType()
+   */
+  @Override
+  public ValueType getValueType() {
+    return ValueType.BLOB;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.simplity.kernel.value.TextValue#setToStatement(java.sql.PreparedStatement
-	 * , int)
-	 */
-	@Override
-	public void setToStatement(PreparedStatement statement, int idx)
-			throws SQLException {
-		Blob blob = null;
-		if (this.valueIsNull == false) {
-			blob = this.getBlob(statement.getConnection());
-		}
-		if (blob == null) {
-			statement.setNull(idx, Types.BLOB);
-		} else {
-			statement.setBlob(idx, blob);
-		}
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see
+   * org.simplity.kernel.value.TextValue#setToStatement(java.sql.PreparedStatement
+   * , int)
+   */
+  @Override
+  public void setToStatement(PreparedStatement statement, int idx) throws SQLException {
+    Blob blob = null;
+    if (this.valueIsNull == false) {
+      blob = this.getBlob(statement.getConnection());
+    }
+    if (blob == null) {
+      statement.setNull(idx, Types.BLOB);
+    } else {
+      statement.setBlob(idx, blob);
+    }
+  }
 
-	private Blob getBlob(Connection con) throws SQLException {
-		File file = FileManager.getTempFile(this.value);
-		if (file == null) {
-			Tracer.trace("Unable to get temp file content for key "
-					+ this.value + " RDBMS will have null for this Blob.");
-			return null;
-		}
-		Tracer.trace("Got file " + file.getPath() + " of size " + file.length());
-		InputStream in = null;
-		OutputStream out = null;
-		Blob blob = null;
-		try {
-			in = new FileInputStream(file);
-			blob = con.createBlob();
-			out = blob.setBinaryStream(1);
-			FileManager.copyOut(in, out);
-		} catch (Exception e) {
-			throw new ApplicationError(e, "error while setting Blob using key "
-					+ this.value);
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-			if (in != null) {
-				try {
-					in.close();
-				} catch (Exception ignore) {
-					//
-				}
-			}
-		}
-		/*
-		 * we want to do this after closing all streams
-		 */
-		Tracer.trace("We created a blob of length " + blob.length());
-		return blob;
-	}
+  private Blob getBlob(Connection con) throws SQLException {
+    File file = FileManager.getTempFile(this.value);
+    if (file == null) {
+
+      logger.log(
+          Level.INFO,
+          "Unable to get temp file content for key "
+              + this.value
+              + " RDBMS will have null for this Blob.");
+      Tracer.trace(
+          "Unable to get temp file content for key "
+              + this.value
+              + " RDBMS will have null for this Blob.");
+      return null;
+    }
+
+    logger.log(Level.INFO, "Got file " + file.getPath() + " of size " + file.length());
+    Tracer.trace("Got file " + file.getPath() + " of size " + file.length());
+    InputStream in = null;
+    OutputStream out = null;
+    Blob blob = null;
+    try {
+      in = new FileInputStream(file);
+      blob = con.createBlob();
+      out = blob.setBinaryStream(1);
+      FileManager.copyOut(in, out);
+    } catch (Exception e) {
+      throw new ApplicationError(e, "error while setting Blob using key " + this.value);
+    } finally {
+      if (out != null) {
+        try {
+          out.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+      if (in != null) {
+        try {
+          in.close();
+        } catch (Exception ignore) {
+          //
+        }
+      }
+    }
+    /*
+     * we want to do this after closing all streams
+     */
+
+    logger.log(Level.INFO, "We created a blob of length " + blob.length());
+    Tracer.trace("We created a blob of length " + blob.length());
+    return blob;
+  }
 }

@@ -22,6 +22,9 @@
 
 package org.simplity.rest;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.io.File;
 
 import org.simplity.json.JSONObject;
@@ -34,264 +37,274 @@ import org.simplity.kernel.util.JsonUtil;
  * static class that gets swagger/openApi for a given url
  *
  * @author simplity.org
- *
  */
 public class Operations {
+  static final Logger logger = Logger.getLogger(Operations.class.getName());
 
+  /** root node of the path-tree that holds service spec for paths */
+  private static PathNode rootNode = new PathNode(null, null, null);
 
-	/**
-	 * root node of the path-tree that holds service spec for paths
-	 */
-	private static PathNode rootNode = new PathNode(null, null, null);
+  /** private constructor */
+  private Operations() {
+    // enforce static
+  }
 
-	/**
-	 * private constructor
-	 */
-	private Operations() {
-		// enforce static
-	}
+  /**
+   * @param path
+   * @param method
+   * @param params
+   * @return spec or null if there is no spec for this url
+   */
+  public static Operation getOperation(String path, String method, JSONObject params) {
+    if (path == null || path.isEmpty()) {
+      return null;
+    }
+    PathNode node = findNodeForPath(path, params);
+    /*
+     * get the spec at this node. In case we do not have one at this node,
+     * then we keep going up
+     *
+     */
+    while (node != null) {
 
-	/**
-	 *
-	 * @param path
-	 * @param method
-	 * @param params
-	 * @return spec or null if there is no spec for this url
-	 */
-	public static Operation getOperation(String path, String method, JSONObject params) {
-		if (path == null || path.isEmpty()) {
-			return null;
-		}
-		PathNode node = findNodeForPath(path, params);
-		/*
-		 * get the spec at this node. In case we do not have one at this node,
-		 * then we keep going up
-		 *
-		 */
-		while (node != null) {
-			Tracer.trace("Looking for spec at " + node.getPathPrefix());
-			if (node.isValidPath()) {
-				Operation spec = node.getOpertion(method);
-				if (spec == null) {
-					Tracer.trace(method + " is not valid for path " + path);
-					return null;
-				}
-				return spec;
-			}
+      logger.log(Level.INFO, "Looking for spec at " + node.getPathPrefix());
+      Tracer.trace("Looking for spec at " + node.getPathPrefix());
+      if (node.isValidPath()) {
+        Operation spec = node.getOpertion(method);
+        if (spec == null) {
 
-			node = node.getParent();
-		}
-		/*
-		 * no spec found at any part of this path
-		 */
-		Tracer.trace(path + " is not a valid path");
-		return null;
-	}
+          logger.log(Level.INFO, method + " is not valid for path " + path);
+          Tracer.trace(method + " is not valid for path " + path);
+          return null;
+        }
+        return spec;
+      }
 
-	private static PathNode findNodeForPath(String path, JSONObject params) {
-		PathNode node = rootNode;
-		if (path == null) {
-			return node;
-		}
-		String p = path.trim();
-		if (p.isEmpty()) {
-			return node;
-		}
-		/*
-		 * go down the path as much as we can.
-		 */
-		String[] parts = p.split(Tags.PATH_SEP_STR);
-		for (String part : parts) {
-			if (part.isEmpty()) {
-				continue;
-			}
-			Tracer.trace("looking at node=" + node.getPathPrefix() + " for part=" + part);
-			PathNode child = node.getChild(part);
-			if (child == null) {
-				/*
-				 * this is not path. Is it field?
-				 */
-				child = node.getFieldChild();
-				if (child == null) {
-					/*
-					 * we reached a leaf. we ignore any remaining part
-					 */
-					break;
-				}
-				/*
-				 * copy this part as field value
-				 */
-				params.put(node.getFieldName(), part);
-			}
-			node = child;
-		}
-		Tracer.trace("leaf node is " + node.getPathPrefix());
-		return node;
-	}
+      node = node.getParent();
+    }
+    /*
+     * no spec found at any part of this path
+     */
 
-	/**
-	 * load all api's from a resource folder
-	 *
-	 * @param apiFolder
-	 */
-	public static void loadAll(String apiFolder) {
-		File folder = new File(apiFolder);
-		if (folder.exists() == false || folder.isDirectory() == false) {
-			Tracer.trace("Api spec folder " + apiFolder + " is not a folder.");
-			return;
-		}
-		String[] files = FileManager.getResources(apiFolder);
-		if (files.length == 0) {
-			Tracer.trace("Api spec folder " + apiFolder + " has no files.");
-			return;
-		}
-		for (String fileName : files) {
-			if (fileName.endsWith(".json") == false) {
-				Tracer.trace("Skipping non-joson file " + fileName);
-				continue;
-			}
-			loadFromFile(fileName);
-		}
-		return;
-	}
+    logger.log(Level.INFO, path + " is not a valid path");
+    Tracer.trace(path + " is not a valid path");
+    return null;
+  }
 
-	/**
-	 *
-	 * @param fileName
-	 */
-	public static void loadFromFile(String fileName) {
-		Tracer.trace("Going to load file " + fileName);
-		try {
-			String json = FileManager.readResource(fileName);
-			loadFromJsonText(json);
-		} catch (Exception e) {
-			Tracer.trace(e, "Error while loading open-api spec " + fileName);
-		}
-	}
+  private static PathNode findNodeForPath(String path, JSONObject params) {
+    PathNode node = rootNode;
+    if (path == null) {
+      return node;
+    }
+    String p = path.trim();
+    if (p.isEmpty()) {
+      return node;
+    }
+    /*
+     * go down the path as much as we can.
+     */
+    String[] parts = p.split(Tags.PATH_SEP_STR);
+    for (String part : parts) {
+      if (part.isEmpty()) {
+        continue;
+      }
 
-	/**
-	 * @param jsonText
-	 */
-	public static void loadFromJsonText(String jsonText) {
-		loadFromJson(new JSONObject(jsonText));
-	}
+      logger.log(Level.INFO, "looking at node=" + node.getPathPrefix() + " for part=" + part);
+      Tracer.trace("looking at node=" + node.getPathPrefix() + " for part=" + part);
+      PathNode child = node.getChild(part);
+      if (child == null) {
+        /*
+         * this is not path. Is it field?
+         */
+        child = node.getFieldChild();
+        if (child == null) {
+          /*
+           * we reached a leaf. we ignore any remaining part
+           */
+          break;
+        }
+        /*
+         * copy this part as field value
+         */
+        params.put(node.getFieldName(), part);
+      }
+      node = child;
+    }
 
-	/**
-	 * unload/reset all apis
-	 */
-	public static void unloadAll() {
-		rootNode = new PathNode(null, null, null);
-	}
+    logger.log(Level.INFO, "leaf node is " + node.getPathPrefix());
+    Tracer.trace("leaf node is " + node.getPathPrefix());
+    return node;
+  }
 
-	/**
-	 * @param json
-	 */
-	public static void loadFromJson(JSONObject json) {
-		JSONObject paths = json.optJSONObject(Tags.PATHS_ATTR);
-		if (paths == null || paths.length() == 0) {
-			Tracer.trace(" No paths in the API");
-			return;
-		}
-		/*
-		 * for run-time efficiency, we substitute refs with actual JSON
-		 */
-		JsonUtil.dereference(json);
-		String basePath = json.optString(Tags.BASE_PATH_ATTR, null);
-		String moduleName = json.optString(Tags.MODULE_ATTR, null);
-		loadAnApi(paths, basePath, moduleName);
-	}
+  /**
+   * load all api's from a resource folder
+   *
+   * @param apiFolder
+   */
+  public static void loadAll(String apiFolder) {
+    File folder = new File(apiFolder);
+    if (folder.exists() == false || folder.isDirectory() == false) {
 
-	/**
-	 * @param paths
-	 * @param basePath
-	 */
-	private static void loadAnApi(JSONObject paths, String basePath, String moduleName) {
+      logger.log(Level.INFO, "Api spec folder " + apiFolder + " is not a folder.");
+      Tracer.trace("Api spec folder " + apiFolder + " is not a folder.");
+      return;
+    }
+    String[] files = FileManager.getResources(apiFolder);
+    if (files.length == 0) {
 
-		for (String key : paths.keySet()) {
-			JSONObject methods = paths.optJSONObject(key);
-			String fullPath = basePath == null ? key : basePath + key;
+      logger.log(Level.INFO, "Api spec folder " + apiFolder + " has no files.");
+      Tracer.trace("Api spec folder " + apiFolder + " has no files.");
+      return;
+    }
+    for (String fileName : files) {
+      if (fileName.endsWith(".json") == false) {
 
-			/*
-			 * build the branch to this path-node
-			 */
-			PathNode node = rootNode;
-			if (fullPath != null && fullPath.isEmpty() == false) {
+        logger.log(Level.INFO, "Skipping non-joson file " + fileName);
+        Tracer.trace("Skipping non-joson file " + fileName);
+        continue;
+      }
+      loadFromFile(fileName);
+    }
+    return;
+  }
 
-				String[] parts = trimPath(fullPath).split(Tags.PATH_SEP_STR);
-				for (String part : parts) {
-					if (part.isEmpty()) {
-						Tracer.trace("Empty part found in path.Igonred");
-						continue;
-					}
-					String fieldName = null;
-					if (part.charAt(0) == '{') {
-						/*
-						 * we trust the spec is in order
-						 */
-						fieldName = part.substring(1, part.length() - 1);
-						node = node.setFieldName(fieldName, moduleName);
-					} else {
-						node = node.setChild(part, moduleName);
-					}
-				}
-			}
-			/*
-			 * add the methods at the leaf
-			 */
-			node.setPathSpec(methods);
-		}
-	}
+  /** @param fileName */
+  public static void loadFromFile(String fileName) {
 
-	private static String trimPath(String path) {
-		String result = path;
+    logger.log(Level.INFO, "Going to load file " + fileName);
+    Tracer.trace("Going to load file " + fileName);
+    try {
+      String json = FileManager.readResource(fileName);
+      loadFromJsonText(json);
+    } catch (Exception e) {
 
-		if (result.charAt(0) == Tags.PATH_SEP_CHAR) {
-			result = result.substring(1);
-		}
+      logger.log(Level.SEVERE, "Error while loading open-api spec " + fileName, e);
+      Tracer.trace(e, "Error while loading open-api spec " + fileName);
+    }
+  }
 
-		int idx = result.length() - 1;
-		if (idx >= 0 && result.charAt(idx) == Tags.PATH_SEP_CHAR) {
-			result = result.substring(0, idx);
-		}
-		return result;
-	}
+  /** @param jsonText */
+  public static void loadFromJsonText(String jsonText) {
+    loadFromJson(new JSONObject(jsonText));
+  }
 
+  /** unload/reset all apis */
+  public static void unloadAll() {
+    rootNode = new PathNode(null, null, null);
+  }
 
-	/**
-	 *
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		String rootFolder = "C:/repos/simplity/test/WebContent/WEB-INF/api/";
-		String txt = FileManager.readFile(new File(rootFolder + "troubleTicket.json.txt"));
-		JSONObject swagger = new JSONObject(txt);
-		JSONObject defs = swagger.optJSONObject(Tags.DEFS_ATTR);
-		if(defs == null){
-			Tracer.trace("No defintions found");
-			return;
-		}
+  /** @param json */
+  public static void loadFromJson(JSONObject json) {
+    JSONObject paths = json.optJSONObject(Tags.PATHS_ATTR);
+    if (paths == null || paths.length() == 0) {
 
-		Tracer.trace("going to scan " + defs.length() + " schemas at the root level");
-		Record[] recs = Record.fromSwaggerDefinitions(null, defs);
-		Tracer.trace(recs.length + " records generated");
-		/*
-		loadFromFile(rootFolder+"junk.json");
-		Operation op = rootNode.getChild("app").getChild("t").getOpertion("post");
-		System.out.print("");
-		loadAll(rootFolder);
-		JSONObject params = new JSONObject();
-		Operation spec = getServiceSpec("/app/troubleTicket/1234", "get", params);
-		if (spec == null) {
-			Tracer.trace("That is not a valid request");
-		} else {
-			System.out.println("ServiceName is " + spec.getServiceName());
-			System.out.println("params is " + params.toString(2));
-		}*/
-	}
-	/*
-	 * 1. parameters and responses at the root level to be used as reference
-	 * 2. body is an object in swagger. In our convention, it contains other
-	 * objects/primitive. How do we want to handle that?
-	 *
-	 */
+      logger.log(Level.INFO, " No paths in the API");
+      Tracer.trace(" No paths in the API");
+      return;
+    }
+    /*
+     * for run-time efficiency, we substitute refs with actual JSON
+     */
+    JsonUtil.dereference(json);
+    String basePath = json.optString(Tags.BASE_PATH_ATTR, null);
+    String moduleName = json.optString(Tags.MODULE_ATTR, null);
+    loadAnApi(paths, basePath, moduleName);
+  }
+
+  /**
+   * @param paths
+   * @param basePath
+   */
+  private static void loadAnApi(JSONObject paths, String basePath, String moduleName) {
+
+    for (String key : paths.keySet()) {
+      JSONObject methods = paths.optJSONObject(key);
+      String fullPath = basePath == null ? key : basePath + key;
+
+      /*
+       * build the branch to this path-node
+       */
+      PathNode node = rootNode;
+      if (fullPath != null && fullPath.isEmpty() == false) {
+
+        String[] parts = trimPath(fullPath).split(Tags.PATH_SEP_STR);
+        for (String part : parts) {
+          if (part.isEmpty()) {
+
+            logger.log(Level.INFO, "Empty part found in path.Igonred");
+            Tracer.trace("Empty part found in path.Igonred");
+            continue;
+          }
+          String fieldName = null;
+          if (part.charAt(0) == '{') {
+            /*
+             * we trust the spec is in order
+             */
+            fieldName = part.substring(1, part.length() - 1);
+            node = node.setFieldName(fieldName, moduleName);
+          } else {
+            node = node.setChild(part, moduleName);
+          }
+        }
+      }
+      /*
+       * add the methods at the leaf
+       */
+      node.setPathSpec(methods);
+    }
+  }
+
+  private static String trimPath(String path) {
+    String result = path;
+
+    if (result.charAt(0) == Tags.PATH_SEP_CHAR) {
+      result = result.substring(1);
+    }
+
+    int idx = result.length() - 1;
+    if (idx >= 0 && result.charAt(idx) == Tags.PATH_SEP_CHAR) {
+      result = result.substring(0, idx);
+    }
+    return result;
+  }
+
+  /** @param args */
+  public static void main(String[] args) {
+    String rootFolder = "C:/repos/simplity/test/WebContent/WEB-INF/api/";
+    String txt = FileManager.readFile(new File(rootFolder + "troubleTicket.json.txt"));
+    JSONObject swagger = new JSONObject(txt);
+    JSONObject defs = swagger.optJSONObject(Tags.DEFS_ATTR);
+    if (defs == null) {
+
+      logger.log(Level.INFO, "No defintions found");
+      Tracer.trace("No defintions found");
+      return;
+    }
+
+    logger.log(Level.INFO, "going to scan " + defs.length() + " schemas at the root level");
+    Tracer.trace("going to scan " + defs.length() + " schemas at the root level");
+    Record[] recs = Record.fromSwaggerDefinitions(null, defs);
+
+    logger.log(Level.INFO, recs.length + " records generated");
+    Tracer.trace(recs.length + " records generated");
+    /*
+    loadFromFile(rootFolder+"junk.json");
+    Operation op = rootNode.getChild("app").getChild("t").getOpertion("post");
+    System.out.print("");
+    loadAll(rootFolder);
+    JSONObject params = new JSONObject();
+    Operation spec = getServiceSpec("/app/troubleTicket/1234", "get", params);
+    if (spec == null) {
+    	Tracer.trace("That is not a valid request");
+    } else {
+    	System.out.println("ServiceName is " + spec.getServiceName());
+    	System.out.println("params is " + params.toString(2));
+    }*/
+  }
+  /*
+   * 1. parameters and responses at the root level to be used as reference
+   * 2. body is an object in swagger. In our convention, it contains other
+   * objects/primitive. How do we want to handle that?
+   *
+   */
 }

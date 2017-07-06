@@ -24,34 +24,31 @@ package org.simplity.tp;
 
 import org.simplity.service.ServiceContext;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public interface BatchOutput {
 
-	/**
-	 * gear up for read session. Resources may be acquired, s a closeShop() is
-	 * guaranteed after a call to openShop()
-	 *
-	 * @param ctx
-	 * @throws Exception
-	 */
-	public void openShop(ServiceContext ctx) throws Exception;
+  /**
+   * gear up for read session. Resources may be acquired, s a closeShop() is guaranteed after a call
+   * to openShop()
+   *
+   * @param ctx
+   * @throws Exception
+   */
+  public void openShop(ServiceContext ctx) throws Exception;
 
-	/**
-	 * guaranteed call at the end of processing
-	 *
-	 * @param ctx
-	 */
-	public void closeShop(ServiceContext ctx);
+  /**
+   * guaranteed call at the end of processing
+   *
+   * @param ctx
+   */
+  public void closeShop(ServiceContext ctx);
 
-	/**
-	 * output a row.
-	 *
-	 * @param ctx
-	 * @return true if the row was actually output. false otherwise
-	 * @throws Exception
-	 */
-	public boolean outputARow(ServiceContext ctx) throws Exception;
+  /**
+   * output a row.
+   *
+   * @param ctx
+   * @return true if the row was actually output. false otherwise
+   * @throws Exception
+   */
+  public boolean outputARow(ServiceContext ctx) throws Exception;
 }

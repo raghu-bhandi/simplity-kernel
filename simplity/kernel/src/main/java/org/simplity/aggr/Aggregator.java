@@ -24,17 +24,18 @@ package org.simplity.aggr;
 
 /**
  * a common aggregator that can handle the usual suspects like Average, Sum...
- * @author simplity.org
  *
+ * @author simplity.org
  */
-public class Aggregator implements AggregatorInterface{
-	String inputFieldName;
-	String outputFieldName;
-	boolean outputAsDecimal;
-	AggregationType aggregationType;
+public class Aggregator implements AggregatorInterface {
+  String inputFieldName;
+  String outputFieldName;
+  boolean outputAsDecimal;
+  AggregationType aggregationType;
 
-	@Override
-	public AggregationWorker getWorker() {
-		return this.aggregationType.getAggregator(this.inputFieldName, this.outputFieldName, this.outputAsDecimal);
-	}
+  @Override
+  public AggregationWorker getWorker() {
+    return this.aggregationType.getAggregator(
+        this.inputFieldName, this.outputFieldName, this.outputAsDecimal);
+  }
 }

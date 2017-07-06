@@ -41,97 +41,83 @@ import org.simplity.service.ServiceContext;
  * Data structure that keeps meta data about a flat-file
  *
  * @author simplity.org
- *
  */
 public class OutputFile {
-	/**
-	 *
-	 * This is expressed using {name} and and
-	 * {ext} that stand for file name and extension of primary input file.
-	 * example if input file name is a.txt, then {name}.{ext}.out will translate to a.txt.out and {fileName}.out will
-	 * translate to a.out.
-	 *
-	 * Of course if it is not dependent on the input file, then it can be plain file name, or $fieldName
-	 *
-	 */
-	String fileName;
-	/**
-	 * record that describes fields/columns in this file
-	 */
-	String recordName;
-	/**
-	 * how columns/fields are organized in each row
-	 */
-	FlatFileRowType dataFormat;
-	/**
-	 * in case the row may be written conditionally. Defaults to write always.
-	 */
-	Expression conditionToOutput;
+  /**
+   * This is expressed using {name} and and {ext} that stand for file name and extension of primary
+   * input file. example if input file name is a.txt, then {name}.{ext}.out will translate to
+   * a.txt.out and {fileName}.out will translate to a.out.
+   *
+   * <p>Of course if it is not dependent on the input file, then it can be plain file name, or
+   * $fieldName
+   */
+  String fileName;
+  /** record that describes fields/columns in this file */
+  String recordName;
+  /** how columns/fields are organized in each row */
+  FlatFileRowType dataFormat;
+  /** in case the row may be written conditionally. Defaults to write always. */
+  Expression conditionToOutput;
 
+  /** @param service */
+  void getReady(Service service) {
+    if (this.fileName == null) {
+      throw new ApplicationError("file name is required for outputFile");
+    }
+  }
 
-	/**
-	 * @param service
-	 */
-	void getReady(Service service) {
-		if(this.fileName == null){
-			throw new ApplicationError("file name is required for outputFile");
-		}
-	}
+  /** @return worker to read from this file */
+  public Worker getWorker() {
+    return new Worker();
+  }
 
-	/**
-	 *
-	 * @return worker to read from this file
-	 */
-	public Worker getWorker() {
-		return new Worker();
-	}
+  /**
+   * mutable class to take care of run-time requirements of this component
+   *
+   * @author simplity.org
+   */
+  class Worker implements BatchOutput {
+    protected Record record;
+    protected File realFile;
+    private BufferedWriter writer;
 
-	/**
-	 * mutable class to take care of run-time requirements of this component
-	 * @author simplity.org
-	 *
-	 */
-	class Worker implements BatchOutput{
-		protected Record record;
-		protected File realFile;
-		private BufferedWriter writer;
+    String getFileName() {
+      return this.realFile.getName();
+    }
 
-		String getFileName() {
-			return this.realFile.getName();
-		}
+    void setFileName(String rootFolder, String refFileName, ServiceContext ctx) {
+      this.realFile =
+          new File(rootFolder + TextUtil.getFileName(OutputFile.this.fileName, refFileName, ctx));
+    }
 
-		void setFileName(String rootFolder, String refFileName, ServiceContext ctx){
-			this.realFile = new File(rootFolder + TextUtil.getFileName(OutputFile.this.fileName, refFileName, ctx));
-		}
+    @Override
+    public void openShop(ServiceContext ctx) throws IOException {
+      this.record = ComponentManager.getRecord(OutputFile.this.recordName);
+      this.writer = new BufferedWriter(new FileWriter(this.realFile));
+    }
 
-		@Override
-		public void openShop(ServiceContext ctx) throws IOException {
-			this.record = ComponentManager.getRecord(OutputFile.this.recordName);
-			this.writer = new BufferedWriter(new FileWriter(this.realFile));
-		}
+    @Override
+    public boolean outputARow(ServiceContext ctx) throws IOException {
+      Expression expr = OutputFile.this.conditionToOutput;
+      try {
+        if (expr == null || Value.intepretAsBoolean(expr.evaluate(ctx))) {
+          this.writer.write((this.record.formatFlatRow(OutputFile.this.dataFormat, ctx)));
+          this.writer.newLine();
+          return true;
+        }
+        return false;
+      } catch (InvalidOperationException e) {
+        throw new ApplicationError(e, "Error while evaluating expresssion " + expr);
+      }
+    }
 
-		@Override
-		public boolean outputARow(ServiceContext ctx) throws IOException {
-			Expression expr = OutputFile.this.conditionToOutput;
-			try {
-				if (expr == null || Value.intepretAsBoolean(expr.evaluate(ctx))) {
-					this.writer.write((this.record.formatFlatRow(OutputFile.this.dataFormat, ctx)));
-					this.writer.newLine();
-					return true;
-				}
-				return false;
-			} catch (InvalidOperationException e) {
-				throw new ApplicationError(e, "Error while evaluating expresssion " + expr);
-			}
-		}
-
-		@Override
-		public void closeShop(ServiceContext ctx) {
-			try {
-				this.writer.close();
-			} catch (Exception ignore) {
-				//
-			}
-		}
-	}
+    @Override
+    public void closeShop(ServiceContext ctx) {
+      try {
+        this.writer.close();
+      } catch (Exception ignore) {
+        //
+      }
+    }
+  }
 }

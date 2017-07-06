@@ -26,62 +26,58 @@ import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
 /**
- * Clob is a pseudo data type, because we actually do not allow this data type
- * to be used for data element. However, the RDBMS has this data type for
- * storage, and we need to store/retrieve this. ClobDataType is a wrapper on
- * textDataType to facilitate this. Actual Clob data is saved (before saving, or
- * after retrieving) in a temp-file. Field that is associated with BlobDataType
- * has a value of text that is the key to this file.
+ * Clob is a pseudo data type, because we actually do not allow this data type to be used for data
+ * element. However, the RDBMS has this data type for storage, and we need to store/retrieve this.
+ * ClobDataType is a wrapper on textDataType to facilitate this. Actual Clob data is saved (before
+ * saving, or after retrieving) in a temp-file. Field that is associated with BlobDataType has a
+ * value of text that is the key to this file.
  *
  * @author simplity.org
- *
  */
 public class ClobDataType extends DataType {
-	/**
-	 * max number of characters expected. Let us keep it safe for possible key
-	 * length
-	 */
-	private static final int MAX_LENGTH = 50;
+  /** max number of characters expected. Let us keep it safe for possible key length */
+  private static final int MAX_LENGTH = 50;
 
-	private static final String DESC = "This is an internally generated key. You should not synthesize, but re-send what you have received";
+  private static final String DESC =
+      "This is an internally generated key. You should not synthesize, but re-send what you have received";
 
-	/*
-	 * (non-Javadoc)Should we check whether the key indeed points to a file?
-	 * Actually a good idea, except for performance. Let us go ahead with it at
-	 * this time
-	 * 
-	 * @see
-	 * org.simplity.kernel.dt.DataType#validateValue(org.simplity.kernel.value
-	 * .Value)
-	 */
-	@Override
-	public Value validateValue(Value value) {
-		if (FileManager.getTempFile(value.toString()) == null) {
-			/*
-			 * this is not a valid pointer to a temp file
-			 */
-			return null;
-		}
-		return value;
-	}
+  /*
+   * (non-Javadoc)Should we check whether the key indeed points to a file?
+   * Actually a good idea, except for performance. Let us go ahead with it at
+   * this time
+   *
+   * @see
+   * org.simplity.kernel.dt.DataType#validateValue(org.simplity.kernel.value
+   * .Value)
+   */
+  @Override
+  public Value validateValue(Value value) {
+    if (FileManager.getTempFile(value.toString()) == null) {
+      /*
+       * this is not a valid pointer to a temp file
+       */
+      return null;
+    }
+    return value;
+  }
 
-	@Override
-	public ValueType getValueType() {
-		return ValueType.CLOB;
-	}
+  @Override
+  public ValueType getValueType() {
+    return ValueType.CLOB;
+  }
 
-	@Override
-	public int getMaxLength() {
-		return MAX_LENGTH;
-	}
+  @Override
+  public int getMaxLength() {
+    return MAX_LENGTH;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.simplity.kernel.dt.DataType#synthesiseDscription()
-	 */
-	@Override
-	protected String synthesiseDscription() {
-		return DESC;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.kernel.dt.DataType#synthesiseDscription()
+   */
+  @Override
+  protected String synthesiseDscription() {
+    return DESC;
+  }
 }

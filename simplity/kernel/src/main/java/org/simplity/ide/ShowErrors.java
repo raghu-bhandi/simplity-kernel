@@ -22,6 +22,9 @@
 
 package org.simplity.ide;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSerializationType;
 import org.simplity.kernel.data.DataSheet;
@@ -29,23 +32,26 @@ import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.tp.LogicInterface;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class ShowErrors implements LogicInterface {
+  static final Logger logger = Logger.getLogger(ShowErrors.class.getName());
 
-	@Override
-	public Value execute(ServiceContext ctx) {
+  @Override
+  public Value execute(ServiceContext ctx) {
 
-		DataSheet ds = ctx.getMessagesAsDs();
-		if (ds == null || ds.length() == 0) {
-			Tracer.trace("There are NO Messages in teh context");
-		} else {
-			Tracer.trace("FOllowing is a json for all message in the context");
-			Tracer.trace(ds.toSerializedText(DataSerializationType.JSON));
-		}
-		return null;
-	}
+    DataSheet ds = ctx.getMessagesAsDs();
+    if (ds == null || ds.length() == 0) {
 
+      logger.log(Level.INFO, "There are NO Messages in teh context");
+      Tracer.trace("There are NO Messages in teh context");
+    } else {
+
+      logger.log(Level.INFO, "FOllowing is a json for all message in the context");
+      Tracer.trace("FOllowing is a json for all message in the context");
+
+      logger.log(Level.INFO, ds.toSerializedText(DataSerializationType.JSON));
+      Tracer.trace(ds.toSerializedText(DataSerializationType.JSON));
+    }
+    return null;
+  }
 }

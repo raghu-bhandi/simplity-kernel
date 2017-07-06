@@ -23,40 +23,37 @@
 package org.simplity.kernel.expr;
 
 /**
- * Represents an exceptional condition that an operator is invalid for the value
- * type that it is to operate on
+ * Represents an exceptional condition that an operator is invalid for the value type that it is to
+ * operate on
  *
  * @author simplity.org
- *
  */
 public class InvalidExpressionException extends Exception {
 
-	private static final long serialVersionUID = 1L;
-	private String message;
+  private static final long serialVersionUID = 1L;
+  private String message;
 
-	protected InvalidExpressionException(String expression, String error,
-			int position) {
-		StringBuilder msg = new StringBuilder(
-				"Error encountered while parsing. ");
+  protected InvalidExpressionException(String expression, String error, int position) {
+    StringBuilder msg = new StringBuilder("Error encountered while parsing. ");
 
-		if (expression == null || expression.length() == 0) {
-			msg.append(error);
-		} else {
-			msg.append('\n').append("expression : ").append(expression)
-					.append('\n');
-			if (position >= expression.length()) {
-				msg.append("Unexpected end of expression. ").append(error);
-			} else {
-				msg.append("parsed up to ")
-						.append(expression.substring(0, position)).append('\n')
-						.append(error);
-			}
-		}
-		this.message = msg.toString();
-	}
+    if (expression == null || expression.length() == 0) {
+      msg.append(error);
+    } else {
+      msg.append('\n').append("expression : ").append(expression).append('\n');
+      if (position >= expression.length()) {
+        msg.append("Unexpected end of expression. ").append(error);
+      } else {
+        msg.append("parsed up to ")
+            .append(expression.substring(0, position))
+            .append('\n')
+            .append(error);
+      }
+    }
+    this.message = msg.toString();
+  }
 
-	@Override
-	public String getMessage() {
-		return this.message;
-	}
+  @Override
+  public String getMessage() {
+    return this.message;
+  }
 }

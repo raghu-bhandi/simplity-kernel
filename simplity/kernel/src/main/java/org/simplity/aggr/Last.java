@@ -30,35 +30,32 @@ import org.simplity.service.ServiceContext;
  * number of rows
  *
  * @author simplity.org
- *
  */
 public class Last extends First {
-	/**
-	 * create an an instance with the required parameters
-	 * @param inputName input name
-	 *
-	 * @param outputName
-	 *            field/column name that is to be written out as sum. non-empty,
-	 *            non-null;
-	 */
-	public Last(String inputName, String outputName) {
-		super(inputName, outputName);
-	}
+  /**
+   * create an an instance with the required parameters
+   *
+   * @param inputName input name
+   * @param outputName field/column name that is to be written out as sum. non-empty, non-null;
+   */
+  public Last(String inputName, String outputName) {
+    super(inputName, outputName);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#accumulate(org.simplity.kernel.data.FieldsInterface,
-	 * org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void accumulate(FieldsInterface currentRow, ServiceContext ctx) {
-		if (this.inProgress == false) {
-			this.throwError();
-		}
-		Value val = ctx.getValue(this.inputName);
-		if(Value.isNull(val) == false){
-			this.value = val;
-		}
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#accumulate(org.simplity.kernel.data.FieldsInterface,
+   * org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void accumulate(FieldsInterface currentRow, ServiceContext ctx) {
+    if (this.inProgress == false) {
+      this.throwError();
+    }
+    Value val = ctx.getValue(this.inputName);
+    if (Value.isNull(val) == false) {
+      this.value = val;
+    }
+  }
 }

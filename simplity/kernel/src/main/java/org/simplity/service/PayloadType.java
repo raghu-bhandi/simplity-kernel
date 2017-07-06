@@ -24,16 +24,12 @@ package org.simplity.service;
 
 /**
  * what type of payLoad is used to transfer data between client and server
- * @author simplity.org
  *
+ * @author simplity.org
  */
 public enum PayloadType {
-	/**
-	 * no pay load - implies that the call is from local object
-	 */
-	NONE,
-	/**
-	 * json text
-	 */
-	JSON;
+  /** no pay load - implies that the call is from local object */
+  NONE,
+  /** json text */
+  JSON;
 }

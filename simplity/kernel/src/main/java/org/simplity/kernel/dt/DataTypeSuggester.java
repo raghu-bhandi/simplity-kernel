@@ -22,6 +22,9 @@
 
 package org.simplity.kernel.dt;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.sql.Types;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,129 +35,130 @@ import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.value.ValueType;
 
 /**
- * utility class that suggests a suitable data type based on known attributes,
- * and list of existing data types. We keep improving this based on usage
- * patterns
+ * utility class that suggests a suitable data type based on known attributes, and list of existing
+ * data types. We keep improving this based on usage patterns
  *
  * @author simplity.org
- *
  */
 public class DataTypeSuggester {
-	/*
-	 * lengths of available text data types in increasing order
-	 */
-	private int[] lengths;
-	/*
-	 * data type names corresponding to lengths[]
-	 */
-	private String[] names;
+  static final Logger logger = Logger.getLogger(DataTypeSuggester.class.getName());
 
-	/**
-	 *
-	 */
-	public DataTypeSuggester() {
-		Map<Integer, String> types = new HashMap<Integer, String>();
-		for (Object obj : ComponentType.DT.getAll()) {
-			if (obj instanceof TextDataType == false) {
-				continue;
-			}
-			TextDataType dt = (TextDataType) obj;
-			if (dt.getRegex() != null) {
-				continue;
-			}
-			types.put(new Integer(dt.getMaxLength()), dt.getName());
-		}
-		int n = types.size();
-		if (n == 0) {
-			Tracer.trace("There are no text data types to suggest from. we will ALWAYS suggest default one.");
-		}
+  /*
+   * lengths of available text data types in increasing order
+   */
+  private int[] lengths;
+  /*
+   * data type names corresponding to lengths[]
+   */
+  private String[] names;
 
-		this.lengths = new int[n];
-		this.names = new String[n];
-		int i = 0;
-		for (Integer len : types.keySet()) {
-			this.lengths[i++] = len.intValue();
-		}
-		Arrays.sort(this.lengths);
-		i = 0;
-		for (int len : this.lengths) {
-			this.names[i++] = types.get(new Integer(len));
-		}
-	}
+  /** */
+  public DataTypeSuggester() {
+    Map<Integer, String> types = new HashMap<Integer, String>();
+    for (Object obj : ComponentType.DT.getAll()) {
+      if (obj instanceof TextDataType == false) {
+        continue;
+      }
+      TextDataType dt = (TextDataType) obj;
+      if (dt.getRegex() != null) {
+        continue;
+      }
+      types.put(new Integer(dt.getMaxLength()), dt.getName());
+    }
+    int n = types.size();
+    if (n == 0) {
 
-	/**
-	 *
-	 * @param sqlTypeInt
-	 * @param sqlTypeText
-	 * @param size
-	 * @param nbrDecimals
-	 * @return an existing data type for known sql types, or sqlTypeName for
-	 *         types that we do not manage
-	 */
-	public String suggest(int sqlTypeInt, String sqlTypeText, int size,
-			int nbrDecimals) {
-		if (nbrDecimals > 0) {
-			return ValueType.DECIMAL.getDefaultDataType();
-		}
-		switch (sqlTypeInt) {
-		case Types.BIGINT:
-		case Types.INTEGER:
-			/*
-			 * numeric with nbrDecimals zero is landing here
-			 */
-		case Types.NUMERIC:
-		case Types.ROWID:
-		case Types.TINYINT:
-			return ValueType.INTEGER.getDefaultDataType();
+      logger.log(
+          Level.INFO,
+          "There are no text data types to suggest from. we will ALWAYS suggest default one.");
+      Tracer.trace(
+          "There are no text data types to suggest from. we will ALWAYS suggest default one.");
+    }
 
-		case Types.DECIMAL:
-		case Types.DOUBLE:
-		case Types.FLOAT:
-		case Types.REAL:
-			return ValueType.DECIMAL.getDefaultDataType();
+    this.lengths = new int[n];
+    this.names = new String[n];
+    int i = 0;
+    for (Integer len : types.keySet()) {
+      this.lengths[i++] = len.intValue();
+    }
+    Arrays.sort(this.lengths);
+    i = 0;
+    for (int len : this.lengths) {
+      this.names[i++] = types.get(new Integer(len));
+    }
+  }
 
-		case Types.DATE:
-		case Types.TIME:
-		case Types.TIMESTAMP:
-			return ValueType.DATE.getDefaultDataType();
+  /**
+   * @param sqlTypeInt
+   * @param sqlTypeText
+   * @param size
+   * @param nbrDecimals
+   * @return an existing data type for known sql types, or sqlTypeName for types that we do not
+   *     manage
+   */
+  public String suggest(int sqlTypeInt, String sqlTypeText, int size, int nbrDecimals) {
+    if (nbrDecimals > 0) {
+      return ValueType.DECIMAL.getDefaultDataType();
+    }
+    switch (sqlTypeInt) {
+      case Types.BIGINT:
+      case Types.INTEGER:
+        /*
+         * numeric with nbrDecimals zero is landing here
+         */
+      case Types.NUMERIC:
+      case Types.ROWID:
+      case Types.TINYINT:
+        return ValueType.INTEGER.getDefaultDataType();
 
-		case Types.BOOLEAN:
-		case Types.BIT:
-			return ValueType.BOOLEAN.getDefaultDataType();
+      case Types.DECIMAL:
+      case Types.DOUBLE:
+      case Types.FLOAT:
+      case Types.REAL:
+        return ValueType.DECIMAL.getDefaultDataType();
 
-		case Types.CHAR:
-		case Types.LONGNVARCHAR:
-		case Types.LONGVARCHAR:
-		case Types.NCHAR:
-		case Types.NVARCHAR:
-		case Types.VARCHAR:
-			if (this.lengths != null) {
-				int i = 0;
-				for (int max : this.lengths) {
-					if (size <= max) {
-						return this.names[i];
-					}
-					i++;
-				}
-			}
-			return ValueType.TEXT.getDefaultDataType();
+      case Types.DATE:
+      case Types.TIME:
+      case Types.TIMESTAMP:
+        return ValueType.DATE.getDefaultDataType();
 
-		case Types.BLOB:
-			return ValueType.BLOB.getDefaultDataType();
+      case Types.BOOLEAN:
+      case Types.BIT:
+        return ValueType.BOOLEAN.getDefaultDataType();
 
-		case Types.CLOB:
-		case Types.NCLOB:
-			return ValueType.CLOB.getDefaultDataType();
+      case Types.CHAR:
+      case Types.LONGNVARCHAR:
+      case Types.LONGVARCHAR:
+      case Types.NCHAR:
+      case Types.NVARCHAR:
+      case Types.VARCHAR:
+        if (this.lengths != null) {
+          int i = 0;
+          for (int max : this.lengths) {
+            if (size <= max) {
+              return this.names[i];
+            }
+            i++;
+          }
+        }
+        return ValueType.TEXT.getDefaultDataType();
 
-		default:
-			Tracer.trace("we do not support SqlType " + sqlTypeText
-					+ " for a column in a table.");
-			/*
-			 * we set the data type to te sql type so that the user gets an
-			 * error, or gets an opportunity to define it
-			 */
-			return sqlTypeText;
-		}
-	}
+      case Types.BLOB:
+        return ValueType.BLOB.getDefaultDataType();
 
+      case Types.CLOB:
+      case Types.NCLOB:
+        return ValueType.CLOB.getDefaultDataType();
+
+      default:
+        logger.log(
+            Level.INFO, "we do not support SqlType " + sqlTypeText + " for a column in a table.");
+        Tracer.trace("we do not support SqlType " + sqlTypeText + " for a column in a table.");
+        /*
+         * we set the data type to te sql type so that the user gets an
+         * error, or gets an opportunity to define it
+         */
+        return sqlTypeText;
+    }
+  }
 }

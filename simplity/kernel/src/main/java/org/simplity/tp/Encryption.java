@@ -21,6 +21,9 @@
  */
 package org.simplity.tp;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
@@ -32,118 +35,156 @@ import org.simplity.service.ServiceContext;
  * encrypt fields and columns
  *
  * @author simplity
- *
  */
 public class Encryption extends Action {
-	private static final String ENCRYPT = "encrypt";
-	private static final String DECRYPT = "decrypt";
+  static final Logger logger = Logger.getLogger(Encryption.class.getName());
 
-	/**
-	 * field names to encrypt/decrypt
-	 */
-	String[] fieldNames;
+  private static final String ENCRYPT = "encrypt";
+  private static final String DECRYPT = "decrypt";
 
-	/**
-	 * columns to encrypt/decrypt. use sheetName.columnName
-	 */
-	String[] columnNames;
-	/**
-	 * encrypt/decrypt
-	 */
-	String operation = ENCRYPT;
+  /** field names to encrypt/decrypt */
+  String[] fieldNames;
 
-	/*
-	 * parse columns into sheet name and column names at getReady
-	 */
-	private String[] sheetNames;
-	private String[] cols;
-	private boolean toEncrypt;
+  /** columns to encrypt/decrypt. use sheetName.columnName */
+  String[] columnNames;
+  /** encrypt/decrypt */
+  String operation = ENCRYPT;
 
-	@Override
-	protected Value doAct(ServiceContext ctx) {
-		if (this.fieldNames != null) {
-			for (String fieldName : this.fieldNames) {
-				Value value = ctx.getValue(fieldName);
-				if (value == null) {
-					Tracer.trace(fieldName + " not found in service context. Field not encrypted.");
-				} else {
-					ctx.setValue(fieldName, this.crypt(value));
-				}
-			}
-		}
-		if (this.sheetNames != null){
-			for (int i = 0; i < this.sheetNames.length; i++) {
-				String sheetName = this.sheetNames[i];
-				DataSheet ds = ctx.getDataSheet(sheetName);
-				if(ds == null){
-					Tracer.trace("Datasheet"  + sheetName + " not found in service context. " + this.columnNames[i] + " not encrypted.");
-					continue;
-				}
-				int nbrRows = ds.length();
-				if(nbrRows == 0){
-					Tracer.trace("Datasheet"  + sheetName + " has no data. " + this.columnNames[i] + " not encrypted.");
-					continue;
-				}
-				String colName = this.cols[i];
-				int colIdx = ds.getColIdx(colName);
-				if(colIdx == -1){
-					Tracer.trace("Coulmn"  + colName + " does not exist in datasheet " + sheetName + ".  " + this.columnNames[i] + " not encrypted.");
-					continue;
-				}
-				/*
-				 * replace value with crypted one
-				 */
-				for(int rowIdx = 0; rowIdx < nbrRows; rowIdx++ ){
-					Value[] row = ds.getRow(rowIdx);
-					row[colIdx] = this.crypt(row[colIdx]);
-				}
-				Tracer.trace(nbrRows + " values transformed in data sheet " + sheetName);
-			}
-		}
-		return null;
-	}
+  /*
+   * parse columns into sheet name and column names at getReady
+   */
+  private String[] sheetNames;
+  private String[] cols;
+  private boolean toEncrypt;
 
-	private Value crypt(Value value){
-		if(Value.isNull(value)){
-			return value;
-		}
-		String txt = value.toString();
-		if(this.toEncrypt){
-			txt = TextUtil.encrypt(txt);
-		}else{
-			txt = TextUtil.decrypt(txt);
-		}
-		return Value.newTextValue(txt);
-	}
+  @Override
+  protected Value doAct(ServiceContext ctx) {
+    if (this.fieldNames != null) {
+      for (String fieldName : this.fieldNames) {
+        Value value = ctx.getValue(fieldName);
+        if (value == null) {
 
-	/* (non-Javadoc)
-	 * @see org.simplity.tp.Action#getReady(int, org.simplity.tp.Service)
-	 */
-	@Override
-	public void getReady(int idx, Service service) {
-		super.getReady(idx, service);
-		if(this.operation == null){
-			throw new ApplicationError("crypto should have a value of either " + ENCRYPT + " or " + DECRYPT);
-		}
-		String text = this.operation.toLowerCase();
-		if(text.equals(ENCRYPT)){
-			this.toEncrypt = true;
-		}else if(text.equals(DECRYPT) == false){
-			throw new ApplicationError("crypto should have a value of either " + ENCRYPT + " or " + DECRYPT);
-		}
-		if(this.columnNames != null){
-			int nbrCols = this.columnNames.length;
-			this.cols = new String[nbrCols];
-			this.sheetNames = new String[nbrCols];
-			for(int i = 0; i < this.cols.length; i++){
-				String[] parts = this.sheetNames[i].split("\\.");
-				if(parts.length != 2){
-					throw new ApplicationError("columnName shoudl folloe sheetName.columnNAme convention. columnNames " + this.columnNames + " has invalid format");
-				}
-				this.cols[i] = parts[0].trim();
-				this.sheetNames[i] = parts[1].trim();
-			}
-		}
-	}
+          logger.log(Level.INFO, fieldName + " not found in service context. Field not encrypted.");
+          Tracer.trace(fieldName + " not found in service context. Field not encrypted.");
+        } else {
+          ctx.setValue(fieldName, this.crypt(value));
+        }
+      }
+    }
+    if (this.sheetNames != null) {
+      for (int i = 0; i < this.sheetNames.length; i++) {
+        String sheetName = this.sheetNames[i];
+        DataSheet ds = ctx.getDataSheet(sheetName);
+        if (ds == null) {
 
+          logger.log(
+              Level.INFO,
+              "Datasheet"
+                  + sheetName
+                  + " not found in service context. "
+                  + this.columnNames[i]
+                  + " not encrypted.");
+          Tracer.trace(
+              "Datasheet"
+                  + sheetName
+                  + " not found in service context. "
+                  + this.columnNames[i]
+                  + " not encrypted.");
+          continue;
+        }
+        int nbrRows = ds.length();
+        if (nbrRows == 0) {
+
+          logger.log(
+              Level.INFO,
+              "Datasheet" + sheetName + " has no data. " + this.columnNames[i] + " not encrypted.");
+          Tracer.trace(
+              "Datasheet" + sheetName + " has no data. " + this.columnNames[i] + " not encrypted.");
+          continue;
+        }
+        String colName = this.cols[i];
+        int colIdx = ds.getColIdx(colName);
+        if (colIdx == -1) {
+
+          logger.log(
+              Level.INFO,
+              "Coulmn"
+                  + colName
+                  + " does not exist in datasheet "
+                  + sheetName
+                  + ".  "
+                  + this.columnNames[i]
+                  + " not encrypted.");
+          Tracer.trace(
+              "Coulmn"
+                  + colName
+                  + " does not exist in datasheet "
+                  + sheetName
+                  + ".  "
+                  + this.columnNames[i]
+                  + " not encrypted.");
+          continue;
+        }
+        /*
+         * replace value with crypted one
+         */
+        for (int rowIdx = 0; rowIdx < nbrRows; rowIdx++) {
+          Value[] row = ds.getRow(rowIdx);
+          row[colIdx] = this.crypt(row[colIdx]);
+        }
+
+        logger.log(Level.INFO, nbrRows + " values transformed in data sheet " + sheetName);
+        Tracer.trace(nbrRows + " values transformed in data sheet " + sheetName);
+      }
+    }
+    return null;
+  }
+
+  private Value crypt(Value value) {
+    if (Value.isNull(value)) {
+      return value;
+    }
+    String txt = value.toString();
+    if (this.toEncrypt) {
+      txt = TextUtil.encrypt(txt);
+    } else {
+      txt = TextUtil.decrypt(txt);
+    }
+    return Value.newTextValue(txt);
+  }
+
+  /* (non-Javadoc)
+   * @see org.simplity.tp.Action#getReady(int, org.simplity.tp.Service)
+   */
+  @Override
+  public void getReady(int idx, Service service) {
+    super.getReady(idx, service);
+    if (this.operation == null) {
+      throw new ApplicationError(
+          "crypto should have a value of either " + ENCRYPT + " or " + DECRYPT);
+    }
+    String text = this.operation.toLowerCase();
+    if (text.equals(ENCRYPT)) {
+      this.toEncrypt = true;
+    } else if (text.equals(DECRYPT) == false) {
+      throw new ApplicationError(
+          "crypto should have a value of either " + ENCRYPT + " or " + DECRYPT);
+    }
+    if (this.columnNames != null) {
+      int nbrCols = this.columnNames.length;
+      this.cols = new String[nbrCols];
+      this.sheetNames = new String[nbrCols];
+      for (int i = 0; i < this.cols.length; i++) {
+        String[] parts = this.sheetNames[i].split("\\.");
+        if (parts.length != 2) {
+          throw new ApplicationError(
+              "columnName shoudl folloe sheetName.columnNAme convention. columnNames "
+                  + this.columnNames
+                  + " has invalid format");
+        }
+        this.cols[i] = parts[0].trim();
+        this.sheetNames[i] = parts[1].trim();
+      }
+    }
+  }
 }

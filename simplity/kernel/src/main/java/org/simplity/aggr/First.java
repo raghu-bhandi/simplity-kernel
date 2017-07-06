@@ -31,102 +31,97 @@ import org.simplity.service.ServiceContext;
  * number of rows
  *
  * @author simplity.org
- *
  */
 public class First implements AggregationWorker {
-	protected final String inputName;
-	protected final String outputName;
-	protected Value value;
-	/**
-	 * keep track of accumulation and throw an exception in case of concurrency
-	 * issues
-	 */
-	protected boolean inProgress;
+  protected final String inputName;
+  protected final String outputName;
+  protected Value value;
+  /** keep track of accumulation and throw an exception in case of concurrency issues */
+  protected boolean inProgress;
 
-	/**
-	 * create an an instance with the required parameters
-	 * @param inputName input name
-	 *
-	 * @param outputName
-	 *            field/column name that is to be written out as sum. non-empty,
-	 *            non-null;
-	 */
-	public First(String inputName, String outputName) {
-		this.inputName = inputName;
-		this.outputName = outputName;
-	}
+  /**
+   * create an an instance with the required parameters
+   *
+   * @param inputName input name
+   * @param outputName field/column name that is to be written out as sum. non-empty, non-null;
+   */
+  public First(String inputName, String outputName) {
+    this.inputName = inputName;
+    this.outputName = outputName;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#init(org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void init(ServiceContext ctx) {
-		if (this.inProgress) {
-			this.throwError();
-		}
-		this.inProgress = true;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#init(org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void init(ServiceContext ctx) {
+    if (this.inProgress) {
+      this.throwError();
+    }
+    this.inProgress = true;
+  }
 
-	protected void throwError() {
-		throw new ApplicationError("Aggregator instance should be ideally not re-used across aggregations."
-				+ " In case it is used, it is to be ensured that the the sequence of calls is  "
-				+ " init(), accumulate(), writeOut()/discard(), reset()");
-	}
+  protected void throwError() {
+    throw new ApplicationError(
+        "Aggregator instance should be ideally not re-used across aggregations."
+            + " In case it is used, it is to be ensured that the the sequence of calls is  "
+            + " init(), accumulate(), writeOut()/discard(), reset()");
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#accumulate(org.simplity.kernel.data.FieldsInterface,
-	 * org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void accumulate(FieldsInterface currentRow, ServiceContext ctx) {
-		if (this.inProgress == false) {
-			this.throwError();
-		}
-		if(this.value != null){
-			Value val = ctx.getValue(this.inputName);
-			if(Value.isNull(val) == false){
-				this.value = val;
-			}
-		}
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#accumulate(org.simplity.kernel.data.FieldsInterface,
+   * org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void accumulate(FieldsInterface currentRow, ServiceContext ctx) {
+    if (this.inProgress == false) {
+      this.throwError();
+    }
+    if (this.value != null) {
+      Value val = ctx.getValue(this.inputName);
+      if (Value.isNull(val) == false) {
+        this.value = val;
+      }
+    }
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#writeOut(org.simplity.kernel.data.FieldsInterface,
-	 * org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void writeOut(FieldsInterface outputRow, ServiceContext ctx) {
-		if (this.inProgress == false) {
-			this.throwError();
-		}
-		outputRow.setValue(this.outputName, this.value);
-		this.discard(ctx);
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#writeOut(org.simplity.kernel.data.FieldsInterface,
+   * org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void writeOut(FieldsInterface outputRow, ServiceContext ctx) {
+    if (this.inProgress == false) {
+      this.throwError();
+    }
+    outputRow.setValue(this.outputName, this.value);
+    this.discard(ctx);
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#reset(org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void reset(ServiceContext ctx) {
-		this.value = null;
-		this.inProgress = false;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#reset(org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void reset(ServiceContext ctx) {
+    this.value = null;
+    this.inProgress = false;
+  }
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see aggr.Aggregator#discard(org.simplity.service.ServiceContext)
-	 */
-	@Override
-	public void discard(ServiceContext ctx) {
-		this.value = null;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see aggr.Aggregator#discard(org.simplity.service.ServiceContext)
+   */
+  @Override
+  public void discard(ServiceContext ctx) {
+    this.value = null;
+  }
 }

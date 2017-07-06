@@ -22,6 +22,9 @@
 
 package org.simplity.test;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import java.util.Date;
 
 import org.simplity.json.JSONObject;
@@ -37,105 +40,107 @@ import org.simplity.service.AbstractService;
 import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceData;
 
-/**
- * @author simplity.org
- *
- */
+/** @author simplity.org */
 public class TestDt extends AbstractService {
+  static final Logger logger = Logger.getLogger(TestDt.class.getName());
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.simplity.service.ServiceInterface#respond(org.simplity.service.
-	 * ServiceData)
-	 */
-	@Override
-	public ServiceData respond(ServiceData inputData, PayloadType payloadType) {
-		String input = inputData.getPayLoad();
-		if (input == null || input.isEmpty()) {
-			input = "{}";
-		}
-		JSONObject json = new JSONObject(input);
-		JSONWriter writer = new JSONWriter();
-		writer.object();
-		int nbrOk = 0;
-		int nbrNotOk = 0;
-		for (String key : json.keySet()) {
-			DataType dt = this.getDt(key);
-			String val = json.get(key).toString();
-			/*
-			 * special case of value for a date field
-			 */
-			if (dt.getValueType() == ValueType.DATE) {
-				val = this.getDateValue(val);
-			}
-			Value parsedValue = dt.parseValue(val);
-			if (parsedValue == null) {
-				nbrNotOk++;
-				Tracer.trace("Invalid value : " + val);
-			} else {
-				nbrOk++;
-				writer.key(key);
-				writer.value(parsedValue.toObject());
-			}
-		}
-		writer.key("nbrOk");
-		writer.value(nbrOk);
-		writer.key("nbrNotOk");
-		writer.value(nbrNotOk);
-		writer.endObject();
-		ServiceData outputData = new ServiceData(inputData.getUserId(),
-				inputData.getServiceName());
-		outputData.setPayLoad(writer.toString());
-		return outputData;
-	}
+  /*
+   * (non-Javadoc)
+   *
+   * @see org.simplity.service.ServiceInterface#respond(org.simplity.service.
+   * ServiceData)
+   */
+  @Override
+  public ServiceData respond(ServiceData inputData, PayloadType payloadType) {
+    String input = inputData.getPayLoad();
+    if (input == null || input.isEmpty()) {
+      input = "{}";
+    }
+    JSONObject json = new JSONObject(input);
+    JSONWriter writer = new JSONWriter();
+    writer.object();
+    int nbrOk = 0;
+    int nbrNotOk = 0;
+    for (String key : json.keySet()) {
+      DataType dt = this.getDt(key);
+      String val = json.get(key).toString();
+      /*
+       * special case of value for a date field
+       */
+      if (dt.getValueType() == ValueType.DATE) {
+        val = this.getDateValue(val);
+      }
+      Value parsedValue = dt.parseValue(val);
+      if (parsedValue == null) {
+        nbrNotOk++;
 
-	/**
-	 * fieldName is of the form dataTypeName_something.
-	 *
-	 * @param fieldName
-	 * @return dataType, never null
-	 * @throws ApplicaitonError
-	 *             in case of malformed name, or non-existing data type name
-	 */
-	private DataType getDt(String key) {
-		int idx = key.indexOf('_');
-		if (idx == -1) {
-			throw new ApplicationError("field name " + key
-					+ " is missing _ to mark its data type.");
-		}
-		String dtName = key.substring(0, idx);
-		DataType dt = ComponentManager.getDataTypeOrNull(dtName);
-		if (dt == null) {
-			throw new ApplicationError("field name " + key + " uses " + dtName
-					+ " as its data type prefix, but that is not a valid data type.");
-		}
-		return dt;
-	}
+        logger.log(Level.INFO, "Invalid value : " + val);
+        Tracer.trace("Invalid value : " + val);
+      } else {
+        nbrOk++;
+        writer.key(key);
+        writer.value(parsedValue.toObject());
+      }
+    }
+    writer.key("nbrOk");
+    writer.value(nbrOk);
+    writer.key("nbrNotOk");
+    writer.value(nbrNotOk);
+    writer.endObject();
+    ServiceData outputData = new ServiceData(inputData.getUserId(), inputData.getServiceName());
+    outputData.setPayLoad(writer.toString());
+    return outputData;
+  }
 
-	/**
-	 * date value may be of the form +nnn or -nnn to represent number of days
-	 * after/before today.
-	 * Parse and replace the right date value in yyyy-MM-dd format.
-	 *
-	 * @param value
-	 * @return value as it is, or replaced with a date relative to today
-	 */
-	private String getDateValue(String value) {
-		if (value.isEmpty() == false) {
-			char ch = value.charAt(0);
-			if (ch == '+' || ch == '-') {
-				try {
-					int days = Integer.parseInt(value);
-					Date date = new Date();
-					date = DateUtil.addDays(date, days);
-					return DateUtil.formatDate(date);
-				} catch (Exception e) {
-					Tracer.trace("Did not parse " + value
-							+ " as special date value : " + e.getMessage());
-				}
-			}
-		}
-		return value;
-	}
+  /**
+   * fieldName is of the form dataTypeName_something.
+   *
+   * @param fieldName
+   * @return dataType, never null
+   * @throws ApplicaitonError in case of malformed name, or non-existing data type name
+   */
+  private DataType getDt(String key) {
+    int idx = key.indexOf('_');
+    if (idx == -1) {
+      throw new ApplicationError("field name " + key + " is missing _ to mark its data type.");
+    }
+    String dtName = key.substring(0, idx);
+    DataType dt = ComponentManager.getDataTypeOrNull(dtName);
+    if (dt == null) {
+      throw new ApplicationError(
+          "field name "
+              + key
+              + " uses "
+              + dtName
+              + " as its data type prefix, but that is not a valid data type.");
+    }
+    return dt;
+  }
+
+  /**
+   * date value may be of the form +nnn or -nnn to represent number of days after/before today.
+   * Parse and replace the right date value in yyyy-MM-dd format.
+   *
+   * @param value
+   * @return value as it is, or replaced with a date relative to today
+   */
+  private String getDateValue(String value) {
+    if (value.isEmpty() == false) {
+      char ch = value.charAt(0);
+      if (ch == '+' || ch == '-') {
+        try {
+          int days = Integer.parseInt(value);
+          Date date = new Date();
+          date = DateUtil.addDays(date, days);
+          return DateUtil.formatDate(date);
+        } catch (Exception e) {
+
+          logger.log(
+              Level.INFO, "Did not parse " + value + " as special date value : " + e.getMessage());
+          Tracer.trace("Did not parse " + value + " as special date value : " + e.getMessage());
+        }
+      }
+    }
+    return value;
+  }
 }
