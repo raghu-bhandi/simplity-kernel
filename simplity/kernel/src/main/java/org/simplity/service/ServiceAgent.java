@@ -321,7 +321,7 @@ public class ServiceAgent {
 						}
 					}
 				}
-				if (this.cacheManager != null && hasErrors == false) {
+				if (this.cacheManager != null && hasErrors == false && service.okToCache(inputData)) {
 					this.cacheManager.cache(inputData, response);
 				}
 			} catch (Exception e) {
