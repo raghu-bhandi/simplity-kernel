@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.value;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -41,7 +41,7 @@ import org.simplity.kernel.util.DateUtil;
  * @author simplity.org
  */
 public class TimestampValue extends Value {
-  static final Logger logger = Logger.getLogger(TimestampValue.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(TimestampValue.class);
 
   /** */
   private static final long serialVersionUID = 1L;
@@ -132,7 +132,7 @@ public class TimestampValue extends Value {
     } else {
       Timestamp dateValue = new Timestamp(this.value);
 
-      logger.log(Level.INFO, "Set set a timestamp of " + DateUtil.format(dateValue));
+      logger.info("Set set a timestamp of " + DateUtil.format(dateValue));
       Tracer.trace("Set set a timestamp of " + DateUtil.format(dateValue));
       statement.setTimestamp(idx, dateValue);
     }

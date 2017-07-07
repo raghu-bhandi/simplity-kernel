@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -42,7 +42,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Read extends DbAction {
-  static final Logger logger = Logger.getLogger(Read.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Read.class);
 
   /** qualified record name */
   String recordName;
@@ -113,7 +113,7 @@ public class Read extends DbAction {
     if (this.childRecords != null) {
       for (RelatedRecord rr : this.childRecords) {
         Record cr = ComponentManager.getRecord(rr.recordName);
-        logger.log(Level.INFO, "Going to read child record ");
+        logger.info("Going to read child record ");
         Tracer.trace("Going to read child record ");
         cr.filterForParents(outSheet, driver, rr.sheetName, this.cascadeFilterForChildren, ctx);
       }

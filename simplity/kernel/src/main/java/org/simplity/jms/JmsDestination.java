@@ -22,8 +22,8 @@
 
 package org.simplity.jms;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Enumeration;
@@ -66,7 +66,7 @@ import org.simplity.tp.InvalidRowException;
  * @author simplity.org
  */
 public class JmsDestination {
-  static final Logger logger = Logger.getLogger(JmsDestination.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(JmsDestination.class);
 
   /**
    * name of the queue (destination) used for requesting a service. This is the jndi name that is
@@ -162,7 +162,7 @@ public class JmsDestination {
       consumer = session.createConsumer(this.destination, this.messageSelector);
       String nam = this.name;
 
-      logger.log(Level.INFO, "Started consumer for destination " + nam);
+      logger.info("Started consumer for destination " + nam);
       Tracer.trace("Started consumer for destination " + nam);
       /*
        * We may not use producer at all, but an empty producer does not
@@ -179,13 +179,13 @@ public class JmsDestination {
       do {
         if (waitForMessage) {
 
-          logger.log(Level.INFO, "Looking/waiting for next message on " + nam);
+          logger.info("Looking/waiting for next message on " + nam);
           Tracer.trace("Looking/waiting for next message on " + nam);
         }
         Message msg = consumer.receive(wait);
         if (msg == null) {
 
-          logger.log(Level.INFO, "No message in " + this.name + ". Consumer will not continue;");
+          logger.info("No message in " + this.name + ". Consumer will not continue;");
           Tracer.trace("No message in " + this.name + ". Consumer will not continue;");
           /*
            * queue is shut down
@@ -219,8 +219,8 @@ public class JmsDestination {
             Message respMsg = null;
             if (responseQ == null) {
 
-              logger.log(
-                  Level.INFO,
+              logger.info(
+                  
                   "No response is specified for this consumer, but producer is asking for a reply. Sending a blank message");
               Tracer.trace(
                   "No response is specified for this consumer, but producer is asking for a reply. Sending a blank message");
@@ -314,8 +314,8 @@ public class JmsDestination {
            * some issue in the queue
            */
 
-          logger.log(
-              Level.INFO, "Response message is null. Probably some issue with the queue provider");
+          logger.info(
+               "Response message is null. Probably some issue with the queue provider");
           Tracer.trace("Response message is null. Probably some issue with the queue provider");
           return false;
         }
@@ -324,7 +324,7 @@ public class JmsDestination {
       return true;
     } catch (Exception e) {
 
-      logger.log(Level.INFO, "Error while putting mesage on to a queue. " + e.getMessage());
+      logger.info("Error while putting mesage on to a queue. " + e.getMessage());
       Tracer.trace("Error while putting mesage on to a queue. " + e.getMessage());
       return false;
     } finally {
@@ -370,7 +370,7 @@ public class JmsDestination {
         this.setHeaderFields(message, ctx, record.getFieldNames());
       } else {
 
-        logger.log(Level.INFO, "No fields specified to be added to the message.");
+        logger.info("No fields specified to be added to the message.");
         Tracer.trace("No fields specified to be added to the message.");
       }
       return message;
@@ -385,7 +385,7 @@ public class JmsDestination {
         this.setMapFields(message, ctx, record.getFieldNames());
       } else {
 
-        logger.log(Level.INFO, "No fields specified to be added Map.");
+        logger.info("No fields specified to be added Map.");
         Tracer.trace("No fields specified to be added Map.");
       }
       return message;
@@ -399,8 +399,8 @@ public class JmsDestination {
       Object object = ctx.getObject(this.bodyFieldName);
       if (object == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Service context has no object named "
                 + this.bodyFieldName
                 + ". No object assigned to message.");
@@ -438,8 +438,8 @@ public class JmsDestination {
       text = ctx.getTextValue(this.bodyFieldName);
       if (text == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "No value found for body text with field name "
                 + this.bodyFieldName
                 + ". Data not set.");
@@ -473,7 +473,7 @@ public class JmsDestination {
   public void extractMessage(Message message, ServiceContext ctx) throws JMSException {
     if (this.dataExtractor != null) {
 
-      logger.log(Level.INFO, "Using a custom class to extract data " + this.messageExtractor);
+      logger.info("Using a custom class to extract data " + this.messageExtractor);
       Tracer.trace("Using a custom class to extract data " + this.messageExtractor);
       if (message instanceof TextMessage == false) {
         throw new ApplicationError(
@@ -500,8 +500,8 @@ public class JmsDestination {
         this.extractHeaderFields(message, ctx, record.getFieldNames());
       } else {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "No fields specified to be extracted from the message. Nothing extracted. ");
         Tracer.trace("No fields specified to be extracted from the message. Nothing extracted. ");
       }
@@ -513,8 +513,8 @@ public class JmsDestination {
     if (this.messageBodyType == DataSerializationType.OBJECT) {
       if (message instanceof ObjectMessage == false) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "We expected a ObjectMessage but got "
                 + message.getClass().getSimpleName()
                 + ". No object extracted.");
@@ -527,12 +527,12 @@ public class JmsDestination {
       Object object = ((ObjectMessage) message).getObject();
       if (object == null) {
 
-        logger.log(Level.INFO, "Messaage object is null. No object extracted.");
+        logger.info("Messaage object is null. No object extracted.");
         Tracer.trace("Messaage object is null. No object extracted.");
       } else if (this.bodyFieldName == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "bodyFieldName not set, and hence the object of instance "
                 + object.getClass().getName()
                 + "  "
@@ -553,8 +553,8 @@ public class JmsDestination {
     if (this.messageBodyType == DataSerializationType.MAP) {
       if (message instanceof MapMessage == false) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "We expected a MapMessage but got "
                 + message.getClass().getSimpleName()
                 + ". No data extracted.");
@@ -574,7 +574,7 @@ public class JmsDestination {
         this.extractMapFields(ctx, msg, record.getFieldNames());
       } else {
 
-        logger.log(Level.INFO, "No directive to extract any fields from this MapMessage.");
+        logger.info("No directive to extract any fields from this MapMessage.");
         Tracer.trace("No directive to extract any fields from this MapMessage.");
       }
       return;
@@ -582,8 +582,8 @@ public class JmsDestination {
 
     if (message instanceof TextMessage == false) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "We expected a TextMessage but got "
               + message.getClass().getSimpleName()
               + ". No data extracted.");
@@ -597,7 +597,7 @@ public class JmsDestination {
     String text = ((TextMessage) message).getText();
     if (text == null) {
 
-      logger.log(Level.INFO, "Messaage text is null. No data extracted.");
+      logger.info("Messaage text is null. No data extracted.");
       Tracer.trace("Messaage text is null. No data extracted.");
       return;
     }
@@ -712,7 +712,7 @@ public class JmsDestination {
       Value val = ctx.getValue(nam);
       if (val == null) {
 
-        logger.log(Level.INFO, "No value for " + nam + ". Value not set to message header.");
+        logger.info("No value for " + nam + ". Value not set to message header.");
         Tracer.trace("No value for " + nam + ". Value not set to message header.");
       } else {
         message.setObjectProperty(nam, val.toObject());
@@ -732,7 +732,7 @@ public class JmsDestination {
       Value val = ctx.getValue(nam);
       if (val == null) {
 
-        logger.log(Level.INFO, "No value for " + nam + ". Value not set to Map.");
+        logger.info("No value for " + nam + ". Value not set to Map.");
         Tracer.trace("No value for " + nam + ". Value not set to Map.");
       } else {
         message.setObject(nam, val.toObject());
@@ -957,7 +957,7 @@ public class JmsDestination {
           session.createConsumer(
               JmsDestination.this.destination, JmsDestination.this.messageSelector);
 
-      logger.log(Level.INFO, "Started consumer for queue " + JmsDestination.this.name);
+      logger.info("Started consumer for queue " + JmsDestination.this.name);
       Tracer.trace("Started consumer for queue " + JmsDestination.this.name);
     }
 
@@ -986,8 +986,8 @@ public class JmsDestination {
       Message msg = this.consumer.receive(1);
       if (msg == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "No more messages in "
                 + JmsDestination.this.name
                 + ". Queue consumer will not continue;");

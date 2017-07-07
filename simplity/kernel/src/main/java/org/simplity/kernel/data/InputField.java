@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.json.JSONArray;
 import org.simplity.kernel.ApplicationError;
@@ -37,7 +37,7 @@ import org.simplity.service.ServiceContext;
 
 /** data structure that holds name and data type of an input/output field. */
 public class InputField {
-  static final Logger logger = Logger.getLogger(InputField.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(InputField.class);
 
   /** name */
   String name;
@@ -130,7 +130,7 @@ public class InputField {
       value = this.defaultObject;
       if (value == null && this.isRequired) {
 
-        logger.log(Level.INFO, this.name + " failed mandatory criterion");
+        logger.info(this.name + " failed mandatory criterion");
         Tracer.trace(this.name + " failed mandatory criterion");
         ctx.addMessage(Messages.VALUE_REQUIRED, this.name);
         return false;
@@ -271,7 +271,7 @@ public class InputField {
    */
   private boolean validationError(String value, int idx, ServiceContext ctx) {
 
-    logger.log(Level.INFO, this.name + " failed validation against data type " + this.dataType);
+    logger.info(this.name + " failed validation against data type " + this.dataType);
     Tracer.trace(this.name + " failed validation against data type " + this.dataType);
     String msg = this.dataTypeObject.getMessageName();
     if (msg != null) {

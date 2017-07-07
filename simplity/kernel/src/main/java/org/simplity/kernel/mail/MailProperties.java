@@ -1,14 +1,14 @@
 package org.simplity.kernel.mail;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 
 import org.simplity.kernel.Tracer;
 
 public class MailProperties {
-  static final Logger logger = Logger.getLogger(MailProperties.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(MailProperties.class);
 
   protected String host;
   protected String port;
@@ -17,7 +17,7 @@ public class MailProperties {
 
   public static void initialSetup(MailProperties mailProperties) {
 
-    logger.log(Level.INFO, "Setting up the Mail Agent");
+    logger.info("Setting up the Mail Agent");
     Tracer.trace("Setting up the Mail Agent");
     props = new Properties();
     props.setProperty("mail.smtp.host", mailProperties.host);

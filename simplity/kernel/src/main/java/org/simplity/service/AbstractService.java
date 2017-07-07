@@ -22,8 +22,8 @@
 
 package org.simplity.service;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageBox;
@@ -38,7 +38,7 @@ import org.simplity.kernel.value.Value;
 
 /** @author simplity.org */
 public abstract class AbstractService implements ServiceInterface {
-  static final Logger logger = Logger.getLogger(AbstractService.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(AbstractService.class);
 
   /*
    * (non-Javadoc)
@@ -104,8 +104,8 @@ public abstract class AbstractService implements ServiceInterface {
   public Value executeAsAction(
       ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction) {
 
-    logger.log(
-        Level.INFO, "Service " + this.getQualifiedName() + " is run as sub-service action..");
+    logger.info(
+         "Service " + this.getQualifiedName() + " is run as sub-service action..");
     Tracer.trace("Service " + this.getQualifiedName() + " is run as sub-service action..");
     return Value.VALUE_TRUE;
   }
@@ -202,14 +202,14 @@ public abstract class AbstractService implements ServiceInterface {
     String payload = inData.getPayLoad();
     if (payload == null) {
 
-      logger.log(Level.INFO, "No input from client");
+      logger.info("No input from client");
       Tracer.trace("No input from client");
       return ctx;
     }
 
     JsonUtil.extractAll(payload, ctx);
 
-    logger.log(Level.INFO, ctx.getAllFields().size() + " fields extracted ");
+    logger.info(ctx.getAllFields().size() + " fields extracted ");
     Tracer.trace(ctx.getAllFields().size() + " fields extracted ");
     return ctx;
   }

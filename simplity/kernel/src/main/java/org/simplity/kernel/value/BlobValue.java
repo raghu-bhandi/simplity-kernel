@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.value;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,7 +44,7 @@ import org.simplity.kernel.file.FileManager;
  * @author simplity.org
  */
 public class BlobValue extends TextValue {
-  static final Logger logger = Logger.getLogger(BlobValue.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(BlobValue.class);
 
   /** */
   private static final long serialVersionUID = 1L;
@@ -92,8 +92,8 @@ public class BlobValue extends TextValue {
     File file = FileManager.getTempFile(this.value);
     if (file == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Unable to get temp file content for key "
               + this.value
               + " RDBMS will have null for this Blob.");
@@ -104,7 +104,7 @@ public class BlobValue extends TextValue {
       return null;
     }
 
-    logger.log(Level.INFO, "Got file " + file.getPath() + " of size " + file.length());
+    logger.info("Got file " + file.getPath() + " of size " + file.length());
     Tracer.trace("Got file " + file.getPath() + " of size " + file.length());
     InputStream in = null;
     OutputStream out = null;
@@ -136,7 +136,7 @@ public class BlobValue extends TextValue {
      * we want to do this after closing all streams
      */
 
-    logger.log(Level.INFO, "We created a blob of length " + blob.length());
+    logger.info("We created a blob of length " + blob.length());
     Tracer.trace("We created a blob of length " + blob.length());
     return blob;
   }

@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.value;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -119,7 +119,7 @@ public enum ValueType {
           val = Long.parseLong(dbObject.toString());
         } catch (Exception e) {
 
-          logger.log(Level.INFO, dbObject.toString() + " is an invalid number.");
+          logger.info(dbObject.toString() + " is an invalid number.");
           Tracer.trace(dbObject.toString() + " is an invalid number.");
           return null;
         }
@@ -174,7 +174,7 @@ public enum ValueType {
           val = Double.parseDouble(dbObject.toString());
         } catch (Exception e) {
 
-          logger.log(Level.INFO, dbObject.toString() + " is an invalid number.");
+          logger.info(dbObject.toString() + " is an invalid number.");
           Tracer.trace(dbObject.toString() + " is an invalid number.");
           return null;
         }
@@ -190,7 +190,7 @@ public enum ValueType {
       for (int i = 0; i < n; i++) {
         result[i] = Value.newDecimalValue(vals[i].doubleValue());
 
-        logger.log(Level.INFO, arr[i] + " got extracted into " + result[i]);
+        logger.info(arr[i] + " got extracted into " + result[i]);
         Tracer.trace(arr[i] + " got extracted into " + result[i]);
       }
       return result;
@@ -462,7 +462,7 @@ public enum ValueType {
         return Value.newUnknownValue(INTEGER);
       }
 
-      logger.log(Level.INFO, "Extracted a time stamp " + ts + " and nanos = " + ts.getNanos());
+      logger.info("Extracted a time stamp " + ts + " and nanos = " + ts.getNanos());
       Tracer.trace("Extracted a time stamp " + ts + " and nanos = " + ts.getNanos());
       long val = ts.getTime() * 1000 + ts.getNanos();
       return Value.newIntegerValue(val);
@@ -510,7 +510,7 @@ public enum ValueType {
       return result;
     }
   };
-  static final Logger logger = Logger.getLogger(ValueType.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ValueType.class);
 
   protected static final String NULL = "null";
   protected static final char ZERO = '0';
@@ -583,7 +583,7 @@ public enum ValueType {
    */
   public Value[] toValues(Object[] arr) {
 
-    logger.log(Level.INFO, "Going to convert " + arr.length + " objects into " + this.name());
+    logger.info("Going to convert " + arr.length + " objects into " + this.name());
     Tracer.trace("Going to convert " + arr.length + " objects into " + this.name());
     int n = arr.length;
     Value[] result = new Value[n];
@@ -602,8 +602,8 @@ public enum ValueType {
   public Value parseObject(Object object) {
     if (object == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Parse Object received null for type "
               + this.name()
               + ". Client may receive null or empty string depending on the setting.");

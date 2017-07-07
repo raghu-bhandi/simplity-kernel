@@ -21,8 +21,8 @@
  */
 package org.simplity.rest;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -51,7 +51,7 @@ import org.simplity.service.ServiceData;
  * @author simplity.org
  */
 public class RestAgent {
-  static final Logger logger = Logger.getLogger(RestAgent.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(RestAgent.class);
 
   private static final String UTF = "UTF-8";
 
@@ -83,7 +83,7 @@ public class RestAgent {
      */
     String path = URLDecoder.decode(req.getRequestURI(), UTF);
 
-    logger.log(Level.INFO, "Started serving URI=" + path);
+    logger.info("Started serving URI=" + path);
     Tracer.trace("Started serving URI=" + path);
     /*
      * path now is set to /app1/subapp/a/b/c
@@ -98,14 +98,14 @@ public class RestAgent {
        * this should never happen though..
        */
 
-      logger.log(Level.INFO, "oooooops. URI is shorter than contextpath ???");
+      logger.info("oooooops. URI is shorter than contextpath ???");
       Tracer.trace("oooooops. URI is shorter than contextpath ???");
       path = "";
     } else {
       path = path.substring(idx);
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Going to use path=" + path + " for mapping this request to an operation/service");
       Tracer.trace(
           "Going to use path=" + path + " for mapping this request to an operation/service");
@@ -129,22 +129,22 @@ public class RestAgent {
 
     if (messages.size() > 0) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Input data has validation errors. Responding back without calling the service");
       Tracer.trace("Input data has validation errors. Responding back without calling the service");
       operation.writeResponse(resp, messages.toArray(new FormattedMessage[0]));
       return;
     }
 
-    logger.log(Level.INFO, "Request received for service " + serviceName);
+    logger.info("Request received for service " + serviceName);
     Tracer.trace("Request received for service " + serviceName);
     FormattedMessage message = null;
     //TODO : get user ID
     Value userId = Value.newTextValue("100");
     ServiceData inData = new ServiceData(userId, serviceName);
 
-    logger.log(Level.INFO, "Parsed JSON is \n" + json.toString(2));
+    logger.info("Parsed JSON is \n" + json.toString(2));
     Tracer.trace("Parsed JSON is \n" + json.toString(2));
     inData.setPayLoad(json.toString());
     /*

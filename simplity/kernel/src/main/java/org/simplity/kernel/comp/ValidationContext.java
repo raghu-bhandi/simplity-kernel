@@ -22,8 +22,8 @@
 
 package org.simplity.kernel.comp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +48,7 @@ import org.simplity.tp.Service;
 
 /** @author simplity.org */
 public class ValidationContext {
-  static final Logger logger = Logger.getLogger(ValidationContext.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ValidationContext.class);
 
   /*
    * header for message and observations
@@ -350,7 +350,7 @@ public class ValidationContext {
     for (String file : FileManager.getResources(folder)) {
       if (file.endsWith(".xml") == false) {
 
-        logger.log(Level.INFO, "Skipping Non-resource " + file);
+        logger.info("Skipping Non-resource " + file);
         Tracer.trace("Skipping Non-resource " + file);
         continue;
       }
@@ -379,12 +379,12 @@ public class ValidationContext {
     for (String file : FileManager.getResources(folder)) {
       if (file.endsWith(".xml") == false) {
 
-        logger.log(Level.INFO, "Skipping Non-resource " + file);
+        logger.info("Skipping Non-resource " + file);
         Tracer.trace("Skipping Non-resource " + file);
         continue;
       }
 
-      logger.log(Level.INFO, "Going to load components from " + file + " for validation");
+      logger.info("Going to load components from " + file + " for validation");
       Tracer.trace("Going to load components from " + file + " for validation");
       try {
         XmlUtil.xmlToCollection(file, comps, cls.getPackage().getName() + '.');

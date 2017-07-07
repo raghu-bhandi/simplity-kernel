@@ -22,8 +22,8 @@
  */
 package org.simplity.rest;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 
@@ -42,7 +42,7 @@ import org.simplity.kernel.file.FileManager;
  * @author simplity.org
  */
 public class Startup extends HttpServlet {
-  static final Logger logger = Logger.getLogger(Startup.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Startup.class);
 
   private static final long serialVersionUID = 1L;
   /**
@@ -80,27 +80,26 @@ public class Startup extends HttpServlet {
       try {
         folder = ctx.getResource(folder).getPath();
 
-        logger.log(Level.INFO, "Root folder is set using recource to " + folder);
+        logger.info("Root folder is set using recource to " + folder);
         Tracer.trace("Root folder is set using recource to " + folder);
       } catch (MalformedURLException e) {
 
-        logger.log(Level.SEVERE, "Error while getting root folder path from servlet context", e);
+    	  logger.error( "Error while getting root folder path from servlet context", e);
         Tracer.trace(e, "Error while getting root folder path from servlet context");
       }
     } else {
 
-      logger.log(Level.INFO, "Root folder is set to " + folder + " as a web parameter.");
+      logger.info("Root folder is set to " + folder + " as a web parameter.");
       Tracer.trace("Root folder is set to " + folder + " as a web parameter.");
     }
 
-    logger.log(Level.INFO, "Going to bootstrap Application with comp folder at " + folder);
+    logger.info("Going to bootstrap Application with comp folder at " + folder);
     Tracer.trace("Going to bootstrap Application with comp folder at " + folder);
     try {
       Application.bootStrap(folder);
     } catch (Exception e) {
 
-      logger.log(
-          Level.SEVERE,
+    	logger.error(
           "Unable to bootstrap Application using resource folder "
               + folder
               + ". Application will not work.",
@@ -127,27 +126,26 @@ public class Startup extends HttpServlet {
       try {
         folder = ctx.getResource(folder).getPath();
 
-        logger.log(Level.INFO, "API folder is set to " + folder);
+        logger.info("API folder is set to " + folder);
         Tracer.trace("API folder is set to " + folder);
       } catch (MalformedURLException e) {
 
-        logger.log(Level.SEVERE, "Error while getting folder path from servlet context", e);
+    	  logger.error("Error while getting folder path from servlet context", e);
         Tracer.trace(e, "Error while getting folder path from servlet context");
       }
     } else {
 
-      logger.log(Level.INFO, "API folder is set to " + folder + " as a web parameter.");
+      logger.info("API folder is set to " + folder + " as a web parameter.");
       Tracer.trace("API folder is set to " + folder + " as a web parameter.");
     }
 
-    logger.log(Level.INFO, "Going to load apis from " + folder);
+    logger.info("Going to load apis from " + folder);
     Tracer.trace("Going to load apis from " + folder);
     try {
       Operations.loadAll(folder);
     } catch (Exception e) {
 
-      logger.log(
-          Level.SEVERE,
+    	logger.error(
           "Unable to load APIs from folder " + folder + ". Application will not work.",
           e);
       Tracer.trace(e, "Unable to load APIs from folder " + folder + ". Application will not work.");

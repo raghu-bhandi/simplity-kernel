@@ -22,8 +22,8 @@
 
 package org.simplity.rest;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ import org.simplity.kernel.Tracer;
  * @author simplity.org
  */
 public class PathNode {
-  static final Logger logger = Logger.getLogger(PathNode.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(PathNode.class);
 
   /** non-null only if this this node is for a field */
   private String fieldName = null;
@@ -74,7 +74,7 @@ public class PathNode {
     this.pathPrefix = pathPrefix;
     this.moduleName = moduleName;
 
-    logger.log(Level.INFO, "Node created with prefix=" + pathPrefix);
+    logger.info("Node created with prefix=" + pathPrefix);
     Tracer.trace("Node created with prefix=" + pathPrefix);
   }
 
@@ -93,8 +93,8 @@ public class PathNode {
       this.fieldName = fieldName;
       this.fieldChild = new PathNode(this, this.pathPrefix, moduleName);
 
-      logger.log(
-          Level.INFO, "field-child added at " + this.pathPrefix + " with field name=" + fieldName);
+      logger.info(
+           "field-child added at " + this.pathPrefix + " with field name=" + fieldName);
       Tracer.trace("field-child added at " + this.pathPrefix + " with field name=" + fieldName);
     } else if (this.fieldName.equals(fieldName) == false) {
       /*
@@ -133,7 +133,7 @@ public class PathNode {
       child = new PathNode(this, prefix, moduleName);
       this.children.put(pathPart, child);
 
-      logger.log(Level.INFO, "New Child added at " + this.pathPrefix + " for sub path " + pathPart);
+      logger.info("New Child added at " + this.pathPrefix + " for sub path " + pathPart);
       Tracer.trace("New Child added at " + this.pathPrefix + " for sub path " + pathPart);
     }
     return child;
@@ -164,7 +164,7 @@ public class PathNode {
   public void setPathSpec(JSONObject methods) {
     if (this.operations != null) {
 
-      logger.log(Level.INFO, "Duplicate spec for path /" + this.pathPrefix);
+      logger.info("Duplicate spec for path /" + this.pathPrefix);
       Tracer.trace("Duplicate spec for path /" + this.pathPrefix);
       return;
     }
@@ -188,8 +188,8 @@ public class PathNode {
       }
       this.operations.put(method, new Operation(obj, serviceName));
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Service spec added at prefix="
               + this.pathPrefix
               + " for method="

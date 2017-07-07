@@ -22,8 +22,8 @@
 
 package org.simplity.job;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +37,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public abstract class ScheduledJob {
-  static final Logger logger = Logger.getLogger(ScheduledJob.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ScheduledJob.class);
 
   /** due at value to denote that this job will nt submit again */
   public static final int NEVER = -1;
@@ -60,7 +60,7 @@ public abstract class ScheduledJob {
   public boolean schedule(ScheduledExecutorService executor) {
     if (this.isScheduled) {
 
-      logger.log(Level.INFO, this.scheduledJob.name + " is already scheduled");
+      logger.info(this.scheduledJob.name + " is already scheduled");
       Tracer.trace(this.scheduledJob.name + " is already scheduled");
       return false;
     }
@@ -94,8 +94,8 @@ public abstract class ScheduledJob {
 
   private void noChange() {
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
     Tracer.trace(
         "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");

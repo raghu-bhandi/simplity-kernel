@@ -22,8 +22,8 @@
 
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Application;
 import org.simplity.kernel.Tracer;
@@ -39,7 +39,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Synchronizer extends Action {
-  static final Logger logger = Logger.getLogger(Synchronizer.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Synchronizer.class);
 
   /** is there something to be done before spawning thread for child-actions? */
   Action initialAction;
@@ -63,8 +63,8 @@ public class Synchronizer extends Action {
       Value result = this.initialAction.act(ctx, driver);
       if (Value.intepretAsBoolean(result) == false) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "initialAction of Synchronizer has returned a value of "
                 + result
                 + " and hence the asynch actions are not executed");
@@ -76,7 +76,7 @@ public class Synchronizer extends Action {
       }
     }
 
-    logger.log(Level.INFO, "Going to create child-actions in prallel.");
+    logger.info("Going to create child-actions in prallel.");
     Tracer.trace("Going to create child-actions in prallel.");
     Thread[] threads = new Thread[this.actions.length];
     AsynchWorker[] workers = new AsynchWorker[this.actions.length];
@@ -90,8 +90,8 @@ public class Synchronizer extends Action {
       i++;
     }
 
-    logger.log(
-        Level.INFO, "Parallel actions created. Waiting for all of them to finish their job.");
+    logger.info(
+         "Parallel actions created. Waiting for all of them to finish their job.");
     Tracer.trace("Parallel actions created. Waiting for all of them to finish their job.");
     for (Thread thread : threads) {
       try {
@@ -100,13 +100,13 @@ public class Synchronizer extends Action {
         }
       } catch (InterruptedException e) {
 
-        logger.log(
-            Level.INFO, "One of the threads got interrupted for Synchronizer " + this.actionName);
+        logger.info(
+             "One of the threads got interrupted for Synchronizer " + this.actionName);
         Tracer.trace("One of the threads got interrupted for Synchronizer " + this.actionName);
       }
     }
 
-    logger.log(Level.INFO, "All child-actions returned");
+    logger.info("All child-actions returned");
     Tracer.trace("All child-actions returned");
     if (this.finalAction != null) {
       return this.finalAction.act(ctx, driver);

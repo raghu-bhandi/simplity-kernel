@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
@@ -54,7 +54,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class MultiRowsSheet implements DataSheet {
-  static final Logger logger = Logger.getLogger(MultiRowsSheet.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(MultiRowsSheet.class);
 
   /**
    * data is organized as a list (rows) of column values(array). This is because we expect rows to
@@ -308,8 +308,8 @@ public class MultiRowsSheet implements DataSheet {
       return this.data.get(zeroBasedRowNumber)[idx];
     } catch (Exception e) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Request to get value for column"
               + columnName
               + " and index "
@@ -434,15 +434,15 @@ public class MultiRowsSheet implements DataSheet {
     Value[] values = new Value[nbr];
     if (nbr == 0) {
 
-      logger.log(Level.INFO, "getColumn values is returning empty array as there are no data");
+      logger.info("getColumn values is returning empty array as there are no data");
       Tracer.trace("getColumn values is returning empty array as there are no data");
       return values;
     }
     Integer n = this.columnIndexes.get(columnName);
     if (n == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           columnName
               + " is not a column in the sheet and hence null values are returned for getColumnValues()");
       Tracer.trace(
@@ -538,7 +538,7 @@ public class MultiRowsSheet implements DataSheet {
   @Override
   public void trace() {
 
-    logger.log(Level.INFO, this.toString("\t", "\n"));
+    logger.info(this.toString("\t", "\n"));
     Tracer.trace(this.toString("\t", "\n"));
   }
 
@@ -626,7 +626,7 @@ public class MultiRowsSheet implements DataSheet {
       i++;
     }
 
-    logger.log(Level.INFO, "We did not find column " + columnName + " in this multi-row sheet");
+    logger.info("We did not find column " + columnName + " in this multi-row sheet");
     Tracer.trace("We did not find column " + columnName + " in this multi-row sheet");
     return -1;
   }

@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
@@ -46,7 +46,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class ReplaceAttachment extends DbAction {
-  static final Logger logger = Logger.getLogger(ReplaceAttachment.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ReplaceAttachment.class);
 
   /** rdbms table that has this column */
   String recordName;
@@ -72,8 +72,8 @@ public class ReplaceAttachment extends DbAction {
     int res = driver.extractFromSql(this.selectSql, values, outData, true);
     if (res == 0) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "No row found while reading from record "
               + this.recordName
               + " for key value "

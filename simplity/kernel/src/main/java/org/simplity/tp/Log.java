@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -39,7 +39,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Log extends Action {
-  static final Logger logger = Logger.getLogger(Log.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Log.class);
 
   /** field/table names to be logged */
   String[] names;
@@ -54,14 +54,14 @@ public class Log extends Action {
       return Value.VALUE_TRUE;
     }
 
-    logger.log(Level.INFO, "Values at log action " + this.actionName);
+    logger.info("Values at log action " + this.actionName);
     Tracer.trace("Values at log action " + this.actionName);
     boolean found = false;
     for (String nam : this.names) {
       if (ctx.hasValue(nam)) {
         found = true;
 
-        logger.log(Level.INFO, nam + " = " + ctx.getValue(nam));
+        logger.info(nam + " = " + ctx.getValue(nam));
         Tracer.trace(nam + " = " + ctx.getValue(nam));
       }
       if (ctx.hasDataSheet(nam)) {
@@ -70,7 +70,7 @@ public class Log extends Action {
       }
       if (!found) {
 
-        logger.log(Level.INFO, nam + " is not a field or sheet name");
+        logger.info(nam + " is not a field or sheet name");
         Tracer.trace(nam + " is not a field or sheet name");
       }
     }
@@ -80,13 +80,13 @@ public class Log extends Action {
   private void logAll(ServiceContext ctx) {
     for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
 
-      logger.log(Level.INFO, entry.getKey() + " = " + entry.getValue());
+      logger.info(entry.getKey() + " = " + entry.getValue());
       Tracer.trace(entry.getKey() + " = " + entry.getValue());
     }
     JSONWriter writer = new JSONWriter();
     writer.object();
 
-    logger.log(Level.INFO, "Data Sheets = ");
+    logger.info("Data Sheets = ");
     Tracer.trace("Data Sheets = ");
     for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
       writer.key(entry.getKey());

@@ -22,8 +22,8 @@
 
 package org.simplity.job;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
@@ -39,7 +39,7 @@ import org.simplity.service.ServiceInterface;
  * @author simplity.org
  */
 public class RunningJob implements Runnable {
-  static final Logger logger = Logger.getLogger(RunningJob.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(RunningJob.class);
 
   private final ServiceInterface service;
   private final ServiceData inData;
@@ -70,16 +70,16 @@ public class RunningJob implements Runnable {
      */
     this.jobStatus = JobStatus.RUNNING;
 
-    logger.log(Level.INFO, "Job status set to  " + this.jobStatus);
+    logger.info("Job status set to  " + this.jobStatus);
     Tracer.trace("Job status set to  " + this.jobStatus);
     try {
       this.service.respond(this.inData, PayloadType.JSON);
 
-      logger.log(Level.INFO, "Service " + this.service.getQualifiedName() + " is done..");
+      logger.info("Service " + this.service.getQualifiedName() + " is done..");
       Tracer.trace("Service " + this.service.getQualifiedName() + " is done..");
       this.jobStatus = JobStatus.DONE;
 
-      logger.log(Level.INFO, "Reset to  " + this.jobStatus);
+      logger.info("Reset to  " + this.jobStatus);
       Tracer.trace("Reset to  " + this.jobStatus);
     } catch (Exception e) {
       this.jobStatus = JobStatus.FAILED;

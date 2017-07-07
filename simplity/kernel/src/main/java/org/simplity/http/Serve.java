@@ -22,8 +22,8 @@
  */
 package org.simplity.http;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -43,7 +43,7 @@ import org.simplity.kernel.Tracer;
  * @author simplity.org
  */
 public class Serve extends HttpServlet {
-  static final Logger logger = Logger.getLogger(Serve.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Serve.class);
 
   /*
    * we may have to co-exist with other application. It is possible that our
@@ -66,13 +66,13 @@ public class Serve extends HttpServlet {
     if (succeeded) {
       startedUp = true;
 
-      logger.log(Level.INFO, "Web Agent is given a green signal by Startup to start serving.");
+      logger.info("Web Agent is given a green signal by Startup to start serving.");
       Tracer.trace("Web Agent is given a green signal by Startup to start serving.");
     } else {
       startUpFailed = true;
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Web agent Serve will not be available on this server as Startup reported a failure on boot-strap.");
       Tracer.trace(
           "Web agent Serve will not be available on this server as Startup reported a failure on boot-strap.");
@@ -102,7 +102,7 @@ public class Serve extends HttpServlet {
     } catch (Exception e) {
       String msg = "We have an internal error. ";
 
-      logger.log(Level.SEVERE, msg, e);
+      logger.error(msg, e);
       Tracer.trace(e, msg);
       this.reportError(resp, msg + e.getMessage());
     }
@@ -120,7 +120,7 @@ public class Serve extends HttpServlet {
 
   private void reportError(HttpServletResponse resp, String msg) throws IOException {
 
-    logger.log(Level.INFO, msg);
+    logger.info(msg);
     Tracer.trace(msg);
     FormattedMessage message = new FormattedMessage("internalerror", MessageType.ERROR, msg);
     FormattedMessage[] messages = {message};

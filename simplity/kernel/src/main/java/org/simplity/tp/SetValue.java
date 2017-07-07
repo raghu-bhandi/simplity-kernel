@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -40,7 +40,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class SetValue extends Action {
-  static final Logger logger = Logger.getLogger(SetValue.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(SetValue.class);
 
   /** field name */
   String fieldName;
@@ -78,7 +78,7 @@ public class SetValue extends Action {
       }
     } else {
 
-      logger.log(Level.INFO, "Field " + this.fieldName + " is removed from context");
+      logger.info("Field " + this.fieldName + " is removed from context");
       Tracer.trace("Field " + this.fieldName + " is removed from context");
     }
     ctx.setValue(this.fieldName, value);

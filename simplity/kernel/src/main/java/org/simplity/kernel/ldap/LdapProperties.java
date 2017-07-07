@@ -1,7 +1,7 @@
 package org.simplity.kernel.ldap;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Hashtable;
 
@@ -13,7 +13,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
 
 public class LdapProperties {
-  static final Logger logger = Logger.getLogger(LdapProperties.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(LdapProperties.class);
 
   protected static String factory;
   protected static String ldapurl;
@@ -56,8 +56,8 @@ public class LdapProperties {
       ctx = new InitialDirContext(env);
     } catch (NamingException e) {
 
-      logger.log(
-          Level.INFO, "Unable to connect the LDAP, Authentication failed ;" + e.getMessage());
+      logger.info(
+           "Unable to connect the LDAP, Authentication failed ;" + e.getMessage());
       Tracer.trace("Unable to connect the LDAP, Authentication failed ;" + e.getMessage());
     }
     return ctx;

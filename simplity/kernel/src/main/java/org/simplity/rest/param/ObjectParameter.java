@@ -22,8 +22,8 @@
 
 package org.simplity.rest.param;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +40,7 @@ import org.simplity.rest.Tags;
 
 /** @author simplity.org */
 public class ObjectParameter extends Parameter {
-  static final Logger logger = Logger.getLogger(ObjectParameter.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ObjectParameter.class);
 
   private Parameter[] items;
   private boolean uniqueItem;
@@ -130,8 +130,8 @@ public class ObjectParameter extends Parameter {
     int len = result.length();
     if (len < this.minItems || (this.maxItems != 0 && len > this.maxItems)) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           this.name
               + " has "
               + len
@@ -162,8 +162,8 @@ public class ObjectParameter extends Parameter {
         for (int j = i + 1; j < keys.length; j++) {
           if (result.get(keys[i]).equals(result.get(keys[j]))) {
 
-            logger.log(
-                Level.INFO,
+            logger.info(
+                
                 this.name
                     + " has to have unique values, but "
                     + keys[i]

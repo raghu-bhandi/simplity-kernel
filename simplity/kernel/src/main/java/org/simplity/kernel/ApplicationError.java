@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
 
@@ -41,7 +41,7 @@ import java.sql.SQLException;
  * @author simplity.org
  */
 public class ApplicationError extends RuntimeException {
-  static final Logger logger = Logger.getLogger(ApplicationError.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ApplicationError.class);
 
   protected static final long serialVersionUID = 1L;
   protected String msg;
@@ -63,7 +63,7 @@ public class ApplicationError extends RuntimeException {
    */
   public ApplicationError(Exception e, String msg) {
 
-    logger.log(Level.SEVERE, msg, e);
+	  logger.error( msg, e);
     Tracer.trace(e, msg);
     if (e instanceof SQLException) {
       this.msg = this.getSqlMessage((SQLException) e);
@@ -77,7 +77,7 @@ public class ApplicationError extends RuntimeException {
     for (Throwable t : e) {
       sbf.append(t.getMessage()).append('\n');
 
-      logger.log(Level.INFO, e.getMessage());
+      logger.info(e.getMessage());
       Tracer.trace(e.getMessage());
     }
     return sbf.toString();

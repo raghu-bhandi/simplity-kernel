@@ -22,8 +22,8 @@
 
 package org.simplity.kernel.dt;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Types;
 import java.util.Arrays;
@@ -41,7 +41,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class DataTypeSuggester {
-  static final Logger logger = Logger.getLogger(DataTypeSuggester.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(DataTypeSuggester.class);
 
   /*
    * lengths of available text data types in increasing order
@@ -68,8 +68,8 @@ public class DataTypeSuggester {
     int n = types.size();
     if (n == 0) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "There are no text data types to suggest from. we will ALWAYS suggest default one.");
       Tracer.trace(
           "There are no text data types to suggest from. we will ALWAYS suggest default one.");
@@ -151,8 +151,8 @@ public class DataTypeSuggester {
         return ValueType.CLOB.getDefaultDataType();
 
       default:
-        logger.log(
-            Level.INFO, "we do not support SqlType " + sqlTypeText + " for a column in a table.");
+        logger.info(
+             "we do not support SqlType " + sqlTypeText + " for a column in a table.");
         Tracer.trace("we do not support SqlType " + sqlTypeText + " for a column in a table.");
         /*
          * we set the data type to te sql type so that the user gets an

@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.file;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +35,7 @@ import org.simplity.kernel.Tracer;
 
 /** we use a designated folder to save all attachments */
 public class FileBasedAssistant implements AttachmentAssistant {
-  static final Logger logger = Logger.getLogger(FileBasedAssistant.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(FileBasedAssistant.class);
 
   private final File storageRoot;
 
@@ -82,7 +82,7 @@ public class FileBasedAssistant implements AttachmentAssistant {
     File file = FileManager.getTempFile(tempKey);
     if (file == null) {
 
-      logger.log(Level.INFO, "No temp file found for key " + tempKey);
+      logger.info("No temp file found for key " + tempKey);
       Tracer.trace("No temp file found for key " + tempKey);
       return null;
     }
@@ -95,7 +95,7 @@ public class FileBasedAssistant implements AttachmentAssistant {
       return key;
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "Error while storing temp file " + tempKey, e);
+    	logger.error( "Error while storing temp file " + tempKey, e);
       Tracer.trace(e, "Error while storing temp file " + tempKey);
       return null;
     } finally {
@@ -119,7 +119,7 @@ public class FileBasedAssistant implements AttachmentAssistant {
     File file = new File(this.storageRoot, storageKey);
     if (file.exists() == false) {
 
-      logger.log(Level.INFO, "Invalid storage key requested : " + storageKey);
+      logger.info("Invalid storage key requested : " + storageKey);
       Tracer.trace("Invalid storage key requested : " + storageKey);
       return null;
     }
@@ -129,8 +129,7 @@ public class FileBasedAssistant implements AttachmentAssistant {
       return FileManager.createTempFile(in).getName();
     } catch (Exception e) {
 
-      logger.log(
-          Level.SEVERE,
+    	logger.error(
           "error while copying permanent storage with key " + storageKey + " to temp area",
           e);
       Tracer.trace(

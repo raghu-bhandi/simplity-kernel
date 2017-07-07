@@ -22,8 +22,8 @@
 
 package org.simplity.ide;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -37,7 +37,7 @@ import org.simplity.kernel.value.ValueType;
 
 /** @author simplity.org */
 public class SampleFunction implements Function {
-  static final Logger logger = Logger.getLogger(SampleFunction.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(SampleFunction.class);
 
   private static final String MY_FULL_NAME = "james.bond";
   private static final String MY_NAME = "bond";
@@ -82,8 +82,8 @@ public class SampleFunction implements Function {
   @Override
   public Value execute(Value[] arguments, FieldsInterface data) {
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         MY_FULL_NAME
             + " called with "
             + (arguments == null ? -1 : arguments.length)
@@ -106,7 +106,7 @@ public class SampleFunction implements Function {
     Value val1 = arguments[0];
     if (Value.isNull(val1) || val1.getValueType() != ValueType.TEXT) {
 
-      logger.log(Level.INFO, "Trouble with 1 " + val1);
+      logger.info("Trouble with 1 " + val1);
       Tracer.trace("Trouble with 1 " + val1);
       this.oops();
       return null;
@@ -115,7 +115,7 @@ public class SampleFunction implements Function {
     Value val2 = arguments[1];
     if (Value.isNull(val2) || val2.getValueType() != ValueType.INTEGER) {
 
-      logger.log(Level.INFO, "Trouble with 2 " + val2.getValueType() + "");
+      logger.info("Trouble with 2 " + val2.getValueType() + "");
       Tracer.trace("Trouble with 2 " + val2.getValueType() + "");
       this.oops();
       return null;

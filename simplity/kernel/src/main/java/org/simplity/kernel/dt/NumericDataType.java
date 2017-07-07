@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel.dt;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
@@ -39,7 +39,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class NumericDataType extends DataType {
-  static final Logger logger = Logger.getLogger(NumericDataType.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(NumericDataType.class);
 
   /** min digits before decimal places required for this value */
   long minValue = Long.MIN_VALUE;
@@ -180,7 +180,7 @@ public class NumericDataType extends DataType {
       return String.format("%." + this.nbrFractionDigits + "f", new Double(value.toDecimal()));
     } catch (InvalidValueException e) {
 
-      logger.log(Level.INFO, "Numeric data type is asked to format " + value.getValueType());
+      logger.info("Numeric data type is asked to format " + value.getValueType());
       Tracer.trace("Numeric data type is asked to format " + value.getValueType());
     }
     return Value.FALSE_TEXT_VALUE;

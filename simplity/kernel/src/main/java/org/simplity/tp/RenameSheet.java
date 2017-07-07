@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
@@ -36,7 +36,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class RenameSheet extends Action {
-  static final Logger logger = Logger.getLogger(RenameSheet.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(RenameSheet.class);
 
   /** current name */
   String sheetName;
@@ -53,8 +53,8 @@ public class RenameSheet extends Action {
     DataSheet sheet = ctx.removeDataSheet(this.sheetName);
     if (sheet == null) {
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Data sheet "
               + this.sheetName
               + " not found, and hence is not renamed to "

@@ -22,8 +22,8 @@
  */
 package org.simplity.service;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -56,7 +56,7 @@ import org.simplity.tp.Service;
  * the userId.
  */
 public class ServiceAgent {
-	static final Logger logger = Logger.getLogger(ServiceAgent.class.getName());
+	static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
 
 	/** singleton instance that is instantiated with right parameters */
 	private static ServiceAgent instance;
@@ -148,7 +148,7 @@ public class ServiceAgent {
 			Object uid = result.get(ServiceProtocol.USER_ID);
 			if (uid == null) {
 
-				logger.log(Level.INFO, "Login service did not set value for " + ServiceProtocol.USER_ID
+				logger.info("Login service did not set value for " + ServiceProtocol.USER_ID
 						+ ". This implies that the login has failed.");
 				Tracer.trace("Login service did not set value for " + ServiceProtocol.USER_ID
 						+ ". This implies that the login has failed.");
@@ -173,7 +173,7 @@ public class ServiceAgent {
 	private ServiceData dummyLogin(ServiceData inData) {
 		ServiceData result = new ServiceData();
 
-		logger.log(Level.INFO, "No login service is attached. we use a dummy login.");
+		logger.info("No login service is attached. we use a dummy login.");
 		Tracer.trace("No login service is attached. we use a dummy login.");
 		/*
 		 * choosing a number, just in case the application uses a numeric field
@@ -188,12 +188,12 @@ public class ServiceAgent {
 				: Value.newTextValue(userId);
 		if (Value.isNull(userIdValue)) {
 
-			logger.log(Level.INFO,
+			logger.info(
 					"we would have cleared userId " + userId + " but for the fact that we insist on a number");
 			Tracer.trace("we would have cleared userId " + userId + " but for the fact that we insist on a number");
 		} else {
 
-			logger.log(Level.INFO, "we cleared userId=" + userId + " with no authentication whatsoever.");
+			logger.info("we cleared userId=" + userId + " with no authentication whatsoever.");
 			Tracer.trace("we cleared userId=" + userId + " with no authentication whatsoever.");
 			result.put(ServiceProtocol.USER_ID, userIdValue);
 		}
@@ -256,7 +256,7 @@ public class ServiceAgent {
 			 */
 			if (service == null) {
 
-				logger.log(Level.INFO, "Service " + serviceName + " is missing in action !!");
+				logger.info("Service " + serviceName + " is missing in action !!");
 				Tracer.trace("Service " + serviceName + " is missing in action !!");
 				response = this.defaultResponse(inputData);
 				response.addMessage(Messages.getMessage(Messages.NO_SERVICE, serviceName));
@@ -272,7 +272,7 @@ public class ServiceAgent {
 				 * should we say you are not authorized?
 				 */
 
-				logger.log(Level.INFO, "Logged in user " + userId + " is not granted access to this service");
+				logger.info("Logged in user " + userId + " is not granted access to this service");
 				Tracer.trace("Logged in user " + userId + " is not granted access to this service");
 				response.addMessage(Messages.getMessage(Messages.NO_ACCESS));
 				break;
@@ -300,17 +300,17 @@ public class ServiceAgent {
 			 */
 			try {
 
-				logger.log(Level.INFO, "Invoking service " + serviceName);
+				logger.info("Invoking service " + serviceName);
 				Tracer.trace("Invoking service " + serviceName);
 				response = service.respond(inputData, payloadType);
 				boolean hasErrors = response != null && response.hasErrors();
 				if (hasErrors) {
 
-					logger.log(Level.INFO, serviceName + " returned with errors.");
+					logger.info(serviceName + " returned with errors.");
 					Tracer.trace(serviceName + " returned with errors.");
 				} else {
 
-					logger.log(Level.INFO, serviceName + " responded with all OK signal");
+					logger.info(serviceName + " responded with all OK signal");
 					Tracer.trace(serviceName + " responded with all OK signal");
 					Service serv = (Service)service;
 					String invalidateCache = serv.getServicesToInvalidate();
@@ -327,7 +327,7 @@ public class ServiceAgent {
 			} catch (Exception e) {
 				Application.reportApplicationError(inputData, e);
 
-				logger.log(Level.SEVERE, "Exception thrown by service " + serviceName, e);
+				logger.error( "Exception thrown by service " + serviceName, e);
 				Tracer.trace(e, "Exception thrown by service " + serviceName);
 				response = this.defaultResponse(inputData);
 				response.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()));

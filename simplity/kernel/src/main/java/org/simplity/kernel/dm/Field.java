@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel.dm; 
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -51,7 +51,7 @@ import org.simplity.service.ServiceProtocol;
  * like a column of a table, a filed in a page etc..
  */
 public class Field {
-  static final Logger logger = Logger.getLogger(Field.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Field.class);
 
   // private static final String DISPLAY_TYPE = "displayType";
 
@@ -770,7 +770,7 @@ public class Field {
         return this.defaultValueObject;
       }
 
-      logger.log(Level.INFO, "Record " + recordName + " field " + this.name + " is mandatory.");
+      logger.info("Record " + recordName + " field " + this.name + " is mandatory.");
       Tracer.trace("Record " + recordName + " field " + this.name + " is mandatory.");
       errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName, this.name, null, 0));
       return null;

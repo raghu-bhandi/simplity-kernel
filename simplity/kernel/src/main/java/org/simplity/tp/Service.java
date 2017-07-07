@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +74,7 @@ import org.simplity.service.ServiceProtocol;
  */
 public class Service implements ServiceInterface {
 
-	static final Logger logger = Logger.getLogger(Service.class.getName());
+	static final Logger logger = LoggerFactory.getLogger(Service.class);
 
 	/*
 	 * constants used by on-the-fly services
@@ -321,7 +321,7 @@ public class Service implements ServiceInterface {
 					userTransaciton.commit();
 				} else {
 
-					logger.log(Level.INFO, "Service is in error. User transaction rolled-back");
+					logger.info("Service is in error. User transaction rolled-back");
 					Tracer.trace("Service is in error. User transaction rolled-back");
 					userTransaciton.rollback();
 				}
@@ -374,13 +374,13 @@ public class Service implements ServiceInterface {
 	protected void extractInput(ServiceContext ctx, Object payload, PayloadType payloadType) {
 		if (payload == null) {
 
-			logger.log(Level.INFO, "No input received from client");
+			logger.info("No input received from client");
 			Tracer.trace("No input received from client");
 			return;
 		}
 		if (this.inputData == null) {
 
-			logger.log(Level.INFO, "We received input data, but this service is designed not to make use of input.");
+			logger.info("We received input data, but this service is designed not to make use of input.");
 			Tracer.trace("We received input data, but this service is designed not to make use of input.");
 			return;
 		}
@@ -415,7 +415,7 @@ public class Service implements ServiceInterface {
 		}
 		if (this.outputData == null) {
 
-			logger.log(Level.INFO, "Service " + this.name + " is designed to send no response.");
+			logger.info("Service " + this.name + " is designed to send no response.");
 			Tracer.trace("Service " + this.name + " is designed to send no response.");
 			return;
 		}
@@ -433,7 +433,7 @@ public class Service implements ServiceInterface {
 			Object obj = response.put(entry.getKey(), entry.getValue());
 			if (obj != null) {
 
-				logger.log(Level.INFO, "Warning: " + entry.getKey()
+				logger.info("Warning: " + entry.getKey()
 						+ " is used as a field nae as well as data sheet name in service context. field value is ignored and only data sheet is copied to output servie data.");
 				Tracer.trace("Warning: " + entry.getKey()
 						+ " is used as a field nae as well as data sheet name in service context. field value is ignored and only data sheet is copied to output servie data.");
@@ -515,7 +515,7 @@ public class Service implements ServiceInterface {
 	public void getReady() {
 		if (this.gotReady) {
 
-			logger.log(Level.INFO, "Service " + this.getQualifiedName()
+			logger.info("Service " + this.getQualifiedName()
 					+ " is being harassed by repeatedly asking it to getReady(). Please look into this..");
 			Tracer.trace("Service " + this.getQualifiedName()
 					+ " is being harassed by repeatedly asking it to getReady(). Please look into this..");
@@ -532,7 +532,7 @@ public class Service implements ServiceInterface {
 		}
 		if (this.actions == null) {
 
-			logger.log(Level.INFO, "Service " + this.getQualifiedName() + " has no actions.");
+			logger.info("Service " + this.getQualifiedName() + " has no actions.");
 			Tracer.trace("Service " + this.getQualifiedName() + " has no actions.");
 			this.actions = new Action[0];
 		} else {
@@ -861,7 +861,7 @@ public class Service implements ServiceInterface {
 			this.moduleName = possiblyQualifiedName.substring(0, idx);
 		}
 
-		logger.log(Level.INFO, "service name set to " + this.name + " and " + this.moduleName);
+		logger.info("service name set to " + this.name + " and " + this.moduleName);
 		Tracer.trace("service name set to " + this.name + " and " + this.moduleName);
 	}
 
@@ -1044,7 +1044,7 @@ public class Service implements ServiceInterface {
 	 */
 	public static ServiceInterface generateService(String serviceName) {
 
-		logger.log(Level.INFO, "Trying to generate service " + serviceName + " on-the-fly");
+		logger.info("Trying to generate service " + serviceName + " on-the-fly");
 		Tracer.trace("Trying to generate service " + serviceName + " on-the-fly");
 		int idx = serviceName.indexOf(PREFIX_DELIMITER);
 		if (idx == -1) {
@@ -1061,7 +1061,7 @@ public class Service implements ServiceInterface {
 		Record record = ComponentManager.getRecordOrNull(recordName);
 		if (record == null) {
 
-			logger.log(Level.INFO,
+			logger.info(
 					recordName + " is not defined as a record, and hence we are unable to generate a service named "
 							+ serviceName);
 			Tracer.trace(
@@ -1086,7 +1086,7 @@ public class Service implements ServiceInterface {
 			return getSuggestionService(serviceName, record);
 		}
 
-		logger.log(Level.INFO, "We have no on-the-fly service generator for operation " + operation);
+		logger.info("We have no on-the-fly service generator for operation " + operation);
 		Tracer.trace("We have no on-the-fly service generator for operation " + operation);
 		return null;
 	}

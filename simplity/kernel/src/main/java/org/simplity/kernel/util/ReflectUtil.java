@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.util;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -37,7 +37,7 @@ import org.simplity.kernel.expr.Expression;
 
 /** @author simplity.org */
 public class ReflectUtil {
-  static final Logger logger = Logger.getLogger(ReflectUtil.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ReflectUtil.class);
 
   /**
    * set attribute value to a field, if the attribute is not already set
@@ -59,8 +59,8 @@ public class ReflectUtil {
       if (setOnlyIfFieldIsNull) {
         if (isSpecified(field.get(object))) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               fieldName
                   + " already has a value of "
                   + field.get(object)
@@ -80,7 +80,7 @@ public class ReflectUtil {
       Object fieldValue = TextUtil.parse(textValue, fieldType);
       if (fieldValue != null) {
 
-        logger.log(Level.INFO, fieldName + " is set a value of " + textValue + " from data field");
+        logger.info(fieldName + " is set a value of " + textValue + " from data field");
         Tracer.trace(fieldName + " is set a value of " + textValue + " from data field");
         field.set(object, fieldValue);
       }
@@ -122,8 +122,8 @@ public class ReflectUtil {
       if (setOnlyIfFieldIsNull) {
         if (isSpecified(field.get(object))) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               fieldName
                   + " already has a value of "
                   + field.get(object)
@@ -143,7 +143,7 @@ public class ReflectUtil {
       Object fieldValue = TextUtil.parse(textValue, fieldType);
       if (fieldValue != null) {
 
-        logger.log(Level.INFO, fieldName + " is set a value of " + textValue + " from data field");
+        logger.info(fieldName + " is set a value of " + textValue + " from data field");
         Tracer.trace(fieldName + " is set a value of " + textValue + " from data field");
         field.set(object, fieldValue);
       }
@@ -218,16 +218,16 @@ public class ReflectUtil {
             return field;
           }
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               fieldName + " is a field, but it is has modifiers, and hence not selected.");
           Tracer.trace(fieldName + " is a field, but it is has modifiers, and hence not selected.");
           return null;
         }
       } catch (SecurityException e) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Thrown out by a Bouncer while looking at field " + fieldName + ". " + e.getMessage());
         Tracer.trace(
             "Thrown out by a Bouncer while looking at field " + fieldName + ". " + e.getMessage());
@@ -259,8 +259,8 @@ public class ReflectUtil {
         }
       } catch (SecurityException e) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Thrown out by a Bouncer while looking at field " + fieldName + ". " + e.getMessage());
         Tracer.trace(
             "Thrown out by a Bouncer while looking at field " + fieldName + ". " + e.getMessage());
@@ -354,8 +354,8 @@ public class ReflectUtil {
       }
       if (fromAttribute.getType().equals(toAttribute.getType()) == false) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             attName
                 + " is a common attribute but it is of type "
                 + fromAttribute.getType().getSimpleName()
@@ -380,7 +380,7 @@ public class ReflectUtil {
           continue;
         }
 
-        logger.log(Level.INFO, fromAttribute.getName() + " copied as " + fromValue);
+        logger.info(fromAttribute.getName() + " copied as " + fromValue);
         Tracer.trace(fromAttribute.getName() + " copied as " + fromValue);
         toAttribute.set(toObject, fromValue);
 

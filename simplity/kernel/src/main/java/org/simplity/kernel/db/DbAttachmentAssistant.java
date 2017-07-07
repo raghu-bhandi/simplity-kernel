@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.db;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +39,7 @@ import org.simplity.kernel.file.FileManager;
 
 /** we use a designated folder to save all attachments */
 public class DbAttachmentAssistant implements AttachmentAssistant {
-  static final Logger logger = Logger.getLogger(DbAttachmentAssistant.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(DbAttachmentAssistant.class);
 
   private static final String TABLE_NAME = "INTERNAL_ATTACHMENTS";
   private static final String SAVE_SQL = "INSERT INTO " + TABLE_NAME + " (attachment) values (?)";
@@ -90,7 +90,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
       stmt.close();
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "Error while storing attachment ", e);
+      logger.error("Error while storing attachment ", e);
       Tracer.trace(e, "Error while storing attachment ");
       allOk = false;
     } finally {
@@ -116,8 +116,8 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
       return this.store(in);
     } catch (FileNotFoundException e) {
 
-      logger.log(
-          Level.INFO, tempKey + " is not a valid temp file name. Attachment store() failed.");
+      logger.info(
+           tempKey + " is not a valid temp file name. Attachment store() failed.");
       Tracer.trace(tempKey + " is not a valid temp file name. Attachment store() failed.");
       return null;
     } finally {
@@ -145,7 +145,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
       key = Long.parseLong(storageKey);
     } catch (Exception e) {
 
-      logger.log(Level.INFO, storageKey + " is not a valid attachment storage key.");
+      logger.info(storageKey + " is not a valid attachment storage key.");
       Tracer.trace(storageKey + " is not a valid attachment storage key.");
       return null;
     }
@@ -172,7 +172,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
       stmt.close();
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "Error while retrieving attachment " + storageKey, e);
+    	logger.error("Error while retrieving attachment " + storageKey, e);
       Tracer.trace(e, "Error while retrieving attachment " + storageKey);
       allOk = false;
     } finally {
@@ -200,7 +200,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
       key = Integer.parseInt(storageKey);
     } catch (Exception e) {
 
-      logger.log(Level.INFO, storageKey + " is not a valid storage key. remove() failed.");
+      logger.info(storageKey + " is not a valid storage key. remove() failed.");
       Tracer.trace(storageKey + " is not a valid storage key. remove() failed.");
       return;
     }
@@ -213,17 +213,17 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
       int result = stmt.executeUpdate();
       if (result == 0) {
 
-        logger.log(Level.INFO, "No attachment found with key " + storageKey + ". remove() failed");
+        logger.info("No attachment found with key " + storageKey + ". remove() failed");
         Tracer.trace("No attachment found with key " + storageKey + ". remove() failed");
       } else {
 
-        logger.log(Level.INFO, "Attachment with key " + storageKey + " removed");
+        logger.info("Attachment with key " + storageKey + " removed");
         Tracer.trace("Attachment with key " + storageKey + " removed");
       }
       stmt.close();
     } catch (SQLException e) {
 
-      logger.log(Level.SEVERE, "Error while deleting an attachment with key " + storageKey, e);
+    	logger.error("Error while deleting an attachment with key " + storageKey, e);
       Tracer.trace(e, "Error while deleting an attachment with key " + storageKey);
       allOk = false;
     } finally {

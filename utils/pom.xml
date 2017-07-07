@@ -14,5 +14,6 @@
 		<module>archetype-partial</module>
 		<module>template</module>
 		<module>test</module>
+	    <module>refactoring</module>
   </modules>
 </project>

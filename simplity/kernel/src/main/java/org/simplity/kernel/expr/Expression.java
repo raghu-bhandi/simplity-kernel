@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel.expr;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -96,7 +96,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class Expression {
-  static final Logger logger = Logger.getLogger(Expression.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Expression.class);
 
   /*
    * We have taken a '"manual approach" in our expression. But why? Just like
@@ -892,17 +892,17 @@ public class Expression {
     // String text = "\"a\" , \"A\", \"b\", \"B\", 123 , 456)";
     try {
 
-      logger.log(Level.INFO, "TRYING " + text);
+      logger.info("TRYING " + text);
       Tracer.trace("TRYING " + text);
       Expression expr = new Expression(text);
       DynamicSheet ds = new DynamicSheet();
       Value val = expr.evaluate(ds);
 
-      logger.log(Level.INFO, "Expression : " + expr.toString() + " got evaluated to " + val);
+      logger.info("Expression : " + expr.toString() + " got evaluated to " + val);
       Tracer.trace("Expression : " + expr.toString() + " got evaluated to " + val);
     } catch (Exception e) {
 
-      logger.log(Level.SEVERE, "unable to parse/execute expression : " + e.getMessage(), e);
+    	logger.error( "unable to parse/execute expression : " + e.getMessage(), e);
       Tracer.trace(e, "unable to parse/execute expression : " + e.getMessage());
     }
   }

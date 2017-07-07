@@ -22,8 +22,8 @@
 
 package org.simplity.test;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +40,7 @@ import org.simplity.service.JavaAgent;
 
 /** Context that holds name-value pairs and test results during a test run. */
 public class TestContext {
-  static final Logger logger = Logger.getLogger(TestContext.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(TestContext.class);
 
   private Map<String, Object> values = new HashMap<String, Object>();
   private List<TestResult> results = new ArrayList<TestResult>();
@@ -152,7 +152,7 @@ public class TestContext {
     JsonUtil.addObject(writer, ctx.getReport());
     writer.endObject();
 
-    logger.log(Level.INFO, writer.toString());
+    logger.info(writer.toString());
     Tracer.trace(writer.toString());
   }
 }

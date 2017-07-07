@@ -21,8 +21,8 @@
  */
 package org.simplity.kernel.value;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.sql.PreparedStatement;
@@ -55,7 +55,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public abstract class Value implements Serializable {
-  static final Logger logger = Logger.getLogger(Value.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(Value.class);
 
   /** */
   private static final long serialVersionUID = 1L;
@@ -564,7 +564,7 @@ public abstract class Value implements Serializable {
   public static Value parseObject(Object object) {
     if (object == null) {
 
-      logger.log(Level.INFO, "Parse Object received null. Returning empty text value.");
+      logger.info("Parse Object received null. Returning empty text value.");
       Tracer.trace("Parse Object received null. Returning empty text value.");
       return VALUE_EMPTY;
     }

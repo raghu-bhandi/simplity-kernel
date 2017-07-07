@@ -22,8 +22,8 @@
 
 package org.simplity.kernel;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,7 +66,7 @@ import org.simplity.kernel.file.FileManager;
  * @author simplity.org
  */
 public class AttachmentManager {
-  static final Logger logger = Logger.getLogger(AttachmentManager.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(AttachmentManager.class);
 
   private static final String MSG =
       "No assistant is assigned to AttachmentManager. Manager expressed her regret that she is unable to manage media.";
@@ -125,8 +125,8 @@ public class AttachmentManager {
       newKey = assistant.store(in);
     } catch (Exception e) {
 
-      logger.log(
-          Level.SEVERE, "Error while moving attachment " + key + " from temp area to storage", e);
+    
+      logger.error( "Error while moving attachment " + key + " from temp area to storage", e);
       Tracer.trace(e, "Error while moving attachment " + key + " from temp area to storage");
       return null;
     } finally {
@@ -172,8 +172,8 @@ public class AttachmentManager {
   public static void setAssistant(AttachmentAssistant ast) {
     assistant = ast;
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "Attachment Manager is happy to announce that she got an assistant, and is ready to serve attachment files now.");
     Tracer.trace(
         "Attachment Manager is happy to announce that she got an assistant, and is ready to serve attachment files now.");

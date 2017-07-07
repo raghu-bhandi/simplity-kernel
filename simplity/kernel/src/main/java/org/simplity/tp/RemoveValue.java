@@ -22,8 +22,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Tracer;
@@ -38,7 +38,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class RemoveValue extends Action {
-  static final Logger logger = Logger.getLogger(RemoveValue.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(RemoveValue.class);
 
   /**
    * field name. Can be $fieldName, in which case we get the value from service context, and use
@@ -60,8 +60,8 @@ public class RemoveValue extends Action {
       Value field = ctx.getValue(this.runTimeFieldName);
       if (field == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "No value for found in service context for field name "
                 + this.runTimeFieldName
                 + ". RemoveValue action could not continue.");

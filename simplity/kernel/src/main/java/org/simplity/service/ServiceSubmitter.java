@@ -22,8 +22,8 @@
 
 package org.simplity.service;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -39,7 +39,7 @@ import org.simplity.kernel.Tracer;
  * @author simplity.org
  */
 public class ServiceSubmitter implements Runnable {
-  static final Logger logger = Logger.getLogger(ServiceSubmitter.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(ServiceSubmitter.class);
 
   private final ServiceData inData;
   private final ServiceInterface service;
@@ -76,7 +76,7 @@ public class ServiceSubmitter implements Runnable {
       Application.reportApplicationError(this.inData, e);
       outData = new ServiceData(this.inData.getUserId(), serviceName);
 
-      logger.log(Level.SEVERE, "Service " + serviceName + " resulted in fatal error", e);
+      logger.error( "Service " + serviceName + " resulted in fatal error", e);
       Tracer.trace(e, "Service " + serviceName + " resulted in fatal error");
       outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()));
     }
@@ -84,7 +84,7 @@ public class ServiceSubmitter implements Runnable {
      * no way to communicate back
      */
 
-    logger.log(Level.INFO, "Background service completed with following trace");
+    logger.info("Background service completed with following trace");
     Tracer.trace("Background service completed with following trace");
     if (this.outStream == null) {
       return;
@@ -105,8 +105,7 @@ public class ServiceSubmitter implements Runnable {
       this.outStream.writeObject(outData);
     } catch (IOException e) {
 
-      logger.log(
-          Level.SEVERE, "Error while writing response from background service onto stream", e);
+       logger.error("Error while writing response from background service onto stream", e);
       Tracer.trace(e, "Error while writing response from background service onto stream");
     } finally {
       try {

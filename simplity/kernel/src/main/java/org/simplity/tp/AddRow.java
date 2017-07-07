@@ -21,8 +21,8 @@
  */
 package org.simplity.tp;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
@@ -36,7 +36,7 @@ import org.simplity.service.ServiceContext;
  * @author org.simplity
  */
 public class AddRow extends Action {
-  static final Logger logger = Logger.getLogger(AddRow.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(AddRow.class);
 
   /** sheet to which row is to be added */
   String sheetName;
@@ -65,8 +65,8 @@ public class AddRow extends Action {
          */
         String txt = value.toString();
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Found a value of type "
                 + value.getValueType()
                 + " for column "
@@ -85,8 +85,8 @@ public class AddRow extends Action {
         value = Value.parseValue(txt, vt);
         if (value == null) {
 
-          logger.log(
-              Level.INFO,
+          logger.info(
+              
               "Unable to convert " + txt + " to type " + vt + " . setting column to  NullValue");
           Tracer.trace(
               "Unable to convert " + txt + " to type " + vt + " . setting column to  NullValue");

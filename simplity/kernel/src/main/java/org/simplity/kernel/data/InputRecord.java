@@ -22,8 +22,8 @@
  */
 package org.simplity.kernel.data;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +45,7 @@ import org.simplity.service.ServiceMessages;
 
 /** represents a record/row/table that is used as input for a service */
 public class InputRecord {
-  static final Logger logger = Logger.getLogger(InputRecord.class.getName());
+  static final Logger logger = LoggerFactory.getLogger(InputRecord.class);
 
   /**
    * fully qualified name of the record that we are expecting as input. In very special case, like
@@ -237,7 +237,7 @@ public class InputRecord {
         ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, "" + this.minRows, "" + this.maxRows);
       } else {
 
-        logger.log(Level.INFO, "No data for sheet " + this.sheetName);
+        logger.info("No data for sheet " + this.sheetName);
         Tracer.trace("No data for sheet " + this.sheetName);
       }
       return;
@@ -261,8 +261,8 @@ public class InputRecord {
     }
     ctx.putDataSheet(this.sheetName, sheet);
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "Datasheet " + this.sheetName + " with " + nbrRows + " rows added to the context.");
     Tracer.trace(
         "Datasheet " + this.sheetName + " with " + nbrRows + " rows added to the context.");
@@ -279,8 +279,8 @@ public class InputRecord {
     if (object != null) {
       ctx.setObject(this.sheetName, object);
 
-      logger.log(
-          Level.INFO,
+      logger.info(
+          
           "Data input for "
               + this.sheetName
               + " saved as "
@@ -297,7 +297,7 @@ public class InputRecord {
 
     } else {
 
-      logger.log(Level.INFO, "No data for sheet " + this.sheetName);
+      logger.info("No data for sheet " + this.sheetName);
       Tracer.trace("No data for sheet " + this.sheetName);
     }
     return;
@@ -334,8 +334,8 @@ public class InputRecord {
       return;
     }
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "We expected an object, or an array with an objectas its first element, but got "
             + object
             + ". This is ignored.");
@@ -365,7 +365,7 @@ public class InputRecord {
     data = json.optJSONArray(this.sheetName);
     if (data == null) {
 
-      logger.log(Level.INFO, "No rows for " + this.sheetName);
+      logger.info("No rows for " + this.sheetName);
       Tracer.trace("No rows for " + this.sheetName);
       return null;
     }
@@ -386,8 +386,8 @@ public class InputRecord {
       inputFields = this.guessFieldsFromChildRows(data, json);
       if (inputFields == null) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "We did not get any non-empty rows for "
                 + this.sheetName
                 + " and hence no rows extracted.");
@@ -482,8 +482,8 @@ public class InputRecord {
       }
       if (obj instanceof JSONObject == false) {
 
-        logger.log(
-            Level.INFO,
+        logger.info(
+            
             "Child row element is expected to be an object but we got "
                 + obj.getClass().getSimpleName()
                 + ". Input ignored.");
@@ -506,8 +506,8 @@ public class InputRecord {
         JSONObject child = rows.optJSONObject(childIdx);
         if (child == null) {
 
-          logger.log(
-              Level.INFO, "Child element at " + (childIdx + 1) + " is not an object. Row ignored.");
+          logger.info(
+               "Child element at " + (childIdx + 1) + " is not an object. Row ignored.");
           Tracer.trace("Child element at " + (childIdx + 1) + " is not an object. Row ignored.");
           continue;
         }
@@ -628,8 +628,8 @@ public class InputRecord {
        */
       if (this.minRows <= 1) {
 
-        logger.log(
-            Level.INFO, "No data for sheet " + this.sheetName + ". We try and add fields instead.");
+        logger.info(
+             "No data for sheet " + this.sheetName + ". We try and add fields instead.");
         Tracer.trace("No data for sheet " + this.sheetName + ". We try and add fields instead.");
         this.extractFields(json, ctx);
       }
@@ -647,8 +647,8 @@ public class InputRecord {
       return JsonUtil.getSheet(arr, this.fields, errors, allFieldsAreOptional, null, null);
     }
 
-    logger.log(
-        Level.INFO,
+    logger.info(
+        
         "Receieved "
             + object
             + " as value for "
@@ -674,7 +674,7 @@ public class InputRecord {
       nbr = JsonUtil.extractFields(json, this.fields, ctx, errors, allFieldsAreOptional);
     }
 
-    logger.log(Level.INFO, nbr + " fields into ctx based on record " + this.recordName);
+    logger.info(nbr + " fields into ctx based on record " + this.recordName);
     Tracer.trace(nbr + " fields into ctx based on record " + this.recordName);
 
     if (errors.size() == 0
@@ -687,8 +687,8 @@ public class InputRecord {
     }
     if (errors.size() > 0) {
 
-      logger.log(
-          Level.INFO, " We got " + errors.size() + " validaiton errors during this record input");
+      logger.info(
+           " We got " + errors.size() + " validaiton errors during this record input");
       Tracer.trace(" We got " + errors.size() + " validaiton errors during this record input");
       ctx.addMessages(errors);
     }
