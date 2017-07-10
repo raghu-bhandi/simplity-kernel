@@ -23,6 +23,7 @@ package org.simplity.tp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.util.Map;
 
@@ -43,6 +44,8 @@ public class Log extends Action {
 
   /** field/table names to be logged */
   String[] names;
+  
+  boolean setMDC;
 
   @Override
   protected Value doAct(ServiceContext ctx) {
@@ -63,6 +66,9 @@ public class Log extends Action {
 
         logger.info(nam + " = " + ctx.getValue(nam));
         Tracer.trace(nam + " = " + ctx.getValue(nam));
+        if(setMDC){
+        	MDC.put(nam, ctx.getValue(nam).toText());
+        }
       }
       if (ctx.hasDataSheet(nam)) {
         found = true;
