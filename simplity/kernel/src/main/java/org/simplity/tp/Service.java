@@ -135,6 +135,11 @@ public class Service implements ServiceInterface {
 	 */
 	OutputData outputData;
 
+	/*
+	 * Cache refresh time
+	 */
+	String cacheRefreshTime;
+	
 	/** actions that make up this service */
 	Action[] actions;
 
@@ -165,6 +170,8 @@ public class Service implements ServiceInterface {
 
 	/** instance of className to be used as body of this service */
 	private ServiceInterface serviceInstance;
+
+	
 
 	@Override
 	public DbAccessType getDataAccessType() {
@@ -1352,5 +1359,9 @@ public class Service implements ServiceInterface {
 
 	public String getServicesToInvalidate() {
 		return this.referredServicesToInvalidate;
+	}
+
+	public String getCacheRefreshTime() {		
+		return this.cacheRefreshTime;
 	}
 }

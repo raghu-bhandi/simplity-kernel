@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<outlets xmlns="http://db.apache.org/torque/4.0/generator/configuration"
-    xsi:schemaLocation="http://db.apache.org/torque/4.0/generator/configuration http://db.apache.org/torque/4.0/generator/configuration.xsd"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <outlet name="torque.simplity" xsi:type="javaOutlet" class="org.simplity.utils.torque.outlets.java.SimplityRecordContent">
-  </outlet>
-</outlets>

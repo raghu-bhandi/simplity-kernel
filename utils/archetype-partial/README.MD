@@ -1,1 +1,0 @@
-archetype:generate -DinteractiveMode=false -DarchetypeCatalog=local -DarchetypeGroupId=org.simplity.utils -DarchetypeArtifactId=archetype-partial -DarchetypeVersion=1.2-SNAPSHOT -DgroupId=<groupId-ur project> -DartifactId=<artifactId-ur project> -Dpackage=<package name-ur project>

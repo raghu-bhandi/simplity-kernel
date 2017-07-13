@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<application xmlns="http://www.simplity.org/schema" 
-			applicationId="HelloWorld"
-			autoLoginUserId="100"
-			loggingFramework="log4j"
-			>
-</application>
