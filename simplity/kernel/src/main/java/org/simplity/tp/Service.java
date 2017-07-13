@@ -156,6 +156,7 @@ public class Service implements ServiceInterface {
 	 * it so long as the input values for these fields are same.
 	 */
 	String canBeCachedByFields;
+	String cacheRefreshTime;
 	String referredServicesToInvalidate;
 	/**
 	 * does this service use jms? if so with what kind of transaction management
@@ -1360,8 +1361,8 @@ public class Service implements ServiceInterface {
 	public String getServicesToInvalidate() {
 		return this.referredServicesToInvalidate;
 	}
-
-	public String getCacheRefreshTime() {		
+	
+	public String getCacheRefreshTime() {
 		return this.cacheRefreshTime;
 	}
 }
