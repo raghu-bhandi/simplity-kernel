@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
@@ -108,16 +108,12 @@ public abstract class Action {
         if (Value.intepretAsBoolean(val)) {
 
           logger.info(
-              
               "Cleared the condition " + this.executeOnCondition + " for action to proceed.");
-          Tracer.trace(
-              "Cleared the condition " + this.executeOnCondition + " for action to proceed.");
+
         } else {
 
-          logger.info(
-              
-              "Condition " + this.executeOnCondition + " and hence skipping this action.");
-          Tracer.trace("Condition " + this.executeOnCondition + " and hence skipping this action.");
+          logger.info("Condition " + this.executeOnCondition + " and hence skipping this action.");
+
           return null;
         }
       } catch (Exception e) {

@@ -35,7 +35,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.file.FileManager;
 
 /**
@@ -93,19 +93,15 @@ public class BlobValue extends TextValue {
     if (file == null) {
 
       logger.info(
-          
           "Unable to get temp file content for key "
               + this.value
               + " RDBMS will have null for this Blob.");
-      Tracer.trace(
-          "Unable to get temp file content for key "
-              + this.value
-              + " RDBMS will have null for this Blob.");
+
       return null;
     }
 
     logger.info("Got file " + file.getPath() + " of size " + file.length());
-    Tracer.trace("Got file " + file.getPath() + " of size " + file.length());
+
     InputStream in = null;
     OutputStream out = null;
     Blob blob = null;
@@ -137,7 +133,7 @@ public class BlobValue extends TextValue {
      */
 
     logger.info("We created a blob of length " + blob.length());
-    Tracer.trace("We created a blob of length " + blob.length());
+
     return blob;
   }
 }

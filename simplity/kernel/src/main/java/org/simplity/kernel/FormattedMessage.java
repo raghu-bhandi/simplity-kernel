@@ -92,7 +92,7 @@ public class FormattedMessage implements Jsonable {
       this.messageType = MessageType.WARNING;
 
       logger.info("Missing message : " + messageName);
-      Tracer.trace("Missing message : " + messageName);
+
     } else {
       this.name = msg.getQualifiedName();
       this.messageType = msg.getMessageType();

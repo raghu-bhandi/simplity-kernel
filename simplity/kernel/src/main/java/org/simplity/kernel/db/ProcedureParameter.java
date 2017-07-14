@@ -36,7 +36,7 @@ import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Messages;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
@@ -333,18 +333,12 @@ public class ProcedureParameter {
       if (obj instanceof JSONArray == false) {
 
         logger.info(
-            
             "Service Context has an object as source for stored procedure "
                 + this.name
                 + " but while we expected it to be an instance of JSONArray (array of objects) it turned out to be "
                 + obj.getClass().getName()
                 + ". Assumed no value for this parameter");
-        Tracer.trace(
-            "Service Context has an object as source for stored procedure "
-                + this.name
-                + " but while we expected it to be an instance of JSONArray (array of objects) it turned out to be "
-                + obj.getClass().getName()
-                + ". Assumed no value for this parameter");
+
         return this.setNullParam(stmt, ctx);
       }
       Array array =
@@ -356,18 +350,12 @@ public class ProcedureParameter {
     if (obj instanceof JSONObject == false) {
 
       logger.info(
-          
           "Service Context has an object as source for stored procedure "
               + this.name
               + " but while we expected it to be an instance of JSONObject it turned out to be "
               + obj.getClass().getName()
               + ". Assumed no value for this parameter");
-      Tracer.trace(
-          "Service Context has an object as source for stored procedure "
-              + this.name
-              + " but while we expected it to be an instance of JSONObject it turned out to be "
-              + obj.getClass().getName()
-              + ". Assumed no value for this parameter");
+
       return this.setNullParam(stmt, ctx);
     }
     Struct struct =
@@ -399,14 +387,10 @@ public class ProcedureParameter {
       if (Value.isNull(value)) {
 
         logger.info(
-            
             "Null value received for stored procedure parameter "
                 + this.name
                 + ". Data is not added to context.");
-        Tracer.trace(
-            "Null value received for stored procedure parameter "
-                + this.name
-                + ". Data is not added to context.");
+
       } else {
         outputFields.setValue(this.name, value);
       }
@@ -419,14 +403,10 @@ public class ProcedureParameter {
     if (object == null) {
 
       logger.info(
-          
           "Got null as value of stored procedure parameter "
               + this.name
               + ". Data is not added to context.");
-      Tracer.trace(
-          "Got null as value of stored procedure parameter "
-              + this.name
-              + ". Data is not added to context.");
+
       return;
     }
 
@@ -539,14 +519,10 @@ public class ProcedureParameter {
       if (struct == null || struct instanceof Struct == false) {
 
         logger.info(
-            
             "Found an empty row or a non-struct object for stored procedure parameter "
                 + this.name
                 + ". skipping this row, but not throwing an error.");
-        Tracer.trace(
-            "Found an empty row or a non-struct object for stored procedure parameter "
-                + this.name
-                + ". skipping this row, but not throwing an error.");
+
         continue;
       }
       Object[] rowData = ((Struct) struct).getAttributes();

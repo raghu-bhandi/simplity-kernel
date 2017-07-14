@@ -34,7 +34,7 @@ import java.util.List;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.data.FlatFileRowType;
 import org.simplity.kernel.dm.Record;
@@ -309,18 +309,12 @@ public class InputFile {
           if (cmp < 0) {
 
             logger.info(
-                
                 "Ignoring a row in child file "
                     + this.getFileName()
                     + " with key "
                     + this.keyValue
                     + " as there is no parent row for this.");
-            Tracer.trace(
-                "Ignoring a row in child file "
-                    + this.getFileName()
-                    + " with key "
-                    + this.keyValue
-                    + " as there is no parent row for this.");
+
             allOk = this.readChildRow(errors);
             continue;
           }
@@ -343,7 +337,7 @@ public class InputFile {
         }
 
         logger.info("Ignoring a child row that failed qualifying condition.");
-        Tracer.trace("Ignoring a child row that failed qualifying condition.");
+
         allOk = this.readChildRow(errors);
       }
       /*
@@ -384,12 +378,9 @@ public class InputFile {
       if (this.dataRow == null) {
 
         logger.info(
-            
             "Validation errors found during extracting a row from flat file using record "
                 + this.record.getQualifiedName());
-        Tracer.trace(
-            "Validation errors found during extracting a row from flat file using record "
-                + this.record.getQualifiedName());
+
         throw new InvalidRowException(rowText + "   is an invalid input row.");
       }
       /*

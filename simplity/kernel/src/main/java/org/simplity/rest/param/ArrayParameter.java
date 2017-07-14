@@ -34,7 +34,7 @@ import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.rest.Tags;
 
 /** @author simplity.org */
@@ -68,10 +68,8 @@ public class ArrayParameter extends Parameter {
       if (this.colnType == CollectionType.multi) {
 
         logger.info(
-            
             "We handle multi-format array in query and form fields while form input Json, and hence this attribute is ignored and an array value is assumed");
-        Tracer.trace(
-            "We handle multi-format array in query and form fields while form input Json, and hence this attribute is ignored and an array value is assumed");
+
         this.colnType = null;
       }
     }
@@ -116,10 +114,8 @@ public class ArrayParameter extends Parameter {
       if (value instanceof JSONArray == false) {
 
         logger.info(
-            
             "Field " + this.name + " expects an array but got " + value.getClass().getName());
-        Tracer.trace(
-            "Field " + this.name + " expects an array but got " + value.getClass().getName());
+
         return this.invalidValue(messages);
       }
       arr = (JSONArray) value;
@@ -156,7 +152,6 @@ public class ArrayParameter extends Parameter {
     if (len < this.minItems || (this.maxItems != 0 && len > this.maxItems)) {
 
       logger.info(
-          
           "Array field "
               + this.name
               + " has minItems="
@@ -166,16 +161,7 @@ public class ArrayParameter extends Parameter {
               + " but it received "
               + len
               + " items");
-      Tracer.trace(
-          "Array field "
-              + this.name
-              + " has minItems="
-              + this.minItems
-              + " and maxItems="
-              + this.maxItems
-              + " but it received "
-              + len
-              + " items");
+
       return this.invalidValue(messages);
     }
 
@@ -188,20 +174,13 @@ public class ArrayParameter extends Parameter {
           if (arr.get(i).equals(arr.get(j))) {
 
             logger.info(
-                
                 "Array field "
                     + this.name
                     + " got duplicate values at (0 based)"
                     + i
                     + " and "
                     + j);
-            Tracer.trace(
-                "Array field "
-                    + this.name
-                    + " got duplicate values at (0 based)"
-                    + i
-                    + " and "
-                    + j);
+
             return this.invalidValue(messages);
           }
         }
@@ -268,14 +247,10 @@ public class ArrayParameter extends Parameter {
       if (this.colnType == null) {
 
         logger.info(
-            
             "Field "
                 + this.name
                 + " is an array, and is being used to write to header, but it has no collectionType. comma separation is assumed");
-        Tracer.trace(
-            "Field "
-                + this.name
-                + " is an array, and is being used to write to header, but it has no collectionType. comma separation is assumed");
+
         text = CollectionType.csv.arrayToText(arr);
       } else {
         text = this.colnType.arrayToText(arr);

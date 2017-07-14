@@ -40,7 +40,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.ArrayUtil;
 import org.simplity.kernel.util.ReflectUtil;
@@ -309,18 +309,12 @@ public class MultiRowsSheet implements DataSheet {
     } catch (Exception e) {
 
       logger.info(
-          
           "Request to get value for column"
               + columnName
               + " and index "
               + zeroBasedRowNumber
               + " is not valid. going to return null");
-      Tracer.trace(
-          "Request to get value for column"
-              + columnName
-              + " and index "
-              + zeroBasedRowNumber
-              + " is not valid. going to return null");
+
       return null;
     }
   }
@@ -435,19 +429,16 @@ public class MultiRowsSheet implements DataSheet {
     if (nbr == 0) {
 
       logger.info("getColumn values is returning empty array as there are no data");
-      Tracer.trace("getColumn values is returning empty array as there are no data");
+
       return values;
     }
     Integer n = this.columnIndexes.get(columnName);
     if (n == null) {
 
       logger.info(
-          
           columnName
               + " is not a column in the sheet and hence null values are returned for getColumnValues()");
-      Tracer.trace(
-          columnName
-              + " is not a column in the sheet and hence null values are returned for getColumnValues()");
+
       return null;
     }
 
@@ -539,7 +530,6 @@ public class MultiRowsSheet implements DataSheet {
   public void trace() {
 
     logger.info(this.toString("\t", "\n"));
-    Tracer.trace(this.toString("\t", "\n"));
   }
 
   /**
@@ -627,7 +617,7 @@ public class MultiRowsSheet implements DataSheet {
     }
 
     logger.info("We did not find column " + columnName + " in this multi-row sheet");
-    Tracer.trace("We did not find column " + columnName + " in this multi-row sheet");
+
     return -1;
   }
 

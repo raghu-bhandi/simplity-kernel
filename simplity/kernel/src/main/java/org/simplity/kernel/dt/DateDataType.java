@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.DateUtil;
 import org.simplity.kernel.value.DateValue;
@@ -178,9 +177,8 @@ public class DateDataType extends DataType {
       date = value.toDate();
     } catch (InvalidValueException e) {
 
-      logger.info(
-           "Value of type " + value.getValueType() + " passed for frmatting as date.");
-      Tracer.trace("Value of type " + value.getValueType() + " passed for frmatting as date.");
+      logger.info("Value of type " + value.getValueType() + " passed for frmatting as date.");
+
       return "";
     }
     if (this.hasTime) {

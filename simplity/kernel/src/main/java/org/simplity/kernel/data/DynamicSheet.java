@@ -33,7 +33,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
@@ -200,11 +200,10 @@ public class DynamicSheet implements DataSheet {
   public void trace() {
 
     logger.info("(Dynamic Sheet)");
-    Tracer.trace("(Dynamic Sheet)");
+
     for (Map.Entry<String, Value> field : this.fieldValues.entrySet()) {
 
       logger.info(field.getKey() + '=' + field.getValue());
-      Tracer.trace(field.getKey() + '=' + field.getValue());
     }
   }
 
@@ -243,7 +242,7 @@ public class DynamicSheet implements DataSheet {
     }
 
     logger.info("We did not find column " + columnName + " in this dynamic sheet");
-    Tracer.trace("We did not find column " + columnName + " in this dynamic sheet");
+
     return -1;
   }
 

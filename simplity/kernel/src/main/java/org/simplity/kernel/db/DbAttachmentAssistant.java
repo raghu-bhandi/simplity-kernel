@@ -34,7 +34,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.simplity.kernel.AttachmentAssistant;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.file.FileManager;
 
 /** we use a designated folder to save all attachments */
@@ -91,7 +91,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
     } catch (Exception e) {
 
       logger.error("Error while storing attachment ", e);
-      Tracer.trace(e, "Error while storing attachment ");
+
       allOk = false;
     } finally {
       DbDriver.closeConnection(con, DbAccessType.READ_WRITE, allOk);
@@ -116,9 +116,8 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
       return this.store(in);
     } catch (FileNotFoundException e) {
 
-      logger.info(
-           tempKey + " is not a valid temp file name. Attachment store() failed.");
-      Tracer.trace(tempKey + " is not a valid temp file name. Attachment store() failed.");
+      logger.info(tempKey + " is not a valid temp file name. Attachment store() failed.");
+
       return null;
     } finally {
       if (in != null) {
@@ -146,7 +145,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
     } catch (Exception e) {
 
       logger.info(storageKey + " is not a valid attachment storage key.");
-      Tracer.trace(storageKey + " is not a valid attachment storage key.");
+
       return null;
     }
     boolean allOk = true;
@@ -172,8 +171,8 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
       stmt.close();
     } catch (Exception e) {
 
-    	logger.error("Error while retrieving attachment " + storageKey, e);
-      Tracer.trace(e, "Error while retrieving attachment " + storageKey);
+      logger.error("Error while retrieving attachment " + storageKey, e);
+
       allOk = false;
     } finally {
       DbDriver.closeConnection(con, DbAccessType.READ_ONLY, allOk);
@@ -201,7 +200,7 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
     } catch (Exception e) {
 
       logger.info(storageKey + " is not a valid storage key. remove() failed.");
-      Tracer.trace(storageKey + " is not a valid storage key. remove() failed.");
+
       return;
     }
 
@@ -214,17 +213,16 @@ public class DbAttachmentAssistant implements AttachmentAssistant {
       if (result == 0) {
 
         logger.info("No attachment found with key " + storageKey + ". remove() failed");
-        Tracer.trace("No attachment found with key " + storageKey + ". remove() failed");
+
       } else {
 
         logger.info("Attachment with key " + storageKey + " removed");
-        Tracer.trace("Attachment with key " + storageKey + " removed");
       }
       stmt.close();
     } catch (SQLException e) {
 
-    	logger.error("Error while deleting an attachment with key " + storageKey, e);
-      Tracer.trace(e, "Error while deleting an attachment with key " + storageKey);
+      logger.error("Error while deleting an attachment with key " + storageKey, e);
+
       allOk = false;
     } finally {
       DbDriver.closeConnection(con, DbAccessType.AUTO_COMMIT, allOk);

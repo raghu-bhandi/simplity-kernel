@@ -33,7 +33,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.Component;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
@@ -180,7 +180,7 @@ public class Jobs implements Component {
     if (job == null) {
 
       logger.info("No job named " + jobName);
-      Tracer.trace("No job named " + jobName);
+
       return;
     }
     job.cancel();
@@ -191,14 +191,14 @@ public class Jobs implements Component {
     if (jobName == null || jobName.isEmpty()) {
 
       logger.info("No job name specified for rescheduling");
-      Tracer.trace("No job name specified for rescheduling");
+
       return;
     }
     ScheduledJob job = this.scheduledJobs.get(jobName);
     if (job == null) {
 
       logger.info("No job named " + jobName);
-      Tracer.trace("No job named " + jobName);
+
       return;
     }
     job.schedule(this.executor);
@@ -221,7 +221,7 @@ public class Jobs implements Component {
     if (job == null) {
 
       logger.info("No job named " + jobName);
-      Tracer.trace("No job named " + jobName);
+
       return;
     }
     job.incrmentThread(this.executor);
@@ -238,7 +238,7 @@ public class Jobs implements Component {
     if (job == null) {
 
       logger.info("No job named " + jobName);
-      Tracer.trace("No job named " + jobName);
+
       return;
     }
     job.decrmentThread(this.executor);
@@ -267,7 +267,7 @@ public class Jobs implements Component {
     if (job == null) {
 
       logger.info("No job named " + jobName);
-      Tracer.trace("No job named " + jobName);
+
       return inf;
     }
     List<RunningJobInfo> infoList = new ArrayList<RunningJobInfo>();
@@ -351,10 +351,8 @@ public class Jobs implements Component {
     }
 
     logger.info(
-        
         "Default User Id is not specified either at app level or at Jobs level. If they are indeed required in a service, and the job has not speicified, we will end up using a dummy value of 100");
-    Tracer.trace(
-        "Default User Id is not specified either at app level or at Jobs level. If they are indeed required in a service, and the job has not speicified, we will end up using a dummy value of 100");
+
     if (Application.userIdIsNumeric()) {
       return Value.newIntegerValue(100);
     }

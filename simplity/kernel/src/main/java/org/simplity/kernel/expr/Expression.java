@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DynamicSheet;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.util.DateUtil;
@@ -893,17 +892,16 @@ public class Expression {
     try {
 
       logger.info("TRYING " + text);
-      Tracer.trace("TRYING " + text);
+
       Expression expr = new Expression(text);
       DynamicSheet ds = new DynamicSheet();
       Value val = expr.evaluate(ds);
 
       logger.info("Expression : " + expr.toString() + " got evaluated to " + val);
-      Tracer.trace("Expression : " + expr.toString() + " got evaluated to " + val);
+
     } catch (Exception e) {
 
-    	logger.error( "unable to parse/execute expression : " + e.getMessage(), e);
-      Tracer.trace(e, "unable to parse/execute expression : " + e.getMessage());
+      logger.error("unable to parse/execute expression : " + e.getMessage(), e);
     }
   }
 }

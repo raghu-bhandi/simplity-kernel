@@ -38,7 +38,7 @@ import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.value.Value;
 import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceAgent;
@@ -84,7 +84,7 @@ public class RestAgent {
     String path = URLDecoder.decode(req.getRequestURI(), UTF);
 
     logger.info("Started serving URI=" + path);
-    Tracer.trace("Started serving URI=" + path);
+
     /*
      * path now is set to /app1/subapp/a/b/c
      */
@@ -99,15 +99,12 @@ public class RestAgent {
        */
 
       logger.info("oooooops. URI is shorter than contextpath ???");
-      Tracer.trace("oooooops. URI is shorter than contextpath ???");
+
       path = "";
     } else {
       path = path.substring(idx);
 
       logger.info(
-          
-          "Going to use path=" + path + " for mapping this request to an operation/service");
-      Tracer.trace(
           "Going to use path=" + path + " for mapping this request to an operation/service");
     }
     /*
@@ -129,23 +126,21 @@ public class RestAgent {
 
     if (messages.size() > 0) {
 
-      logger.info(
-          
-          "Input data has validation errors. Responding back without calling the service");
-      Tracer.trace("Input data has validation errors. Responding back without calling the service");
+      logger.info("Input data has validation errors. Responding back without calling the service");
+
       operation.writeResponse(resp, messages.toArray(new FormattedMessage[0]));
       return;
     }
 
     logger.info("Request received for service " + serviceName);
-    Tracer.trace("Request received for service " + serviceName);
+
     FormattedMessage message = null;
     //TODO : get user ID
     Value userId = Value.newTextValue("100");
     ServiceData inData = new ServiceData(userId, serviceName);
 
     logger.info("Parsed JSON is \n" + json.toString(2));
-    Tracer.trace("Parsed JSON is \n" + json.toString(2));
+
     inData.setPayLoad(json.toString());
     /*
      * discard heavy objects as early as possible

@@ -31,7 +31,7 @@ import java.util.Map;
 
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.dm.Field;
@@ -170,9 +170,6 @@ public class OutputRecord {
       if (obj == null) {
 
         logger.info(
-            
-            "No Object found for complex structure " + this.sheetName + ". Null sent to client");
-        Tracer.trace(
             "No Object found for complex structure " + this.sheetName + ". Null sent to client");
       }
       writer.value(obj);
@@ -188,16 +185,11 @@ public class OutputRecord {
     if (this.parentSheetName != null) {
 
       logger.info(
-          
           "Sheet "
               + this.sheetName
               + " will be output as part of its parent sheet "
               + this.parentSheetName);
-      Tracer.trace(
-          "Sheet "
-              + this.sheetName
-              + " will be output as part of its parent sheet "
-              + this.parentSheetName);
+
       return;
     }
     this.sheetToJson(writer, ctx);
@@ -210,7 +202,7 @@ public class OutputRecord {
       if (value == null) {
 
         logger.info(fieldName + " has no value and hence is not added to output");
-        Tracer.trace(fieldName + " has no value and hence is not added to output");
+
       } else {
         writer.key(fieldName).value(value.toObject());
       }
@@ -227,23 +219,14 @@ public class OutputRecord {
         if (this.myParentData.okToOutputFieldsFromRecord(this.fields)) {
 
           logger.info(
-              
               "Service context has no sheet with name "
                   + this.sheetName
                   + " for output. We try and output fields.");
-          Tracer.trace(
-              "Service context has no sheet with name "
-                  + this.sheetName
-                  + " for output. We try and output fields.");
+
           this.fieldsToJson(writer, this.fields, ctx);
         } else {
 
           logger.info(
-              
-              "Service context has no sheet with name "
-                  + this.sheetName
-                  + " for output. We decided against trying fields collection because it will create duplicate keys in response.");
-          Tracer.trace(
               "Service context has no sheet with name "
                   + this.sheetName
                   + " for output. We decided against trying fields collection because it will create duplicate keys in response.");
@@ -285,7 +268,7 @@ public class OutputRecord {
     if (mySheet == null) {
 
       logger.info("Sheet " + this.sheetName + " has no data to output");
-      Tracer.trace("Sheet " + this.sheetName + " has no data to output");
+
       return null;
     }
 
@@ -404,7 +387,6 @@ public class OutputRecord {
         if (this.fields == null) {
 
           logger.info("Record " + this.recordName + " yielded no fields");
-          Tracer.trace("Record " + this.recordName + " yielded no fields");
         }
       }
     }

@@ -36,7 +36,7 @@ import java.util.regex.Pattern;
 
 import org.apache.xerces.impl.dv.util.Base64;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidExpressionException;
@@ -210,18 +210,12 @@ public class TextUtil {
       } catch (Exception e) {
 
         logger.info(
-            
             value
                 + " is expected to be an implementation/extension of class "
                 + type.getName()
                 + " but there was an error when it is used for create an instance."
                 + e.getMessage());
-        Tracer.trace(
-            value
-                + " is expected to be an implementation/extension of class "
-                + type.getName()
-                + " but there was an error when it is used for create an instance."
-                + e.getMessage());
+
         return null;
       }
     }

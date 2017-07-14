@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.util.DateUtil;
 import org.simplity.service.ServiceProtocol;
 
@@ -565,7 +565,7 @@ public abstract class Value implements Serializable {
     if (object == null) {
 
       logger.info("Parse Object received null. Returning empty text value.");
-      Tracer.trace("Parse Object received null. Returning empty text value.");
+
       return VALUE_EMPTY;
     }
     if (object instanceof Boolean) {

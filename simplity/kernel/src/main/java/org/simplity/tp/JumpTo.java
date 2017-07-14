@@ -24,7 +24,6 @@ package org.simplity.tp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -46,7 +45,7 @@ public class JumpTo extends org.simplity.tp.Action {
   protected Value doAct(ServiceContext ctx) {
 
     logger.info("Trying to jump with value = " + this.returnValue);
-    Tracer.trace("Trying to jump with value = " + this.returnValue);
+
     return this.returnValue;
   }
 

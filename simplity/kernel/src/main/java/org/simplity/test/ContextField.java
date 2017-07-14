@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.json.JSONObject;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.util.JsonUtil;
 
 /** Specification for a field from output of a service test to be added to the test context */
@@ -55,10 +55,8 @@ public class ContextField {
     if (value == null) {
 
       logger.info(
-          
           "Value for " + this.fieldSelector + " is null and hence is not added to the context");
-      Tracer.trace(
-          "Value for " + this.fieldSelector + " is null and hence is not added to the context");
+
       return;
     }
     if (this.nameInContext == null) {

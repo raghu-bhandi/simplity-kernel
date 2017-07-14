@@ -189,7 +189,7 @@ public class Application {
     if (msg == null) {
 
       logger.info("Bootstrapping with " + componentFolder);
-      Tracer.trace("Bootstrapping with " + componentFolder);
+
       Application app = new Application();
       try {
         componentFolder = ComponentType.setComponentFolder(componentFolder);
@@ -367,19 +367,6 @@ public class Application {
                 + e.getMessage());
       }
     }
-    if (this.traceWrapper != null) {
-      try {
-        TraceWrapper wrapper = Application.getBean(this.traceWrapper, TraceWrapper.class);
-        //ServiceLogger.setWrapper(wrapper);
-
-      } catch (Exception e) {
-        msgs.add(
-            this.traceWrapper
-                + " could not be used to instantiate a Trace Wrapper. "
-                + e.getMessage()
-                + " We will work with a default wrapper");
-      }
-    }
 
     ServiceCacheManager casher = null;
     if (this.serviceCacheManager != null) {
@@ -452,9 +439,6 @@ public class Application {
         } else {
 
           logger.info(
-              
-              "userTransactionInstance set to " + userTransactionInstance.getClass().getName());
-          Tracer.trace(
               "userTransactionInstance set to " + userTransactionInstance.getClass().getName());
         }
       } catch (Exception e) {
@@ -525,29 +509,21 @@ public class Application {
     if (this.loggingFramework == null) {
 
       logger.info(
-          
           "No logging framework set by application designer. All service logs will be emitted to console. (System.out)");
-      Tracer.trace(
-          "No logging framework set by application designer. All service logs will be emitted to console. (System.out)");
+
     } else {
 
       logger.info(
-          
           "Logging framework is set to "
               + this.loggingFramework
               + ". Will try to locate the right class and connect to it.");
-      Tracer.trace(
-          "Logging framework is set to "
-              + this.loggingFramework
-              + ". Will try to locate the right class and connect to it.");
+
       try {
-       // ServiceLogger.setLogger(this.loggingFramework);
+        // ServiceLogger.setLogger(this.loggingFramework);
 
         logger.info(
-            
             "Service logs successfully diverted to the logging framework " + this.loggingFramework);
-        Tracer.trace(
-            "Service logs successfully diverted to the logging framework " + this.loggingFramework);
+
       } catch (Exception e) {
         String msg =
             "Logging framework "
@@ -557,7 +533,7 @@ public class Application {
                 + "\nAre you missing required jar file?. ";
 
         logger.info(msg);
-        Tracer.trace(msg);
+
         msgs.add(msg);
       }
     }
@@ -623,9 +599,8 @@ public class Application {
       try {
         threadFactory = (ThreadFactory) new InitialContext().lookup(this.threadFactoryJndiName);
 
-        logger.info(
-             "Thread factory instantiated as " + threadFactory.getClass().getName());
-        Tracer.trace("Thread factory instantiated as " + threadFactory.getClass().getName());
+        logger.info("Thread factory instantiated as " + threadFactory.getClass().getName());
+
       } catch (Exception e) {
         msgs.add(
             "Error while looking up "
@@ -641,12 +616,9 @@ public class Application {
             (ScheduledExecutorService) new InitialContext().lookup(this.scheduledExecutorJndiName);
 
         logger.info(
-            
             "ScheduledThreadPoolExecutor instantiated as "
                 + threadPoolExecutor.getClass().getName());
-        Tracer.trace(
-            "ScheduledThreadPoolExecutor instantiated as "
-                + threadPoolExecutor.getClass().getName());
+
       } catch (Exception e) {
         msgs.add(
             "Error while looking up "
@@ -679,7 +651,7 @@ public class Application {
       result = err.toString();
 
       logger.info(result);
-      Tracer.trace(result);
+
     } else if (this.jobsToRunOnStartup != null) {
       /*
        * we run the background batch job only if everything has gone well.
@@ -687,7 +659,6 @@ public class Application {
       Jobs.startJobs(this.jobsToRunOnStartup);
 
       logger.info("Scheduler started for Batch " + this.jobsToRunOnStartup);
-      Tracer.trace("Scheduler started for Batch " + this.jobsToRunOnStartup);
     }
     return result;
   }

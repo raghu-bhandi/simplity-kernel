@@ -34,7 +34,7 @@ import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.rest.param.ArrayParameter;
 import org.simplity.rest.param.ObjectParameter;
@@ -165,7 +165,7 @@ public class Response {
     if (data == null) {
 
       logger.info("No response object suplied for response. no body response.");
-      Tracer.trace("No response object suplied for response. no body response.");
+
       return;
     }
 
@@ -174,10 +174,8 @@ public class Response {
       bodyData = data.opt(this.bodyFieldName);
       if (bodyData == null) {
 
-        logger.info(
-            
-            "Response field " + this.bodyFieldName + " has no value. No response sent.");
-        Tracer.trace("Response field " + this.bodyFieldName + " has no value. No response sent.");
+        logger.info("Response field " + this.bodyFieldName + " has no value. No response sent.");
+
         return;
       }
     }
@@ -187,13 +185,6 @@ public class Response {
       } else {
 
         logger.info(
-            
-            "We expected a JSON Object as response value with bodyFieldName="
-                + this.bodyFieldName
-                + " but we got "
-                + bodyData.getClass().getName()
-                + " as value. Null value assumed for response.");
-        Tracer.trace(
             "We expected a JSON Object as response value with bodyFieldName="
                 + this.bodyFieldName
                 + " but we got "

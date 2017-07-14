@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.simplity.json.JSONArray;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Messages;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.dt.DataType;
@@ -131,7 +131,7 @@ public class InputField {
       if (value == null && this.isRequired) {
 
         logger.info(this.name + " failed mandatory criterion");
-        Tracer.trace(this.name + " failed mandatory criterion");
+
         ctx.addMessage(Messages.VALUE_REQUIRED, this.name);
         return false;
       }
@@ -272,7 +272,7 @@ public class InputField {
   private boolean validationError(String value, int idx, ServiceContext ctx) {
 
     logger.info(this.name + " failed validation against data type " + this.dataType);
-    Tracer.trace(this.name + " failed validation against data type " + this.dataType);
+
     String msg = this.dataTypeObject.getMessageName();
     if (msg != null) {
       ctx.addValidationMessage(msg, this.name, null, null, idx, value);
@@ -302,33 +302,32 @@ public class InputField {
     } else if (this.defaultValue != null) {
       Value val = dt.parseValue(this.defaultValue);
 
-			if (val == null) {
-				ctx.addError("Default value of " + this.defaultValue
-						+ " is invalid for field " + this.name);
-				count++;
-			}
-		}
-		return count;
-	}
+      if (val == null) {
+        ctx.addError(
+            "Default value of " + this.defaultValue + " is invalid for field " + this.name);
+        count++;
+      }
+    }
+    return count;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public boolean isRequired() {
-		return isRequired;
-	}
+  public boolean isRequired() {
+    return isRequired;
+  }
 
-	public void setRequired(boolean isRequired) {
-		this.isRequired = isRequired;
-	}
+  public void setRequired(boolean isRequired) {
+    this.isRequired = isRequired;
+  }
 
-	public void setDataType(String dataType) {
-		this.dataType = dataType;
-	}
-
+  public void setDataType(String dataType) {
+    this.dataType = dataType;
+  }
 }

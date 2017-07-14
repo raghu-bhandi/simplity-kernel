@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -75,14 +75,10 @@ public class Suggest extends DbAction {
     if (value == null) {
 
       logger.info(
-          
           "No value is available in field "
               + this.fieldToMatch
               + " for us to suggest. No suggestions sent to client");
-      Tracer.trace(
-          "No value is available in field "
-              + this.fieldToMatch
-              + " for us to suggest. No suggestions sent to client");
+
       return 0;
     }
     boolean matchStarting = false;
@@ -94,13 +90,6 @@ public class Suggest extends DbAction {
     } catch (InvalidValueException e) {
 
       logger.info(
-          
-          "we expected boolean value in "
-              + ServiceProtocol.SUGGEST_STARTING
-              + " but encountered "
-              + v
-              + ". Assumed false value.");
-      Tracer.trace(
           "we expected boolean value in "
               + ServiceProtocol.SUGGEST_STARTING
               + " but encountered "

@@ -31,7 +31,6 @@ import java.util.Date;
 
 import org.simplity.kernel.Application;
 import org.simplity.kernel.Messages;
-import org.simplity.kernel.Tracer;
 
 /**
  * convenient class that can be used to run a service in the background
@@ -76,8 +75,8 @@ public class ServiceSubmitter implements Runnable {
       Application.reportApplicationError(this.inData, e);
       outData = new ServiceData(this.inData.getUserId(), serviceName);
 
-      logger.error( "Service " + serviceName + " resulted in fatal error", e);
-      Tracer.trace(e, "Service " + serviceName + " resulted in fatal error");
+      logger.error("Service " + serviceName + " resulted in fatal error", e);
+
       outData.addMessage(Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()));
     }
     /*
@@ -85,7 +84,7 @@ public class ServiceSubmitter implements Runnable {
      */
 
     logger.info("Background service completed with following trace");
-    Tracer.trace("Background service completed with following trace");
+
     if (this.outStream == null) {
       return;
     }
@@ -105,8 +104,8 @@ public class ServiceSubmitter implements Runnable {
       this.outStream.writeObject(outData);
     } catch (IOException e) {
 
-       logger.error("Error while writing response from background service onto stream", e);
-      Tracer.trace(e, "Error while writing response from background service onto stream");
+      logger.error("Error while writing response from background service onto stream", e);
+
     } finally {
       try {
         this.outStream.close();

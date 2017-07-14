@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.value.Value;
 
 /** @author simplity.org */
@@ -92,11 +92,10 @@ public class JavaAgent {
     if (msgs != null && msgs.length > 0) {
 
       logger.info("**** Server returned with following messages ***");
-      Tracer.trace("**** Server returned with following messages ***");
+
       for (FormattedMessage msg : msgs) {
 
         logger.info(msg.messageType + " : " + msg.text);
-        Tracer.trace(msg.messageType + " : " + msg.text);
       }
     }
     return outData;
@@ -127,10 +126,8 @@ public class JavaAgent {
       if (uid == null) {
 
         logger.info(
-            
             "Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
-        Tracer.trace(
-            "Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
+
         return false;
       }
 

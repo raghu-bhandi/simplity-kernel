@@ -30,7 +30,7 @@ import java.util.Date;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.util.DateUtil;
@@ -75,7 +75,7 @@ public class TestDt extends AbstractService {
         nbrNotOk++;
 
         logger.info("Invalid value : " + val);
-        Tracer.trace("Invalid value : " + val);
+
       } else {
         nbrOk++;
         writer.key(key);
@@ -135,9 +135,7 @@ public class TestDt extends AbstractService {
           return DateUtil.formatDate(date);
         } catch (Exception e) {
 
-          logger.info(
-               "Did not parse " + value + " as special date value : " + e.getMessage());
-          Tracer.trace("Did not parse " + value + " as special date value : " + e.getMessage());
+          logger.info("Did not parse " + value + " as special date value : " + e.getMessage());
         }
       }
     }

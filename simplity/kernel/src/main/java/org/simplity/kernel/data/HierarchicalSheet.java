@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.simplity.json.JSONWriter;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.value.Value;
 
 /**
@@ -95,9 +95,8 @@ public class HierarchicalSheet {
     List<Value[]> rows = this.data.get(key);
     if (rows == null) {
 
-      logger.info(
-           "No rows found in child sheet " + this.name + " for parent key " + key);
-      Tracer.trace("No rows found in child sheet " + this.name + " for parent key " + key);
+      logger.info("No rows found in child sheet " + this.name + " for parent key " + key);
+
       return;
     }
     writer.key(this.name);

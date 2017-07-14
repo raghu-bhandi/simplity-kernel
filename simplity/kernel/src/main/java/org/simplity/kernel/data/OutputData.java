@@ -33,7 +33,7 @@ import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.JsonUtil;
@@ -104,7 +104,7 @@ public class OutputData {
        */
 
       logger.info("Picking up response from writer");
-      Tracer.trace("Picking up response from writer");
+
       ResponseWriter writer = ctx.getWriter();
       /*
        * add status
@@ -125,14 +125,10 @@ public class OutputData {
       if (obj == null) {
 
         logger.info(
-            
             "We expected a ready response in service context with name "
                 + this.responseTextFieldName
                 + " . We are sorry that we could not locate it, and we are sending an empty response.");
-        Tracer.trace(
-            "We expected a ready response in service context with name "
-                + this.responseTextFieldName
-                + " . We are sorry that we could not locate it, and we are sending an empty response.");
+
       } else {
         outData.setPayLoad(obj.toString());
       }
@@ -212,9 +208,8 @@ public class OutputData {
         DataSheet sheet = ctx.getDataSheet(sheetName);
         if (sheet == null) {
 
-          logger.info(
-               "Service context has no sheet with name " + sheetName + " for output.");
-          Tracer.trace("Service context has no sheet with name " + sheetName + " for output.");
+          logger.info("Service context has no sheet with name " + sheetName + " for output.");
+
         } else {
           outData.put(sheetName, ctx.getDataSheet(sheetName));
         }
@@ -232,9 +227,8 @@ public class OutputData {
           Value value = ctx.getValue(arrayName);
           if (value == null) {
 
-            logger.info(
-                 "Service context has no sheet with name " + arrayName + " for output.");
-            Tracer.trace("Service context has no sheet with name " + arrayName + " for output.");
+            logger.info("Service context has no sheet with name " + arrayName + " for output.");
+
             continue;
           }
           outData.put(arrayName, ctx.getValue(arrayName));
@@ -286,9 +280,8 @@ public class OutputData {
         DataSheet sheet = ctx.getDataSheet(sheetName);
         if (sheet == null) {
 
-          logger.info(
-               "Service context has no sheet with name " + sheetName + " for output.");
-          Tracer.trace("Service context has no sheet with name " + sheetName + " for output.");
+          logger.info("Service context has no sheet with name " + sheetName + " for output.");
+
         } else {
           writer.key(sheetName);
           JsonUtil.sheetToJson(writer, sheet, null, false);
@@ -307,9 +300,8 @@ public class OutputData {
           Value value = ctx.getValue(arrayName);
           if (value == null) {
 
-            logger.info(
-                 "Service context has no sheet with name " + arrayName + " for output.");
-            Tracer.trace("Service context has no sheet with name " + arrayName + " for output.");
+            logger.info("Service context has no sheet with name " + arrayName + " for output.");
+
             continue;
           }
           writer.key(arrayName).array().value(value).endArray();
@@ -346,7 +338,7 @@ public class OutputData {
     if (this.outputFromWriter) {
 
       logger.info("Started Writer for this service");
-      Tracer.trace("Started Writer for this service");
+
       ResponseWriter writer = new JSONWriter();
       writer.init();
       ctx.setWriter(writer);
@@ -575,7 +567,7 @@ public class OutputData {
     this.outputFromWriter = true;
   }
 
-	public void setOutputFields(String[] fields) {
-		this.fieldNames = fields;
-	}
+  public void setOutputFields(String[] fields) {
+    this.fieldNames = fields;
+  }
 }

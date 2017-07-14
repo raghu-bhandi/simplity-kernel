@@ -25,7 +25,6 @@ package org.simplity.kernel.dt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.value.DecimalValue;
 import org.simplity.kernel.value.IntegerValue;
@@ -181,7 +180,6 @@ public class NumericDataType extends DataType {
     } catch (InvalidValueException e) {
 
       logger.info("Numeric data type is asked to format " + value.getValueType());
-      Tracer.trace("Numeric data type is asked to format " + value.getValueType());
     }
     return Value.FALSE_TEXT_VALUE;
   }

@@ -29,7 +29,7 @@ import java.util.Arrays;
 
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.value.Value;
@@ -102,7 +102,7 @@ public class Job {
     if (this.runInterval == 0 && this.nbrDedicatedThreads == 0) {
 
       logger.info("Job " + this.name + " will be run once");
-      Tracer.trace("Job " + this.name + " will be run once");
+
       this.nbrDedicatedThreads = 1;
     }
     if (this.userId != null) {

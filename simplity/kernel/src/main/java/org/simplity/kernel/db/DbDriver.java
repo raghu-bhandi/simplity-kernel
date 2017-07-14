@@ -44,7 +44,7 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.DynamicSheet;
 import org.simplity.kernel.data.FieldsInterface;
@@ -284,18 +284,14 @@ public class DbDriver {
     if (vendor == null) {
 
       logger.info(
-          
           "This Application has not set dbVendor. We assume that the application does not require any db connection.");
-      Tracer.trace(
-          "This Application has not set dbVendor. We assume that the application does not require any db connection.");
+
       if (dataSourceName != null
           || driverClassName != null
           || conString != null
           || schemaDetails != null) {
 
-        logger.info(
-             "WARNING: Since dbVendor is not set, we ignore other db related settings.");
-        Tracer.trace("WARNING: Since dbVendor is not set, we ignore other db related settings.");
+        logger.info("WARNING: Since dbVendor is not set, we ignore other db related settings.");
       }
       return;
     }
@@ -308,9 +304,6 @@ public class DbDriver {
       if (driverClassName != null || conString != null) {
 
         logger.info(
-            
-            "WARNING: Since dataSourceName is specified, we ignore driverClassName and connectionString attributes");
-        Tracer.trace(
             "WARNING: Since dataSourceName is specified, we ignore driverClassName and connectionString attributes");
       }
 
@@ -326,11 +319,6 @@ public class DbDriver {
           if (sd.connectionString != null) {
 
             logger.info(
-                
-                "Warning : This application uses data source, and hence connection string for schema "
-                    + sd.schemaName
-                    + " ignored");
-            Tracer.trace(
                 "Warning : This application uses data source, and hence connection string for schema "
                     + sd.schemaName
                     + " ignored");
@@ -363,13 +351,12 @@ public class DbDriver {
     }
 
     logger.info("Driver class name " + driverClassName + " invoked successfully");
-    Tracer.trace("Driver class name " + driverClassName + " invoked successfully");
 
     setConnection(null, conString);
     if (schemaDetails != null) {
 
       logger.info("Checking connection string for additional schemas");
-      Tracer.trace("Checking connection string for additional schemas");
+
       otherConStrings = new HashMap<String, String>();
       for (SchemaDetail sd : schemaDetails) {
         if (sd.schemaName == null || sd.connectionString == null) {
@@ -379,11 +366,6 @@ public class DbDriver {
         if (sd.dataSourceName != null) {
 
           logger.info(
-              
-              "Warning: This application uses connection string, and hence dataSource for schema "
-                  + sd.schemaName
-                  + " ignored");
-          Tracer.trace(
               "Warning: This application uses connection string, and hence dataSource for schema "
                   + sd.schemaName
                   + " ignored");
@@ -435,21 +417,15 @@ public class DbDriver {
         dataSource = ds;
 
         logger.info(
-            
             "Database connection for "
                 + dbVendor
                 + " established successfully using dataSource. Default schema is "
                 + defaultSchema);
-        Tracer.trace(
-            "Database connection for "
-                + dbVendor
-                + " established successfully using dataSource. Default schema is "
-                + defaultSchema);
+
       } else {
         otherDataSources.put(schema.toUpperCase(), ds);
 
         logger.info("DataSource added for schema " + schema);
-        Tracer.trace("DataSource added for schema " + schema);
       }
     } catch (SQLException e) {
       err =
@@ -484,21 +460,15 @@ public class DbDriver {
         connectionString = conString;
 
         logger.info(
-            
             "Database connection for "
                 + dbVendor
                 + " established successfully using a valid connection string. Default schema is "
                 + defaultSchema);
-        Tracer.trace(
-            "Database connection for "
-                + dbVendor
-                + " established successfully using a valid connection string. Default schema is "
-                + defaultSchema);
+
       } else {
         otherConStrings.put(schema.toUpperCase(), conString);
 
         logger.info("Additional connection string validated for schema " + schema);
-        Tracer.trace("Additional connection string validated for schema " + schema);
       }
     } catch (Exception e) {
       err = e;
@@ -527,7 +497,7 @@ public class DbDriver {
   private static void setVendorParams(DbVendor vendor) {
 
     logger.info("dbVendor is set to " + vendor);
-    Tracer.trace("dbVendor is set to " + vendor);
+
     dbVendor = vendor;
     char[] chars = vendor.getEscapesForLike();
     charsToEscapeForLike = new String[chars.length];
@@ -572,8 +542,8 @@ public class DbDriver {
       allOk = callBackObject.workWithDriver(driver);
     } catch (Exception e) {
 
-    	logger.error("Callback object threw an exception while working with the driver", e);
-      Tracer.trace(e, "Callback object threw an exception while working with the driver");
+      logger.error("Callback object threw an exception while working with the driver", e);
+
       exception = e;
     }
     if (con != null) {
@@ -676,19 +646,14 @@ public class DbDriver {
       if (sch.equals(defaultSchema)) {
 
         logger.info(
-            
             "service is asking for schema "
                 + schema
                 + " but that is the default. default connection used");
-        Tracer.trace(
-            "service is asking for schema "
-                + schema
-                + " but that is the default. default connection used");
+
         sch = null;
       } else {
 
         logger.info("Going to open a non-default connection for schema " + schema);
-        Tracer.trace("Going to open a non-default connection for schema " + schema);
       }
     }
     if (dataSource != null) {
@@ -816,7 +781,7 @@ public class DbDriver {
       rs.close();
 
       logger.info(result + " rows processed.");
-      Tracer.trace(result + " rows processed.");
+
     } catch (SQLException e) {
       throw new ApplicationError(e, "Sql Error while extracting data ");
     } finally {
@@ -948,18 +913,12 @@ public class DbDriver {
       if (treatSqlErrorAsNoAction) {
 
         logger.info(
-            
             "SQLException code:"
                 + e.getErrorCode()
                 + " message :"
                 + e.getMessage()
                 + " is treated as zero rows affected.");
-        Tracer.trace(
-            "SQLException code:"
-                + e.getErrorCode()
-                + " message :"
-                + e.getMessage()
-                + " is treated as zero rows affected.");
+
       } else {
         throw new ApplicationError(e, "Sql Error while executing sql ");
       }
@@ -969,11 +928,10 @@ public class DbDriver {
     if (result < 0) {
 
       logger.info("Number of affected rows is not reliable as we got it as " + result);
-      Tracer.trace("Number of affected rows is not reliable as we got it as " + result);
+
     } else {
 
       logger.info(result + " rows affected.");
-      Tracer.trace(result + " rows affected.");
     }
     return result;
   }
@@ -1017,18 +975,12 @@ public class DbDriver {
       if (treatSqlErrorAsNoAction) {
 
         logger.info(
-            
             "SQLException code:"
                 + e.getErrorCode()
                 + " message :"
                 + e.getMessage()
                 + " is treated as zero rows affected.");
-        Tracer.trace(
-            "SQLException code:"
-                + e.getErrorCode()
-                + " message :"
-                + e.getMessage()
-                + " is treated as zero rows affected.");
+
       } else {
         throw new ApplicationError(e, "Sql Error while executing sql ");
       }
@@ -1038,11 +990,10 @@ public class DbDriver {
     if (result < 0) {
 
       logger.info("Number of affected rows is not reliable as we got it as " + result);
-      Tracer.trace("Number of affected rows is not reliable as we got it as " + result);
+
     } else {
 
       logger.info(result + " rows affected.");
-      Tracer.trace(result + " rows affected.");
     }
     return result;
   }
@@ -1119,18 +1070,12 @@ public class DbDriver {
       if (treatSqlErrorAsNoAction) {
 
         logger.info(
-            
             "SQLException code:"
                 + e.getErrorCode()
                 + " message :"
                 + e.getMessage()
                 + " is treated as zero rows affected.");
-        Tracer.trace(
-            "SQLException code:"
-                + e.getErrorCode()
-                + " message :"
-                + e.getMessage()
-                + " is treated as zero rows affected.");
+
       } else {
         throw new ApplicationError(e, "Sql Error while executing batch ");
       }
@@ -1148,11 +1093,10 @@ public class DbDriver {
     if (rows < 0) {
 
       logger.info("Number of affected rows is not reliable as we got it as " + rows);
-      Tracer.trace("Number of affected rows is not reliable as we got it as " + rows);
+
     } else {
 
       logger.info(rows + " rows affected.");
-      Tracer.trace(rows + " rows affected.");
     }
     return result;
   }
@@ -1195,18 +1139,16 @@ public class DbDriver {
           try {
             if (param.setParameter(stmt, inputFields, ctx) == false) {
 
-              logger.info(
-                   "Error while setting " + param.name + " You will get an error.");
-              Tracer.trace("Error while setting " + param.name + " You will get an error.");
+              logger.info("Error while setting " + param.name + " You will get an error.");
+
               // issue in setting parameter. May be a mandatory
               // field is not set
               return 0;
             }
           } catch (Exception e) {
 
-            logger.info(
-                 "Unable to set param " + param.name + " error : " + e.getMessage());
-            Tracer.trace("Unable to set param " + param.name + " error : " + e.getMessage());
+            logger.info("Unable to set param " + param.name + " error : " + e.getMessage());
+
             param.reportError(e);
           }
         }
@@ -1219,14 +1161,10 @@ public class DbDriver {
           if (i >= nbrSheets) {
 
             logger.info(
-                
                 "Stored procedure is ready to give more results, but the requester has supplied only "
                     + nbrSheets
                     + " data sheets to read data into. Other data ignored.");
-            Tracer.trace(
-                "Stored procedure is ready to give more results, but the requester has supplied only "
-                    + nbrSheets
-                    + " data sheets to read data into. Other data ignored.");
+
             break;
           }
           DataSheet outputSheet = outputSheets[i];
@@ -1264,7 +1202,7 @@ public class DbDriver {
     }
 
     logger.info(result + " rows extracted.");
-    Tracer.trace(result + " rows extracted.");
+
     if (result > 0) {
       return result;
     }
@@ -1282,9 +1220,8 @@ public class DbDriver {
   static void closeConnection(Connection con, DbAccessType accType, boolean allOk) {
     try {
 
-      logger.info(
-           "Going to close a connection of type " + accType + " with allOK = " + allOk);
-      Tracer.trace("Going to close a connection of type " + accType + " with allOK = " + allOk);
+      logger.info("Going to close a connection of type " + accType + " with allOK = " + allOk);
+
       if (accType == DbAccessType.READ_WRITE) {
         if (allOk) {
           con.commit();
@@ -1295,8 +1232,8 @@ public class DbDriver {
     } catch (SQLException e) {
       // throw new ApplicationError(e,
 
-    	logger.error("Sql Error while closing database connection. ", e);
-      Tracer.trace(e, "Sql Error while closing database connection. ");
+      logger.error("Sql Error while closing database connection. ", e);
+
     } finally {
       try {
         con.close();
@@ -1344,7 +1281,7 @@ public class DbDriver {
     rs.close();
 
     logger.info(result + " rows extracted.");
-    Tracer.trace(result + " rows extracted.");
+
     return result;
   }
 
@@ -1370,7 +1307,7 @@ public class DbDriver {
     rs.close();
 
     logger.info(result + " rows processed.");
-    Tracer.trace(result + " rows processed.");
+
     return result;
   }
   /**
@@ -1392,7 +1329,7 @@ public class DbDriver {
     rs.close();
 
     logger.info(result + " rows extracted.");
-    Tracer.trace(result + " rows extracted.");
+
     return result;
   }
 
@@ -1566,7 +1503,7 @@ public class DbDriver {
     if (values == null || values.length == 0) {
 
       logger.info(sql);
-      Tracer.trace(sql);
+
       return;
     }
     StringBuilder sbf = new StringBuilder(sql);
@@ -1588,7 +1525,6 @@ public class DbDriver {
     }
 
     logger.info(sbf.toString());
-    Tracer.trace(sbf.toString());
   }
 
   private void traceBatchSql(String sql, Value[][] values) {
@@ -1672,10 +1608,8 @@ public class DbDriver {
     if (tableName == null) {
 
       logger.info(
-          
           "getPrimaryKeysForTable() is for a specific table. If you want for all tables, use the getPrimaryKeys()");
-      Tracer.trace(
-          "getPrimaryKeysForTable() is for a specific table. If you want for all tables, use the getPrimaryKeys()");
+
       return null;
     }
     Connection con = getConnection(DbAccessType.READ_ONLY, schemaName);
@@ -1805,8 +1739,8 @@ public class DbDriver {
       }
     } catch (Exception e) {
 
-    	logger.error("Unable to get meta data for " + metaName, e);
-      Tracer.trace(e, "Unable to get meta data for " + metaName);
+      logger.error("Unable to get meta data for " + metaName, e);
+
     } finally {
       if (rs != null) {
         try {
@@ -1921,7 +1855,7 @@ public class DbDriver {
     }
 
     logger.info("Going to create an array descriptor for " + dbArrayType);
-    Tracer.trace("Going to create an array descriptor for " + dbArrayType);
+
     if (dbVendor == DbVendor.ORACLE) {
       OracleConnection ocon = toOracleConnection(con);
       ArrayDescriptor ad = ArrayDescriptor.createDescriptor(dbArrayType, ocon);
@@ -1944,7 +1878,7 @@ public class DbDriver {
       throws SQLException {
 
     logger.info("Going to create a descriptor for " + dbObjectType);
-    Tracer.trace("Going to create a descriptor for " + dbObjectType);
+
     if (dbVendor == DbVendor.ORACLE) {
       OracleConnection ocon = toOracleConnection(con);
       StructDescriptor sd = StructDescriptor.createDescriptor(dbObjectType, ocon);

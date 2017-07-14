@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.kernel.dm; 
+package org.simplity.kernel.dm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -771,7 +771,7 @@ public class Field {
       }
 
       logger.info("Record " + recordName + " field " + this.name + " is mandatory.");
-      Tracer.trace("Record " + recordName + " field " + this.name + " is mandatory.");
+
       errors.add(new FormattedMessage(Messages.VALUE_REQUIRED, recordName, this.name, null, 0));
       return null;
     }

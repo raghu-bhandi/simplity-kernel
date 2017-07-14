@@ -29,7 +29,7 @@ import java.util.Map;
 
 import org.simplity.jms.MessageClient;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.db.DbClientInterface;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
@@ -125,15 +125,6 @@ public class BlockWorker implements DbClientInterface, MessageClient {
       currentIdx++;
 
       logger.info(
-          
-          "Action "
-              + action.actionName
-              + " finished with result="
-              + result
-              + " in "
-              + (new Date().getTime() - startedAt)
-              + " ms");
-      Tracer.trace(
           "Action "
               + action.actionName
               + " finished with result="

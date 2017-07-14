@@ -25,7 +25,6 @@ package org.simplity.ide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 import org.simplity.tp.LogicInterface;
@@ -51,19 +50,19 @@ public class AsynchHelloWorld implements LogicInterface {
     long l = Math.round(10000 * Math.random());
 
     logger.info("Hello World logic " + "will take a nap for " + l + "ms");
-    Tracer.trace("Hello World logic " + "will take a nap for " + l + "ms");
+
     boolean interrupted = false;
     try {
       Thread.sleep(l);
     } catch (InterruptedException e) {
 
       logger.info("Hello World logic got woken...");
-      Tracer.trace("Hello World logic got woken...");
+
       interrupted = true;
     }
 
     logger.info("Hello World... rather belated-");
-    Tracer.trace("Hello World... rather belated-");
+
     /*
      * be a responsible method -we should not digest the interrupt. We are
      * to relay that.

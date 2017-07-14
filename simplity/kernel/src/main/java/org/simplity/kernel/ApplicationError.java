@@ -63,8 +63,8 @@ public class ApplicationError extends RuntimeException {
    */
   public ApplicationError(Exception e, String msg) {
 
-	  logger.error( msg, e);
-    Tracer.trace(e, msg);
+    logger.error(msg, e);
+
     if (e instanceof SQLException) {
       this.msg = this.getSqlMessage((SQLException) e);
     } else {
@@ -78,7 +78,6 @@ public class ApplicationError extends RuntimeException {
       sbf.append(t.getMessage()).append('\n');
 
       logger.info(e.getMessage());
-      Tracer.trace(e.getMessage());
     }
     return sbf.toString();
   }

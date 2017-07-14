@@ -25,7 +25,6 @@ package org.simplity.test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.JsonUtil;
 
@@ -66,9 +65,8 @@ public class InputField {
   public void setInputValue(Object json, TestContext ctx) {
     if (this.fieldValue == null) {
 
-      logger.info(
-           this.fieldSelector + " has no value, and hence is not added to the input");
-      Tracer.trace(this.fieldSelector + " has no value, and hence is not added to the input");
+      logger.info(this.fieldSelector + " has no value, and hence is not added to the input");
+
       return;
     }
     Object value = this.fieldValue;

@@ -36,7 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.file.FileManager;
 import org.simplity.service.ServiceProtocol;
 
@@ -66,12 +66,12 @@ public class Stream extends HttpServlet {
         String token = req.getHeader(ServiceProtocol.HEADER_FILE_TOKEN);
 
         logger.info("Received a request to discard temp file token " + token);
-        Tracer.trace("Received a request to discard temp file token " + token);
+
         FileManager.deleteTempFile(token);
       } else {
 
         logger.info("Going to upload file ");
-        Tracer.trace("Going to upload file ");
+
         InputStream inStream = req.getInputStream();
         try {
           File file = FileManager.createTempFile(inStream);
@@ -89,8 +89,8 @@ public class Stream extends HttpServlet {
       }
     } catch (Exception e) {
 
-    	logger.error( "Error while trying to upload a file.", e);
-      Tracer.trace(e, "Error while trying to upload a file.");
+      logger.error("Error while trying to upload a file.", e);
+
       throw new ApplicationError(e, "Error while trying to upload a file.");
     }
   }
@@ -110,7 +110,7 @@ public class Stream extends HttpServlet {
     if (token == null) {
 
       logger.info("No file/token specified for file download request");
-      Tracer.trace("No file/token specified for file download request");
+
       resp.setStatus(404);
       return;
     }
@@ -118,13 +118,12 @@ public class Stream extends HttpServlet {
     if (token.indexOf(DOWNLOAD) == 0) {
 
       logger.info("Received a download request for token " + token);
-      Tracer.trace("Received a download request for token " + token);
+
       toDownload = true;
       token = token.substring(DOWNLOAD.length());
     } else {
 
       logger.info("Received request to stream token " + token);
-      Tracer.trace("Received request to stream token " + token);
     }
     /*
      * do we have a file for this token?
@@ -137,7 +136,7 @@ public class Stream extends HttpServlet {
     }
 
     logger.info("No file available for token " + token);
-    Tracer.trace("No file available for token " + token);
+
     resp.setStatus(404);
   }
 
@@ -170,8 +169,8 @@ public class Stream extends HttpServlet {
       }
     } catch (Exception e) {
 
-    	logger.error( "Error while copying file to response", e);
-      Tracer.trace(e, "Error while copying file to response");
+      logger.error("Error while copying file to response", e);
+
       resp.setStatus(404);
     } finally {
       if (out != null) {

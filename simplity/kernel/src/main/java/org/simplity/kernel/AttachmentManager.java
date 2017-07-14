@@ -125,9 +125,8 @@ public class AttachmentManager {
       newKey = assistant.store(in);
     } catch (Exception e) {
 
-    
-      logger.error( "Error while moving attachment " + key + " from temp area to storage", e);
-      Tracer.trace(e, "Error while moving attachment " + key + " from temp area to storage");
+      logger.error("Error while moving attachment " + key + " from temp area to storage", e);
+
       return null;
     } finally {
       if (in != null) {
@@ -173,9 +172,6 @@ public class AttachmentManager {
     assistant = ast;
 
     logger.info(
-        
-        "Attachment Manager is happy to announce that she got an assistant, and is ready to serve attachment files now.");
-    Tracer.trace(
         "Attachment Manager is happy to announce that she got an assistant, and is ready to serve attachment files now.");
   }
 

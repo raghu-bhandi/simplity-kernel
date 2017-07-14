@@ -32,7 +32,7 @@ import java.util.Map;
 import org.simplity.job.Jobs;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Message;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.db.Sql;
 import org.simplity.kernel.db.StoredProcedure;
 import org.simplity.kernel.dm.Record;
@@ -102,10 +102,7 @@ public enum ComponentType {
             obj = Class.forName(fname).newInstance();
           } catch (Exception e) {
 
-        	  logger.error(
-                "Unable to create an instance of Function based on class " + fname,
-                e);
-            Tracer.trace(e, "Unable to create an instance of Function based on class " + fname);
+            logger.error("Unable to create an instance of Function based on class " + fname, e);
           }
           if (obj != null) {
             if (obj instanceof Function) {
@@ -113,10 +110,6 @@ public enum ComponentType {
             } else {
 
               logger.info(
-                  
-                  fname
-                      + " is a valid class but not a sub-class of Function. Function entry ignored.");
-              Tracer.trace(
                   fname
                       + " is a valid class but not a sub-class of Function. Function entry ignored.");
             }
@@ -124,7 +117,7 @@ public enum ComponentType {
         }
 
         logger.info(this.cachedOnes.size() + " " + this + " loaded.");
-        Tracer.trace(this.cachedOnes.size() + " " + this + " loaded.");
+
       } catch (Exception e) {
         this.cachedOnes.clear();
 
@@ -132,20 +125,12 @@ public enum ComponentType {
             this
                 + " pre-loading failed. No component of this type is available till we successfully pre-load them again.",
             e);
-        Tracer.trace(
-            e,
-            this
-                + " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
       }
       for (Function fn : BUILT_IN_FUNCTIONS) {
         String fname = fn.getSimpleName();
         if (this.cachedOnes.get(fname) != null) {
 
           logger.info(
-              
-              fname
-                  + " is a built-in function and can not be over-ridden. User defined function with the same name is discarded.");
-          Tracer.trace(
               fname
                   + " is a built-in function and can not be over-ridden. User defined function with the same name is discarded.");
         }
@@ -381,14 +366,14 @@ public enum ComponentType {
 
     if (exp != null) {
 
-    	logger.error( "error while loading component " + compName, exp);
-      Tracer.trace(exp, "error while loading component " + compName);
+      logger.error("error while loading component " + compName, exp);
+
       return null;
     }
     if (obj == null) {
 
       logger.info("error while loading component " + compName);
-      Tracer.trace("error while loading component " + compName);
+
       return null;
     }
     /*
@@ -400,16 +385,11 @@ public enum ComponentType {
     if (compName.equalsIgnoreCase(fullName) == false) {
 
       logger.info(
-          
           "Component has a qualified name of "
               + fullName
               + " that is different from its storage name "
               + compName);
-      Tracer.trace(
-          "Component has a qualified name of "
-              + fullName
-              + " that is different from its storage name "
-              + compName);
+
       return null;
     }
     return comp;
@@ -434,7 +414,7 @@ public enum ComponentType {
       }
 
       logger.info(this.cachedOnes.size() + " " + this + " loaded.");
-      Tracer.trace(this.cachedOnes.size() + " " + this + " loaded.");
+
     } catch (Exception e) {
       this.cachedOnes.clear();
 
@@ -442,10 +422,6 @@ public enum ComponentType {
           this
               + " pre-loading failed. No component of this type is available till we successfully pre-load them again.",
           e);
-      Tracer.trace(
-          e,
-          this
-              + " pre-loading failed. No component of this type is available till we successfully pre-load them again.");
     }
   }
 
@@ -470,18 +446,17 @@ public enum ComponentType {
       if (resName.endsWith(EXTN) == false) {
 
         logger.info("Skipping Non-resource " + resName);
-        Tracer.trace("Skipping Non-resource " + resName);
+
         continue;
       }
 
       logger.info("Going to load components from " + resName);
-      Tracer.trace("Going to load components from " + resName);
+
       try {
         XmlUtil.xmlToCollection(resName, objects, packageName);
       } catch (Exception e) {
 
-    	  logger.error("Resource " + resName + " failed to load.", e);
-        Tracer.trace(e, "Resource " + resName + " failed to load.");
+        logger.error("Resource " + resName + " failed to load.", e);
       }
     }
   }
@@ -498,7 +473,7 @@ public enum ComponentType {
     loadGroups(CLASS_FOLDER, null, serviceAliases);
 
     logger.info(serviceAliases.size() + " java class names loaded as services.");
-    Tracer.trace(serviceAliases.size() + " java class names loaded as services.");
+
     /*
      * clean and pre-load if required
      */
@@ -550,7 +525,7 @@ public enum ComponentType {
     }
 
     logger.info("component folder set to " + componentFolder);
-    Tracer.trace("component folder set to " + componentFolder);
+
     /*
      * Some components like data-type are to be pre-loaded for the app to
      * work.
@@ -558,7 +533,7 @@ public enum ComponentType {
     preLoad();
 
     logger.info("components pre-loaded");
-    Tracer.trace("components pre-loaded");
+
     return componentFolder;
   }
 

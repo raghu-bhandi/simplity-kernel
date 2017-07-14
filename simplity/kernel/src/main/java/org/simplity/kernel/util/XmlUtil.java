@@ -50,7 +50,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MapDetails;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.value.Value;
@@ -159,7 +159,7 @@ public class XmlUtil {
     } catch (Exception e) {
 
       logger.info("Error while reading resource " + e.getMessage());
-      Tracer.trace("Error while reading resource " + e.getMessage());
+
       return false;
     }
   }
@@ -179,7 +179,7 @@ public class XmlUtil {
       if (stream == null) {
 
         logger.info("Resource " + fileName + " not found.");
-        Tracer.trace("Resource " + fileName + " not found.");
+
         return false;
       }
       Element rootElement = getDocument(stream).getDocumentElement();
@@ -187,8 +187,8 @@ public class XmlUtil {
       return true;
     } catch (Exception e) {
 
-    	logger.error("Resource " + fileName + " failed to load.", e);
-      Tracer.trace(e, "Resource " + fileName + " failed to load.");
+      logger.error("Resource " + fileName + " failed to load.", e);
+
       return false;
     } finally {
       if (stream != null) {
@@ -245,7 +245,6 @@ public class XmlUtil {
      */
 
     logger.info("XML has no components in it.");
-    Tracer.trace("XML has no components in it.");
   }
 
   /**
@@ -265,15 +264,15 @@ public class XmlUtil {
       if (stream == null) {
 
         logger.info("Unable to open file " + fileName + " failed to load.");
-        Tracer.trace("Unable to open file " + fileName + " failed to load.");
+
         return false;
       }
       xmlToCollection(stream, objects, packageName);
       return true;
     } catch (Exception e) {
 
-    	logger.error( "Resource " + fileName + " failed to load.", e);
-      Tracer.trace(e, "Resource " + fileName + " failed to load.");
+      logger.error("Resource " + fileName + " failed to load.", e);
+
       return false;
     } finally {
       if (stream != null) {
@@ -310,10 +309,8 @@ public class XmlUtil {
           if (objects.containsKey(compName)) {
 
             logger.info(
-                
                 compName + " is a duplicate " + className + ". Component definition skipped.");
-            Tracer.trace(
-                compName + " is a duplicate " + className + ". Component definition skipped.");
+
           } else {
             elementToObject(ele, object);
             objects.put(compName, object);
@@ -321,41 +318,23 @@ public class XmlUtil {
         } catch (ClassNotFoundException e) {
 
           logger.info(
-              
               className
                   + " is not a valid class in package "
                   + packageName
                   + ". element ignored while loading components");
-          Tracer.trace(
-              className
-                  + " is not a valid class in package "
-                  + packageName
-                  + ". element ignored while loading components");
+
         } catch (InstantiationException e) {
 
           logger.info(
-              
               className
                   + " in package "
                   + packageName
                   + "Could not be instantiated: "
                   + e.getMessage());
-          Tracer.trace(
-              className
-                  + " in package "
-                  + packageName
-                  + "Could not be instantiated: "
-                  + e.getMessage());
+
         } catch (IllegalAccessException e) {
 
           logger.info(
-              
-              className
-                  + " in package "
-                  + packageName
-                  + "Could not be instantiated: "
-                  + e.getMessage());
-          Tracer.trace(
               className
                   + " in package "
                   + packageName
@@ -387,7 +366,6 @@ public class XmlUtil {
           if (compName == null || className == null) {
 
             logger.info(
-                
                 "We expect attributes "
                     + NAME_ATTRIBUTE
                     + " and "
@@ -395,20 +373,12 @@ public class XmlUtil {
                     + " as attributes of element "
                     + ENTRY
                     + ". Element ignored");
-            Tracer.trace(
-                "We expect attributes "
-                    + NAME_ATTRIBUTE
-                    + " and "
-                    + CLASS_NAME_ATTRIBUTE
-                    + " as attributes of element "
-                    + ENTRY
-                    + ". Element ignored");
+
           } else {
             if (objects.containsKey(compName)) {
 
-              logger.info(
-                   compName + " is a duplicate entry. class name definition ignored.");
-              Tracer.trace(compName + " is a duplicate entry. class name definition ignored.");
+              logger.info(compName + " is a duplicate entry. class name definition ignored.");
+
             } else {
               objects.put(compName, className);
             }
@@ -416,13 +386,6 @@ public class XmlUtil {
         } else {
 
           logger.info(
-              
-              "Expecting an element named "
-                  + ENTRY
-                  + " but found "
-                  + nodeName
-                  + ". Element ignored.");
-          Tracer.trace(
               "Expecting an element named "
                   + ENTRY
                   + " but found "
@@ -524,11 +487,6 @@ public class XmlUtil {
         } else {
 
           logger.info(
-              
-              "xml element "
-                  + child.getNodeName()
-                  + " is ignored because there is no target field with that name");
-          Tracer.trace(
               "xml element "
                   + child.getNodeName()
                   + " is ignored because there is no target field with that name");
@@ -706,7 +664,6 @@ public class XmlUtil {
         } else {
 
           logger.info("No instance provided for field " + field.getName());
-          Tracer.trace("No instance provided for field " + field.getName());
         }
         return;
       }
@@ -981,8 +938,8 @@ public class XmlUtil {
       return true;
     } catch (Exception e) {
 
-    	logger.error( eleName + " could not be saved as xml. ", e);
-      Tracer.trace(e, eleName + " could not be saved as xml. ");
+      logger.error(eleName + " could not be saved as xml. ", e);
+
       return false;
     }
   }
@@ -1237,9 +1194,8 @@ public class XmlUtil {
         nbrExtracted += n;
       }
 
-      logger.info(
-           nbrExtracted + " fields extracted from root node. " + node.getNodeName());
-      Tracer.trace(nbrExtracted + " fields extracted from root node. " + node.getNodeName());
+      logger.info(nbrExtracted + " fields extracted from root node. " + node.getNodeName());
+
       return nbrExtracted;
     } catch (Exception e) {
       throw new ApplicationError(e, " Error while extracting fields from an xml.\n" + xml);

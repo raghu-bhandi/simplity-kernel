@@ -28,7 +28,7 @@ import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.AttachmentManager;
 import org.simplity.kernel.Messages;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
@@ -98,10 +98,8 @@ public class InputData {
       ctx.setTextValue(this.setInputToFieldName, json.toString());
 
       logger.info(
-          
           "Request text is not parsed but set as object value of " + this.setInputToFieldName);
-      Tracer.trace(
-          "Request text is not parsed but set as object value of " + this.setInputToFieldName);
+
       return;
     }
     if (this.justInputEveryThing) {
@@ -118,7 +116,6 @@ public class InputData {
       }
 
       logger.info(n + " fields extracted for input");
-      Tracer.trace(n + " fields extracted for input");
     }
     if (this.inputRecords != null) {
       for (InputRecord inRec : this.inputRecords) {
@@ -154,44 +151,31 @@ public class InputData {
       if (sheet == null) {
 
         logger.info(
-            
             "Data sheet "
                 + sheetName
                 + " not input. Hence no attachment management on its column "
                 + colName);
-        Tracer.trace(
-            "Data sheet "
-                + sheetName
-                + " not input. Hence no attachment management on its column "
-                + colName);
+
         continue;
       }
       idx = sheet.getColIdx(colName);
       if (idx == -1) {
 
         logger.info(
-            
             "Data sheet "
                 + sheetName
                 + " does not have a column named "
                 + colName
                 + " No attachment management on this column");
-        Tracer.trace(
-            "Data sheet "
-                + sheetName
-                + " does not have a column named "
-                + colName
-                + " No attachment management on this column");
+
         continue;
       }
       int nbr = sheet.length();
       if (nbr == 0) {
 
         logger.info(
-            
             "Data sheet " + sheetName + " has no rows. No attachment management on this column");
-        Tracer.trace(
-            "Data sheet " + sheetName + " has no rows. No attachment management on this column");
+
         continue;
       }
       for (int i = 0; i < nbr; i++) {
@@ -212,18 +196,12 @@ public class InputData {
         }
 
         logger.info(
-            
             "Attachment key "
                 + key
                 + " replaced with "
                 + newKey
                 + " after swapping content from/to temp area");
-        Tracer.trace(
-            "Attachment key "
-                + key
-                + " replaced with "
-                + newKey
-                + " after swapping content from/to temp area");
+
         sheet.setColumnValue(colName, i, Value.newTextValue(newKey));
       }
     }
@@ -240,7 +218,7 @@ public class InputData {
       if (key == null || key.isEmpty()) {
 
         logger.info("Attachment field " + af + " is not specified. Skipping it.");
-        Tracer.trace("Attachment field " + af + " is not specified. Skipping it.");
+
         continue;
       }
       String newKey = null;
@@ -252,23 +230,17 @@ public class InputData {
       if (newKey == null) {
 
         logger.info("Error while managing attachment key " + key);
-        Tracer.trace("Error while managing attachment key " + key);
+
         ctx.addValidationMessage(Messages.INVALID_ATTACHMENT_KEY, af, null, null, 0, newKey);
       } else {
 
         logger.info(
-            
             "Attachment key "
                 + key
                 + " replaced with "
                 + newKey
                 + " after swapping the contents from/to temp area");
-        Tracer.trace(
-            "Attachment key "
-                + key
-                + " replaced with "
-                + newKey
-                + " after swapping the contents from/to temp area");
+
         ctx.setTextValue(af, newKey);
       }
     }
@@ -343,27 +315,15 @@ public class InputData {
       if (token == null) {
 
         logger.info(
-            
             attId
                 + " is an attachment input field. No value found in "
                 + fieldName
                 + " on exit of service, and hence this attachment is not removed from storage");
-        Tracer.trace(
-            attId
-                + " is an attachment input field. No value found in "
-                + fieldName
-                + " on exit of service, and hence this attachment is not removed from storage");
+
       } else {
         AttachmentManager.removeFromStorage(token);
 
         logger.info(
-            
-            "Attachment field "
-                + attId
-                + " had an existing token "
-                + token
-                + ". That is now removed from storage");
-        Tracer.trace(
             "Attachment field "
                 + attId
                 + " had an existing token "
@@ -378,20 +338,13 @@ public class InputData {
     this.inputRecords = inRecs;
   }
 
-/**
- *
- * @param inFields
- */
-public void setInputFields(InputField[] inFields){
-	this.inputFields = inFields;
-}
+  /** @param inFields */
+  public void setInputFields(InputField[] inFields) {
+    this.inputFields = inFields;
+  }
 
-/**
- * 
- * @return
- */
-public InputField[] getInputFields() {
-	return inputFields;
-}
-
+  /** @return */
+  public InputField[] getInputFields() {
+    return inputFields;
+  }
 }

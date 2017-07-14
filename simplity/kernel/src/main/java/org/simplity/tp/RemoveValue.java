@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
@@ -61,14 +61,10 @@ public class RemoveValue extends Action {
       if (field == null) {
 
         logger.info(
-            
             "No value for found in service context for field name "
                 + this.runTimeFieldName
                 + ". RemoveValue action could not continue.");
-        Tracer.trace(
-            "No value for found in service context for field name "
-                + this.runTimeFieldName
-                + ". RemoveValue action could not continue.");
+
       } else {
         ctx.removeValue(field.toString());
       }

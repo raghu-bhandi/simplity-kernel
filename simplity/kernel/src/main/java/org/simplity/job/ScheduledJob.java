@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 
 /**
@@ -61,7 +60,7 @@ public abstract class ScheduledJob {
     if (this.isScheduled) {
 
       logger.info(this.scheduledJob.name + " is already scheduled");
-      Tracer.trace(this.scheduledJob.name + " is already scheduled");
+
       return false;
     }
     this.isScheduled = true;
@@ -95,9 +94,6 @@ public abstract class ScheduledJob {
   private void noChange() {
 
     logger.info(
-        
-        "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
-    Tracer.trace(
         "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
   }
 

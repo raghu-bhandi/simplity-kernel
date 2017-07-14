@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.data.AlreadyIteratingException;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.DataSheetIterator;
@@ -90,18 +90,12 @@ public class AddColumn extends Action {
       if (value == null) {
 
         logger.info(
-            
             "Value is null for column "
                 + this.columnName
                 + " for addColumn action "
                 + this.actionName
                 + ". Colum nnot added.");
-        Tracer.trace(
-            "Value is null for column "
-                + this.columnName
-                + " for addColumn action "
-                + this.actionName
-                + ". Colum nnot added.");
+
         return Value.VALUE_FALSE;
       }
       sheet.addColumn(this.columnName, value);

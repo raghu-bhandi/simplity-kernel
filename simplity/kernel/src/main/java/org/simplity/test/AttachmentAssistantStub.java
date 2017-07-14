@@ -31,7 +31,7 @@ import org.simplity.json.JSONWriter;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.AttachmentAssistant;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.test.TestContext;
@@ -117,6 +117,5 @@ public class AttachmentAssistantStub implements AttachmentAssistant {
     writer.endObject();
 
     logger.info(writer.toString());
-    Tracer.trace(writer.toString());
   }
 }

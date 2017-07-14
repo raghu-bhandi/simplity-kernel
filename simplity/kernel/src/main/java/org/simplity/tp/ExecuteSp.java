@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -97,28 +97,20 @@ public class ExecuteSp extends DbAction {
     DataSheet[] outSheets = sp.execute(inSheet, outSheet, driver, ctx);
     if (outSheets == null) {
 
-      logger.info(
-          
-          "Stored procedure " + this.actionName + " execution completed with no sheets.");
-      Tracer.trace("Stored procedure " + this.actionName + " execution completed with no sheets.");
+      logger.info("Stored procedure " + this.actionName + " execution completed with no sheets.");
+
       return 1;
     }
 
     int nbrOutSheets = outSheets.length;
 
     logger.info(
-        
         "Stored procedure action "
             + this.actionName
             + " returned "
             + nbrOutSheets
             + " sheets of data");
-    Tracer.trace(
-        "Stored procedure action "
-            + this.actionName
-            + " returned "
-            + nbrOutSheets
-            + " sheets of data");
+
     String[] names = null;
     if (this.outputSheetNames != null) {
       if (this.outputSheetNames.length != nbrOutSheets) {

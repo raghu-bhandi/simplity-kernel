@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidOperationException;
@@ -79,7 +79,6 @@ public class SetValue extends Action {
     } else {
 
       logger.info("Field " + this.fieldName + " is removed from context");
-      Tracer.trace("Field " + this.fieldName + " is removed from context");
     }
     ctx.setValue(this.fieldName, value);
     return value;

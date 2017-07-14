@@ -32,7 +32,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import org.simplity.kernel.Application;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.file.FileManager;
 
 /**
@@ -81,34 +81,27 @@ public class Startup extends HttpServlet {
         folder = ctx.getResource(folder).getPath();
 
         logger.info("Root folder is set using recource to " + folder);
-        Tracer.trace("Root folder is set using recource to " + folder);
+
       } catch (MalformedURLException e) {
 
-    	  logger.error( "Error while getting root folder path from servlet context", e);
-        Tracer.trace(e, "Error while getting root folder path from servlet context");
+        logger.error("Error while getting root folder path from servlet context", e);
       }
     } else {
 
       logger.info("Root folder is set to " + folder + " as a web parameter.");
-      Tracer.trace("Root folder is set to " + folder + " as a web parameter.");
     }
 
     logger.info("Going to bootstrap Application with comp folder at " + folder);
-    Tracer.trace("Going to bootstrap Application with comp folder at " + folder);
+
     try {
       Application.bootStrap(folder);
     } catch (Exception e) {
 
-    	logger.error(
+      logger.error(
           "Unable to bootstrap Application using resource folder "
               + folder
               + ". Application will not work.",
           e);
-      Tracer.trace(
-          e,
-          "Unable to bootstrap Application using resource folder "
-              + folder
-              + ". Application will not work.");
     }
   }
   /**
@@ -127,28 +120,23 @@ public class Startup extends HttpServlet {
         folder = ctx.getResource(folder).getPath();
 
         logger.info("API folder is set to " + folder);
-        Tracer.trace("API folder is set to " + folder);
+
       } catch (MalformedURLException e) {
 
-    	  logger.error("Error while getting folder path from servlet context", e);
-        Tracer.trace(e, "Error while getting folder path from servlet context");
+        logger.error("Error while getting folder path from servlet context", e);
       }
     } else {
 
       logger.info("API folder is set to " + folder + " as a web parameter.");
-      Tracer.trace("API folder is set to " + folder + " as a web parameter.");
     }
 
     logger.info("Going to load apis from " + folder);
-    Tracer.trace("Going to load apis from " + folder);
+
     try {
       Operations.loadAll(folder);
     } catch (Exception e) {
 
-    	logger.error(
-          "Unable to load APIs from folder " + folder + ". Application will not work.",
-          e);
-      Tracer.trace(e, "Unable to load APIs from folder " + folder + ". Application will not work.");
+      logger.error("Unable to load APIs from folder " + folder + ". Application will not work.", e);
     }
   }
 }

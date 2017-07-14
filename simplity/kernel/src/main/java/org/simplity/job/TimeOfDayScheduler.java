@@ -27,8 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Calendar;
 
-import org.simplity.kernel.Tracer;
-
 /**
  * our own scheduler that schedules job based on time-of-day rather than intervals
  *
@@ -82,7 +80,7 @@ public class TimeOfDayScheduler implements Runnable {
     this.thread = Thread.currentThread();
 
     logger.info("TimeOfDay scheduler started.");
-    Tracer.trace("TimeOfDay scheduler started.");
+
     while (true) {
       int nextDue = MAX_MINUTES;
       Calendar cal = Calendar.getInstance();
@@ -91,7 +89,7 @@ public class TimeOfDayScheduler implements Runnable {
         int n = job.poll(minutes);
 
         logger.info("Job " + job.scheduledJob.name + " can wait for " + n + " minutes");
-        Tracer.trace("Job " + job.scheduledJob.name + " can wait for " + n + " minutes");
+
         if (n > 0 && n < nextDue) {
           nextDue = n;
         }
@@ -99,7 +97,7 @@ public class TimeOfDayScheduler implements Runnable {
       try {
 
         logger.info("TimeOfDay scheduler taking a nap for " + nextDue + " minutes.");
-        Tracer.trace("TimeOfDay scheduler taking a nap for " + nextDue + " minutes.");
+
         Thread.sleep(nextDue * 60000);
       } catch (InterruptedException e) {
         if (this.wakeupRequested) {
@@ -107,7 +105,7 @@ public class TimeOfDayScheduler implements Runnable {
         } else {
 
           logger.info("TimeOfDayScheduler interrupted");
-          Tracer.trace("TimeOfDayScheduler interrupted");
+
           return;
         }
       }

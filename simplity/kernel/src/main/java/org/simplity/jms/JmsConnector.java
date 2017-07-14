@@ -37,7 +37,6 @@ import javax.naming.InitialContext;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Property;
-import org.simplity.kernel.Tracer;
 
 /**
  * class that manages to provide desired jmsSession for jms clients. This is similar to DbDriver in
@@ -81,18 +80,12 @@ public class JmsConnector {
       if (connectionFactory != null) {
         factory = (QueueConnectionFactory) ctx.lookup(connectionFactory);
 
-        logger.info(
-            
-            "queueConnectionFactory successfully set to " + factory.getClass().getName());
-        Tracer.trace("queueConnectionFactory successfully set to " + factory.getClass().getName());
+        logger.info("queueConnectionFactory successfully set to " + factory.getClass().getName());
       }
       if (xaConnectionFactory != null) {
         xaFactory = (QueueConnectionFactory) ctx.lookup(xaConnectionFactory);
 
         logger.info(
-            
-            "xaQueueConnectionFactory successfully set to " + xaFactory.getClass().getName());
-        Tracer.trace(
             "xaQueueConnectionFactory successfully set to " + xaFactory.getClass().getName());
       }
     } catch (Exception e) {
@@ -194,18 +187,17 @@ public class JmsConnector {
           if (allOk) {
 
             logger.info("Jms session committed.");
-            Tracer.trace("Jms session committed.");
+
             this.session.commit();
           } else {
 
             logger.info("Jms session rolled-back.");
-            Tracer.trace("Jms session rolled-back.");
+
             this.session.rollback();
           }
         } else {
 
           logger.info("non-transactional JMS session closed.");
-          Tracer.trace("non-transactional JMS session closed.");
         }
       } catch (Exception e) {
         throw new ApplicationError(e, "error while closing jms conenction");
@@ -252,5 +244,4 @@ public class JmsConnector {
   public Session getSession() {
     return this.session;
   }
-
 }

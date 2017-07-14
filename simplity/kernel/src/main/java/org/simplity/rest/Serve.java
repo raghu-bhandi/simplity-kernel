@@ -32,8 +32,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.simplity.kernel.Tracer;
-
 /**
  * this is an example servlet to demonstrate how a project can use HttpAgent to deliver services in
  * the App layer to http clients
@@ -54,8 +52,8 @@ public class Serve extends HttpServlet {
     } catch (Exception e) {
       String msg = "We have an internal error. ";
 
-      logger.error( msg, e);
-      Tracer.trace(e, msg);
+      logger.error(msg, e);
+
       RestAgent.respondWithError(resp, msg + e.getMessage());
       return;
     }

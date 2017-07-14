@@ -25,7 +25,6 @@ package org.simplity.kernel.dt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
@@ -68,10 +67,7 @@ public class BooleanDataType extends DataType {
       }
     } catch (InvalidValueException e) {
 
-      logger.info(
-          
-          "Boolean data type is asked to format  non-boolean value. False value assumed");
-      Tracer.trace("Boolean data type is asked to format  non-boolean value. False value assumed");
+      logger.info("Boolean data type is asked to format  non-boolean value. False value assumed");
     }
     return Value.FALSE_TEXT_VALUE;
   }

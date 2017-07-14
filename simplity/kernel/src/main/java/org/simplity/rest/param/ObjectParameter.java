@@ -35,7 +35,7 @@ import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.rest.Tags;
 
 /** @author simplity.org */
@@ -131,7 +131,6 @@ public class ObjectParameter extends Parameter {
     if (len < this.minItems || (this.maxItems != 0 && len > this.maxItems)) {
 
       logger.info(
-          
           this.name
               + " has "
               + len
@@ -140,15 +139,7 @@ public class ObjectParameter extends Parameter {
               + " and a minItems="
               + this.minItems
               + " as ");
-      Tracer.trace(
-          this.name
-              + " has "
-              + len
-              + " items against a specification of maxItems="
-              + this.maxItems
-              + " and a minItems="
-              + this.minItems
-              + " as ");
+
       return this.invalidValue(messages);
     }
 
@@ -163,20 +154,13 @@ public class ObjectParameter extends Parameter {
           if (result.get(keys[i]).equals(result.get(keys[j]))) {
 
             logger.info(
-                
                 this.name
                     + " has to have unique values, but "
                     + keys[i]
                     + " and "
                     + keys[j]
                     + " have same values");
-            Tracer.trace(
-                this.name
-                    + " has to have unique values, but "
-                    + keys[i]
-                    + " and "
-                    + keys[j]
-                    + " have same values");
+
             return this.invalidValue(messages);
           }
         }

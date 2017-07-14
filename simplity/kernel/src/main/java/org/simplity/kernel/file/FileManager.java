@@ -42,7 +42,6 @@ import java.util.Set;
 import javax.servlet.ServletContext;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
 
 /**
  * File has a simple connotation to most programmers : it is available on the disk. if you write to
@@ -121,7 +120,7 @@ public class FileManager {
     if (file.exists() == false) {
 
       logger.info("Unusual that " + parentFolder + " is not a valid path.");
-      Tracer.trace("Unusual that " + parentFolder + " is not a valid path.");
+
       return;
     }
     String[] files = file.list();
@@ -194,7 +193,7 @@ public class FileManager {
     }
 
     logger.info("file " + fileName + " does not exist.");
-    Tracer.trace("file " + fileName + " does not exist.");
+
     return null;
   }
 
@@ -209,7 +208,7 @@ public class FileManager {
       file.createNewFile();
 
       logger.info("Creating and returning an empty file");
-      Tracer.trace("Creating and returning an empty file");
+
       return file;
     } catch (IOException e) {
       throw new ApplicationError(e, MSG);
@@ -284,14 +283,10 @@ public class FileManager {
     }
 
     logger.info(
-        
         "Rare condition of a file-name clash for temp file "
             + fileName
             + " going to try suffixing..");
-    Tracer.trace(
-        "Rare condition of a file-name clash for temp file "
-            + fileName
-            + " going to try suffixing..");
+
     /*
      * increase the digits and start incrementing. Only way this can fail is
      * when MAX_TRY processes simultaneously use this same technique to
@@ -321,7 +316,7 @@ public class FileManager {
     }
 
     logger.info("Non-existing temp file " + fileName + " requested. returning null");
-    Tracer.trace("Non-existing temp file " + fileName + " requested. returning null");
+
     return null;
   }
 
@@ -359,8 +354,8 @@ public class FileManager {
       return true;
     } catch (Exception e) {
 
-    	logger.error( "Error while writing to file " + file.getAbsolutePath(), e);
-      Tracer.trace(e, "Error while writing to file " + file.getAbsolutePath());
+      logger.error("Error while writing to file " + file.getAbsolutePath(), e);
+
       return false;
     } finally {
       if (out != null) {

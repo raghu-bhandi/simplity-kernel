@@ -10,7 +10,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
 
 public class LdapProperties {
   static final Logger logger = LoggerFactory.getLogger(LdapProperties.class);
@@ -56,9 +55,7 @@ public class LdapProperties {
       ctx = new InitialDirContext(env);
     } catch (NamingException e) {
 
-      logger.info(
-           "Unable to connect the LDAP, Authentication failed ;" + e.getMessage());
-      Tracer.trace("Unable to connect the LDAP, Authentication failed ;" + e.getMessage());
+      logger.info("Unable to connect the LDAP, Authentication failed ;" + e.getMessage());
     }
     return ctx;
   }

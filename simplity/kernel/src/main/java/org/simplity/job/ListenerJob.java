@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 
 /**
@@ -84,7 +83,7 @@ public class ListenerJob extends ScheduledJob {
     if (this.isScheduled == false) {
 
       logger.info(this.scheduledJob.name + " is not scheduled");
-      Tracer.trace(this.scheduledJob.name + " is not scheduled");
+
       return;
     }
     int nbr = this.runningJobs.length;
@@ -118,15 +117,14 @@ public class ListenerJob extends ScheduledJob {
     if (this.isScheduled == false) {
 
       logger.info(this.scheduledJob.name + " is not scheduled");
-      Tracer.trace(this.scheduledJob.name + " is not scheduled");
+
       return;
     }
     int nbr = this.runningJobs.length - 1;
     if (nbr == 0) {
 
-      logger.info(
-           "Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
-      Tracer.trace("Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
+      logger.info("Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
+
       return;
     }
     RunningJob[] newJobs = new RunningJob[nbr];
