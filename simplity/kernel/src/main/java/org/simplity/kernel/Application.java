@@ -293,19 +293,7 @@ public class Application {
    * re-used
    */
   String attachmentAssistant;
-  /**
-   * logging utility to which service log is to be emitted to. Default is to emit to console
-   * (System.out)
-   */
-  LoggingFramework loggingFramework;
-  /**
-   * fully qualified class name that implements org.simplity.core.TraceWrapper to either format
-   * service-log or to actually log it.
-   */
-  String traceWrapper;
 
-  /** should we send server trace to client? */
-  boolean sendTraceToClient;
   /**
    * if you want to disable login, and use a dummy user id for all services, typically during
    * development/demo. Ensure that this value is numeric in case you have set userIdIsNumber="true"
@@ -504,41 +492,6 @@ public class Application {
       AttachmentManager.setAssistant(ast);
     }
     /*
-     * is there a logging framework
-     */
-    if (this.loggingFramework == null) {
-
-      logger.info(
-          "No logging framework set by application designer. All service logs will be emitted to console. (System.out)");
-
-    } else {
-
-      logger.info(
-          "Logging framework is set to "
-              + this.loggingFramework
-              + ". Will try to locate the right class and connect to it.");
-
-      try {
-        // ServiceLogger.setLogger(this.loggingFramework);
-
-        logger.info(
-            "Service logs successfully diverted to the logging framework " + this.loggingFramework);
-
-      } catch (Exception e) {
-        String msg =
-            "Logging framework "
-                + this.loggingFramework
-                + " could not be initiated for logging. \n "
-                + e.getMessage()
-                + "\nAre you missing required jar file?. ";
-
-        logger.info(msg);
-
-        msgs.add(msg);
-      }
-    }
-
-    /*
      * initialize http-agent. In rare cases, a project may not use
      * httpAgent, but it is not so much of an issue if the agent is all
      * dressed-up but no work :-)
@@ -699,10 +652,6 @@ public class Application {
         AttachmentAssistant.class, this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
       count++;
     }
-    if (this.classInError(AttachmentAssistant.class, this.traceWrapper, "traceWrapper", ctx)) {
-      count++;
-    }
-
     /*
      * check service references
      */
