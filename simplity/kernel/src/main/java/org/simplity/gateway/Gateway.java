@@ -20,49 +20,26 @@
  * SOFTWARE.
  */
 
-package org.simplity.rest.param;
+package org.simplity.gateway;
 
 /**
- * represents a parameter type as in a swagger document
+ * static class to manage all aspects of a gateway
+ *
  * @author simplity.org
  *
  */
-public enum ParameterFormat {
+public class Gateway {
 	/**
-	 * sequence of octets, not implemented
+	 * get the right agent who knows how to handle service request to the
+	 * desired server
+	 *
+	 * @param gatewayId
+	 *            application specific name that identifies the server to
+	 *            which the request needs to be sent to
+	 * @return null if no such serverId is set-up
 	 */
-	BINARY,
-	/**
-	 * base64 encoded characters, not implemented
-	 */
-	BYTE,
-	/**
-	 * date only
-	 */
-	DATE,
-	/**
-	 * date with time
-	 */
-	DATETIME,
-	/**
-	 * number greater that float
-	 */
-	DOUBLE,
-	/**
-	 * number
-	 */
-	FLOAT,
-	/**
-	 * integer
-	 */
-	INT32,
-	/**
-	 * long integer
-	 */
-	INT64,
+	public static OutboundAgent getAgent(String gatewayId) {
+		return null;
 
-	/**
-	 * password
-	 */
-	PASSWORD;
+	}
 }

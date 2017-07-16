@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
+import org.simplity.gateway.RespWriter;
 import org.simplity.json.JSONWriter;
 
 import org.simplity.kernel.value.Value;
@@ -135,4 +136,82 @@ public class HierarchicalSheet {
     }
     return sbf.toString();
   }
+
+	/**
+	 * @return
+	 */
+	public HierarchicalSheet[] getChildren() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @return
+	 */
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @param parentRow
+	 * @return
+	 */
+	public List<Value[]> getRows(Value[] parentRow) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/**
+	 * @return
+	 */
+	public String[] getFieldNames() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	/**
+	 * write out rows from this sheet for the given parent row. This includes a
+	 * recursive writing of rows from children
+	 *
+	 * @param writer
+	 * @param parentRow
+	 */
+	public void writeAsChild(RespWriter writer, Value[] parentRow) {
+		/*
+		 * ask child to get rows corresponding to this current parent row
+		 */
+		writer.beginArray(this.name);
+		List<Value[]> rows = this.getRows(parentRow);
+		if (rows == null || rows.size() == 0) {
+			writer.endArray();
+			return;
+		}
+
+		for (Value[] row : rows) {
+			if (row == null) {
+				continue;
+			}
+
+			writer.beginObject();
+
+			for (int i = 0; i < this.fieldNames.length; i++) {
+				String fieldName = this.fieldNames[i];
+				writer.field(fieldName, row[i]);
+			}
+			/*
+			 * do we have children?
+			 */
+			if (this.children != null) {
+				for (HierarchicalSheet grandChild : this.children) {
+					grandChild.writeAsChild(writer, row);
+				}
+			}
+			writer.endObject();
+		}
+		writer.endArray();
+	}
+
+
 }
