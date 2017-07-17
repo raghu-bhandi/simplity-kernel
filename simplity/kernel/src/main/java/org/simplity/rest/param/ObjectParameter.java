@@ -207,7 +207,7 @@ public class ObjectParameter extends Parameter {
       }
       JSONObject childData = (JSONObject) data;
       for (Parameter item : this.items) {
-        item.toWriter(writer, childData.opt(item.getFieldName()), true);
+        item.toWriter(writer, childData.opt(item.getName()), true);
       }
     }
     writer.endObject();

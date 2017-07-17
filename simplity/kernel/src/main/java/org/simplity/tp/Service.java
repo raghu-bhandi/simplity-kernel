@@ -1181,11 +1181,13 @@ public class Service implements ServiceInterface {
 					String ref = schema.optString(REF_ATTR);
 					String def = ref.substring(ref.lastIndexOf('/') + 1);
 					if (def != null) {
-						Record rec = ComponentManager.getRecord(def);
-						RelatedRecord[] childRecs = getChildRecords(rec, false);
-						Action action = new Read(rec, childRecs);
-						Action[] actions = { action };
-						service.actions = actions;
+						Record rec = ComponentManager.getRecordOrNull(def);
+						if(rec != null){
+							RelatedRecord[] childRecs = getChildRecords(rec, false);
+							Action action = new Read(rec, childRecs);
+							Action[] actions = { action };
+							service.actions = actions;
+						}
 					}
 				}
 			}
@@ -1289,10 +1291,12 @@ public class Service implements ServiceInterface {
 			String ref = schema.optString(REF_ATTR);
 			String def = ref.substring(ref.lastIndexOf('/') + 1);
 			if (def != null) {
-				Record rec = ComponentManager.getRecord(def);
-				rec.getReady();
-				for (OutputRecord outrec : getOutputRecords(rec)) {
-					outputRecords.add(outrec);
+				Record rec = ComponentManager.getRecordOrNull(def);
+				if(rec != null){
+					rec.getReady();
+					for (OutputRecord outrec : getOutputRecords(rec)) {
+						outputRecords.add(outrec);
+					}
 				}
 			}
 		}

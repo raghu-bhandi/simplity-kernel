@@ -148,72 +148,72 @@ public class Response {
         hdr.setHeader(resp, data.opt(hdr.getFieldName()));
       }
     }
-
-    if (sendAll || this.sendAllData) {
-      if (data == null) {
-        resp.getWriter().write(EMPTY_RESPONSE);
-      } else {
-        resp.getWriter().write(data.toString());
-      }
-      return;
-    }
-
-    if (this.bodyParameter == null) {
-      return;
-    }
-
-    if (data == null) {
-
-      logger.info("No response object suplied for response. no body response.");
-      Tracer.trace("No response object suplied for response. no body response.");
-      return;
-    }
-
-    Object bodyData = data;
-    if (this.bodyFieldName != null) {
-      bodyData = data.opt(this.bodyFieldName);
-      if (bodyData == null) {
-
-        logger.info(
-            
-            "Response field " + this.bodyFieldName + " has no value. No response sent.");
-        Tracer.trace("Response field " + this.bodyFieldName + " has no value. No response sent.");
-        return;
-      }
-    }
-    if (this.bodyParameter instanceof ObjectParameter) {
-      if (bodyData instanceof JSONObject) {
-        this.bodyParameter.toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
-      } else {
-
-        logger.info(
-            
-            "We expected a JSON Object as response value with bodyFieldName="
-                + this.bodyFieldName
-                + " but we got "
-                + bodyData.getClass().getName()
-                + " as value. Null value assumed for response.");
-        Tracer.trace(
-            "We expected a JSON Object as response value with bodyFieldName="
-                + this.bodyFieldName
-                + " but we got "
-                + bodyData.getClass().getName()
-                + " as value. Null value assumed for response.");
-      }
-      return;
-    }
-
-    if (this.bodyParameter instanceof ArrayParameter) {
-      ArrayParameter ap = (ArrayParameter) this.bodyParameter;
-      if (bodyData instanceof JSONArray) {
-        if (ap.expectsTextValue() == false) {
-          this.bodyParameter.toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
-          return;
-        }
-        bodyData = ap.serialize((JSONArray) bodyData);
-      }
-    }
-    resp.getWriter().write(bodyData.toString());
+    // bug-fix for data not flowing
+//    if (sendAll || this.sendAllData) {
+//      if (data == null) {
+//        resp.getWriter().write(EMPTY_RESPONSE);
+//      } else {
+//        resp.getWriter().write(data.toString());
+//      }
+//      return;
+//    }
+//
+//    if (this.bodyParameter == null) {
+//      return;
+//    }
+//
+//    if (data == null) {
+//
+//      logger.info("No response object suplied for response. no body response.");
+//      Tracer.trace("No response object suplied for response. no body response.");
+//      return;
+//    }
+//
+//    Object bodyData = data;
+//    if (this.bodyFieldName != null) {
+//      bodyData = data.opt(this.bodyFieldName);
+//      if (bodyData == null) {
+//
+//        logger.info(
+//            
+//            "Response field " + this.bodyFieldName + " has no value. No response sent.");
+//        Tracer.trace("Response field " + this.bodyFieldName + " has no value. No response sent.");
+//        return;
+//      }
+//    }
+//    if (this.bodyParameter instanceof ObjectParameter) {
+//      if (bodyData instanceof JSONObject) {
+//        this.bodyParameter.toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
+//      } else {
+//
+//        logger.info(
+//            
+//            "We expected a JSON Object as response value with bodyFieldName="
+//                + this.bodyFieldName
+//                + " but we got "
+//                + bodyData.getClass().getName()
+//                + " as value. Null value assumed for response.");
+//        Tracer.trace(
+//            "We expected a JSON Object as response value with bodyFieldName="
+//                + this.bodyFieldName
+//                + " but we got "
+//                + bodyData.getClass().getName()
+//                + " as value. Null value assumed for response.");
+//      }
+//      return;
+//    }
+//
+//    if (this.bodyParameter instanceof ArrayParameter) {
+//      ArrayParameter ap = (ArrayParameter) this.bodyParameter;
+//      if (bodyData instanceof JSONArray) {
+//        if (ap.expectsTextValue() == false) {
+//          this.bodyParameter.toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
+//          return;
+//        }
+//        bodyData = ap.serialize((JSONArray) bodyData);
+//      }
+//    }
+    resp.getWriter().write(data.toString());
   }
 
   /**

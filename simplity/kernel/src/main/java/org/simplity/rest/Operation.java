@@ -297,6 +297,9 @@ public class Operation {
      * primitive.Hence we make no assumption about its type
      */
     String payload = HttpUtil.readBody(req);
+    
+    //quick fix
+    this.acceptAll = true;
     if (this.acceptAll) {
 
       logger.info("We are to accept all data. we assume there are no data in header");

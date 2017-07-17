@@ -44,6 +44,7 @@ public class OpenApiServicesGenerator {
 			String text = XmlUtil.objectToXmlString(service);
 			FileManager.writeFile(new File( outPath+ "/" + service.getSimpleName() + ".xml"), text);		
 		}
+		System.out.println("done");
 		sc.close();
 	}
 }
