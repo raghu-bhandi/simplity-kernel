@@ -25,7 +25,6 @@ package org.simplity.tp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -68,18 +67,12 @@ public class ExecuteSql extends DbAction {
     }
 
     logger.info(
-        
         "Sql Save Action "
             + this.actionName
             + " did not execute because input sheet "
             + this.inputSheetName
             + " is not found.");
-    Tracer.trace(
-        "Sql Save Action "
-            + this.actionName
-            + " did not execute because input sheet "
-            + this.inputSheetName
-            + " is not found.");
+
     return 0;
   }
 

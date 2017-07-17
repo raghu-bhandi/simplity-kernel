@@ -41,7 +41,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
@@ -97,10 +97,8 @@ public class JsonUtil {
       JSONObject exampleObject = arr.optJSONObject(0);
       if (exampleObject == null) {
 
-        logger.info(
-            
-            "Json array has its first object as null, and hence we abandoned parsing it.");
-        Tracer.trace("Json array has its first object as null, and hence we abandoned parsing it.");
+        logger.info("Json array has its first object as null, and hence we abandoned parsing it.");
+
         return null;
       }
       fields = getFields(exampleObject, null, null);
@@ -126,11 +124,6 @@ public class JsonUtil {
       if (parentIdx == -1) {
 
         logger.info(
-            
-            "Parent field name "
-                + parentFieldName
-                + " not found in the fields list for child. Filed will not be populated from parent sheet.");
-        Tracer.trace(
             "Parent field name "
                 + parentFieldName
                 + " not found in the fields list for child. Filed will not be populated from parent sheet.");
@@ -146,7 +139,7 @@ public class JsonUtil {
       if (obj == null) {
 
         logger.info("Row " + (i + 1) + " is null. Not extracted");
-        Tracer.trace("Row " + (i + 1) + " is null. Not extracted");
+
         continue;
       }
       int j = 0;
@@ -257,7 +250,7 @@ public class JsonUtil {
       writer.value(null);
 
       logger.info("Sheet  has no data. json is not added");
-      Tracer.trace("Sheet  has no data. json is not added");
+
       return;
     }
     if (outputAsObject) {
@@ -617,12 +610,11 @@ public class JsonUtil {
         if (sheet == null) {
 
           logger.info("Table " + key + " could not be extracted");
-          Tracer.trace("Table " + key + " could not be extracted");
+
         } else {
           ctx.putDataSheet(key, sheet);
 
           logger.info("Table " + key + " extracted with " + sheet.length() + " rows");
-          Tracer.trace("Table " + key + " extracted with " + sheet.length() + " rows");
         }
         continue;
       }
@@ -635,7 +627,7 @@ public class JsonUtil {
         ctx.setObject(key, obj);
 
         logger.info(key + " retained as a JSON into ctx");
-        Tracer.trace(key + " retained as a JSON into ctx");
+
         continue;
       }
       Object val = json.opt(key);
@@ -644,11 +636,10 @@ public class JsonUtil {
         ctx.setValue(key, value);
 
         logger.info(key + " = " + value + " extracted");
-        Tracer.trace(key + " = " + value + " extracted");
+
       } else {
 
         logger.info(key + " = " + val + " is not extracted");
-        Tracer.trace(key + " = " + val + " is not extracted");
       }
     }
   }
@@ -682,11 +673,11 @@ public class JsonUtil {
     if (arr == null) {
 
       logger.info("No data found for sheet " + arrName);
-      Tracer.trace("No data found for sheet " + arrName);
+
     } else if (ds == null) {
 
       logger.info("Sheet " + arrName + " has only null data. Data not extracted");
-      Tracer.trace("Sheet " + arrName + " has only null data. Data not extracted");
+
     } else {
       ctx.putDataSheet(sheetName, ds);
     }
@@ -780,10 +771,8 @@ public class JsonUtil {
       } catch (Exception e) {
 
         logger.info(
-            
             "Unable to get value for object attribute " + entry.getKey() + ". null assumed");
-        Tracer.trace(
-            "Unable to get value for object attribute " + entry.getKey() + ". null assumed");
+
         writer.value(null);
       }
     }
@@ -876,14 +865,10 @@ public class JsonUtil {
       if (obj instanceof JSONObject || obj instanceof JSONArray) {
 
         logger.info(
-            
             "Element no (zero based) "
                 + i
                 + " is not a primitive, and hence unable to convert the JSONArray into an array of primitives");
-        Tracer.trace(
-            "Element no (zero based) "
-                + i
-                + " is not a primitive, and hence unable to convert the JSONArray into an array of primitives");
+
         return null;
       }
       result[i] = obj;
@@ -926,7 +911,7 @@ public class JsonUtil {
     if (fieldSelector == null || fieldSelector.isEmpty()) {
 
       logger.info("Null/empty selector for get/setValue");
-      Tracer.trace("Null/empty selector for get/setValue");
+
       if (option == 0) {
         return null;
       }
@@ -1038,18 +1023,12 @@ public class JsonUtil {
       if (value instanceof JSONObject == false || json instanceof JSONObject == false) {
 
         logger.info(
-            
             "We expected a JSONObjects for source and destination, but got "
                 + json.getClass().getName()
                 + " as object, and  "
                 + (value == null ? "null" : value.getClass().getName())
                 + " as value");
-        Tracer.trace(
-            "We expected a JSONObjects for source and destination, but got "
-                + json.getClass().getName()
-                + " as object, and  "
-                + (value == null ? "null" : value.getClass().getName())
-                + " as value");
+
         return;
       }
       JSONObject objFrom = (JSONObject) value;
@@ -1147,7 +1126,7 @@ public class JsonUtil {
     if (defs == null) {
 
       logger.info("No definitions in this json");
-      Tracer.trace("No definitions in this json");
+
       return;
     }
     /*
@@ -1238,10 +1217,8 @@ public class JsonUtil {
     Object subObj = definitions.opt(ref);
     if (subObj == null) {
 
-      logger.info(
-          
-          "defintion for " + ref + " not found. reference replaced with an empty object");
-      Tracer.trace("defintion for " + ref + " not found. reference replaced with an empty object");
+      logger.info("defintion for " + ref + " not found. reference replaced with an empty object");
+
       subObj = new JSONObject();
     } else if (forRefs) {
       /*
@@ -1255,7 +1232,7 @@ public class JsonUtil {
     }
 
     logger.info("Replacing " + ref);
-    Tracer.trace("Replacing " + ref);
+
     return subObj;
   }
 
@@ -1272,12 +1249,12 @@ public class JsonUtil {
     if (ref.indexOf(REF_PREFIX) != 0) {
 
       logger.info("$ref is to be set to a value starting with " + REF_PREFIX);
-      Tracer.trace("$ref is to be set to a value starting with " + REF_PREFIX);
+
       return null;
     }
 
     logger.info("Found a ref entry for " + ref);
-    Tracer.trace("Found a ref entry for " + ref);
+
     return ref.substring(REF_PREFIX_LEN);
   }
 }

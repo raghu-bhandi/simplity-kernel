@@ -46,7 +46,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.ClientCacheManager;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
@@ -151,7 +151,7 @@ public class HttpAgent {
     if (fileToken != null) {
 
       logger.info("Checking for pending service with token " + fileToken);
-      Tracer.trace("Checking for pending service with token " + fileToken);
+
       getPendingResponse(req, resp, fileToken);
       return;
     }
@@ -167,7 +167,7 @@ public class HttpAgent {
     ServiceData outData = null;
 
     logger.info("Request received for service " + serviceName);
-    Tracer.trace("Request received for service " + serviceName);
+
     FormattedMessage message = null;
     /*
      * let us earnestly try to serve now :-) this do{} is not a loop, but a
@@ -253,14 +253,14 @@ public class HttpAgent {
        */
 
       logger.info("Error on web tier : " + message.text);
-      Tracer.trace("Error on web tier : " + message.text);
+
       messages = new FormattedMessage[1];
       messages[0] = message;
       response = getResponseForError(messages);
     } else if (outData.hasErrors()) {
 
       logger.info("Service returned with errors");
-      Tracer.trace("Service returned with errors");
+
       response = getResponseForError(outData.getMessages());
     } else {
       /*
@@ -269,11 +269,6 @@ public class HttpAgent {
       response = outData.getPayLoad();
 
       logger.info(
-          
-          "Service succeeded and has "
-              + (response == null ? "no " : (response.length()) + " chars ")
-              + " payload");
-      Tracer.trace(
           "Service succeeded and has "
               + (response == null ? "no " : (response.length()) + " chars ")
               + " payload");
@@ -364,10 +359,8 @@ public class HttpAgent {
       if (uid == null) {
 
         logger.info(
-            
             "Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
-        Tracer.trace(
-            "Server came back with no userId and hence HttpAgent assumes that the login did not succeed");
+
         return null;
       }
       if (uid instanceof Value) {
@@ -384,7 +377,7 @@ public class HttpAgent {
     setSessionData(session, outData);
 
     logger.info("Login succeeded for loginId " + loginId);
-    Tracer.trace("Login succeeded for loginId " + loginId);
+
     String result = outData.getPayLoad();
     if (result == null || result.length() == 0) {
       result = "{}";
@@ -407,7 +400,7 @@ public class HttpAgent {
     if (inData == null) {
 
       logger.info("No active session found, and hence logout not called");
-      Tracer.trace("No active session found, and hence logout not called");
+
       return;
     }
     if (timedOut) {
@@ -489,11 +482,11 @@ public class HttpAgent {
       }
 
       logger.info("Request by non-logged-in session detected.");
-      Tracer.trace("Request by non-logged-in session detected.");
+
       if (autoLoginUserId == null) {
 
         logger.info("Login is required.");
-        Tracer.trace("Login is required.");
+
         return null;
       }
       login(autoLoginUserId.toString(), null, session);
@@ -501,19 +494,14 @@ public class HttpAgent {
       if (userId == null) {
 
         logger.info(
-            
             "autoLoginUserId is set to "
                 + autoLoginUserId
                 + " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in application.xml and ensure that your service clears this dummy userId with no credentials");
-        Tracer.trace(
-            "autoLoginUserId is set to "
-                + autoLoginUserId
-                + " but loginService is probably not accepting this id without credentials. Check your lginServiceName=\"\" in application.xml and ensure that your service clears this dummy userId with no credentials");
+
         return null;
       }
 
       logger.info("User " + userId + " auto logged-in");
-      Tracer.trace("User " + userId + " auto logged-in");
     }
 
     @SuppressWarnings("unchecked")
@@ -540,12 +528,12 @@ public class HttpAgent {
     if (obj == null) {
 
       logger.info("Remove session : No session to remove");
-      Tracer.trace("Remove session : No session to remove");
+
       return;
     }
 
     logger.info("Session removed for " + obj);
-    Tracer.trace("Session removed for " + obj);
+
     session.removeAttribute(SESSION_NAME_FOR_USER_ID);
     session.removeAttribute(SESSION_NAME_FOR_MAP);
   }
@@ -562,10 +550,8 @@ public class HttpAgent {
     if (sessionData == null) {
 
       logger.info(
-          
           "Unexpected situation. setSession invoked with no active session. Action ignored");
-      Tracer.trace(
-          "Unexpected situation. setSession invoked with no active session. Action ignored");
+
       return;
     }
 
@@ -592,7 +578,7 @@ public class HttpAgent {
     session.setAttribute(SESSION_NAME_FOR_MAP, sessionData);
 
     logger.info("New session data created for " + userId);
-    Tracer.trace("New session data created for " + userId);
+
     return sessionData;
   }
 

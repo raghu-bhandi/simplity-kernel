@@ -33,7 +33,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.ArrayUtil;
 import org.simplity.kernel.value.Value;
@@ -294,7 +294,7 @@ public class SingleRowSheet implements DataSheet {
   public void trace() {
 
     logger.info("(Single row sheet)\n");
-    Tracer.trace("(Single row sheet)\n");
+
     StringBuilder hdr = new StringBuilder("Header:");
     StringBuilder row = new StringBuilder("Data  :");
     for (String col : this.columnNames) {
@@ -303,10 +303,8 @@ public class SingleRowSheet implements DataSheet {
     }
 
     logger.info(hdr.toString());
-    Tracer.trace(hdr.toString());
 
     logger.info(row.toString());
-    Tracer.trace(row.toString());
   }
 
   /*
@@ -349,7 +347,7 @@ public class SingleRowSheet implements DataSheet {
     }
 
     logger.info("We did not find column " + columnName + " in this single-row sheet");
-    Tracer.trace("We did not find column " + columnName + " in this single-row sheet");
+
     return -1;
   }
   /* (non-Javadoc)

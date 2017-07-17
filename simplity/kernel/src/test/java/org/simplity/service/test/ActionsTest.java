@@ -5,19 +5,13 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.jms.DeliveryMode;
+import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
@@ -25,15 +19,6 @@ import javax.jms.MessageListener;
 import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.QueueBrowser;
-import javax.jms.ConnectionFactory;
-import javax.jms.QueueSender;
-import javax.jms.TextMessage;
-import javax.jms.Topic;
-import javax.jms.TopicConnection;
-import javax.jms.TopicConnectionFactory;
-import javax.jms.TopicPublisher;
-import javax.jms.TopicSession;
-import javax.jms.TopicSubscriber;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -51,16 +36,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQMessage;
-import org.h2.tools.RunScript;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.simplity.json.JSONArray;
@@ -68,24 +50,16 @@ import org.simplity.json.JSONException;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.Property;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.ldap.LdapProperties;
-import org.simplity.kernel.mail.MailConnector;
 import org.simplity.kernel.mail.MailProperties;
 import org.simplity.kernel.util.XmlUtil;
-import org.simplity.kernel.value.Value;
-import org.simplity.service.DataExtractor;
 import org.simplity.service.JavaAgent;
 import org.simplity.service.PayloadType;
-import org.simplity.service.ServiceAgent;
 import org.simplity.service.ServiceData;
-import org.simplity.test.mock.ldap.MockInitialContextFactory;
 import org.simplity.test.mock.ldap.MockInitialDirContextFactory;
-
-import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 
 public class ActionsTest extends Mockito {
 
@@ -749,87 +723,6 @@ public class ActionsTest extends Mockito {
       }
     } catch (Exception e) {
       e.printStackTrace();
-    }
-  }
-
-  @Test
-  public void hystricsTestSynchronous() {
-    HystrixRequestContext context = HystrixRequestContext.initializeContext();
-    try {
-      String payLoad = "{'inputData':'Passed'}";
-      ServiceData outData =
-          JavaAgent.getAgent("100", null)
-              .serve("test.hystrixTestSynchronous", payLoad, PayloadType.JSON);
-      JSONObject obj = new JSONObject(outData.getPayLoad());
-      assertEquals((String) obj.get("response"), "Test Passed");
-    } finally {
-      context.shutdown();
-    }
-  }
-
-  @Test
-  public void hystricsTestAsynchronous() {
-    HystrixRequestContext context = HystrixRequestContext.initializeContext();
-    try {
-      String payLoad = "{'inputData':'Passed'}";
-      ServiceData outData =
-          JavaAgent.getAgent("100", null)
-              .serve("test.hystrixTestAsynchronous", payLoad, PayloadType.JSON);
-      JSONObject obj = new JSONObject(outData.getPayLoad());
-      assertEquals((String) obj.get("response"), "Test Passed");
-    } finally {
-      context.shutdown();
-    }
-  }
-
-  @Test
-  public void hystricsFallbackTest() {
-    HystrixRequestContext context = HystrixRequestContext.initializeContext();
-    try {
-      String payLoad = "{'inputData':'Fallback'}";
-      ServiceData outData =
-          JavaAgent.getAgent("100", null)
-              .serve("test.hystrixTestSynchronous", payLoad, PayloadType.JSON);
-      JSONObject obj = new JSONObject(outData.getPayLoad());
-      assertEquals((String) obj.get("response"), "Fallback activated");
-    } finally {
-      context.shutdown();
-    }
-  }
-
-  @Test
-  public void hystricsCacheTestSynchronous() {
-    HystrixRequestContext context = HystrixRequestContext.initializeContext();
-    try {
-      String payLoad = "{'inputData':'Passed'}";
-      ServiceData outData =
-          JavaAgent.getAgent("100", null)
-              .serve("test.hystrixTestSynchronous", payLoad, PayloadType.JSON);
-      JSONObject obj = new JSONObject(outData.getPayLoad());
-      assertEquals((String) obj.get("response"), "Test Passed");
-      assertEquals((String) obj.get("isResponseFromCache"), "false");
-
-      outData =
-          JavaAgent.getAgent("100", null)
-              .serve("test.hystrixTestSynchronous", payLoad, PayloadType.JSON);
-      obj = new JSONObject(outData.getPayLoad());
-      assertEquals((String) obj.get("response"), "Test Passed");
-      assertEquals((String) obj.get("isResponseFromCache"), "true");
-    } finally {
-      context.shutdown();
-    }
-
-    context = HystrixRequestContext.initializeContext();
-    try {
-      String payLoad = "{'inputData':'Passed'}";
-      ServiceData outData =
-          JavaAgent.getAgent("100", null)
-              .serve("test.hystrixTestSynchronous", payLoad, PayloadType.JSON);
-      JSONObject obj = new JSONObject(outData.getPayLoad());
-      assertEquals((String) obj.get("response"), "Test Passed");
-      assertEquals((String) obj.get("isResponseFromCache"), "false");
-    } finally {
-      context.shutdown();
     }
   }
 }

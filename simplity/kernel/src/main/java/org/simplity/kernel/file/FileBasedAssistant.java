@@ -31,7 +31,6 @@ import java.util.UUID;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.AttachmentAssistant;
-import org.simplity.kernel.Tracer;
 
 /** we use a designated folder to save all attachments */
 public class FileBasedAssistant implements AttachmentAssistant {
@@ -83,7 +82,7 @@ public class FileBasedAssistant implements AttachmentAssistant {
     if (file == null) {
 
       logger.info("No temp file found for key " + tempKey);
-      Tracer.trace("No temp file found for key " + tempKey);
+
       return null;
     }
     String key = UUID.randomUUID().toString();
@@ -95,8 +94,8 @@ public class FileBasedAssistant implements AttachmentAssistant {
       return key;
     } catch (Exception e) {
 
-    	logger.error( "Error while storing temp file " + tempKey, e);
-      Tracer.trace(e, "Error while storing temp file " + tempKey);
+      logger.error("Error while storing temp file " + tempKey, e);
+
       return null;
     } finally {
       if (inStream != null) {
@@ -120,7 +119,7 @@ public class FileBasedAssistant implements AttachmentAssistant {
     if (file.exists() == false) {
 
       logger.info("Invalid storage key requested : " + storageKey);
-      Tracer.trace("Invalid storage key requested : " + storageKey);
+
       return null;
     }
     InputStream in = null;
@@ -129,11 +128,9 @@ public class FileBasedAssistant implements AttachmentAssistant {
       return FileManager.createTempFile(in).getName();
     } catch (Exception e) {
 
-    	logger.error(
-          "error while copying permanent storage with key " + storageKey + " to temp area",
-          e);
-      Tracer.trace(
-          e, "error while copying permanent storage with key " + storageKey + " to temp area");
+      logger.error(
+          "error while copying permanent storage with key " + storageKey + " to temp area", e);
+
       return null;
     } finally {
       if (in != null) {

@@ -30,7 +30,6 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.util.DateUtil;
 
 /**
@@ -133,7 +132,7 @@ public class TimestampValue extends Value {
       Timestamp dateValue = new Timestamp(this.value);
 
       logger.info("Set set a timestamp of " + DateUtil.format(dateValue));
-      Tracer.trace("Set set a timestamp of " + DateUtil.format(dateValue));
+
       statement.setTimestamp(idx, dateValue);
     }
   }

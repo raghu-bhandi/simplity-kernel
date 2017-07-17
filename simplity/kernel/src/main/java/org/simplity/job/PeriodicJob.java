@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Calendar;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 
 /**
@@ -82,14 +81,12 @@ public class PeriodicJob extends IntervalJob {
     int minutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE);
 
     logger.info(
-        
         cal.get(Calendar.HOUR_OF_DAY) + "hr " + cal.get(Calendar.MINUTE) + "mn  " + minutes);
-    Tracer.trace(
-        cal.get(Calendar.HOUR_OF_DAY) + "hr " + cal.get(Calendar.MINUTE) + "mn  " + minutes);
+
     for (int i = 0; i < this.timesOfDay.length; i++) {
 
       logger.info(i + " = " + this.timesOfDay[i]);
-      Tracer.trace(i + " = " + this.timesOfDay[i]);
+
       if (this.timesOfDay[i] >= minutes) {
         return i;
       }
@@ -147,18 +144,12 @@ public class PeriodicJob extends IntervalJob {
       this.nextIdx = -1;
 
       logger.info(
-          
           "Job "
               + this.scheduledJob.name
               + " has run for the last time for the day. It will be run tomorrow "
               + this.timesOfDay[0]
               + " minutes into the day.");
-      Tracer.trace(
-          "Job "
-              + this.scheduledJob.name
-              + " has run for the last time for the day. It will be run tomorrow "
-              + this.timesOfDay[0]
-              + " minutes into the day.");
+
       return MINUTES - minutes + this.timesOfDay[0];
     }
     n = this.timesOfDay[this.nextIdx] - minutes;
@@ -177,14 +168,10 @@ public class PeriodicJob extends IntervalJob {
         && this.future.isDone() == false) {
 
       logger.info(
-          
           "Job "
               + this.scheduledJob.name
               + " is still running when it is time to run it again.. Will wait for next poll");
-      Tracer.trace(
-          "Job "
-              + this.scheduledJob.name
-              + " is still running when it is time to run it again.. Will wait for next poll");
+
       return false;
     }
 

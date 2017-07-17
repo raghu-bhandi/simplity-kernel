@@ -30,123 +30,140 @@ import org.simplity.rest.Tags;
  * represents a parameter type as in a swagger document
  *
  * @author simplity.org
+ *
  */
 public enum ParameterType {
-  /** array */
-  ARRAY {
-    @Override
-    public Parameter parseParameter(JSONObject parameterSpec) {
-      return new ArrayParameter(parameterSpec);
-    }
+	/**
+	 * array
+	 */
+	ARRAY {
+		@Override
+		public Parameter parseParameter(JSONObject parameterSpec) {
+			return new ArrayParameter(parameterSpec);
+		}
 
-    @Override
-    public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
-      return new ArrayParameter(name, fieldName, parameterSpec);
-    }
-  },
-  /** boolean */
-  BOOLEAN {
-    @Override
-    public Parameter parseParameter(JSONObject parameterSpec) {
-      return new BooleanParameter(parameterSpec);
-    }
+		@Override
+		public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
+			return new ArrayParameter(name, fieldName, parameterSpec);
+		}
+	},
+	/**
+	 * boolean
+	 */
+	BOOLEAN {
+		@Override
+		public Parameter parseParameter(JSONObject parameterSpec) {
+			return new BooleanParameter(parameterSpec);
+		}
 
-    @Override
-    public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
-      return new BooleanParameter(name, fieldName, parameterSpec);
-    }
-  },
-  /** file */
-  FILE {
-    @Override
-    public Parameter parseParameter(JSONObject parameterSpec) {
-      throw new ApplicationError("Paramater type 'file' is not yet implemented");
-    }
+		@Override
+		public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
+			return new BooleanParameter(name, fieldName, parameterSpec);
+		}
+	},
+	/**
+	 * file
+	 */
+	FILE {
+		@Override
+		public Parameter parseParameter(JSONObject parameterSpec) {
+			throw new ApplicationError("Paramater type 'file' is not yet implemented");
+		}
 
-    @Override
-    public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
-      throw new ApplicationError("Paramater type 'file' is not yet implemented");
-    }
-  },
-  /** integer */
-  INTEGER {
-    @Override
-    public Parameter parseParameter(JSONObject parameterSpec) {
-      return new IntParameter(parameterSpec);
-    }
+		@Override
+		public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
+			throw new ApplicationError("Paramater type 'file' is not yet implemented");
+		}
+	},
+	/**
+	 * integer
+	 */
+	INTEGER {
+		@Override
+		public Parameter parseParameter(JSONObject parameterSpec) {
+			return new IntParameter(parameterSpec);
+		}
 
-    @Override
-    public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
-      return new IntParameter(name, fieldName, parameterSpec);
-    }
-  },
-  /** possibly with a decimal */
-  NUMBER {
-    @Override
-    public Parameter parseParameter(JSONObject parameterSpec) {
-      return new NumberParameter(parameterSpec);
-    }
+		@Override
+		public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
+			return new IntParameter(name, fieldName, parameterSpec);
+		}
+	},
+	/**
+	 * possibly with a decimal
+	 */
+	NUMBER {
+		@Override
+		public Parameter parseParameter(JSONObject parameterSpec) {
+			return new NumberParameter(parameterSpec);
+		}
 
-    @Override
-    public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
-      return new NumberParameter(name, fieldName, parameterSpec);
-    }
-  },
-  /** object */
-  OBJECT {
-    @Override
-    public Parameter parseParameter(JSONObject parameterSpec) {
-      return new ObjectParameter(parameterSpec);
-    }
+		@Override
+		public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
+			return new NumberParameter(name, fieldName, parameterSpec);
+		}
+	},
+	/**
+	 * object
+	 */
+	OBJECT {
+		@Override
+		public Parameter parseParameter(JSONObject parameterSpec) {
+			return new ObjectParameter(parameterSpec);
+		}
 
-    @Override
-    public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
-      return new ObjectParameter(name, fieldName, parameterSpec);
-    }
-  },
-  /** text. could be date etc based on format */
-  STRING {
-    @Override
-    public Parameter parseParameter(JSONObject parameterSpec) {
-      if (this.isDate(parameterSpec)) {
-        return new DateParameter(parameterSpec);
-      }
-      return new TextParameter(parameterSpec);
-    }
+		@Override
+		public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
+			return new ObjectParameter(name, fieldName, parameterSpec);
+		}
+	},
+	/**
+	 * text. could be date etc based on format
+	 */
+	STRING {
+		@Override
+		public Parameter parseParameter(JSONObject parameterSpec) {
+			if (this.isDate(parameterSpec)) {
+				return new DateParameter(parameterSpec);
+			}
+			return new TextParameter(parameterSpec);
+		}
 
-    @Override
-    public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
-      if (this.isDate(parameterSpec)) {
-        return new DateParameter(name, fieldName, parameterSpec);
-      }
-      return new TextParameter(name, fieldName, parameterSpec);
-    }
+		@Override
+		public Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec) {
+			if (this.isDate(parameterSpec)) {
+				return new DateParameter(name, fieldName, parameterSpec);
+			}
+			return new TextParameter(name, fieldName, parameterSpec);
+		}
 
-    private boolean isDate(JSONObject param) {
-      String text = param.optString(Tags.FORMAT_ATT, null);
-      if (text != null && text.startsWith("date")) {
-        return true;
-      }
-      return false;
-    }
-  };
+		private boolean isDate(JSONObject param) {
+			String text = param.optString(Tags.FORMAT_ATT, null);
+			if (text != null && text.startsWith("date")) {
+				return true;
+			}
+			return false;
+		}
+	};
 
-  /**
-   * create a Parameter instance based on the spec
-   *
-   * @param parameterSpec
-   * @return Parameter instance
-   */
-  public abstract Parameter parseParameter(JSONObject parameterSpec);
+	/**
+	 * create a Parameter instance based on the spec
+	 *
+	 * @param parameterSpec
+	 * @return Parameter instance
+	 */
+	public abstract Parameter parseParameter(JSONObject parameterSpec);
 
-  /**
-   * create a Parameter instance based on the spec
-   *
-   * @param name as used by swagger
-   * @param fieldName as used by service, if it is different from name. null implies that it is same
-   *     as name
-   * @param parameterSpec
-   * @return Parameter instance
-   */
-  public abstract Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec);
+	/**
+	 * create a Parameter instance based on the spec
+	 *
+	 * @param name
+	 *            as used by swagger
+	 * @param fieldName
+	 *            as used by service, if it is different from name. null implies
+	 *            that it is same as name
+	 * @param parameterSpec
+	 * @return Parameter instance
+	 */
+	public abstract Parameter parseParameter(String name, String fieldName, JSONObject parameterSpec);
 }

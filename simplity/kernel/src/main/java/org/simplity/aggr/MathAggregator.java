@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.value.DecimalValue;
 import org.simplity.kernel.value.InvalidValueException;
@@ -39,7 +39,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public abstract class MathAggregator implements AggregationWorker {
-  static final Logger logger =  LoggerFactory.getLogger(MathAggregator.class);
+  static final Logger logger = LoggerFactory.getLogger(MathAggregator.class);
 
   /** field name from which to accumulate sum */
   private final String inputName;
@@ -106,7 +106,7 @@ public abstract class MathAggregator implements AggregationWorker {
     if (Value.isNull(val)) {
 
       logger.info(this.inputName + " has no value to accumulate");
-      Tracer.trace(this.inputName + " has no value to accumulate");
+
       return;
     }
     this.count++;

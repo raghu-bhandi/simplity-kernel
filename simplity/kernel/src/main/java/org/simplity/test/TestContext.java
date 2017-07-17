@@ -33,7 +33,7 @@ import java.util.Map;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.service.JavaAgent;
@@ -153,6 +153,5 @@ public class TestContext {
     writer.endObject();
 
     logger.info(writer.toString());
-    Tracer.trace(writer.toString());
   }
 }

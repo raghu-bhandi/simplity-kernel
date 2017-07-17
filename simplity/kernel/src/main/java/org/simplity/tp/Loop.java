@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.AlreadyIteratingException;
 import org.simplity.kernel.data.DataSheet;
@@ -81,11 +81,6 @@ public class Loop extends Block {
     if (this.executeOnCondition == null) {
 
       logger.info(
-          
-          "Loop action "
-              + this.actionName
-              + " has niether data sheet, nor condition. This is a run-for-ever loop,but could be interrupted");
-      Tracer.trace(
           "Loop action "
               + this.actionName
               + " has niether data sheet, nor condition. This is a run-for-ever loop,but could be interrupted");
@@ -138,7 +133,7 @@ public class Loop extends Block {
       if (interrupted) {
 
         logger.info("Coming out of loop because the thread is interrupted");
-        Tracer.trace("Coming out of loop because the thread is interrupted");
+
         Thread.currentThread().interrupt();
       }
       return Value.VALUE_TRUE;
@@ -160,22 +155,16 @@ public class Loop extends Block {
     if (ds == null) {
 
       logger.info(
-          
           "Data Sheet "
               + this.dataSheetName
               + " not found in the context. Loop action has no work.");
-      Tracer.trace(
-          "Data Sheet "
-              + this.dataSheetName
-              + " not found in the context. Loop action has no work.");
+
       return Value.VALUE_TRUE;
     }
     if (ds.length() == 0) {
 
-      logger.info(
-          
-          "Data Sheet " + this.dataSheetName + " has no data. Loop action has no work.");
-      Tracer.trace("Data Sheet " + this.dataSheetName + " has no data. Loop action has no work.");
+      logger.info("Data Sheet " + this.dataSheetName + " has no data. Loop action has no work.");
+
       return Value.VALUE_TRUE;
     }
     DataSheetIterator iterator = null;
@@ -228,7 +217,7 @@ public class Loop extends Block {
     if (interrupted) {
 
       logger.info("Coming out of loop because the thread is interrupted");
-      Tracer.trace("Coming out of loop because the thread is interrupted");
+
       Thread.currentThread().interrupt();
     }
     return result;

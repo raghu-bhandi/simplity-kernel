@@ -30,7 +30,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.value.ValueType;
 
@@ -69,9 +68,6 @@ public class DataTypeSuggester {
     if (n == 0) {
 
       logger.info(
-          
-          "There are no text data types to suggest from. we will ALWAYS suggest default one.");
-      Tracer.trace(
           "There are no text data types to suggest from. we will ALWAYS suggest default one.");
     }
 
@@ -151,9 +147,8 @@ public class DataTypeSuggester {
         return ValueType.CLOB.getDefaultDataType();
 
       default:
-        logger.info(
-             "we do not support SqlType " + sqlTypeText + " for a column in a table.");
-        Tracer.trace("we do not support SqlType " + sqlTypeText + " for a column in a table.");
+        logger.info("we do not support SqlType " + sqlTypeText + " for a column in a table.");
+
         /*
          * we set the data type to te sql type so that the user gets an
          * error, or gets an opportunity to define it

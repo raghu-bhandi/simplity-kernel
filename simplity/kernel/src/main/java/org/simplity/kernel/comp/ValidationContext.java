@@ -35,7 +35,7 @@ import java.util.Set;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Message;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.db.Sql;
 import org.simplity.kernel.db.StoredProcedure;
 import org.simplity.kernel.dm.Record;
@@ -351,7 +351,7 @@ public class ValidationContext {
       if (file.endsWith(".xml") == false) {
 
         logger.info("Skipping Non-resource " + file);
-        Tracer.trace("Skipping Non-resource " + file);
+
         continue;
       }
       Component comp;
@@ -380,12 +380,12 @@ public class ValidationContext {
       if (file.endsWith(".xml") == false) {
 
         logger.info("Skipping Non-resource " + file);
-        Tracer.trace("Skipping Non-resource " + file);
+
         continue;
       }
 
       logger.info("Going to load components from " + file + " for validation");
-      Tracer.trace("Going to load components from " + file + " for validation");
+
       try {
         XmlUtil.xmlToCollection(file, comps, cls.getPackage().getName() + '.');
       } catch (Exception e) {

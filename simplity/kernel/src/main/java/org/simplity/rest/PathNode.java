@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
 
 /**
  * represents a node of the path tree we construct to map a request url/path to a service
@@ -75,7 +74,6 @@ public class PathNode {
     this.moduleName = moduleName;
 
     logger.info("Node created with prefix=" + pathPrefix);
-    Tracer.trace("Node created with prefix=" + pathPrefix);
   }
 
   /** @return if this path has a spec to accept methods */
@@ -93,9 +91,8 @@ public class PathNode {
       this.fieldName = fieldName;
       this.fieldChild = new PathNode(this, this.pathPrefix, moduleName);
 
-      logger.info(
-           "field-child added at " + this.pathPrefix + " with field name=" + fieldName);
-      Tracer.trace("field-child added at " + this.pathPrefix + " with field name=" + fieldName);
+      logger.info("field-child added at " + this.pathPrefix + " with field name=" + fieldName);
+
     } else if (this.fieldName.equals(fieldName) == false) {
       /*
        * two paths can not have different field names at the same
@@ -134,7 +131,6 @@ public class PathNode {
       this.children.put(pathPart, child);
 
       logger.info("New Child added at " + this.pathPrefix + " for sub path " + pathPart);
-      Tracer.trace("New Child added at " + this.pathPrefix + " for sub path " + pathPart);
     }
     return child;
   }
@@ -165,7 +161,7 @@ public class PathNode {
     if (this.operations != null) {
 
       logger.info("Duplicate spec for path /" + this.pathPrefix);
-      Tracer.trace("Duplicate spec for path /" + this.pathPrefix);
+
       return;
     }
 
@@ -189,15 +185,6 @@ public class PathNode {
       this.operations.put(method, new Operation(obj, serviceName));
 
       logger.info(
-          
-          "Service spec added at prefix="
-              + this.pathPrefix
-              + " for method="
-              + method
-              + " and service name="
-              + serviceName
-              + (this.parent != null ? (" and parent at " + this.parent.pathPrefix) : ""));
-      Tracer.trace(
           "Service spec added at prefix="
               + this.pathPrefix
               + " for method="

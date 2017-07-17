@@ -25,7 +25,6 @@ package org.simplity.tp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -54,16 +53,11 @@ public class RenameSheet extends Action {
     if (sheet == null) {
 
       logger.info(
-          
           "Data sheet "
               + this.sheetName
               + " not found, and hence is not renamed to "
               + this.newSheetName);
-      Tracer.trace(
-          "Data sheet "
-              + this.sheetName
-              + " not found, and hence is not renamed to "
-              + this.newSheetName);
+
       return Value.VALUE_FALSE;
     }
     ctx.putDataSheet(this.newSheetName, sheet);

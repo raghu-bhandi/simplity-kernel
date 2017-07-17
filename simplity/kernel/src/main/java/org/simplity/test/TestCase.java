@@ -29,7 +29,7 @@ import java.util.Date;
 
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.service.ServiceProtocol;
 
@@ -109,7 +109,7 @@ public class TestCase {
     String json = this.getInput(ctx);
 
     logger.info("Input Json : " + json);
-    Tracer.trace("Input Json : " + json);
+
     long startedAt = new Date().getTime();
     String msg = null;
     try {
@@ -118,12 +118,11 @@ public class TestCase {
     } catch (Exception e) {
       msg = "Service or serviceTest has a fatal error : " + e.getMessage();
 
-      logger.error( this.serviceName + " raised fatal error during testing.", e);
-      Tracer.trace(e, this.serviceName + " raised fatal error during testing.");
+      logger.error(this.serviceName + " raised fatal error during testing.", e);
     }
 
     logger.info("Output JSON : " + json);
-    Tracer.trace("Output JSON : " + json);
+
     int millis = (int) (new Date().getTime() - startedAt);
     TestResult result = new TestResult(this.serviceName, this.testCaseName, millis, msg);
     ctx.addResult(result);

@@ -33,7 +33,7 @@ import org.simplity.jms.JmsConnector;
 import org.simplity.jms.JmsUsage;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbClientInterface;
@@ -211,7 +211,7 @@ public class BatchProcessor extends Action {
     if (files == null) {
 
       logger.info("BatchProcesser " + this.actionName + " had nothing to process.");
-      Tracer.trace("BatchProcesser " + this.actionName + " had nothing to process.");
+
       return Value.VALUE_ZERO;
     }
     /*
@@ -302,7 +302,6 @@ public class BatchProcessor extends Action {
     }
 
     logger.info("Going to process files in folder " + folderName);
-    Tracer.trace("Going to process files in folder " + folderName);
 
     String fileName = this.batchRowProcessor.inputFile.fileName;
     if (fileName.startsWith(FIELD_PREFIX) == false) {
@@ -314,18 +313,12 @@ public class BatchProcessor extends Action {
       if (files == null || files.length == 0) {
 
         logger.info(
-            
             "No file found in folder "
                 + this.inputFolder
                 + " matching name "
                 + fileName
                 + ". Batch processor has no work.");
-        Tracer.trace(
-            "No file found in folder "
-                + this.inputFolder
-                + " matching name "
-                + fileName
-                + ". Batch processor has no work.");
+
         return null;
       }
       return files;

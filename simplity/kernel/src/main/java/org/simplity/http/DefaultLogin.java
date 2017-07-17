@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.service.ServiceProtocol;
 
 /**
@@ -62,7 +62,7 @@ public class DefaultLogin extends HttpServlet {
     if (text == null) {
 
       logger.info("No credentials received in header for login.");
-      Tracer.trace("No credentials received in header for login.");
+
       return;
     }
 

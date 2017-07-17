@@ -40,7 +40,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+import org.simplity.kernel.data.MultiRowsSheet.RowAsFields;
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.util.ArrayUtil;
 import org.simplity.kernel.util.ReflectUtil;
@@ -309,18 +309,12 @@ public class MultiRowsSheet implements DataSheet {
     } catch (Exception e) {
 
       logger.info(
-          
           "Request to get value for column"
               + columnName
               + " and index "
               + zeroBasedRowNumber
               + " is not valid. going to return null");
-      Tracer.trace(
-          "Request to get value for column"
-              + columnName
-              + " and index "
-              + zeroBasedRowNumber
-              + " is not valid. going to return null");
+
       return null;
     }
   }
@@ -435,19 +429,16 @@ public class MultiRowsSheet implements DataSheet {
     if (nbr == 0) {
 
       logger.info("getColumn values is returning empty array as there are no data");
-      Tracer.trace("getColumn values is returning empty array as there are no data");
+
       return values;
     }
     Integer n = this.columnIndexes.get(columnName);
     if (n == null) {
 
       logger.info(
-          
           columnName
               + " is not a column in the sheet and hence null values are returned for getColumnValues()");
-      Tracer.trace(
-          columnName
-              + " is not a column in the sheet and hence null values are returned for getColumnValues()");
+
       return null;
     }
 
@@ -539,7 +530,6 @@ public class MultiRowsSheet implements DataSheet {
   public void trace() {
 
     logger.info(this.toString("\t", "\n"));
-    Tracer.trace(this.toString("\t", "\n"));
   }
 
   /**
@@ -627,7 +617,7 @@ public class MultiRowsSheet implements DataSheet {
     }
 
     logger.info("We did not find column " + columnName + " in this multi-row sheet");
-    Tracer.trace("We did not find column " + columnName + " in this multi-row sheet");
+
     return -1;
   }
 
@@ -1008,4 +998,61 @@ public class MultiRowsSheet implements DataSheet {
     }
     return obj;
   }
+	class RowAsFields implements FieldsInterface{
+		private final int idx;
+		RowAsFields(int idx){
+			this.idx = idx;
+		}
+		/* (non-Javadoc)
+		 * @see org.simplity.kernel.data.FieldsInterface#getValue(java.lang.String)
+		 */
+		@Override
+		public Value getValue(String fieldName) {
+			return MultiRowsSheet.this.getColumnValue(fieldName, this.idx);
+		}
+		/* (non-Javadoc)
+		 * @see org.simplity.kernel.data.FieldsInterface#setValue(java.lang.String, org.simplity.kernel.value.Value)
+		 */
+		@Override
+		public void setValue(String fieldName, Value value) {
+			MultiRowsSheet.this.setColumnValue(fieldName, this.idx, value);
+		}
+		/* (non-Javadoc)
+		 * @see org.simplity.kernel.data.FieldsInterface#hasValue(java.lang.String)
+		 */
+		@Override
+		public boolean hasValue(String fieldName) {
+			return MultiRowsSheet.this.getColumnValue(fieldName, this.idx) != null;
+		}
+		/* (non-Javadoc)
+		 * @see org.simplity.kernel.data.FieldsInterface#removeValue(java.lang.String)
+		 */
+		@Override
+		public Value removeValue(String fieldName) {
+			Value val =  MultiRowsSheet.this.getColumnValue(fieldName, this.idx);
+			MultiRowsSheet.this.setColumnValue(fieldName, this.idx, null);
+			return val;
+		}
+		/* (non-Javadoc)
+		 * @see org.simplity.kernel.data.FieldsInterface#getAllFields()
+		 */
+		@Override
+		public Set<Entry<String, Value>> getAllFields() {
+			throw new ApplicationError("Sorry. MultiRowsSheet is not designed to get all fields of a row into a set");
+		}
+
+	}
+
+	/**
+	 * get an object that behaves like a fieldsIntefrace on the desired row of data
+	 * @param rowIdx
+	 * @return simulator, or null if the idx is out of range.
+	 */
+	public FieldsInterface getRowAsFields(int rowIdx){
+		if(rowIdx >= this.length()){
+			return null;
+		}
+		return new RowAsFields(rowIdx);
+	}
+ 
 }

@@ -46,6 +46,5 @@
 	<modules>
 		<module>install-ojdbc6</module>
 		<module>simplity</module>
-		<module>utils</module>
 	</modules>
 </project>

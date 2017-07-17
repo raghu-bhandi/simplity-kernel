@@ -29,56 +29,59 @@ import org.simplity.json.JSONObject;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.rest.Tags;
 
-/** @author simplity.org */
+/**
+ * @author simplity.org
+ *
+ */
 public class TextParameter extends Parameter {
-  private int minLength;
-  private int maxLength;
-  private Pattern pattern;
+	private int minLength;
+	private int maxLength;
+	private Pattern pattern;
 
-  /**
-   * @param name
-   * @param fieldName
-   * @param parameterSpec
-   */
-  public TextParameter(String name, String fieldName, JSONObject parameterSpec) {
-    this(parameterSpec);
-    this.name = name;
-    if (fieldName != null) {
-      this.fieldName = fieldName;
-    }
-  }
-  /**
-   * construct based on api spec
-   *
-   * @param paramSpec
-   */
-  protected TextParameter(JSONObject paramSpec) {
-    super(paramSpec);
-    if (this.validValues != null) {
-      return;
-    }
+	/**
+	 * @param name
+	 * @param fieldName
+	 * @param parameterSpec
+	 */
+	public TextParameter(String name, String fieldName, JSONObject parameterSpec) {
+		super(name, fieldName, parameterSpec);
+		this.addValidations(parameterSpec);
+	}
+	/**
+	 * construct based on api spec
+	 * @param paramSpec
+	 */
+	protected TextParameter(JSONObject paramSpec){
+		super(paramSpec);
+		this.addValidations(paramSpec);
+	}
 
-    String txt = paramSpec.optString(Tags.PATTERN_ATT, null);
-    if (txt != null && txt.isEmpty() == false) {
-      this.pattern = Pattern.compile(txt);
-    }
-    this.minLength = paramSpec.optInt(Tags.MIN_LEN_ATT, 0);
-    this.maxLength = paramSpec.optInt(Tags.MAX_LEN_ATT, 0);
-  }
+	private void addValidations(JSONObject paramSpec){
+		if(this.validValues !=null){
+			return;
+		}
 
-  /* (non-Javadoc)
-   * @see org.simplity.rest.parm.Parameter#validate(java.lang.Object, java.util.List)
-   */
-  @Override
-  public Object doValidate(Object value, List<FormattedMessage> messages) {
-    String val = value.toString();
-    if (this.pattern != null && this.pattern.matcher(val).matches() == false) {
-      return this.invalidValue(messages);
-    }
-    int len = val.length();
-    if (len < this.minLength || (this.maxLength > 0 && len > this.maxLength)) {
-      return this.invalidValue(messages);
-    }
-    return val;
-  }
+		String txt = paramSpec.optString(Tags.PATTERN_ATT, null);
+		if(txt != null && txt.isEmpty() == false){
+			this.pattern = Pattern.compile(txt);
+		}
+		this.minLength = paramSpec.optInt(Tags.MIN_LEN_ATT, 0);
+		this.maxLength = paramSpec.optInt(Tags.MAX_LEN_ATT, 0);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.rest.parm.Parameter#validate(java.lang.Object, java.util.List)
+	 */
+	@Override
+	public Object doValidate(Object value, List<FormattedMessage> messages) {
+		String val = value.toString();
+		if( this.pattern != null &&  this.pattern.matcher(val).matches() == false){
+			return this.invalidValue(messages);
+		}
+		int len = val.length();
+		if( len < this.minLength || (this.maxLength > 0 && len > this.maxLength)){
+			return this.invalidValue(messages);
+		}
+		return val;
+	}
 }

@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.expr.Expression;
 
 /** @author simplity.org */
@@ -60,20 +60,13 @@ public class ReflectUtil {
         if (isSpecified(field.get(object))) {
 
           logger.info(
-              
               fieldName
                   + " already has a value of "
                   + field.get(object)
                   + " and hence a value of "
                   + textValue
                   + " is not set");
-          Tracer.trace(
-              fieldName
-                  + " already has a value of "
-                  + field.get(object)
-                  + " and hence a value of "
-                  + textValue
-                  + " is not set");
+
           return;
         }
       }
@@ -81,7 +74,7 @@ public class ReflectUtil {
       if (fieldValue != null) {
 
         logger.info(fieldName + " is set a value of " + textValue + " from data field");
-        Tracer.trace(fieldName + " is set a value of " + textValue + " from data field");
+
         field.set(object, fieldValue);
       }
     } catch (Exception e) {
@@ -123,20 +116,13 @@ public class ReflectUtil {
         if (isSpecified(field.get(object))) {
 
           logger.info(
-              
               fieldName
                   + " already has a value of "
                   + field.get(object)
                   + " and hence a value of "
                   + textValue
                   + " is not set");
-          Tracer.trace(
-              fieldName
-                  + " already has a value of "
-                  + field.get(object)
-                  + " and hence a value of "
-                  + textValue
-                  + " is not set");
+
           return;
         }
       }
@@ -144,7 +130,7 @@ public class ReflectUtil {
       if (fieldValue != null) {
 
         logger.info(fieldName + " is set a value of " + textValue + " from data field");
-        Tracer.trace(fieldName + " is set a value of " + textValue + " from data field");
+
         field.set(object, fieldValue);
       }
     } catch (Exception e) {
@@ -218,19 +204,15 @@ public class ReflectUtil {
             return field;
           }
 
-          logger.info(
-              
-              fieldName + " is a field, but it is has modifiers, and hence not selected.");
-          Tracer.trace(fieldName + " is a field, but it is has modifiers, and hence not selected.");
+          logger.info(fieldName + " is a field, but it is has modifiers, and hence not selected.");
+
           return null;
         }
       } catch (SecurityException e) {
 
         logger.info(
-            
             "Thrown out by a Bouncer while looking at field " + fieldName + ". " + e.getMessage());
-        Tracer.trace(
-            "Thrown out by a Bouncer while looking at field " + fieldName + ". " + e.getMessage());
+
         return null;
       } catch (NoSuchFieldException e) {
         // keep going...
@@ -260,10 +242,8 @@ public class ReflectUtil {
       } catch (SecurityException e) {
 
         logger.info(
-            
             "Thrown out by a Bouncer while looking at field " + fieldName + ". " + e.getMessage());
-        Tracer.trace(
-            "Thrown out by a Bouncer while looking at field " + fieldName + ". " + e.getMessage());
+
         return null;
       } catch (NoSuchFieldException e) {
         // keep going...
@@ -355,20 +335,13 @@ public class ReflectUtil {
       if (fromAttribute.getType().equals(toAttribute.getType()) == false) {
 
         logger.info(
-            
             attName
                 + " is a common attribute but it is of type "
                 + fromAttribute.getType().getSimpleName()
                 + " in from object but of type "
                 + toAttribute.getType().getSimpleName()
                 + " in the toObject. Hence the attribute is not copied.");
-        Tracer.trace(
-            attName
-                + " is a common attribute but it is of type "
-                + fromAttribute.getType().getSimpleName()
-                + " in from object but of type "
-                + toAttribute.getType().getSimpleName()
-                + " in the toObject. Hence the attribute is not copied.");
+
         continue;
       }
       try {
@@ -381,7 +354,7 @@ public class ReflectUtil {
         }
 
         logger.info(fromAttribute.getName() + " copied as " + fromValue);
-        Tracer.trace(fromAttribute.getName() + " copied as " + fromValue);
+
         toAttribute.set(toObject, fromValue);
 
       } catch (Exception e) {

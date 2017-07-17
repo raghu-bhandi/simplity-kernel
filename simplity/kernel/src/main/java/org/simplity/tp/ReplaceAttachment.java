@@ -25,7 +25,6 @@ package org.simplity.tp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
@@ -73,18 +72,12 @@ public class ReplaceAttachment extends DbAction {
     if (res == 0) {
 
       logger.info(
-          
           "No row found while reading from record "
               + this.recordName
               + " for key value "
               + keyValue
               + " and hence no update.");
-      Tracer.trace(
-          "No row found while reading from record "
-              + this.recordName
-              + " for key value "
-              + keyValue
-              + " and hence no update.");
+
       return 0;
     }
     /*

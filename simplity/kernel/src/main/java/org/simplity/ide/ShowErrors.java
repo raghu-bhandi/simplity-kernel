@@ -25,7 +25,6 @@ package org.simplity.ide;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSerializationType;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
@@ -43,14 +42,12 @@ public class ShowErrors implements LogicInterface {
     if (ds == null || ds.length() == 0) {
 
       logger.info("There are NO Messages in teh context");
-      Tracer.trace("There are NO Messages in teh context");
+
     } else {
 
       logger.info("FOllowing is a json for all message in the context");
-      Tracer.trace("FOllowing is a json for all message in the context");
 
       logger.info(ds.toSerializedText(DataSerializationType.JSON));
-      Tracer.trace(ds.toSerializedText(DataSerializationType.JSON));
     }
     return null;
   }

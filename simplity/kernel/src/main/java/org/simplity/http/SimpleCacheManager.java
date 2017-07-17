@@ -32,7 +32,7 @@ import javax.servlet.http.HttpSession;
 
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ClientCacheManager;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceProtocol;
 
@@ -75,12 +75,12 @@ public class SimpleCacheManager implements ClientCacheManager {
     if (payLoad == null) {
 
       logger.info("Service not available in cached responses.");
-      Tracer.trace("Service not available in cached responses.");
+
       return null;
     }
 
     logger.info("Responding from cache");
-    Tracer.trace("Responding from cache");
+
     ServiceData outData = new ServiceData(inData.getUserId(), serviceName);
     outData.setPayLoad(payLoad);
     return outData;
@@ -99,7 +99,7 @@ public class SimpleCacheManager implements ClientCacheManager {
     if (text == null) {
 
       logger.info("NOt to be cached.");
-      Tracer.trace("NOt to be cached.");
+
       return;
     }
     boolean forUserId = false;
@@ -123,12 +123,12 @@ public class SimpleCacheManager implements ClientCacheManager {
     if (forUserId) {
 
       logger.info("Going to cache for specific user");
-      Tracer.trace("Going to cache for specific user");
+
       cs = this.getSessionCache(inData.getServiceName(), fields, session);
     } else {
 
       logger.info("Going to cache in general...");
-      Tracer.trace("Going to cache in general...");
+
       cs = this.getCache(inData.getServiceName(), fields);
     }
     cs.cache(inData, outData);

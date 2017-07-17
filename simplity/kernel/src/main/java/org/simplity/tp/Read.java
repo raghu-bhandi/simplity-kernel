@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -73,12 +73,12 @@ public class Read extends DbAction {
     this.cascadeFilterForChildren = true;
   }
 
-	public Read(Record record,RelatedRecord[] children) {
-		this.recordName = record.getQualifiedName();
-		this.actionName = "read_" + record.getSimpleName();
-		this.cascadeFilterForChildren = true;
-		this.childRecords = children;
-	}
+  public Read(Record record, RelatedRecord[] children) {
+    this.recordName = record.getQualifiedName();
+    this.actionName = "read_" + record.getSimpleName();
+    this.cascadeFilterForChildren = true;
+    this.childRecords = children;
+  }
 
   @Override
   protected int doDbAct(ServiceContext ctx, DbDriver driver) {
@@ -114,7 +114,7 @@ public class Read extends DbAction {
       for (RelatedRecord rr : this.childRecords) {
         Record cr = ComponentManager.getRecord(rr.recordName);
         logger.info("Going to read child record ");
-        Tracer.trace("Going to read child record ");
+
         cr.filterForParents(outSheet, driver, rr.sheetName, this.cascadeFilterForChildren, ctx);
       }
       return result;

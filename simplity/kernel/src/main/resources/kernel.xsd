@@ -2268,6 +2268,13 @@
 	<xs:complexType name="log">
 		<xs:attributeGroup ref="actionAttributes" />
 		<xs:attribute
+			name="setMDC"
+			type="booleanType">
+			<xs:annotation>
+				<xs:documentation>Used to the set the global thread safe variable for usage while logging</xs:documentation>
+			</xs:annotation>	
+		</xs:attribute>
+		<xs:attribute
 			name="names"
 			type="xs:string"
 			use="required"
@@ -3826,32 +3833,7 @@
 						org.simplity.AttachmentManager class
 					</xs:documentation>
 				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="traceWrapper"
-				type="xs:string"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>By default, service-log is wrapped in a simple
-						xml element and the actual trace text is put inside a CDATA
-						section. You may format it differently using your own wrapper that
-						implements
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="sendTraceToClient"
-				type="booleanType"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>should the trace/log for the service execution be
-						arranged to be sent to the caller/client? True during development,
-						false during production
-					</xs:documentation>
-				</xs:annotation>
-			</xs:attribute>
+			</xs:attribute>
 			<xs:attribute
 				name="autoLoginUserId"
 				type="xs:string"
@@ -3878,57 +3860,7 @@
 						(refer to service.xml attributes)
 					</xs:documentation>
 				</xs:annotation>
-			</xs:attribute>
-			<xs:attribute
-				name="loggingFramework"
-				use="optional"
-			>
-				<xs:annotation>
-					<xs:documentation>By default, service-log is emitted to console
-						(System.out). If you use any of the standard logging framework,
-						and you would like to service log to be diverted to your logger.
-					</xs:documentation>
-				</xs:annotation>
-				<xs:simpleType>
-					<xs:restriction base="xs:NCName">
-						<xs:enumeration value="log4jClassic">
-							<xs:annotation>
-								<xs:documentation>Old
-									log4J uses log4j-1.17.jar
-								</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-						<xs:enumeration value="log4j">
-							<xs:annotation>
-								<xs:documentation>Version 2.* of log4J. uses log4j-api-2.7.jar
-								</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-						<xs:enumeration value="commonsLogging">
-							<xs:annotation>
-								<xs:documentation>Also known as JCL, uses
-									commons-logging-1.2-SNAPSHOT.jar
-								</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-						<xs:enumeration value="slf4j">
-							<xs:annotation>
-								<xs:documentation>SLF4J adapter that you can bind to any other
-									framework. For example slf4J-Simple or LogBack.
-									slf4j-api-1.7.2.jar
-								</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-						<xs:enumeration value="juli">
-							<xs:annotation>
-								<xs:documentation>Plain vanilla java.util.logging. Requires no
-									jar file, but configuration is the key
-								</xs:documentation>
-							</xs:annotation>
-						</xs:enumeration>
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
+			</xs:attribute>
 			<xs:attribute
 				name="jmsConnectionFactory"
 				type="xs:string"

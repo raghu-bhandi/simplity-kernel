@@ -36,7 +36,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.DateUtil;
 import org.simplity.kernel.util.JsonUtil;
@@ -120,7 +120,7 @@ public enum ValueType {
         } catch (Exception e) {
 
           logger.info(dbObject.toString() + " is an invalid number.");
-          Tracer.trace(dbObject.toString() + " is an invalid number.");
+
           return null;
         }
       }
@@ -175,7 +175,7 @@ public enum ValueType {
         } catch (Exception e) {
 
           logger.info(dbObject.toString() + " is an invalid number.");
-          Tracer.trace(dbObject.toString() + " is an invalid number.");
+
           return null;
         }
       }
@@ -191,7 +191,6 @@ public enum ValueType {
         result[i] = Value.newDecimalValue(vals[i].doubleValue());
 
         logger.info(arr[i] + " got extracted into " + result[i]);
-        Tracer.trace(arr[i] + " got extracted into " + result[i]);
       }
       return result;
     }
@@ -463,7 +462,7 @@ public enum ValueType {
       }
 
       logger.info("Extracted a time stamp " + ts + " and nanos = " + ts.getNanos());
-      Tracer.trace("Extracted a time stamp " + ts + " and nanos = " + ts.getNanos());
+
       long val = ts.getTime() * 1000 + ts.getNanos();
       return Value.newIntegerValue(val);
     }
@@ -584,7 +583,7 @@ public enum ValueType {
   public Value[] toValues(Object[] arr) {
 
     logger.info("Going to convert " + arr.length + " objects into " + this.name());
-    Tracer.trace("Going to convert " + arr.length + " objects into " + this.name());
+
     int n = arr.length;
     Value[] result = new Value[n];
     for (int i = 0; i < n; i++) {
@@ -603,14 +602,10 @@ public enum ValueType {
     if (object == null) {
 
       logger.info(
-          
           "Parse Object received null for type "
               + this.name()
               + ". Client may receive null or empty string depending on the setting.");
-      Tracer.trace(
-          "Parse Object received null for type "
-              + this.name()
-              + ". Client may receive null or empty string depending on the setting.");
+
       return Value.newUnknownValue(this);
     }
     return this.fromObject(object);

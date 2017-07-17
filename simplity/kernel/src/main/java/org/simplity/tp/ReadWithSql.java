@@ -25,7 +25,6 @@ package org.simplity.tp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -69,18 +68,12 @@ public class ReadWithSql extends DbAction {
       if (inSheet == null) {
 
         logger.info(
-            
             "Read Action "
                 + this.actionName
                 + " did not execute because input sheet "
                 + this.inputSheetName
                 + " is not found.");
-        Tracer.trace(
-            "Read Action "
-                + this.actionName
-                + " did not execute because input sheet "
-                + this.inputSheetName
-                + " is not found.");
+
         return 0;
       }
       outSheet = sql.extract(inSheet, driver);

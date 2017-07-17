@@ -30,7 +30,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.value.Value;
 
 /**
@@ -106,9 +105,6 @@ public class IntervalJob extends ScheduledJob {
   private void noChange() {
 
     logger.info(
-        
-        "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
-    Tracer.trace(
         "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
   }
 

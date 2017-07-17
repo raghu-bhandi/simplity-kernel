@@ -24,7 +24,6 @@ package org.simplity.tp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
@@ -50,11 +49,11 @@ public class SubService extends Action {
     ServiceInterface service = ComponentManager.getService(this.serviceName);
 
     logger.info("service " + this.serviceName + " started as sub service.");
-    Tracer.trace("service " + this.serviceName + " started as sub service.");
+
     Value result = service.executeAsAction(ctx, driver, this.transactionIsDelegated);
 
     logger.info("service " + this.serviceName + " returned control back.");
-    Tracer.trace("service " + this.serviceName + " returned control back.");
+
     return result;
   }
 

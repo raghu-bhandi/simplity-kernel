@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;
@@ -94,7 +94,7 @@ public class GetService implements LogicInterface {
     if (in == null) {
 
       logger.info("Unable to locate source for " + sourceName);
-      Tracer.trace("Unable to locate source for " + sourceName);
+
       return null;
     }
     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -104,7 +104,7 @@ public class GetService implements LogicInterface {
     } catch (IOException e) {
 
       logger.info("Error while copying reource " + e.getMessage());
-      Tracer.trace("Error while copying reource " + e.getMessage());
+
       return null;
     } finally {
       try {

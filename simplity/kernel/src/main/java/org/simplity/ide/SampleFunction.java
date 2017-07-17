@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.FieldsInterface;
@@ -83,18 +83,12 @@ public class SampleFunction implements Function {
   public Value execute(Value[] arguments, FieldsInterface data) {
 
     logger.info(
-        
         MY_FULL_NAME
             + " called with "
             + (arguments == null ? -1 : arguments.length)
             + " arguments with datat="
             + data);
-    Tracer.trace(
-        MY_FULL_NAME
-            + " called with "
-            + (arguments == null ? -1 : arguments.length)
-            + " arguments with datat="
-            + data);
+
     if (data == null) {
       this.oops();
       return null;
@@ -107,7 +101,7 @@ public class SampleFunction implements Function {
     if (Value.isNull(val1) || val1.getValueType() != ValueType.TEXT) {
 
       logger.info("Trouble with 1 " + val1);
-      Tracer.trace("Trouble with 1 " + val1);
+
       this.oops();
       return null;
     }
@@ -116,7 +110,7 @@ public class SampleFunction implements Function {
     if (Value.isNull(val2) || val2.getValueType() != ValueType.INTEGER) {
 
       logger.info("Trouble with 2 " + val2.getValueType() + "");
-      Tracer.trace("Trouble with 2 " + val2.getValueType() + "");
+
       this.oops();
       return null;
     }

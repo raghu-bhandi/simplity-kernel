@@ -24,10 +24,10 @@ package org.simplity.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageBox;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
@@ -104,9 +104,8 @@ public abstract class AbstractService implements ServiceInterface {
   public Value executeAsAction(
       ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction) {
 
-    logger.info(
-         "Service " + this.getQualifiedName() + " is run as sub-service action..");
-    Tracer.trace("Service " + this.getQualifiedName() + " is run as sub-service action..");
+    logger.info("Service " + this.getQualifiedName() + " is run as sub-service action..");
+
     return Value.VALUE_TRUE;
   }
 
@@ -154,7 +153,7 @@ public abstract class AbstractService implements ServiceInterface {
    * @see org.simplity.service.ServiceInterface#okToCache()
    */
   @Override
-  public boolean okToCache(ServiceData inData) {
+  public boolean okToCache() {
     return false;
   }
 
@@ -203,14 +202,14 @@ public abstract class AbstractService implements ServiceInterface {
     if (payload == null) {
 
       logger.info("No input from client");
-      Tracer.trace("No input from client");
+
       return ctx;
     }
 
     JsonUtil.extractAll(payload, ctx);
 
     logger.info(ctx.getAllFields().size() + " fields extracted ");
-    Tracer.trace(ctx.getAllFields().size() + " fields extracted ");
+
     return ctx;
   }
 
@@ -228,4 +227,29 @@ public abstract class AbstractService implements ServiceInterface {
     outData.setPayLoad(JsonUtil.outputAll(ctx));
     return outData;
   }
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.simplity.service.ServiceInterface#execute(org.simplity.service.ServiceContext)
+	 */
+	@Override
+	public void serve(ServiceContext ctx){
+		throw new ApplicationError("Service " + this.getQualifiedName() + " is yet to be upgraded to new version.");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.service.ServiceInterface#getInputSpecification()
+	 */
+	@Override
+	public InputData getInputSpecification() {
+		return null;
+	}
+	/* (non-Javadoc)
+	 * @see org.simplity.service.ServiceInterface#getOutputSpecification()
+	 */
+	@Override
+	public OutputData getOutputSpecification() {
+		return null;
+	}
 }

@@ -189,7 +189,7 @@ public class Application {
     if (msg == null) {
 
       logger.info("Bootstrapping with " + componentFolder);
-      Tracer.trace("Bootstrapping with " + componentFolder);
+
       Application app = new Application();
       try {
         componentFolder = ComponentType.setComponentFolder(componentFolder);
@@ -293,19 +293,7 @@ public class Application {
    * re-used
    */
   String attachmentAssistant;
-  /**
-   * logging utility to which service log is to be emitted to. Default is to emit to console
-   * (System.out)
-   */
-  LoggingFramework loggingFramework;
-  /**
-   * fully qualified class name that implements org.simplity.core.TraceWrapper to either format
-   * service-log or to actually log it.
-   */
-  String traceWrapper;
 
-  /** should we send server trace to client? */
-  boolean sendTraceToClient;
   /**
    * if you want to disable login, and use a dummy user id for all services, typically during
    * development/demo. Ensure that this value is numeric in case you have set userIdIsNumber="true"
@@ -365,19 +353,6 @@ public class Application {
             this.classManager
                 + " could not be used to instantiate a Class Manager. "
                 + e.getMessage());
-      }
-    }
-    if (this.traceWrapper != null) {
-      try {
-        TraceWrapper wrapper = Application.getBean(this.traceWrapper, TraceWrapper.class);
-        //ServiceLogger.setWrapper(wrapper);
-
-      } catch (Exception e) {
-        msgs.add(
-            this.traceWrapper
-                + " could not be used to instantiate a Trace Wrapper. "
-                + e.getMessage()
-                + " We will work with a default wrapper");
       }
     }
 
@@ -452,9 +427,6 @@ public class Application {
         } else {
 
           logger.info(
-              
-              "userTransactionInstance set to " + userTransactionInstance.getClass().getName());
-          Tracer.trace(
               "userTransactionInstance set to " + userTransactionInstance.getClass().getName());
         }
       } catch (Exception e) {
@@ -520,49 +492,6 @@ public class Application {
       AttachmentManager.setAssistant(ast);
     }
     /*
-     * is there a logging framework
-     */
-    if (this.loggingFramework == null) {
-
-      logger.info(
-          
-          "No logging framework set by application designer. All service logs will be emitted to console. (System.out)");
-      Tracer.trace(
-          "No logging framework set by application designer. All service logs will be emitted to console. (System.out)");
-    } else {
-
-      logger.info(
-          
-          "Logging framework is set to "
-              + this.loggingFramework
-              + ". Will try to locate the right class and connect to it.");
-      Tracer.trace(
-          "Logging framework is set to "
-              + this.loggingFramework
-              + ". Will try to locate the right class and connect to it.");
-      try {
-       // ServiceLogger.setLogger(this.loggingFramework);
-
-        logger.info(
-            
-            "Service logs successfully diverted to the logging framework " + this.loggingFramework);
-        Tracer.trace(
-            "Service logs successfully diverted to the logging framework " + this.loggingFramework);
-      } catch (Exception e) {
-        String msg =
-            "Logging framework "
-                + this.loggingFramework
-                + " could not be initiated for logging. \n "
-                + e.getMessage()
-                + "\nAre you missing required jar file?. ";
-
-        logger.info(msg);
-        Tracer.trace(msg);
-        msgs.add(msg);
-      }
-    }
-
-    /*
      * initialize http-agent. In rare cases, a project may not use
      * httpAgent, but it is not so much of an issue if the agent is all
      * dressed-up but no work :-)
@@ -623,9 +552,8 @@ public class Application {
       try {
         threadFactory = (ThreadFactory) new InitialContext().lookup(this.threadFactoryJndiName);
 
-        logger.info(
-             "Thread factory instantiated as " + threadFactory.getClass().getName());
-        Tracer.trace("Thread factory instantiated as " + threadFactory.getClass().getName());
+        logger.info("Thread factory instantiated as " + threadFactory.getClass().getName());
+
       } catch (Exception e) {
         msgs.add(
             "Error while looking up "
@@ -641,12 +569,9 @@ public class Application {
             (ScheduledExecutorService) new InitialContext().lookup(this.scheduledExecutorJndiName);
 
         logger.info(
-            
             "ScheduledThreadPoolExecutor instantiated as "
                 + threadPoolExecutor.getClass().getName());
-        Tracer.trace(
-            "ScheduledThreadPoolExecutor instantiated as "
-                + threadPoolExecutor.getClass().getName());
+
       } catch (Exception e) {
         msgs.add(
             "Error while looking up "
@@ -679,7 +604,7 @@ public class Application {
       result = err.toString();
 
       logger.info(result);
-      Tracer.trace(result);
+
     } else if (this.jobsToRunOnStartup != null) {
       /*
        * we run the background batch job only if everything has gone well.
@@ -687,7 +612,6 @@ public class Application {
       Jobs.startJobs(this.jobsToRunOnStartup);
 
       logger.info("Scheduler started for Batch " + this.jobsToRunOnStartup);
-      Tracer.trace("Scheduler started for Batch " + this.jobsToRunOnStartup);
     }
     return result;
   }
@@ -728,10 +652,6 @@ public class Application {
         AttachmentAssistant.class, this.attachmentAssistant, "attachmentAssistantClass", ctx)) {
       count++;
     }
-    if (this.classInError(AttachmentAssistant.class, this.traceWrapper, "traceWrapper", ctx)) {
-      count++;
-    }
-
     /*
      * check service references
      */
@@ -772,6 +692,23 @@ public class Application {
                 + " but it is to be numeric because userIdIsNumber is set to true");
         count++;
       }
+    }
+    
+    if(this.dbDriverClassName!=null){
+    	   try {
+    		      DbDriver.initialSetup(
+    		          this.dbVendor,
+    		          this.dataSourceName,
+    		          this.dbDriverClassName,
+    		          this.connectionString,
+    		          this.logSqls,
+    		          this.schemaDetails);
+    		    } catch (Exception e) {
+    		      ctx.addError(
+    		          "Error while setting up DbDriver. "
+    		              + e.getMessage()
+    		              + " Application will not work properly.");
+    		    }
     }
     return count;
   }

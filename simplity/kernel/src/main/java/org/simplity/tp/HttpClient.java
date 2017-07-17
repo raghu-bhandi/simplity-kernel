@@ -37,10 +37,10 @@ import java.net.URL;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ValidationContext;
-import org.simplity.kernel.data.InputData;
-import org.simplity.kernel.data.OutputData;
+import org.simplity.service.InputData;
+import org.simplity.service.OutputData;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.TextUtil;
@@ -254,11 +254,6 @@ public class HttpClient extends Action {
       if (req == null) {
 
         logger.info(
-            
-            "No value for field "
-                + this.requestFieldName
-                + " in context, and hence no data is sent with the http request.");
-        Tracer.trace(
             "No value for field "
                 + this.requestFieldName
                 + " in context, and hence no data is sent with the http request.");

@@ -25,7 +25,6 @@ package org.simplity.test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.comp.Component;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -49,7 +48,7 @@ public class TestRun implements Component {
     if (this.testCases == null) {
 
       logger.info("No test cases to run.. reporting success by default");
-      Tracer.trace("No test cases to run.. reporting success by default");
+
       return 0;
     }
     int nbrFailure = 0;

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.MessageBox;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
@@ -71,16 +71,16 @@ public class RunningJob implements Runnable {
     this.jobStatus = JobStatus.RUNNING;
 
     logger.info("Job status set to  " + this.jobStatus);
-    Tracer.trace("Job status set to  " + this.jobStatus);
+
     try {
       this.service.respond(this.inData, PayloadType.JSON);
 
       logger.info("Service " + this.service.getQualifiedName() + " is done..");
-      Tracer.trace("Service " + this.service.getQualifiedName() + " is done..");
+
       this.jobStatus = JobStatus.DONE;
 
       logger.info("Reset to  " + this.jobStatus);
-      Tracer.trace("Reset to  " + this.jobStatus);
+
     } catch (Exception e) {
       this.jobStatus = JobStatus.FAILED;
       String msg =

@@ -41,10 +41,10 @@ public interface ServiceCacheManager {
    * @param outData
    */
   public void cache(ServiceData inData, ServiceData outData);
-	/**
-	 * remove/invalidate any cache for this service
-	 * 
-	 * @param serviceName
-	 */
-	public void invalidate(String serviceName,ServiceData inData);
+  /**
+   * remove/invalidate any cache for this service
+   *
+   * @param serviceName
+   */
+  public void invalidate(String serviceName, ServiceData inData);
 }

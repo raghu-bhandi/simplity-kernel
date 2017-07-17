@@ -29,7 +29,7 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
@@ -77,7 +77,7 @@ public enum DataSerializationType {
       if (value == null) {
 
         logger.info(text + " is not a valid value for field " + field.getName());
-        Tracer.trace(text + " is not a valid value for field " + field.getName());
+
         return 0;
       }
       inData.setValue(field.getName(), value);
@@ -187,18 +187,12 @@ public enum DataSerializationType {
           sbf.append(txt.substring(0, n));
 
           logger.info(
-              
               "Value "
                   + txt
                   + " is wider than the alotted width of "
                   + n
                   + " characters and hence is truncated");
-          Tracer.trace(
-              "Value "
-                  + txt
-                  + " is wider than the alotted width of "
-                  + n
-                  + " characters and hence is truncated");
+
           continue;
         }
         sbf.append(txt);
@@ -421,14 +415,6 @@ public enum DataSerializationType {
         if (fields[i].getDataType().getValueType() == ValueType.DATE) {
 
           logger.info(
-              
-              "text ="
-                  + texts[i]
-                  + " value = "
-                  + values[i]
-                  + "data type = "
-                  + fields[i].getDataType().formatValue(values[i]));
-          Tracer.trace(
               "text ="
                   + texts[i]
                   + " value = "

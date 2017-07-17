@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageType;
-import org.simplity.kernel.Tracer;
 
 /**
  * this is an example servlet to demonstrate how a project can use HttpAgent to deliver services in
@@ -67,14 +66,11 @@ public class Serve extends HttpServlet {
       startedUp = true;
 
       logger.info("Web Agent is given a green signal by Startup to start serving.");
-      Tracer.trace("Web Agent is given a green signal by Startup to start serving.");
+
     } else {
       startUpFailed = true;
 
       logger.info(
-          
-          "Web agent Serve will not be available on this server as Startup reported a failure on boot-strap.");
-      Tracer.trace(
           "Web agent Serve will not be available on this server as Startup reported a failure on boot-strap.");
     }
   }
@@ -103,7 +99,7 @@ public class Serve extends HttpServlet {
       String msg = "We have an internal error. ";
 
       logger.error(msg, e);
-      Tracer.trace(e, msg);
+
       this.reportError(resp, msg + e.getMessage());
     }
   }
@@ -121,7 +117,7 @@ public class Serve extends HttpServlet {
   private void reportError(HttpServletResponse resp, String msg) throws IOException {
 
     logger.info(msg);
-    Tracer.trace(msg);
+
     FormattedMessage message = new FormattedMessage("internalerror", MessageType.ERROR, msg);
     FormattedMessage[] messages = {message};
     String response = HttpAgent.getResponseForError(messages);

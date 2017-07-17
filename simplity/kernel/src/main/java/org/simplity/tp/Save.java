@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -96,7 +96,7 @@ public class Save extends DbAction {
     int nbrRows = inSheet.length();
 
     logger.info("Starting save for a sheet with " + nbrRows);
-    Tracer.trace("Starting save for a sheet with " + nbrRows);
+
     if (nbrRows == 0) {
       return nbrRows;
     }
@@ -118,9 +118,6 @@ public class Save extends DbAction {
     if (this.childRecords != null) {
 
       logger.info(
-          
-          "Child records are valid only when parent is for a single row. Data if any, ignored.");
-      Tracer.trace(
           "Child records are valid only when parent is for a single row. Data if any, ignored.");
     }
     return nbrRowsAffected;
@@ -200,63 +197,42 @@ public class Save extends DbAction {
         if (relatedSheet == null || relatedSheet.length() == 0) {
 
           logger.info(
-              
               "Rows in record "
                   + rr.recordName
                   + " deleted, as there were no rows to replace them.");
-          Tracer.trace(
-              "Rows in record "
-                  + rr.recordName
-                  + " deleted, as there were no rows to replace them.");
+
           continue;
         }
         nbr += record.insertWithParent(relatedSheet, ctx, driver, userId);
 
         logger.info(
-            
             "Rows in record "
                 + rr.recordName
                 + " replaced based on "
                 + relatedSheet.length()
                 + " rows of data in sheet "
                 + rr.sheetName);
-        Tracer.trace(
-            "Rows in record "
-                + rr.recordName
-                + " replaced based on "
-                + relatedSheet.length()
-                + " rows of data in sheet "
-                + rr.sheetName);
+
         continue;
       }
 
       if (relatedSheet == null || relatedSheet.length() == 0) {
 
         logger.info(
-            
             "Related record "
                 + rr.recordName
                 + " not saved as there is no data in sheet "
                 + rr.sheetName);
-        Tracer.trace(
-            "Related record "
-                + rr.recordName
-                + " not saved as there is no data in sheet "
-                + rr.sheetName);
+
         continue;
       }
 
       logger.info(
-          
           "Saving children is a noble cause!! Going to save child record "
               + rr.recordName
               + " for action = "
               + action);
-      Tracer.trace(
-          "Saving children is a noble cause!! Going to save child record "
-              + rr.recordName
-              + " for action = "
-              + action);
+
       if (action == SaveActionType.ADD) {
         nbr += record.insertWithParent(relatedSheet, ctx, driver, userId);
       } else if (action == SaveActionType.DELETE) {

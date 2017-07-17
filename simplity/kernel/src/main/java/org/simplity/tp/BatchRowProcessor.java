@@ -38,7 +38,7 @@ import org.simplity.jms.JmsDestination;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
@@ -555,9 +555,8 @@ public class BatchRowProcessor {
         }
         if (this.isInterruptible && Thread.interrupted()) {
 
-          logger.info(
-               "Detected an interrupt. Going to stop processing rows from sql output");
-          Tracer.trace("Detected an interrupt. Going to stop processing rows from sql output");
+          logger.info("Detected an interrupt. Going to stop processing rows from sql output");
+
           Thread.currentThread().interrupt();
           break;
         }
@@ -580,9 +579,8 @@ public class BatchRowProcessor {
 
       if (this.isInterruptible && Thread.interrupted()) {
 
-        logger.info(
-             "Detected an interrupt. Going to stop processing rows from sql output");
-        Tracer.trace("Detected an interrupt. Going to stop processing rows from sql output");
+        logger.info("Detected an interrupt. Going to stop processing rows from sql output");
+
         Thread.currentThread().interrupt();
         return false;
       }
@@ -692,7 +690,7 @@ public class BatchRowProcessor {
         if (!ok) {
 
           logger.info("No rows in file child file");
-          Tracer.trace("No rows in file child file");
+
           return 0;
         }
         if (errors.size() > 0) {
@@ -733,4 +731,3 @@ public class BatchRowProcessor {
     }
   }
 }
-

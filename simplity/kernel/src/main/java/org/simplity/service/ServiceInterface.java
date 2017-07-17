@@ -58,7 +58,7 @@ public interface ServiceInterface extends Component {
    *
    * @return true if caching is ok, false otherwise
    */
-  public boolean okToCache(ServiceData inData);
+  public boolean okToCache();
 
   /** @return data base access required by this service */
   public DbAccessType getDataAccessType();
@@ -70,4 +70,37 @@ public interface ServiceInterface extends Component {
    *     client-agent
    */
   public ServiceData respond(ServiceData inputData, PayloadType payloadType);
+
+    /**
+	 * execute this service based on the input made available in the context.
+	 *
+	 * @param ctx
+	 *            any input data requirement of this service is assumed to be
+	 *            already made available here.
+	 */
+  public void serve(ServiceContext ctx);
+
+	/**
+	 * what kind of data is expected as input for this service from the client.
+	 * It is up to the caller (client-agent) to ensure that a valid data is made
+	 * available in service context before calling this service. Service does
+	 * not repeat the validations, and hence if the caller has not validated
+	 * data,it will lead to run-time exceptions
+	 *
+	 * @return input data specification. null if this is a sub-service, or a
+	 *         utility service that may accept anything and everything that has
+	 *         come from client
+	 */
+
+  public InputData getInputSpecification();
+
+	/**
+	 * what data need to be sent as response to the client. Service would have
+	 * ensured that the data elements are available in the service context for
+	 * the caller to pick them up and prepare a response
+	 *
+	 * @return output data specification, or null if everything from context is
+	 *         to be sent back as response.
+	 */
+	public OutputData getOutputSpecification();
 }

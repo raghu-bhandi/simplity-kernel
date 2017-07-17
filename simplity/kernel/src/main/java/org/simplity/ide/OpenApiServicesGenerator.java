@@ -5,23 +5,20 @@ import java.util.Scanner;
 
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.XmlUtil;
 import org.simplity.tp.Service;
 
 public class OpenApiServicesGenerator {
-	/**
-	 * definitions object
-	 */
-	private static final String DEFS_ATTR = "definitions";
+  /** definitions object */
+  private static final String DEFS_ATTR = "definitions";
 
-	/**
-	 *
-	 * @param args
-	 * @throws Exception 
-	 */
-	public static void main(String[] args) throws Exception {
+  /**
+   * @param args
+   * @throws Exception
+   */
+ 	public static void main(String[] args) throws Exception {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Provide the swagger json file path");
 		String inputFile = sc.nextLine();
@@ -35,7 +32,6 @@ public class OpenApiServicesGenerator {
 		JSONObject paths = swagger.optJSONObject("paths");
 		JSONObject defs = swagger.optJSONObject(DEFS_ATTR);
 		if(paths == null){
-			Tracer.trace("No paths found");
 			sc.close();
 			return;
 		}

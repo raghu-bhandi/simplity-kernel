@@ -24,7 +24,6 @@ package org.simplity.tp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.simplity.kernel.Tracer;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
@@ -66,7 +65,6 @@ public class AddRow extends Action {
         String txt = value.toString();
 
         logger.info(
-            
             "Found a value of type "
                 + value.getValueType()
                 + " for column "
@@ -74,21 +72,11 @@ public class AddRow extends Action {
                 + " while we were expecting "
                 + vt
                 + ". We will try to convert it.");
-        Tracer.trace(
-            "Found a value of type "
-                + value.getValueType()
-                + " for column "
-                + name
-                + " while we were expecting "
-                + vt
-                + ". We will try to convert it.");
+
         value = Value.parseValue(txt, vt);
         if (value == null) {
 
           logger.info(
-              
-              "Unable to convert " + txt + " to type " + vt + " . setting column to  NullValue");
-          Tracer.trace(
               "Unable to convert " + txt + " to type " + vt + " . setting column to  NullValue");
         }
       }

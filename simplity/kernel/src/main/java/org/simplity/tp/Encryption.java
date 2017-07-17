@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
@@ -65,7 +65,7 @@ public class Encryption extends Action {
         if (value == null) {
 
           logger.info(fieldName + " not found in service context. Field not encrypted.");
-          Tracer.trace(fieldName + " not found in service context. Field not encrypted.");
+
         } else {
           ctx.setValue(fieldName, this.crypt(value));
         }
@@ -78,28 +78,20 @@ public class Encryption extends Action {
         if (ds == null) {
 
           logger.info(
-              
               "Datasheet"
                   + sheetName
                   + " not found in service context. "
                   + this.columnNames[i]
                   + " not encrypted.");
-          Tracer.trace(
-              "Datasheet"
-                  + sheetName
-                  + " not found in service context. "
-                  + this.columnNames[i]
-                  + " not encrypted.");
+
           continue;
         }
         int nbrRows = ds.length();
         if (nbrRows == 0) {
 
           logger.info(
-              
               "Datasheet" + sheetName + " has no data. " + this.columnNames[i] + " not encrypted.");
-          Tracer.trace(
-              "Datasheet" + sheetName + " has no data. " + this.columnNames[i] + " not encrypted.");
+
           continue;
         }
         String colName = this.cols[i];
@@ -107,7 +99,6 @@ public class Encryption extends Action {
         if (colIdx == -1) {
 
           logger.info(
-              
               "Coulmn"
                   + colName
                   + " does not exist in datasheet "
@@ -115,14 +106,7 @@ public class Encryption extends Action {
                   + ".  "
                   + this.columnNames[i]
                   + " not encrypted.");
-          Tracer.trace(
-              "Coulmn"
-                  + colName
-                  + " does not exist in datasheet "
-                  + sheetName
-                  + ".  "
-                  + this.columnNames[i]
-                  + " not encrypted.");
+
           continue;
         }
         /*
@@ -134,7 +118,6 @@ public class Encryption extends Action {
         }
 
         logger.info(nbrRows + " values transformed in data sheet " + sheetName);
-        Tracer.trace(nbrRows + " values transformed in data sheet " + sheetName);
       }
     }
     return null;

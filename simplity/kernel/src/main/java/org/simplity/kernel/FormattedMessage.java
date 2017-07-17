@@ -29,6 +29,10 @@ import java.util.Arrays;
 import org.simplity.json.JSONWriter;
 import org.simplity.json.Jsonable;
 import org.simplity.kernel.comp.ComponentType;
+import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.data.MultiRowsSheet;
+import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
 
 /**
  * formatted message data structure.
@@ -92,7 +96,7 @@ public class FormattedMessage implements Jsonable {
       this.messageType = MessageType.WARNING;
 
       logger.info("Missing message : " + messageName);
-      Tracer.trace("Missing message : " + messageName);
+
     } else {
       this.name = msg.getQualifiedName();
       this.messageType = msg.getMessageType();
@@ -174,4 +178,29 @@ public class FormattedMessage implements Jsonable {
     this.data = tempData;
     return;
   }
+	private static ValueType[] MESSAGE_COMPONENT_TYPES = { ValueType.TEXT, ValueType.TEXT, ValueType.TEXT,
+			ValueType.TEXT };
+	private static String[] MESSAGE_COMPONENT_NAMES = { "name", "text", "messageType", "fieldName" };
+
+	/**
+	 * put the messages into a data sheet
+	 *
+	 * @param messages
+	 * @return non-null data sheet, possibly empty
+	 */
+	public static DataSheet toDataSheet(FormattedMessage[] messages) {
+		DataSheet result = new MultiRowsSheet(MESSAGE_COMPONENT_NAMES, MESSAGE_COMPONENT_TYPES);
+		if (messages == null || messages.length == 0) {
+			return result;
+		}
+		for (FormattedMessage message : messages) {
+			Value[] row = new Value[MESSAGE_COMPONENT_TYPES.length];
+			row[0] = Value.newTextValue(message.name);
+			row[1] = Value.newTextValue(message.text);
+			row[2] = Value.newTextValue(message.messageType.name());
+			row[3] = Value.newTextValue(message.fieldName);
+			result.addRow(row);
+		}
+		return result;
+	}
 }

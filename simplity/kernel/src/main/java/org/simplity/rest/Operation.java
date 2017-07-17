@@ -36,7 +36,7 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.util.HttpUtil;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.rest.param.ArrayParameter;
@@ -107,14 +107,10 @@ public class Operation {
     if (resps == null || resps.length() == 0) {
 
       logger.info(
-          
           "Response spec is missing for operation "
               + serviceName
               + ". Applicaiton level defult will be used for formatting response.");
-      Tracer.trace(
-          "Response spec is missing for operation "
-              + serviceName
-              + ". Applicaiton level defult will be used for formatting response.");
+
       return;
     }
     this.parseResponses(resps);
@@ -135,8 +131,7 @@ public class Operation {
         this.translator = (ServiceTranslator) Class.forName(cls).newInstance();
       } catch (Exception e) {
         throw new ApplicationError(
-            e,
-            cls + " could not be used to get an instance of " + ServiceTranslator.class);
+            e, cls + " could not be used to get an instance of " + ServiceTranslator.class);
       }
     }
     this.acceptAll = spec.optBoolean(Tags.ACCEPT_ALL_ATTR, false);
@@ -206,12 +201,6 @@ public class Operation {
       } else {
 
         logger.info(
-            
-            "Parameter "
-                + parm.getName()
-                + " ignored as it has an invalid 'in' attribute of "
-                + pin);
-        Tracer.trace(
             "Parameter "
                 + parm.getName()
                 + " ignored as it has an invalid 'in' attribute of "
@@ -303,7 +292,7 @@ public class Operation {
     if (this.acceptAll) {
 
       logger.info("We are to accept all data. we assume there are no data in header");
-      Tracer.trace("We are to accept all data. we assume there are no data in header");
+
       if (payload != null) {
         try {
           JSONObject bodyJson = new JSONObject(payload);
@@ -315,7 +304,6 @@ public class Operation {
         } catch (Exception e) {
 
           logger.info("payload is not a valid json. ignored");
-          Tracer.trace("payload is not a valid json. ignored");
         }
       }
       HttpUtil.parseQueryString(req, serviceData);
@@ -371,24 +359,22 @@ public class Operation {
       if (this.bodyParameter instanceof ObjectParameter) {
 
         logger.info("body is being parsed as json object");
-        Tracer.trace("body is being parsed as json object");
+
         body = new JSONObject(payload);
       } else if (this.bodyParameter instanceof ArrayParameter) {
         if (((ArrayParameter) this.bodyParameter).expectsTextValue() == false) {
 
           logger.info("body is being parsed as josn array");
-          Tracer.trace("body is being parsed as josn array");
+
           obj = "Array";
           body = new JSONArray(payload);
         } else {
 
           logger.info("payload is treated as serialized text value for an array field");
-          Tracer.trace("payload is treated as serialized text value for an array field");
         }
       } else {
 
         logger.info("payload is treated as a value for a single field");
-        Tracer.trace("payload is treated as a value for a single field");
       }
     } catch (Exception e) {
       messages.add(new FormattedMessage("Request body is not well-formed JSON " + obj));
@@ -460,9 +446,6 @@ public class Operation {
       response = Response.getDefaultForSuccess();
 
       logger.info(
-          
-          "Default Success Response is used as we could not get any definition for success");
-      Tracer.trace(
           "Default Success Response is used as we could not get any definition for success");
     }
     response.writeResponse(resp, data, this.sendAll);
@@ -488,10 +471,8 @@ public class Operation {
     }
 
     logger.info(
-        
         "We are unable to pick a response from multiple choices, and hence choosing the first one");
-    Tracer.trace(
-        "We are unable to pick a response from multiple choices, and hence choosing the first one");
+
     return responses[0];
   }
 
@@ -507,9 +488,6 @@ public class Operation {
       response = Response.getDefaultForFailure();
 
       logger.info(
-          
-          "Default Failure Response is used as we could not get any definition for failure");
-      Tracer.trace(
           "Default Failure Response is used as we could not get any definition for failure");
     }
     response.writeResponse(resp, messages);

@@ -23,11 +23,12 @@ package org.simplity.tp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.util.Map;
 
 import org.simplity.json.JSONWriter;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
@@ -44,6 +45,8 @@ public class Log extends Action {
   /** field/table names to be logged */
   String[] names;
 
+  boolean setMDC;
+
   @Override
   protected Value doAct(ServiceContext ctx) {
     if (this.names == null) {
@@ -55,14 +58,17 @@ public class Log extends Action {
     }
 
     logger.info("Values at log action " + this.actionName);
-    Tracer.trace("Values at log action " + this.actionName);
+
     boolean found = false;
     for (String nam : this.names) {
       if (ctx.hasValue(nam)) {
         found = true;
 
         logger.info(nam + " = " + ctx.getValue(nam));
-        Tracer.trace(nam + " = " + ctx.getValue(nam));
+
+        if (setMDC) {
+          MDC.put(nam, ctx.getValue(nam).toText());
+        }
       }
       if (ctx.hasDataSheet(nam)) {
         found = true;
@@ -71,7 +77,6 @@ public class Log extends Action {
       if (!found) {
 
         logger.info(nam + " is not a field or sheet name");
-        Tracer.trace(nam + " is not a field or sheet name");
       }
     }
     return Value.VALUE_TRUE;
@@ -81,13 +86,12 @@ public class Log extends Action {
     for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
 
       logger.info(entry.getKey() + " = " + entry.getValue());
-      Tracer.trace(entry.getKey() + " = " + entry.getValue());
     }
     JSONWriter writer = new JSONWriter();
     writer.object();
 
     logger.info("Data Sheets = ");
-    Tracer.trace("Data Sheets = ");
+
     for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
       writer.key(entry.getKey());
       JsonUtil.sheetToJson(writer, entry.getValue(), null, false);

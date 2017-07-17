@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.simplity.kernel.Application;
-import org.simplity.kernel.Tracer;
+
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -64,20 +64,16 @@ public class Synchronizer extends Action {
       if (Value.intepretAsBoolean(result) == false) {
 
         logger.info(
-            
             "initialAction of Synchronizer has returned a value of "
                 + result
                 + " and hence the asynch actions are not executed");
-        Tracer.trace(
-            "initialAction of Synchronizer has returned a value of "
-                + result
-                + " and hence the asynch actions are not executed");
+
         return Value.VALUE_TRUE;
       }
     }
 
     logger.info("Going to create child-actions in prallel.");
-    Tracer.trace("Going to create child-actions in prallel.");
+
     Thread[] threads = new Thread[this.actions.length];
     AsynchWorker[] workers = new AsynchWorker[this.actions.length];
     int i = 0;
@@ -90,9 +86,8 @@ public class Synchronizer extends Action {
       i++;
     }
 
-    logger.info(
-         "Parallel actions created. Waiting for all of them to finish their job.");
-    Tracer.trace("Parallel actions created. Waiting for all of them to finish their job.");
+    logger.info("Parallel actions created. Waiting for all of them to finish their job.");
+
     for (Thread thread : threads) {
       try {
         if (thread.isAlive()) {
@@ -100,14 +95,12 @@ public class Synchronizer extends Action {
         }
       } catch (InterruptedException e) {
 
-        logger.info(
-             "One of the threads got interrupted for Synchronizer " + this.actionName);
-        Tracer.trace("One of the threads got interrupted for Synchronizer " + this.actionName);
+        logger.info("One of the threads got interrupted for Synchronizer " + this.actionName);
       }
     }
 
     logger.info("All child-actions returned");
-    Tracer.trace("All child-actions returned");
+
     if (this.finalAction != null) {
       return this.finalAction.act(ctx, driver);
     }

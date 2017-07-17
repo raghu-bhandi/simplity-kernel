@@ -120,7 +120,7 @@ public class Messages {
     msg.text = messageName + " : description for this message is not found.";
 
     logger.info("Missing message : " + messageName);
-    Tracer.trace("Missing message : " + messageName);
+
     return msg;
   }
 }
