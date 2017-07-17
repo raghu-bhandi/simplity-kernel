@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.simplity.auth.AuthRequirement;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 
@@ -157,7 +158,7 @@ public class PathNode {
    *
    * @param methods
    */
-  public void setPathSpec(JSONObject methods) {
+  public void setPathSpec(JSONObject methods, AuthRequirement[] defaultAuths) {
     if (this.operations != null) {
 
       logger.info("Duplicate spec for path /" + this.pathPrefix);
@@ -182,7 +183,7 @@ public class PathNode {
           serviceName = this.moduleName + Tags.SERVICE_SEP_CHAR + serviceName;
         }
       }
-      this.operations.put(method, new Operation(obj, serviceName));
+      this.operations.put(method, new Operation(obj, serviceName, defaultAuths));
 
       logger.info(
           "Service spec added at prefix="
