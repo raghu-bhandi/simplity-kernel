@@ -174,9 +174,8 @@ public class Service implements ServiceInterface {
   }
 
   @Override
-  public boolean okToCache(ServiceData inData) {
+  public boolean okToCache() {
     if (this.canBeCachedByFields != null) {
-      inData.setCacheForInput(this.canBeCachedByFields);
       return true;
     }
     return false;

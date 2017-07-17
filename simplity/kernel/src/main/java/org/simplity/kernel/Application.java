@@ -693,6 +693,23 @@ public class Application {
         count++;
       }
     }
+    
+    if(this.dbDriverClassName!=null){
+    	   try {
+    		      DbDriver.initialSetup(
+    		          this.dbVendor,
+    		          this.dataSourceName,
+    		          this.dbDriverClassName,
+    		          this.connectionString,
+    		          this.logSqls,
+    		          this.schemaDetails);
+    		    } catch (Exception e) {
+    		      ctx.addError(
+    		          "Error while setting up DbDriver. "
+    		              + e.getMessage()
+    		              + " Application will not work properly.");
+    		    }
+    }
     return count;
   }
 
