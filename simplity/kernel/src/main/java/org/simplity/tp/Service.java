@@ -22,9 +22,6 @@
  */
 package org.simplity.tp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,28 +41,29 @@ import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageBox;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Messages;
-
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataPurpose;
 import org.simplity.kernel.data.DataSheet;
-import org.simplity.kernel.data.InputData;
-import org.simplity.kernel.data.InputField;
-import org.simplity.kernel.data.InputRecord;
-import org.simplity.kernel.data.OutputData;
-import org.simplity.kernel.data.OutputRecord;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.InputData;
+import org.simplity.service.InputField;
+import org.simplity.service.InputRecord;
+import org.simplity.service.OutputData;
+import org.simplity.service.OutputRecord;
 import org.simplity.service.PayloadType;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
 import org.simplity.service.ServiceProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Transaction Processing Service
@@ -1378,4 +1376,38 @@ public class Service implements ServiceInterface {
   public String getCacheRefreshTime() {
     return this.cacheRefreshTime;
   }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ServiceInterface#getInputSpecification()
+	 */
+	@Override
+	public InputData getInputSpecification() {
+		return this.inputData;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ServiceInterface#getOutputSpecification()
+	 */
+	@Override
+	public OutputData getOutputSpecification() {
+		return this.outputData;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ServiceInterface#serve(org.simplity.service.
+	 * ServiceContext)
+	 */
+	@Override
+	public void serve(ServiceContext ctx) {
+		ApplicationError err = this.executeService(ctx);
+		if (err != null) {
+			throw err;
+		}
+	}
+
 }

@@ -32,9 +32,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.simplity.gateway.ReqReader;
+import org.simplity.gateway.RespWriter;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
 
 import org.simplity.kernel.comp.ComponentManager;
@@ -400,4 +403,73 @@ public class ServiceAgent {
       instance.cacheManager.invalidate(serviceName, inData);
     }
   }
+	/*
+	 * agent for RESTful standards based requests
+	 */
+
+	/**
+	 * executes a service. returns error messages in case of any trouble. This
+	 * method uses the stream-piping based reader and writer to facilitate
+	 * different formats/standards for input/output data. At the same time,
+	 * over-head of intermediate objects can be avoided.
+	 *
+	 * @param serviceName
+	 *            fully qualified service name
+	 * @param userId
+	 *            on whose behalf this service is being executed. This is the
+	 *            user-id of logged-in user in case of a request from a client.
+	 *            In case of request from another server-app, caller must ensure
+	 *            that this id is relevant for the service to apply any business
+	 *            logic that may use userId.
+	 * @param reader
+	 *            all input data for this service is read/demanded from this
+	 *            reader
+	 * @param writer
+	 *            output data as specified by the service is written to this
+	 *            writer
+	 * @return null if all ok. list of errors if service is not successfully
+	 *         executed
+	 */
+	public FormattedMessage[] executeService(String serviceName, Value userId, ReqReader reader, RespWriter writer) {
+		ServiceInterface service = ComponentManager.getServiceOrNull(serviceName);
+
+		/*
+		 * do we have this service?
+		 */
+		if (service == null) {
+			logger.info("Service " + serviceName + " is missing in action !!");
+			FormattedMessage[] noService = { new FormattedMessage(Messages.NO_SERVICE, serviceName) };
+			return noService;
+		}
+
+		try {
+			ServiceContext ctx = new ServiceContext(serviceName, userId);
+			InputData inData = service.getInputSpecification();
+			if (inData != null) {
+				inData.read(reader, ctx);
+			}
+			if (ctx.isInError()) {
+				logger.info("Errors found in input for service " + serviceName + ". Service not invoked.");
+				return ctx.getMessages().toArray(new FormattedMessage[0]);
+			}
+			inData = null;
+			logger.info("Invoking service " + serviceName);
+			service.serve(ctx);
+			if (ctx.isInError()) {
+				logger.info("Service " + serviceName + " returned with errors.");
+				return ctx.getMessages().toArray(new FormattedMessage[0]);
+			}
+			OutputData outData = service.getOutputSpecification();
+			if (outData != null) {
+				outData.write(writer, ctx);
+			}
+			logger.info("Service " + serviceName + " succeeded.");
+			return null;
+		} catch (Exception e) {
+			Application.reportApplicationError(null, e);
+			logger.info(e.getMessage() + "Exception thrown by service " + serviceName);
+			FormattedMessage[] msgs = { Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()) };
+			return msgs;
+		}
+	}
 }

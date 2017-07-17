@@ -20,49 +20,8 @@
  * SOFTWARE.
  */
 
-package org.simplity.rest.param;
-
 /**
- * represents a parameter type as in a swagger document
  * @author simplity.org
  *
  */
-public enum ParameterFormat {
-	/**
-	 * sequence of octets, not implemented
-	 */
-	BINARY,
-	/**
-	 * base64 encoded characters, not implemented
-	 */
-	BYTE,
-	/**
-	 * date only
-	 */
-	DATE,
-	/**
-	 * date with time
-	 */
-	DATETIME,
-	/**
-	 * number greater that float
-	 */
-	DOUBLE,
-	/**
-	 * number
-	 */
-	FLOAT,
-	/**
-	 * integer
-	 */
-	INT32,
-	/**
-	 * long integer
-	 */
-	INT64,
-
-	/**
-	 * password
-	 */
-	PASSWORD;
-}
+package org.simplity.gateway;

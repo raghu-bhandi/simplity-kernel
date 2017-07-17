@@ -24,7 +24,7 @@ package org.simplity.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageBox;
 
@@ -227,4 +227,29 @@ public abstract class AbstractService implements ServiceInterface {
     outData.setPayLoad(JsonUtil.outputAll(ctx));
     return outData;
   }
+
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.simplity.service.ServiceInterface#execute(org.simplity.service.ServiceContext)
+	 */
+	@Override
+	public void serve(ServiceContext ctx){
+		throw new ApplicationError("Service " + this.getQualifiedName() + " is yet to be upgraded to new version.");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.service.ServiceInterface#getInputSpecification()
+	 */
+	@Override
+	public InputData getInputSpecification() {
+		return null;
+	}
+	/* (non-Javadoc)
+	 * @see org.simplity.service.ServiceInterface#getOutputSpecification()
+	 */
+	@Override
+	public OutputData getOutputSpecification() {
+		return null;
+	}
 }
