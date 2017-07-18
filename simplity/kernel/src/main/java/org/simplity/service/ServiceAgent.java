@@ -107,6 +107,8 @@ public class ServiceAgent {
   private final AccessController securityManager;
   /** auto login ID */
   private final String autoLoginUserId;
+  
+  private String cacheKey;
 
   /**
    * * We create an immutable instance fully equipped with all plug-ins
@@ -255,7 +257,8 @@ public class ServiceAgent {
 
     String serviceName = inputData.getServiceName();
     Value userId = inputData.getUserId();
-    ServiceInterface service = ComponentManager.getServiceOrNull(serviceName);
+    //ServiceInterface service = ComponentManager.getServiceOrNull(serviceName);
+    Service service = (Service)ComponentManager.getServiceOrNull(serviceName);
     ServiceData response = null;
     Date startTime = new Date();
 
@@ -290,17 +293,20 @@ public class ServiceAgent {
         response.addMessage(Messages.getMessage(Messages.NO_ACCESS));
         break;
       }
+      
       /*
        * is it cached?
        */
       if (this.cacheManager != null) {
         if (service.okToCache()) {
-          response = this.cacheManager.respond(inputData);
-          if (response != null) {
+           cacheKey = service.generateKeyToCache(serviceName, inputData);
+           response = this.cacheManager.respond(cacheKey);          
+           if (response != null) {
             break;
           }
         }
       }
+      
       /*
        * is this to be run in the background always?
        */
@@ -325,17 +331,17 @@ public class ServiceAgent {
 
           logger.info(serviceName + " responded with all OK signal");
 
-          Service serv = (Service) service;
-          String invalidateCache = serv.getServicesToInvalidate();
-          if (invalidateCache != null) {
-            String[] servicesToInvalidate = invalidateCache.split(",");
-            for (String servName : servicesToInvalidate) {
+          String[] servicesToInvalidate = service.getServicesToInvalidate();
+
+          if (servicesToInvalidate != null && servicesToInvalidate.length>0) {
+              for (String servName : servicesToInvalidate) {
               invalidateCache(servName, inputData);
             }
           }
         }
         if (this.cacheManager != null && hasErrors == false && service.okToCache()) {
-          this.cacheManager.cache(inputData, response);
+          response.setCacheKey(cacheKey);
+          this.cacheManager.cache(inputData,response);
         }
       } catch (Exception e) {
         Application.reportApplicationError(inputData, e);
@@ -398,11 +404,19 @@ public class ServiceAgent {
    *
    * @param serviceName
    */
-  public static void invalidateCache(String serviceName, ServiceData inData) {
+  public void invalidateCache(String serviceName, ServiceData inData) {
     if (instance.cacheManager != null) {
-      instance.cacheManager.invalidate(serviceName, inData);
+    	Service invalidateServ = (Service)ComponentManager.getServiceOrNull(serviceName);
+    	String keyToInvalidate = invalidateServ.generateKeyToCache(serviceName, inData);
+    	logger.info("Invalidating cache for the service "+serviceName);
+        instance.cacheManager.invalidate(keyToInvalidate);
     }
   }
+  
+  
+  
+  
+  
 	/*
 	 * agent for RESTful standards based requests
 	 */
