@@ -22,12 +22,11 @@
 
 package org.simplity.rest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,13 +35,19 @@ import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
-
 import org.simplity.kernel.util.HttpUtil;
 import org.simplity.kernel.util.JsonUtil;
+import org.simplity.rest.auth.ApiKeyAuthDefinition;
+import org.simplity.rest.auth.AuthDefinition;
+import org.simplity.rest.auth.BasicAuthDefinition;
+import org.simplity.rest.auth.OAuth2Definition;
 import org.simplity.rest.param.ArrayParameter;
 import org.simplity.rest.param.ObjectParameter;
 import org.simplity.rest.param.Parameter;
 import org.simplity.service.ServiceProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * specification for an operation based on Open API/swgger.
@@ -50,443 +55,541 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class Operation {
-  static final Logger logger = LoggerFactory.getLogger(Operation.class);
+	static final Logger logger = LoggerFactory.getLogger(Operation.class);
 
-  /**
-   * service name that this operation maps to. This is calculated/determined based on logic, if it
-   * is not explicitly set
-   */
-  private String serviceName;
-  /**
-   * accept whatever has come from client. No parameter specification to parse/validate. Service
-   * will take care of validations.
-   */
-  private boolean acceptAll;
-  /*
-   * input parameters are split by type for run-time efficiency. Relevant only
-   * if accpetAll is false
-   */
-  private Parameter bodyParameter;
-  private Parameter[] qryParameters;
-  private Parameter[] headerParameters;
-  private Parameter[] pathParameters;
-  private String bodyFieldName;
-  private ServiceTranslator translator;
+	/**
+	 * service name that this operation maps to. This is calculated/determined
+	 * based on logic, if it is not explicitly set
+	 */
+	private String serviceName;
+	/**
+	 * accept whatever has come from client. No parameter specification to
+	 * parse/validate. Service will take care of validations.
+	 */
+	private boolean acceptAll;
+	/*
+	 * input parameters are split by type for run-time efficiency. Relevant only
+	 * if accpetAll is false
+	 */
+	private Parameter bodyParameter;
+	private Parameter[] qryParameters;
+	private Parameter[] headerParameters;
+	private Parameter[] pathParameters;
+	private String bodyFieldName;
+	private ServiceTranslator translator;
+	
+	private Map<String,String> specialAttr = new HashMap<String,String>();
 
-  /*
-   * those were the fields for input. Rest of the fields are for output
-   */
-  /**
-   * service has taken care of all data requirements. Just send the response with all that the
-   * service has responded with.
-   */
-  private boolean sendAll;
+	/*
+	 * security parameters
+	 */
 
-  private Response[] successResponses;
-  private Response[] failureResponses;
-  private Response defaultResponse;
+	private AuthDefinition[] authDefinitions;
 
-  /**
-   * @param operationSpec
-   * @param serviceName
-   */
-  public Operation(JSONObject operationSpec, String serviceName) {
-    this.serviceName = serviceName;
-    this.setCustomAttributes(operationSpec);
-    JSONArray params = operationSpec.optJSONArray(Tags.PARAMS_ATTR);
-    /*
-     * organize input parameters
-     */
-    if (params != null) {
-      this.parseParams(params);
-    }
-    /*
-     * organize responses
-     */
-    JSONObject resps = operationSpec.optJSONObject(Tags.RESP_ATTR);
-    if (resps == null || resps.length() == 0) {
+	/*
+	 * those were the fields for input. Rest of the fields are for output
+	 */
+	/**
+	 * service has taken care of all data requirements. Just send the response
+	 * with all that the service has responded with.
+	 */
+	private boolean sendAll;
 
-      logger.info(
-          "Response spec is missing for operation "
-              + serviceName
-              + ". Applicaiton level defult will be used for formatting response.");
+	private Response[] successResponses;
+	private Response[] failureResponses;
+	private Response defaultResponse;
 
-      return;
-    }
-    this.parseResponses(resps);
-  }
+	/**
+	 * @param operationSpec
+	 * @param serviceName
+	 */
+	public Operation(JSONObject operationSpec, String serviceName) {
+		this.serviceName = serviceName;
+		this.setCustomAttributes(operationSpec);
+		JSONArray params = operationSpec.optJSONArray(Tags.PARAMS_ATTR);
+		/*
+		 * organize input parameters
+		 */
+		if (params != null) {
+			this.parseParams(params);
+		}
+		/*
+		 * organize the security requirements
+		 */
+		JSONArray secParams = operationSpec.optJSONArray(Tags.SEC_ATTR);
+		if (secParams != null) {
+			this.parseSecurity(secParams);
+		}
+		/*
+		 * organize responses
+		 */
+		JSONObject resps = operationSpec.optJSONObject(Tags.RESP_ATTR);
+		if (resps == null || resps.length() == 0) {
 
-  /**
-   * set custom attributes based on this spec and defaults set at by the context
-   *
-   * @param spec
-   */
-  private void setCustomAttributes(JSONObject spec) {
-    RestContext ctx = RestContext.getContext();
-    String cls = spec.optString(Tags.TRANSLATOR_ATTR, null);
-    if (cls == null) {
-      this.translator = ctx.getServiceTranslator();
-    } else {
-      try {
-        this.translator = (ServiceTranslator) Class.forName(cls).newInstance();
-      } catch (Exception e) {
-        throw new ApplicationError(
-            e, cls + " could not be used to get an instance of " + ServiceTranslator.class);
-      }
-    }
-    this.acceptAll = spec.optBoolean(Tags.ACCEPT_ALL_ATTR, false);
-    this.sendAll = spec.optBoolean(Tags.SEND_ALL_ATTR, false);
-  }
+			logger.info("Response spec is missing for operation " + serviceName
+					+ ". Applicaiton level defult will be used for formatting response.");
 
-  /**
-   * parse input parameters and populate corresponding input related fields
-   *
-   * @param params
-   */
-  private void parseParams(JSONArray params) {
-    List<Parameter> qry = null;
-    List<Parameter> path = null;
-    List<Parameter> header = null;
+			return;
+		}
+		this.parseResponses(resps);
+	}
 
-    for (Object obj : params) {
-      JSONObject json = (JSONObject) obj;
-      String parmName = json.optString(Tags.PARAM_NAME_ATTR, null);
-      String fieldName = json.optString(Tags.FIELD_NAME_ATTR, parmName);
-      Parameter parm;
-      String pin = json.optString(Tags.IN_ATTR);
-      if (Tags.IN_BODY.equals(pin)) {
-        if (this.bodyParameter != null) {
-          throw new ApplicationError(
-              "More than one body field defined for operation " + this.serviceName);
-        }
-        /*
-         * body has schema, and not type attribue
-         */
-        json = json.getJSONObject(Tags.SCHEMA_ATTR);
-        if (json == null) {
-          throw new ApplicationError(
-              "schema attribute missing for body parameter in operation " + this.serviceName);
-        }
+	/**
+	 * @param secParams
+	 */
+	private void parseSecurity(JSONArray secParams) {
+		List<AuthDefinition> qry = new ArrayList<AuthDefinition>();
+		for (Object obj : secParams) {
+			JSONObject json = (JSONObject) obj;
+			JSONObject authJson = (JSONObject) json.get(json.names().getString(0));
+			AuthDefinition auth = null;
+			if (authJson.get("type").equals("basic")) {
+				auth = new BasicAuthDefinition();
+				auth.setType("basic");
+				auth.setDescription(authJson.get("description").toString());
+			}
+			if (authJson.get("type").equals("apikey")) {
+				auth = new ApiKeyAuthDefinition();
+				auth.setType("apikey");
+				auth.setDescription(authJson.get("description").toString());
+				((ApiKeyAuthDefinition) auth).setIn(authJson.get("in").toString());
+			}
+			if (authJson.get("type").equals("oauth2")) {
+				auth = new OAuth2Definition();
+				auth.setType("oauth2");
+				auth.setDescription(authJson.get("description").toString());
+				JSONObject scopes = (JSONObject) (authJson.get("scopes"));
+				for (Object scopeName : scopes.names()) {
+					((OAuth2Definition) auth).addScope((String) scopeName, (String) scopes.get(scopeName.toString()));
+				}
+				if (authJson.get("flow").equals("implicit")) {
+					((OAuth2Definition) auth).implicit(authJson.get("authorizationUrl").toString());
+				}
+				;
+				if (authJson.get("flow").equals("password")) {
+					((OAuth2Definition) auth).implicit(authJson.get("tokenUrl").toString());
+				}
+				;
+				if (authJson.get("flow").equals("accessCode")) {
+					((OAuth2Definition) auth).implicit(authJson.get("authorizationUrl").toString());
+				}
+				;
+				if (authJson.get("flow").equals("application")) {
+					((OAuth2Definition) auth).implicit(authJson.get("tokenUrl").toString());
+				}
+				;
+			}
+			qry.add(auth);
+			String secName = json.names().getString(0);
+			JSONArray secScopes = json.getJSONArray(secName);
+			// qry.add(new Security(secName,secScopes.join(",").split(",")));
+		}
+	}
 
-        this.bodyParameter = Parameter.parse(parmName, fieldName, json);
-        if (this.bodyParameter instanceof ObjectParameter == false
-            || RestContext.getContext().retainBodyAsObject()) {
-          /*
-           * At run time, this parameter is to be added as an attribute of root data object
-           */
-          this.bodyFieldName = fieldName;
-        }
+	/**
+	 * set custom attributes based on this spec and defaults set at by the
+	 * context
+	 *
+	 * @param spec
+	 */
+	private void setCustomAttributes(JSONObject spec) {
+		RestContext ctx = RestContext.getContext();
+		String cls = spec.optString(Tags.TRANSLATOR_ATTR, null);
+		if (cls == null) {
+			this.translator = ctx.getServiceTranslator();
+		} else {
+			try {
+				this.translator = (ServiceTranslator) Class.forName(cls).newInstance();
+			} catch (Exception e) {
+				throw new ApplicationError(e,
+						cls + " could not be used to get an instance of " + ServiceTranslator.class);
+			}
+		}
+		this.acceptAll = spec.optBoolean(Tags.ACCEPT_ALL_ATTR, false);
+		this.sendAll = spec.optBoolean(Tags.SEND_ALL_ATTR, false);
+	}
 
-        continue;
-      }
+	/**
+	 * parse input parameters and populate corresponding input related fields
+	 *
+	 * @param params
+	 */
+	private void parseParams(JSONArray params) {
+		List<Parameter> qry = null;
+		List<Parameter> path = null;
+		List<Parameter> header = null;
 
-      parm = Parameter.parse(json);
-      if (Tags.IN_QUERY.equals(pin)) {
-        if (qry == null) {
-          qry = new ArrayList<Parameter>();
-        }
-        qry.add(parm);
+		for (Object obj : params) {
+			JSONObject json = (JSONObject) obj;
+			String parmName = json.optString(Tags.PARAM_NAME_ATTR, null);
+			String fieldName = json.optString(Tags.FIELD_NAME_ATTR, parmName);
+			Parameter parm;
+			String pin = json.optString(Tags.IN_ATTR);
+			if (Tags.IN_BODY.equals(pin)) {
+				if (this.bodyParameter != null) {
+					throw new ApplicationError("More than one body field defined for operation " + this.serviceName);
+				}
+				/*
+				 * body has schema, and not type attribue
+				 */
+				json = json.getJSONObject(Tags.SCHEMA_ATTR);
+				if (json == null) {
+					throw new ApplicationError(
+							"schema attribute missing for body parameter in operation " + this.serviceName);
+				}
 
-      } else if (Tags.IN_PATH.equals(pin)) {
-        if (path == null) {
-          path = new ArrayList<Parameter>();
-        }
-        path.add(parm);
+				this.bodyParameter = Parameter.parse(parmName, fieldName, json);
+				if (this.bodyParameter instanceof ObjectParameter == false
+						|| RestContext.getContext().retainBodyAsObject()) {
+					/*
+					 * At run time, this parameter is to be added as an
+					 * attribute of root data object
+					 */
+					this.bodyFieldName = fieldName;
+				}
 
-      } else if (Tags.IN_HEADER.equals(pin)) {
-        if (header == null) {
-          header = new ArrayList<Parameter>();
-        }
-        header.add(parm);
-      } else {
+				continue;
+			}
 
-        logger.info(
-            "Parameter "
-                + parm.getName()
-                + " ignored as it has an invalid 'in' attribute of "
-                + pin);
-      }
-    }
-    Parameter[] empty = new Parameter[0];
-    if (qry != null) {
-      this.qryParameters = qry.toArray(empty);
-    }
-    if (path != null) {
-      this.pathParameters = path.toArray(empty);
-    }
-    if (header != null) {
-      this.headerParameters = header.toArray(empty);
-    }
-  }
+			parm = Parameter.parse(json);
+			if (Tags.IN_QUERY.equals(pin)) {
+				if (qry == null) {
+					qry = new ArrayList<Parameter>();
+				}
+				qry.add(parm);
 
-  /**
-   * parse responses
-   *
-   * @param resps
-   */
-  private void parseResponses(JSONObject resps) {
-    /*
-     * we are assuming that 2xx code is success and 5xx is failure. Other
-     * codes are generally handled by the controller/agent and are not
-     * relevant for the operation/service
-     */
-    List<Response> successes = new ArrayList<Response>();
-    List<Response> failures = new ArrayList<Response>();
-    for (String code : resps.keySet()) {
-      JSONObject obj = resps.optJSONObject(code);
-      if (obj == null) {
-        throw new ApplicationError("Response object is null for " + code);
-      }
-      char c = code.charAt(0);
-      if (c == '2' || c == '3') {
-        successes.add(new Response(code, obj));
-      } else if (code.equals("default")) {
-        this.defaultResponse = new Response(null, obj);
-      } else {
-        failures.add(new Response(code, obj));
-      }
-    }
-    int nbr = successes.size();
-    Response[] empty = new Response[0];
-    if (nbr > 0) {
-      this.successResponses = successes.toArray(empty);
-    }
-    nbr = failures.size();
-    if (nbr > 0) {
-      this.failureResponses = successes.toArray(empty);
-    }
-  }
+			} else if (Tags.IN_PATH.equals(pin)) {
+				if (path == null) {
+					path = new ArrayList<Parameter>();
+				}
+				path.add(parm);
 
-  /** @return the serviceName */
-  public String getServiceName() {
-    return this.serviceName;
-  }
+			} else if (Tags.IN_HEADER.equals(pin)) {
+				if (header == null) {
+					header = new ArrayList<Parameter>();
+				}
+				header.add(parm);
+			} else {
 
-  /**
-   * input has data received, except from header. validate and copy based on parameter
-   * specifications
-   *
-   * @param req request
-   * @param serviceData non-null, into which all data is copied to. Typically this is an empty JSON,
-   *     but it is upto the caller.
-   * @param pathData can be null. field values from path templating.
-   * @param messages non-null. Any error during parsing/validation is added to this list
-   * @return serviceName to be used for this operation. null in case of any error.
-   * @throws IOException
-   */
-  public String prepareRequest(
-      HttpServletRequest req,
-      JSONObject serviceData,
-      JSONObject pathData,
-      List<FormattedMessage> messages)
-      throws IOException {
-    /*
-     * get body/form data into a json first. Of course it would be empty if
-     * there is no body. As per Swagger, body data can even be a
-     * primitive.Hence we make no assumption about its type
-     */
-    String payload = HttpUtil.readBody(req);
-    if (this.acceptAll) {
+				logger.info("Parameter " + parm.getName() + " ignored as it has an invalid 'in' attribute of " + pin);
+			}
+		}
+		Parameter[] empty = new Parameter[0];
+		if (qry != null) {
+			this.qryParameters = qry.toArray(empty);
+		}
+		if (path != null) {
+			this.pathParameters = path.toArray(empty);
+		}
+		if (header != null) {
+			this.headerParameters = header.toArray(empty);
+		}
+	}
 
-      logger.info("We are to accept all data. we assume there are no data in header");
+	/**
+	 * parse responses
+	 *
+	 * @param resps
+	 */
+	private void parseResponses(JSONObject resps) {
+		/*
+		 * we are assuming that 2xx code is success and 5xx is failure. Other
+		 * codes are generally handled by the controller/agent and are not
+		 * relevant for the operation/service
+		 */
+		List<Response> successes = new ArrayList<Response>();
+		List<Response> failures = new ArrayList<Response>();
+		for (String code : resps.keySet()) {
+			JSONObject obj = resps.optJSONObject(code);
+			if (obj == null) {
+				throw new ApplicationError("Response object is null for " + code);
+			}
+			char c = code.charAt(0);
+			if (c == '2' || c == '3') {
+				successes.add(new Response(code, obj));
+			} else if (code.equals("default")) {
+				this.defaultResponse = new Response(null, obj);
+			} else {
+				failures.add(new Response(code, obj));
+			}
+		}
+		int nbr = successes.size();
+		Response[] empty = new Response[0];
+		if (nbr > 0) {
+			this.successResponses = successes.toArray(empty);
+		}
+		nbr = failures.size();
+		if (nbr > 0) {
+			this.failureResponses = successes.toArray(empty);
+		}
+	}
 
-      if (payload != null) {
-        try {
-          JSONObject bodyJson = new JSONObject(payload);
-          if (this.bodyFieldName != null) {
-            serviceData.put(this.bodyFieldName, bodyJson);
-          } else {
-            JsonUtil.copyAll(serviceData, bodyJson);
-          }
-        } catch (Exception e) {
+	/** @return the serviceName */
+	public String getServiceName() {
+		return this.serviceName;
+	}
 
-          logger.info("payload is not a valid json. ignored");
-        }
-      }
-      HttpUtil.parseQueryString(req, serviceData);
-      if (pathData != null) {
-        JsonUtil.copyAll(serviceData, pathData);
-      }
-    } else {
-      if (this.bodyParameter != null) {
-        this.parseBody(serviceData, payload, messages);
-      }
-      if (this.qryParameters != null) {
-        this.parseAndValidate(
-            this.qryParameters, HttpUtil.parseQueryString(req, null), serviceData, messages);
-      }
-      if (this.pathParameters != null) {
-        if (pathData == null) {
-          this.parseAndValidate(this.pathParameters, new JSONObject(), serviceData, messages);
-        } else {
-          this.parseAndValidate(this.pathParameters, pathData, serviceData, messages);
-        }
-      }
-      if (this.headerParameters != null) {
-        this.parseAndValidateHeaderFields(req, serviceData, messages);
-      }
-    }
-    /*
-     * do we have errors?
-     */
-    if (messages.size() > 0) {
-      return null;
-    }
+	/**
+	 * input has data received, except from header. validate and copy based on
+	 * parameter specifications
+	 *
+	 * @param req
+	 *            request
+	 * @param serviceData
+	 *            non-null, into which all data is copied to. Typically this is
+	 *            an empty JSON, but it is upto the caller.
+	 * @param pathData
+	 *            can be null. field values from path templating.
+	 * @param messages
+	 *            non-null. Any error during parsing/validation is added to this
+	 *            list
+	 * @return serviceName to be used for this operation. null in case of any
+	 *         error.
+	 * @throws IOException
+	 */
+	public String prepareRequest(HttpServletRequest req, JSONObject serviceData, JSONObject pathData,
+			List<FormattedMessage> messages) throws IOException {
+		/*
+		 * get body/form data into a json first. Of course it would be empty if
+		 * there is no body. As per Swagger, body data can even be a
+		 * primitive.Hence we make no assumption about its type
+		 */
+		String payload = HttpUtil.readBody(req);
+		if (this.acceptAll) {
 
-    if (this.translator == null) {
-      return this.serviceName;
-    }
-    return this.translator.translateInput(this.serviceName, serviceData);
-  }
+			logger.info("We are to accept all data. we assume there are no data in header");
 
-  /**
-   * parse pay load into data
-   *
-   * @param serviceData
-   * @param payload
-   * @param messages
-   */
-  private void parseBody(JSONObject serviceData, String payload, List<FormattedMessage> messages) {
-    Object body = payload;
-    String obj = "Object";
-    try {
-      /*
-       * parse body if required into object/array
-       */
-      if (this.bodyParameter instanceof ObjectParameter) {
+			if (payload != null) {
+				try {
+					JSONObject bodyJson = new JSONObject(payload);
+					if (this.bodyFieldName != null) {
+						serviceData.put(this.bodyFieldName, bodyJson);
+					} else {
+						JsonUtil.copyAll(serviceData, bodyJson);
+					}
+				} catch (Exception e) {
 
-        logger.info("body is being parsed as json object");
+					logger.info("payload is not a valid json. ignored");
+				}
+			}
+			HttpUtil.parseQueryString(req, serviceData);
+			if (pathData != null) {
+				JsonUtil.copyAll(serviceData, pathData);
+			}
+		} else {
+			if (this.headerParameters != null) {
+				this.parseAndValidateHeaderFields(req, serviceData, messages);
+			}			
+			if (this.qryParameters != null) {
+				this.parseAndValidate(this.qryParameters, HttpUtil.parseQueryString(req, null), serviceData, messages);
+			}
+			if (this.pathParameters != null) {
+				if (pathData == null) {
+					this.parseAndValidate(this.pathParameters, new JSONObject(), serviceData, messages);
+				} else {
+					this.parseAndValidate(this.pathParameters, pathData, serviceData, messages);
+				}
+			}
+			if (this.bodyParameter != null) {
+				this.parseBody(serviceData, payload, messages);
+			}
+		}
+		/*
+		 * do we have errors?
+		 */
+		if (messages.size() > 0) {
+			return null;
+		}
 
-        body = new JSONObject(payload);
-      } else if (this.bodyParameter instanceof ArrayParameter) {
-        if (((ArrayParameter) this.bodyParameter).expectsTextValue() == false) {
+		if (this.translator == null) {
+			return this.serviceName;
+		}
+		return this.translator.translateInput(this.serviceName, serviceData);
+	}
 
-          logger.info("body is being parsed as josn array");
+	/**
+	 * parse pay load into data
+	 *
+	 * @param serviceData
+	 * @param payload
+	 * @param messages
+	 */
+	private void parseBody(JSONObject serviceData, String payload, List<FormattedMessage> messages) {
+		Object body = payload;
+		String obj = "Object";
+		try {
+			/*
+			 * parse body if required into object/array
+			 */
+			if (this.bodyParameter instanceof ObjectParameter) {
 
-          obj = "Array";
-          body = new JSONArray(payload);
-        } else {
+				logger.info("body is being parsed as json object");
 
-          logger.info("payload is treated as serialized text value for an array field");
-        }
-      } else {
+				body = new JSONObject(payload);
+			} else if (this.bodyParameter instanceof ArrayParameter) {
+				if (((ArrayParameter) this.bodyParameter).expectsTextValue() == false) {
 
-        logger.info("payload is treated as a value for a single field");
-      }
-    } catch (Exception e) {
-      messages.add(new FormattedMessage("Request body is not well-formed JSON " + obj));
-      return;
-    }
+					logger.info("body is being parsed as josn array");
 
-    body = this.bodyParameter.validate(body, messages);
-    if (body == null) {
-      return;
-    }
-    if (this.bodyFieldName == null) {
-      JsonUtil.copyAll(serviceData, (JSONObject) body);
-    } else {
-      serviceData.put(this.bodyFieldName, body);
-    }
-  }
+					obj = "Array";
+					body = new JSONArray(payload);
+				} else {
 
-  /**
-   * extract data from header and validate as per spec
-   *
-   * @param req
-   * @param outData to which data is to be extracted into
-   * @param messages
-   */
-  private void parseAndValidateHeaderFields(
-      HttpServletRequest req, JSONObject outData, List<FormattedMessage> messages) {
-    for (Parameter parm : this.headerParameters) {
-      Object obj = parm.validate(req.getHeader(parm.getName()), messages);
-      if (obj != null) {
-        outData.put(parm.getFieldName(), obj);
-      }
-    }
-  }
+					logger.info("payload is treated as serialized text value for an array field");
+				}
+			} else {
 
-  /**
-   * parse fields from inData into outData as per parameter specifications
-   *
-   * @param parms non-null array of parameters
-   * @param inData non-null data as received from client
-   * @param outData non-null json object to which validated input fields are copied to
-   * @param messages to which any error is added. Once an error is added, outputData is to be
-   *     treated as unusable.
-   */
-  private void parseAndValidate(
-      Parameter[] parms, JSONObject inData, JSONObject outData, List<FormattedMessage> messages) {
-    for (Parameter parm : parms) {
-      Object obj = parm.validate(inData.opt(parm.getName()), messages);
-      if (obj != null) {
-        outData.put(parm.getFieldName(), obj);
-      }
-    }
-  }
+				logger.info("payload is treated as a value for a single field");
+			}
+		} catch (Exception e) {
+			messages.add(new FormattedMessage("Request body is not well-formed JSON " + obj));
+			return;
+		}
 
-  /**
-   * writes response based on service output and service spec on successful service execution
-   *
-   * @param resp
-   * @param data
-   * @param service
-   * @throws IOException
-   */
-  public void writeResponse(HttpServletResponse resp, JSONObject data, String service)
-      throws IOException {
-    if (this.translator != null) {
-      this.translator.translateOutput(service, data);
-    }
-    Response response = this.selectResponse(this.successResponses, data);
-    if (response == null) {
-      response = Response.getDefaultForSuccess();
+		body = this.bodyParameter.validate(body, messages);
+		if (body == null) {
+			return;
+		}
+		if (this.bodyFieldName == null) {
+			JsonUtil.copyAll(serviceData, (JSONObject) body);
+		} else {
+			serviceData.put(this.bodyFieldName, body);
+		}
+	}
 
-      logger.info(
-          "Default Success Response is used as we could not get any definition for success");
-    }
-    response.writeResponse(resp, data, this.sendAll);
-  }
+	/**
+	 * extract data from header and validate as per spec
+	 *
+	 * @param req
+	 * @param outData
+	 *            to which data is to be extracted into
+	 * @param messages
+	 */
+	private void parseAndValidateHeaderFields(HttpServletRequest req, JSONObject outData,
+			List<FormattedMessage> messages) {
+		for (Parameter parm : this.headerParameters) {
+			Object obj = parm.validate(req.getHeader(parm.getName()), messages);
+			if (obj != null) {
+				outData.put(parm.getFieldName(), obj);
+			}
+		}
+		
+		/** Extract special attributes **/
+		specialAttr.put(Tags.ACCESS_CODE, req.getHeader(Tags.ACCESS_CODE));
+	}
 
-  private Response selectResponse(Response[] responses, JSONObject data) {
-    if (responses == null) {
-      return this.defaultResponse;
-    }
+	/**
+	 * parse fields from inData into outData as per parameter specifications
+	 *
+	 * @param parms
+	 *            non-null array of parameters
+	 * @param inData
+	 *            non-null data as received from client
+	 * @param outData
+	 *            non-null json object to which validated input fields are
+	 *            copied to
+	 * @param messages
+	 *            to which any error is added. Once an error is added,
+	 *            outputData is to be treated as unusable.
+	 */
+	private void parseAndValidate(Parameter[] parms, JSONObject inData, JSONObject outData,
+			List<FormattedMessage> messages) {
+		for (Parameter parm : parms) {
+			Object obj = parm.validate(inData.opt(parm.getName()), messages);
+			if (obj != null) {
+				outData.put(parm.getFieldName(), obj);
+			}
+		}
+	}
 
-    if (responses.length == 1) {
-      return responses[0];
-    }
-    if (data != null) {
-      int code = data.optInt(ServiceProtocol.HTTP_RESP_CODE_FIELD_NAME, 0);
-      if (code != 0) {
-        for (Response response : responses) {
-          if (response.getCode() == code) {
-            return response;
-          }
-        }
-      }
-    }
+	/**
+	 * writes response based on service output and service spec on successful
+	 * service execution
+	 *
+	 * @param resp
+	 * @param data
+	 * @param service
+	 * @throws IOException
+	 */
+	public void writeResponse(HttpServletResponse resp, JSONObject data, String service) throws IOException {
+		if (this.translator != null) {
+			this.translator.translateOutput(service, data);
+		}
+		Response response = this.selectResponse(this.successResponses, data);
+		if (response == null) {
+			response = Response.getDefaultForSuccess();
 
-    logger.info(
-        "We are unable to pick a response from multiple choices, and hence choosing the first one");
+			logger.info("Default Success Response is used as we could not get any definition for success");
+		}
+		response.writeResponse(resp, data, this.sendAll);
+	}
 
-    return responses[0];
-  }
+	private Response selectResponse(Response[] responses, JSONObject data) {
+		if (responses == null) {
+			return this.defaultResponse;
+		}
 
-  /**
-   * @param resp
-   * @param messages
-   * @throws IOException
-   */
-  public void writeResponse(HttpServletResponse resp, FormattedMessage[] messages)
-      throws IOException {
-    Response response = this.selectResponse(this.failureResponses, null);
-    if (response == null) {
-      response = Response.getDefaultForFailure();
+		if (responses.length == 1) {
+			return responses[0];
+		}
+		if (data != null) {
+			int code = data.optInt(ServiceProtocol.HTTP_RESP_CODE_FIELD_NAME, 0);
+			if (code != 0) {
+				for (Response response : responses) {
+					if (response.getCode() == code) {
+						return response;
+					}
+				}
+			}
+		}
 
-      logger.info(
-          "Default Failure Response is used as we could not get any definition for failure");
-    }
-    response.writeResponse(resp, messages);
-  }
+		logger.info("We are unable to pick a response from multiple choices, and hence choosing the first one");
+
+		return responses[0];
+	}
+
+	/**
+	 * @param resp
+	 * @param messages
+	 * @throws IOException
+	 */
+	public void writeResponse(HttpServletResponse resp, FormattedMessage[] messages) throws IOException {
+		Response response = this.selectResponse(this.failureResponses, null);
+		if (response == null) {
+			response = Response.getDefaultForFailure();
+
+			logger.info("Default Failure Response is used as we could not get any definition for failure");
+		}
+		response.writeResponse(resp, messages);
+	}
+
+	public boolean authorize() {
+		AuthDefinition auth = this.authDefinitions[0];
+		if (auth.getType().equals("basic")) {
+
+		}
+		if (auth.getType().equals("apikey")) {
+
+		}
+		if (auth.getType().equals("oauth2")) {
+			if (((OAuth2Definition) auth).getFlow().equals("implicit")) {
+
+			}
+			if (((OAuth2Definition) auth).getFlow().equals("password")) {
+
+			}
+			if (((OAuth2Definition) auth).getFlow().equals("application")) {
+
+			}
+			if (((OAuth2Definition) auth).getFlow().equals("accessCode")) {
+				String authUrl = ((OAuth2Definition) auth).getAuthorizationUrl();
+				String accessCode = this.specialAttr.get(Tags.ACCESS_CODE);
+				String correlationId = MDC.get(Tags.CORRELATION_ID);
+
+				authUrl += "?accessCode=" + accessCode + "&correlationId=" + correlationId;
+				/**Call the Auth outbound agent**/
+			}
+		}
+		return false;
+	}
 }

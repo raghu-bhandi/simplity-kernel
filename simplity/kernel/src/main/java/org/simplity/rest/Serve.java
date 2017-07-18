@@ -23,14 +23,17 @@
 package org.simplity.rest;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.service.ServiceProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * this is an example servlet to demonstrate how a project can use HttpAgent to
@@ -40,7 +43,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Serve extends HttpServlet {
-	protected static final Logger logger = LoggerFactory.getLogger(HttpServlet.class);
+	protected static final Logger logger = LoggerFactory.getLogger(Serve.class);
 
 	private static final long serialVersionUID = 1L;
 
@@ -52,6 +55,9 @@ public class Serve extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		try {
+			/** Correlation ID has be available from the beginning **/
+			MDC.put(Tags.CORRELATION_ID, getCorrelationId(req));
+			
 			RestInboundAgent.serve(req, resp);
 		} catch (Exception e) {
 			String msg = "We have an internal error. ";
@@ -60,6 +66,7 @@ public class Serve extends HttpServlet {
 			return;
 		}
 	}
+
 
 	/**
 	 * Get is to be used ONLY IF POST is not possible for some reason. From
@@ -108,4 +115,22 @@ public class Serve extends HttpServlet {
 	protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		this.doPost(req, resp);
 	}
+	
+
+	private String getCorrelationId(HttpServletRequest req) {
+
+	    String correlationId = req.getHeader(Tags.CORRELATION_ID);
+	    if (correlationId == null) {
+	    	correlationId = req.getParameter(Tags.CORRELATION_ID);
+	    }
+	    if (correlationId == null) {
+	    	correlationId = (String) req.getAttribute(Tags.CORRELATION_ID);
+	    }
+	    if (correlationId == null) {	  
+	    	String uuidGen = UUID.randomUUID().toString();
+	    	correlationId = uuidGen.substring(uuidGen.length() - 9);
+	    }
+	    return correlationId;
+	}
+
 }

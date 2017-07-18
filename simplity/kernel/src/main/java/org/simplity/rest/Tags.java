@@ -164,6 +164,13 @@ public class Tags {
   public static final char PATH_SEP_CHAR = '/';
   /** all of data type */
   public static final String ALL_OF_ATTR = "allOf";
+  /** security requirements **/
+  public static final String SEC_ATTR = "security";
+  /** access code **/ 
+  public static final String ACCESS_CODE = "accessCode";
+  /** correlation Id **/ 
+  public static final String CORRELATION_ID = "correlationId";
+  
 
   private Tags() {
     // as an indication that this is a static class

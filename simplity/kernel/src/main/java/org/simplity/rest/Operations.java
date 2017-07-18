@@ -193,20 +193,25 @@ public class Operations {
 			logger.info(" No paths in the API");
 			return;
 		}
+		
+		JSONObject secs = json.optJSONObject(Tags.SEC_ATTR);
+		
 		/*
 		 * for run-time efficiency, we substitute refs with actual JSON
 		 */
 		JsonUtil.dereference(json);
+		JsonUtil.dereferenceSecurityDef(json);
 		String basePath = json.optString(Tags.BASE_PATH_ATTR, null);
 		String moduleName = json.optString(Tags.MODULE_ATTR, null);
-		loadAnApi(paths, basePath, moduleName);
+		loadAnApi(paths, secs, basePath, moduleName);
 	}
 
 	/**
 	 * @param paths
+	 * @param secs 
 	 * @param basePath
 	 */
-	private static void loadAnApi(JSONObject paths, String basePath, String moduleName) {
+	private static void loadAnApi(JSONObject paths, JSONObject secs, String basePath, String moduleName) {
 
 		for (String key : paths.keySet()) {
 			JSONObject methods = paths.optJSONObject(key);
