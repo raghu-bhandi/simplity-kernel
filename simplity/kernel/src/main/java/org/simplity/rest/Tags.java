@@ -164,13 +164,54 @@ public class Tags {
   public static final char PATH_SEP_CHAR = '/';
   /** all of data type */
   public static final String ALL_OF_ATTR = "allOf";
+  /** security definitions **/
+  public static final String SEC_DEF_ATTR = "securityDefinitions";  
   /** security requirements **/
   public static final String SEC_ATTR = "security";
   /** access code **/ 
   public static final String ACCESS_CODE = "accessCode";
+  /** access token **/
+  public static final String ACCESS_TOKEN = "access_token";
   /** correlation Id **/ 
   public static final String CORRELATION_ID = "correlationId";
   
+
+	/*
+	 * security related attributes
+	 */
+	/**
+	 * security requirement
+	 */
+	public static final String SECURITY_ATTR = "security";
+	/**
+	 * security definitions
+	 */
+	public static final String SECURITY_DEFS_ATTR = "securityDefinitions";
+
+	/**
+	 * security definitions
+	 */
+	public static final String SECURITY_TYPE_ATTR = "type";
+	/**
+	 * descriptions
+	 */
+	public static final String DESC = "description";	
+	/**
+	 * flow type of this auth
+	 */
+	public static final String FLOW_ATTR = "flow";
+	/**
+	 * auth URL
+	 */
+	public static final String AUTH_URL_ATTR = "authorizationUrl";
+	/**
+	 * auth token URL
+	 */
+	public static final String TOKEN_URL_ATTR = "tokenUrl";
+	/**
+	 * auth scopes
+	 */
+	public static final String SCOPES_ATTR = "scopes";
 
   private Tags() {
     // as an indication that this is a static class

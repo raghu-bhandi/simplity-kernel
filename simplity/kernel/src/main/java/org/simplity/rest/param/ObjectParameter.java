@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ObjectParameter extends Parameter {
+
 	private static final Logger logger = LoggerFactory.getLogger(ObjectParameter.class);
 	private Parameter[] items;
 	private boolean uniqueItem;

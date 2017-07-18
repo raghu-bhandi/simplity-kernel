@@ -186,9 +186,8 @@ public class Service implements ServiceInterface {
 	}
 
 	@Override
-	public boolean okToCache(ServiceData inData) {
+	public boolean okToCache() {
 		if (this.canBeCachedByFields != null) {
-			inData.setCacheForInput(this.canBeCachedByFields);
 			return true;
 		}
 		return false;
@@ -1380,6 +1379,7 @@ public class Service implements ServiceInterface {
 	 * @see org.simplity.service.ServiceInterface#serve(org.simplity.service.
 	 * ServiceContext)
 	 */
+
 	@Override
 	public void serve(ServiceContext ctx) {
 		ApplicationError err = this.executeService(ctx);

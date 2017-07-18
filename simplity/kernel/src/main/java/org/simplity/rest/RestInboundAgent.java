@@ -30,6 +30,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.auth.AuthRequirement;
+import org.simplity.auth.OAuth2Agent;
 import org.simplity.gateway.JsonReqReader;
 import org.simplity.gateway.JsonRespWriter;
 import org.simplity.gateway.ReqReader;
@@ -113,6 +115,20 @@ public class RestInboundAgent {
 				return;
 			}
 
+			/*
+			 * do we have to authenticate?
+			 *
+			 * as of now, we can deal with just one scheme associated with
+			 * Oauth2 only. Following code hard codes these assumptions
+			 */
+			AuthRequirement[] auths = operation.getAuthSchemes();
+			if (auths != null && auths.length > 0) {
+				OAuth2Agent oAgent = (OAuth2Agent) Operations.getSecurityAgent(auths[0].getAuthName());
+				if (oAgent.securityCleared(req, resp) == false) {
+					logger.info("Authentication failed. responding back with a redirect.");
+					return;
+				}
+			}
 			/*
 			 * using operation specification, get service name and input data
 			 */

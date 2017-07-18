@@ -31,23 +31,20 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.auth.AuthRequirement;
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.util.HttpUtil;
 import org.simplity.kernel.util.JsonUtil;
-import org.simplity.rest.auth.ApiKeyAuthDefinition;
 import org.simplity.rest.auth.AuthDefinition;
-import org.simplity.rest.auth.BasicAuthDefinition;
-import org.simplity.rest.auth.OAuth2Definition;
 import org.simplity.rest.param.ArrayParameter;
 import org.simplity.rest.param.ObjectParameter;
 import org.simplity.rest.param.Parameter;
 import org.simplity.service.ServiceProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 /**
  * specification for an operation based on Open API/swgger.
@@ -55,6 +52,7 @@ import org.slf4j.MDC;
  * @author simplity.org
  */
 public class Operation {
+
 	static final Logger logger = LoggerFactory.getLogger(Operation.class);
 
 	/**
@@ -68,6 +66,16 @@ public class Operation {
 	 */
 	private boolean acceptAll;
 	/*
+	 * security parameters
+	 */
+
+	private AuthDefinition[] authDefinitions;
+
+	/**
+	 * authentication schemes required to be satisfied for this operation
+	 */
+	AuthRequirement[] authSchemes;
+	/*
 	 * input parameters are split by type for run-time efficiency. Relevant only
 	 * if accpetAll is false
 	 */
@@ -77,14 +85,6 @@ public class Operation {
 	private Parameter[] pathParameters;
 	private String bodyFieldName;
 	private ServiceTranslator translator;
-	
-	private Map<String,String> specialAttr = new HashMap<String,String>();
-
-	/*
-	 * security parameters
-	 */
-
-	private AuthDefinition[] authDefinitions;
 
 	/*
 	 * those were the fields for input. Rest of the fields are for output
@@ -103,7 +103,7 @@ public class Operation {
 	 * @param operationSpec
 	 * @param serviceName
 	 */
-	public Operation(JSONObject operationSpec, String serviceName) {
+	public Operation(JSONObject operationSpec, String serviceName, AuthRequirement[] defaultAuths) {
 		this.serviceName = serviceName;
 		this.setCustomAttributes(operationSpec);
 		JSONArray params = operationSpec.optJSONArray(Tags.PARAMS_ATTR);
@@ -114,11 +114,13 @@ public class Operation {
 			this.parseParams(params);
 		}
 		/*
-		 * organize the security requirements
+		 * security
 		 */
-		JSONArray secParams = operationSpec.optJSONArray(Tags.SEC_ATTR);
-		if (secParams != null) {
-			this.parseSecurity(secParams);
+		JSONArray secs = operationSpec.optJSONArray(Tags.SECURITY_ATTR);
+		if (secs == null) {
+			this.authSchemes = defaultAuths;
+		} else {
+			this.authSchemes = AuthRequirement.parse(secs);
 		}
 		/*
 		 * organize responses
@@ -132,58 +134,6 @@ public class Operation {
 			return;
 		}
 		this.parseResponses(resps);
-	}
-
-	/**
-	 * @param secParams
-	 */
-	private void parseSecurity(JSONArray secParams) {
-		List<AuthDefinition> qry = new ArrayList<AuthDefinition>();
-		for (Object obj : secParams) {
-			JSONObject json = (JSONObject) obj;
-			JSONObject authJson = (JSONObject) json.get(json.names().getString(0));
-			AuthDefinition auth = null;
-			if (authJson.get("type").equals("basic")) {
-				auth = new BasicAuthDefinition();
-				auth.setType("basic");
-				auth.setDescription(authJson.get("description").toString());
-			}
-			if (authJson.get("type").equals("apikey")) {
-				auth = new ApiKeyAuthDefinition();
-				auth.setType("apikey");
-				auth.setDescription(authJson.get("description").toString());
-				((ApiKeyAuthDefinition) auth).setIn(authJson.get("in").toString());
-			}
-			if (authJson.get("type").equals("oauth2")) {
-				auth = new OAuth2Definition();
-				auth.setType("oauth2");
-				auth.setDescription(authJson.get("description").toString());
-				JSONObject scopes = (JSONObject) (authJson.get("scopes"));
-				for (Object scopeName : scopes.names()) {
-					((OAuth2Definition) auth).addScope((String) scopeName, (String) scopes.get(scopeName.toString()));
-				}
-				if (authJson.get("flow").equals("implicit")) {
-					((OAuth2Definition) auth).implicit(authJson.get("authorizationUrl").toString());
-				}
-				;
-				if (authJson.get("flow").equals("password")) {
-					((OAuth2Definition) auth).implicit(authJson.get("tokenUrl").toString());
-				}
-				;
-				if (authJson.get("flow").equals("accessCode")) {
-					((OAuth2Definition) auth).implicit(authJson.get("authorizationUrl").toString());
-				}
-				;
-				if (authJson.get("flow").equals("application")) {
-					((OAuth2Definition) auth).implicit(authJson.get("tokenUrl").toString());
-				}
-				;
-			}
-			qry.add(auth);
-			String secName = json.names().getString(0);
-			JSONArray secScopes = json.getJSONArray(secName);
-			// qry.add(new Security(secName,secScopes.join(",").split(",")));
-		}
 	}
 
 	/**
@@ -355,6 +305,9 @@ public class Operation {
 		 * primitive.Hence we make no assumption about its type
 		 */
 		String payload = HttpUtil.readBody(req);
+
+		// quick fix
+		this.acceptAll = true;
 		if (this.acceptAll) {
 
 			logger.info("We are to accept all data. we assume there are no data in header");
@@ -377,9 +330,9 @@ public class Operation {
 				JsonUtil.copyAll(serviceData, pathData);
 			}
 		} else {
-			if (this.headerParameters != null) {
-				this.parseAndValidateHeaderFields(req, serviceData, messages);
-			}			
+			if (this.bodyParameter != null) {
+				this.parseBody(serviceData, payload, messages);
+			}
 			if (this.qryParameters != null) {
 				this.parseAndValidate(this.qryParameters, HttpUtil.parseQueryString(req, null), serviceData, messages);
 			}
@@ -390,8 +343,8 @@ public class Operation {
 					this.parseAndValidate(this.pathParameters, pathData, serviceData, messages);
 				}
 			}
-			if (this.bodyParameter != null) {
-				this.parseBody(serviceData, payload, messages);
+			if (this.headerParameters != null) {
+				this.parseAndValidateHeaderFields(req, serviceData, messages);
 			}
 		}
 		/*
@@ -473,9 +426,6 @@ public class Operation {
 				outData.put(parm.getFieldName(), obj);
 			}
 		}
-		
-		/** Extract special attributes **/
-		specialAttr.put(Tags.ACCESS_CODE, req.getHeader(Tags.ACCESS_CODE));
 	}
 
 	/**
@@ -501,6 +451,8 @@ public class Operation {
 			}
 		}
 	}
+
+
 
 	/**
 	 * writes response based on service output and service spec on successful
@@ -563,33 +515,12 @@ public class Operation {
 		response.writeResponse(resp, messages);
 	}
 
-	public boolean authorize() {
-		AuthDefinition auth = this.authDefinitions[0];
-		if (auth.getType().equals("basic")) {
-
-		}
-		if (auth.getType().equals("apikey")) {
-
-		}
-		if (auth.getType().equals("oauth2")) {
-			if (((OAuth2Definition) auth).getFlow().equals("implicit")) {
-
-			}
-			if (((OAuth2Definition) auth).getFlow().equals("password")) {
-
-			}
-			if (((OAuth2Definition) auth).getFlow().equals("application")) {
-
-			}
-			if (((OAuth2Definition) auth).getFlow().equals("accessCode")) {
-				String authUrl = ((OAuth2Definition) auth).getAuthorizationUrl();
-				String accessCode = this.specialAttr.get(Tags.ACCESS_CODE);
-				String correlationId = MDC.get(Tags.CORRELATION_ID);
-
-				authUrl += "?accessCode=" + accessCode + "&correlationId=" + correlationId;
-				/**Call the Auth outbound agent**/
-			}
-		}
-		return false;
+	/**
+	 *
+	 * @return null if no authentication requirement. Array of requirements form
+	 *         which any one should be satisfied
+	 */
+	public AuthRequirement[] getAuthSchemes() {
+		return this.authSchemes;
 	}
 }

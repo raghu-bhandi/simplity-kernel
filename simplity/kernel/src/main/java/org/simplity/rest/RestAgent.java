@@ -123,13 +123,6 @@ public class RestAgent {
     JSONObject json = new JSONObject();
     List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
     String serviceName = operation.prepareRequest(req, json, pathJson, messages);
-
-    if(!operation.authorize()){
-        logger.info("Unauthorized");
-        operation.writeResponse(resp, messages.toArray(new FormattedMessage[0]));
-        return;
-    	
-    };
     
     if (messages.size() > 0) {
 

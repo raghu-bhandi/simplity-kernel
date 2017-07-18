@@ -294,7 +294,7 @@ public class ServiceAgent {
        * is it cached?
        */
       if (this.cacheManager != null) {
-        if (service.okToCache(inputData)) {
+        if (service.okToCache()) {
           response = this.cacheManager.respond(inputData);
           if (response != null) {
             break;
@@ -334,7 +334,7 @@ public class ServiceAgent {
             }
           }
         }
-        if (this.cacheManager != null && hasErrors == false && service.okToCache(inputData)) {
+        if (this.cacheManager != null && hasErrors == false && service.okToCache()) {
           this.cacheManager.cache(inputData, response);
         }
       } catch (Exception e) {

@@ -134,4 +134,43 @@ public class HttpUtil {
       // we know that this is supported
     }
   }
+	/**
+	 * parse query string parameters
+	 *
+	 * @param uriEncodedString
+	 * @return array name-value-pair-array arr[0][0] is frst field name and arr[0][1] is its value
+	 */
+	public static String[][] parseQueryString(String uriEncodedString) {
+		if (uriEncodedString == null) {
+			return new String[0][];
+		}
+
+		String text = uriEncodedString.trim();
+		if (text.isEmpty()) {
+			return new String[0][];
+		}
+		String[] parts = text.split("&");
+		String[][] pairs = new String[parts.length][];
+		try {
+			String[] pair = new String[2];
+			for (int i = 0; i < parts.length; i++) {
+				String part = parts[i];
+				if (part.isEmpty()) {
+					pair[0] = pair[1] = "";
+				}
+				String[] nameValue = part.split("=");
+				pair[0] = URLDecoder.decode(nameValue[0], "UTF-8");
+				if (nameValue.length == 1) {
+					pair[1] = "";
+				} else {
+					pair[1] = URLDecoder.decode(nameValue[1], "UTF-8");
+				}
+				pairs[i] = pair;
+			}
+		} catch (UnsupportedEncodingException e) {
+			// we know that this is supported
+		}
+		return pairs;
+	}
+  
 }

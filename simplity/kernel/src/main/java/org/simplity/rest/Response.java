@@ -46,7 +46,9 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Response {
-	protected static final Logger logger = LoggerFactory.getLogger(Response.class);
+
+
+  	protected static final Logger logger = LoggerFactory.getLogger(Response.class);
 	/*
 	 * default success and failure responses in case of emergency!!
 	 */
@@ -154,8 +156,8 @@ public class Response {
 				hdr.setHeader(resp, data.opt(hdr.getFieldName()));
 			}
 		}
-
-		if (sendAll || this.sendAllData) {
+		// bug-fix for data not flowing
+		/*if (sendAll || this.sendAllData) {
 			if (data == null) {
 				resp.getWriter().write(EMPTY_RESPONSE);
 			} else {
@@ -201,8 +203,8 @@ public class Response {
 				}
 				bodyData = ap.serialize((JSONArray)bodyData);
 			}
-		}
-		resp.getWriter().write(bodyData.toString());
+		}*/
+		resp.getWriter().write(data.toString());
 	}
 
 	/**
