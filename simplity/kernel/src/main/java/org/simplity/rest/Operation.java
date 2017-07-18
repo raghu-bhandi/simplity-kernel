@@ -32,6 +32,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.auth.AuthRequirement;
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
@@ -62,6 +63,11 @@ public class Operation {
    * will take care of validations.
    */
   private boolean acceptAll;
+
+	/**
+	 * authentication schemes required to be satisfied for this operation
+	 */
+	AuthRequirement[] authSchemes;
   /*
    * input parameters are split by type for run-time efficiency. Relevant only
    * if accpetAll is false
@@ -90,7 +96,7 @@ public class Operation {
    * @param operationSpec
    * @param serviceName
    */
-  public Operation(JSONObject operationSpec, String serviceName) {
+  public Operation(JSONObject operationSpec, String serviceName, AuthRequirement[] defaultAuths) {
     this.serviceName = serviceName;
     this.setCustomAttributes(operationSpec);
     JSONArray params = operationSpec.optJSONArray(Tags.PARAMS_ATTR);
@@ -100,6 +106,15 @@ public class Operation {
     if (params != null) {
       this.parseParams(params);
     }
+	/*
+	 * security
+	 */
+	JSONObject secs = operationSpec.optJSONObject(Tags.SECURITY_ATTR);
+	if (secs == null) {
+		this.authSchemes = defaultAuths;
+	} else {
+		this.authSchemes = AuthRequirement.parse(secs);
+	}
     /*
      * organize responses
      */
@@ -492,4 +507,13 @@ public class Operation {
     }
     response.writeResponse(resp, messages);
   }
+
+	/**
+	 *
+	 * @return null if no authentication requirement. Array of requirements form
+	 *         which any one should be satisfied
+	 */
+	public AuthRequirement[] getAuthSchemes() {
+		return this.authSchemes;
+	}
 }

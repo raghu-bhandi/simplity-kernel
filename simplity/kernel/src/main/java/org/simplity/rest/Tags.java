@@ -165,6 +165,40 @@ public class Tags {
   /** all of data type */
   public static final String ALL_OF_ATTR = "allOf";
 
+	/*
+	 * security related attributes
+	 */
+	/**
+	 * security requirement
+	 */
+	public static final String SECURITY_ATTR = "security";
+	/**
+	 * security definitions
+	 */
+	public static final String SECURITY_DEFS_ATTR = "securityDefinitions";
+
+	/**
+	 * security definitions
+	 */
+	public static final String SECURITY_TYPE_ATTR = "type";
+
+	/**
+	 * flow type of this auth
+	 */
+	public static final String FLOW_ATTR = "flow";
+	/**
+	 * auth URL
+	 */
+	public static final String AUTH_URL_ATTR = "authorizationUrl";
+	/**
+	 * auth token URL
+	 */
+	public static final String TOKEN_URL_ATTR = "tokenUrl";
+	/**
+	 * auth scopes
+	 */
+	public static final String SCOPES_ATTR = "scopes";
+
   private Tags() {
     // as an indication that this is a static class
   }

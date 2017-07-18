@@ -23,7 +23,12 @@
 package org.simplity.rest;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.simplity.auth.AuthRequirement;
+import org.simplity.auth.AuthType;
+import org.simplity.auth.SecurityAgent;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.data.HierarchicalSheet;
 import org.simplity.kernel.dm.Record;
@@ -46,6 +51,7 @@ public class Operations {
 	 * root node of the path-tree that holds service spec for paths
 	 */
 	private static PathNode rootNode = new PathNode(null, null, null);
+	private static Map<String, SecurityAgent> securitySchemes = new HashMap<String, SecurityAgent>();
 
 	/**
 	 * private constructor
@@ -199,15 +205,48 @@ public class Operations {
 		JsonUtil.dereference(json);
 		String basePath = json.optString(Tags.BASE_PATH_ATTR, null);
 		String moduleName = json.optString(Tags.MODULE_ATTR, null);
-		loadAnApi(paths, basePath, moduleName);
+		AuthRequirement[] defaultAuths = AuthRequirement.parse(json.optJSONObject(Tags.SECURITY_ATTR));
+		loadAnApi(paths, basePath, moduleName, defaultAuths);
+	}
+
+
+	/**
+	 * add security definitions. What if there are more than one api files, and
+	 * have common named security definitions? We assume that the actual
+	 * definitions are same a,d just get away with a log
+	 *
+	 * @param secs
+	 */
+	private static void addSecurityDefinitions(JSONObject secs) {
+		for (String name : JSONObject.getNames(secs)) {
+			if (securitySchemes.containsKey(name)) {
+				logger.info("security scheme " + name + " is already defined. Ignoring the duplicate.");
+				continue;
+			}
+			JSONObject spec = secs.optJSONObject(name);
+			if (spec == null) {
+				logger.error("Swagger document has an invalid securty scheme named " + name + ". scheme ignored");
+				continue;
+			}
+			String authType = spec.optString(Tags.SECURITY_TYPE_ATTR);
+			if (authType != null) {
+				AuthType typ = AuthType.valueOf(authType.toUpperCase());
+				if (typ != null) {
+					securitySchemes.put(name, typ.getAgent(spec));
+					logger.info("Security agent recruited for " + name);
+					continue;
+				}
+			}
+			logger.error("Swagger document has an invalid securty type " + authType + ". auth ignored");
+		}
 	}
 
 	/**
 	 * @param paths
 	 * @param basePath
 	 */
-	private static void loadAnApi(JSONObject paths, String basePath, String moduleName) {
-
+	private static void loadAnApi(JSONObject paths, String basePath, String moduleName,
+			AuthRequirement[] defaultAuths) {
 		for (String key : paths.keySet()) {
 			JSONObject methods = paths.optJSONObject(key);
 			String fullPath = basePath == null ? key : basePath + key;
@@ -239,7 +278,7 @@ public class Operations {
 			/*
 			 * add the methods at the leaf
 			 */
-			node.setPathSpec(methods);
+			node.setPathSpec(methods, defaultAuths);
 		}
 	}
 
@@ -255,6 +294,15 @@ public class Operations {
 			result = result.substring(0, idx);
 		}
 		return result;
+	}
+
+	/**
+	 * get the agent associated with this authenticationId
+	 * @param authSchemeName
+	 * @return agent or null if no such agent
+	 */
+	public static SecurityAgent getSecurityAgent(String authSchemeName){
+		return securitySchemes.get(authSchemeName);
 	}
 
 
