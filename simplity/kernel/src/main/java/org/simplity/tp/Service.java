@@ -155,7 +155,10 @@ public class Service implements ServiceInterface {
 	 */
 	String canBeCachedByFields;
 
-	String referredServicesToInvalidate;
+	/**
+	 * The services that are to be invalidated when this service is executed
+	 */
+	String[] referredServicesToInvalidate;
 	/**
 	 * does this service use jms? if so with what kind of transaction management
 	 */
@@ -1337,15 +1340,7 @@ public class Service implements ServiceInterface {
 		return;
 	}
 
-	public String getFieldsToCache() {
-		return this.canBeCachedByFields;
-	}
-
-	public InputData getInputData() {
-		return this.inputData;
-	}
-
-	public String getServicesToInvalidate() {
+	public String[] getServicesToInvalidate() {
 		return this.referredServicesToInvalidate;
 	}
 
@@ -1386,6 +1381,56 @@ public class Service implements ServiceInterface {
 		if (err != null) {
 			throw err;
 		}
+	}
+
+	/**
+	 * generates key for the service to be cached
+	 * 
+	 * @param serviceName
+	 * @param inputData
+	 * @return
+	 */
+	public String generateKeyToCache(String serviceName, ServiceData inputData) {
+		int hashKey = 0;
+		String fields[] = null;
+		if (this.canBeCachedByFields != null) {
+			hashKey = serviceName.hashCode();
+			if (this.canBeCachedByFields.isEmpty()) {
+				int i = 0;
+				InputField[] inputFields = null;
+				if (this.getInputSpecification() != null) {
+					inputFields = this.inputData.getInputFields();
+				}
+				if (inputFields != null) {
+					fields = new String[inputFields.length];
+					for (InputField field : inputFields) {
+						fields[i] = field.getName();
+						i++;
+					}
+				}
+			} else {
+				fields = this.canBeCachedByFields.split(",");
+			}
+			if (fields != null && fields.length > 0) {
+				if (fields[0].equals(ServiceProtocol.USER_ID)) {
+					hashKey += inputData.getUserId().hashCode();
+					int n = fields.length;
+					if (n > 0) {
+						n--;
+						String[] newFields = new String[n];
+						for (int i = 0; i < newFields.length; i++) {
+							newFields[i] = fields[i + 1];
+						}
+						fields = newFields;
+					}
+				}
+				for (String field : fields) {
+					hashKey += inputData.get(field).hashCode();
+				}
+			}
+		}
+
+		return String.valueOf(hashKey);
 	}
 
 }

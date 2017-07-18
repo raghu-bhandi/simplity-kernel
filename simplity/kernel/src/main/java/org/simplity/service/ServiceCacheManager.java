@@ -31,20 +31,19 @@ public interface ServiceCacheManager {
    * @return response text to be sent to client. null if this service is not available in cache.
    *     Empty string if the cacher would like to cache the response on its way back from server.
    */
-  public ServiceData respond(ServiceData inputData);
+  public ServiceData respond(String key);
 
   /**
    * cache a response from server. This is called if a previous call to respond() would have
    * returned an empty string indicating desire to cache this response
    *
    * @param inData
-   * @param outData
    */
-  public void cache(ServiceData inData, ServiceData outData);
+  public void cache(ServiceData inputData,ServiceData outputData);
   /**
    * remove/invalidate any cache for this service
    *
    * @param serviceName
    */
-  public void invalidate(String serviceName, ServiceData inData);
+  public void invalidate(String key);
 }

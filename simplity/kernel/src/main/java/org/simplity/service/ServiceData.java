@@ -79,6 +79,8 @@ public class ServiceData implements Serializable {
    * data. If this is userId specific, then _userId would be the first field.
    */
   private String cacheForInput;
+  
+  private String cacheKey;
 
   /** used in the input as mechanism to pass message bewteen the caller and a service */
   private MessageBox messageBox;
@@ -105,8 +107,8 @@ public class ServiceData implements Serializable {
    *     string means it can be used for all users irrespective of input data. If this is userId
    *     specific, then _userId would be the first field.
    */
-  public void setCacheForInput(String cacheForInput) {
-    this.cacheForInput = cacheForInput;
+  public void setCacheKey(String cacheKey) {
+    this.cacheKey = cacheKey;
   }
 
   /**
@@ -114,8 +116,8 @@ public class ServiceData implements Serializable {
    *     be used for all users irrespective of input data. If this is userId specific, then _userId
    *     would be the first field.
    */
-  public String getCacheForInput() {
-    return this.cacheForInput;
+  public String getCacheKey() {
+    return this.cacheKey;
   }
 
   /** @param serviceName the serviceName to set */
@@ -346,4 +348,12 @@ public class ServiceData implements Serializable {
     }
     this.sessionFields.put(fieldName, value);
   }
+
+public String getCacheForInput() {
+	return cacheForInput;
+}
+
+public void setCacheForInput(String cacheForInput) {
+	this.cacheForInput = cacheForInput;
+}
 }
