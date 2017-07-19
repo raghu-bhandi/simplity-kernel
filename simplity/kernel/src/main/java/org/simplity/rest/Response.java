@@ -47,8 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Response {
 
-
-  	protected static final Logger logger = LoggerFactory.getLogger(Response.class);
+	  protected static final Logger logger = LoggerFactory.getLogger(Response.class);
 	/*
 	 * default success and failure responses in case of emergency!!
 	 */
@@ -151,11 +150,13 @@ public class Response {
 		} else {
 			resp.setStatus(HttpServletResponse.SC_OK);
 		}
+
 		if (this.headers != null) {
 			for (Parameter hdr : this.headers) {
 				hdr.setHeader(resp, data.opt(hdr.getFieldName()));
 			}
 		}
+
 		if (sendAll || this.sendAllData) {
 			if (data == null) {
 				resp.getWriter().write(EMPTY_RESPONSE);
@@ -170,48 +171,88 @@ public class Response {
 		}
 
 		if (data == null) {
-			logger.info("No response object suplied for response. no body response.");
+			logger.info("No response object supplied for response. no body response.");
 			return;
 		}
 
 		Object bodyData = data;
-		if(this.bodyFieldName != null){
+		if (this.bodyFieldName != null) {
 			bodyData = data.opt(this.bodyFieldName);
-			if(bodyData == null){
+			if (bodyData == null) {
 				logger.info("Response field " + this.bodyFieldName + " has no value. No response sent.");
 				return;
 			}
 		}
-		logger.info("Body parameter is " + this.bodyParameter.getClass().getName());
-		if(this.bodyParameter instanceof ObjectParameter){
-			if(bodyData instanceof JSONObject){
-				logger.info("Going to write body parameters from " + bodyData.toString());
-				((ObjectParameter)this.bodyParameter).toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
-			}else{
-				logger.info("We expected a JSON Object as response value with bodyFieldName=" + this.bodyFieldName + " but we got " + bodyData.getClass().getName() + " as value. Null value assumed for response.");
+
+		logger.info(
+				"Preparing response body based on a parameter type " + this.bodyParameter.getClass().getSimpleName());
+		/*
+		 * most of the time, it is an object
+		 */
+		if (this.bodyParameter instanceof ObjectParameter) {
+			if (bodyData instanceof JSONObject) {
+				logger.info("Going to write body paremeters from " + bodyData.toString());
+				((ObjectParameter) this.bodyParameter).toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
+			} else {
+				logger.info("We expected a JSON Object as response value with bodyFieldName=" + this.bodyFieldName
+						+ " but we got " + bodyData.getClass().getName()
+						+ " as value. Null value assumed for response.");
 			}
 			return;
 		}
 
-		if(this.bodyParameter instanceof ArrayParameter){
-			ArrayParameter ap = (ArrayParameter)this.bodyParameter;
-			if(bodyData instanceof JSONObject){
-				logger.info("Going to get the array from the jsonObject");				
-				for(Object name:((JSONObject) bodyData).names()){
-					if(!((String)name).startsWith("_")){
-						bodyData = ((JSONObject) bodyData).get((String)name);
-					}
-				}
+		/*
+		 * if it is primitive, we just write the value
+		 */
+		if (this.bodyParameter instanceof ArrayParameter == false) {
+			resp.getWriter().write(data.toString());
+			return;
+		}
+
+		ArrayParameter ap = (ArrayParameter) this.bodyParameter;
+		JSONArray arrData = null;
+		if (bodyData instanceof JSONArray) {
+			arrData = (JSONArray) bodyData;
+		} else if (bodyData instanceof JSONObject) {
+			arrData = pickAnArray((JSONObject) bodyData);
+		}
+
+		if (arrData == null) {
+			logger.error("We are to send an array as response but we god data as " + bodyData.getClass().getSimpleName()
+					+ ". no body response");
+			resp.getWriter().write(EMPTY_RESPONSE);
+			return;
+		}
+
+		if (ap.expectsTextValue()) {
+			resp.getWriter().write(ap.serialize((JSONArray) bodyData));
+		} else {
+			ap.toWriter(new JSONWriter(resp.getWriter()), arrData, false);
+		}
+
+	}
+
+	/**
+	 * return the first JSONArray attribute of this object. Attribute starting
+	 * with '_' are assumed to be reserved, and hence skipped
+	 *
+	 * @param json
+	 * @return array or null if we could not find one
+	 */
+	private static JSONArray pickAnArray(JSONObject json) {
+		for (String name : JSONObject.getNames(json)) {
+			if (name.charAt(0) == '_') {
+				/*
+				 * that is a reserved/special attribute
+				 */
+				continue;
 			}
-			if(bodyData instanceof JSONArray){
-				if(ap.expectsTextValue() == false){
-					this.bodyParameter.toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
-					return;
-				}
-				bodyData = ap.serialize((JSONArray)bodyData);
+			JSONArray result = json.optJSONArray(name);
+			if (result != null) {
+				return result;
 			}
 		}
-		resp.getWriter().write(data.toString());
+		return null;
 	}
 
 	/**

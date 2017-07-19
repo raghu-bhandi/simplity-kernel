@@ -304,7 +304,7 @@ public class ArrayParameter extends Parameter {
 	 * @param data
 	 * @return serialized text for entries in the array
 	 */
-	public Object serialize(JSONArray data) {
+	public String serialize(JSONArray data) {
 		return this.colnType.arrayToText(data);
 	}
 }
