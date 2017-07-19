@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.auth.AuthRequirement;
 import org.simplity.auth.OAuth2Agent;
+import org.simplity.auth.SecurityAgent;
 import org.simplity.gateway.JsonReqReader;
 import org.simplity.gateway.JsonRespWriter;
 import org.simplity.gateway.ReqReader;
@@ -122,8 +123,8 @@ public class RestInboundAgent {
 			 * Oauth2 only. Following code hard codes these assumptions
 			 */
 			AuthRequirement[] auths = operation.getAuthSchemes();
-			if (auths != null && auths.length > 0) {
-				OAuth2Agent oAgent = (OAuth2Agent) Operations.getSecurityAgent(auths[0].getAuthName());
+			if (auths != null && auths.length > 0) {				
+				 SecurityAgent oAgent = Operations.getSecurityAgent(auths[0].getAuthName());				 
 				if (oAgent.securityCleared(req, resp) == false) {
 					logger.info("Authentication failed.");
 					return;

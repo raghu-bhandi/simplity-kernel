@@ -24,9 +24,7 @@ package org.simplity.rest;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,7 +36,6 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.util.HttpUtil;
 import org.simplity.kernel.util.JsonUtil;
-import org.simplity.rest.auth.AuthDefinition;
 import org.simplity.rest.param.ArrayParameter;
 import org.simplity.rest.param.ObjectParameter;
 import org.simplity.rest.param.Parameter;
@@ -65,11 +62,6 @@ public class Operation {
 	 * parse/validate. Service will take care of validations.
 	 */
 	private boolean acceptAll;
-	/*
-	 * security parameters
-	 */
-
-	private AuthDefinition[] authDefinitions;
 
 	/**
 	 * authentication schemes required to be satisfied for this operation
