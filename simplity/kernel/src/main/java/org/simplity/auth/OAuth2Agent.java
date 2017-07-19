@@ -103,8 +103,9 @@ public class OAuth2Agent implements SecurityAgent {
 				+ "&correlationId="
 				+ MDC.get("correlationId");
 		HttpURLConnection conn = null;
+		logger.info("Checking token " + url);
 		try {
-			conn = (HttpURLConnection) new URL(url).openConnection();
+			conn = (HttpURLConnection) new URL(url).openConnection();			
 			if(conn.getResponseCode()==HttpServletResponse.SC_OK){
 				return true;
 			}

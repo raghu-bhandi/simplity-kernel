@@ -532,12 +532,6 @@ public class OutputRecord {
 			return;
 		}
 
-		if (asObject) {
-			nbrRows = 1;
-		} else {
-			writer.beginArray();
-		}
-
 		String[] names = sheet.getColumnNames();
 		for (int i = 0; i < nbrRows; i++) {
 			writer.beginObject();

@@ -125,7 +125,7 @@ public class RestInboundAgent {
 			if (auths != null && auths.length > 0) {
 				OAuth2Agent oAgent = (OAuth2Agent) Operations.getSecurityAgent(auths[0].getAuthName());
 				if (oAgent.securityCleared(req, resp) == false) {
-					logger.info("Authentication failed. responding back with a redirect.");
+					logger.info("Authentication failed.");
 					return;
 				}
 			}
@@ -157,6 +157,7 @@ public class RestInboundAgent {
 			operation.writeResponse(resp, json, serviceName);
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			respondWithError(resp, INTERNAL_ERROR);
 		}
 	}

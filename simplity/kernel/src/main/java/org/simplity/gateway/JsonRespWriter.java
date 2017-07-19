@@ -68,7 +68,7 @@ public class JsonRespWriter implements RespWriter {
 	}
 
 	/**
-	 * crate a string writer.
+	 * create a string writer.
 	 *
 	 * @param writer
 	 *            that will receive the output

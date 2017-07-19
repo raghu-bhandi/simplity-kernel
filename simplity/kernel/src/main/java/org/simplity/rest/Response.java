@@ -156,8 +156,7 @@ public class Response {
 				hdr.setHeader(resp, data.opt(hdr.getFieldName()));
 			}
 		}
-		// bug-fix for data not flowing
-		/*if (sendAll || this.sendAllData) {
+		if (sendAll || this.sendAllData) {
 			if (data == null) {
 				resp.getWriter().write(EMPTY_RESPONSE);
 			} else {
@@ -203,7 +202,7 @@ public class Response {
 				}
 				bodyData = ap.serialize((JSONArray)bodyData);
 			}
-		}*/
+		}
 		resp.getWriter().write(data.toString());
 	}
 
