@@ -75,15 +75,15 @@ public class OutputRecord {
 	String linkColumnInParentSheet;
 
 	/**
-	 * in case the linking key is a compound key with more than one column.
-	 * This is a separate attribute because this is rare, and we want to keep
-	 * the comon case simple
+	 * in case the linking key is a compound key with more than one column. This
+	 * is a separate attribute because this is rare, and we want to keep the
+	 * comon case simple
 	 */
 	String[] listOfLinkColumnsInThisSheet;
 	/**
-	 * in case the linking key is a compound key with more than one column.
-	 * This is a separate attribute because this is rare, and we want to keep
-	 * the comon case simple
+	 * in case the linking key is a compound key with more than one column. This
+	 * is a separate attribute because this is rare, and we want to keep the
+	 * comon case simple
 	 */
 	String[] listOfLinkColumnsInParentSheet;
 	/**
@@ -132,8 +132,7 @@ public class OutputRecord {
 	 * @param childColName
 	 * @param parentColName
 	 */
-	public OutputRecord(String sheetName, String parentSheetName, String childColName,
-			String parentColName) {
+	public OutputRecord(String sheetName, String parentSheetName, String childColName, String parentColName) {
 		this.sheetName = sheetName;
 		this.parentSheetName = parentSheetName;
 		this.linkColumnInThisSheet = childColName;
@@ -148,14 +147,13 @@ public class OutputRecord {
 	 * @param childColNames
 	 * @param parentColNames
 	 */
-	public OutputRecord(String sheetName, String parentSheetName, String[] childColNames,
-			String[] parentColNames) {
+	public OutputRecord(String sheetName, String parentSheetName, String[] childColNames, String[] parentColNames) {
 		this.sheetName = sheetName;
 		this.parentSheetName = parentSheetName;
-		if(childColNames.length == 0){
+		if (childColNames.length == 0) {
 			this.linkColumnInThisSheet = childColNames[0];
 			this.linkColumnInParentSheet = parentColNames[0];
-		}else{
+		} else {
 			this.listOfLinkColumnsInThisSheet = childColNames;
 			this.listOfLinkColumnsInParentSheet = parentColNames;
 		}
@@ -190,8 +188,7 @@ public class OutputRecord {
 			Object obj = ctx.getObject(this.sheetName);
 			writer.key(this.sheetName);
 			if (obj == null) {
-				logger.info("No Object found for complex structure " + this.sheetName
-						+ ". Null sent to client");
+				logger.info("No Object found for complex structure " + this.sheetName + ". Null sent to client");
 			}
 			writer.value(obj);
 			return;
@@ -204,22 +201,19 @@ public class OutputRecord {
 		 * is this a child sheet?
 		 */
 		if (this.parentSheetName != null) {
-			logger.info("Sheet " + this.sheetName
-					+ " will be output as part of its parent sheet "
-					+ this.parentSheetName);
+			logger.info(
+					"Sheet " + this.sheetName + " will be output as part of its parent sheet " + this.parentSheetName);
 			return;
 		}
 		this.sheetToJson(writer, ctx);
 	}
 
-	private void fieldsToJson(JSONWriter writer, Field[] fieldsToOutput,
-			ServiceContext ctx) {
+	private void fieldsToJson(JSONWriter writer, Field[] fieldsToOutput, ServiceContext ctx) {
 		for (Field field : fieldsToOutput) {
 			String fieldName = field.getName();
 			Value value = ctx.getValue(fieldName);
 			if (value == null) {
-				logger.info(fieldName
-						+ " has no value and hence is not added to output");
+				logger.info(fieldName + " has no value and hence is not added to output");
 			} else {
 				writer.key(fieldName).value(value.toObject());
 			}
@@ -234,12 +228,11 @@ public class OutputRecord {
 		if (sheet == null) {
 			if (this.fields != null) {
 				if (this.myParentData.okToOutputFieldsFromRecord(this.fields)) {
-					logger.info("Service context has no sheet with name "
-							+ this.sheetName + " for output. We try and output fields.");
+					logger.info("Service context has no sheet with name " + this.sheetName
+							+ " for output. We try and output fields.");
 					this.fieldsToJson(writer, this.fields, ctx);
 				} else {
-					logger.info("Service context has no sheet with name "
-							+ this.sheetName
+					logger.info("Service context has no sheet with name " + this.sheetName
 							+ " for output. We decided against trying fields collection because it will create duplicate keys in response.");
 				}
 			}
@@ -276,8 +269,7 @@ public class OutputRecord {
 	 * @return create a hierarchical sheet for this outputRecord for this
 	 *         service context
 	 */
-	public HierarchicalSheet getHierarchicalSheet(DataSheet parentSheet,
-			ServiceContext ctx) {
+	public HierarchicalSheet getHierarchicalSheet(DataSheet parentSheet, ServiceContext ctx) {
 		DataSheet mySheet = ctx.getDataSheet(this.sheetName);
 		if (mySheet == null) {
 			logger.info("Sheet " + this.sheetName + " has no data to output");
@@ -298,8 +290,8 @@ public class OutputRecord {
 		if (this.listOfLinkColumnsInParentSheet == null) {
 			parentIdx = parentSheet.getColIdx(this.linkColumnInParentSheet);
 			if (parentIdx == -1) {
-				throw new ApplicationError("Link column " + this.linkColumnInParentSheet
-						+ " is not found in parent sheet.");
+				throw new ApplicationError(
+						"Link column " + this.linkColumnInParentSheet + " is not found in parent sheet.");
 			}
 		} else {
 			indexes = new int[this.listOfLinkColumnsInParentSheet.length];
@@ -307,8 +299,7 @@ public class OutputRecord {
 				String colName = this.listOfLinkColumnsInParentSheet[i];
 				int idx = parentSheet.getColIdx(colName);
 				if (idx == -1) {
-					throw new ApplicationError("Link column " + colName
-							+ " is not found in parent sheet.");
+					throw new ApplicationError("Link column " + colName + " is not found in parent sheet.");
 				}
 				indexes[i] = idx;
 			}
@@ -324,8 +315,7 @@ public class OutputRecord {
 				children[i++] = child.getHierarchicalSheet(mySheet, ctx);
 			}
 		}
-		return new HierarchicalSheet(this.sheetName, mySheet.getColumnNames(), map, children,
-				parentIdx, indexes);
+		return new HierarchicalSheet(this.sheetName, mySheet.getColumnNames(), map, children, parentIdx, indexes);
 	}
 
 	/**
@@ -344,8 +334,8 @@ public class OutputRecord {
 		if (this.listOfLinkColumnsInThisSheet == null) {
 			myIdx = mySheet.getColIdx(this.linkColumnInThisSheet);
 			if (myIdx == -1) {
-				throw new ApplicationError(this.linkColumnInThisSheet
-						+ " is not a valid column in sheet " + this.sheetName);
+				throw new ApplicationError(
+						this.linkColumnInThisSheet + " is not a valid column in sheet " + this.sheetName);
 			}
 		} else {
 			/*
@@ -357,8 +347,7 @@ public class OutputRecord {
 				String colName = this.listOfLinkColumnsInThisSheet[i];
 				int idx = mySheet.getColIdx(colName);
 				if (idx == -1) {
-					throw new ApplicationError(colName
-							+ " is not a valid column in sheet " + this.sheetName);
+					throw new ApplicationError(colName + " is not a valid column in sheet " + this.sheetName);
 				}
 				indexes[i] = idx;
 			}
@@ -389,8 +378,7 @@ public class OutputRecord {
 		this.myParentData = parenData;
 		if (this.recordName == null) {
 			if (this.sheetName == null) {
-				throw new ApplicationError(
-						"Output record should have either sheet name or record name specified.");
+				throw new ApplicationError("Output record should have either sheet name or record name specified.");
 			}
 		} else {
 			Record record = ComponentManager.getRecord(this.recordName);
@@ -414,7 +402,8 @@ public class OutputRecord {
 	}
 
 	/**
-	 * @param recordName the recordName to set
+	 * @param recordName
+	 *            the recordName to set
 	 */
 	public void setRecordName(String recordName) {
 		this.recordName = recordName;
@@ -509,16 +498,31 @@ public class OutputRecord {
 
 	/**
 	 * write a data sheet, possibly with child sheets
+	 * 
 	 * @param writer
 	 * @param name
 	 * @param sheet
 	 * @param children
-	 * @param asObject true if the first row in this data sheet is to be written as an object
+	 * @param asObject
+	 *            true if the first row in this data sheet is to be written as
+	 *            an object
 	 */
-	public static void  writeSheet(RespWriter writer, String name, DataSheet sheet, HierarchicalSheet[] children, boolean asObject) {
-		writer.beginArray(name);
+	public static void writeSheet(RespWriter writer, String name, DataSheet sheet, HierarchicalSheet[] children,
+			boolean asObject) {
+
 		int nbrRows = 0;
 		int nbrCols = 0;
+
+		if (asObject) {
+			nbrRows = 1;
+		} else {
+			if (name != null && !name.isEmpty()) {
+				writer.beginArray(name);
+			} else {
+				writer.beginArray();
+			}
+
+		}
 		if (sheet != null) {
 			nbrRows = sheet.length();
 			nbrCols = sheet.width();
@@ -527,7 +531,7 @@ public class OutputRecord {
 			if (asObject) {
 				writer.beginObject().endObject();
 			} else {
-				writer.beginArray().endArray();
+				writer.endArray();
 			}
 			return;
 		}
@@ -560,7 +564,5 @@ public class OutputRecord {
 			writer.endArray();
 		}
 	}
-
-
 
 }
