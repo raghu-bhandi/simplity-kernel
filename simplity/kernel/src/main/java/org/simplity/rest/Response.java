@@ -185,7 +185,7 @@ public class Response {
 		logger.info("Body parameter is " + this.bodyParameter.getClass().getName());
 		if(this.bodyParameter instanceof ObjectParameter){
 			if(bodyData instanceof JSONObject){
-				logger.info("Going to write body paremeters from " + bodyData.toString());
+				logger.info("Going to write body parameters from " + bodyData.toString());
 				((ObjectParameter)this.bodyParameter).toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
 			}else{
 				logger.info("We expected a JSON Object as response value with bodyFieldName=" + this.bodyFieldName + " but we got " + bodyData.getClass().getName() + " as value. Null value assumed for response.");
@@ -195,6 +195,14 @@ public class Response {
 
 		if(this.bodyParameter instanceof ArrayParameter){
 			ArrayParameter ap = (ArrayParameter)this.bodyParameter;
+			if(bodyData instanceof JSONObject){
+				logger.info("Going to get the array from the jsonObject");				
+				for(Object name:((JSONObject) bodyData).names()){
+					if(!((String)name).startsWith("_")){
+						bodyData = ((JSONObject) bodyData).get((String)name);
+					}
+				}
+			}
 			if(bodyData instanceof JSONArray){
 				if(ap.expectsTextValue() == false){
 					this.bodyParameter.toWriter(new JSONWriter(resp.getWriter()), bodyData, false);
