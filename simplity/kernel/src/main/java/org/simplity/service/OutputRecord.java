@@ -498,7 +498,7 @@ public class OutputRecord {
 
 	/**
 	 * write a data sheet, possibly with child sheets
-	 * 
+	 *
 	 * @param writer
 	 * @param name
 	 * @param sheet
@@ -509,59 +509,45 @@ public class OutputRecord {
 	 */
 	public static void writeSheet(RespWriter writer, String name, DataSheet sheet, HierarchicalSheet[] children,
 			boolean asObject) {
-
-		int nbrRows = 0;
-		int nbrCols = 0;
-
 		if (asObject) {
-			nbrRows = 1;
-		} else {
-			if (name != null && !name.isEmpty()) {
-				writer.beginArray(name);
-			} else {
-				writer.beginArray();
-			}
-
-		}
-		if (sheet != null) {
-			nbrRows = sheet.length();
-			nbrCols = sheet.width();
-		}
-		if (sheet == null || nbrRows == 0 || nbrCols == 0) {
-			if (asObject) {
-				writer.beginObject().endObject();
-			} else {
-				writer.endArray();
-			}
-			return;
-		}
-
-		String[] names = sheet.getColumnNames();
-		for (int i = 0; i < nbrRows; i++) {
-			writer.beginObject();
-			/*
-			 * note that getRow() returns values in the same order as in
-			 * getColumnNames()
-			 */
-			Value[] row = sheet.getRow(i);
-			for (int j = 0; j < names.length; j++) {
-				String colName = names[j];
-				writer.field(colName, row[j]);
-			}
-			/*
-			 * child rows?
-			 */
-			if (children != null) {
-				for (HierarchicalSheet child : children) {
-					if (child != null) {
-						child.writeAsChild(writer, row);
-					}
-				}
+			writer.beginObject(name);
+			if (sheet != null && sheet.length() > 0) {
+				writeOneRow(writer, sheet.getRow(0), sheet.getColumnNames(), children);
 			}
 			writer.endObject();
+			return;
 		}
-		if (asObject == false) {
-			writer.endArray();
+		writer.beginArray(name);
+		if (sheet != null) {
+			int nbrRows = sheet.length();
+			String[] names = sheet.getColumnNames();
+			for (int i = 0; i < nbrRows; i++) {
+				writer.beginObject();
+				/*
+				 * note that getRow() returns values in the same order as in
+				 * getColumnNames()
+				 */
+				writeOneRow(writer, sheet.getRow(i), names, children);
+				writer.endObject();
+			}
+		}
+		writer.endArray();
+	}
+
+	private static void writeOneRow(RespWriter writer, Value[] row, String[] names, HierarchicalSheet[] children) {
+		for (int j = 0; j < names.length; j++) {
+			String colName = names[j];
+			writer.field(colName, row[j]);
+		}
+		/*
+		 * child rows?
+		 */
+		if (children != null) {
+			for (HierarchicalSheet child : children) {
+				if (child != null) {
+					child.writeAsChild(writer, row);
+				}
+			}
 		}
 	}
 
