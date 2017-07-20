@@ -953,9 +953,10 @@ public class XmlUtil {
    * @throws IllegalAccessException
    * @throws IllegalArgumentException
    * @return element defaultEle, or new one
+ * @throws XmlParseException 
    */
   private static Element objectToEle(Object object, Document doc, Element defaultEle)
-      throws IllegalArgumentException, IllegalAccessException {
+      throws IllegalArgumentException, IllegalAccessException, XmlParseException {
     Class<?> objectType = object.getClass();
     //Tracer.trace("Gong to create an element for a "	+ objectType.getSimpleName());
     /*
@@ -981,6 +982,13 @@ public class XmlUtil {
 
       String fieldName = field.getName();
       Class<?> type = field.getType();
+      
+      if(type.isEnum()){
+    	  String stringValue = TextUtil.constantToValue(value.toString());
+    	  ele.setAttribute(fieldName, stringValue);
+    	  continue;
+      }
+      
       if (ReflectUtil.isValueType(type)) {
         //Tracer.trace("Field " + fieldName	+ " has a primitive value of " + value);
         String stringValue = nonDefaultPrimitiveValue(value);
