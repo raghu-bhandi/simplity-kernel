@@ -933,29 +933,50 @@
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="canBeCachedByFields"
-				type="xs:NCName"
+				name="okTocache"
+				type="booleanType"
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>can the response from this service be cached? If
-						so what are the input fields that this response depends on?
-						provide comma separated list of field names. Null (default)
-						implies that this service can not be cashed.Empty string implies
-						that the response does not depend on the input at all. If it is
-						dependent on userId, then "_userId" must be the first field name.
-						A cache manager can keep the response from this service and re-use
-						it so long as the input values for these fields are same.
+					<xs:documentation>can the response from this service be cached?
+						Other attributes about caching are valid only if this is set to
+						true.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
 			<xs:attribute
-				name="cacheRefreshTime"
+				name="cacheKeyNames"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>should the caching be based on keys. comma
+						separated list of key names. If the user id is a key, use _userId
+						as the key name.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="serviceCachesToInvalidate"
+				type="xs:string"
+				use="optional"
+			>
+				<xs:annotation>
+					<xs:documentation>The cached response for services that are to be
+						invalidated when this service is executed. for example
+						updateStates service would invalidate cached responses from
+						getStates service
+					</xs:documentation>
+				</xs:annotation>
+			</xs:attribute>
+			<xs:attribute
+				name="cacheValidityMinutes"
 				type="xs:int"
 				use="optional"
 			>
 				<xs:annotation>
-					<xs:documentation>cache refresh time.
+					<xs:documentation>cache should be invalidated after these many
+						minutes. skip this if there is no expiry.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:attribute>
@@ -1081,14 +1102,13 @@
 			</xs:annotation>
 		</xs:attribute>
 		<xs:attribute
-			name="setInputToFieldName"
+			name="saveInputObjectAs"
 			type="xs:string"
 		>
 			<xs:annotation>
 				<xs:documentation>Name of the field to which the pay-load is
-					assigned to. If this feature is used, pay-load is not parsed at
-					all, but simply assigned to the field as it is. It is assumed that
-					the service actions will take care of it
+					assigned to, as it is by the client agent. This is to facilitate
+					custom contract between client and service to interpret the payload
 				</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>

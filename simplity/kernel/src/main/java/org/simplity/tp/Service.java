@@ -149,7 +149,7 @@ public class Service implements ServiceInterface {
 	 * Should this response cache be discarded after certain time? 0 means no
 	 * such predetermined validity
 	 */
-	int cacheValidityInMinutes;
+	int cacheValidityMinutes;
 
 	/**
 	 * valid only if okToCache is set to true. Use this if the service response
@@ -1017,7 +1017,7 @@ public class Service implements ServiceInterface {
 					count++;
 				}
 			} else {
-				if (this.cacheKeyNames != null || this.cacheValidityInMinutes != 0) {
+				if (this.cacheKeyNames != null || this.cacheValidityMinutes != 0) {
 					ctx.addError(
 							"Caching attributes cacheKeyNames and cacheValidityInMinutes are relevant only if okToCache is set to true.");
 					count++;
@@ -1399,7 +1399,7 @@ public class Service implements ServiceInterface {
 	}
 
 	public int getCacheRefreshTime() {
-		return this.cacheValidityInMinutes;
+		return this.cacheValidityMinutes;
 	}
 
 	/*
@@ -1437,7 +1437,7 @@ public class Service implements ServiceInterface {
 		}
 		if (this.okToCache()) {
 			String key = createCachingKey(this.getQualifiedName(), this.cacheKeyNames, ctx);
-			ctx.setCaching(key, this.cacheValidityInMinutes);
+			ctx.setCaching(key, this.cacheValidityMinutes);
 		} else if (this.serviceCachesToInvalidate != null) {
 			ctx.setInvalidations(this.getInvalidations(ctx));
 		}
