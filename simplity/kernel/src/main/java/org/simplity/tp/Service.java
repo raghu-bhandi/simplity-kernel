@@ -190,6 +190,12 @@ public class Service implements ServiceInterface {
 	 */
 	private String[][] invalidationKeys;
 
+	/**
+	 * if we want to offer cache-by-all-input-fields feature, this is the field
+	 * that is populated at getReay()
+	 */
+	private String[] parsedCacheKeys;
+
 	@Override
 	public DbAccessType getDataAccessType() {
 		return this.dbAccessType;
@@ -599,6 +605,10 @@ public class Service implements ServiceInterface {
 				this.invalidationKeys[i] = service.getCacheKeyNames();
 			}
 		}
+
+		if(this.okToCache){
+			this.setCacheKeys();
+		}
 	}
 
 	private void prepareChildren() {
@@ -625,6 +635,29 @@ public class Service implements ServiceInterface {
 						"Service " + this.getQualifiedName() + " uses dbAccessTYpe=" + this.dbAccessType
 								+ " but action " + action.getName() + " requires " + action.getDataAccessType());
 			}
+		}
+	}
+
+	/**
+	 * if caching keys are not set, we may infer it from input specification
+	 */
+	private void setCacheKeys(){
+		if(this.cacheKeyNames != null){
+			this.parsedCacheKeys = this.cacheKeyNames;
+			return;
+		}
+
+		InputField[] fields = null;
+		if(this.inputData != null){
+			fields =  this.inputData.getInputFields();
+		}
+		if(fields == null || fields.length == 0){
+			return;
+		}
+
+		this.parsedCacheKeys = new String[fields.length];
+		for(int i = 0; i < fields.length; i++){
+			this.parsedCacheKeys[i] = fields[i].getName();
 		}
 	}
 
@@ -1472,7 +1505,7 @@ public class Service implements ServiceInterface {
 		int startAt = 0;
 		if (keyNames[0].equals(ServiceProtocol.USER_ID)) {
 			startAt = 1;
-			vals[0]= ctx.getUserId().toString();
+			vals[0] = ctx.getUserId().toString();
 		}
 		for (int i = startAt; i < keyNames.length; i++) {
 			Value val = ctx.getValue(keyNames[i]);
