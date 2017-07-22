@@ -22,12 +22,9 @@
 
 package org.simplity.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageBox;
-
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSheet;
@@ -35,6 +32,8 @@ import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author simplity.org */
 public abstract class AbstractService implements ServiceInterface {
@@ -156,6 +155,14 @@ public abstract class AbstractService implements ServiceInterface {
   public boolean okToCache() {
     return false;
   }
+
+  /* (non-Javadoc)
+	 * @see org.simplity.service.ServiceInterface#getCacheKeyNames()
+	 */
+	@Override
+	public String[] getCacheKeyNames() {
+		return null;
+	}
 
   /*
    * (non-Javadoc)

@@ -55,5 +55,5 @@ public interface OutboundAgent {
 	 *         is known to serve this service. Error message is added to the
 	 *         service context
 	 */
-	public boolean server(String serviceId, ServiceContext ctx, OutputData dataTobeSent, InputData dataToBeReceived);
+	public boolean serve(String serviceId, ServiceContext ctx, OutputData dataTobeSent, InputData dataToBeReceived);
 }

@@ -44,7 +44,7 @@ public class HttpOutboundAgent  implements OutboundAgent{
 	 * @see org.simplity.gateway.OutboundAgent#server(java.lang.String, org.simplity.service.ServiceContext, org.simplity.service.OutputData, org.simplity.service.InputData)
 	 */
 	@Override
-	public boolean server(String serviceId, ServiceContext ctx, OutputData dataTobeSent, InputData dataToBeReceived) {
+	public boolean serve(String serviceId, ServiceContext ctx, OutputData dataTobeSent, InputData dataToBeReceived) {
 		String payload = null;
 		if(dataTobeSent != null){
 			JsonRespWriter writer = new JsonRespWriter();

@@ -169,4 +169,43 @@ public interface RespWriter {
 	 *         serialization/de-serialization
 	 */
 	public Object getFinalResponseObject();
+
+	/**
+	 * @return
+	 * 		get the key based on which the response can be cached.
+	 *         emptyString means no key is used for caching. null means it can
+	 *         not be cached.
+	 */
+	public String getCachingKey();
+
+	/**
+	 * @return
+	 * 		number of minutes the cache is valid for. 0 means it has no
+	 *         expiry. This method is relevant only if getCachingKey returns
+	 *         non-null (indication that the service can be cached)
+	 */
+	public int getCacheValidity();
+
+	/**
+	 * @param key
+	 *            key based on which the response can be cached.
+	 *            emptyString means no key is used for caching. null means it
+	 *            can not be cached
+	 * @param minutes
+	 *            if non-null cache is to be invalidated after these many
+	 *            minutes
+	 */
+	public void setCaching(String key, int minutes);
+
+	/**
+	 * @return
+	 * 		cached keys that need to be invalidated
+	 */
+	public String[] getInvalidations();
+	/**
+	 * @param invalidations
+	 *            cached keys that need to be invalidated
+	 */
+	public void setInvalidations(String[] invalidations);
+
 }

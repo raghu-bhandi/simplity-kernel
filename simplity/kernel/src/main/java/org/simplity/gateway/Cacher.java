@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 simplity.org
+ * Copyright (c) 2017 simplity.org
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,46 +22,38 @@
 
 package org.simplity.gateway;
 
+import java.util.Date;
+
 /**
  * @author simplity.org
  *
  */
 public interface Cacher {
 	/**
-	 * cache the response object
+	 * keep an object with a key till its expiry
 	 *
-	 * @param serviceName
-	 *            non-null service name the response is meant for.
-	 * @param attributes
-	 *            null implies that this response is valid for the service with
-	 *            no key, and for ever. if non-null, cached response is subject
-	 *            to restrictions as per attributes. key and expiry are known
-	 *            attributes as of now
-	 * @param response
-	 *            cached object to be retrieved on demand
+	 * @param key
+	 *            non-null. unique key by which this object is cached.
+	 * @param object
+	 *            non-null.
+	 * @param expiry cached object would invalidate at this time. null implies no expiry
 	 */
-	public void cache(String serviceName, CashingAttributes attributes, Object response);
+	public void put(String key, Object object, Date expiry);
 
 	/**
-	 * get a cached response
+	 * get object that was cached with this key
 	 *
-	 * @param serviceName
+	 * @param key
 	 *            non-null
-	 * @param inData
-	 *            can be null in case the caching is at service level. method
-	 *            fails in case the caching for this service is by key
-	 * @return cached object if found. null otherwise
+	 * @return cached object if found. null if never kept, or if it expired
 	 */
-	public Object get(String serviceName, Object inData);
+	public Object get(String key);
 
 	/**
-	 * remove from cache
+	 * remove from cache.
 	 *
-	 * @param serviceName
+	 * @param key
 	 *            non-null
-	 * @param attrs
-	 *            null if this service is not cached-by key, or if we have to
-	 *            remove all caches for this service irrespective of the key
 	 */
-	public void uncache(String serviceName, CashingAttributes attrs);
+	public void remove(String key);
 }
