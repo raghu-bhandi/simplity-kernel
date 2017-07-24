@@ -31,54 +31,66 @@ import org.simplity.kernel.value.Value;
 /** * Defines a Service */
 public interface ServiceInterface extends Component {
 
-  /**
-   * this service is called as a step in another service.
-   *
-   * @param ctx
-   * @param driver
-   * @param useOwnDriverForTransaction if true, supplied driver is for read-only. Parent service is
-   *     not managing transactions, and this service should manage its transaction if needed
-   * @return return 0 if this service did not do intended work. positive number if it did its work.
-   *     This returned value is used as workDone for the action.
-   */
-  public Value executeAsAction(
-      ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction);
+	/**
+	 * this service is called as a step in another service.
+	 *
+	 * @param ctx
+	 * @param driver
+	 * @param useOwnDriverForTransaction
+	 *            if true, supplied driver is for read-only. Parent service is
+	 *            not managing transactions, and this service should manage its
+	 *            transaction if needed
+	 * @return return 0 if this service did not do intended work. positive
+	 *         number if it did its work.
+	 *         This returned value is used as workDone for the action.
+	 */
+	public Value executeAsAction(ServiceContext ctx, DbDriver driver, boolean useOwnDriverForTransaction);
 
-  /**
-   * should the service be fired in the background (in a separate thread)?
-   *
-   * @return true if this service is marked for background execution
-   */
-  public boolean toBeRunInBackground();
+	/**
+	 * should the service be fired in the background (in a separate thread)?
+	 *
+	 * @return true if this service is marked for background execution
+	 */
+	public boolean toBeRunInBackground();
 
-  /**
-   * can this service instance be cached for performance. caching is enabled only during production.
-   * During development, caching is disabled to ensure that the developer gets to execute the latest
-   * version of the service always
-   *
-   * @return true if caching is ok, false otherwise
-   */
-  public boolean okToCache();
+	/**
+	 * can this service instance be cached for performance. Caching, if true,
+	 * may be subject to further restrictions. refer to
+	 * <code>ServiceContext.getCachingAttributes</code>
+	 *
+	 * @return true if caching is ok, false otherwise
+	 */
+	public boolean okToCache();
 
-  /** @return data base access required by this service */
-  public DbAccessType getDataAccessType();
+	/**
+	 *
+	 * @return names of keys on which this service can be cached. Null either if
+	 *         this service is never cached, or it is cched with no keys
+	 */
+	public String[] getCacheKeyNames();
 
-  /**
-   * @param inputData input data, possibly a pay-load that came from a client
-   * @param payloadType if this is meant to be communicated back to client
-   * @return service data that has response to be sent to client, as well as data meant for
-   *     client-agent
-   */
-  public ServiceData respond(ServiceData inputData, PayloadType payloadType);
+	/** @return data base access required by this service */
+	public DbAccessType getDataAccessType();
 
-    /**
+	/**
+	 * @param inputData
+	 *            input data, possibly a pay-load that came from a client
+	 * @param payloadType
+	 *            if this is meant to be communicated back to client
+	 * @return service data that has response to be sent to client, as well as
+	 *         data meant for
+	 *         client-agent
+	 */
+	public ServiceData respond(ServiceData inputData, PayloadType payloadType);
+
+	/**
 	 * execute this service based on the input made available in the context.
 	 *
 	 * @param ctx
 	 *            any input data requirement of this service is assumed to be
 	 *            already made available here.
 	 */
-  public void serve(ServiceContext ctx);
+	public void serve(ServiceContext ctx);
 
 	/**
 	 * what kind of data is expected as input for this service from the client.
@@ -92,7 +104,7 @@ public interface ServiceInterface extends Component {
 	 *         come from client
 	 */
 
-  public InputData getInputSpecification();
+	public InputData getInputSpecification();
 
 	/**
 	 * what data need to be sent as response to the client. Service would have

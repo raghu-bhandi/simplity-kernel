@@ -78,8 +78,8 @@ public class ServiceData implements Serializable {
    * this can not be cached. empty string means it can be used for all users irrespective of input
    * data. If this is userId specific, then _userId would be the first field.
    */
-  private String cacheForInput;
-  
+  private String[] cacheForInput;
+
   private String cacheKey;
 
   /** used in the input as mechanism to pass message bewteen the caller and a service */
@@ -349,11 +349,11 @@ public class ServiceData implements Serializable {
     this.sessionFields.put(fieldName, value);
   }
 
-public String getCacheForInput() {
-	return cacheForInput;
+public String[] getCacheForInput() {
+	return this.cacheForInput;
 }
 
-public void setCacheForInput(String cacheForInput) {
+public void setCacheForInput(String[] cacheForInput) {
 	this.cacheForInput = cacheForInput;
 }
 }

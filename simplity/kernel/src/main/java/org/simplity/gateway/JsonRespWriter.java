@@ -59,6 +59,22 @@ public class JsonRespWriter implements RespWriter {
 	private final Writer ioWriter;
 
 	/**
+	 * key by which this response can be cached. It is serviceName, possibly
+	 * appended with values of some key-fields. null means can not be cached
+	 */
+	private String cachingKey;
+
+	/**
+	 * valid if cachingKey is non-null. number of minutes after which this cache is to be invalidated. 0 means no such
+	 */
+	private int cacheValidityMinutes;
+
+	/**
+	 * service caches to be invalidated after execution this service. Null means
+	 * nothing is to be invalidated
+	 */
+	private String[] invalidations;
+	/**
 	 * crate a string writer.
 	 */
 	public JsonRespWriter() {
@@ -68,7 +84,7 @@ public class JsonRespWriter implements RespWriter {
 	}
 
 	/**
-	 * create a string writer.
+	 * crate a string writer.
 	 *
 	 * @param writer
 	 *            that will receive the output
@@ -89,15 +105,28 @@ public class JsonRespWriter implements RespWriter {
 	 */
 	@Override
 	public String getFinalResponseText() {
-		if (this.writer != null) {
-			this.writer.endObject();
-			if (this.ioWriter != null) {
-				// how do we give final response? let us assume empty.
-				this.responseText = "";
-			} else {
-				this.responseText = this.writer.toString();
-			}
-			this.writer = null;
+		if (this.writer == null) {
+			/*
+			 * it was already closed..
+			 */
+			return this.responseText;
+		}
+		/*
+		 * close writer
+		 */
+		this.writer.endObject();
+		this.writer = null;
+
+		/*
+		 * get final text into responseText
+		 */
+		if (this.ioWriter == null) {
+			this.responseText = this.writer.toString();
+		} else {
+			// we were just a pipe, we do not have the accumulated string. That
+			// is by design, and hence caller should be aware. Prefer empty
+			// string to null
+			this.responseText = "";
 		}
 		return this.responseText;
 	}
@@ -303,4 +332,60 @@ public class JsonRespWriter implements RespWriter {
 		this.writer.endArray();
 		return this;
 	}
+	/**
+	 * @return
+	 * 		get the key based on which the response can be cached.
+	 *         emptyString means no key is used for caching. null means it can
+	 *         not be cached.
+	 */
+	@Override
+	public String getCachingKey() {
+		return this.cachingKey;
+	}
+
+	/**
+	 * @return
+	 * 		number of minutes the cache is valid for. 0 means it has no
+	 *         expiry. This method is relevant only if getCachingKey returns
+	 *         non-null (indication that the service can be cached)
+	 */
+	@Override
+	public int getCacheValidity() {
+		return this.cacheValidityMinutes;
+	}
+
+	/**
+	 * @param key
+	 *            key based on which the response can be cached.
+	 *            emptyString means no key is used for caching. null means it
+	 *            can not be cached
+	 * @param minutes
+	 *            if non-null cache is to be invalidated after these many
+	 *            minutes
+	 */
+	@Override
+	public void setCaching(String key, int minutes) {
+		this.cachingKey = key;
+		this.cacheValidityMinutes = minutes;
+	}
+
+	/**
+	 * @return
+	 * 		cached keys that need to be invalidated
+	 */
+	@Override
+	public String[] getInvalidations() {
+		return this.invalidations;
+	}
+
+	/**
+	 * @param invalidations
+	 *            cached keys that need to be invalidated
+	 */
+	@Override
+	public void setInvalidations(String[] invalidations) {
+		this.invalidations = invalidations;
+	}
+
+
 }

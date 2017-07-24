@@ -24,6 +24,7 @@ package org.simplity.rest;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -32,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.auth.AuthRequirement;
 import org.simplity.auth.OAuth2Agent;
-import org.simplity.auth.SecurityAgent;
+import org.simplity.gateway.Cacher;
 import org.simplity.gateway.JsonReqReader;
 import org.simplity.gateway.JsonRespWriter;
 import org.simplity.gateway.ReqReader;
@@ -54,6 +55,12 @@ import org.slf4j.LoggerFactory;
 public class RestInboundAgent {
 	protected static final Logger logger = LoggerFactory.getLogger(RestInboundAgent.class);
 	private static final String UTF = "UTF-8";
+	private static final int MILLIS = 60000;
+
+	/**
+	 * cache assistant
+	 */
+	private static Cacher cacher;
 
 	/**
 	 * message to be sent to client if there is any internal error
@@ -123,8 +130,12 @@ public class RestInboundAgent {
 			 * Oauth2 only. Following code hard codes these assumptions
 			 */
 			AuthRequirement[] auths = operation.getAuthSchemes();
-			if (auths != null && auths.length > 0) {				
-				 SecurityAgent oAgent = Operations.getSecurityAgent(auths[0].getAuthName());				 
+			if (auths != null && auths.length > 0) {
+				/*
+				 * we work with Oauth agent that requires request and response
+				 * as parameters
+				 */
+				OAuth2Agent oAgent = (OAuth2Agent) Operations.getSecurityAgent(auths[0].getAuthName());
 				if (oAgent.securityCleared(req, resp) == false) {
 					logger.info("Authentication failed.");
 					return;
@@ -144,25 +155,61 @@ public class RestInboundAgent {
 			}
 
 			logger.info("Request received for service " + serviceName);
-			// TODO : get user ID
+
 			Value userId = Value.newTextValue("100");
 			ReqReader reader = new JsonReqReader(json);
-			RespWriter writer = new JsonRespWriter();
 			ServiceAgent agent = ServiceAgent.getAgent();
-			FormattedMessage[] errors = agent.executeService(serviceName, userId, reader, writer);
-			json = (JSONObject)writer.getFinalResponseObject();
-			logger.info("Response recd = " + json.toString());
-			if(errors == null){
-				//do we do anything differently?
+			if (cacher != null) {
+				String cacheKey = agent.getCachingKey(serviceName, reader, userId);
+				if(cacheKey != null){
+					Object cache = cacher.get(cacheKey);
+					if (cache != null) {
+						logger.info("Response retrieved from cache.");
+						operation.writeResponse(resp, (JSONObject) cache, serviceName);
+						return;
+					}
+				}
 			}
-			operation.writeResponse(resp, json, serviceName);
 
+			RespWriter writer = new JsonRespWriter();
+			/*
+			 * error is part of response and writeResponse is handling that.
+			 * We do not do anything differently based on errors, and hence the
+			 * returned value of the following method is not captured
+			 */
+			agent.executeService(serviceName, userId, reader, writer);
+			JSONObject response = (JSONObject) writer.getFinalResponseObject();
+			logger.info("Response recd = " + response.toString());
+
+			if (cacher != null) {
+				handleCaching(writer, json);
+			}
+
+			operation.writeResponse(resp, response, serviceName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			respondWithError(resp, INTERNAL_ERROR);
 		}
 	}
 
+	private static void handleCaching(RespWriter writer, Object response){
+		String key  = writer.getCachingKey();
+		if(key != null){
+			Date exp = null;
+			int minutes = writer.getCacheValidity();
+			if(minutes != 0){
+				exp = new Date(new Date().getTime() + minutes * MILLIS);
+			}
+			cacher.put(key, response, exp);
+		}else{
+			String[] invalidations = writer.getInvalidations();
+			if(invalidations != null){
+				for(String k : invalidations){
+					cacher.remove(k);
+				}
+			}
+		}
+	}
 	/**
 	 * @param resp
 	 * @param message

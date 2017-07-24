@@ -22,9 +22,6 @@
 
 package org.simplity.http;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +29,10 @@ import javax.servlet.http.HttpSession;
 
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ClientCacheManager;
-
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * this is a singleton by design. An instance is cached by HttpAgent and reused.
@@ -95,17 +93,15 @@ public class SimpleCacheManager implements ClientCacheManager {
    */
   @Override
   public void cache(ServiceData inData, ServiceData outData, HttpSession session) {
-    String text = outData.getCacheForInput();
-    if (text == null) {
+    String[] fields = outData.getCacheForInput();
+    if (fields == null) {
 
       logger.info("NOt to be cached.");
 
       return;
     }
     boolean forUserId = false;
-    String[] fields = null;
-    if (text.length() > 0) {
-      fields = text.split(",");
+    if (fields.length > 0) {
       if (fields[0].equals(ServiceProtocol.USER_ID)) {
         forUserId = true;
         int n = fields.length;

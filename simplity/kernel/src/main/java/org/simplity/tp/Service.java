@@ -133,11 +133,6 @@ public class Service implements ServiceInterface {
 	 */
 	OutputData outputData;
 
-	/*
-	 * Cache refresh time
-	 */
-	String cacheRefreshTime;
-
 	/** actions that make up this service */
 	Action[] actions;
 
@@ -145,20 +140,37 @@ public class Service implements ServiceInterface {
 	boolean executeInBackground;
 
 	/**
-	 * can the response from this service be cached? If so what are the input
-	 * fields that this response depends on? provide comma separated list of
-	 * field names. Null (default) implies that this service can not be cashed.
-	 * Empty string implies that the response does not depend on the input at
-	 * all. If it is dependent on userId, then "_userId" must be the first field
-	 * name. A cache manager can keep the response from this service and re-use
-	 * it so long as the input values for these fields are same.
+	 * can the response from this service be cached. If this is false, other
+	 * caching related attributes are irrelevant.
 	 */
-	String canBeCachedByFields;
+	boolean okToCache;
 
 	/**
-	 * The services that are to be invalidated when this service is executed
+	 * Should this response cache be discarded after certain time? 0 means no
+	 * such predetermined validity
 	 */
-	String[] referredServicesToInvalidate;
+	int cacheValidityMinutes;
+
+	/**
+	 * valid only if okToCache is set to true. Use this if the service response
+	 * can be cached for the same values for this list of fields. For example if
+	 * getDistricts is a service that responds with all districts for the given
+	 * state in the given countryCode then "countryCode,stateCode" is the value
+	 * of this attribute.
+	 *
+	 * If the response is specific to given user, then _userId should be the
+	 * first field in the list.
+	 * Skip this if the response is not dependent on any input
+	 */
+	String[] cacheKeyNames;
+
+	/**
+	 * The cached response for services that are to be invalidated when this
+	 * service is executed. for example updateStates service would invalidate
+	 * cached responses from getStates service
+	 */
+	String[] serviceCachesToInvalidate;
+
 	/**
 	 * does this service use jms? if so with what kind of transaction management
 	 */
@@ -172,6 +184,17 @@ public class Service implements ServiceInterface {
 
 	/** instance of className to be used as body of this service */
 	private ServiceInterface serviceInstance;
+
+	/**
+	 * key names for services that are to be invalidated
+	 */
+	private String[][] invalidationKeys;
+
+	/**
+	 * if we want to offer cache-by-all-input-fields feature, this is the field
+	 * that is populated at getReay()
+	 */
+	private String[] parsedCacheKeys;
 
 	@Override
 	public DbAccessType getDataAccessType() {
@@ -190,10 +213,7 @@ public class Service implements ServiceInterface {
 
 	@Override
 	public boolean okToCache() {
-		if (this.canBeCachedByFields != null) {
-			return true;
-		}
-		return false;
+		return this.okToCache;
 	}
 
 	@Override
@@ -364,8 +384,8 @@ public class Service implements ServiceInterface {
 			if (this.inputData != null) {
 				this.inputData.cleanup(ctx);
 			}
-			if (this.canBeCachedByFields != null) {
-				response.setCacheForInput(this.canBeCachedByFields);
+			if (this.cacheKeyNames != null) {
+				response.setCacheForInput(this.cacheKeyNames);
 			}
 		}
 
@@ -577,6 +597,18 @@ public class Service implements ServiceInterface {
 		if (this.outputData != null) {
 			this.outputData.getReady();
 		}
+
+		if (this.serviceCachesToInvalidate != null) {
+			this.invalidationKeys = new String[this.serviceCachesToInvalidate.length][];
+			for (int i = 0; i < this.invalidationKeys.length; i++) {
+				ServiceInterface service = ComponentManager.getService(this.serviceCachesToInvalidate[i]);
+				this.invalidationKeys[i] = service.getCacheKeyNames();
+			}
+		}
+
+		if(this.okToCache){
+			this.setCacheKeys();
+		}
 	}
 
 	private void prepareChildren() {
@@ -603,6 +635,29 @@ public class Service implements ServiceInterface {
 						"Service " + this.getQualifiedName() + " uses dbAccessTYpe=" + this.dbAccessType
 								+ " but action " + action.getName() + " requires " + action.getDataAccessType());
 			}
+		}
+	}
+
+	/**
+	 * if caching keys are not set, we may infer it from input specification
+	 */
+	private void setCacheKeys(){
+		if(this.cacheKeyNames != null){
+			this.parsedCacheKeys = this.cacheKeyNames;
+			return;
+		}
+
+		InputField[] fields = null;
+		if(this.inputData != null){
+			fields =  this.inputData.getInputFields();
+		}
+		if(fields == null || fields.length == 0){
+			return;
+		}
+
+		this.parsedCacheKeys = new String[fields.length];
+		for(int i = 0; i < fields.length; i++){
+			this.parsedCacheKeys[i] = fields[i].getName();
 		}
 	}
 
@@ -761,7 +816,8 @@ public class Service implements ServiceInterface {
 			if (keyName == null) {
 				keyName = "";
 			}
-			service.canBeCachedByFields = keyName;
+			String[] list = { keyName };
+			service.cacheKeyNames = list;
 		}
 
 		/*
@@ -984,6 +1040,34 @@ public class Service implements ServiceInterface {
 					ctx.addError("referredServiceForOutput set to " + this.referredServiceForOutput
 							+ " but that service is not defined");
 					count++;
+				}
+			}
+
+			if (this.okToCache) {
+				if (this.serviceCachesToInvalidate != null) {
+					ctx.addError(
+							"service can not cache as well as invalidate other service caches. A service can be cached only if it does not do any updates, and a service woudl invalidate other service caches only if does some update.");
+					count++;
+				}
+			} else {
+				if (this.cacheKeyNames != null || this.cacheValidityMinutes != 0) {
+					ctx.addError(
+							"Caching attributes cacheKeyNames and cacheValidityInMinutes are relevant only if okToCache is set to true.");
+					count++;
+				}
+			}
+
+			if (this.serviceCachesToInvalidate != null) {
+				for (String sn : this.serviceCachesToInvalidate) {
+					ServiceInterface service = ComponentManager.getServiceOrNull(sn);
+					if (service == null) {
+						ctx.addError("service " + sn + " is marked for invalidation but that service is not defined");
+						count++;
+					} else if (service.okToCache() == false) {
+						ctx.addError("service " + sn
+								+ " is marked for invalidation but that service is not enabled for caching.");
+						count++;
+					}
 				}
 			}
 
@@ -1340,12 +1424,15 @@ public class Service implements ServiceInterface {
 		return;
 	}
 
+	/**
+	 * * @return
+	 */
 	public String[] getServicesToInvalidate() {
-		return this.referredServicesToInvalidate;
+		return this.serviceCachesToInvalidate;
 	}
 
-	public String getCacheRefreshTime() {
-		return this.cacheRefreshTime;
+	public int getCacheRefreshTime() {
+		return this.cacheValidityMinutes;
 	}
 
 	/*
@@ -1381,11 +1468,86 @@ public class Service implements ServiceInterface {
 		if (err != null) {
 			throw err;
 		}
+		if (this.okToCache()) {
+			String key = createCachingKey(this.getQualifiedName(), this.cacheKeyNames, ctx);
+			ctx.setCaching(key, this.cacheValidityMinutes);
+		} else if (this.serviceCachesToInvalidate != null) {
+			ctx.setInvalidations(this.getInvalidations(ctx));
+		}
+	}
+
+	private String[] getInvalidations(ServiceContext ctx) {
+		String[] result = new String[this.serviceCachesToInvalidate.length];
+		for (int i = 0; i < result.length; i++) {
+			result[i] = createCachingKey(this.serviceCachesToInvalidate[i], this.invalidationKeys[i], ctx);
+		}
+		return result;
+	}
+
+	/**
+	 * separator character between key field values to form a single string of
+	 * key
+	 */
+	public static final char CACHE_KEY_SEP = '\0';
+
+	/**
+	 * @param ctx
+	 * @return
+	 */
+	private static String createCachingKey(String serviceName, String[] keyNames, ServiceContext ctx) {
+		if (keyNames == null) {
+			return createCachingKey(serviceName, null);
+		}
+		String[] vals = new String[keyNames.length];
+		/*
+		 * first field could be userId
+		 */
+		int startAt = 0;
+		if (keyNames[0].equals(ServiceProtocol.USER_ID)) {
+			startAt = 1;
+			vals[0] = ctx.getUserId().toString();
+		}
+		for (int i = startAt; i < keyNames.length; i++) {
+			Value val = ctx.getValue(keyNames[i]);
+			if (val != null) {
+				vals[i] = val.toString();
+			}
+		}
+
+		return createCachingKey(serviceName, vals);
+	}
+
+	/**
+	 * form a key to be used for caching based on service name and values of
+	 * keys. This method to be used for caching and retrieving
+	 *
+	 * @param serviceName
+	 * @param keyValues
+	 * @return key to be used for caching
+	 */
+	public static String createCachingKey(String serviceName, String[] keyValues) {
+		if (keyValues == null) {
+			return serviceName;
+		}
+		StringBuilder result = new StringBuilder(serviceName);
+		for (String val : keyValues) {
+			result.append(CACHE_KEY_SEP);
+			if (val != null) {
+				result.append(val);
+			}
+		}
+
+		return result.toString();
+	}
+
+	@Override
+	public String[] getCacheKeyNames() {
+		return this.cacheKeyNames;
 	}
 
 	/**
 	 * generates key for the service to be cached
-	 * 
+	 *
 	 * @param serviceName
 	 * @param inputData
 	 * @return
@@ -1393,9 +1555,9 @@ public class Service implements ServiceInterface {
 	public String generateKeyToCache(String serviceName, ServiceData inputData) {
 		int hashKey = 0;
 		String fields[] = null;
-		if (this.canBeCachedByFields != null) {
+		if (this.cacheKeyNames != null) {
 			hashKey = serviceName.hashCode();
-			if (this.canBeCachedByFields.isEmpty()) {
+			if (this.cacheKeyNames == null) {
 				int i = 0;
 				InputField[] inputFields = null;
 				if (this.getInputSpecification() != null) {
@@ -1409,7 +1571,7 @@ public class Service implements ServiceInterface {
 					}
 				}
 			} else {
-				fields = this.canBeCachedByFields.split(",");
+				fields = this.cacheKeyNames;
 			}
 			if (fields != null && fields.length > 0) {
 				if (fields[0].equals(ServiceProtocol.USER_ID)) {
