@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -88,24 +89,35 @@ public class OAuth2Agent implements SecurityAgent {
 	 * @throws IOException
 	 */
 	public boolean securityCleared(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		String token = this.parseToken(req);
-		if (token == null) {
+		String accesstoken = this.parseToken(req,Tags.ACCESS_TOKEN);
+		String refreshtoken = this.parseToken(req,Tags.REFRESH_TOKEN);
+		if (accesstoken == null) {
 			resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is required");
 			return false;
 		}			
-		return checkForValidToken(token);
+		return checkForValidToken(accesstoken,refreshtoken);
 	}
 
-	private boolean checkForValidToken(String token) {
+	private boolean checkForValidToken(String accesstoken, String refreshtoken) {
 		String url = this.tokenUrl;
-		url += "?access_token="
-				+ token
+		url += "?grant_type=refresh_token"
+				+ "&access_token="
+				+ accesstoken
+				+"&refresh_token="
+				+ refreshtoken
 				+ "&correlationId="
 				+ MDC.get("correlationId");
 		HttpURLConnection conn = null;
 		logger.info("Checking token " + url);
 		try {
-			conn = (HttpURLConnection) new URL(url).openConnection();			
+			String userPassword = "my-trusted-client-with-secret:somesecret";
+			String encoding = new String(Base64.getEncoder().encode(userPassword.getBytes()));
+			
+			conn = (HttpURLConnection) new URL(url).openConnection();
+			conn.setDoOutput( true );
+			conn.setRequestMethod( "POST" );
+			conn.setRequestProperty("Authorization", "Basic " + encoding);
+			
 			if(conn.getResponseCode()==HttpServletResponse.SC_OK){
 				return true;
 			}
@@ -121,12 +133,13 @@ public class OAuth2Agent implements SecurityAgent {
 	 * parse token form header/query string
 	 *
 	 * @param req
+	 * @param tokenType 
 	 * @return
 	 */
-	private String parseToken(HttpServletRequest req) {
-		String qry = req.getHeader(Tags.ACCESS_TOKEN);
+	private String parseToken(HttpServletRequest req, String tokenType) {
+		String qry = req.getHeader(tokenType);
 		if(qry==null){
-			qry = req.getParameter(Tags.ACCESS_TOKEN);
+			qry = req.getParameter(tokenType);
 		}
 		return qry;		
 	}

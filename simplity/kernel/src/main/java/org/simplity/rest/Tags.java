@@ -172,6 +172,8 @@ public class Tags {
   public static final String ACCESS_CODE = "accessCode";
   /** access token **/
   public static final String ACCESS_TOKEN = "access_token";
+  /** refresh token **/
+  public static final String REFRESH_TOKEN = "refresh_token";
   /** correlation Id **/ 
   public static final String CORRELATION_ID = "correlationId";
   
