@@ -22,13 +22,19 @@
 
 package org.simplity.gateway;
 
+import java.util.Map;
+
+import org.simplity.kernel.ApplicationError;
+
 /**
  * static class to manage all aspects of a gateway
  *
  * @author simplity.org
  *
  */
-public class Gateway {
+public abstract class Gateway {
+
+	private static Map<String, Gateway> gateways;
 	/**
 	 * get the right agent who knows how to handle service request to the
 	 * desired server
@@ -39,7 +45,28 @@ public class Gateway {
 	 * @return null if no such serverId is set-up
 	 */
 	public static OutboundAgent getAgent(String gatewayId) {
-		return null;
+		Gateway gateway = gateways.get(gatewayId);
+		if(gateway == null){
+			throw new ApplicationError("Gatewy " + gatewayId + " is not set up");
+		}
+		return gateway.getAgentInstance();
 
 	}
+
+	/**
+	 * name of this gateway
+	 */
+	String name;
+
+	/**
+	 *
+	 * @return name of this gateway
+	 */
+	public String getName(){
+		return this.name;
+	}
+	/**
+	 * @return
+	 */
+	protected abstract OutboundAgent getAgentInstance();
 }

@@ -28,17 +28,20 @@ import org.simplity.service.ServiceContext;
 
 /**
  * Service agent to get response for an external service that a simplity service
- * wants as part of its execution step
+ * wants as part of its execution step.
+ *
+ * Most agents may require a method to prepare the connection before the serve()
+ * method and a method to wind-up after the serve method. We have not formally
+ * defined them at this stage. We may have to revisit this design and re-factor
+ * for this purpose based on actual usage scenarios.
  *
  * @author simplity.org
  *
  */
 public interface OutboundAgent {
+
 	/**
 	 *
-	 * @param serviceId
-	 *            this is actual service name in case the server is a simplity
-	 *            server, or it could be URL for a http request etc..
 	 * @param ctx
 	 *            service context in which the caller service is executing
 	 * @param dataTobeSent
@@ -55,5 +58,5 @@ public interface OutboundAgent {
 	 *         is known to serve this service. Error message is added to the
 	 *         service context
 	 */
-	public boolean serve(String serviceId, ServiceContext ctx, OutputData dataTobeSent, InputData dataToBeReceived);
+	public boolean serve(ServiceContext ctx, OutputData dataTobeSent, InputData dataToBeReceived);
 }
