@@ -115,7 +115,6 @@ public class JsonRespWriter implements RespWriter {
 		 * close writer
 		 */
 		this.writer.endObject();
-		this.writer = null;
 
 		/*
 		 * get final text into responseText

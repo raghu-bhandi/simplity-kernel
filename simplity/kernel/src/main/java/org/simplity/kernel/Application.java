@@ -35,6 +35,7 @@ import java.util.concurrent.ThreadFactory;
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
 
+import org.simplity.auth.OAuthParameters;
 import org.simplity.http.HttpAgent;
 import org.simplity.http.Serve;
 import org.simplity.jms.JmsConnector;
@@ -323,8 +324,15 @@ public class Application {
   String classManager;
   /** Configure the Mail Setup for the application */
   MailProperties mailProperties;
+  //OAuth parameters
+  OAuthParameters oauthparameters;
+  private static OAuthParameters oauthparametersInternal;
+  
+  public static OAuthParameters getOAuthParameters() {
+	return oauthparametersInternal;
+}
 
-  private static ContextInterface classManagerInternal;
+private static ContextInterface classManagerInternal;
 
   /** jndi name the container has created to get a threadFActory instance */
   String threadFactoryJndiName;
@@ -612,6 +620,9 @@ public class Application {
       Jobs.startJobs(this.jobsToRunOnStartup);
 
       logger.info("Scheduler started for Batch " + this.jobsToRunOnStartup);
+    }
+    if(this.oauthparameters!=null){
+    	oauthparametersInternal = this.oauthparameters;
     }
     return result;
   }

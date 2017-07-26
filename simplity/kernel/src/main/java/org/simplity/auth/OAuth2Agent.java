@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.json.JSONObject;
+import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.util.HttpUtil;
 import org.simplity.rest.Tags;
@@ -90,27 +91,22 @@ public class OAuth2Agent implements SecurityAgent {
 	 */
 	public boolean securityCleared(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String accesstoken = this.parseToken(req,Tags.ACCESS_TOKEN);
-		String refreshtoken = this.parseToken(req,Tags.REFRESH_TOKEN);
 		if (accesstoken == null) {
 			resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is required");
 			return false;
 		}			
-		return checkForValidToken(accesstoken,refreshtoken);
+		return checkForValidToken(accesstoken);
 	}
 
-	private boolean checkForValidToken(String accesstoken, String refreshtoken) {
-		String url = this.tokenUrl;
-		url += "?grant_type=refresh_token"
-				+ "&access_token="
-				+ accesstoken
-				+"&refresh_token="
-				+ refreshtoken
-				+ "&correlationId="
-				+ MDC.get("correlationId");
+	private boolean checkForValidToken(String accesstoken) {
+		OAuthParameters oAuthParameters = Application.getOAuthParameters();
+		String url = oAuthParameters.getCheckTokenURL();
+		url += "?token="
+				+ accesstoken;
 		HttpURLConnection conn = null;
 		logger.info("Checking token " + url);
 		try {
-			String userPassword = "my-trusted-client-with-secret:somesecret";
+			String userPassword = oAuthParameters.getClientId()+":"+oAuthParameters.getClientSecret();
 			String encoding = new String(Base64.getEncoder().encode(userPassword.getBytes()));
 			
 			conn = (HttpURLConnection) new URL(url).openConnection();
