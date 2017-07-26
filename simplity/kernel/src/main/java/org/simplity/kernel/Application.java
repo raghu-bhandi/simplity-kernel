@@ -21,13 +21,12 @@
  */
 package org.simplity.kernel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
@@ -35,6 +34,7 @@ import java.util.concurrent.ThreadFactory;
 import javax.naming.InitialContext;
 import javax.transaction.UserTransaction;
 
+import org.simplity.gateway.Gateway;
 import org.simplity.auth.OAuthParameters;
 import org.simplity.http.HttpAgent;
 import org.simplity.http.Serve;
@@ -60,6 +60,8 @@ import org.simplity.service.ServiceCacheManager;
 import org.simplity.service.ServiceData;
 import org.simplity.service.ServiceInterface;
 import org.simplity.tp.ContextInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Configure this application
@@ -346,6 +348,11 @@ private static ContextInterface classManagerInternal;
   int corePoolSize;
 
   /**
+   * gateways for external services, indexed by id
+   */
+  Map<String, Gateway> gateways = new HashMap<String, Gateway>();
+
+  /**
    * configure application based on the settings. This MUST be triggered before using the app.
    * Typically this would be triggered from start-up servlet in a web-app
    *
@@ -591,6 +598,16 @@ private static ContextInterface classManagerInternal;
 
     HttpAgent.setUp(uid, cacher);
     String result = null;
+
+    /*
+     * gate ways
+     */
+
+    if(this.gateways.isEmpty() == false){
+    	Gateway.setGateways(this.gateways);
+    	this.gateways = null;
+    }
+
     if (msgs.size() > 0) {
       /*
        * we got errors.
