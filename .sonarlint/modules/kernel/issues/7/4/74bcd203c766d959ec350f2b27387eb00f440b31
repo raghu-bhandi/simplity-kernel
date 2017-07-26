@@ -1,0 +1,17 @@
+
+[squid:S11251")Remove the literal "false" boolean value.(½ÕùåüÿÿÿÿH¡>RMINORZ
+CODE_SMELL
+_squid:S2093~"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿH>RCRITICALZ
+CODE_SMELL
+p
+squid:S899 ";Do something with the "boolean" value returned by "delete".(²Œ­ûÿÿÿÿHŸ>RMINORZVULNERABILITY
+isquid:S2629T"7Use the built-in formatting to construct this argument.(…™«ƒüÿÿÿÿH¢>RMAJORZ
+CODE_SMELL
+[squid:S11255")Remove the literal "false" boolean value.(ö€ååþÿÿÿÿH£>RMINORZ
+CODE_SMELL
+_squid:S2093Z"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿHž>RCRITICALZ
+CODE_SMELL
+Vsquid:S1125w")Remove the literal "false" boolean value.(ºõ¢ÚH >RMINORZ
+CODE_SMELL
+dsquid:S2629y"7Use the built-in formatting to construct this argument.(úí¡…H¤>RMAJORZ
+CODE_SMELL

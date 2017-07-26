@@ -31,7 +31,7 @@ import org.simplity.kernel.util.JsonUtil;
 
 /** Specification for a field from output of a service test to be added to the test context */
 public class ContextField {
-  static final Logger logger = LoggerFactory.getLogger(ContextField.class);
+	private static final Logger logger = LoggerFactory.getLogger(ContextField.class);
 
   /**
    * source of this field in the output JSON e.g. customerName or orders.lines[2].price. Special

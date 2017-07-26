@@ -38,7 +38,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class RemoveValue extends Action {
-  static final Logger logger = LoggerFactory.getLogger(RemoveValue.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(RemoveValue.class);
 
   /**
    * field name. Can be $fieldName, in which case we get the value from service context, and use
@@ -60,7 +60,7 @@ public class RemoveValue extends Action {
       Value field = ctx.getValue(this.runTimeFieldName);
       if (field == null) {
 
-        logger.info(
+    	  actionLogger.info(
             "No value for found in service context for field name "
                 + this.runTimeFieldName
                 + ". RemoveValue action could not continue.");

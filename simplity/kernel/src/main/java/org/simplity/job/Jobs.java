@@ -46,7 +46,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public class Jobs implements Component {
-  static final Logger logger = LoggerFactory.getLogger(Jobs.class);
+	private static final Logger logger = LoggerFactory.getLogger(Jobs.class);
 
   private static Jobs jobsInstance;
 

@@ -34,7 +34,7 @@ import org.simplity.kernel.AttachmentAssistant;
 
 /** we use a designated folder to save all attachments */
 public class FileBasedAssistant implements AttachmentAssistant {
-  static final Logger logger = LoggerFactory.getLogger(FileBasedAssistant.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileBasedAssistant.class);
 
   private final File storageRoot;
 

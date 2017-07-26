@@ -41,7 +41,7 @@ import java.sql.SQLException;
  * @author simplity.org
  */
 public class ApplicationError extends RuntimeException {
-  static final Logger logger = LoggerFactory.getLogger(ApplicationError.class);
+	private static final Logger logger = LoggerFactory.getLogger(ApplicationError.class);
 
   protected static final long serialVersionUID = 1L;
   protected String msg;

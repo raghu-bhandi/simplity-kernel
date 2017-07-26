@@ -48,7 +48,7 @@ import org.simplity.tp.Service;
 
 /** @author simplity.org */
 public class ValidationContext {
-  static final Logger logger = LoggerFactory.getLogger(ValidationContext.class);
+	private  static final Logger logger = LoggerFactory.getLogger(ValidationContext.class);
 
   /*
    * header for message and observations

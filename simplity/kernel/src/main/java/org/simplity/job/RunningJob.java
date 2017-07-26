@@ -39,7 +39,7 @@ import org.simplity.service.ServiceInterface;
  * @author simplity.org
  */
 public class RunningJob implements Runnable {
-  static final Logger logger = LoggerFactory.getLogger(RunningJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(RunningJob.class);
 
   private final ServiceInterface service;
   private final ServiceData inData;

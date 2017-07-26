@@ -1,0 +1,30 @@
+
+Nsquid:S2390c"(Remove this reference to "IntegerValue".(È°è‘Hú?RMAJORZBUG
+Nsquid:S2129r"!Remove this "Boolean" constructor(ñãÁÒHû?RMAJORZ
+CODE_SMELL
+}squid:CommentedOutCodeLine{"<This block of commented-out lines of code should be removed.(ñ•şıÿÿÿÿHü?RMAJORZ
+CODE_SMELL
+Tsquid:S1168Õ"&Return an empty array instead of null.(¥¹ïHı?RMAJORZ
+CODE_SMELL
+Nsquid:S2390R"(Remove this reference to "BooleanValue".(£õëşHş?RMAJORZBUG
+Ksquid:S2390W"%Remove this reference to "TextValue".(¯†ËƒHÿ?RMAJORZBUG
+Nsquid:S2390]"(Remove this reference to "BooleanValue".(Úê«ƒH€@RMAJORZBUG
+Nsquid:S2131«"!Use "Character.toString" instead.(ŸƒÑH@RMAJORZ
+CODE_SMELL
+Nsquid:S2129o"!Remove this "Boolean" constructor(ıŞúH‚@RMAJORZ
+CODE_SMELL
+|squid:S1206Ø"PThis class overrides "equals()" and should therefore also override "hashCode()".(ıù›ÊúÿÿÿÿHƒ@RMINORZBUG
+Nsquid:S2390O"(Remove this reference to "BooleanValue".(‡ÀÖ—H„@RMAJORZBUG
+Œsquid:S2293ª"YReplace the type specification in this constructor call with the diamond operator ("<>").(ª”ªÍûÿÿÿÿH…@RMINORZ
+CODE_SMELL
+Psquid:S2390h"%Remove this reference to "BlobValue".(¨“øºıÿÿÿÿH†@RMAJORZBUG
+\squid:S1125Ü")Remove the literal "false" boolean value.(Ï÷³èüÿÿÿÿH‡@RMINORZ
+CODE_SMELL
+Psquid:S2390j"%Remove this reference to "ClobValue".(Û ¨ØÿÿÿÿÿHˆ@RMAJORZBUG
+Psquid:S2390m"*Remove this reference to "TimestampValue".(¡êÍ»H‰@RMAJORZBUG
+Ssquid:S2390U"(Remove this reference to "IntegerValue".(Ö‰ƒĞÿÿÿÿÿHŠ@RMAJORZBUG
+Ksquid:S2390_"%Remove this reference to "DateValue".(ˆ¢ÒœH‹@RMAJORZBUG
+‚squid:S3776î"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(ÅûßHŒ@RCRITICALZ
+CODE_SMELL
+Psquid:S2390e"%Remove this reference to "TextValue".(½½¯òùÿÿÿÿH@RMAJORZBUG
+Ssquid:S2390a"(Remove this reference to "DecimalValue".(Øó€ÎùÿÿÿÿH@RMAJORZBUG

@@ -1,0 +1,27 @@
+
+~squid:CommentedOutCodeLine†"<This block of commented-out lines of code should be removed.(ªßßÖÿÿÿÿÿHÍ9RMAJORZ
+CODE_SMELL
+‹squid:S2293u"YReplace the type specification in this constructor call with the diamond operator ("<>").(×ÑŞ±şÿÿÿÿHÊ9RMINORZ
+CODE_SMELL
+Esquid:S1700q"Rename field "jobs"(™Ç¯¾ıÿÿÿÿHÑ9RMAJORZ
+CODE_SMELL
+esquid:S2629ğ"7Use the built-in formatting to construct this argument.(Ú¿ÅˆHÔ9RMAJORZ
+CODE_SMELL
+esquid:S2629"7Use the built-in formatting to construct this argument.(Ú¿ÅˆHÕ9RMAJORZ
+CODE_SMELL
+qsquid:S1155“">Use isEmpty() to check whether the collection is empty or not.(ù­ğëùÿÿÿÿHĞ9RMINORZ
+CODE_SMELL
+squid:S1192¶"NDefine a constant instead of duplicating this literal "No job named " 5 times.(Ú¿ÅˆHÒ9RCRITICALZ
+CODE_SMELL
+esquid:S2629¶"7Use the built-in formatting to construct this argument.(Ú¿ÅˆHÏ9RMAJORZ
+CODE_SMELL
+Œsquid:S2293‘"YReplace the type specification in this constructor call with the diamond operator ("<>").(ñğùÿÿÿÿHÖ9RMINORZ
+CODE_SMELL
+‡squid:S2293Š"YReplace the type specification in this constructor call with the diamond operator ("<>").(“’à…HË9RMINORZ
+CODE_SMELL
+esquid:S2629È"7Use the built-in formatting to construct this argument.(Ú¿ÅˆHÓ9RMAJORZ
+CODE_SMELL
+esquid:S2629ß"7Use the built-in formatting to construct this argument.(Ú¿ÅˆHÌ9RMAJORZ
+CODE_SMELL
+Œsquid:S2293ı"YReplace the type specification in this constructor call with the diamond operator ("<>").(ñğùÿÿÿÿHÎ9RMINORZ
+CODE_SMELL

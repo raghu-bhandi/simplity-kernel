@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RestInboundAgent {
-	protected static final Logger logger = LoggerFactory.getLogger(RestInboundAgent.class);
+	private  static final Logger logger = LoggerFactory.getLogger(RestInboundAgent.class);
 	private static final String UTF = "UTF-8";
 	private static final int MILLIS = 60000;
 

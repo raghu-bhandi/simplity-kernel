@@ -1,0 +1,17 @@
+
+‡squid:S2293©"YReplace the type specification in this constructor call with the diamond operator ("<>").(åñéƒHÄ@RMINORZ
+CODE_SMELL
+jsquid:S2629†"7Use the built-in formatting to construct this argument.(âöÑÕùÿÿÿÿHÁ@RMAJORZ
+CODE_SMELL
+[squid:S1125a")Remove the literal "false" boolean value.(ûÊ†‡ùÿÿÿÿHÅ@RMINORZ
+CODE_SMELL
+jsquid:S2629½"7Use the built-in formatting to construct this argument.(êŸËâøÿÿÿÿHÆ@RMAJORZ
+CODE_SMELL
+‹squid:S2293z"YReplace the type specification in this constructor call with the diamond operator ("<>").(ñŠÍ¥ùÿÿÿÿHÂ@RMINORZ
+CODE_SMELL
+dsquid:S2629M"7Use the built-in formatting to construct this argument.(¢ÕØŠHÇ@RMAJORZ
+CODE_SMELL
+isquid:S2629_"7Use the built-in formatting to construct this argument.(’óŠêûÿÿÿÿHÈ@RMAJORZ
+CODE_SMELL
+jsquid:S2629¤"7Use the built-in formatting to construct this argument.(ÚÄ£’üÿÿÿÿHÃ@RMAJORZ
+CODE_SMELL

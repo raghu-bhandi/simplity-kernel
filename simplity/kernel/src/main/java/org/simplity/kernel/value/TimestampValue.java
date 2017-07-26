@@ -40,7 +40,6 @@ import org.simplity.kernel.util.DateUtil;
  * @author simplity.org
  */
 public class TimestampValue extends Value {
-  static final Logger logger = LoggerFactory.getLogger(TimestampValue.class);
 
   /** */
   private static final long serialVersionUID = 1L;
@@ -66,7 +65,7 @@ public class TimestampValue extends Value {
 
   @Override
   protected void format() {
-    this.textValue = "" + this.value;
+    this.textValue = Long.toString(this.value);
   }
 
   /*
@@ -130,16 +129,15 @@ public class TimestampValue extends Value {
       statement.setNull(idx, Types.TIMESTAMP);
     } else {
       Timestamp dateValue = new Timestamp(this.value);
-
-      logger.info("Set set a timestamp of " + DateUtil.format(dateValue));
-
+      if(logger.isInfoEnabled())
+    	  logger.info("Set set a timestamp of {}", DateUtil.format(dateValue));
       statement.setTimestamp(idx, dateValue);
     }
   }
 
   @Override
   public Object getObject() {
-    return new Long(this.value);
+    return this.value;
   }
 
   @Override

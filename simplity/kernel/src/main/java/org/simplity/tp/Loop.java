@@ -42,7 +42,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Loop extends Block {
-  static final Logger logger = LoggerFactory.getLogger(Loop.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(Loop.class);
 
   /** data sheet on which to loop */
   String dataSheetName;
@@ -80,7 +80,7 @@ public class Loop extends Block {
     }
     if (this.executeOnCondition == null) {
 
-      logger.info(
+    	actionLogger.info(
           "Loop action "
               + this.actionName
               + " has niether data sheet, nor condition. This is a run-for-ever loop,but could be interrupted");
@@ -132,7 +132,7 @@ public class Loop extends Block {
       }
       if (interrupted) {
 
-        logger.info("Coming out of loop because the thread is interrupted");
+    	  actionLogger.info("Coming out of loop because the thread is interrupted");
 
         Thread.currentThread().interrupt();
       }
@@ -154,7 +154,7 @@ public class Loop extends Block {
     DataSheet ds = ctx.getDataSheet(this.dataSheetName);
     if (ds == null) {
 
-      logger.info(
+    	actionLogger.info(
           "Data Sheet "
               + this.dataSheetName
               + " not found in the context. Loop action has no work.");
@@ -163,7 +163,7 @@ public class Loop extends Block {
     }
     if (ds.length() == 0) {
 
-      logger.info("Data Sheet " + this.dataSheetName + " has no data. Loop action has no work.");
+    	actionLogger.info("Data Sheet " + this.dataSheetName + " has no data. Loop action has no work.");
 
       return Value.VALUE_TRUE;
     }
@@ -216,7 +216,7 @@ public class Loop extends Block {
     }
     if (interrupted) {
 
-      logger.info("Coming out of loop because the thread is interrupted");
+    	actionLogger.info("Coming out of loop because the thread is interrupted");
 
       Thread.currentThread().interrupt();
     }

@@ -1,0 +1,17 @@
+
+esquid:S2629ô"7Use the built-in formatting to construct this argument.(ùÒH®:RMAJORZ
+CODE_SMELL
+dsquid:S1135ÿ"2Complete the task associated to this TODO comment.(ß›ßÅúÿÿÿÿHª:RINFOZ
+CODE_SMELL
+‘squid:S1488?"_Immediately return this expression instead of assigning it to the temporary variable "rawData".(Ä×àˆûÿÿÿÿH©:RMINORZ
+CODE_SMELL
+‘squid:S1488­"^Immediately return this expression instead of assigning it to the temporary variable "values".(¥ã¢şÿÿÿÿH§:RMINORZ
+CODE_SMELL
+‹squid:S22932"YReplace the type specification in this constructor call with the diamond operator ("<>").(ËìèûÿÿÿÿH«:RMINORZ
+CODE_SMELL
+‹squid:S2293o"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÛôˆùüÿÿÿÿH­:RMINORZ
+CODE_SMELL
+dsquid:S1135‰"2Complete the task associated to this TODO comment.(ß›ßÅúÿÿÿÿH¨:RINFOZ
+CODE_SMELL
+Ssquid:S1168a"&Return an empty array instead of null.(¥¹ïH¬:RMAJORZ
+CODE_SMELL

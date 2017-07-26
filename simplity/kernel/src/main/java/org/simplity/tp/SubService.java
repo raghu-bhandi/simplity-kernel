@@ -38,7 +38,7 @@ import org.simplity.service.ServiceInterface;
  * @author simplity.org
  */
 public class SubService extends Action {
-  static final Logger logger = LoggerFactory.getLogger(SubService.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(SubService.class);
 
   String serviceName;
 
@@ -48,11 +48,11 @@ public class SubService extends Action {
   protected Value delegate(ServiceContext ctx, DbDriver driver) {
     ServiceInterface service = ComponentManager.getService(this.serviceName);
 
-    logger.info("service " + this.serviceName + " started as sub service.");
+    actionLogger.info("service " + this.serviceName + " started as sub service.");
 
     Value result = service.executeAsAction(ctx, driver, this.transactionIsDelegated);
 
-    logger.info("service " + this.serviceName + " returned control back.");
+    actionLogger.info("service " + this.serviceName + " returned control back.");
 
     return result;
   }

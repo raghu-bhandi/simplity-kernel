@@ -51,7 +51,7 @@ import org.simplity.service.ServiceProtocol;
  * like a column of a table, a filed in a page etc..
  */
 public class Field {
-  static final Logger logger = LoggerFactory.getLogger(Field.class);
+	private static final Logger logger = LoggerFactory.getLogger(Field.class);
 
   // private static final String DISPLAY_TYPE = "displayType";
 

@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  * authenticated the userId.
  */
 public class ServiceAgent {
-	static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
+	private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
 	private static final String[] EMPTY_ARRAY = {};
 	/** singleton instance that is instantiated with right parameters */
 	private static ServiceAgent instance;

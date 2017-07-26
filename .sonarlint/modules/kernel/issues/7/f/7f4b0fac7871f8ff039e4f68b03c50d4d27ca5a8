@@ -1,0 +1,26 @@
+
+isquid:S2629{"7Use the built-in formatting to construct this argument.(º÷Õ»ÿÿÿÿÿHÊARMAJORZ
+CODE_SMELL
+\squid:S1125¸")Remove the literal "false" boolean value.(ç¡ÝÀùÿÿÿÿHÆARMINORZ
+CODE_SMELL
+Wsquid:S1125÷")Remove the literal "false" boolean value.( ·•ãHËARMINORZ
+CODE_SMELL
+lsquid:S1155Ù">Use isEmpty() to check whether the collection is empty or not.(¦ïšÁHÌARMINORZ
+CODE_SMELL
+Œsquid:S2293Ó"YReplace the type specification in this constructor call with the diamond operator ("<>").(šÿ¦æúÿÿÿÿHÏARMINORZ
+CODE_SMELL
+‡squid:S2293Í"YReplace the type specification in this constructor call with the diamond operator ("<>").(·ÑëØHÍARMINORZ
+CODE_SMELL
+Œsquid:S2293ò"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÏéúžÿÿÿÿÿHÈARMINORZ
+CODE_SMELL
+Œsquid:S2293Ç"YReplace the type specification in this constructor call with the diamond operator ("<>").(‹êÈ¹øÿÿÿÿHÅARMINORZ
+CODE_SMELL
+jsquid:S2629Ø"7Use the built-in formatting to construct this argument.(´ÃÃ†ûÿÿÿÿHÄARMAJORZ
+CODE_SMELL
+jsquid:S2583¯"CChange this condition so that it does not always evaluate to "true"(˜ÿ»”HÎARMAJORZBUG
+ˆsquid:S3776Ÿ"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(·–õÞýÿÿÿÿHÐARCRITICALZ
+CODE_SMELL
+†squid:S2293ó"YReplace the type specification in this constructor call with the diamond operator ("<>").(µ›ó]HÉARMINORZ
+CODE_SMELL
+ˆsquid:S3776¤"RRefactor this method to reduce its Cognitive Complexity from 27 to the 15 allowed.(ÿº³»üÿÿÿÿHÇARCRITICALZ
+CODE_SMELL

@@ -37,7 +37,7 @@ import org.simplity.kernel.value.ValueType;
 
 /** @author simplity.org */
 public class SampleFunction implements Function {
-  static final Logger logger = LoggerFactory.getLogger(SampleFunction.class);
+	private  static final Logger logger = LoggerFactory.getLogger(SampleFunction.class);
 
   private static final String MY_FULL_NAME = "james.bond";
   private static final String MY_NAME = "bond";

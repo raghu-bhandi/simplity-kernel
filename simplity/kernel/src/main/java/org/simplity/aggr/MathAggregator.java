@@ -39,7 +39,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public abstract class MathAggregator implements AggregationWorker {
-  static final Logger logger = LoggerFactory.getLogger(MathAggregator.class);
+  private static final Logger logger = LoggerFactory.getLogger(MathAggregator.class);
 
   /** field name from which to accumulate sum */
   private final String inputName;

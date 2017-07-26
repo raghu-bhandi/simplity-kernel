@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class OutputData {
-	protected static final Logger logger = LoggerFactory.getLogger(OutputData.class);
+	private  static final Logger logger = LoggerFactory.getLogger(OutputData.class);
 
 	static final String EMPTY_RESPONSE = "{\"" + ServiceProtocol.REQUEST_STATUS + "\":\"" + ServiceProtocol.STATUS_OK
 			+ "\"}";

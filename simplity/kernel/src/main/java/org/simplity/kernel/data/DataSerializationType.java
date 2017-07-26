@@ -599,7 +599,7 @@ public enum DataSerializationType {
   /** serialized object - special case of Map */
   ,
   MAP;
-  static final Logger logger = LoggerFactory.getLogger(DataSerializationType.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataSerializationType.class);
 
   protected static final String NL = "\\r?\\n";
   protected static final char COMMA = ',';

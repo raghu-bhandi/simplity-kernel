@@ -1,0 +1,7 @@
+
+‚squid:S11494"PReplace the synchronized class "Stack" by an unsynchronized one such as "Deque".(í¢ÁüÿÿÿÿH &RMAJORZ
+CODE_SMELL
+‹squid:S22934"YReplace the type specification in this constructor call with the diamond operator ("<>").(í¢ÁüÿÿÿÿHŸ&RMINORZ
+CODE_SMELL
+Vsquid:S2629b"$Invoke method(s) only conditionally.(¶‡ÃÆúÿÿÿÿH&RMAJORZ
+CODE_SMELL

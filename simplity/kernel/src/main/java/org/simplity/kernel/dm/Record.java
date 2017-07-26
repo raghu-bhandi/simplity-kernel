@@ -89,7 +89,7 @@ import org.simplity.service.ServiceProtocol;
  */
 public class Record implements Component {
 
-  static final Logger logger = LoggerFactory.getLogger(Record.class);
+	private static final Logger logger = LoggerFactory.getLogger(Record.class);
 
   /** header row of returned sheet when there is only one column */
   private static String[] SINGLE_HEADER = {"value"};

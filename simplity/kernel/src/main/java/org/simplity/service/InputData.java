@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class InputData {
-	protected static final Logger logger = LoggerFactory.getLogger(InputData.class);
+	private  static final Logger logger = LoggerFactory.getLogger(InputData.class);
 	/**
 	 * do not parse the request text. Just set it to this field. Service will
 	 * take care of that

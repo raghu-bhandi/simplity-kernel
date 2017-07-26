@@ -39,193 +39,186 @@ import org.simplity.kernel.file.FileManager;
 
 /** we use a designated folder to save all attachments */
 public class DbAttachmentAssistant implements AttachmentAssistant {
-  static final Logger logger = LoggerFactory.getLogger(DbAttachmentAssistant.class);
+	private static final Logger logger = LoggerFactory.getLogger(DbAttachmentAssistant.class);
 
-  private static final String TABLE_NAME = "INTERNAL_ATTACHMENTS";
-  private static final String SAVE_SQL = "INSERT INTO " + TABLE_NAME + " (attachment) values (?)";
-  private static final String SAVE_SQL_ORACLE =
-      "INSERT INTO "
-          + TABLE_NAME
-          + " (attachment_id, attachment) values ("
-          + TABLE_NAME
-          + "_SEQ.NEXTVAL,?)";
-  private static final String DELETE_SQL = "DELETE FROM " + TABLE_NAME + " where attachment_id = ?";
-  private static final String GET_SQL =
-      "SELECT attachment FROM " + TABLE_NAME + " where attachment_id = ?";
-  private static final String[] KEYS = {"attachment_id"};
+	private static final String TABLE_NAME = "INTERNAL_ATTACHMENTS";
+	private static final String SAVE_SQL = "INSERT INTO " + TABLE_NAME + " (attachment) values (?)";
+	private static final String SAVE_SQL_ORACLE = "INSERT INTO " + TABLE_NAME + " (attachment_id, attachment) values ("
+			+ TABLE_NAME + "_SEQ.NEXTVAL,?)";
+	private static final String DELETE_SQL = "DELETE FROM " + TABLE_NAME + " where attachment_id = ?";
+	private static final String GET_SQL = "SELECT attachment FROM " + TABLE_NAME + " where attachment_id = ?";
+	private static final String[] KEYS = { "attachment_id" };
 
-  private final String saveSql;
+	private final String saveSql;
 
-  /** */
-  public DbAttachmentAssistant() {
-    if (DbDriver.getDbVendor() == DbVendor.ORACLE) {
-      this.saveSql = SAVE_SQL_ORACLE;
-    } else {
-      this.saveSql = SAVE_SQL;
-    }
-  }
+	/** */
+	public DbAttachmentAssistant() {
+		if (DbDriver.getDbVendor() == DbVendor.ORACLE) {
+			this.saveSql = SAVE_SQL_ORACLE;
+		} else {
+			this.saveSql = SAVE_SQL;
+		}
+	}
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.simplity.media.MediaStorageAssistant#store(java.io.InputStream,
-   * java.lang.String, java.lang.String)
-   */
-  @Override
-  public String store(InputStream inStream) {
-    boolean allOk = true;
-    long generatedKey = 0;
-    Connection con = DbDriver.getConnection(DbAccessType.READ_WRITE, null);
-    try {
-      PreparedStatement stmt = con.prepareStatement(this.saveSql, KEYS);
-      stmt.setBinaryStream(1, inStream);
-      int result = stmt.executeUpdate();
-      if (result > 0) {
-        ResultSet rs = stmt.getGeneratedKeys();
-        if (rs.next()) {
-          generatedKey = rs.getLong(1);
-        }
-        rs.close();
-      }
-      stmt.close();
-    } catch (Exception e) {
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.media.MediaStorageAssistant#store(java.io.InputStream,
+	 * java.lang.String, java.lang.String)
+	 */
+	@Override
+	public String store(InputStream inStream) {
+		boolean allOk = true;
+		long generatedKey = 0;
+		Connection con = DbDriver.getConnection(DbAccessType.READ_WRITE, null);
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement(this.saveSql, KEYS);
+			stmt.setBinaryStream(1, inStream);
+			int result = stmt.executeUpdate();
+			if (result > 0) {
+				ResultSet rs = stmt.getGeneratedKeys();
+				if (rs.next()) {
+					generatedKey = rs.getLong(1);
+				}
+				rs.close();
+			}
+			stmt.close();
+		} catch (Exception e) {
+			logger.error("Error while storing attachment ", e);
+			allOk = false;
+		} finally {
+			DbDriver.closeConnection(con, DbAccessType.READ_WRITE, allOk);
+		}
+		if (generatedKey == 0) {
+			return null;
+		}
+		return "" + generatedKey;
+	}
 
-      logger.error("Error while storing attachment ", e);
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.media.MediaStorageAssistant#store(java.lang.string,
+	 * java.lang.String, java.lang.String)
+	 */
+	@Override
+	public String store(String tempKey) {
+		InputStream in = null;
+		try {
+			in = new FileInputStream(FileManager.getTempFile(tempKey));
+			return this.store(in);
+		} catch (FileNotFoundException e) {
 
-      allOk = false;
-    } finally {
-      DbDriver.closeConnection(con, DbAccessType.READ_WRITE, allOk);
-    }
-    if (generatedKey == 0) {
-      return null;
-    }
-    return "" + generatedKey;
-  }
+			logger.info(tempKey + " is not a valid temp file name. Attachment store() failed.");
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.simplity.media.MediaStorageAssistant#store(java.lang.string,
-   * java.lang.String, java.lang.String)
-   */
-  @Override
-  public String store(String tempKey) {
-    InputStream in = null;
-    try {
-      in = new FileInputStream(FileManager.getTempFile(tempKey));
-      return this.store(in);
-    } catch (FileNotFoundException e) {
+			return null;
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
+	}
 
-      logger.info(tempKey + " is not a valid temp file name. Attachment store() failed.");
+	/*
+	 * (non-Javadoc) forced to suppress warning by design
+	 *
+	 * @see org.simplity.kernel.MediaStoreRoom#retrieve(java.lang.String)
+	 *
+	 */
+	@Override
+	public String retrieve(String storageKey) {
+		long key = 0;
+		try {
+			key = Long.parseLong(storageKey);
+		} catch (Exception e) {
 
-      return null;
-    } finally {
-      if (in != null) {
-        try {
-          in.close();
-        } catch (Exception ignore) {
-          //
-        }
-      }
-    }
-  }
+			logger.info(storageKey + " is not a valid attachment storage key.");
 
-  /*
-   * (non-Javadoc)
-   * forced to suppress warning by design
-   *
-   * @see org.simplity.kernel.MediaStoreRoom#retrieve(java.lang.String)
-   *
-   */
-  @Override
-  public String retrieve(String storageKey) {
-    long key = 0;
-    try {
-      key = Long.parseLong(storageKey);
-    } catch (Exception e) {
+			return null;
+		}
+		boolean allOk = true;
+		/*
+		 *
+		 */
 
-      logger.info(storageKey + " is not a valid attachment storage key.");
+		Connection con = DbDriver.getConnection(DbAccessType.READ_ONLY, null);
+		String tempKey = null;
+		InputStream in = null;
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement(GET_SQL);
+			stmt.setLong(1, key);
+			ResultSet rs = stmt.executeQuery();
+			if (rs.next()) {
+				in = rs.getBinaryStream(1);
+				File file = FileManager.createTempFile(in);
+				if (file != null) {
+					tempKey = file.getName();
+				}
+			}
+			rs.close();
+			stmt.close();
+		} catch (Exception e) {
 
-      return null;
-    }
-    boolean allOk = true;
-    /*
-     *
-     */
+			logger.error("Error while retrieving attachment " + storageKey, e);
 
-    Connection con = DbDriver.getConnection(DbAccessType.READ_ONLY, null);
-    String tempKey = null;
-    InputStream in = null;
-    try {
-      PreparedStatement stmt = con.prepareStatement(GET_SQL);
-      stmt.setLong(1, key);
-      ResultSet rs = stmt.executeQuery();
-      if (rs.next()) {
-        in = rs.getBinaryStream(1);
-        File file = FileManager.createTempFile(in);
-        if (file != null) {
-          tempKey = file.getName();
-        }
-      }
-      rs.close();
-      stmt.close();
-    } catch (Exception e) {
+			allOk = false;
+		} finally {
+			DbDriver.closeConnection(con, DbAccessType.READ_ONLY, allOk);
+			if (in != null) {
+				try {
+					in.close();
+				} catch (Exception ignore) {
+					//
+				}
+			}
+		}
+		return tempKey;
+	}
 
-      logger.error("Error while retrieving attachment " + storageKey, e);
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.media.MediaStorageAssistant#discard(java.lang.String)
+	 */
+	@Override
+	public void remove(String storageKey) {
+		int key = 0;
+		try {
+			key = Integer.parseInt(storageKey);
+		} catch (Exception e) {
 
-      allOk = false;
-    } finally {
-      DbDriver.closeConnection(con, DbAccessType.READ_ONLY, allOk);
-      if (in != null) {
-        try {
-          in.close();
-        } catch (Exception ignore) {
-          //
-        }
-      }
-    }
-    return tempKey;
-  }
+			logger.info(storageKey + " is not a valid storage key. remove() failed.");
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.simplity.media.MediaStorageAssistant#discard(java.lang.String)
-   */
-  @Override
-  public void remove(String storageKey) {
-    int key = 0;
-    try {
-      key = Integer.parseInt(storageKey);
-    } catch (Exception e) {
+			return;
+		}
 
-      logger.info(storageKey + " is not a valid storage key. remove() failed.");
+		Connection con = DbDriver.getConnection(DbAccessType.AUTO_COMMIT, null);
+		boolean allOk = true;
+		PreparedStatement stmt = null;
+		try {
+			stmt = con.prepareStatement(DELETE_SQL);
+			stmt.setInt(1, key);
+			int result = stmt.executeUpdate();
+			if (result == 0) {
 
-      return;
-    }
+				logger.info("No attachment found with key {}  remove() failed", storageKey);
 
-    Connection con = DbDriver.getConnection(DbAccessType.AUTO_COMMIT, null);
-    boolean allOk = true;
-    try {
-      PreparedStatement stmt = con.prepareStatement(DELETE_SQL);
-      stmt.setInt(1, key);
-      int result = stmt.executeUpdate();
-      if (result == 0) {
+			} else {
 
-        logger.info("No attachment found with key " + storageKey + ". remove() failed");
-
-      } else {
-
-        logger.info("Attachment with key " + storageKey + " removed");
-      }
-      stmt.close();
-    } catch (SQLException e) {
-
-      logger.error("Error while deleting an attachment with key " + storageKey, e);
-
-      allOk = false;
-    } finally {
-      DbDriver.closeConnection(con, DbAccessType.AUTO_COMMIT, allOk);
-    }
-  }
+				logger.info("Attachment with key {}  removed", storageKey);
+			}
+			stmt.close();
+		} catch (SQLException e) {
+			logger.error("Error while deleting an attachment with key " + storageKey, e);
+			allOk = false;
+		} finally {
+			DbDriver.closeConnection(con, DbAccessType.AUTO_COMMIT, allOk);
+		}
+	}
 }

@@ -40,7 +40,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class FormattedMessage implements Jsonable {
-  static final Logger logger = LoggerFactory.getLogger(FormattedMessage.class);
+	private static final Logger logger = LoggerFactory.getLogger(FormattedMessage.class);
 
   /** name of the message */
   public final String name;

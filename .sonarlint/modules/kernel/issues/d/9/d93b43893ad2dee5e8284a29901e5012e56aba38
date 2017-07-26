@@ -1,0 +1,30 @@
+
+Vsquid:S1125ğ")Remove the literal "false" boolean value.(Ãõ‰lHäDRMINORZ
+CODE_SMELL
+Tsquid:S1168Â"&Return an empty array instead of null.(¥¹ïHçDRMAJORZ
+CODE_SMELL
+ysquid:CommentedOutCodeLine”"<This block of commented-out lines of code should be removed.(·”ú²HîDRMAJORZ
+CODE_SMELL
+ˆsquid:S3776ï"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(ç‹¥ıùÿÿÿÿHíDRCRITICALZ
+CODE_SMELL
+Vsquid:S1125³")Remove the literal "false" boolean value.(İïTHåDRMINORZ
+CODE_SMELL
+qsquid:S2629°"7Use the built-in formatting to construct this argument.(‹¬©ıÿÿÿÿ8ëË¬ó×+HñDRMAJORZ
+CODE_SMELL
+\squid:S1066"/Merge this if statement with the enclosing one.(ö•ú@HëDRMAJORZ
+CODE_SMELL
+\squid:S1125")Remove the literal "false" boolean value.(ÈØœÊıÿÿÿÿHéDRMINORZ
+CODE_SMELL
+lsquid:S2629¼"7Use the built-in formatting to construct this argument.(öĞ”Ø8ëË¬ó×+HòDRMAJORZ
+CODE_SMELL
+k
+squid:S106á"9Replace this use of System.out or System.err by a logger.(¾íäşøÿÿÿÿHèDRMAJORZ
+CODE_SMELL
+‹squid:S1488Ğ"]Immediately return this expression instead of assigning it to the temporary variable "files".(½¡ƒ»HêDRMINORZ
+CODE_SMELL
+]squid:S1066–"/Merge this if statement with the enclosing one.(©öÙHìDRMAJORZ
+CODE_SMELL
+lsquid:S2629Õ"7Use the built-in formatting to construct this argument.(•ŞÍÇ8ëË¬ó×+HğDRMAJORZ
+CODE_SMELL
+Wsquid:S1125«")Remove the literal "false" boolean value.(ØÕ‚—HæDRMINORZ
+CODE_SMELL

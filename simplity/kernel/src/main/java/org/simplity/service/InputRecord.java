@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * represents a record/row/table that is used as input for a service
  */
 public class InputRecord {
-	protected static final Logger logger = LoggerFactory.getLogger(InputRecord.class);
+	private  static final Logger logger = LoggerFactory.getLogger(InputRecord.class);
 
 	/**
 	 * fully qualified name of the record that we are expecting as input. In

@@ -39,7 +39,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class TestCase {
-  static final Logger logger = LoggerFactory.getLogger(TestCase.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestCase.class);
 
   /** unique name given to this test case. */
   String testCaseName;

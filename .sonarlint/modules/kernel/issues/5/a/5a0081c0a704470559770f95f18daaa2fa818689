@@ -1,0 +1,158 @@
+
+jsquid:S2629ƒ
+"7Use the built-in formatting to construct this argument.(ÄÓ°³ıÿÿÿÿHÒ;RMAJORZ
+CODE_SMELL
+esquid:S2629×"7Use the built-in formatting to construct this argument.(Å“óHÑ;RMAJORZ
+CODE_SMELL
+Nsquid:S2131ù"!Use "Character.toString" instead.(¸ÖH¤;RMAJORZ
+CODE_SMELL
+[squid:S2095ò"-Close this "ResultSet" in a "finally" clause.(Ü§½ÿøÿÿÿÿHá;RBLOCKERZBUG
+Osquid:S2129û
+"!Remove this "Integer" constructor(ƒÏâòHË;RMAJORZ
+CODE_SMELL
+jsquid:S2629Ø"7Use the built-in formatting to construct this argument.(®ï»°øÿÿÿÿH»;RMAJORZ
+CODE_SMELL
+jsquid:S2629¦"7Use the built-in formatting to construct this argument.(¾Ú¹ıÿÿÿÿHŸ;RMAJORZ
+CODE_SMELL
+jsquid:S2629´	"7Use the built-in formatting to construct this argument.(ÄÓ°³ıÿÿÿÿHÍ;RMAJORZ
+CODE_SMELL
+Osquid:S2129Ø"!Remove this "Integer" constructor(Ä“¿åH·;RMAJORZ
+CODE_SMELL
+esquid:S2629¢"7Use the built-in formatting to construct this argument.(Ù³‹H®;RMAJORZ
+CODE_SMELL
+Tsquid:S2129á"!Remove this "Integer" constructor(øùÏ‘øÿÿÿÿH¡;RMAJORZ
+CODE_SMELL
+esquid:S2629à"7Use the built-in formatting to construct this argument.(Ù³‹H¢;RMAJORZ
+CODE_SMELL
+\squid:S1125")Remove the literal "false" boolean value.(…üÚğÿÿÿÿÿHÂ;RMINORZ
+CODE_SMELL
+psquid:UnusedPrivateMethodˆ
+"/Remove this unused private "processAll" method.(§èÀ‡şÿÿÿÿHä;RMAJORZ
+CODE_SMELL
+Œsquid:S2293è"YReplace the type specification in this constructor call with the diamond operator ("<>").(¹Ã´ºıÿÿÿÿH;RMINORZ
+CODE_SMELL
+dsquid:S1854§"7Remove this useless assignment to local variable "con".(Õ£¾HÕ;RMAJORZ
+CODE_SMELL
+Vsquid:S1125")Remove the literal "false" boolean value.(Ù‰ÔH«;RMINORZ
+CODE_SMELL
+jsquid:S2629Á"7Use the built-in formatting to construct this argument.(Ç·ÒëÿÿÿÿÿH´;RMAJORZ
+CODE_SMELL
+xsquid:CommentedOutCodeLineJ"<This block of commented-out lines of code should be removed.(şü ÊHÚ;RMAJORZ
+CODE_SMELL
+Tsquid:S1168Ó"&Return an empty array instead of null.(¥¹ïHÈ;RMAJORZ
+CODE_SMELL
+Wsquid:S1125ô")Remove the literal "false" boolean value.(°àÙ¹H¨;RMINORZ
+CODE_SMELL
+Tsquid:S2129—"!Remove this "Integer" constructor(ˆ‡êËûÿÿÿÿH;RMAJORZ
+CODE_SMELL
+esquid:S2629‰"7Use the built-in formatting to construct this argument.(Îè¥H˜;RMAJORZ
+CODE_SMELL
+squid:S1192|"LDefine a constant instead of duplicating this literal "sqlTypeName" 3 times.(ÒŠ¿©ûÿÿÿÿHº;RCRITICALZ
+CODE_SMELL
+hsquid:S1141¤	"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿH ;RMAJORZ
+CODE_SMELL
+ˆsquid:S3776Ğ"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(²ìøÿÿÿÿHŞ;RCRITICALZ
+CODE_SMELL
+|squid:S1192o"GDefine a constant instead of duplicating this literal "schema" 6 times.(²µô¨ÿÿÿÿÿH¦;RCRITICALZ
+CODE_SMELL
+~squid:CommentedOutCodeLine‡"<This block of commented-out lines of code should be removed.(İ³îúÿÿÿÿHÜ;RMAJORZ
+CODE_SMELL
+esquid:S2629Ï"7Use the built-in formatting to construct this argument.(ï¨HÁ;RMAJORZ
+CODE_SMELL
+ªsquid:S1192¢"yDefine a constant instead of duplicating this literal "Number of affected rows is not reliable as we got it as " 3 times.(Ù³‹HÅ;RCRITICALZ
+CODE_SMELL
+‚squid:S3776Û"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(Úˆµ<HÀ;RCRITICALZ
+CODE_SMELL
+}squid:S1192{"HDefine a constant instead of duplicating this literal "sqlType" 3 times.(şŒËÉıÿÿÿÿHœ;RCRITICALZ
+CODE_SMELL
+esquid:S2629Ç	"7Use the built-in formatting to construct this argument.(Íßó§H±;RMAJORZ
+CODE_SMELL
+esquid:S2629"7Use the built-in formatting to construct this argument.(¦ƒˆH¾;RMAJORZ
+CODE_SMELL
+squid:S1192€"IDefine a constant instead of duplicating this literal "nullable" 3 times.(´öéüÿÿÿÿHÛ;RCRITICALZ
+CODE_SMELL
+~squid:CommentedOutCodeLineŒ"<This block of commented-out lines of code should be removed.(òÁÈÿÿÿÿÿH¸;RMAJORZ
+CODE_SMELL
+esquid:S2629"7Use the built-in formatting to construct this argument.(›€ ´HÏ;RMAJORZ
+CODE_SMELL
+„squid:S1192”"SDefine a constant instead of duplicating this literal "SQLException code:" 3 times.(‡À›£HÊ;RCRITICALZ
+CODE_SMELL
+—squid:S1192â"aDefine a constant instead of duplicating this literal "Sql Error while extracting data " 6 times.(¢«ïñşÿÿÿÿHØ;RCRITICALZ
+CODE_SMELL
+Osquid:S2129Û"!Remove this "Integer" constructor(†íÆĞHÄ;RMAJORZ
+CODE_SMELL
+|squid:S1192–"KDefine a constant instead of duplicating this literal " message :" 3 times.(¤ÙÃ’H¼;RCRITICALZ
+CODE_SMELL
+ysquid:CommentedOutCodeLineä"<This block of commented-out lines of code should be removed.(÷ÛÑ¼Hİ;RMAJORZ
+CODE_SMELL
+[squid:S2095è"-Close this "Statement" in a "finally" clause.(íñéşÿÿÿÿHÉ;RBLOCKERZBUG
+esquid:S2629¤"7Use the built-in formatting to construct this argument.(ï¨Hß;RMAJORZ
+CODE_SMELL
+ˆsquid:S3776û"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(êõ°³ûÿÿÿÿHâ;RCRITICALZ
+CODE_SMELL
+jsquid:S2629³
+"7Use the built-in formatting to construct this argument.(ÄÓ°³ıÿÿÿÿHÎ;RMAJORZ
+CODE_SMELL
+jsquid:S2629ó"7Use the built-in formatting to construct this argument.(Ÿİé²ùÿÿÿÿH£;RMAJORZ
+CODE_SMELL
+ˆsquid:S3776•"RRefactor this method to reduce its Cognitive Complexity from 35 to the 15 allowed.(±¶ŞÈÿÿÿÿÿH¬;RCRITICALZ
+CODE_SMELL
+Tsquid:S1168Í"&Return an empty array instead of null.(¥¹ïH°;RMAJORZ
+CODE_SMELL
+[squid:S2095ê"-Close this "ResultSet" in a "finally" clause.(ªû½ÜÿÿÿÿÿHª;RBLOCKERZBUG
+jsquid:S2629ö"7Use the built-in formatting to construct this argument.(°¹ôıÿÿÿÿH©;RMAJORZ
+CODE_SMELL
+Rsquid:S2629÷"$Invoke method(s) only conditionally.(ÕñÜÔHÇ;RMAJORZ
+CODE_SMELL
+\squid:S1125ƒ")Remove the literal "false" boolean value.(…üÚğÿÿÿÿÿHÃ;RMINORZ
+CODE_SMELL
+hsquid:S1141ó"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿHÆ;RMAJORZ
+CODE_SMELL
+‡squid:S1192´	"QDefine a constant instead of duplicating this literal " rows extracted." 3 times.(ÄÓ°³ıÿÿÿÿH›;RCRITICALZ
+CODE_SMELL
+esquid:S2629Œ	"7Use the built-in formatting to construct this argument.(¼—ŸHã;RMAJORZ
+CODE_SMELL
+nsquid:S1126"AReplace this if-then-else statement by a single return statement.(­®ÚvH¿;RMINORZ
+CODE_SMELL
+dsquid:S2629Ç"7Use the built-in formatting to construct this argument.(Óáõ9H¶;RMAJORZ
+CODE_SMELL
+‚squid:S3923Ü"[Remove this conditional structure or edit its code blocks so that they're not all the same.(Èé€ÁHÙ;RMAJORZBUG
+osquid:S1126£"AReplace this if-then-else statement by a single return statement.(¢±°Hµ;RMINORZ
+CODE_SMELL
+jsquid:S2629¬"7Use the built-in formatting to construct this argument.(¸§§‚øÿÿÿÿHÌ;RMAJORZ
+CODE_SMELL
+jsquid:S2629Ë"7Use the built-in formatting to construct this argument.(â¸‚ŞûÿÿÿÿH™;RMAJORZ
+CODE_SMELL
+esquid:S2629
+"7Use the built-in formatting to construct this argument.(›€ ´H¹;RMAJORZ
+CODE_SMELL
+†squid:S1192¦"PDefine a constant instead of duplicating this literal " rows affected." 3 times.(¾Ú¹ıÿÿÿÿH§;RCRITICALZ
+CODE_SMELL
+™squid:S1192˜"cDefine a constant instead of duplicating this literal " is treated as zero rows affected." 3 times.(ŒŸëòûÿÿÿÿH×;RCRITICALZ
+CODE_SMELL
+jsquid:S2629ä"7Use the built-in formatting to construct this argument.(¾Ú¹ıÿÿÿÿH­;RMAJORZ
+CODE_SMELL
+bsquid:S1066Ö"/Merge this if statement with the enclosing one.(ê”˜ïúÿÿÿÿHÓ;RMAJORZ
+CODE_SMELL
+Œsquid:S2293¹"YReplace the type specification in this constructor call with the diamond operator ("<>").(¤êÜ±ÿÿÿÿÿH²;RMINORZ
+CODE_SMELL
+†
+squid:S135è"YReduce the total number of break and continue statements in this loop to use at most one.(”Ö¾öH¯;RMINORZ
+CODE_SMELL
+\squid:S1125ˆ")Remove the literal "false" boolean value.(¡âş°ıÿÿÿÿH³;RMINORZ
+CODE_SMELL
+Nsquid:S2129Ş"!Remove this "Integer" constructor(®¢^HÖ;RMAJORZ
+CODE_SMELL
+esquid:S2629Â"7Use the built-in formatting to construct this argument.(»À­ãHĞ;RMAJORZ
+CODE_SMELL
+jsquid:S2629á"7Use the built-in formatting to construct this argument.(÷Ø£ÍıÿÿÿÿH¥;RMAJORZ
+CODE_SMELL
+\squid:S1125–
+")Remove the literal "false" boolean value.(¡âş°ıÿÿÿÿHÔ;RMINORZ
+CODE_SMELL
+†squid:S2293Z"YReplace the type specification in this constructor call with the diamond operator ("<>").(¾µìĞHš;RMINORZ
+CODE_SMELL
+jsquid:S2629ñ"7Use the built-in formatting to construct this argument.(Š–µÕùÿÿÿÿH½;RMAJORZ
+CODE_SMELL
+}squid:S1192o"HDefine a constant instead of duplicating this literal "remarks" 6 times.(²µô¨ÿÿÿÿÿHà;RCRITICALZ
+CODE_SMELL

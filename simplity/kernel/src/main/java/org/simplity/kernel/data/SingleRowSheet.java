@@ -47,7 +47,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class SingleRowSheet implements DataSheet {
-  static final Logger logger = LoggerFactory.getLogger(SingleRowSheet.class);
+	private static final Logger logger = LoggerFactory.getLogger(SingleRowSheet.class);
 
   private static final char TAB = '\t';
   private String[] columnNames;

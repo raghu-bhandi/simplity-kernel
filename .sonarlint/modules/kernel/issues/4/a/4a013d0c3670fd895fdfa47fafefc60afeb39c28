@@ -1,0 +1,16 @@
+
+jsquid:S2629b"7Use the built-in formatting to construct this argument.(ž°¨8»•¸ó×+HÆFRMAJORZ
+CODE_SMELL
+lsquid:S2629ç"7Use the built-in formatting to construct this argument.(ÃªŽ¬8»•¸ó×+HÊFRMAJORZ
+CODE_SMELL
+qsquid:S2629Þ"7Use the built-in formatting to construct this argument.(ÝÆ†‘úÿÿÿÿ8»•¸ó×+HÉFRMAJORZ
+CODE_SMELL
+‹
+squid:S135À"YReduce the total number of break and continue statements in this loop to use at most one.(öÇ¥¡úÿÿÿÿHÁFRMINORZ
+CODE_SMELL
+–squid:S2629Ñ"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(ºî™Îúÿÿÿÿ8»•¸ó×+HÈFRMAJORZ
+CODE_SMELL
+^squid:S1135"2Complete the task associated to this TODO comment.(ºÙ»ÍHÂFRINFOZ
+CODE_SMELL
+qsquid:S2629È"7Use the built-in formatting to construct this argument.(ºî™Îúÿÿÿÿ8»•¸ó×+HÇFRMAJORZ
+CODE_SMELL

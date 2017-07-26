@@ -1,0 +1,142 @@
+
+Tsquid:S1168æ"&Return an empty array instead of null.(¥¹ïHŸBRMAJORZ
+CODE_SMELL
+esquid:S2629·"7Use the built-in formatting to construct this argument.(…Œ·ğHûARMAJORZ
+CODE_SMELL
+‹
+squid:S135"YReduce the total number of break and continue statements in this loop to use at most one.(ï£À‹şÿÿÿÿH–BRMINORZ
+CODE_SMELL
+ƒsquid:S3776ú"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(´ùóHüARCRITICALZ
+CODE_SMELL
+†
+squid:S135Â"YReduce the total number of break and continue statements in this loop to use at most one.(»³½‹HíARMINORZ
+CODE_SMELL
+dsquid:S2629ù"7Use the built-in formatting to construct this argument.(àïğBHBRMAJORZ
+CODE_SMELL
+esquid:S2629¶"7Use the built-in formatting to construct this argument.(áµ´ÁHBRMAJORZ
+CODE_SMELL
+jsquid:S2629ƒ"7Use the built-in formatting to construct this argument.(£™¤úÿÿÿÿÿH®BRMAJORZ
+CODE_SMELL
+Rsquid:S2131ù"Use "Integer.toString" instead.(Ëì•ØşÿÿÿÿHôARMAJORZ
+CODE_SMELL
+Lsquid:S2131÷"Use "Integer.toString" instead.(«÷‹>H¢BRMAJORZ
+CODE_SMELL
+jsquid:S2629â"7Use the built-in formatting to construct this argument.(¦š¶ÿÿÿÿÿHóARMAJORZ
+CODE_SMELL
+Lsquid:S2131“"Use "Integer.toString" instead.(«÷‹>H‹BRMAJORZ
+CODE_SMELL
+Wsquid:S1125—")Remove the literal "false" boolean value.(ÖûÓ±HñARMINORZ
+CODE_SMELL
+ˆsquid:S3776Ó"RRefactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed.(‘ñŒ‹ÿÿÿÿÿH—BRCRITICALZ
+CODE_SMELL
+esquid:S2629–"7Use the built-in formatting to construct this argument.(÷ÿ¤ìH¡BRMAJORZ
+CODE_SMELL
+\squid:S1125å")Remove the literal "false" boolean value.(°å’ÅûÿÿÿÿH“BRMINORZ
+CODE_SMELL
+Lsquid:S2131í"Use "Integer.toString" instead.(«÷‹>H§BRMAJORZ
+CODE_SMELL
+qsquid:S1155œ">Use isEmpty() to check whether the collection is empty or not.(Õ©‡ıÿÿÿÿHŒBRMINORZ
+CODE_SMELL
+ƒsquid:S3776Æ"RRefactor this method to reduce its Cognitive Complexity from 23 to the 15 allowed.(îèÃÊHıARCRITICALZ
+CODE_SMELL
+Rsquid:S2131•"Use "Integer.toString" instead.(¥¥¿ûÿÿÿÿH¯BRMAJORZ
+CODE_SMELL
+esquid:S2629˜"7Use the built-in formatting to construct this argument.(æÉòóHšBRMAJORZ
+CODE_SMELL
+Œsquid:S2293î"YReplace the type specification in this constructor call with the diamond operator ("<>").(®Ì†ÕüÿÿÿÿHœBRMINORZ
+CODE_SMELL
+Œsquid:S2293‹"YReplace the type specification in this constructor call with the diamond operator ("<>").(®Ì†ÕüÿÿÿÿHğARMINORZ
+CODE_SMELL
+†
+squid:S135à"YReduce the total number of break and continue statements in this loop to use at most one.(Â ĞHƒBRMINORZ
+CODE_SMELL
+Wsquid:S1125®	")Remove the literal "false" boolean value.(™’ûHŠBRMINORZ
+CODE_SMELL
+jsquid:S2629”"7Use the built-in formatting to construct this argument.(¼ĞìŸıÿÿÿÿH¤BRMAJORZ
+CODE_SMELL
+„squid:S1192"SDefine a constant instead of duplicating this literal "No data for sheet " 5 times.(÷ÿ¤ìHïARCRITICALZ
+CODE_SMELL
+jsquid:S2629 "7Use the built-in formatting to construct this argument.(”Ó²½ıÿÿÿÿH†BRMAJORZ
+CODE_SMELL
+csquid:S2629ş"7Use the built-in formatting to construct this argument.(² HøARMAJORZ
+CODE_SMELL
+dsquid:S2629ö"7Use the built-in formatting to construct this argument.(ûíîSH•BRMAJORZ
+CODE_SMELL
+Rsquid:S2131Š"Use "Integer.toString" instead.(¥¥¿ûÿÿÿÿH™BRMAJORZ
+CODE_SMELL
+jsquid:S2629ò"7Use the built-in formatting to construct this argument.(Ş¿Æ¡ùÿÿÿÿHîARMAJORZ
+CODE_SMELL
+squid:S2629"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(á—×øüÿÿÿÿHöARMAJORZ
+CODE_SMELL
+Œsquid:S2293ô"YReplace the type specification in this constructor call with the diamond operator ("<>").(®Ì†ÕüÿÿÿÿH¨BRMINORZ
+CODE_SMELL
+esquid:S2629Õ"7Use the built-in formatting to construct this argument.(õ˜ËÇH£BRMAJORZ
+CODE_SMELL
+Wsquid:S1125")Remove the literal "false" boolean value.(³¼‘ÏH‡BRMINORZ
+CODE_SMELL
+Wsquid:S1125Œ")Remove the literal "false" boolean value.(³¼‘ÏHBRMINORZ
+CODE_SMELL
+esquid:S2629ï"7Use the built-in formatting to construct this argument.(÷ÿ¤ìH’BRMAJORZ
+CODE_SMELL
+ˆsquid:S3776œ"RRefactor this method to reduce its Cognitive Complexity from 27 to the 15 allowed.(Êö‘æıÿÿÿÿHˆBRCRITICALZ
+CODE_SMELL
+Œsquid:S2293ß"YReplace the type specification in this constructor call with the diamond operator ("<>").(¢ØğŒúÿÿÿÿHªBRMINORZ
+CODE_SMELL
+Tsquid:S1168Ğ"&Return an empty array instead of null.(¥¹ïHÿARMAJORZ
+CODE_SMELL
+jsquid:S2629¦"7Use the built-in formatting to construct this argument.(í‘ÖüÿÿÿÿHBRMAJORZ
+CODE_SMELL
+qsquid:S1155–">Use isEmpty() to check whether the collection is empty or not.(õïÓüÿÿÿÿH˜BRMINORZ
+CODE_SMELL
+esquid:S2629"7Use the built-in formatting to construct this argument.(‘ìÅ¬H¥BRMAJORZ
+CODE_SMELL
+Rsquid:S2131Š"Use "Integer.toString" instead.(¥¥¿ûÿÿÿÿHşARMAJORZ
+CODE_SMELL
+ˆsquid:S3776Ì"RRefactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed.(¯¥Ø»ÿÿÿÿÿH¦BRCRITICALZ
+CODE_SMELL
+esquid:S2629ş"7Use the built-in formatting to construct this argument.(˜ˆßîH›BRMAJORZ
+CODE_SMELL
+esquid:S2629Œ"7Use the built-in formatting to construct this argument.(ó¼â‡HBRMAJORZ
+CODE_SMELL
+Rsquid:S2131¹"Use "Integer.toString" instead.(¥¥¿ûÿÿÿÿH©BRMAJORZ
+CODE_SMELL
+Rsquid:S2131ù"Use "Integer.toString" instead.(Ëì•ØşÿÿÿÿH°BRMAJORZ
+CODE_SMELL
+esquid:S2629Ï"7Use the built-in formatting to construct this argument.(É¯–³H BRMAJORZ
+CODE_SMELL
+]squid:S1066…"/Merge this if statement with the enclosing one.(§·„µH­BRMAJORZ
+CODE_SMELL
+Rsquid:S2131¹"Use "Integer.toString" instead.(¥¥¿ûÿÿÿÿH‰BRMAJORZ
+CODE_SMELL
+esquid:S2629–	"7Use the built-in formatting to construct this argument.(°˜„»H÷ARMAJORZ
+CODE_SMELL
+esquid:S2629¯	"7Use the built-in formatting to construct this argument.(Õ¨ıâHìARMAJORZ
+CODE_SMELL
+ˆsquid:S3776Ñ"RRefactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed.(Ùî¬ñıÿÿÿÿH¬BRCRITICALZ
+CODE_SMELL
+Rsquid:S2131˜"Use "Integer.toString" instead.(œÓèûÿÿÿÿHòARMAJORZ
+CODE_SMELL
+esquid:S2629Û"7Use the built-in formatting to construct this argument.(ï¨Í²H…BRMAJORZ
+CODE_SMELL
+Lsquid:S2131÷"Use "Integer.toString" instead.(«÷‹>H‘BRMAJORZ
+CODE_SMELL
+Lsquid:S2131“"Use "Integer.toString" instead.(«÷‹>H”BRMAJORZ
+CODE_SMELL
+esquid:S2629½"7Use the built-in formatting to construct this argument.(÷ÿ¤ìHùARMAJORZ
+CODE_SMELL
+jsquid:S2629›"7Use the built-in formatting to construct this argument.(ÇÇñŸúÿÿÿÿHõARMAJORZ
+CODE_SMELL
+Rsquid:S2131•"Use "Integer.toString" instead.(¥¥¿ûÿÿÿÿH€BRMAJORZ
+CODE_SMELL
+esquid:S2629¦"7Use the built-in formatting to construct this argument.(Û¥ı‚H«BRMAJORZ
+CODE_SMELL
+Lsquid:S2131í"Use "Integer.toString" instead.(«÷‹>H‚BRMAJORZ
+CODE_SMELL
+esquid:S2629"7Use the built-in formatting to construct this argument.(÷ÿ¤ìHBRMAJORZ
+CODE_SMELL
+dsquid:S2629ñ"7Use the built-in formatting to construct this argument.(ÖÔ‡]HúARMAJORZ
+CODE_SMELL
+esquid:S2629Š	"7Use the built-in formatting to construct this argument.(…º÷H„BRMAJORZ
+CODE_SMELL
+Rsquid:S2131˜"Use "Integer.toString" instead.(œÓèûÿÿÿÿHBRMAJORZ
+CODE_SMELL

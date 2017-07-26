@@ -49,7 +49,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class TextUtil {
-  static final Logger logger = LoggerFactory.getLogger(TextUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(TextUtil.class);
 
   private static final Pattern FIELD = Pattern.compile("[$][{][\\w]*[}]");
   private static final String[] TRUE_VALUES = {"1", "TRUE", "YES"};

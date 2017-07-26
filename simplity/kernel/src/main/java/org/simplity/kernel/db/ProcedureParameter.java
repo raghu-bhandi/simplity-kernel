@@ -54,7 +54,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class ProcedureParameter {
-  static final Logger logger = LoggerFactory.getLogger(ProcedureParameter.class);
+	private static final Logger logger = LoggerFactory.getLogger(ProcedureParameter.class);
 
   /** name in which field value is found in input */
   String name;

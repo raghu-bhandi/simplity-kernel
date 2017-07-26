@@ -1,0 +1,73 @@
+
+\squid:S1751ú"5Remove this "break" statement or make it conditional.(›ûä·H¼:RMAJORZBUG
+Osquid:S2129…"!Remove this "Integer" constructor(ÓÈÛïHÜ:RMAJORZ
+CODE_SMELL
+Tsquid:S2129ğ"!Remove this "Integer" constructor(ŒïÇ®ùÿÿÿÿHÁ:RMAJORZ
+CODE_SMELL
+Rsquid:S2629”"$Invoke method(s) only conditionally.(ûúÿƒHØ:RMAJORZ
+CODE_SMELL
+squid:UselessImportCheck"@Remove this unused import 'java.lang.reflect.ParameterizedType'.(ÎÏ˜™ÿÿÿÿÿHÙ:RMINORZ
+CODE_SMELL
+Osquid:S2129ï"!Remove this "Integer" constructor(ñ§“óHÓ:RMAJORZ
+CODE_SMELL
+Osquid:S2129°"!Remove this "Integer" constructor(Ùª‹øHÛ:RMAJORZ
+CODE_SMELL
+‹
+squid:S135¬"YReduce the total number of break and continue statements in this loop to use at most one.(¤åïşÿÿÿÿHÏ:RMINORZ
+CODE_SMELL
+bsquid:S2864÷"4Iterate over the "entrySet" instead of the "keySet".(Æ—Ÿ¤HÑ:RMAJORZ
+CODE_SMELL
+ƒsquid:S3776‰"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(¶ıî»HÍ:RCRITICALZ
+CODE_SMELL
+Osquid:S2129æ"!Remove this "Integer" constructor(á¤€ôHÊ:RMAJORZ
+CODE_SMELL
+Tsquid:S2129ì"!Remove this "Integer" constructor(öŞ±ÑıÿÿÿÿHº:RMAJORZ
+CODE_SMELL
+Tsquid:S1168º"&Return an empty array instead of null.(¥¹ïHÈ:RMAJORZ
+CODE_SMELL
+dsquid:S1135ˆ"2Complete the task associated to this TODO comment.(ß›ßÅúÿÿÿÿHÉ:RINFOZ
+CODE_SMELL
+Msquid:S2129î"Remove this "Float" constructor(²„ôHÎ:RMAJORZ
+CODE_SMELL
+qsquid:UselessImportCheck "2Remove this unused import 'java.util.Collections'.(¢³ïÓşÿÿÿÿH¾:RMINORZ
+CODE_SMELL
+…squid:S2293E"YReplace the type specification in this constructor call with the diamond operator ("<>").(–ØËHÀ:RMINORZ
+CODE_SMELL
+jsquid:S2629ë"7Use the built-in formatting to construct this argument.(ì¥ã¼ûÿÿÿÿHÌ:RMAJORZ
+CODE_SMELL
+jsquid:S2589å"7Remove this expression which always evaluates to "true"(éÖúâøÿÿÿÿHÇ:RMAJORZ
+CODE_SMELL
+Wsquid:S1125Ç")Remove the literal "false" boolean value.(‚ÄòòHË:RMINORZ
+CODE_SMELL
+usquid:S1226«"BIntroduce a new variable instead of reusing the parameter "array".(»ŞÌ˜ıÿÿÿÿHÂ:RMINORZ
+CODE_SMELL
+gsquid:S2864ë"4Iterate over the "entrySet" instead of the "keySet".(“Ü®ÚøÿÿÿÿHÅ:RMAJORZ
+CODE_SMELL
+Œsquid:S2293ƒ"YReplace the type specification in this constructor call with the diamond operator ("<>").(–æ¹´ûÿÿÿÿHÃ:RMINORZ
+CODE_SMELL
+bsquid:S2864ş"4Iterate over the "entrySet" instead of the "keySet".(Æ—Ÿ¤H¿:RMAJORZ
+CODE_SMELL
+Wsquid:S1125")Remove the literal "false" boolean value.(™ø»ÓH½:RMINORZ
+CODE_SMELL
+Ysquid:S1148å"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿHÚ:RMINORZVULNERABILITY
+‹
+squid:S135È"YReduce the total number of break and continue statements in this loop to use at most one.(Òı³•øÿÿÿÿHÆ:RMINORZ
+CODE_SMELL
+Tsquid:S2129õ"!Remove this "Integer" constructor(Íú×™øÿÿÿÿHÖ:RMAJORZ
+CODE_SMELL
+Msquid:S2129ò"Remove this "Float" constructor(¤¼Ó‡HÒ:RMAJORZ
+CODE_SMELL
+dsquid:S1135ú"2Complete the task associated to this TODO comment.(ß›ßÅúÿÿÿÿHÕ:RINFOZ
+CODE_SMELL
+€squid:S00117Æ"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‘‚şìH¹:RMINORZ
+CODE_SMELL
+Œsquid:S2293œ"YReplace the type specification in this constructor call with the diamond operator ("<>").(«²ÄÿÿÿÿÿH»:RMINORZ
+CODE_SMELL
+jsquid:S2629·"7Use the built-in formatting to construct this argument.(¡‰Ç–ıÿÿÿÿHÄ:RMAJORZ
+CODE_SMELL
+‹squid:S2293@"YReplace the type specification in this constructor call with the diamond operator ("<>").(œ½ùÿÿÿÿÿH×:RMINORZ
+CODE_SMELL
+xsquid:HiddenFieldCheckÔ"?Rename "columnNames" which hides the field declared at line 66.(Ÿ³µ¿HĞ:RMAJORZ
+CODE_SMELL
+Msquid:S2129´"Remove this "Float" constructor(Û«ôƒHÔ:RMAJORZ
+CODE_SMELL

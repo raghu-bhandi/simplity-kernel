@@ -42,7 +42,7 @@ import org.simplity.service.ServiceData;
 
 /** @author simplity.org */
 public class TestDt extends AbstractService {
-  static final Logger logger = LoggerFactory.getLogger(TestDt.class);
+	private static final Logger testLogger = LoggerFactory.getLogger(TestDt.class);
 
   /*
    * (non-Javadoc)
@@ -74,7 +74,7 @@ public class TestDt extends AbstractService {
       if (parsedValue == null) {
         nbrNotOk++;
 
-        logger.info("Invalid value : " + val);
+        testLogger.info("Invalid value : " + val);
 
       } else {
         nbrOk++;
@@ -135,7 +135,7 @@ public class TestDt extends AbstractService {
           return DateUtil.formatDate(date);
         } catch (Exception e) {
 
-          logger.info("Did not parse " + value + " as special date value : " + e.getMessage());
+          testLogger.info("Did not parse " + value + " as special date value : " + e.getMessage());
         }
       }
     }

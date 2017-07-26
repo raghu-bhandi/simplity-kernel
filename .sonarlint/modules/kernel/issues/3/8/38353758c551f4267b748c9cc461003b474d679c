@@ -1,0 +1,16 @@
+
+Zsquid:S1068'"+Remove this unused "ldapCtx" private field.(åöîıÿÿÿÿRMAJORZ
+CODE_SMELL
+Usquid:S1148P"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿRMINORZVULNERABILITY
+usquid:HiddenFieldCheckA";Rename "ldapCtx" which hides the field declared at line 39.(ê€ŒÈûÿÿÿÿRMAJORZ
+CODE_SMELL
+ƒsquid:S2293@"YReplace the type specification in this constructor call with the diamond operator ("<>").(ØÆ“œRMINORZ
+CODE_SMELL
+Rsquid:S1481@"(Remove this unused "env" local variable.(ØÆ“œRMINORZ
+CODE_SMELL
+Œsquid:S1450/"cRemove the "parsedPrincipalValue" field and declare it as a local variable in the relevant methods.(ûÇï)RMINORZ
+CODE_SMELL
+squid:S14500"eRemove the "parsedCredentialsValue" field and declare it as a local variable in the relevant methods.(è´œ¿RMINORZ
+CODE_SMELL
+€squid:S1149@"VReplace the synchronized class "Hashtable" by an unsynchronized one such as "HashMap".(ØÆ“œRMAJORZ
+CODE_SMELL

@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Operations {
-	protected static final Logger logger = LoggerFactory.getLogger(HierarchicalSheet.class);
+	private  static final Logger logger = LoggerFactory.getLogger(HierarchicalSheet.class);
 
 
 	/**
@@ -201,7 +201,8 @@ public class Operations {
 		}
 		
 		JSONObject secs = json.optJSONObject(Tags.SEC_DEF_ATTR);
-		addSecurityDefinitions(secs);
+		if(secs!=null)
+			addSecurityDefinitions(secs);
 		/*
 		 * for run-time efficiency, we substitute refs with actual JSON
 		 */

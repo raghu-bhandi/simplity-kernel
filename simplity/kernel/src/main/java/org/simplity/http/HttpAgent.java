@@ -66,7 +66,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class HttpAgent {
-  static final Logger logger = LoggerFactory.getLogger(HttpAgent.class);
+	private static final Logger logger = LoggerFactory.getLogger(HttpAgent.class);
 
   /*
    * session parameter name with which user token is saved. This token is the

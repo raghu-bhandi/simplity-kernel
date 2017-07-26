@@ -51,7 +51,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class InputFile {
-  static final Logger logger = LoggerFactory.getLogger(InputFile.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(InputFile.class);
 
   /**
    * If this is an associate file, then it is expressed using {name} and and {ext} that stand for
@@ -308,7 +308,7 @@ public class InputFile {
           }
           if (cmp < 0) {
 
-            logger.info(
+        	  actionLogger.info(
                 "Ignoring a row in child file "
                     + this.getFileName()
                     + " with key "
@@ -336,7 +336,7 @@ public class InputFile {
           return true;
         }
 
-        logger.info("Ignoring a child row that failed qualifying condition.");
+        actionLogger.info("Ignoring a child row that failed qualifying condition.");
 
         allOk = this.readChildRow(errors);
       }
@@ -377,7 +377,7 @@ public class InputFile {
       this.dataRow = this.record.extractFromFlatRow(rowText, InputFile.this.dataFormat, errors);
       if (this.dataRow == null) {
 
-        logger.info(
+    	  actionLogger.info(
             "Validation errors found during extracting a row from flat file using record "
                 + this.record.getQualifiedName());
 

@@ -1,0 +1,14 @@
+
+Ssquid:S2129S"!Remove this "Integer" constructor(ูฦ๓๙ÿÿÿÿÿHฒ=RMAJORZ
+CODE_SMELL
+esquid:S2629–"7Use the built-in formatting to construct this argument.(”ผ๓Hฑ=RMAJORZ
+CODE_SMELL
+…
+squid:S1359"YReduce the total number of break and continue statements in this loop to use at most one.(ำนÜฝHด=RMINORZ
+CODE_SMELL
+squid:S22938"YReplace the type specification in this constructor call with the diamond operator ("<>").(โÜืฌþÿÿÿÿHฏ=RMINORZ
+CODE_SMELL
+[squid:S1125:")Remove the literal "false" boolean value.(๊๕ฆ๙ÿÿÿÿHฐ=RMINORZ
+CODE_SMELL
+Ssquid:S2129A"!Remove this "Integer" constructor(เÜบ๚ÿÿÿÿHณ=RMAJORZ
+CODE_SMELL

@@ -40,7 +40,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class DataTypeSuggester {
-  static final Logger logger = LoggerFactory.getLogger(DataTypeSuggester.class);
+	private static final Logger logger = LoggerFactory.getLogger(DataTypeSuggester.class);
 
   /*
    * lengths of available text data types in increasing order

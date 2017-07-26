@@ -48,7 +48,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class DefaultLogin extends HttpServlet {
-  static final Logger logger = LoggerFactory.getLogger(DefaultLogin.class);
+  private static final Logger logger = LoggerFactory.getLogger(DefaultLogin.class);
 
   /*
    * of course we will have several other issues like logging....

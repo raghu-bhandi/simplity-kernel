@@ -33,7 +33,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class JumpTo extends org.simplity.tp.Action {
-  static final Logger logger = LoggerFactory.getLogger(JumpTo.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(JumpTo.class);
 
   /** returns either a name of action to go to, or "_stop", "_error", "_continue", "_break" */
   String toAction;
@@ -44,7 +44,7 @@ public class JumpTo extends org.simplity.tp.Action {
   @Override
   protected Value doAct(ServiceContext ctx) {
 
-    logger.info("Trying to jump with value = " + this.returnValue);
+	  actionLogger.info("Trying to jump with value = " + this.returnValue);
 
     return this.returnValue;
   }

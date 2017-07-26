@@ -46,7 +46,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class Suggest extends DbAction {
-  static final Logger logger = LoggerFactory.getLogger(Suggest.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(Suggest.class);
 
   /** record that is to be used */
   String recordName;
@@ -74,7 +74,7 @@ public class Suggest extends DbAction {
     Value value = ctx.getValue(this.fieldToMatch);
     if (value == null) {
 
-      logger.info(
+    	actionLogger.info(
           "No value is available in field "
               + this.fieldToMatch
               + " for us to suggest. No suggestions sent to client");
@@ -89,7 +89,7 @@ public class Suggest extends DbAction {
       }
     } catch (InvalidValueException e) {
 
-      logger.info(
+    	actionLogger.info(
           "we expected boolean value in "
               + ServiceProtocol.SUGGEST_STARTING
               + " but encountered "

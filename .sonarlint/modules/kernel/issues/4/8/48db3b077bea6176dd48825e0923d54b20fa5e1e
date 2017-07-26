@@ -1,0 +1,19 @@
+
+asquid:S2629"7Use the built-in formatting to construct this argument.(´ğ¦&RMAJORZ
+CODE_SMELL
+gsquid:S2629"7Use the built-in formatting to construct this argument.(¯ÇîªùÿÿÿÿRMAJORZ
+CODE_SMELL
+‡squid:S2629©"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(£æ“éRMAJORZ
+CODE_SMELL
+ˆsquid:S2293O"YReplace the type specification in this constructor call with the diamond operator ("<>").(’ùéƒûÿÿÿÿRMINORZ
+CODE_SMELL
+Rsquid:S1125N")Remove the literal "false" boolean value.(Ù¯Ê?RMINORZ
+CODE_SMELL
+Ssquid:S1125p")Remove the literal "false" boolean value.(ù€ıRMINORZ
+CODE_SMELL
+Tsquid:S1125¤")Remove the literal "false" boolean value.(í’öèRMINORZ
+CODE_SMELL
+Tsquid:S1125¸")Remove the literal "false" boolean value.(í’öèRMINORZ
+CODE_SMELL
+„squid:S3776o"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(Æ–†ÚüÿÿÿÿRCRITICALZ
+CODE_SMELL

@@ -34,7 +34,7 @@ import org.simplity.kernel.util.JsonUtil;
  * @author simplity.org
  */
 public class InputField {
-  static final Logger logger = LoggerFactory.getLogger(InputField.class);
+	private static final Logger logger = LoggerFactory.getLogger(InputField.class);
 
   /** field name. qualified name is relative to its parent. */
   String fieldSelector;

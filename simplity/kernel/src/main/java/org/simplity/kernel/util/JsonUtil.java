@@ -60,7 +60,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class JsonUtil {
-	static final Logger logger = LoggerFactory.getLogger(JsonUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(JsonUtil.class);
 
 	/**
 	 * create a data sheet out of a well-formed json array of simple jsonObject.

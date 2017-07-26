@@ -509,7 +509,7 @@ public enum ValueType {
       return result;
     }
   };
-  static final Logger logger = LoggerFactory.getLogger(ValueType.class);
+	private static final Logger logger = LoggerFactory.getLogger(ValueType.class);
 
   protected static final String NULL = "null";
   protected static final char ZERO = '0';

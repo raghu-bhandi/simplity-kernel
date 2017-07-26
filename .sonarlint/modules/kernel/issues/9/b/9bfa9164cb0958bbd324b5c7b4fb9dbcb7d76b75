@@ -1,0 +1,7 @@
+
+lsquid:S1118":Add a private constructor to hide the implicit public one.(à“ŠÙøÿÿÿÿHí=RMAJORZ
+CODE_SMELL
+ˆsquid:S1149"VReplace the synchronized class "Hashtable" by an unsynchronized one such as "HashMap".(’¾›ñùÿÿÿÿHî=RMAJORZ
+CODE_SMELL
+ˆsquid:S11490"VReplace the synchronized class "Hashtable" by an unsynchronized one such as "HashMap".(’¾›ñùÿÿÿÿHï=RMAJORZ
+CODE_SMELL

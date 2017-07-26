@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class OutputRecord {
-	protected static final Logger logger = LoggerFactory.getLogger(OutputRecord.class);
+	private  static final Logger logger = LoggerFactory.getLogger(OutputRecord.class);
 
 	/**
 	 * sheet into which output should get into. If null, then recordName should

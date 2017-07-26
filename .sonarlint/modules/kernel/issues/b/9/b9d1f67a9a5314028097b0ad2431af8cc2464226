@@ -1,0 +1,22 @@
+
+dsquid:S1135¡"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿH¯:RINFOZ
+CODE_SMELL
+ksquid:S1155»">Use isEmpty() to check whether the collection is empty or not.(ÍÔ›
+H±:RMINORZ
+CODE_SMELL
+csquid:S1172 "0Remove this unused method parameter "parentRow".(˜é¿ûÿÿÿÿH¸:RMAJORZ
+CODE_SMELL
+Tsquid:S1168‘"&Return an empty array instead of null.(¥¹ïH°:RMAJORZ
+CODE_SMELL
+Tsquid:S1168ª"&Return an empty array instead of null.(¥¹ïH²:RMAJORZ
+CODE_SMELL
+dsquid:S1135˜"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿH¶:RINFOZ
+CODE_SMELL
+isquid:S2629c"7Use the built-in formatting to construct this argument.(ÄÖŠİÿÿÿÿÿH³:RMAJORZ
+CODE_SMELL
+dsquid:S1135"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿH´:RINFOZ
+CODE_SMELL
+dsquid:S1135©"2Complete the task associated to this TODO comment.(» æÿÿÿÿÿH·:RINFOZ
+CODE_SMELL
+Ysquid:S1168¢"+Return an empty collection instead of null.(¥¹ïHµ:RMAJORZ
+CODE_SMELL

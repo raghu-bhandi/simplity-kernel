@@ -45,7 +45,7 @@ import org.simplity.kernel.Property;
  * @author simplity.org
  */
 public class JmsConnector {
-  static final Logger logger = LoggerFactory.getLogger(JmsConnector.class);
+	private static final Logger logger = LoggerFactory.getLogger(JmsConnector.class);
 
   /** non-jta connection */
   private static ConnectionFactory factory;

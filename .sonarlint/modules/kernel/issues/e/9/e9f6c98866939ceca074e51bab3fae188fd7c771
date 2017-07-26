@@ -1,0 +1,32 @@
+
+®%squid:RedundantThrowsDeclarationCheckZ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(±ñÆÄRMINORZ
+CODE_SMELL
+³%squid:RedundantThrowsDeclarationCheckA"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(óš”çùÿÿÿÿRMINORZ
+CODE_SMELL
+³%squid:RedundantThrowsDeclarationCheck}"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ĞÅ×‰úÿÿÿÿRMINORZ
+CODE_SMELL
+®%squid:RedundantThrowsDeclarationCheckÕ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(äÅÃRMINORZ
+CODE_SMELL
+ˆsquid:S2293*"YReplace the type specification in this constructor call with the diamond operator ("<>").(—Ÿ¿ıøÿÿÿÿRMINORZ
+CODE_SMELL
+l"squid:SwitchLastCaseIsDefaultCheck¼""Add a default case to this switch.(îÇËúÿÿÿÿRCRITICALZ
+CODE_SMELL
+l"squid:SwitchLastCaseIsDefaultCheck‹""Add a default case to this switch.(îÇËúÿÿÿÿRCRITICALZ
+CODE_SMELL
+}
+squid:S128«"LEnd this switch case with an unconditional break, return or throw statement.(„òÒ’ÿÿÿÿÿRBLOCKERZ
+CODE_SMELL
+}
+squid:S128ï"LEnd this switch case with an unconditional break, return or throw statement.(„òÒ’ÿÿÿÿÿRBLOCKERZ
+CODE_SMELL
+€squid:S3776•"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.(Ç²¨‡RCRITICALZ
+CODE_SMELL
+squid:S3776Õ"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(äÅÃRCRITICALZ
+CODE_SMELL
+¯%squid:RedundantThrowsDeclarationCheck•"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(Ç²¨‡RMINORZ
+CODE_SMELL
+€squid:S3776§"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.(¯ï—RCRITICALZ
+CODE_SMELL
+Ssquid:S2386*"!Make member "entity" "protected".(—Ÿ¿ıøÿÿÿÿRMINORZVULNERABILITY
+¯%squid:RedundantThrowsDeclarationCheck§"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(¯ï—RMINORZ
+CODE_SMELL

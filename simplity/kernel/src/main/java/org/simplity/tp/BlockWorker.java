@@ -41,7 +41,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class BlockWorker implements DbClientInterface, MessageClient {
-  static final Logger logger = LoggerFactory.getLogger(BlockWorker.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(BlockWorker.class);
 
   /** field name with which result of an action is available in service context */
   public static final String RESULT_SUFFIX = "Result";
@@ -124,7 +124,7 @@ public class BlockWorker implements DbClientInterface, MessageClient {
       result = action.act(this.ctx, driver);
       currentIdx++;
 
-      logger.info(
+      actionLogger.info(
           "Action "
               + action.actionName
               + " finished with result="

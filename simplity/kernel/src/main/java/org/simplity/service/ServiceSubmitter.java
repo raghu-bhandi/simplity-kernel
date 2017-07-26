@@ -38,7 +38,7 @@ import org.simplity.kernel.Messages;
  * @author simplity.org
  */
 public class ServiceSubmitter implements Runnable {
-  static final Logger logger = LoggerFactory.getLogger(ServiceSubmitter.class);
+	private static final Logger logger = LoggerFactory.getLogger(ServiceSubmitter.class);
 
   private final ServiceData inData;
   private final ServiceInterface service;

@@ -56,7 +56,7 @@ import org.simplity.service.ServiceContext;
  */
 public class BatchRowProcessor {
 
-  static final Logger logger = LoggerFactory.getLogger(BatchRowProcessor.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(BatchRowProcessor.class);
 
   /** if the rows are from a SQL */
   String inputSql;
@@ -555,7 +555,7 @@ public class BatchRowProcessor {
         }
         if (this.isInterruptible && Thread.interrupted()) {
 
-          logger.info("Detected an interrupt. Going to stop processing rows from sql output");
+        	actionLogger.info("Detected an interrupt. Going to stop processing rows from sql output");
 
           Thread.currentThread().interrupt();
           break;
@@ -579,7 +579,7 @@ public class BatchRowProcessor {
 
       if (this.isInterruptible && Thread.interrupted()) {
 
-        logger.info("Detected an interrupt. Going to stop processing rows from sql output");
+    	  actionLogger.info("Detected an interrupt. Going to stop processing rows from sql output");
 
         Thread.currentThread().interrupt();
         return false;
@@ -689,7 +689,7 @@ public class BatchRowProcessor {
         boolean ok = this.batchInput.inputARow(errors, this.ctx);
         if (!ok) {
 
-          logger.info("No rows in file child file");
+        	actionLogger.info("No rows in file child file");
 
           return 0;
         }

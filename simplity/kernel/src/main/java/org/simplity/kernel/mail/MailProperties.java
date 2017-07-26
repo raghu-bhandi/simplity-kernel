@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Properties;
 
 public class MailProperties {
-  static final Logger logger = LoggerFactory.getLogger(MailProperties.class);
+	private static final Logger logger = LoggerFactory.getLogger(MailProperties.class);
 
   protected String host;
   protected String port;

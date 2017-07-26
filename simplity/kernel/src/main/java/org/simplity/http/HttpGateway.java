@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class HttpGateway extends Gateway {
-	static final Logger logger = LoggerFactory.getLogger(HttpGateway.class);
+	private static final Logger logger = LoggerFactory.getLogger(HttpGateway.class);
 	static final String DEFULT_METHOD = "POST";
 
 	/**
@@ -232,7 +232,7 @@ public class HttpGateway extends Gateway {
 				/*
 				 * how do you know this successful? 2xx series is safe
 				 */
-				if (status < 200 | status > 299) {
+				if (status < 200 || status > 299) {
 					logger.error("Http call failed for gateway " + gateway.getName() + " with url " + fullPath
 							+ " with status code " + status);
 					return false;

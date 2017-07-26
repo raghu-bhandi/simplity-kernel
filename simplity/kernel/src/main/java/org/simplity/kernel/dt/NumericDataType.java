@@ -38,7 +38,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class NumericDataType extends DataType {
-  static final Logger logger = LoggerFactory.getLogger(NumericDataType.class);
+	private static final Logger logger = LoggerFactory.getLogger(NumericDataType.class);
 
   /** min digits before decimal places required for this value */
   long minValue = Long.MIN_VALUE;

@@ -42,7 +42,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class ExecuteSp extends DbAction {
-  static final Logger logger = LoggerFactory.getLogger(ExecuteSp.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(ExecuteSp.class);
 
   /** qualified name */
   String procedureName;
@@ -97,14 +97,14 @@ public class ExecuteSp extends DbAction {
     DataSheet[] outSheets = sp.execute(inSheet, outSheet, driver, ctx);
     if (outSheets == null) {
 
-      logger.info("Stored procedure " + this.actionName + " execution completed with no sheets.");
+    	actionLogger.info("Stored procedure " + this.actionName + " execution completed with no sheets.");
 
       return 1;
     }
 
     int nbrOutSheets = outSheets.length;
 
-    logger.info(
+    actionLogger.info(
         "Stored procedure action "
             + this.actionName
             + " returned "

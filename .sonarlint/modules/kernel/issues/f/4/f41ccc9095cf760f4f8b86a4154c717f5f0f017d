@@ -1,0 +1,13 @@
+
+¡"squid:ClassVariableVisibilityCheck4"UMake fieldName a static final constant or non-public and provide accessors if needed.(¹Œ„üÿÿÿÿH›@RMINORZVULNERABILITY
+œ"squid:ClassVariableVisibilityCheck@"PMake data a static final constant or non-public and provide accessors if needed.(¡áƒŒÿÿÿÿÿHœ@RMINORZVULNERABILITY
+¡"squid:ClassVariableVisibilityCheck8"UMake tableName a static final constant or non-public and provide accessors if needed.(Óë•¢ûÿÿÿÿH”@RMINORZVULNERABILITY
+squid:S3008µ"bRename this field "MESSAGE_COMPONENT_TYPES" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Š—ŠH•@RMINORZ
+CODE_SMELL
+¨"squid:ClassVariableVisibilityCheck6"\Make relatedFieldName a static final constant or non-public and provide accessors if needed.(İûúøùÿÿÿÿH—@RMINORZVULNERABILITY
+squid:S3008·"bRename this field "MESSAGE_COMPONENT_NAMES" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¸¿ùçH–@RMINORZ
+CODE_SMELL
+™"squid:ClassVariableVisibilityCheck="RMake values a static final constant or non-public and provide accessors if needed.(Û­›šH˜@RMINORZVULNERABILITY
+isquid:S2629b"7Use the built-in formatting to construct this argument.(Éë„™ÿÿÿÿÿH™@RMAJORZ
+CODE_SMELL
+¡"squid:ClassVariableVisibilityCheck:"UMake rowNumber a static final constant or non-public and provide accessors if needed.(Ûª ¢şÿÿÿÿHš@RMINORZVULNERABILITY

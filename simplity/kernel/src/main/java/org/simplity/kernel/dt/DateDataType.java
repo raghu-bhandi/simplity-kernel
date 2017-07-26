@@ -36,7 +36,7 @@ import org.simplity.kernel.value.ValueType;
 
 /** @author simplity.org */
 public class DateDataType extends DataType {
-  static final Logger logger = LoggerFactory.getLogger(DateDataType.class);
+	private static final Logger logger = LoggerFactory.getLogger(DateDataType.class);
 
   /** do we keep time as well? */
   boolean hasTime;

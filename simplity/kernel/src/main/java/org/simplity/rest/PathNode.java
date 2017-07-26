@@ -38,7 +38,7 @@ import org.simplity.kernel.ApplicationError;
  * @author simplity.org
  */
 public class PathNode {
-  static final Logger logger = LoggerFactory.getLogger(PathNode.class);
+	private static final Logger logger = LoggerFactory.getLogger(PathNode.class);
 
   /** non-null only if this this node is for a field */
   private String fieldName = null;

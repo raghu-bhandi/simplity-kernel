@@ -42,7 +42,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class ReadWithSql extends DbAction {
-  static final Logger logger = LoggerFactory.getLogger(ReadWithSql.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(ReadWithSql.class);
 
   /** fully qualified sql name */
   String sqlName;
@@ -67,7 +67,7 @@ public class ReadWithSql extends DbAction {
       DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
       if (inSheet == null) {
 
-        logger.info(
+    	  actionLogger.info(
             "Read Action "
                 + this.actionName
                 + " did not execute because input sheet "

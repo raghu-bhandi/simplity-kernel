@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * data structure that holds name and data type of an input/output field.
  */
 public class InputField {
-	protected static final Logger logger = LoggerFactory.getLogger(InputField.class);
+	private  static final Logger logger = LoggerFactory.getLogger(InputField.class);
 	/**
 	 * name
 	 */

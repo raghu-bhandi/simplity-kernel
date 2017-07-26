@@ -12,7 +12,7 @@ import javax.naming.directory.InitialDirContext;
 import org.simplity.kernel.ApplicationError;
 
 public class LdapProperties {
-  static final Logger logger = LoggerFactory.getLogger(LdapProperties.class);
+	private static final Logger logger = LoggerFactory.getLogger(LdapProperties.class);
 
   protected static String factory;
   protected static String ldapurl;

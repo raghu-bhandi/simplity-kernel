@@ -1,0 +1,37 @@
+
+isquid:S2629s"7Use the built-in formatting to construct this argument.(ããíÀúÿÿÿÿHáARMAJORZ
+CODE_SMELL
+jsquid:S2629ò"7Use the built-in formatting to construct this argument.(Ôá‡ùÿÿÿÿHÒARMAJORZ
+CODE_SMELL
+jsquid:S2629ß"7Use the built-in formatting to construct this argument.(ÉçéãıÿÿÿÿHÜARMAJORZ
+CODE_SMELL
+ƒsquid:S3776›"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(‹ü¼ÔHİARCRITICALZ
+CODE_SMELL
+}squid:S1192¥"LDefine a constant instead of duplicating this literal "Data sheet " 3 times.(Â†µHÙARCRITICALZ
+CODE_SMELL
+esquid:S2629±"7Use the built-in formatting to construct this argument.(À±ÓáHÖARMAJORZ
+CODE_SMELL
+esquid:S2629¥"7Use the built-in formatting to construct this argument.(Â†µH×ARMAJORZ
+CODE_SMELL
+esquid:S2629±"7Use the built-in formatting to construct this argument.(ëİÌáHÕARMAJORZ
+CODE_SMELL
+jsquid:S2629Õ"7Use the built-in formatting to construct this argument.(æõËûÿÿÿÿHÓARMAJORZ
+CODE_SMELL
+‹
+squid:S135"YReduce the total number of break and continue statements in this loop to use at most one.(èÆİåúÿÿÿÿHÛARMINORZ
+CODE_SMELL
+esquid:S2629«"7Use the built-in formatting to construct this argument.(ÙÖñäHàARMAJORZ
+CODE_SMELL
+esquid:S2629â"7Use the built-in formatting to construct this argument.(¯ößHÔARMAJORZ
+CODE_SMELL
+jsquid:S2629‚"7Use the built-in formatting to construct this argument.(Ôá‡ùÿÿÿÿHßARMAJORZ
+CODE_SMELL
+†
+squid:S135œ"YReduce the total number of break and continue statements in this loop to use at most one.(×Ñ¡êHŞARMINORZ
+CODE_SMELL
+esquid:S2629Ä"7Use the built-in formatting to construct this argument.(¯ößHÚARMAJORZ
+CODE_SMELL
+jsquid:S2629­"7Use the built-in formatting to construct this argument.(ÄŠçèøÿÿÿÿHâARMAJORZ
+CODE_SMELL
+jsquid:S2629ä"7Use the built-in formatting to construct this argument.(™ƒ¨´ıÿÿÿÿHØARMAJORZ
+CODE_SMELL

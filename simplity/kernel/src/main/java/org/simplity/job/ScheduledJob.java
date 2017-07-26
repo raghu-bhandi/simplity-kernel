@@ -36,7 +36,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public abstract class ScheduledJob {
-  static final Logger logger = LoggerFactory.getLogger(ScheduledJob.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ScheduledJob.class);
 
   /** due at value to denote that this job will nt submit again */
   public static final int NEVER = -1;
@@ -91,10 +91,10 @@ public abstract class ScheduledJob {
     this.noChange();
   }
 
-  private void noChange() {
+  protected void noChange() {
 
     logger.info(
-        "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
+        "Job {} is a batch, and hence we can not add/remove thread",this.scheduledJob.name);
   }
 
   /**

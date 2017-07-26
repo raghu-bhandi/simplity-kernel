@@ -1,0 +1,8 @@
+
+Vsquid:S1125I")Remove the literal "false" boolean value.(Ëç •HïBRMINORZ
+CODE_SMELL
+Psquid:S2629w"$Invoke method(s) only conditionally.(òÈŠGHñBRMAJORZ
+CODE_SMELL
+csquid:S1135j"2Complete the task associated to this TODO comment.(ÕÌ®şÿÿÿÿHğBRINFOZ
+CODE_SMELL
+Xsquid:S1148k"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿHîBRMINORZVULNERABILITY

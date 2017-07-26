@@ -1,0 +1,13 @@
+
+[squid:S1125k")Remove the literal "false" boolean value.(ύ‚ΠώÿÿÿÿHπ7RMINORZ
+CODE_SMELL
+Msquid:S1700,"Rename field "scheduledJob"(μΠ”ωÿÿÿÿHμ7RMAJORZ
+CODE_SMELL
+dsquid:S2629>"7Use the built-in formatting to construct this argument.(φÒ΄ΪHλ7RMAJORZ
+CODE_SMELL
+[squid:S1172Z"/Remove this unused method parameter "executor".(Ή—όyHο7RMAJORZ
+CODE_SMELL
+asquid:S1172P"/Remove this unused method parameter "executor".(κ»ΪκωÿÿÿÿHν7RMAJORZ
+CODE_SMELL
+jsquid:S1172”"7Remove this unused method parameter "referenceMinutes".(ργήτόÿÿÿÿHξ7RMAJORZ
+CODE_SMELL

@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Response {
 
-	  protected static final Logger logger = LoggerFactory.getLogger(Response.class);
+	private  static final Logger logger = LoggerFactory.getLogger(Response.class);
 	/*
 	 * default success and failure responses in case of emergency!!
 	 */

@@ -38,7 +38,6 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public class IntervalJob extends ScheduledJob {
-  static final Logger logger = LoggerFactory.getLogger(IntervalJob.class);
 
   /*
    * we have only one job
@@ -100,12 +99,6 @@ public class IntervalJob extends ScheduledJob {
   @Override
   public void decrmentThread(ScheduledExecutorService executor) {
     this.noChange();
-  }
-
-  private void noChange() {
-
-    logger.info(
-        "Job " + this.scheduledJob.name + " is a batch, and hence we can not add/remove thread");
   }
 
   /*

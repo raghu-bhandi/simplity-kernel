@@ -34,7 +34,7 @@ import org.simplity.kernel.value.Value;
 
 /** @author simplity.org */
 public class JavaAgent {
-  static final Logger logger = LoggerFactory.getLogger(JavaAgent.class);
+	private static final Logger logger = LoggerFactory.getLogger(JavaAgent.class);
 
   /**
    * a client agent that can be used by java classes within the same VM where the app is hosted.

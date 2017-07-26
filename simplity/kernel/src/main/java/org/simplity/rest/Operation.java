@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Operation {
 
-	static final Logger logger = LoggerFactory.getLogger(Operation.class);
+	private static final Logger logger = LoggerFactory.getLogger(Operation.class);
 
 	/**
 	 * service name that this operation maps to. This is calculated/determined

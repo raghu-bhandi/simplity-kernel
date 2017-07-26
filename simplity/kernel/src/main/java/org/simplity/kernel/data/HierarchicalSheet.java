@@ -39,7 +39,7 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public class HierarchicalSheet {
-  static final Logger logger = LoggerFactory.getLogger(HierarchicalSheet.class);
+	private static final Logger logger = LoggerFactory.getLogger(HierarchicalSheet.class);
 
   private final String name;
   private final String[] fieldNames;

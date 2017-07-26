@@ -24,7 +24,7 @@ import org.simplity.tp.Service;
  * @author simplity.org
  */
 public class GetService implements LogicInterface {
-  static final Logger logger = LoggerFactory.getLogger(GetService.class);
+	private static final Logger logger = LoggerFactory.getLogger(GetService.class);
 
   /*
    * (non-Javadoc)

@@ -1,0 +1,8 @@
+
+msquid:UselessImportCheck"-Remove this unused import 'org.slf4j.Logger'.(íØ®68ž‘¶ò×+HÞ5RMINORZ
+CODE_SMELL
+fsquid:S2093i"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿ8î•Èò×+H¶7RCRITICALZ
+CODE_SMELL
+usquid:UselessImportCheck"4Remove this unused import 'org.slf4j.LoggerFactory'.(–ÿÚÞ8ž‘¶ò×+Hß5RMINORZ
+CODE_SMELL
+psquid:S2259„"BA "NullPointerException" could be thrown; "blob" is nullable here.(³Å ï8î•Èò×+H·7RMAJORZBUG

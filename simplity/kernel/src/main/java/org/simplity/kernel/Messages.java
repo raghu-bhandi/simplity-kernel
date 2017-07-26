@@ -34,7 +34,7 @@ import org.simplity.kernel.comp.ComponentType;
  * @author simplity.org
  */
 public class Messages {
-  static final Logger logger = LoggerFactory.getLogger(Messages.class);
+	private static final Logger logger = LoggerFactory.getLogger(Messages.class);
 
   /*
    * messages used internally

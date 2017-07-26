@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * @author simplity.org
  */
 public class SimpleCacheManager implements ClientCacheManager {
-  static final Logger logger = LoggerFactory.getLogger(SimpleCacheManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(SimpleCacheManager.class);
 
   /** user id specific responses are saved in session in this name */
   private static final String NAME_IN_SESSION = "_CACHE";

@@ -41,7 +41,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class ExecuteSql extends DbAction {
-  static final Logger logger = LoggerFactory.getLogger(ExecuteSql.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(ExecuteSql.class);
 
   /** qualified sql name */
   String sqlName;
@@ -66,7 +66,7 @@ public class ExecuteSql extends DbAction {
       return sql.execute(inSheet, driver, this.treatSqlErrorAsNoResult);
     }
 
-    logger.info(
+    actionLogger.info(
         "Sql Save Action "
             + this.actionName
             + " did not execute because input sheet "

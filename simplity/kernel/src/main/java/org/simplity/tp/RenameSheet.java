@@ -35,7 +35,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class RenameSheet extends Action {
-  static final Logger logger = LoggerFactory.getLogger(RenameSheet.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(RenameSheet.class);
 
   /** current name */
   String sheetName;
@@ -52,7 +52,7 @@ public class RenameSheet extends Action {
     DataSheet sheet = ctx.removeDataSheet(this.sheetName);
     if (sheet == null) {
 
-      logger.info(
+    	actionLogger.info(
           "Data sheet "
               + this.sheetName
               + " not found, and hence is not renamed to "

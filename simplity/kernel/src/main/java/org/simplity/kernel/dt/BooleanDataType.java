@@ -31,7 +31,7 @@ import org.simplity.kernel.value.ValueType;
 
 /** @author simplity.org */
 public class BooleanDataType extends DataType {
-  static final Logger logger = LoggerFactory.getLogger(BooleanDataType.class);
+	private static final Logger logger = LoggerFactory.getLogger(BooleanDataType.class);
 
   private static final String DESC = "1 for yes/true and 0 for false/no";
 

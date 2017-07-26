@@ -1,0 +1,20 @@
+
+…
+squid:S135K"YReduce the total number of break and continue statements in this loop to use at most one.(æºªÉHîERMINORZ
+CODE_SMELL
+ksquid:S2629C"7Use the built-in formatting to construct this argument.(÷îò8ßŞ°ó×+HòERMAJORZ
+CODE_SMELL
+‡squid:S3776="RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(¼ÙŞüÿÿÿÿHïERCRITICALZ
+CODE_SMELL
+€squid:S1192U"PDefine a constant instead of duplicating this literal " not encrypted." 3 times.(Œü¾ÒHìERCRITICALZ
+CODE_SMELL
+ksquid:S2629x"7Use the built-in formatting to construct this argument.(ç€ÙŸ8ßŞ°ó×+HöERMAJORZ
+CODE_SMELL
+psquid:S2629]"7Use the built-in formatting to construct this argument.(Ç•½«üÿÿÿÿ8ßŞ°ó×+HôERMAJORZ
+CODE_SMELL
+ksquid:S2629Q"7Use the built-in formatting to construct this argument.(£¨Ê±8ßŞ°ó×+HóERMAJORZ
+CODE_SMELL
+Wsquid:S1125˜")Remove the literal "false" boolean value.(ÎÈ–’HíERMINORZ
+CODE_SMELL
+ksquid:S2629f"7Use the built-in formatting to construct this argument.(–ŸÆˆ8ßŞ°ó×+HõERMAJORZ
+CODE_SMELL

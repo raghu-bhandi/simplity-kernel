@@ -42,7 +42,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Read extends DbAction {
-  static final Logger logger = LoggerFactory.getLogger(Read.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(Read.class);
 
   /** qualified record name */
   String recordName;
@@ -113,7 +113,7 @@ public class Read extends DbAction {
     if (this.childRecords != null) {
       for (RelatedRecord rr : this.childRecords) {
         Record cr = ComponentManager.getRecord(rr.recordName);
-        logger.info("Going to read child record ");
+        actionLogger.info("Going to read child record ");
 
         cr.filterForParents(outSheet, driver, rr.sheetName, this.cascadeFilterForChildren, ctx);
       }

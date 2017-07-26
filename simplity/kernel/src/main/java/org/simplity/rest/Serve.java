@@ -42,7 +42,7 @@ import org.slf4j.MDC;
  *
  */
 public class Serve extends HttpServlet {
-	protected static final Logger logger = LoggerFactory.getLogger(Serve.class);
+	private  static final Logger logger = LoggerFactory.getLogger(Serve.class);
 
 	private static final long serialVersionUID = 1L;
 

@@ -95,7 +95,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class Expression {
-  static final Logger logger = LoggerFactory.getLogger(Expression.class);
+	private static final Logger logger = LoggerFactory.getLogger(Expression.class);
 
   /*
    * We have taken a '"manual approach" in our expression. But why? Just like

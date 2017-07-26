@@ -37,7 +37,6 @@ import org.simplity.kernel.value.Value;
  * @author simplity.org
  */
 public class ListenerJob extends ScheduledJob {
-  static final Logger logger = LoggerFactory.getLogger(ListenerJob.class);
 
   private RunningJob[] runningJobs;
   private Object[] futures;
@@ -80,9 +79,9 @@ public class ListenerJob extends ScheduledJob {
    */
   @Override
   public void incrmentThread(ScheduledExecutorService executor) {
-    if (this.isScheduled == false) {
+    if (!this.isScheduled) {
 
-      logger.info(this.scheduledJob.name + " is not scheduled");
+      logger.info("{} is not scheduled",this.scheduledJob.name);
 
       return;
     }
@@ -114,16 +113,16 @@ public class ListenerJob extends ScheduledJob {
    */
   @Override
   public void decrmentThread(ScheduledExecutorService executor) {
-    if (this.isScheduled == false) {
+    if (!this.isScheduled) {
 
-      logger.info(this.scheduledJob.name + " is not scheduled");
+      logger.info("{} is not scheduled",this.scheduledJob.name);
 
       return;
     }
     int nbr = this.runningJobs.length - 1;
     if (nbr == 0) {
 
-      logger.info("Job " + this.scheduledJob.name + " has only one thread. Can not reduce it.");
+      logger.info("Job {} has only one thread. Can not reduce it.",this.scheduledJob.name);
 
       return;
     }

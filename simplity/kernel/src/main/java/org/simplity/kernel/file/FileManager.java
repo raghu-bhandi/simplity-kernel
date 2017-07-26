@@ -51,7 +51,7 @@ import org.simplity.kernel.ApplicationError;
  * @author simplity.org
  */
 public class FileManager {
-  static final Logger logger = LoggerFactory.getLogger(FileManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 
   private static final int MAX_TRY = 1000;
   private static final String MSG = "error while writing to a temp file";

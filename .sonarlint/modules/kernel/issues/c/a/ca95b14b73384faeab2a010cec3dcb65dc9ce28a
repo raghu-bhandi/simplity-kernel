@@ -1,0 +1,15 @@
+
+squid:S2293D"YReplace the type specification in this constructor call with the diamond operator ("<>").(Κ»ΤϋÿÿÿÿRMINORZ
+CODE_SMELL
+Usquid:S1948D"*Make "messages" transient or serializable.(Κ»ΤϋÿÿÿÿRCRITICALZBUG
+wsquid:S1858"G"resp" is already a string, there's no need to call "toString()" on it.(Δ³ίοÿÿÿÿÿRMINORZ
+CODE_SMELL
+Usquid:S1948Y"/Make "sessionFields" transient or serializable.(Έ“„‚RCRITICALZBUG
+Nsquid:S1948<"(Make "fields" transient or serializable.(™“½‹RCRITICALZBUG
+ƒsquid:S2293<"YReplace the type specification in this constructor call with the diamond operator ("<>").(™“½‹RMINORZ
+CODE_SMELL
+Tsquid:S1125…")Remove the literal "false" boolean value.(ψµ¨RMINORZ
+CODE_SMELL
+Rsquid:S1948V",Make "messageBox" transient or serializable.(ΡΖω¦RCRITICALZBUG
+‰squid:S2293Ϋ"YReplace the type specification in this constructor call with the diamond operator ("<>").(ς¦ώÿÿÿÿRMINORZ
+CODE_SMELL

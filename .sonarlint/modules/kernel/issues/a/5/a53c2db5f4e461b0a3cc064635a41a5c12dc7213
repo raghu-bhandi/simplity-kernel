@@ -1,0 +1,27 @@
+
+ƒsquid:S3776²"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(ûäÊÒH¤@RCRITICALZ
+CODE_SMELL
+‘squid:S00115ñ"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(•Ÿ¾ËúÿÿÿÿH©@RCRITICALZ
+CODE_SMELL
+Œsquid:S00115"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(ö­À…H @RCRITICALZ
+CODE_SMELL
+[squid:S1125p")Remove the literal "false" boolean value.(½Îô™ÿÿÿÿÿH£@RMINORZ
+CODE_SMELL
+\squid:S1125Œ")Remove the literal "false" boolean value.(‘œö›ıÿÿÿÿH§@RMINORZ
+CODE_SMELL
+Œsquid:S00115"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(ö­À…H¦@RCRITICALZ
+CODE_SMELL
+dsquid:S2629q"7Use the built-in formatting to construct this argument.(·çÇƒHŸ@RMAJORZ
+CODE_SMELL
+jsquid:S2629”"7Use the built-in formatting to construct this argument.(ªâ¦ÖûÿÿÿÿH¢@RMAJORZ
+CODE_SMELL
+‚squid:S3776i"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(á˜İ“H¨@RCRITICALZ
+CODE_SMELL
+‘squid:S00115ñ"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(•Ÿ¾ËúÿÿÿÿHª@RCRITICALZ
+CODE_SMELL
+esquid:S2629ä"7Use the built-in formatting to construct this argument.(Ş‡ºH¥@RMAJORZ
+CODE_SMELL
+Œsquid:S00115"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(ö­À…H«@RCRITICALZ
+CODE_SMELL
+jsquid:S2629¡"7Use the built-in formatting to construct this argument.(å¨İ şÿÿÿÿH¡@RMAJORZ
+CODE_SMELL

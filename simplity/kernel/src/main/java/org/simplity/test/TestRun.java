@@ -31,7 +31,7 @@ import org.simplity.kernel.comp.ValidationContext;
 
 /** Sequence of test cases that are run in that order */
 public class TestRun implements Component {
-  static final Logger logger = LoggerFactory.getLogger(TestRun.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestRun.class);
 
   String testName;
   String moduleName;

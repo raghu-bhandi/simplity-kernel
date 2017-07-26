@@ -54,7 +54,7 @@ import org.simplity.service.ServiceContext;
  * @author infosys.com
  */
 public class HttpClient extends Action {
-  static final Logger logger = LoggerFactory.getLogger(HttpClient.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(HttpClient.class);
 
   private static final char DOLLAR = '$';
   private static final String JSON = "/json";
@@ -253,7 +253,7 @@ public class HttpClient extends Action {
       String req = ctx.getTextValue(this.requestFieldName);
       if (req == null) {
 
-        logger.info(
+    	  actionLogger.info(
             "No value for field "
                 + this.requestFieldName
                 + " in context, and hence no data is sent with the http request.");

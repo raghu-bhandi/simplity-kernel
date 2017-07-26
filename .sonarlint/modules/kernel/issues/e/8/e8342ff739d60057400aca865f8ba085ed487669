@@ -1,0 +1,11 @@
+
+esquid:S2629¶"7Use the built-in formatting to construct this argument.(ì÷®«H¡&RMAJORZ
+CODE_SMELL
+esquid:S2629Å"7Use the built-in formatting to construct this argument.(ã©È‰H£&RMAJORZ
+CODE_SMELL
+Wsquid:S1125Ï")Remove the literal "false" boolean value.(‹÷ÛH¤&RMINORZ
+CODE_SMELL
+ˆsquid:S3776’"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(­‘ÇµüÿÿÿÿH¥&RCRITICALZ
+CODE_SMELL
+squid:S2629Â"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(œŞ¦ôÿÿÿÿÿH¢&RMAJORZ
+CODE_SMELL

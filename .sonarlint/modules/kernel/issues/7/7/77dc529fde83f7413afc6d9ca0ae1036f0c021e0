@@ -1,0 +1,46 @@
+
+Ë%squid:RedundantThrowsDeclarationCheck´"~Remove the declaration of thrown exception 'org.simplity.tp.InvalidRowException' which is a subclass of 'java.lang.Exception'.(ƒ®ÎÀøÿÿÿÿHÖERMINORZ
+CODE_SMELL
+Œsquid:S2293‘"YReplace the type specification in this constructor call with the diamond operator ("<>").(®Ì†ÕüÿÿÿÿHàERMINORZ
+CODE_SMELL
+qsquid:S1155¥">Use isEmpty() to check whether the collection is empty or not.(Õ©‡ıÿÿÿÿHËERMINORZ
+CODE_SMELL
+qsquid:S1155Ä">Use isEmpty() to check whether the collection is empty or not.(Õ©‡ıÿÿÿÿHÎERMINORZ
+CODE_SMELL
+\squid:S1125Ì")Remove the literal "false" boolean value.(«·ÊşÿÿÿÿHİERMINORZ
+CODE_SMELL
+\squid:S1125¬")Remove the literal "false" boolean value.(Š·õşÿÿÿÿHÔERMINORZ
+CODE_SMELL
+\squid:S1905¹")Remove this unnecessary cast to "String".(ç¨­…ûÿÿÿÿHÒERMINORZ
+CODE_SMELL
+ˆsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(–¹ù¯øÿÿÿÿHÌERCRITICALZ
+CODE_SMELL
+qsquid:S1155Ò">Use isEmpty() to check whether the collection is empty or not.(Õ©‡ıÿÿÿÿHŞERMINORZ
+CODE_SMELL
+•squid:S3038ı"b"callBackOnDbRow" is defined in the "DbRowProcessor" interface and can be removed from this class.(òº‘ïûÿÿÿÿHÍERMINORZ
+CODE_SMELL
+gsquid:S3400"9Remove this method and declare a constant for this value.(”·³›HÓERMINORZ
+CODE_SMELL
+Wsquid:S1125˜")Remove the literal "false" boolean value.(‡á“ H×ERMINORZ
+CODE_SMELL
+Vsquid:S1125­")Remove the literal "false" boolean value.(âÙÉWHÚERMINORZ
+CODE_SMELL
+„squid:S1192•"SDefine a constant instead of duplicating this literal "Error while using " 3 times.(¬È„–HĞERCRITICALZ
+CODE_SMELL
+‚squid:S3776÷"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(á¾»OHØERCRITICALZ
+CODE_SMELL
+ˆsquid:S3776€"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(–¹ù¯øÿÿÿÿHÛERCRITICALZ
+CODE_SMELL
+Œsquid:S2293¬"YReplace the type specification in this constructor call with the diamond operator ("<>").(®Ì†ÕüÿÿÿÿHßERMINORZ
+CODE_SMELL
+‹
+squid:S135’"YReduce the total number of break and continue statements in this loop to use at most one.(˜ïˆÿÿÿÿÿHÕERMINORZ
+CODE_SMELL
+qsquid:S1155¸">Use isEmpty() to check whether the collection is empty or not.(Õ©‡ıÿÿÿÿHÑERMINORZ
+CODE_SMELL
+]squid:S1066"/Merge this if statement with the enclosing one.(€˜æºHÙERMAJORZ
+CODE_SMELL
+]squid:S1172œ"*Remove this unused method parameter "vtx".(¶Â¶ŞşÿÿÿÿHÏERMAJORZ
+CODE_SMELL
+usquid:S00112ú"FDefine and throw a dedicated exception instead of using a generic one.(Íã»ÿHÜERMAJORZ
+CODE_SMELL

@@ -33,7 +33,7 @@ import java.util.Calendar;
  * @author simplity.org
  */
 public class TimeOfDayScheduler implements Runnable {
-  static final Logger logger = LoggerFactory.getLogger(TimeOfDayScheduler.class);
+	private static final Logger logger = LoggerFactory.getLogger(TimeOfDayScheduler.class);
 
   private static final int MAX_MINUTES = 24 * 60;
 

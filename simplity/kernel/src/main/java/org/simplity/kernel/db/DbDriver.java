@@ -68,7 +68,7 @@ import oracle.sql.StructDescriptor;
  * @author simplity.org
  */
 public class DbDriver {
-  static final Logger logger = LoggerFactory.getLogger(DbDriver.class);
+	private static final Logger logger = LoggerFactory.getLogger(DbDriver.class);
 
   // static final int[] TEXT_TYPES = {Types.CHAR, Types.LONGNVARCHAR,
   // Types.LONGVARCHAR, Types.NCHAR, Types.NVARCHAR, Types.VARCHAR};

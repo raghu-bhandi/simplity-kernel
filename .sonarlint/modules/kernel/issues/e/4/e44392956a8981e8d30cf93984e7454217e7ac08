@@ -1,0 +1,8 @@
+
+Ssquid:S28850"+Make "DATE_FORMATTER" an instance variable.(ÉŞƒ–ıÿÿÿÿRMAJORZBUG
+Ssquid:S28854"0Make "DATE_TIME_FORMATTER" an instance variable.(ŞÒ›ÚRMAJORZBUG
+dsquid:S1118#":Add a private constructor to hide the implicit public one.(Ÿÿ¸ÜRMAJORZ
+CODE_SMELL
+^squid:S28856"6Make "DATE_SHORT_TIME_FORMATTER" an instance variable.(ÜˆÍçşÿÿÿÿRMAJORZBUG
+|squid:S3008$"SRename this field "UTC_ZONE" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¶ÛRMINORZ
+CODE_SMELL

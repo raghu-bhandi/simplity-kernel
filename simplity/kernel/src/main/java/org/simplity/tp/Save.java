@@ -45,7 +45,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Save extends DbAction {
-  static final Logger logger = LoggerFactory.getLogger(Save.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(Save.class);
 
   /** qualified record name */
   String recordName;
@@ -95,7 +95,7 @@ public class Save extends DbAction {
     }
     int nbrRows = inSheet.length();
 
-    logger.info("Starting save for a sheet with " + nbrRows);
+    actionLogger.info("Starting save for a sheet with " + nbrRows);
 
     if (nbrRows == 0) {
       return nbrRows;
@@ -117,7 +117,7 @@ public class Save extends DbAction {
     }
     if (this.childRecords != null) {
 
-      logger.info(
+    	actionLogger.info(
           "Child records are valid only when parent is for a single row. Data if any, ignored.");
     }
     return nbrRowsAffected;
@@ -196,7 +196,7 @@ public class Save extends DbAction {
         nbr += record.deleteWithParent(ctx, driver, userId);
         if (relatedSheet == null || relatedSheet.length() == 0) {
 
-          logger.info(
+        	actionLogger.info(
               "Rows in record "
                   + rr.recordName
                   + " deleted, as there were no rows to replace them.");
@@ -205,7 +205,7 @@ public class Save extends DbAction {
         }
         nbr += record.insertWithParent(relatedSheet, ctx, driver, userId);
 
-        logger.info(
+        actionLogger.info(
             "Rows in record "
                 + rr.recordName
                 + " replaced based on "
@@ -218,7 +218,7 @@ public class Save extends DbAction {
 
       if (relatedSheet == null || relatedSheet.length() == 0) {
 
-        logger.info(
+    	  actionLogger.info(
             "Related record "
                 + rr.recordName
                 + " not saved as there is no data in sheet "
@@ -227,7 +227,7 @@ public class Save extends DbAction {
         continue;
       }
 
-      logger.info(
+      actionLogger.info(
           "Saving children is a noble cause!! Going to save child record "
               + rr.recordName
               + " for action = "

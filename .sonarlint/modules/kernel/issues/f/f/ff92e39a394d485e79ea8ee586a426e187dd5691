@@ -1,0 +1,7 @@
+
+isquid:S2629["7Use the built-in formatting to construct this argument.(›¹ÐÄøÿÿÿÿHÜ9RMAJORZ
+CODE_SMELL
+qsquid:S2184e"FCast one of the operands of this multiplication operation to a "long".(ûêùœýÿÿÿÿHÙ9RMINORZBUG
+lsquid:S2142f"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€HÚ9RMAJORZBUG
+csquid:S2629c"7Use the built-in formatting to construct this argument.(÷öõAHÛ9RMAJORZ
+CODE_SMELL

@@ -1,0 +1,19 @@
+
+]squid:S1066‚"/Merge this if statement with the enclosing one.(¥—ü¿HûBRMAJORZ
+CODE_SMELL
+\squid:S1125‘")Remove the literal "false" boolean value.(¬œ¿ÿÿÿÿÿHôBRMINORZ
+CODE_SMELL
+ˆsquid:S3776‘"RRefactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed.(¬€„ÜüÿÿÿÿHùBRCRITICALZ
+CODE_SMELL
+\squid:S1125‘")Remove the literal "false" boolean value.(¬œ¿ÿÿÿÿÿHøBRMINORZ
+CODE_SMELL
+ƒsquid:S3776‹"RRefactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed.(ƒªè¦HõBRCRITICALZ
+CODE_SMELL
+dsquid:S2629o"7Use the built-in formatting to construct this argument.(˜¯Õ¶H÷BRMAJORZ
+CODE_SMELL
+Wsquid:S1125ú")Remove the literal "false" boolean value.(¡ãüŠHúBRMINORZ
+CODE_SMELL
+isquid:S2629|"7Use the built-in formatting to construct this argument.(¼°ü„úÿÿÿÿHöBRMAJORZ
+CODE_SMELL
+Wsquid:S1125Ú")Remove the literal "false" boolean value.(¯õòHüBRMINORZ
+CODE_SMELL

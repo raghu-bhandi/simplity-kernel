@@ -51,7 +51,7 @@ import org.simplity.service.ServiceData;
  * @author simplity.org
  */
 public class RestAgent {
-  static final Logger logger = LoggerFactory.getLogger(RestAgent.class);
+	private static final Logger logger = LoggerFactory.getLogger(RestAgent.class);
 
   private static final String UTF = "UTF-8";
 

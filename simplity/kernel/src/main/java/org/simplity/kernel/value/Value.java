@@ -55,7 +55,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public abstract class Value implements Serializable {
-  static final Logger logger = LoggerFactory.getLogger(Value.class);
+	protected static final Logger logger = LoggerFactory.getLogger(Value.class);
 
   /** */
   private static final long serialVersionUID = 1L;

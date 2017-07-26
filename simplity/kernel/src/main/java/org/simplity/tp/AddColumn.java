@@ -43,7 +43,7 @@ import org.simplity.service.ServiceContext;
  * @author admin
  */
 public class AddColumn extends Action {
-  static final Logger logger = LoggerFactory.getLogger(AddColumn.class);
+  private static final Logger actionLogger = LoggerFactory.getLogger(AddColumn.class); 
 
   /** sheet to which we want to add a column */
   String sheetName;
@@ -89,7 +89,7 @@ public class AddColumn extends Action {
       }
       if (value == null) {
 
-        logger.info(
+    	  actionLogger.info(
             "Value is null for column "
                 + this.columnName
                 + " for addColumn action "

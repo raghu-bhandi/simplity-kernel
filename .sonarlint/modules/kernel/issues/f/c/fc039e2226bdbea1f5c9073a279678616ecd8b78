@@ -1,0 +1,9 @@
+
+Zsquid:S1989r"%Add a "try/catch" block for "doPost".(ιφυ¦ωÿÿÿÿHι8RMINORZVULNERABILITY
+Vsquid:S1125R")Remove the literal "false" boolean value.(ΘÒªHκ8RMINORZ
+CODE_SMELL
+Zsquid:S1989r"%Add a "try/catch" block for "doPost".(ιφυ¦ωÿÿÿÿHθ8RMINORZVULNERABILITY
+Zsquid:S1989Z"*Add a "try/catch" block for "reportError".(ΦέΉ¨Hζ8RMINORZVULNERABILITY
+Vsquid:S1125S")Remove the literal "false" boolean value.(±›Ι°Hη8RMINORZ
+CODE_SMELL
+_squid:S1989g"*Add a "try/catch" block for "reportError".(χΪ–°ϋÿÿÿÿHε8RMINORZVULNERABILITY

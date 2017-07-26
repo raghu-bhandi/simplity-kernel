@@ -66,7 +66,7 @@ import org.simplity.kernel.file.FileManager;
  * @author simplity.org
  */
 public class AttachmentManager {
-  static final Logger logger = LoggerFactory.getLogger(AttachmentManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(AttachmentManager.class);
 
   private static final String MSG =
       "No assistant is assigned to AttachmentManager. Manager expressed her regret that she is unable to manage media.";

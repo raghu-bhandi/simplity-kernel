@@ -1,0 +1,42 @@
+
+}squid:CommentedOutCodeLine:"<This block of commented-out lines of code should be removed.(ôÎÛ‚ýÿÿÿÿH…<RMAJORZ
+CODE_SMELL
+ysquid:CommentedOutCodeLineµ"<This block of commented-out lines of code should be removed.(¯‡ÁÊH‡<RMAJORZ
+CODE_SMELL
+ƒsquid:S3776Î"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(ß´ƒîH„<RCRITICALZ
+CODE_SMELL
+\squid:S1125â")Remove the literal "false" boolean value.(ºš‘ˆùÿÿÿÿHŒ<RMINORZ
+CODE_SMELL
+\squid:S1125Œ")Remove the literal "false" boolean value.(ºš‘ˆùÿÿÿÿHý;RMINORZ
+CODE_SMELL
+Wsquid:S1125Ð")Remove the literal "false" boolean value.(¡¢«íHþ;RMINORZ
+CODE_SMELL
+\squid:S1125Ù")Remove the literal "false" boolean value.(¿™õßüÿÿÿÿH‚<RMINORZ
+CODE_SMELL
+xsquid:S1192È"GDefine a constant instead of duplicating this literal "Field " 3 times.(£Úû‰H‹<RCRITICALZ
+CODE_SMELL
+\squid:S1125ù")Remove the literal "false" boolean value.(ºš‘ˆùÿÿÿÿHˆ<RMINORZ
+CODE_SMELL
+Tsquid:S1168°"&Return an empty array instead of null.(¥¹ïHû;RMAJORZ
+CODE_SMELL
+ƒsquid:S3776ž"RRefactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed.(úÆìŽHú;RCRITICALZ
+CODE_SMELL
+wsquid:S1192¾"GDefine a constant instead of duplicating this literal "field " 6 times.(ôº[H†<RCRITICALZ
+CODE_SMELL
+ˆsquid:S3776¢"RRefactor this method to reduce its Cognitive Complexity from 38 to the 15 allowed.(ŠóœÐùÿÿÿÿH<RCRITICALZ
+CODE_SMELL
+esquid:S2629…"7Use the built-in formatting to construct this argument.(èò°­Hü;RMAJORZ
+CODE_SMELL
+wsquid:CommentedOutCodeLine8"<This block of commented-out lines of code should be removed.( ˜öoHÿ;RMAJORZ
+CODE_SMELL
+bsquid:S1066±"/Merge this if statement with the enclosing one.(´…–üÿÿÿÿHŠ<RMAJORZ
+CODE_SMELL
+\squid:S1125”")Remove the literal "false" boolean value.(†Ñú›þÿÿÿÿH€<RMINORZ
+CODE_SMELL
+\squid:S1125þ")Remove the literal "false" boolean value.(†Ñú›þÿÿÿÿHƒ<RMINORZ
+CODE_SMELL
+…
+squid:S135³"YReduce the total number of break and continue statements in this loop to use at most one.(±Ë”,H<RMINORZ
+CODE_SMELL
+\squid:S1125ë")Remove the literal "false" boolean value.(†Ñú›þÿÿÿÿH‰<RMINORZ
+CODE_SMELL

@@ -44,7 +44,7 @@ import org.simplity.test.TestRun;
  * @author simplity.org
  */
 public class AttachmentAssistantStub implements AttachmentAssistant {
-  static final Logger logger = LoggerFactory.getLogger(AttachmentAssistantStub.class);
+	private static final Logger logger = LoggerFactory.getLogger(AttachmentAssistantStub.class);
 
   private static final String PREFIX = "saved_";
   private static final String TOKEN = PREFIX + "token";

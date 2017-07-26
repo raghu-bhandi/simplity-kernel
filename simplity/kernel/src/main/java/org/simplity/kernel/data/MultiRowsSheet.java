@@ -54,7 +54,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class MultiRowsSheet implements DataSheet {
-  static final Logger logger = LoggerFactory.getLogger(MultiRowsSheet.class);
+	private static final Logger logger = LoggerFactory.getLogger(MultiRowsSheet.class);
 
   /**
    * data is organized as a list (rows) of column values(array). This is because we expect rows to

@@ -40,7 +40,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Log extends Action {
-  static final Logger logger = LoggerFactory.getLogger(Log.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(Log.class);
 
   /** field/table names to be logged */
   String[] names;
@@ -57,14 +57,14 @@ public class Log extends Action {
       return Value.VALUE_TRUE;
     }
 
-    logger.info("Values at log action " + this.actionName);
+    actionLogger.info("Values at log action " + this.actionName);
 
     boolean found = false;
     for (String nam : this.names) {
       if (ctx.hasValue(nam)) {
         found = true;
 
-        logger.info(nam + " = " + ctx.getValue(nam));
+        actionLogger.info(nam + " = " + ctx.getValue(nam));
 
         if (setMDC) {
           MDC.put(nam, ctx.getValue(nam).toText());
@@ -76,7 +76,7 @@ public class Log extends Action {
       }
       if (!found) {
 
-        logger.info(nam + " is not a field or sheet name");
+    	  actionLogger.info(nam + " is not a field or sheet name");
       }
     }
     return Value.VALUE_TRUE;
@@ -85,12 +85,12 @@ public class Log extends Action {
   private void logAll(ServiceContext ctx) {
     for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
 
-      logger.info(entry.getKey() + " = " + entry.getValue());
+    	actionLogger.info(entry.getKey() + " = " + entry.getValue());
     }
     JSONWriter writer = new JSONWriter();
     writer.object();
 
-    logger.info("Data Sheets = ");
+    actionLogger.info("Data Sheets = ");
 
     for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
       writer.key(entry.getKey());

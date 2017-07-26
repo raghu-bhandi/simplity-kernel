@@ -35,7 +35,7 @@ import org.simplity.service.ServiceContext;
  * @author org.simplity
  */
 public class AddRow extends Action {
-  static final Logger logger = LoggerFactory.getLogger(AddRow.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(AddRow.class);
 
   /** sheet to which row is to be added */
   String sheetName;
@@ -64,7 +64,7 @@ public class AddRow extends Action {
          */
         String txt = value.toString();
 
-        logger.info(
+        actionLogger.info(
             "Found a value of type "
                 + value.getValueType()
                 + " for column "
@@ -76,7 +76,7 @@ public class AddRow extends Action {
         value = Value.parseValue(txt, vt);
         if (value == null) {
 
-          logger.info(
+        	actionLogger.info(
               "Unable to convert " + txt + " to type " + vt + " . setting column to  NullValue");
         }
       }

@@ -1,0 +1,22 @@
+
+isquid:S2629a"7Use the built-in formatting to construct this argument.(Òß„³øÿÿÿÿHÙ@RMAJORZ
+CODE_SMELL
+\squid:S1125‹")Remove the literal "false" boolean value.(üŽœÏýÿÿÿÿHÞ@RMINORZ
+CODE_SMELL
+Ysquid:S1148¾"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿH×@RMINORZVULNERABILITY
+‡squid:S3776T"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(æžˆ½üÿÿÿÿHÜ@RCRITICALZ
+CODE_SMELL
+‡squid:S2293”"YReplace the type specification in this constructor call with the diamond operator ("<>").(¡øÐØHØ@RMINORZ
+CODE_SMELL
+dsquid:S2629"7Use the built-in formatting to construct this argument.(ú±†HÚ@RMAJORZ
+CODE_SMELL
+Ã%squid:RedundantThrowsDeclarationCheckT"wRemove the declaration of thrown exception 'javax.servlet.ServletException', as it cannot be thrown from method's body.(æžˆ½üÿÿÿÿHÖ@RMINORZ
+CODE_SMELL
+gsquid:S11187":Add a private constructor to hide the implicit public one.(ßÄÆžHÕ@RMAJORZ
+CODE_SMELL
+isquid:S2629r"7Use the built-in formatting to construct this argument.(³øÖÅÿÿÿÿÿHÝ@RMAJORZ
+CODE_SMELL
+squid:S2629¶"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(ÃñûŠùÿÿÿÿHÛ@RMAJORZ
+CODE_SMELL
+lsquid:S1155—">Use isEmpty() to check whether the collection is empty or not.(¦ïšÁHÔ@RMINORZ
+CODE_SMELL

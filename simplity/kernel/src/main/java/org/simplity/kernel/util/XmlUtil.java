@@ -124,7 +124,7 @@ import org.xml.sax.SAXParseException;
  * </pre>
  */
 public class XmlUtil {
-  static final Logger logger = LoggerFactory.getLogger(XmlUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(XmlUtil.class);
 
   private static final String DEFAULT_MAP_KEY = "name";
   private static final String TRUE_VALUE = "true";

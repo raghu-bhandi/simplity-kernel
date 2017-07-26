@@ -36,7 +36,7 @@ import org.simplity.tp.LogicInterface;
  * @author simplity.org
  */
 public class AsynchHelloWorld implements LogicInterface {
-  static final Logger logger = LoggerFactory.getLogger(AsynchHelloWorld.class);
+	private static final Logger logger = LoggerFactory.getLogger(AsynchHelloWorld.class);
 
   /*
    * (non-Javadoc)

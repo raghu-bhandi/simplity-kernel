@@ -1,0 +1,11 @@
+
+tsquid:S2259["BA "NullPointerException" could be thrown; "stmt" is nullable here.(Æ€»Çùÿÿÿÿ8ç¢ëð×+HÀ4RMAJORZBUG
+usquid:S2259ç"BA "NullPointerException" could be thrown; "stmt" is nullable here.(Æ€»Çùÿÿÿÿ8Ì§¼ñ×+Hî4RMAJORZBUG
+Nsquid:S2131d"Use "Long.toString" instead.(ÄªµÓøÿÿÿÿH¬4RMAJORZ
+CODE_SMELL
+_squid:S2093p"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿH®4RCRITICALZ
+CODE_SMELL
+‰squid:S2077L"RUse a variable binding mechanism to construct this query instead of concatenation.(ñÃÈÝýÿÿÿÿH©4RBLOCKERZVULNERABILITY
+¢squid:S1192]"fDefine a constant instead of duplicating this literal "Error while closing the SQL statment " 3 times.(åËä³üÿÿÿÿ8ï—¾ñ×+Hô4RCRITICALZ
+CODE_SMELL
+usquid:S2259±"BA "NullPointerException" could be thrown; "stmt" is nullable here.(Æ€»Çùÿÿÿÿ8þÜ’ñ×+HÚ4RMAJORZBUG

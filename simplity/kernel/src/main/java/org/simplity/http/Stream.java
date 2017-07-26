@@ -46,7 +46,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class Stream extends HttpServlet {
-  static final Logger logger = LoggerFactory.getLogger(Stream.class);
+	private static final Logger logger = LoggerFactory.getLogger(Stream.class);
 
   private static final String DOWNLOAD = "download=";
   /** */

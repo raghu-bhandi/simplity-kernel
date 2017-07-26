@@ -68,7 +68,7 @@ import org.simplity.tp.ContextInterface;
  */
 public class Application {
 
-  static final Logger logger = LoggerFactory.getLogger(Application.class);
+	private static final Logger logger = LoggerFactory.getLogger(Application.class);
 
   /** any exception thrown by service may need to be reported to a central system. */
   private static ExceptionListener currentExceptionListener = new DefaultExceptionListener();

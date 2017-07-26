@@ -42,7 +42,7 @@ import org.simplity.kernel.MessageType;
  * @author simplity.org
  */
 public class Serve extends HttpServlet {
-  static final Logger logger = LoggerFactory.getLogger(Serve.class);
+	private static final Logger logger = LoggerFactory.getLogger(Serve.class);
 
   /*
    * we may have to co-exist with other application. It is possible that our

@@ -1,0 +1,24 @@
+
+\squid:S1125Ó")Remove the literal "false" boolean value.(¬ŞÇóşÿÿÿÿH§FRMINORZ
+CODE_SMELL
+psquid:S2629T"7Use the built-in formatting to construct this argument.(ßŒÔøøÿÿÿÿ8¥Åµó×+H®FRMAJORZ
+CODE_SMELL
+ƒsquid:S3776Ğ"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(Æ”ÿH¢FRCRITICALZ
+CODE_SMELL
+lsquid:S2629¦"7Use the built-in formatting to construct this argument.(¼£³¬8¥Åµó×+H°FRMAJORZ
+CODE_SMELL
+]squid:S1066¼"/Merge this if statement with the enclosing one.(£ºß©H¥FRMAJORZ
+CODE_SMELL
+…
+squid:S135½"YReduce the total number of break and continue statements in this loop to use at most one.(ïñÄH¦FRMINORZ
+CODE_SMELL
+‚squid:S3776™"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.(‡#H¡FRCRITICALZ
+CODE_SMELL
+bsquid:S1066€"/Merge this if statement with the enclosing one.(öŒÉ¢ÿÿÿÿÿH¤FRMAJORZ
+CODE_SMELL
+\squid:S1125Ü")Remove the literal "false" boolean value.(Ï„Ï‹şÿÿÿÿH¨FRMINORZ
+CODE_SMELL
+qsquid:S2629"7Use the built-in formatting to construct this argument.(²¿½şÿÿÿÿ8¥Åµó×+H¯FRMAJORZ
+CODE_SMELL
+]squid:S1066Â"/Merge this if statement with the enclosing one.(ÆŒ—èH£FRMAJORZ
+CODE_SMELL

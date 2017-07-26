@@ -1,0 +1,56 @@
+
+™squid:S1192Û"hDefine a constant instead of duplicating this literal "Service context has no sheet with name " 6 times.(Ù€ŒøH¾BRCRITICALZ
+CODE_SMELL
+‡squid:S2293÷"YReplace the type specification in this constructor call with the diamond operator ("<>").(µ¹£ØHÈBRMINORZ
+CODE_SMELL
+esquid:S2629‰"7Use the built-in formatting to construct this argument.(ÂÍÒHÆBRMAJORZ
+CODE_SMELL
+‡squid:S3776q"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(§¼ÔûÿÿÿÿHµBRCRITICALZ
+CODE_SMELL
+‡squid:S2293Ø"YReplace the type specification in this constructor call with the diamond operator ("<>").(³ÿä­H·BRMINORZ
+CODE_SMELL
+~squid:S1192Û"MDefine a constant instead of duplicating this literal " for output." 6 times.(Ù€ŒøH½BRCRITICALZ
+CODE_SMELL
+jsquid:S2629ì"7Use the built-in formatting to construct this argument.(Âÿ”œıÿÿÿÿH¿BRMAJORZ
+CODE_SMELL
+ˆsquid:S3776ê"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(öùå´øÿÿÿÿH¼BRCRITICALZ
+CODE_SMELL
+ƒsquid:S3776Ç"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(çö¬‡HÉBRCRITICALZ
+CODE_SMELL
+esquid:S2629£"7Use the built-in formatting to construct this argument.(Ù€ŒøH¶BRMAJORZ
+CODE_SMELL
+jsquid:S2629µ"7Use the built-in formatting to construct this argument.(Âÿ”œıÿÿÿÿHºBRMAJORZ
+CODE_SMELL
+†
+squid:S135‰"YReduce the total number of break and continue statements in this loop to use at most one.(‡Şø¹H¸BRMINORZ
+CODE_SMELL
+ˆsquid:S3776µ"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(¯¥Ø»ÿÿÿÿÿHÁBRCRITICALZ
+CODE_SMELL
+jsquid:S2629Æ"7Use the built-in formatting to construct this argument.(Âÿ”œıÿÿÿÿHÂBRMAJORZ
+CODE_SMELL
+‡squid:S2293»"YReplace the type specification in this constructor call with the diamond operator ("<>").(Ë§á¿HÍBRMINORZ
+CODE_SMELL
+\squid:S1125É")Remove the literal "false" boolean value.(˜ø£¢øÿÿÿÿHÌBRMINORZ
+CODE_SMELL
+‚squid:S3776Ì"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(ÍæİBHÅBRCRITICALZ
+CODE_SMELL
+\squid:S1125¡")Remove the literal "false" boolean value.(‘®¤òÿÿÿÿÿHÇBRMINORZ
+CODE_SMELL
+esquid:S2629Û"7Use the built-in formatting to construct this argument.(Ù€ŒøH»BRMAJORZ
+CODE_SMELL
+\squid:S1125½")Remove the literal "false" boolean value.(˜ø£¢øÿÿÿÿHÄBRMINORZ
+CODE_SMELL
+Wsquid:S1125‡")Remove the literal "false" boolean value.(¯«íŠHÃBRMINORZ
+CODE_SMELL
+ƒsquid:S3776™"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(æ•ôœHËBRCRITICALZ
+CODE_SMELL
+‡squid:S2293Ç"YReplace the type specification in this constructor call with the diamond operator ("<>").(Ë§á¿HÀBRMINORZ
+CODE_SMELL
+‡squid:S2293¦"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÛÁ£ˆHÊBRMINORZ
+CODE_SMELL
+esquid:S2629²"7Use the built-in formatting to construct this argument.(Ù€ŒøH¹BRMAJORZ
+CODE_SMELL
+jsquid:S2629Õ"7Use the built-in formatting to construct this argument.(ÍõÓÏûÿÿÿÿHÎBRMAJORZ
+CODE_SMELL
+Wsquid:S1125í")Remove the literal "false" boolean value.(Ç’œ´H´BRMINORZ
+CODE_SMELL

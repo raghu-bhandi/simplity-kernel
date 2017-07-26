@@ -1,0 +1,7 @@
+
+msquid:UselessImportCheck"-Remove this unused import 'org.slf4j.Logger'.(íØ®68ÁáÉò×+HÂ7RMINORZ
+CODE_SMELL
+usquid:UselessImportCheck"4Remove this unused import 'org.slf4j.LoggerFactory'.(–ÿÚŞ8ÁáÉò×+HÃ7RMINORZ
+CODE_SMELL
+Lsquid:S2129•"Remove this "Long" constructor(ããÕH¼7RMAJORZ
+CODE_SMELL

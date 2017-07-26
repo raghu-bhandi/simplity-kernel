@@ -37,7 +37,7 @@ import org.simplity.kernel.expr.Expression;
 
 /** @author simplity.org */
 public class ReflectUtil {
-  static final Logger logger = LoggerFactory.getLogger(ReflectUtil.class);
+	private static final Logger logger = LoggerFactory.getLogger(ReflectUtil.class);
 
   /**
    * set attribute value to a field, if the attribute is not already set

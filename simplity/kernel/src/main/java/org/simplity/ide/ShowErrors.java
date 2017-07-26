@@ -33,7 +33,7 @@ import org.simplity.tp.LogicInterface;
 
 /** @author simplity.org */
 public class ShowErrors implements LogicInterface {
-  static final Logger logger = LoggerFactory.getLogger(ShowErrors.class);
+	private static final Logger logger = LoggerFactory.getLogger(ShowErrors.class);
 
   @Override
   public Value execute(ServiceContext ctx) {

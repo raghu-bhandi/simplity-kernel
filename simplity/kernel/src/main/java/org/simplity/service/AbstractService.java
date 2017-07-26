@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 /** @author simplity.org */
 public abstract class AbstractService implements ServiceInterface {
-  static final Logger logger = LoggerFactory.getLogger(AbstractService.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractService.class);
 
   /*
    * (non-Javadoc)

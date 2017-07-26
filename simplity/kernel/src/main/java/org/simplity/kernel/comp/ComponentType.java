@@ -144,7 +144,7 @@ public enum ComponentType {
 
   /** test cases for service */
   JOBS(8, Jobs.class, "batch/", false);
-  static final Logger logger = LoggerFactory.getLogger(ComponentType.class);
+	private static final Logger logger = LoggerFactory.getLogger(ComponentType.class);
 
   /*
    * constants

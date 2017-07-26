@@ -1,0 +1,9 @@
+
+Ssquid:S1125L")Remove the literal "false" boolean value.(•ÃíªRMINORZ
+CODE_SMELL
+ksquid:S1126L"AReplace this if-then-else statement by a single return statement.(•ÃíªRMINORZ
+CODE_SMELL
+qsquid:S1126“"AReplace this if-then-else statement by a single return statement.(òş×úÿÿÿÿRMINORZ
+CODE_SMELL
+Ssquid:S1125A")Remove the literal "false" boolean value.(•ÃíªRMINORZ
+CODE_SMELL

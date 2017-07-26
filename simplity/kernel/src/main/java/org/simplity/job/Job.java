@@ -38,7 +38,7 @@ import org.simplity.service.ServiceInterface;
 
 /** @author simplity.org */
 public class Job {
-  static final Logger logger = LoggerFactory.getLogger(Job.class);
+	private  static final Logger logger = LoggerFactory.getLogger(Job.class);
 
   /** name of the job, unique within a jobs collection */
   String name;

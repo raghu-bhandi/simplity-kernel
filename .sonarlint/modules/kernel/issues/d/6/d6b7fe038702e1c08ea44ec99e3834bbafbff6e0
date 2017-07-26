@@ -1,0 +1,52 @@
+
+h
+squid:S106­"9Replace this use of System.out or System.err by a logger.(ßĞªıøÿÿÿÿRMAJORZ
+CODE_SMELL
+squid:S3776r"RRefactor this method to reduce its Cognitive Complexity from 23 to the 15 allowed.(Éè™ôRCRITICALZ
+CODE_SMELL
+qsquid:S1075÷"ARefactor your code to get this URI from a customizable parameter.(×®•ˆıÿÿÿÿRMINORZ
+CODE_SMELL
+b
+squid:S106§"9Replace this use of System.out or System.err by a logger.(Æ³'RMAJORZ
+CODE_SMELL
+h
+squid:S106¨"9Replace this use of System.out or System.err by a logger.(ßĞªıøÿÿÿÿRMAJORZ
+CODE_SMELL
+c
+squid:S106Œ"9Replace this use of System.out or System.err by a logger.(›¤ÀÖRMAJORZ
+CODE_SMELL
+Tsquid:S1125—")Remove the literal "false" boolean value.(µ»ÅËRMINORZ
+CODE_SMELL
+Tsquid:S1125¾")Remove the literal "false" boolean value.(¿à„RMINORZ
+CODE_SMELL
+Ysquid:S1125’")Remove the literal "false" boolean value.(…ˆ·ÔıÿÿÿÿRMINORZ
+CODE_SMELL
+Lsquid:S2201Š"(The return value of "trim" must be used.(ÃóçÔRMAJORZBUG
+h
+squid:S106„"9Replace this use of System.out or System.err by a logger.(ŸÍ¬ñşÿÿÿÿRMAJORZ
+CODE_SMELL
+h
+squid:S106"9Replace this use of System.out or System.err by a logger.(äş›ËùÿÿÿÿRMAJORZ
+CODE_SMELL
+b
+squid:S106ü"9Replace this use of System.out or System.err by a logger.(ŞŞâRMAJORZ
+CODE_SMELL
+c
+squid:S106¬"9Replace this use of System.out or System.err by a logger.(£«³ÅRMAJORZ
+CODE_SMELL
+c
+squid:S106‡"9Replace this use of System.out or System.err by a logger.(›¤ÀÖRMAJORZ
+CODE_SMELL
+h
+squid:S106Æ"9Replace this use of System.out or System.err by a logger.(Ş¾’ŒøÿÿÿÿRMAJORZ
+CODE_SMELL
+h
+squid:S106´"9Replace this use of System.out or System.err by a logger.(á°ì÷øÿÿÿÿRMAJORZ
+CODE_SMELL
+{squid:S00117z"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(²ÜlRMINORZ
+CODE_SMELL
+ˆ
+squid:S135ƒ"YReduce the total number of break and continue statements in this loop to use at most one.(˜ïˆÿÿÿÿÿRMINORZ
+CODE_SMELL
+…squid:S3776ö"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(ÙØ¤ŞıÿÿÿÿRCRITICALZ
+CODE_SMELL

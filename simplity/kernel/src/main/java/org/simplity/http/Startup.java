@@ -42,7 +42,7 @@ import org.simplity.kernel.file.FileManager;
  * @author simplity.org
  */
 public class Startup extends HttpServlet {
-  static final Logger logger = LoggerFactory.getLogger(Startup.class);
+	private static final Logger logger = LoggerFactory.getLogger(Startup.class);
 
   private static final long serialVersionUID = 1L;
   /**

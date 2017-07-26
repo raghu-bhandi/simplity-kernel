@@ -45,7 +45,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class DynamicSheet implements DataSheet {
-  static final Logger logger = LoggerFactory.getLogger(DynamicSheet.class);
+	private static final Logger logger = LoggerFactory.getLogger(DynamicSheet.class);
 
   private final Map<String, Value> fieldValues = new HashMap<String, Value>();
 

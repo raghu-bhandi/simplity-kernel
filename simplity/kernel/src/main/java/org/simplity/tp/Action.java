@@ -41,7 +41,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public abstract class Action {
-  static final Logger logger = LoggerFactory.getLogger(Action.class);
+  private static final Logger logger = LoggerFactory.getLogger(Action.class);
 
   private static final String ACTION_NAME_PREFIX = "_a";
 

@@ -40,7 +40,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class SetValue extends Action {
-  static final Logger logger = LoggerFactory.getLogger(SetValue.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(SetValue.class);
 
   /** field name */
   String fieldName;
@@ -78,7 +78,7 @@ public class SetValue extends Action {
       }
     } else {
 
-      logger.info("Field " + this.fieldName + " is removed from context");
+    	actionLogger.info("Field " + this.fieldName + " is removed from context");
     }
     ctx.setValue(this.fieldName, value);
     return value;

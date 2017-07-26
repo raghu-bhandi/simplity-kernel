@@ -66,7 +66,7 @@ import org.simplity.tp.InvalidRowException;
  * @author simplity.org
  */
 public class JmsDestination {
-  static final Logger logger = LoggerFactory.getLogger(JmsDestination.class);
+	private static final Logger logger = LoggerFactory.getLogger(JmsDestination.class);
 
   /**
    * name of the queue (destination) used for requesting a service. This is the jndi name that is

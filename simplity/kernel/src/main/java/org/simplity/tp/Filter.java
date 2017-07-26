@@ -38,7 +38,7 @@ import org.simplity.service.ServiceContext;
  * @author simplity.org
  */
 public class Filter extends DbAction {
-  static final Logger logger = LoggerFactory.getLogger(Filter.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(Filter.class);
 
   /** record that is used for inputting and creating filter criteria */
   String filterRecordName;
@@ -90,7 +90,7 @@ public class Filter extends DbAction {
       DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
       if (inSheet == null) {
 
-        logger.info(
+    	  actionLogger.info(
             "Filter Action "
                 + this.actionName
                 + " did not execute because input sheet "

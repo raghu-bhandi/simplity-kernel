@@ -1,0 +1,17 @@
+
+‹squid:S1488„"[Immediately return this expression instead of assigning it to the temporary variable "msg".(ØĞ½äùÿÿÿÿRMINORZ
+CODE_SMELL
+~squid:S3008$"TRename this field "DELIMITER" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ïÿ†¹RMINORZ
+CODE_SMELL
+‹squid:S1488‘"[Immediately return this expression instead of assigning it to the temporary variable "msg".(ØĞ½äùÿÿÿÿRMINORZ
+CODE_SMELL
+_squid:S1172"/Remove this unused method parameter "language".(“äó¥ûÿÿÿÿRMAJORZ
+CODE_SMELL
+{squid:S3008%"QRename this field "PREFIX" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(×Ñ¹ˆRMINORZ
+CODE_SMELL
+^squid:S1172x"/Remove this unused method parameter "language".(£ÍÚ‡øÿÿÿÿRMAJORZ
+CODE_SMELL
+Fsquid:S1643h"Use a StringBuilder instead.(ò«å¾RMINORZ
+CODE_SMELL
+^squid:S1172X"/Remove this unused method parameter "language".(ñ âøüÿÿÿÿRMAJORZ
+CODE_SMELL

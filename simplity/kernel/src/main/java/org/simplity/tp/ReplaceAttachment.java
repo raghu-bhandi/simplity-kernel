@@ -45,7 +45,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class ReplaceAttachment extends DbAction {
-  static final Logger logger = LoggerFactory.getLogger(ReplaceAttachment.class);
+private static final Logger actionLogger = LoggerFactory.getLogger(ReplaceAttachment.class);
 
   /** rdbms table that has this column */
   String recordName;
@@ -71,7 +71,7 @@ public class ReplaceAttachment extends DbAction {
     int res = driver.extractFromSql(this.selectSql, values, outData, true);
     if (res == 0) {
 
-      logger.info(
+    	actionLogger.info(
           "No row found while reading from record "
               + this.recordName
               + " for key value "

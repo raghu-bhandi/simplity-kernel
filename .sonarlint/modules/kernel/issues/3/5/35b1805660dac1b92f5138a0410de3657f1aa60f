@@ -1,0 +1,43 @@
+
+\squid:S1125œ")Remove the literal "false" boolean value.(ÇÀ¦êýÿÿÿÿH¿=RMINORZ
+CODE_SMELL
+‚squid:S3776¥"RRefactor this method to reduce its Cognitive Complexity from 28 to the 15 allowed.(ß…†lHÀ=RCRITICALZ
+CODE_SMELL
+qsquid:S1155ˆ">Use isEmpty() to check whether the collection is empty or not.(õÙí€þÿÿÿÿHÁ=RMINORZ
+CODE_SMELL
+Šsquid:S2629„"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(¡ÅºáHÂ=RMAJORZ
+CODE_SMELL
+†
+squid:S135â"YReduce the total number of break and continue statements in this loop to use at most one.(ƒÕ“™HÃ=RMINORZ
+CODE_SMELL
+~squid:CommentedOutCodeLineÂ"<This block of commented-out lines of code should be removed.(£™“³ýÿÿÿÿHÄ=RMAJORZ
+CODE_SMELL
+~squid:CommentedOutCodeLineú"<This block of commented-out lines of code should be removed.(ÚßÿÿÿÿÿÿHÅ=RMAJORZ
+CODE_SMELL
+esquid:S2629þ"7Use the built-in formatting to construct this argument.(û«àòHÆ=RMAJORZ
+CODE_SMELL
+]squid:S1066ð"/Merge this if statement with the enclosing one.(ú»‘°HÇ=RMAJORZ
+CODE_SMELL
+Wsquid:S1125ç")Remove the literal "false" boolean value.(Èƒ®¥HÈ=RMINORZ
+CODE_SMELL
+ˆsquid:S3776ó"RRefactor this method to reduce its Cognitive Complexity from 31 to the 15 allowed.(ª¿É®þÿÿÿÿHÉ=RCRITICALZ
+CODE_SMELL
+‡squid:S2293’"YReplace the type specification in this constructor call with the diamond operator ("<>").(“¹€ßHÊ=RMINORZ
+CODE_SMELL
+‡squid:S2293”"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÿš–´HË=RMINORZ
+CODE_SMELL
+…
+squid:S135·"YReduce the total number of break and continue statements in this loop to use at most one.(‰ëùpHÌ=RMINORZ
+CODE_SMELL
+Wsquid:S1125ý")Remove the literal "false" boolean value.(²äˆéHÍ=RMINORZ
+CODE_SMELL
+ƒsquid:S3776ú"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(¾õ÷HÎ=RCRITICALZ
+CODE_SMELL
+ƒsquid:S3776ü"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(“Õ±ØHÏ=RCRITICALZ
+CODE_SMELL
+lsquid:S1155ý">Use isEmpty() to check whether the collection is empty or not.(²äˆéHÐ=RMINORZ
+CODE_SMELL
+lsquid:S1155ð">Use isEmpty() to check whether the collection is empty or not.(ú»‘°HÑ=RMINORZ
+CODE_SMELL
+Wsquid:S1125å")Remove the literal "false" boolean value.(ž¡Î‚HÒ=RMINORZ
+CODE_SMELL
