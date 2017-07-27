@@ -22,9 +22,6 @@
 
 package org.simplity.tp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,7 +35,6 @@ import org.simplity.jms.JmsDestination;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
-
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbDriver;
@@ -48,6 +44,8 @@ import org.simplity.kernel.expr.Expression;
 import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Data structure that keeps meta data about a flat-file
@@ -56,7 +54,7 @@ import org.simplity.service.ServiceContext;
  */
 public class BatchRowProcessor {
 
-private static final Logger actionLogger = LoggerFactory.getLogger(BatchRowProcessor.class);
+protected static final Logger actionLogger = LoggerFactory.getLogger(BatchRowProcessor.class);
 
   /** if the rows are from a SQL */
   String inputSql;
@@ -310,7 +308,7 @@ private static final Logger actionLogger = LoggerFactory.getLogger(BatchRowProce
         } catch (Exception e) {
           throw new ApplicationError(
               e,
-              "Error while using " + (String) outq.getName() + " to get an instance of JMSOutput");
+              "Error while using " + outq.getName() + " to get an instance of JMSOutput");
         }
       }
       /*
@@ -394,7 +392,7 @@ private static final Logger actionLogger = LoggerFactory.getLogger(BatchRowProce
 
       this.accumulateAggregators();
 
-      if (!ctx.getBooleanValue(BatchProcessor.EOF_FIELD_IN_CTX)) {
+      if (!this.ctx.getBooleanValue(BatchProcessor.EOF_FIELD_IN_CTX)) {
         //process if not eof
         if (this.children != null) {
           for (ChildProcess child : this.children) {

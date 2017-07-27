@@ -51,7 +51,7 @@ import org.simplity.service.ServiceProtocol;
  * @author simplity.org
  */
 public class InputFile {
-private static final Logger actionLogger = LoggerFactory.getLogger(InputFile.class);
+protected static final Logger actionLogger = LoggerFactory.getLogger(InputFile.class);
 
   /**
    * If this is an associate file, then it is expressed using {name} and and {ext} that stand for

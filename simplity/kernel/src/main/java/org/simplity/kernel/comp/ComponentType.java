@@ -22,9 +22,6 @@
 
 package org.simplity.kernel.comp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +29,6 @@ import java.util.Map;
 import org.simplity.job.Jobs;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.Message;
-
 import org.simplity.kernel.db.Sql;
 import org.simplity.kernel.db.StoredProcedure;
 import org.simplity.kernel.dm.Record;
@@ -44,6 +40,8 @@ import org.simplity.kernel.util.XmlUtil;
 import org.simplity.service.ServiceInterface;
 import org.simplity.test.TestRun;
 import org.simplity.tp.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * components are the basic building blocks of application. This is an enumeration of them. Types
@@ -144,7 +142,7 @@ public enum ComponentType {
 
   /** test cases for service */
   JOBS(8, Jobs.class, "batch/", false);
-	private static final Logger logger = LoggerFactory.getLogger(ComponentType.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ComponentType.class);
 
   /*
    * constants

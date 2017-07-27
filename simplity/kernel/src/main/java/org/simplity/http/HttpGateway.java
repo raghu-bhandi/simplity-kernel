@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class HttpGateway extends Gateway {
-	private static final Logger logger = LoggerFactory.getLogger(HttpGateway.class);
+	protected static final Logger logger = LoggerFactory.getLogger(HttpGateway.class);
 	static final String DEFULT_METHOD = "POST";
 
 	/**

@@ -22,9 +22,6 @@
 
 package org.simplity.jms;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Serializable;
 import java.util.Enumeration;
 import java.util.List;
@@ -45,7 +42,6 @@ import javax.naming.InitialContext;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
-
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.DataSerializationType;
@@ -59,6 +55,8 @@ import org.simplity.service.ServiceContext;
 import org.simplity.tp.BatchInput;
 import org.simplity.tp.BatchOutput;
 import org.simplity.tp.InvalidRowException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A data structure that capture all details of a JmsQueue
@@ -66,7 +64,7 @@ import org.simplity.tp.InvalidRowException;
  * @author simplity.org
  */
 public class JmsDestination {
-	private static final Logger logger = LoggerFactory.getLogger(JmsDestination.class);
+	protected static final Logger logger = LoggerFactory.getLogger(JmsDestination.class);
 
   /**
    * name of the queue (destination) used for requesting a service. This is the jndi name that is
