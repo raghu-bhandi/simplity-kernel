@@ -31,17 +31,14 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DatatypeConverter;
 
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.Application;
 import org.simplity.kernel.ApplicationError;
-import org.simplity.kernel.util.HttpUtil;
 import org.simplity.rest.Tags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-
-import com.sun.corba.se.pept.transport.Connection;
 
 /**
  * Handle Oauth2 authentication
@@ -50,18 +47,8 @@ import com.sun.corba.se.pept.transport.Connection;
  *
  */
 public class OAuth2Agent implements SecurityAgent {
-	Logger logger = LoggerFactory.getLogger(OAuth2Agent.class);
-			
-	/**
-	 * true if token is expected in the header. Else it is expected in query
-	 * string
-	 */
-    private final String type = "oauth2";
-    private final String authorizationUrl;
-    private final String tokenUrl;
-    private final String flow;    
-	private final String description;
-	private Map<String, String> scopes;
+	private static Logger logger = LoggerFactory.getLogger(OAuth2Agent.class);
+	private String[] scopes;
 
 	/**
 	 * initialize with specifications
@@ -69,16 +56,12 @@ public class OAuth2Agent implements SecurityAgent {
 	 * @param specs
 	 */
 	public OAuth2Agent(JSONObject specs) {
-		this.flow = specs.getString(Tags.FLOW_ATTR);
-		this.authorizationUrl = specs.getString(Tags.AUTH_URL_ATTR);
-		this.tokenUrl = specs.optString(Tags.TOKEN_URL_ATTR);
-		JSONObject scopes = specs.optJSONObject(Tags.SCOPES_ATTR);
-//		if (scoops != null) {
-//			this.scopes = JSONObject.getNames(scoops);
-//		} else {
-//			this.scopes = new String[0];
-//		}
-		this.description = specs.optString(Tags.DESC);
+		JSONObject scopesLocal = specs.optJSONObject(Tags.SCOPES_ATTR);
+		if (scopesLocal != null) {
+			this.scopes = JSONObject.getNames(scopesLocal);
+		} else {
+			this.scopes = new String[0];
+		}
 	}
 
 	/**
@@ -106,8 +89,8 @@ public class OAuth2Agent implements SecurityAgent {
 		HttpURLConnection conn = null;
 		logger.info("Checking token " + url);
 		try {
-			String userPassword = oAuthParameters.getClientId()+":"+oAuthParameters.getClientSecret();
-			String encoding = new String(Base64.getEncoder().encode(userPassword.getBytes()));
+			String userPassword = oAuthParameters.getClientId()+":"+oAuthParameters.getClientSecret();			
+			String encoding = DatatypeConverter.printBase64Binary(userPassword.getBytes());
 			
 			conn = (HttpURLConnection) new URL(url).openConnection();
 			conn.setDoOutput( true );
@@ -117,11 +100,9 @@ public class OAuth2Agent implements SecurityAgent {
 			if(conn.getResponseCode()==HttpServletResponse.SC_OK){
 				return true;
 			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
-		}		
+			logger.error("Error with token {}",e);
+		} 	
 		return false;
 	}
 
