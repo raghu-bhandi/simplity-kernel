@@ -1,8 +1,8 @@
 
 ƒsquid:S22933"YReplace the type specification in this constructor call with the diamond operator ("<>").(Ä®‡ðRMINORZ
 CODE_SMELL
+Ksquid:S2129Y"!Remove this "Integer" constructor(üÖÖÓRMAJORZ
+CODE_SMELL
 ‚
 squid:S135W"YReduce the total number of break and continue statements in this loop to use at most one.(ý„í˜RMINORZ
-CODE_SMELL
-Ksquid:S2129Y"!Remove this "Integer" constructor(üÖÖÓRMAJORZ
 CODE_SMELL

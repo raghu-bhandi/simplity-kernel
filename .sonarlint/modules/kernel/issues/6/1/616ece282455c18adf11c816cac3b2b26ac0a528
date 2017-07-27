@@ -1,9 +1,9 @@
 
-Xsquid:S11258")Remove the literal "false" boolean value.(‚™½ðÿÿÿÿÿRMINORZ
+Csquid:S1700-"Rename field "count"(Êâþ¶úÿÿÿÿRMAJORZ
 CODE_SMELL
 Xsquid:S1125O")Remove the literal "false" boolean value.(’£ù½øÿÿÿÿRMINORZ
 CODE_SMELL
-Xsquid:S1125`")Remove the literal "false" boolean value.(’£ù½øÿÿÿÿRMINORZ
+Xsquid:S11258")Remove the literal "false" boolean value.(‚™½ðÿÿÿÿÿRMINORZ
 CODE_SMELL
-Csquid:S1700-"Rename field "count"(Êâþ¶úÿÿÿÿRMAJORZ
+Xsquid:S1125`")Remove the literal "false" boolean value.(’£ù½øÿÿÿÿRMINORZ
 CODE_SMELL

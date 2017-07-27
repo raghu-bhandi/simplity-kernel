@@ -1,23 +1,23 @@
 
-Wsquid:S1125Ð")Remove the literal "false" boolean value.(ûË¯¿H»>RMINORZ
-CODE_SMELL
-\squid:S1125Æ")Remove the literal "false" boolean value.(ö‚–þÿÿÿÿH½>RMINORZ
-CODE_SMELL
 ˆsquid:S3776Œ"RRefactor this method to reduce its Cognitive Complexity from 38 to the 15 allowed.(‡âœêùÿÿÿÿHÅ>RCRITICALZ
 CODE_SMELL
 ‡squid:S2293˜"YReplace the type specification in this constructor call with the diamond operator ("<>").(ºõË£HÄ>RMINORZ
 CODE_SMELL
-\squid:S1125ž")Remove the literal "false" boolean value.(ö‚–þÿÿÿÿH¼>RMINORZ
+`squid:S1199‡"-Extract this nested code block into a method.(ÒÌâ–øÿÿÿÿH¿>RMINORZ
 CODE_SMELL
-Osquid:S2129¥"!Remove this "Integer" constructor(ß•ÕøHÃ>RMAJORZ
-CODE_SMELL
-Wsquid:S1125ä")Remove the literal "false" boolean value.(ûË¯¿H¾>RMINORZ
-CODE_SMELL
-lsquid:S11183":Add a private constructor to hide the implicit public one.(Ì¡°¿ýÿÿÿÿHÀ>RMAJORZ
+\squid:S1125Æ")Remove the literal "false" boolean value.(ö‚–þÿÿÿÿH½>RMINORZ
 CODE_SMELL
 Tsquid:S1168©"&Return an empty array instead of null.(¥¹ïHÂ>RMAJORZ
 CODE_SMELL
+Osquid:S2129¥"!Remove this "Integer" constructor(ß•ÕøHÃ>RMAJORZ
+CODE_SMELL
 Osquid:S2129§"!Remove this "Integer" constructor(ý­©ŒHÁ>RMAJORZ
 CODE_SMELL
-`squid:S1199‡"-Extract this nested code block into a method.(ÒÌâ–øÿÿÿÿH¿>RMINORZ
+lsquid:S11183":Add a private constructor to hide the implicit public one.(Ì¡°¿ýÿÿÿÿHÀ>RMAJORZ
+CODE_SMELL
+Wsquid:S1125Ð")Remove the literal "false" boolean value.(ûË¯¿H»>RMINORZ
+CODE_SMELL
+\squid:S1125ž")Remove the literal "false" boolean value.(ö‚–þÿÿÿÿH¼>RMINORZ
+CODE_SMELL
+Wsquid:S1125ä")Remove the literal "false" boolean value.(ûË¯¿H¾>RMINORZ
 CODE_SMELL

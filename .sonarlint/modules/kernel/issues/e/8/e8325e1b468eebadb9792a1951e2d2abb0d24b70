@@ -1,11 +1,9 @@
 
-tsquid:S2259["BA "NullPointerException" could be thrown; "stmt" is nullable here.(Æ€»Çùÿÿÿÿ8ç¢ëğ×+HÀ4RMAJORZBUG
-usquid:S2259ç"BA "NullPointerException" could be thrown; "stmt" is nullable here.(Æ€»Çùÿÿÿÿ8Ì§¼ñ×+Hî4RMAJORZBUG
-Nsquid:S2131d"Use "Long.toString" instead.(ÄªµÓøÿÿÿÿH¬4RMAJORZ
+Nsquid:S2131`"Use "Long.toString" instead.(ÄªµÓøÿÿÿÿH¬4RMAJORZ
 CODE_SMELL
-_squid:S2093p"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿH®4RCRITICALZ
-CODE_SMELL
+jsquid:S2095š"5Close this "PreparedStatement" in a "finally" clause.(Á­Ğôıÿÿÿÿ8“èó×+HÌYRBLOCKERZBUG
 ‰squid:S2077L"RUse a variable binding mechanism to construct this query instead of concatenation.(ñÃÈİıÿÿÿÿH©4RBLOCKERZVULNERABILITY
-¢squid:S1192]"fDefine a constant instead of duplicating this literal "Error while closing the SQL statment " 3 times.(åËä³üÿÿÿÿ8ï—¾ñ×+Hô4RCRITICALZ
+isquid:S2095L"5Close this "PreparedStatement" in a "finally" clause.(ñÃÈİıÿÿÿÿ8Û†äó×+HŠWRBLOCKERZBUG
+_squid:S2093l"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿH®4RCRITICALZ
 CODE_SMELL
-usquid:S2259±"BA "NullPointerException" could be thrown; "stmt" is nullable here.(Æ€»Çùÿÿÿÿ8şÜ’ñ×+HÚ4RMAJORZBUG
+jsquid:S2095Í"5Close this "PreparedStatement" in a "finally" clause.(®ÉŞùÿÿÿÿ8Ã×éó×+HçYRBLOCKERZBUG

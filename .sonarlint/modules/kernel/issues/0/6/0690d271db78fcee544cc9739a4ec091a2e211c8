@@ -1,16 +1,16 @@
 
-ˆsquid:S22933"YReplace the type specification in this constructor call with the diamond operator ("<>").(ıÙàşÿÿÿÿRMINORZ
-CODE_SMELL
-ƒsquid:S22936"YReplace the type specification in this constructor call with the diamond operator ("<>").(ûĞüĞRMINORZ
-CODE_SMELL
-ˆsquid:S2293="YReplace the type specification in this constructor call with the diamond operator ("<>").(„‚ÀûÿÿÿÿRMINORZ
+esquid:S2259­"AA "NullPointerException" could be thrown; "val" is nullable here.(ğÇñRMAJORZBUG
+jsquid:S2259š"AA "NullPointerException" could be thrown; "val" is nullable here.(©˜ÆúÿÿÿÿRMAJORZBUG
+jsquid:S2259î"AA "NullPointerException" could be thrown; "val" is nullable here.(é’ûŒÿÿÿÿÿRMAJORZBUG
+Ysquid:S1125Á")Remove the literal "false" boolean value.(”òğ¼ùÿÿÿÿRMINORZ
 CODE_SMELL
 ƒsquid:S2293C"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÇîôÉRMINORZ
 CODE_SMELL
-Ysquid:S1125Á")Remove the literal "false" boolean value.(”òğ¼ùÿÿÿÿRMINORZ
+ˆsquid:S22933"YReplace the type specification in this constructor call with the diamond operator ("<>").(ıÙàşÿÿÿÿRMINORZ
 CODE_SMELL
-jsquid:S2259š"AA "NullPointerException" could be thrown; "val" is nullable here.(©˜ÆúÿÿÿÿRMAJORZBUG
-jsquid:S2259î"AA "NullPointerException" could be thrown; "val" is nullable here.(é’ûŒÿÿÿÿÿRMAJORZBUG
-esquid:S2259­"AA "NullPointerException" could be thrown; "val" is nullable here.(ğÇñRMAJORZBUG
-jsquid:S2259À"AA "NullPointerException" could be thrown; "val" is nullable here.(¶÷¸€ûÿÿÿÿRMAJORZBUG
 jsquid:S2259‚"AA "NullPointerException" could be thrown; "val" is nullable here.(¶÷¸€ûÿÿÿÿRMAJORZBUG
+ˆsquid:S2293="YReplace the type specification in this constructor call with the diamond operator ("<>").(„‚ÀûÿÿÿÿRMINORZ
+CODE_SMELL
+ƒsquid:S22936"YReplace the type specification in this constructor call with the diamond operator ("<>").(ûĞüĞRMINORZ
+CODE_SMELL
+jsquid:S2259À"AA "NullPointerException" could be thrown; "val" is nullable here.(¶÷¸€ûÿÿÿÿRMAJORZBUG

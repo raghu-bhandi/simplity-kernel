@@ -1,44 +1,44 @@
 
-¯%squid:RedundantThrowsDeclarationCheck³"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(‡ß¶õRMINORZ
+‰squid:S3776ü"SRefactor this method to reduce its Cognitive Complexity from 117 to the 15 allowed.(–¶¼±ÿÿÿÿÿH÷[RCRITICALZ
 CODE_SMELL
-Osquid:S1659è"$Declare "length" on a separate line.(éõÖĞRMINORZ
+hsquid:S1854":Remove this useless assignment to local variable "string".(ª¼ØŸHø[RMAJORZ
 CODE_SMELL
-_squid:S1066„"/Merge this if statement with the enclosing one.(Â¿º¥úÿÿÿÿRMAJORZ
+~squid:CommentedOutCodeLine "<This block of commented-out lines of code should be removed.(—ó†ÂøÿÿÿÿHù[RMAJORZ
 CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheckØ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ÌÚ®ùÿÿÿÿRMINORZ
+lsquid:S1118%":Add a private constructor to hide the implicit public one.(ø÷›ÿÿÿÿÿHú[RMAJORZ
 CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheckÉ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(şâ®­ùÿÿÿÿRMINORZ
+ˆsquid:S3776°"RRefactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed.(ı…ü’ÿÿÿÿÿHû[RCRITICALZ
 CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheckç"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(êÿá·ıÿÿÿÿRMINORZ
+Usquid:S1604K"(Make this anonymous inner class a lambda(ûİöHü[RMAJORZ
 CODE_SMELL
-isquid:S1118%":Add a private constructor to hide the implicit public one.(ø÷›ÿÿÿÿÿRMAJORZ
+~squid:S1192¡"HDefine a constant instead of duplicating this literal "content" 5 times.(Ÿıõ°ÿÿÿÿÿHı[RCRITICALZ
 CODE_SMELL
-esquid:S1854":Remove this useless assignment to local variable "string".(ª¼ØŸRMAJORZ
+vsquid:S1226»"CIntroduce a new variable instead of reusing the parameter "object".(òÌğçüÿÿÿÿHş[RMINORZ
 CODE_SMELL
-Rsquid:S1604K"(Make this anonymous inner class a lambda(ûİöRMAJORZ
+]squid:S1066"/Merge this if statement with the enclosing one.(Û¡å‹Hÿ[RMAJORZ
 CODE_SMELL
-…squid:S3776ä"RRefactor this method to reduce its Cognitive Complexity from 62 to the 15 allowed.(ğâ“åûÿÿÿÿRCRITICALZ
+rsquid:S3358Í"DExtract this nested ternary operation into an independent statement.(Ö¾ä€H€\RMAJORZ
 CODE_SMELL
-osquid:S3358Í"DExtract this nested ternary operation into an independent statement.(Ö¾ä€RMAJORZ
+ˆsquid:S3776ä"RRefactor this method to reduce its Cognitive Complexity from 62 to the 15 allowed.(ğâ“åûÿÿÿÿH\RCRITICALZ
 CODE_SMELL
- squid:ForLoopCounterChangedCheckÒ"XRefactor the code in order to not assign to this loop counter from within the loop body.(½âñéúÿÿÿÿRMAJORZ
+  squid:ForLoopCounterChangedCheckÒ"XRefactor the code in order to not assign to this loop counter from within the loop body.(½âñéúÿÿÿÿH‚\RMAJORZ
 CODE_SMELL
-qsquid:S2272X"NAdd a "NoSuchElementException" for iteration beyond the end of the collection.(şÿøëRMINORZBUG
-…squid:S3776°"RRefactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed.(ı…ü’ÿÿÿÿÿRCRITICALZ
+·%squid:RedundantThrowsDeclarationCheckä"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ğâ“åûÿÿÿÿHƒ\RMINORZ
 CODE_SMELL
-{squid:S1192¡"HDefine a constant instead of duplicating this literal "content" 5 times.(Ÿıõ°ÿÿÿÿÿRCRITICALZ
+tsquid:S2272X"NAdd a "NoSuchElementException" for iteration beyond the end of the collection.(şÿøëH„\RMINORZBUG
+²%squid:RedundantThrowsDeclarationCheckı"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(µ‘H…\RMINORZ
 CODE_SMELL
-{squid:CommentedOutCodeLine "<This block of commented-out lines of code should be removed.(—ó†ÂøÿÿÿÿRMAJORZ
+Rsquid:S1659è"$Declare "length" on a separate line.(éõÖĞH†\RMINORZ
 CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheckı"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(µ‘RMINORZ
+bsquid:S1066„"/Merge this if statement with the enclosing one.(Â¿º¥úÿÿÿÿH‡\RMAJORZ
 CODE_SMELL
-squid:S1192Ê"NDefine a constant instead of duplicating this literal "Misshaped tag" 3 times.(¿¥õüÿÿÿÿRCRITICALZ
+·%squid:RedundantThrowsDeclarationCheckØ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ÌÚ®ùÿÿÿÿHˆ\RMINORZ
 CODE_SMELL
-†squid:S3776ü"SRefactor this method to reduce its Cognitive Complexity from 117 to the 15 allowed.(–¶¼±ÿÿÿÿÿRCRITICALZ
+²%squid:RedundantThrowsDeclarationCheck³"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(‡ß¶õH‰\RMINORZ
 CODE_SMELL
-ssquid:S1226»"CIntroduce a new variable instead of reusing the parameter "object".(òÌğçüÿÿÿÿRMINORZ
+·%squid:RedundantThrowsDeclarationCheckÉ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(şâ®­ùÿÿÿÿHŠ\RMINORZ
 CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheckä"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ğâ“åûÿÿÿÿRMINORZ
+„squid:S1192Ê"NDefine a constant instead of duplicating this literal "Misshaped tag" 3 times.(¿¥õüÿÿÿÿH‹\RCRITICALZ
 CODE_SMELL
-Zsquid:S1066"/Merge this if statement with the enclosing one.(Û¡å‹RMAJORZ
+·%squid:RedundantThrowsDeclarationCheckç"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(êÿá·ıÿÿÿÿHŒ\RMINORZ
 CODE_SMELL

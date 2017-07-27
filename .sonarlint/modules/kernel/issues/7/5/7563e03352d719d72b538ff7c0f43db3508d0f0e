@@ -1,17 +1,17 @@
 
-Ksquid:S2131;"!Use "Character.toString" instead.(ÏÓ»µRMAJORZ
+squid:S00115*"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(³ğ£øøÿÿÿÿH\RCRITICALZ
 CODE_SMELL
-ˆsquid:S001158"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(ÙÜ×´RCRITICALZ
+Šsquid:S001151"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(²ğ™ H\RCRITICALZ
 CODE_SMELL
-Ksquid:S2131&"!Use "Character.toString" instead.(É³×¢RMAJORZ
+Nsquid:S21314"!Use "Character.toString" instead.(€™ÛH\RMAJORZ
 CODE_SMELL
-Psquid:S2131-"!Use "Character.toString" instead.(¼ŒŒôúÿÿÿÿRMAJORZ
+Nsquid:S2131&"!Use "Character.toString" instead.(É³×¢H\RMAJORZ
 CODE_SMELL
-Ksquid:S21314"!Use "Character.toString" instead.(€™ÛRMAJORZ
+‹squid:S001158"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(ÙÜ×´H‘\RCRITICALZ
 CODE_SMELL
-ˆsquid:S00115#"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(üœØŞRCRITICALZ
+Ssquid:S2131-"!Use "Character.toString" instead.(¼ŒŒôúÿÿÿÿH’\RMAJORZ
 CODE_SMELL
-squid:S00115*"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(³ğ£øøÿÿÿÿRCRITICALZ
+Nsquid:S2131;"!Use "Character.toString" instead.(ÏÓ»µH“\RMAJORZ
 CODE_SMELL
-‡squid:S001151"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(²ğ™ RCRITICALZ
+‹squid:S00115#"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(üœØŞH”\RCRITICALZ
 CODE_SMELL

@@ -1,62 +1,62 @@
 
-‹
-squid:S135³"YReduce the total number of break and continue statements in this loop to use at most one.(ü§è½ùÿÿÿÿH·9RMINORZ
-CODE_SMELL
-esquid:S2629"7Use the built-in formatting to construct this argument.(Ğ¾¹ğH°9RMAJORZ
-CODE_SMELL
-esquid:S2629¥"7Use the built-in formatting to construct this argument.(À±H¬9RMAJORZ
-CODE_SMELL
-Wsquid:S1125Ğ")Remove the literal "false" boolean value.(ÛÕ©­HÁ9RMINORZ
-CODE_SMELL
-jsquid:S2629œ"7Use the built-in formatting to construct this argument.(Á÷µêıÿÿÿÿHÂ9RMAJORZ
-CODE_SMELL
-jsquid:S2629Î"7Use the built-in formatting to construct this argument.(¥ù³ÒøÿÿÿÿHµ9RMAJORZ
-CODE_SMELL
-]squid:S1172€"*Remove this unused method parameter "ctx".(Åˆ§‡ÿÿÿÿÿH¹9RMAJORZ
-CODE_SMELL
-jsquid:S2629¶"7Use the built-in formatting to construct this argument.(‘™Ú´ùÿÿÿÿH¸9RMAJORZ
-CODE_SMELL
-Wsquid:S1125ñ")Remove the literal "false" boolean value.(­»ĞâH´9RMINORZ
-CODE_SMELL
-ˆsquid:S3776Ë"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(„ÔÕÖüÿÿÿÿH«9RCRITICALZ
-CODE_SMELL
-ƒsquid:S3776ÿ"RRefactor this method to reduce its Cognitive Complexity from 44 to the 15 allowed.(„øÛ¥HÇ9RCRITICALZ
-CODE_SMELL
-Wsquid:S1125§")Remove the literal "false" boolean value.(ÛÕ©­H½9RMINORZ
-CODE_SMELL
-Psquid:S2189á""Add an end condition to this loop.(˜ïˆÿÿÿÿÿH³9RBLOCKERZBUG
-jsquid:S2629°"7Use the built-in formatting to construct this argument.(®®íĞûÿÿÿÿHº9RMAJORZ
+esquid:S2629§"7Use the built-in formatting to construct this argument.(¸”šH±9RMAJORZ
 CODE_SMELL
 ˆsquid:S3776–"RRefactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed.(¯Ü°ÅÿÿÿÿÿH¼9RCRITICALZ
 CODE_SMELL
-jsquid:S2629¹"7Use the built-in formatting to construct this argument.(ˆâ§”øÿÿÿÿHÄ9RMAJORZ
-CODE_SMELL
 dsquid:S2629‚"7Use the built-in formatting to construct this argument.(üĞá<H©9RMAJORZ
 CODE_SMELL
-Wsquid:S1125Ù")Remove the literal "false" boolean value.(³¢˜‰H®9RMINORZ
+ƒsquid:S3776ÿ"RRefactor this method to reduce its Cognitive Complexity from 44 to the 15 allowed.(„øÛ¥HÇ9RCRITICALZ
 CODE_SMELL
-jsquid:S1197d"8Move the array designator from the variable to the type.(ë’™ËûÿÿÿÿHÆ9RMINORZ
+jsquid:S2629Î"7Use the built-in formatting to construct this argument.(¥ù³ÒøÿÿÿÿHµ9RMAJORZ
 CODE_SMELL
-]squid:S1066ä"/Merge this if statement with the enclosing one.(îÅé²H²9RMAJORZ
-CODE_SMELL
-hsquid:S1141Å"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿHª9RMAJORZ
-CODE_SMELL
-\squid:S1125")Remove the literal "false" boolean value.(ÄÄàÆıÿÿÿÿHÅ9RMINORZ
-CODE_SMELL
-Wsquid:S1125Ù")Remove the literal "false" boolean value.(³¢˜‰H¶9RMINORZ
+Wsquid:S1125§")Remove the literal "false" boolean value.(ÛÕ©­H½9RMINORZ
 CODE_SMELL
 ]squid:S1172ø"*Remove this unused method parameter "ctx".(Ü¦üÑûÿÿÿÿHÀ9RMAJORZ
 CODE_SMELL
+‚squid:S3776Ş"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(¶ÆÑvH¾9RCRITICALZ
+CODE_SMELL
+esquid:S2629¥"7Use the built-in formatting to construct this argument.(À±H¬9RMAJORZ
+CODE_SMELL
+jsquid:S2629°"7Use the built-in formatting to construct this argument.(®®íĞûÿÿÿÿHº9RMAJORZ
+CODE_SMELL
+Wsquid:S1125Ù")Remove the literal "false" boolean value.(³¢˜‰H¶9RMINORZ
+CODE_SMELL
 esquid:S2629»"7Use the built-in formatting to construct this argument.(è…¸•H­9RMAJORZ
 CODE_SMELL
-Psquid:S2189ú""Add an end condition to this loop.(˜ïˆÿÿÿÿÿH¿9RBLOCKERZBUG
-esquid:S2629§"7Use the built-in formatting to construct this argument.(¸”šH±9RMAJORZ
+hsquid:S1141Å"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿHª9RMAJORZ
 CODE_SMELL
-jsquid:S2589³"7Remove this expression which always evaluates to "true"(ıó’³ùÿÿÿÿH¯9RMAJORZ
+]squid:S1172€"*Remove this unused method parameter "ctx".(Åˆ§‡ÿÿÿÿÿH¹9RMAJORZ
 CODE_SMELL
-‚squid:S3776Ş"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(¶ÆÑvH¾9RCRITICALZ
+Psquid:S2189á""Add an end condition to this loop.(˜ïˆÿÿÿÿÿH³9RBLOCKERZBUG
+jsquid:S2629¹"7Use the built-in formatting to construct this argument.(ˆâ§”øÿÿÿÿHÄ9RMAJORZ
+CODE_SMELL
+jsquid:S2629¶"7Use the built-in formatting to construct this argument.(‘™Ú´ùÿÿÿÿH¸9RMAJORZ
+CODE_SMELL
+esquid:S2629"7Use the built-in formatting to construct this argument.(Ğ¾¹ğH°9RMAJORZ
 CODE_SMELL
 Vsquid:S1125ğ")Remove the literal "false" boolean value.(¶òí_H»9RMINORZ
 CODE_SMELL
+]squid:S1066ä"/Merge this if statement with the enclosing one.(îÅé²H²9RMAJORZ
+CODE_SMELL
+jsquid:S1197d"8Move the array designator from the variable to the type.(ë’™ËûÿÿÿÿHÆ9RMINORZ
+CODE_SMELL
 esquid:S2629»"7Use the built-in formatting to construct this argument.(õƒŞHÃ9RMAJORZ
+CODE_SMELL
+ˆsquid:S3776Ë"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(„ÔÕÖüÿÿÿÿH«9RCRITICALZ
+CODE_SMELL
+‹
+squid:S135³"YReduce the total number of break and continue statements in this loop to use at most one.(ü§è½ùÿÿÿÿH·9RMINORZ
+CODE_SMELL
+Psquid:S2189ú""Add an end condition to this loop.(˜ïˆÿÿÿÿÿH¿9RBLOCKERZBUG
+Wsquid:S1125Ğ")Remove the literal "false" boolean value.(ÛÕ©­HÁ9RMINORZ
+CODE_SMELL
+\squid:S1125")Remove the literal "false" boolean value.(ÄÄàÆıÿÿÿÿHÅ9RMINORZ
+CODE_SMELL
+Wsquid:S1125ñ")Remove the literal "false" boolean value.(­»ĞâH´9RMINORZ
+CODE_SMELL
+Wsquid:S1125Ù")Remove the literal "false" boolean value.(³¢˜‰H®9RMINORZ
+CODE_SMELL
+jsquid:S2589³"7Remove this expression which always evaluates to "true"(ıó’³ùÿÿÿÿH¯9RMAJORZ
+CODE_SMELL
+jsquid:S2629œ"7Use the built-in formatting to construct this argument.(Á÷µêıÿÿÿÿHÂ9RMAJORZ
 CODE_SMELL

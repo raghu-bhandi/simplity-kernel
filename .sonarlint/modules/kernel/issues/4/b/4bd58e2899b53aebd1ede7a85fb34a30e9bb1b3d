@@ -1,8 +1,8 @@
 
-Šsquid:S1488I"[Immediately return this expression instead of assigning it to the temporary variable "row".(„›â½ûÿÿÿÿRMINORZ
+Isquid:S2131M"Use "Boolean.toString" instead.(’­¥RMAJORZ
 CODE_SMELL
 Jsquid:S2386+"Make this member "protected".(±RMINORZVULNERABILITY
 Nsquid:S2131L"Use "Integer.toString" instead.(ôÜï…ıÿÿÿÿRMAJORZ
 CODE_SMELL
-Isquid:S2131M"Use "Boolean.toString" instead.(’­¥RMAJORZ
+Šsquid:S1488I"[Immediately return this expression instead of assigning it to the temporary variable "row".(„›â½ûÿÿÿÿRMINORZ
 CODE_SMELL

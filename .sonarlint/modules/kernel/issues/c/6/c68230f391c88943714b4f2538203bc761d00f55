@@ -1,5 +1,5 @@
 
-usquid:UselessImportCheck"4Remove this unused import 'org.slf4j.LoggerFactory'.(–яЪЮ8РхЭтЧ+H…8RMINORZ
-CODE_SMELL
 msquid:UselessImportCheck"-Remove this unused import 'org.slf4j.Logger'.(нШ®68РхЭтЧ+H„8RMINORZ
+CODE_SMELL
+usquid:UselessImportCheck"4Remove this unused import 'org.slf4j.LoggerFactory'.(–яЪЮ8РхЭтЧ+H…8RMINORZ
 CODE_SMELL

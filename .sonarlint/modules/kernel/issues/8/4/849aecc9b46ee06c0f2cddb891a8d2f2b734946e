@@ -1,9 +1,9 @@
 
 ­squid:S1192k"{Define a constant instead of duplicating this literal " is meant for update, but it is called for data extraction" 3 times.(ª¿ÈÿÿÿÿÿRCRITICALZ
 CODE_SMELL
+€squid:S3776©"RRefactor this method to reduce its Cognitive Complexity from 26 to the 15 allowed.(¯êˆòRCRITICALZ
+CODE_SMELL
 Ysquid:S1125š")Remove the literal "false" boolean value.(¢ÌÕùÿÿÿÿRMINORZ
 CODE_SMELL
 squid:S1488û"^Immediately return this expression instead of assigning it to the temporary variable "values".(±¶âşÿÿÿÿRMINORZ
-CODE_SMELL
-€squid:S3776©"RRefactor this method to reduce its Cognitive Complexity from 26 to the 15 allowed.(¯êˆòRCRITICALZ
 CODE_SMELL
