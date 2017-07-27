@@ -88,6 +88,9 @@ public class HttpGateway extends Gateway {
 	 */
 	String proxyPassword;
 
+	/**
+	 * instantiated in getReady() for performance
+	 */
 	protected Authenticator authenticator;
 
 	/*
@@ -100,11 +103,12 @@ public class HttpGateway extends Gateway {
 		return new Agent();
 	}
 
-	protected Authenticator getAuth() {
-		if (this.proxyHostName == null) {
-			return null;
-		}
-		if (this.authenticator == null) {
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.Gateway#getReady()
+	 */
+	@Override
+	protected void getReady() {
+		if (this.proxyHostName != null) {
 			/*
 			 * using anonymous class as it is used here and nowhere else
 			 */
@@ -119,9 +123,7 @@ public class HttpGateway extends Gateway {
 
 			};
 		}
-		return this.authenticator;
 	}
-
 	/**
 	 * a worker inner-class that re-uses set-up time parameters from its parent
 	 * instance and manages state across method invocations with its own
@@ -206,12 +208,11 @@ public class HttpGateway extends Gateway {
 				/*
 				 * get connection
 				 */
-				Authenticator auth = gateway.getAuth();
-				if (auth != null) {
+				if (gateway.authenticator != null) {
 
 					Proxy proxyCon = new Proxy(Proxy.Type.HTTP,
 							new InetSocketAddress(gateway.proxyHostName, gateway.proxyPort));
-					Authenticator.setDefault(auth);
+					Authenticator.setDefault(gateway.authenticator);
 					this.conn = (HttpURLConnection) url.openConnection(proxyCon);
 				} else {
 					this.conn = (HttpURLConnection) url.openConnection();

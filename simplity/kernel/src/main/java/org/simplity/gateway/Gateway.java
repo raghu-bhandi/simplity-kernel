@@ -36,6 +36,16 @@ public abstract class Gateway {
 
 	private static Map<String, Gateway> gateways;
 	/**
+	 * set gateways.as of now this is happening at application boot time. Refer to <code>Application</code>,
+	 * @param ways
+	 */
+	public static void setGateways(Map<String, Gateway> ways) {
+		gateways = ways;
+		for(Gateway gateway : gateways.values()){
+			gateway.getReady();
+		}
+	}
+	/**
 	 * get the right agent who knows how to handle service request to the
 	 * desired server
 	 *
@@ -65,6 +75,11 @@ public abstract class Gateway {
 	public String getName(){
 		return this.name;
 	}
+
+	/**
+	 * invoked after loading once
+	 */
+	protected abstract void getReady();
 	/**
 	 * @return
 	 */
