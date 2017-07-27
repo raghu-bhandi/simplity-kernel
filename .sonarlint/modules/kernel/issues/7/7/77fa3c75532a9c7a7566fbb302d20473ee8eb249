@@ -1,7 +1,0 @@
-
-Usquid:S1148P"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿRMINORZVULNERABILITY
-msquid:S2259Y"EA "NullPointerException" could be thrown; "ldapCtx" is nullable here.(«Ý±”ûÿÿÿÿRMAJORZBUG
-[squid:S10682"1Remove this unused "dataExtractor" private field.(ó‡©æRMAJORZ
-CODE_SMELL
-Wsquid:S1185a"(Remove this method to simply inherit it.(ÂØ¸öùÿÿÿÿRMINORZ
-CODE_SMELL

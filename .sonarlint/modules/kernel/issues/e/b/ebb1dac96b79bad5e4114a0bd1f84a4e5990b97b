@@ -1,47 +1,0 @@
-
-esquid:S2629ƒ"7Use the built-in formatting to construct this argument.(ØæšµH’:RMAJORZ
-CODE_SMELL
-ysquid:S11928"IDefine a constant instead of duplicating this literal "compType" 3 times.(ªäÍH‘:RCRITICALZ
-CODE_SMELL
-\squid:S1125ü")Remove the literal "false" boolean value.(úæÑ‰ÿÿÿÿÿH‡:RMINORZ
-CODE_SMELL
-‹squid:S2293B"YReplace the type specification in this constructor call with the diamond operator ("<>").(ë›ÿìüÿÿÿÿH„:RMINORZ
-CODE_SMELL
-‡squid:S2293ú"YReplace the type specification in this constructor call with the diamond operator ("<>").(ïÏ»§H“:RMINORZ
-CODE_SMELL
-…squid:S3008:"SRename this field "COMP_HDR" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ğÈ¢¤üÿÿÿÿH”:RMINORZ
-CODE_SMELL
-esquid:S2629á"7Use the built-in formatting to construct this argument.(×ÑëHˆ:RMAJORZ
-CODE_SMELL
-†squid:S2293="YReplace the type specification in this constructor call with the diamond operator ("<>").(¬óÆH‹:RMINORZ
-CODE_SMELL
-squid:S00116H"ZRename this field "AllObservations" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ıìñåùÿÿÿÿH‚:RMINORZ
-CODE_SMELL
-†
-squid:S135Ş"YReduce the total number of break and continue statements in this loop to use at most one.(µºè‡HŒ:RMINORZ
-CODE_SMELL
-esquid:S2629ş"7Use the built-in formatting to construct this argument.(×ÑëH…:RMAJORZ
-CODE_SMELL
-†
-squid:S135û"YReduce the total number of break and continue statements in this loop to use at most one.(µºè‡H‰:RMINORZ
-CODE_SMELL
-\squid:S1125ß")Remove the literal "false" boolean value.(úæÑ‰ÿÿÿÿÿH—:RMINORZ
-CODE_SMELL
-Rsquid:S2131„"Use "Integer.toString" instead.(íôÌÃıÿÿÿÿH:RMAJORZ
-CODE_SMELL
-†squid:S2293R"YReplace the type specification in this constructor call with the diamond operator ("<>").(ˆö¡ÂH†:RMINORZ
-CODE_SMELL
-‹squid:S2293@"YReplace the type specification in this constructor call with the diamond operator ("<>").( àÉ¨üÿÿÿÿH:RMINORZ
-CODE_SMELL
-‹squid:S2293H"YReplace the type specification in this constructor call with the diamond operator ("<>").(ıìñåùÿÿÿÿH:RMINORZ
-CODE_SMELL
-\squid:S1125€")Remove the literal "false" boolean value.(¾êĞ“úÿÿÿÿH:RMINORZ
-CODE_SMELL
-ksquid:S1155|">Use isEmpty() to check whether the collection is empty or not.(ëÌçïHŠ:RMINORZ
-CODE_SMELL
-ysquid:S11928"IDefine a constant instead of duplicating this literal "compName" 3 times.(ªäÍHƒ:RCRITICALZ
-CODE_SMELL
-squid:S30088"RRename this field "MSG_HDR" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ªäÍH•:RMINORZ
-CODE_SMELL
-„squid:S30089"RRename this field "REF_HDR" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(úÃÛúúÿÿÿÿH–:RMINORZ
-CODE_SMELL

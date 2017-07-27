@@ -1,15 +1,0 @@
-
-Wsquid:S1125®")Remove the literal "false" boolean value.(ïñıÇH‡FRMINORZ
-CODE_SMELL
-bsquid:S1066¤"/Merge this if statement with the enclosing one.(°ì†ÿùÿÿÿÿHˆFRMAJORZ
-CODE_SMELL
-qsquid:S2629"7Use the built-in formatting to construct this argument.(íŠ˜ úÿÿÿÿ8ä¢²ó×+HFRMAJORZ
-CODE_SMELL
-`squid:S2093¿"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿHŠFRCRITICALZ
-CODE_SMELL
-Wsquid:S1125®")Remove the literal "false" boolean value.(ïñıÇH†FRMINORZ
-CODE_SMELL
-psquid:S00107Š"AConstructor has 9 parameters, which is greater than 7 authorized.(Ó¾¤ÃH‰FRMAJORZ
-CODE_SMELL
-ƒsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(Æ”ÿH‹FRCRITICALZ
-CODE_SMELL

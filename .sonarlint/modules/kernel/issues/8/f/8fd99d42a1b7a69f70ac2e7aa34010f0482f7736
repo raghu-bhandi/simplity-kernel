@@ -1,12 +1,0 @@
-
-ssquid:S1126Z"AReplace this if-then-else statement by a single return statement.(òş×úÿÿÿÿHäERMINORZ
-CODE_SMELL
-Wsquid:S1125’")Remove the literal "false" boolean value.(˜­ÔHçERMINORZ
-CODE_SMELL
-‚squid:S3776u"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(ê¢ç™HæERCRITICALZ
-CODE_SMELL
-qsquid:S2629€"7Use the built-in formatting to construct this argument.(ãéáÖøÿÿÿÿ8âä¯ó×+HêERMAJORZ
-CODE_SMELL
-…
-squid:S135y"YReduce the total number of break and continue statements in this loop to use at most one.(çıû‡HåERMINORZ
-CODE_SMELL

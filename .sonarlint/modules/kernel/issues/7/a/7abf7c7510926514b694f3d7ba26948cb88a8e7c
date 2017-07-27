@@ -1,31 +1,0 @@
-
-esquid:S2629¾"7Use the built-in formatting to construct this argument.(ëåõØH›:RMAJORZ
-CODE_SMELL
-[squid:S1172ó"-Remove this unused method parameter "values".(»®´üHœ:RMAJORZ
-CODE_SMELL
-™squid:S1192è"cDefine a constant instead of duplicating this literal "serialization with key-value pairs" 4 times.(íü½±ÿÿÿÿÿH™:RCRITICALZ
-CODE_SMELL
-[squid:S1172ç"-Remove this unused method parameter "values".(—å‘²H :RMAJORZ
-CODE_SMELL
-squid:S2629¢"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(ã¸‹½øÿÿÿÿH£:RMAJORZ
-CODE_SMELL
-isquid:S2629O"7Use the built-in formatting to construct this argument.(ÿïÆåüÿÿÿÿHš:RMAJORZ
-CODE_SMELL
-–squid:S1192›"fDefine a constant instead of duplicating this literal "de-serialization with key-value pairs" 4 times.(ŞËûlH¦:RCRITICALZ
-CODE_SMELL
-esquid:S1197Æ"8Move the array designator from the variable to the type.(ñÂH¡:RMINORZ
-CODE_SMELL
-`squid:S1172ÿ"-Remove this unused method parameter "values".(‚¯ÍÊùÿÿÿÿH˜:RMAJORZ
-CODE_SMELL
-Ysquid:S1172š"+Remove this unused method parameter "text".(ŸÒˆëH:RMAJORZ
-CODE_SMELL
-Ysquid:S1172¿"+Remove this unused method parameter "text".(ùõˆ»H¥:RMAJORZ
-CODE_SMELL
-fsquid:S1197»"8Move the array designator from the variable to the type.(ÅÓúØHŸ:RMINORZ
-CODE_SMELL
-\squid:S1172³".Remove this unused method parameter "rowText".(×õàÉH:RMAJORZ
-CODE_SMELL
-Ysquid:S1172¦"+Remove this unused method parameter "text".(ªÁŠÆH¤:RMAJORZ
-CODE_SMELL
-Zsquid:S1172‹"-Remove this unused method parameter "values".(£‘¹%H¢:RMAJORZ
-CODE_SMELL

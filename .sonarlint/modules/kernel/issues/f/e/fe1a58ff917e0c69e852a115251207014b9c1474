@@ -1,43 +1,0 @@
-
-»%squid:RedundantThrowsDeclarationCheck¯"nRemove the declaration of thrown exception 'java.sql.SQLException', as it cannot be thrown from method's body.(ÿù£ÇıÿÿÿÿHî;RMINORZ
-CODE_SMELL
-dsquid:S2629á"7Use the built-in formatting to construct this argument.(ş¡ #Hò;RMAJORZ
-CODE_SMELL
-\squid:S1125´")Remove the literal "false" boolean value.(‡øŠ÷ùÿÿÿÿHï;RMINORZ
-CODE_SMELL
-\squid:S1125³")Remove the literal "false" boolean value.(ÉˆñşÿÿÿÿHô;RMINORZ
-CODE_SMELL
-\squid:S1125‡")Remove the literal "false" boolean value.(è‚Û™ûÿÿÿÿHé;RMINORZ
-CODE_SMELL
-ˆsquid:S3776š"RRefactor this method to reduce its Cognitive Complexity from 35 to the 15 allowed.(úÂ‚øÿÿÿÿHñ;RCRITICALZ
-CODE_SMELL
-Ysquid:S1172ã"+Remove this unused method parameter "stmt".(ÇŞÄHğ;RMAJORZ
-CODE_SMELL
-\squid:S1125Ş")Remove the literal "false" boolean value.(°å’ÅûÿÿÿÿHí;RMINORZ
-CODE_SMELL
-ˆsquid:S3776ã"RRefactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed.(¯¥Ø»ÿÿÿÿÿHø;RCRITICALZ
-CODE_SMELL
-\squid:S1125ó")Remove the literal "false" boolean value.(ÉˆñşÿÿÿÿHå;RMINORZ
-CODE_SMELL
-Vsquid:S1125")Remove the literal "false" boolean value.(ï÷ó=Hæ;RMINORZ
-CODE_SMELL
-jsquid:S2629†"7Use the built-in formatting to construct this argument.(€ğÚøÿÿÿÿHö;RMAJORZ
-CODE_SMELL
-Wsquid:S1125ª")Remove the literal "false" boolean value.(ŞÉ—Hç;RMINORZ
-CODE_SMELL
-jsquid:S2629Š"7Use the built-in formatting to construct this argument.(İî¶ÛúÿÿÿÿHõ;RMAJORZ
-CODE_SMELL
-\squid:S1125Í")Remove the literal "false" boolean value.(âïúŒüÿÿÿÿHè;RMINORZ
-CODE_SMELL
-ƒsquid:S3776÷"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(¤¦öıH÷;RCRITICALZ
-CODE_SMELL
-esquid:S2629–"7Use the built-in formatting to construct this argument.(ÙøÚHë;RMAJORZ
-CODE_SMELL
-]squid:S1066–"/Merge this if statement with the enclosing one.(åëïúHê;RMAJORZ
-CODE_SMELL
-\squid:S1125Ÿ")Remove the literal "false" boolean value.(åÓºüÿÿÿÿHù;RMINORZ
-CODE_SMELL
-dsquid:S2629Ğ"7Use the built-in formatting to construct this argument.(ş¡ #Hì;RMAJORZ
-CODE_SMELL
-^squid:S1172Õ"+Remove this unused method parameter "stmt".(èÈ‡—úÿÿÿÿHó;RMAJORZ
-CODE_SMELL

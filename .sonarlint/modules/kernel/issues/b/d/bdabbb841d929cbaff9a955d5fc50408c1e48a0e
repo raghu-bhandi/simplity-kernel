@@ -1,104 +1,0 @@
-
-zsquid:S1192¼"IDefine a constant instead of duplicating this literal "Service " 9 times.(µÏûöH÷FRCRITICALZ
-CODE_SMELL
-Wsquid:S1125²")Remove the literal "false" boolean value.(ˆ¾µHêFRMINORZ
-CODE_SMELL
-qsquid:S2629ş"7Use the built-in formatting to construct this argument.(ÚŞÌøÿÿÿÿ8›¢¹ó×+H€GRMAJORZ
-CODE_SMELL
-‡squid:S2293®	"YReplace the type specification in this constructor call with the diamond operator ("<>").(Æ³‹˜HØFRMINORZ
-CODE_SMELL
-\squid:S1125ª")Remove the literal "false" boolean value.(Û¹ÜşÿÿÿÿHëFRMINORZ
-CODE_SMELL
-Wsquid:S1125Õ")Remove the literal "false" boolean value.(µÍó½HÕFRMINORZ
-CODE_SMELL
-ƒsquid:S3776Ü"RRefactor this method to reduce its Cognitive Complexity from 35 to the 15 allowed.(¯êˆòHŞFRCRITICALZ
-CODE_SMELL
-ksquid:S1155³	">Use isEmpty() to check whether the collection is empty or not.(òÍ£HãFRMINORZ
-CODE_SMELL
-‚squid:S3776“"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(‰‰ÀHÚFRCRITICALZ
-CODE_SMELL
-~squid:CommentedOutCodeLineÅ	"<This block of commented-out lines of code should be removed.(”´Ñ“øÿÿÿÿHöFRMAJORZ
-CODE_SMELL
-lsquid:S2629”	"7Use the built-in formatting to construct this argument.(äÑÃ…8›¢¹ó×+HGRMAJORZ
-CODE_SMELL
-]squid:S1066Ë"/Merge this if statement with the enclosing one.(ëñàŞHæFRMAJORZ
-CODE_SMELL
-lsquid:S2629¼"7Use the built-in formatting to construct this argument.(µÏûö8±€»ó×+H„GRMAJORZ
-CODE_SMELL
-Wsquid:S1125Ë")Remove the literal "false" boolean value.(ëñàŞHÜFRMINORZ
-CODE_SMELL
-fsquid:S1197•"8Move the array designator from the variable to the type.(®é›¬HßFRMINORZ
-CODE_SMELL
-Tsquid:S1168ı	"&Return an empty array instead of null.(¥¹ïHÒFRMAJORZ
-CODE_SMELL
-‡squid:S2293»
-"YReplace the type specification in this constructor call with the diamond operator ("<>").(ù—ğËHîFRMINORZ
-CODE_SMELL
-psquid:S2583˜"DChange this condition so that it does not always evaluate to "false"(ó±«şıÿÿÿÿHèFRMAJORZBUG
-Wsquid:S1125æ")Remove the literal "false" boolean value.(„¶ÔHáFRMINORZ
-CODE_SMELL
-ƒsquid:S3776¸
-"RRefactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed.(¶Ü²¶HĞFRCRITICALZ
-CODE_SMELL
-]squid:S1066ì"/Merge this if statement with the enclosing one.(­’¶HÍFRMAJORZ
-CODE_SMELL
-jsquid:S2589¨"7Remove this expression which always evaluates to "true"(‹ÑÛÇÿÿÿÿÿHéFRMAJORZ
-CODE_SMELL
-Wsquid:S1125ı")Remove the literal "false" boolean value.(§‚¦ßHôFRMINORZ
-CODE_SMELL
-Tsquid:S1168Æ	"&Return an empty array instead of null.(¥¹ïHÑFRMAJORZ
-CODE_SMELL
-ysquid:CommentedOutCodeLineù"<This block of commented-out lines of code should be removed.(¸ Å¢HğFRMAJORZ
-CODE_SMELL
-Wsquid:S1125ù")Remove the literal "false" boolean value.(µÍó½HäFRMINORZ
-CODE_SMELL
-Ysquid:S1172¸
-"+Remove this unused method parameter "defs".(¶Ü²¶H×FRMAJORZ
-CODE_SMELL
-]squid:S1066ı"/Merge this if statement with the enclosing one.(§‚¦ßHÔFRMAJORZ
-CODE_SMELL
-ksquid:S2629›"7Use the built-in formatting to construct this argument.(«úÇ8›¢¹ó×+HÿFRMAJORZ
-CODE_SMELL
-Tsquid:S1168Ë	"&Return an empty array instead of null.(¥¹ïHíFRMAJORZ
-CODE_SMELL
-Osquid:S2129ï"!Remove this "Integer" constructor(üÖÖÓHÖFRMAJORZ
-CODE_SMELL
-‡squid:S2293
-"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÔùÛ×HÓFRMINORZ
-CODE_SMELL
-Œsquid:S2293º
-"YReplace the type specification in this constructor call with the diamond operator ("<>").(Õò…ÕøÿÿÿÿHïFRMINORZ
-CODE_SMELL
-\squid:S1125Ï")Remove the literal "false" boolean value.(ë†¶ğùÿÿÿÿHåFRMINORZ
-CODE_SMELL
-‡squid:S2293´"YReplace the type specification in this constructor call with the diamond operator ("<>").(²¶íãHÙFRMINORZ
-CODE_SMELL
-Wsquid:S1125Ö")Remove the literal "false" boolean value.(ç¬šüHòFRMINORZ
-CODE_SMELL
-Œsquid:S2293Ä"YReplace the type specification in this constructor call with the diamond operator ("<>").(ŒÖÿ‹ùÿÿÿÿHóFRMINORZ
-CODE_SMELL
-_squid:S1172Ã	",Remove this unused method parameter "names".(ª°¦ìüÿÿÿÿHçFRMAJORZ
-CODE_SMELL
-‘squid:S1450Å"^Remove the "parsedCacheKeys" field and declare it as a local variable in the relevant methods.(ñ£ş³ÿÿÿÿÿHìFRMINORZ
-CODE_SMELL
-Œsquid:S2293
-"YReplace the type specification in this constructor call with the diamond operator ("<>").(±Òš‘ıÿÿÿÿHàFRMINORZ
-CODE_SMELL
-ˆsquid:S3776›"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(öùå´øÿÿÿÿHâFRCRITICALZ
-CODE_SMELL
-ˆsquid:S3776Ã	"RRefactor this method to reduce its Cognitive Complexity from 43 to the 15 allowed.(ª°¦ìüÿÿÿÿHõFRCRITICALZ
-CODE_SMELL
-Tsquid:S1168é	"&Return an empty array instead of null.(¥¹ïHİFRMAJORZ
-CODE_SMELL
-Tsquid:S1168¦"&Return an empty array instead of null.(¥¹ïHñFRMAJORZ
-CODE_SMELL
-Œsquid:S2293µ"YReplace the type specification in this constructor call with the diamond operator ("<>").(•öõêùÿÿÿÿHÛFRMINORZ
-CODE_SMELL
-\squid:S1125½")Remove the literal "false" boolean value.(ë†¶ğùÿÿÿÿHÌFRMINORZ
-CODE_SMELL
-ƒsquid:S3776¤"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(î¹÷ÜHÏFRCRITICALZ
-CODE_SMELL
-ksquid:S2629í"7Use the built-in formatting to construct this argument.(É¶Öy8±€»ó×+H…GRMAJORZ
-CODE_SMELL
-Wsquid:S1125Ú")Remove the literal "false" boolean value.(ñåçHÎFRMINORZ
-CODE_SMELL

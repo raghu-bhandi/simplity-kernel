@@ -1,103 +1,0 @@
-
-psquid:S2259Æ"DA "NullPointerException" could be thrown; "errors" is nullable here.(ÑþÆÜþÿÿÿÿH¶?RMAJORZBUG
-jsquid:S2629€"7Use the built-in formatting to construct this argument.(× üÅýÿÿÿÿH·?RMAJORZ
-CODE_SMELL
-‹
-squid:S135ø"YReduce the total number of break and continue statements in this loop to use at most one.(‰–ìøÿÿÿÿH¡?RMINORZ
-CODE_SMELL
-‚squid:S3776½"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(Èÿ·zH¥?RCRITICALZ
-CODE_SMELL
-squid:S1192ô	"IDefine a constant instead of duplicating this literal "security" 4 times.(ôÏèñúÿÿÿÿH¯?RCRITICALZ
-CODE_SMELL
-\squid:S1125ð")Remove the literal "false" boolean value.(Ü¢ÛûøÿÿÿÿH?RMINORZ
-CODE_SMELL
-_squid:S1751’
-"8Remove this "continue" statement or make it conditional.(ÉŠ©ƒHµ?RMAJORZBUG
-\squid:S1125ð")Remove the literal "false" boolean value.(Ü¢ÛûøÿÿÿÿH’?RMINORZ
-CODE_SMELL
-†
-squid:S135Å"YReduce the total number of break and continue statements in this loop to use at most one.(Â ÐH›?RMINORZ
-CODE_SMELL
-ƒsquid:S3776°"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.(ŽÖ°H‘?RCRITICALZ
-CODE_SMELL
-esquid:S2629Ø	"7Use the built-in formatting to construct this argument.(˜¯úüH˜?RMAJORZ
-CODE_SMELL
-xsquid:S1192¡
-"GDefine a constant instead of duplicating this literal "scopes" 3 times.(ˆÎ®H¬?RCRITICALZ
-CODE_SMELL
-esquid:S2629Ý	"7Use the built-in formatting to construct this argument.(©Æš‰H¸?RMAJORZ
-CODE_SMELL
-lsquid:S1118>":Add a private constructor to hide the implicit public one.(Ÿ…½øÿÿÿÿH•?RMAJORZ
-CODE_SMELL
-\squid:S1125£")Remove the literal "false" boolean value.(³ñßýÿÿÿÿH–?RMINORZ
-CODE_SMELL
-jsquid:S2629•"7Use the built-in formatting to construct this argument.(ºù¢‘øÿÿÿÿH©?RMAJORZ
-CODE_SMELL
-jsquid:S2629ð"7Use the built-in formatting to construct this argument.(¡í‹ùøÿÿÿÿHª?RMAJORZ
-CODE_SMELL
-esquid:S2629Ö"7Use the built-in formatting to construct this argument.(—ô÷éH‹?RMAJORZ
-CODE_SMELL
-esquid:S2589
-"7Remove this expression which always evaluates to "true"(ì°áH¢?RMAJORZ
-CODE_SMELL
-ƒsquid:S3776˜
-"RRefactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed.(ï’ÁêHŸ?RCRITICALZ
-CODE_SMELL
-\squid:S1172˜
-".Remove this unused method parameter "forRefs".(ï’ÁêH¹?RMAJORZ
-CODE_SMELL
-jsquid:S2629™"7Use the built-in formatting to construct this argument.(Ã¿ÿüÿÿÿÿH³?RMAJORZ
-CODE_SMELL
-tsquid:S2259‰"M"NullPointerException" will be thrown when invoking method "getChildSheet()".(ÆÚî©H¤?RMAJORZBUG
-ˆsquid:S3776€"RRefactor this method to reduce its Cognitive Complexity from 33 to the 15 allowed.(Ä¦ÉðüÿÿÿÿH¦?RCRITICALZ
-CODE_SMELL
-‚squid:S3776W"RRefactor this method to reduce its Cognitive Complexity from 27 to the 15 allowed.(½Ò»™H“?RCRITICALZ
-CODE_SMELL
-esquid:S2629¸	"7Use the built-in formatting to construct this argument.(½¼Ã¡H?RMAJORZ
-CODE_SMELL
-ˆsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(®¤áøÿÿÿÿH§?RCRITICALZ
-CODE_SMELL
-esquid:S2629ô"7Use the built-in formatting to construct this argument.(×Ú€ãH«?RMAJORZ
-CODE_SMELL
-ksquid:S2259Ü"DA "NullPointerException" could be thrown; "fields" is nullable here.(Úñ£ÞHœ?RMAJORZBUG
-esquid:S2629ç"7Use the built-in formatting to construct this argument.(ÃËÊúH”?RMAJORZ
-CODE_SMELL
-ˆsquid:S3776ò"RRefactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed.(ÞË üÿÿÿÿH´?RCRITICALZ
-CODE_SMELL
-[squid:S1905§
-"-Remove this unnecessary cast to "JSONObject".(Å…Ò·H?RMINORZ
-CODE_SMELL
-esquid:S2629ò"7Use the built-in formatting to construct this argument.(®â€ÀH±?RMAJORZ
-CODE_SMELL
-bsquid:EmptyStatementUsageCheckö	"Remove this empty statement.(ôŸŽìúÿÿÿÿH—?RMINORZ
-CODE_SMELL
-squid:S2629Û"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(ÏŽÿüÿÿÿÿHž?RMAJORZ
-CODE_SMELL
-jsquid:S2629Æ	"7Use the built-in formatting to construct this argument.(èÝ£ÇøÿÿÿÿH?RMAJORZ
-CODE_SMELL
-esquid:S2629"7Use the built-in formatting to construct this argument.(åòõÒH¨?RMAJORZ
-CODE_SMELL
-ksquid:S2259Ó"DA "NullPointerException" could be thrown; "errors" is nullable here.(¶©¥«H°?RMAJORZBUG
-‹
-squid:S135Ð"YReduce the total number of break and continue statements in this loop to use at most one.(àËõ¿úÿÿÿÿH™?RMINORZ
-CODE_SMELL
-bsquid:EmptyStatementUsageCheck¨
-"Remove this empty statement.(ôŸŽìúÿÿÿÿH£?RMINORZ
-CODE_SMELL
-Tsquid:S1168Ù"&Return an empty array instead of null.(¥¹ïH²?RMAJORZ
-CODE_SMELL
-‹
-squid:S135•	"YReduce the total number of break and continue statements in this loop to use at most one.(¤á³·ùÿÿÿÿH®?RMINORZ
-CODE_SMELL
-esquid:S2629Ö"7Use the built-in formatting to construct this argument.(Ý’†³HŠ?RMAJORZ
-CODE_SMELL
-bsquid:EmptyStatementUsageCheckª
-"Remove this empty statement.(ôŸŽìúÿÿÿÿH ?RMINORZ
-CODE_SMELL
-«squid:S1862Á	"„This branch can not be reached because the condition duplicates a previous condition in the same sequence of "if/else if" statements(à©ÒQHš?RMAJORZBUG
-qsquid:S1155º">Use isEmpty() to check whether the collection is empty or not.(ô§üãûÿÿÿÿH­?RMINORZ
-CODE_SMELL
-\squid:S1125ª")Remove the literal "false" boolean value.(‘®¤òÿÿÿÿÿHŽ?RMINORZ
-CODE_SMELL
-fsquid:S2589×"8Remove this expression which always evaluates to "false"(¶üò»HŒ?RMAJORZ
-CODE_SMELL

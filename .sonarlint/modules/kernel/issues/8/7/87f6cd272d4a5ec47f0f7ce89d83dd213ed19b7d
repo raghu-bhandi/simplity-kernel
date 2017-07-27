@@ -1,37 +1,0 @@
-
-jsquid:S2629ë"7Use the built-in formatting to construct this argument.(ƒŸ¸‡üÿÿÿÿH¯%RMAJORZ
-CODE_SMELL
-squid:S1192ç"hDefine a constant instead of duplicating this literal "Service context has no sheet with name " 4 times.(ƒŸ¸‡üÿÿÿÿH·%RCRITICALZ
-CODE_SMELL
-Œsquid:S2293í"YReplace the type specification in this constructor call with the diamond operator ("<>").(™üÒåÿÿÿÿÿHº%RMINORZ
-CODE_SMELL
-gsquid:S3400‘"9Remove this method and declare a constant for this value.(”·³›H»%RMINORZ
-CODE_SMELL
-]squid:S1172"*Remove this unused method parameter "ctx".(¯¥Ø»ÿÿÿÿÿH¼%RMAJORZ
-CODE_SMELL
-esquid:S2629¬"7Use the built-in formatting to construct this argument.(à ûÛH²%RMAJORZ
-CODE_SMELL
-esquid:S2629¿"7Use the built-in formatting to construct this argument.(à ûÛH«%RMAJORZ
-CODE_SMELL
-esquid:S2629“"7Use the built-in formatting to construct this argument.(½ìØùH°%RMAJORZ
-CODE_SMELL
-jsquid:S2629Ó"7Use the built-in formatting to construct this argument.(ƒŸ¸‡üÿÿÿÿH¶%RMAJORZ
-CODE_SMELL
-jsquid:S2629Ğ"7Use the built-in formatting to construct this argument.(ƒŸ¸‡üÿÿÿÿHµ%RMAJORZ
-CODE_SMELL
-}squid:S1192Í"GDefine a constant instead of duplicating this literal "Sheet " 3 times.(ó¥¥ÏúÿÿÿÿH¸%RCRITICALZ
-CODE_SMELL
-jsquid:S2629Ø"7Use the built-in formatting to construct this argument.(Æ§š†şÿÿÿÿH­%RMAJORZ
-CODE_SMELL
-jsquid:S2629Á"7Use the built-in formatting to construct this argument.(Æ§š†şÿÿÿÿH´%RMAJORZ
-CODE_SMELL
-jsquid:S2629¶"7Use the built-in formatting to construct this argument.(ó¥¥ÏúÿÿÿÿH³%RMAJORZ
-CODE_SMELL
-‡squid:S2293š"YReplace the type specification in this constructor call with the diamond operator ("<>").(£Ç¢H¹%RMINORZ
-CODE_SMELL
-jsquid:S2629†"7Use the built-in formatting to construct this argument.(øó±áıÿÿÿÿH±%RMAJORZ
-CODE_SMELL
-jsquid:S2629Í"7Use the built-in formatting to construct this argument.(ó¥¥ÏúÿÿÿÿH¬%RMAJORZ
-CODE_SMELL
-jsquid:S2629ç"7Use the built-in formatting to construct this argument.(ƒŸ¸‡üÿÿÿÿH®%RMAJORZ
-CODE_SMELL

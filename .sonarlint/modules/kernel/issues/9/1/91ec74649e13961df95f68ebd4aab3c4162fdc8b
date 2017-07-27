@@ -1,15 +1,0 @@
-
-qsquid:S2629¸"7Use the built-in formatting to construct this argument.(ˆÁ¬Ëûÿÿÿÿ8·¦³ó×+H˜FRMAJORZ
-CODE_SMELL
-p
-squid:S899¢";Do something with the "boolean" value returned by "delete".(üÑ´ğıÿÿÿÿH”FRMINORZVULNERABILITY
-r
-squid:S899 "=Do something with the "boolean" value returned by "renameTo".(´ÃãıÿÿÿÿHFRMINORZVULNERABILITY
-Jsquid:S1643‡"Use a StringBuilder instead.(˜“ß¦H‘FRMINORZ
-CODE_SMELL
-Jsquid:S1643“"Use a StringBuilder instead.(ĞšíÑH•FRMINORZ
-CODE_SMELL
-[squid:S1172S".Remove this unused method parameter "service".(›Ñ„ŞH’FRMAJORZ
-CODE_SMELL
-Wsquid:S1125›")Remove the literal "false" boolean value.(„÷‹‹H“FRMINORZ
-CODE_SMELL

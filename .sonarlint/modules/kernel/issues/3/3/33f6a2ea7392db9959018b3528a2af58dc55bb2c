@@ -1,268 +1,0 @@
-
-]squid:S00108‡")Either remove or fill this block of code.(äùÑÇşÿÿÿÿHë<RMAJORZ
-CODE_SMELL
-\squid:S1125Â")Remove the literal "false" boolean value.(âïúŒüÿÿÿÿHİ<RMINORZ
-CODE_SMELL
-esquid:S2629	"7Use the built-in formatting to construct this argument.(ëÃ¶ËHÆ<RMAJORZ
-CODE_SMELL
-‡squid:S2293Ù"YReplace the type specification in this constructor call with the diamond operator ("<>").(”Š»ŞH°<RMINORZ
-CODE_SMELL
-‡squid:S2293Û"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÈäÒƒHÃ<RMINORZ
-CODE_SMELL
-Tsquid:S1168˜"&Return an empty array instead of null.(¥¹ïHè<RMAJORZ
-CODE_SMELL
-‡squid:S2293€"YReplace the type specification in this constructor call with the diamond operator ("<>").(ú±õŸHá<RMINORZ
-CODE_SMELL
-esquid:S2629Ö"7Use the built-in formatting to construct this argument.(ùÂ¼ĞH<RMAJORZ
-CODE_SMELL
-`squid:S1172Ñ"-Remove this unused method parameter "userId".(¥Ä£áùÿÿÿÿH˜<RMAJORZ
-CODE_SMELL
-squid:S3008m"]Rename this field "TABLE_ACTION_FIELD" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ûÉõöüÿÿÿÿHî<RMINORZ
-CODE_SMELL
-\squid:S1125õ")Remove the literal "false" boolean value.(»ÅõşøÿÿÿÿH–<RMINORZ
-CODE_SMELL
-ˆsquid:S3776µ"RRefactor this method to reduce its Cognitive Complexity from 24 to the 15 allowed.(ï‰êÓûÿÿÿÿH×<RCRITICALZ
-CODE_SMELL
-‡squid:S2293‰"YReplace the type specification in this constructor call with the diamond operator ("<>").(”Š»ŞH¨<RMINORZ
-CODE_SMELL
-Wsquid:S1125¶")Remove the literal "false" boolean value.(ØÕ‚—H‰=RMINORZ
-CODE_SMELL
-Wsquid:S1125Ê")Remove the literal "false" boolean value.(™°¹ÑH•<RMINORZ
-CODE_SMELL
-ƒsquid:S3776š"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(‰ÎÆ×HÕ<RCRITICALZ
-CODE_SMELL
-†
-squid:S135£"YReduce the total number of break and continue statements in this loop to use at most one.(µº×‰H¡<RMINORZ
-CODE_SMELL
-squid:S1192Æ"\Define a constant instead of duplicating this literal "Input value for parameter. " 3 times.(ó¾°HÈ<RCRITICALZ
-CODE_SMELL
-ƒsquid:S3776“"RRefactor this method to reduce its Cognitive Complexity from 50 to the 15 allowed.(¯êˆòHÊ<RCRITICALZ
-CODE_SMELL
-ˆsquid:S3776­"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(¡ëó¤øÿÿÿÿH½<RCRITICALZ
-CODE_SMELL
-ˆsquid:S3776½"RRefactor this method to reduce its Cognitive Complexity from 42 to the 15 allowed.(öùå´øÿÿÿÿHù<RCRITICALZ
-CODE_SMELL
-Wsquid:S1125¾")Remove the literal "false" boolean value.(ŠÒ²õHÓ<RMINORZ
-CODE_SMELL
-Wsquid:S1125»")Remove the literal "false" boolean value.(áŠ–àHµ<RMINORZ
-CODE_SMELL
-zsquid:S1192Å"IDefine a constant instead of duplicating this literal "Record " 19 times.(ûõÁ³H·<RCRITICALZ
-CODE_SMELL
-Šsquid:S3008_"XRename this field "SINGLE_HEADER" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ú²ÿÑÿÿÿÿÿH“<RMINORZ
-CODE_SMELL
-ˆsquid:S3776¨"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(Ş»ŞşÿÿÿÿH<RCRITICALZ
-CODE_SMELL
-[squid:S1172¤
-"-Remove this unused method parameter "userId".(Ó””’H¸<RMAJORZ
-CODE_SMELL
-Tsquid:S1168×"&Return an empty array instead of null.(¥¹ïH¬<RMAJORZ
-CODE_SMELL
-esquid:S2629ä"7Use the built-in formatting to construct this argument.(ÍèöÎHÎ<RMAJORZ
-CODE_SMELL
-†
-squid:S135Ó"YReduce the total number of break and continue statements in this loop to use at most one.(É­­ÖH›<RMINORZ
-CODE_SMELL
-`squid:S1172Ü"-Remove this unused method parameter "userId".(æ®æ„ÿÿÿÿÿH®<RMAJORZ
-CODE_SMELL
-Tsquid:S1168‹"&Return an empty array instead of null.(¥¹ïH<RMAJORZ
-CODE_SMELL
-Wsquid:S1125é")Remove the literal "false" boolean value.(Šş¡ÆH¼<RMINORZ
-CODE_SMELL
-esquid:S2629Ô"7Use the built-in formatting to construct this argument.(ÜÌ¶ˆH’<RMAJORZ
-CODE_SMELL
-~squid:CommentedOutCodeLine˜"<This block of commented-out lines of code should be removed.(ü‚³âøÿÿÿÿHÇ<RMAJORZ
-CODE_SMELL
-jsquid:S2629¢"7Use the built-in formatting to construct this argument.(²„ÛøÿÿÿÿH„=RMAJORZ
-CODE_SMELL
-Œsquid:S1488Ğ	"^Immediately return this expression instead of assigning it to the temporary variable "result".(â‘§ŠHÔ<RMINORZ
-CODE_SMELL
-Wsquid:S1125")Remove the literal "false" boolean value.(Ü——×Hœ<RMINORZ
-CODE_SMELL
-Wsquid:S1125û")Remove the literal "false" boolean value.(š×ÿ¨H=RMINORZ
-CODE_SMELL
-lsquid:UselessImportCheck#"-Remove this unused import 'java.util.Arrays'.(î–˜ÉüÿÿÿÿH¥<RMINORZ
-CODE_SMELL
-qsquid:S1155ü">Use isEmpty() to check whether the collection is empty or not.(Õ©‡ıÿÿÿÿHé<RMINORZ
-CODE_SMELL
-msquid:S1854ı":Remove this useless assignment to local variable "values".(—œÍ¾ùÿÿÿÿHš<RMAJORZ
-CODE_SMELL
-\squid:S1125œ")Remove the literal "false" boolean value.(«„ƒóşÿÿÿÿHƒ=RMINORZ
-CODE_SMELL
-ˆsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(°™áºıÿÿÿÿH¯<RCRITICALZ
-CODE_SMELL
-lsquid:S2696¿"6Make the enclosing method "static" or remove this set.(•»› üÿÿÿÿH—<RCRITICALZ
-CODE_SMELL
-lsquid:S1155š">Use isEmpty() to check whether the collection is empty or not.(„ŞõœH™<RMINORZ
-CODE_SMELL
-Wsquid:S1125œ")Remove the literal "false" boolean value.(à®ı³Hû<RMINORZ
-CODE_SMELL
-[squid:S1172ä".Remove this unused method parameter "actions".(—Øÿ^H<RMAJORZ
-CODE_SMELL
-esquid:S2629º"7Use the built-in formatting to construct this argument.(ì”üHí<RMAJORZ
-CODE_SMELL
-‡squid:S2293»"YReplace the type specification in this constructor call with the diamond operator ("<>").(¶îÏšHÜ<RMINORZ
-CODE_SMELL
-Œsquid:S2293Û"YReplace the type specification in this constructor call with the diamond operator ("<>").(…ŸùÿÿÿÿH‹=RMINORZ
-CODE_SMELL
-Œsquid:S2293¹"YReplace the type specification in this constructor call with the diamond operator ("<>").(¥åÙßúÿÿÿÿHÀ<RMINORZ
-CODE_SMELL
-\squid:S1125´")Remove the literal "false" boolean value.(¹íáûşÿÿÿÿHõ<RMINORZ
-CODE_SMELL
-Wsquid:S1125Ê")Remove the literal "false" boolean value.(Øá ŞHä<RMINORZ
-CODE_SMELL
-\squid:S1125„")Remove the literal "false" boolean value.(ä²èËúÿÿÿÿH”<RMINORZ
-CODE_SMELL
-Wsquid:S1125ï")Remove the literal "false" boolean value.(ºõ¢ÚHÚ<RMINORZ
-CODE_SMELL
-Œsquid:S1488·	"^Immediately return this expression instead of assigning it to the temporary variable "result".(â‘§ŠHà<RMINORZ
-CODE_SMELL
-jsquid:S2629Š"7Use the built-in formatting to construct this argument.(„ÛÉùüÿÿÿÿHÅ<RMAJORZ
-CODE_SMELL
-squid:S2629Ë"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(ûÜÂşÿÿÿÿH=RMAJORZ
-CODE_SMELL
-†
-squid:S135´"YReduce the total number of break and continue statements in this loop to use at most one.(µº×‰H‡=RMINORZ
-CODE_SMELL
-‚squid:S3776ƒ"RRefactor this method to reduce its Cognitive Complexity from 33 to the 15 allowed.(î”áIHò<RCRITICALZ
-CODE_SMELL
-w
-squid:S899ğ"BDo something with the "boolean" value returned by "createNewFile".(Ğ’ÍùÿÿÿÿH­<RMINORZVULNERABILITY
-Wsquid:S1125š")Remove the literal "false" boolean value.(‰çÇ‚H»<RMINORZ
-CODE_SMELL
-†
-squid:S135‹"YReduce the total number of break and continue statements in this loop to use at most one.(î³ÓÎHŒ=RMINORZ
-CODE_SMELL
-|squid:S1192”"FDefine a constant instead of duplicating this literal " AND " 6 times.(ª¾ÆûÿÿÿÿH¿<RCRITICALZ
-CODE_SMELL
-ƒsquid:S3776°"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(áÛşïHÿ<RCRITICALZ
-CODE_SMELL
-jsquid:S2629ÿ"7Use the built-in formatting to construct this argument.(†ÛŞÚıÿÿÿÿHú<RMAJORZ
-CODE_SMELL
-Wsquid:S1125¾")Remove the literal "false" boolean value.(Ì½ˆ«HÉ<RMINORZ
-CODE_SMELL
-Œsquid:S2293Ø"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÒÀş‰şÿÿÿÿHã<RMINORZ
-CODE_SMELL
-ysquid:S1192³
-"HDefine a constant instead of duplicating this literal " WHERE " 5 times.(‡Ê¨¬HØ<RCRITICALZ
-CODE_SMELL
-‡squid:S2293Ì"YReplace the type specification in this constructor call with the diamond operator ("<>").(·¿¦éH†=RMINORZ
-CODE_SMELL
-ysquid:CommentedOutCodeLine¨"<This block of commented-out lines of code should be removed.(Ã¼¥¿Hğ<RMAJORZ
-CODE_SMELL
-ˆsquid:S3776´"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.(„ÆˆÿÿÿÿÿHö<RCRITICALZ
-CODE_SMELL
-ˆsquid:S3776’"RRefactor this method to reduce its Cognitive Complexity from 16 to the 15 allowed.(­˜±ÉÿÿÿÿÿHĞ<RCRITICALZ
-CODE_SMELL
-qsquid:S1155à">Use isEmpty() to check whether the collection is empty or not.(ìÎÉùıÿÿÿÿH <RMINORZ
-CODE_SMELL
-dsquid:S1172¾"6Remove this unused method parameter "addActionColumn".(øù…§H³<RMAJORZ
-CODE_SMELL
-Èsquid:S1192á"–Define a constant instead of duplicating this literal " is not defined with a primary key, and hence we can not do a read operation on this." 3 times.(Éä‰”Hü<RCRITICALZ
-CODE_SMELL
-Œsquid:S2293µ"YReplace the type specification in this constructor call with the diamond operator ("<>").(Û¼íËşÿÿÿÿH¢<RMINORZ
-CODE_SMELL
-†
-squid:S135µ"YReduce the total number of break and continue statements in this loop to use at most one.(ç³ê­HÒ<RMINORZ
-CODE_SMELL
-jsquid:S2629â"7Use the built-in formatting to construct this argument.(Ô‚ú¶şÿÿÿÿH¹<RMAJORZ
-CODE_SMELL
-ƒsquid:S3776×"RRefactor this method to reduce its Cognitive Complexity from 32 to the 15 allowed.(ÅÎ¶ôHï<RCRITICALZ
-CODE_SMELL
-ˆsquid:S3776ñ
-"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(í«ÇÍıÿÿÿÿH€=RCRITICALZ
-CODE_SMELL
-Wsquid:S1125Â")Remove the literal "false" boolean value.(öÁHâ<RMINORZ
-CODE_SMELL
-†squid:S2293´"YReplace the type specification in this constructor call with the diamond operator ("<>").(›°üXH‚=RMINORZ
-CODE_SMELL
-ƒsquid:S3776ı"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.(ŸÇ±H©<RCRITICALZ
-CODE_SMELL
-`squid:S2093î"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿH«<RCRITICALZ
-CODE_SMELL
-ƒsquid:S3776¨"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(ûğÙÑHş<RCRITICALZ
-CODE_SMELL
-[squid:S1172°"-Remove this unused method parameter "userId".(ñÑëİHÌ<RMAJORZ
-CODE_SMELL
-\squid:S1125Ô")Remove the literal "false" boolean value.(°å’ÅûÿÿÿÿHÖ<RMINORZ
-CODE_SMELL
-\squid:S1125ä")Remove the literal "false" boolean value.(âïúŒüÿÿÿÿH´<RMINORZ
-CODE_SMELL
-[squid:S1481‡"(Remove this unused "rec" local variable.(äùÑÇşÿÿÿÿHó<RMINORZ
-CODE_SMELL
-`squid:S1172„"-Remove this unused method parameter "userId".(–Ó¶„üÿÿÿÿH¶<RMAJORZ
-CODE_SMELL
-[squid:S1172í"-Remove this unused method parameter "userId".(îö¦¼Hñ<RMAJORZ
-CODE_SMELL
-²%squid:RedundantThrowsDeclarationCheck†"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ÁıÎªH±<RMINORZ
-CODE_SMELL
-esquid:S2629·"7Use the built-in formatting to construct this argument.(ùÂ¼ĞH¦<RMAJORZ
-CODE_SMELL
-Tsquid:S1168"&Return an empty array instead of null.(¥¹ïH÷<RMAJORZ
-CODE_SMELL
-†squid:S2293¶"YReplace the type specification in this constructor call with the diamond operator ("<>").(ıò HŞ<RMINORZ
-CODE_SMELL
-Wsquid:S1125™")Remove the literal "false" boolean value.(Šş¡ÆHå<RMINORZ
-CODE_SMELL
-Wsquid:S1125")Remove the literal "false" boolean value.(¢…¥×Hª<RMINORZ
-CODE_SMELL
-Œsquid:S2293µ"YReplace the type specification in this constructor call with the diamond operator ("<>").(×ÛİÿÿÿÿÿH£<RMINORZ
-CODE_SMELL
-bsquid:S1066Ï"/Merge this if statement with the enclosing one.(·¼ÜˆøÿÿÿÿHË<RMAJORZ
-CODE_SMELL
-Wsquid:S1125¿")Remove the literal "false" boolean value.(™°¹ÑHæ<RMINORZ
-CODE_SMELL
-Tsquid:S1168”	"&Return an empty array instead of null.(¥¹ïHŸ<RMAJORZ
-CODE_SMELL
-‚squid:S3776ó"RRefactor this method to reduce its Cognitive Complexity from 26 to the 15 allowed.(¯îªXHÑ<RCRITICALZ
-CODE_SMELL
-Œsquid:S2293Ï"YReplace the type specification in this constructor call with the diamond operator ("<>").(…‡í¬ùÿÿÿÿHÂ<RMINORZ
-CODE_SMELL
-Wsquid:S1125¨")Remove the literal "false" boolean value.(®¡ğ¿Hß<RMINORZ
-CODE_SMELL
-‹
-squid:S135Û"YReduce the total number of break and continue statements in this loop to use at most one.(ÓñĞûÿÿÿÿH‘<RMINORZ
-CODE_SMELL
-squid:S2629´"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(²„ÛøÿÿÿÿH§<RMAJORZ
-CODE_SMELL
-Rsquid:S2629•"$Invoke method(s) only conditionally.(ÕñÜÔHÍ<RMAJORZ
-CODE_SMELL
-esquid:S2629ø"7Use the built-in formatting to construct this argument.(ëÃ¶ËH=RMAJORZ
-CODE_SMELL
-jsquid:S2629ì"7Use the built-in formatting to construct this argument.(Ç¹È‡ıÿÿÿÿHı<RMAJORZ
-CODE_SMELL
-Wsquid:S1125¯")Remove the literal "false" boolean value.(Øá ŞHÙ<RMINORZ
-CODE_SMELL
-\squid:S1125Ì")Remove the literal "false" boolean value.(»ÅõşøÿÿÿÿH¤<RMINORZ
-CODE_SMELL
-Œsquid:S2293²"YReplace the type specification in this constructor call with the diamond operator ("<>").(®Ì†ÕüÿÿÿÿHÁ<RMINORZ
-CODE_SMELL
-Wsquid:S1125")Remove the literal "false" boolean value.(ìæèÆHê<RMINORZ
-CODE_SMELL
-\squid:S1125•")Remove the literal "false" boolean value.(»ÅõşøÿÿÿÿHì<RMINORZ
-CODE_SMELL
-‡squid:S2293ï"YReplace the type specification in this constructor call with the diamond operator ("<>").(úó¸¼Hô<RMINORZ
-CODE_SMELL
-…squid:S3008a"XRename this field "DOUBLE_HEADER" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¥ŠÖ…H²<RMINORZ
-CODE_SMELL
-`squid:S1172Ò"-Remove this unused method parameter "userId".(Ğœ…§üÿÿÿÿHˆ=RMAJORZ
-CODE_SMELL
-\squid:S1125Ì")Remove the literal "false" boolean value.(«„ƒóşÿÿÿÿHÄ<RMINORZ
-CODE_SMELL
-Tsquid:S1168ß"&Return an empty array instead of null.(¥¹ïHŠ=RMAJORZ
-CODE_SMELL
-esquid:S2629´"7Use the built-in formatting to construct this argument.(ùÂ¼ĞHº<RMAJORZ
-CODE_SMELL
-}squid:S00100Ë"NRename this method name to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(„ŒÖºHç<RMINORZ
-CODE_SMELL
-\squid:S1125ƒ")Remove the literal "false" boolean value.(¹íáûşÿÿÿÿHÏ<RMINORZ
-CODE_SMELL
-Wsquid:S1125Ö")Remove the literal "false" boolean value.(æÊºHÛ<RMINORZ
-CODE_SMELL
-ƒsquid:S3776¾"RRefactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed.(È€«­H¾<RCRITICALZ
-CODE_SMELL
-Wsquid:S1125¨")Remove the literal "false" boolean value.(ˆ¾µHø<RMINORZ
-CODE_SMELL
-²%squid:RedundantThrowsDeclarationCheck›"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ÁıÎªH…=RMINORZ
-CODE_SMELL
-ysquid:S1192ı"HDefine a constant instead of duplicating this literal "SELECT " 3 times.(Ö±”çH<RCRITICALZ
-CODE_SMELL

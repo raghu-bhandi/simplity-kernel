@@ -1,45 +1,0 @@
-
-esquid:S2629"7Use the built-in formatting to construct this argument.(’˜Õ¬H³@RMAJORZ
-CODE_SMELL
-esquid:S2629â"7Use the built-in formatting to construct this argument.(ŞÒ¡ïH±@RMAJORZ
-CODE_SMELL
-jsquid:S2629ó"7Use the built-in formatting to construct this argument.(¸£·âıÿÿÿÿH¹@RMAJORZ
-CODE_SMELL
-isquid:S2629_"7Use the built-in formatting to construct this argument.(¶Ğ±üÿÿÿÿH·@RMAJORZ
-CODE_SMELL
-dsquid:S2629T"7Use the built-in formatting to construct this argument.(ó—ßîH¾@RMAJORZ
-CODE_SMELL
-jsquid:S2629“"7Use the built-in formatting to construct this argument.(òˆ†œøÿÿÿÿH¸@RMAJORZ
-CODE_SMELL
-jsquid:S2629˜"7Use the built-in formatting to construct this argument.(Şïì úÿÿÿÿHµ@RMAJORZ
-CODE_SMELL
-‹squid:S22936"YReplace the type specification in this constructor call with the diamond operator ("<>").(ô±Ê´ıÿÿÿÿH½@RMINORZ
-CODE_SMELL
-\squid:S1125’")Remove the literal "false" boolean value.(ù…¦ƒıÿÿÿÿHº@RMINORZ
-CODE_SMELL
-\squid:S1125‡")Remove the literal "false" boolean value.(õÆãìıÿÿÿÿH¶@RMINORZ
-CODE_SMELL
-…
-squid:S135p"YReduce the total number of break and continue statements in this loop to use at most one.(‡ÌÈH¬@RMINORZ
-CODE_SMELL
-dsquid:S2629ª"7Use the built-in formatting to construct this argument.(Ğ³Ã{H»@RMAJORZ
-CODE_SMELL
-squid:S2629È"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(€»ñ—ûÿÿÿÿHÀ@RMAJORZ
-CODE_SMELL
-ˆsquid:S3776ı"RRefactor this method to reduce its Cognitive Complexity from 18 to the 15 allowed.(ÑéÈ®ùÿÿÿÿH¯@RCRITICALZ
-CODE_SMELL
-esquid:S2629Ê"7Use the built-in formatting to construct this argument.(Éê”™H¼@RMAJORZ
-CODE_SMELL
-ysquid:CommentedOutCodeLineÌ"<This block of commented-out lines of code should be removed.(º²ŸÙH¿@RMAJORZ
-CODE_SMELL
-jsquid:S2629ç"7Use the built-in formatting to construct this argument.(äßîŞşÿÿÿÿH´@RMAJORZ
-CODE_SMELL
-esquid:S2629ï"7Use the built-in formatting to construct this argument.(›šüàH®@RMAJORZ
-CODE_SMELL
-Wsquid:S1125œ")Remove the literal "false" boolean value.(Ïã†¨H°@RMINORZ
-CODE_SMELL
-\squid:S1125’")Remove the literal "false" boolean value.(ù…¦ƒıÿÿÿÿH­@RMINORZ
-CODE_SMELL
-…
-squid:S135à"YReduce the total number of break and continue statements in this loop to use at most one.(‹Ù¹VH²@RMINORZ
-CODE_SMELL

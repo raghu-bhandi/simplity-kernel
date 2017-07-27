@@ -1,23 +1,0 @@
-
-jsquid:S1854”"<Remove this useless assignment to local variable "pathJson".(úˆÊ¨HÍ@RMAJORZ
-CODE_SMELL
-ksquid:S1155">Use isEmpty() to check whether the collection is empty or not.(¦ïšÁHÌ@RMINORZ
-CODE_SMELL
-fsquid:S1854•"8Remove this useless assignment to local variable "json".(ìñ¼±HÐ@RMAJORZ
-CODE_SMELL
-lsquid:S11185":Add a private constructor to hide the implicit public one.(µŽëéüÿÿÿÿHÎ@RMAJORZ
-CODE_SMELL
-†squid:S2293|"YReplace the type specification in this constructor call with the diamond operator ("<>").(¡øÐØHÊ@RMINORZ
-CODE_SMELL
-dsquid:S2629‡"7Use the built-in formatting to construct this argument.(ú±†HÉ@RMAJORZ
-CODE_SMELL
-isquid:S2629l"7Use the built-in formatting to construct this argument.(”üÕþøÿÿÿÿHÑ@RMAJORZ
-CODE_SMELL
-Šsquid:S2629Ž"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(±¦ÁôHÓ@RMAJORZ
-CODE_SMELL
-½%squid:RedundantThrowsDeclarationCheckJ"wRemove the declaration of thrown exception 'javax.servlet.ServletException', as it cannot be thrown from method's body.(ýù±HÏ@RMINORZ
-CODE_SMELL
-isquid:S2629V"7Use the built-in formatting to construct this argument.(Òß„³øÿÿÿÿHÒ@RMAJORZ
-CODE_SMELL
-]squid:S1135Š"2Complete the task associated to this TODO comment.(Á„GHË@RINFOZ
-CODE_SMELL

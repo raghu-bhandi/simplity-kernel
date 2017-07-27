@@ -1,62 +1,0 @@
-
-jsquid:S2629Ç"7Use the built-in formatting to construct this argument.(°»‚ÄşÿÿÿÿHæBRMAJORZ
-CODE_SMELL
-esquid:S2629"7Use the built-in formatting to construct this argument.(ğÃ¡ãHèBRMAJORZ
-CODE_SMELL
-squid:S1488ê"\Immediately return this expression instead of assigning it to the temporary variable "msgs".(º·îıÿÿÿÿHÒBRMINORZ
-CODE_SMELL
-rsquid:S2259Ò"FA "NullPointerException" could be thrown; "response" is nullable here.(óÛ³ûÿÿÿÿÿHĞBRMAJORZBUG
-jsquid:S2629Ñ"7Use the built-in formatting to construct this argument.(üä³‚ûÿÿÿÿHÖBRMAJORZ
-CODE_SMELL
-Tsquid:S1168æ"&Return an empty array instead of null.(¥¹ïHíBRMAJORZ
-CODE_SMELL
-Wsquid:S1125Ñ")Remove the literal "false" boolean value.(é„ÁñHìBRMINORZ
-CODE_SMELL
-esquid:S2629É"7Use the built-in formatting to construct this argument.(à£ÏğHëBRMAJORZ
-CODE_SMELL
-\squid:S1125˜")Remove the literal "false" boolean value.(ÿèòüÿÿÿÿHÜBRMINORZ
-CODE_SMELL
-Vsquid:S1125¢")Remove the literal "false" boolean value.(™Û¤	HãBRMINORZ
-CODE_SMELL
-dsquid:S2629Å"7Use the built-in formatting to construct this argument.(˜íËMHİBRMAJORZ
-CODE_SMELL
-asquid:S1068?"/Remove this unused "EMPTY_ARRAY" private field.(“ğ‹üúÿÿÿÿHÙBRMAJORZ
-CODE_SMELL
-‹
-squid:S135ˆ"YReduce the total number of break and continue statements in this loop to use at most one.(ü§è½ùÿÿÿÿHÔBRMINORZ
-CODE_SMELL
-jsquid:S2629•"7Use the built-in formatting to construct this argument.(·€åÍıÿÿÿÿHàBRMAJORZ
-CODE_SMELL
-gsquid:S1854Í":Remove this useless assignment to local variable "inData".(¨õ—oHåBRMAJORZ
-CODE_SMELL
-bsquid:S1066¨"/Merge this if statement with the enclosing one.(úáæ¿ıÿÿÿÿHÛBRMAJORZ
-CODE_SMELL
-esquid:S2629½"7Use the built-in formatting to construct this argument.(£¥·§HéBRMAJORZ
-CODE_SMELL
-\squid:S2095ò"4Close this "FileOutputStream" in a "finally" clause.(¼òHÕBRBLOCKERZBUG
-Wsquid:S1125ı")Remove the literal "false" boolean value.(ª‚¹HÏBRMINORZ
-CODE_SMELL
-jsquid:S2629"7Use the built-in formatting to construct this argument.(ˆ«ÿÿÿÿÿHŞBRMAJORZ
-CODE_SMELL
-ˆsquid:S3776ö"RRefactor this method to reduce its Cognitive Complexity from 35 to the 15 allowed.(•­€¼úÿÿÿÿHÓBRCRITICALZ
-CODE_SMELL
-jsquid:S2629¼"7Use the built-in formatting to construct this argument.(ˆ«ÿÿÿÿÿHÚBRMAJORZ
-CODE_SMELL
-\squid:S1125š")Remove the literal "false" boolean value.(ÖÊÏËúÿÿÿÿHÑBRMINORZ
-CODE_SMELL
-squid:S1192"IDefine a constant instead of duplicating this literal "Service " 4 times.(ˆ«ÿÿÿÿÿH×BRCRITICALZ
-CODE_SMELL
-esquid:S2629Ã"7Use the built-in formatting to construct this argument.(”¶ı·HçBRMAJORZ
-CODE_SMELL
-esquid:S2629Î"7Use the built-in formatting to construct this argument.(£¥·§HØBRMAJORZ
-CODE_SMELL
-jsquid:S2629ä"7Use the built-in formatting to construct this argument.(„Ñ™ÈùÿÿÿÿHâBRMAJORZ
-CODE_SMELL
-jsquid:S2629"7Use the built-in formatting to construct this argument.(‡¢§üÿÿÿÿHêBRMAJORZ
-CODE_SMELL
-squid:S1488½"aImmediately return this expression instead of assigning it to the temporary variable "noService".(„›óHßBRMINORZ
-CODE_SMELL
-jsquid:S2629É"7Use the built-in formatting to construct this argument.(¿Ï“øüÿÿÿÿHáBRMAJORZ
-CODE_SMELL
-ysquid:CommentedOutCodeLine€"<This block of commented-out lines of code should be removed.(·ÓŒ¨HäBRMAJORZ
-CODE_SMELL

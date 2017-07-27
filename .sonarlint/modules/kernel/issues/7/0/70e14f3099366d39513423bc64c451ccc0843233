@@ -1,50 +1,0 @@
-
-Vsquid:S1125„")Remove the literal "false" boolean value.(¬¦pH‹9RMINORZ
-CODE_SMELL
-¾%squid:RedundantThrowsDeclarationCheckë"wRemove the declaration of thrown exception 'javax.servlet.ServletException', as it cannot be thrown from method's body.(ıù±Hù8RMINORZ
-CODE_SMELL
-~squid:CommentedOutCodeLineö"<This block of commented-out lines of code should be removed.(à¼çûÿÿÿÿH‡9RMAJORZ
-CODE_SMELL
-‡squid:S2293À"YReplace the type specification in this constructor call with the diamond operator ("<>").(–µïéHü8RMINORZ
-CODE_SMELL
-dsquid:S2629©"7Use the built-in formatting to construct this argument.(ú±†H€9RMAJORZ
-CODE_SMELL
-esquid:S2629ø"7Use the built-in formatting to construct this argument.(Âå¹Hö8RMAJORZ
-CODE_SMELL
-esquid:S2629ñ"7Use the built-in formatting to construct this argument.(ã™‹àHŠ9RMAJORZ
-CODE_SMELL
-jsquid:S2629—"7Use the built-in formatting to construct this argument.(¤Ùß¥úÿÿÿÿH…9RMAJORZ
-CODE_SMELL
-Osquid:S2131ó"Use "Long.toString" instead.(˜ÿ–ÙûÿÿÿÿHş8RMAJORZ
-CODE_SMELL
-squid:S2629"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(ëÈ–ŠıÿÿÿÿH÷8RMAJORZ
-CODE_SMELL
-asquid:S2095û"3Close this "FileInputStream" in a "finally" clause.(Å¬ÕŠøÿÿÿÿH†9RBLOCKERZBUG
-esquid:S2629û"7Use the built-in formatting to construct this argument.(ŞœòµH„9RMAJORZ
-CODE_SMELL
-ƒsquid:S3776“"RRefactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed.(²‡¾“Hı8RCRITICALZ
-CODE_SMELL
-]squid:S1172ê"*Remove this unused method parameter "req".(£®“÷úÿÿÿÿHÿ8RMAJORZ
-CODE_SMELL
-jsquid:S2629ÿ"7Use the built-in formatting to construct this argument.(ñ¶®“şÿÿÿÿHŒ9RMAJORZ
-CODE_SMELL
-qsquid:S2259ø"J"NullPointerException" will be thrown when invoking method "newSession()".(¾¸Hø8RMAJORZBUG
-‹
-squid:S135±"YReduce the total number of break and continue statements in this loop to use at most one.(ü§è½ùÿÿÿÿH‚9RMINORZ
-CODE_SMELL
-hsquid:S1141Ä"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿH9RMAJORZ
-CODE_SMELL
-Wsquid:S1125â")Remove the literal "false" boolean value.(Ã×ïH‰9RMINORZ
-CODE_SMELL
-esquid:S2629Ä"7Use the built-in formatting to construct this argument.(—ú±¤Hú8RMAJORZ
-CODE_SMELL
-ssquid:S2441Â"LMake "Map" and its parameters serializable or don't store it in the session.(¶ˆ„ÎHû8RMAJORZBUG
-‹
-squid:S135ï"YReduce the total number of break and continue statements in this loop to use at most one.(ü§è½ùÿÿÿÿHƒ9RMINORZ
-CODE_SMELL
-jsquid:S2629™"7Use the built-in formatting to construct this argument.(ÚëµÊıÿÿÿÿH9RMAJORZ
-CODE_SMELL
-‡squid:S2293ƒ"YReplace the type specification in this constructor call with the diamond operator ("<>").(§òÛïH9RMINORZ
-CODE_SMELL
-lsquid:S1118D":Add a private constructor to hide the implicit public one.(¸Ì­ÿÿÿÿÿHˆ9RMAJORZ
-CODE_SMELL

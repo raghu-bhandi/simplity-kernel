@@ -1,35 +1,0 @@
-
-Ysquid:S1068=",Remove this unused "tokenUrl" private field.(¾ÖÁ¬HÁ%RMAJORZ
-CODE_SMELL
-†squid:UselessImportCheck,"GRemove this unused import 'com.sun.corba.se.pept.transport.Connection'.(®Õ½“ýÿÿÿÿHË%RMINORZ
-CODE_SMELL
-}squid:CommentedOutCodeLineL"<This block of commented-out lines of code should be removed.(ÑÕ¾ùùÿÿÿÿHÅ%RMAJORZ
-CODE_SMELL
-xsquid:UselessImportCheck&">Remove this unused import 'org.simplity.kernel.util.HttpUtil'.(€ ÉÁHÊ%RMINORZ
-CODE_SMELL
-rsquid:HiddenFieldCheckK":Rename "scopes" which hides the field declared at line 64.(€¸„¼HÆ%RMAJORZ
-CODE_SMELL
-fsquid:S1068<"4Remove this unused "authorizationUrl" private field.(„Ã£÷ýÿÿÿÿHÀ%RMAJORZ
-CODE_SMELL
-asquid:S1068?"/Remove this unused "description" private field.(îëÎôüÿÿÿÿHÃ%RMAJORZ
-CODE_SMELL
-dsquid:UselessImportCheck*"*Remove this unused import 'org.slf4j.MDC'.(Úñ®ÉHÌ%RMINORZ
-CODE_SMELL
-Xsquid:S1148y"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿHÍ%RMINORZVULNERABILITY
-Xsquid:S1148{"#Use a logger to log this exception.(€ÉÔ…ýÿÿÿÿHÎ%RMINORZVULNERABILITY
-gsquid:S1191,"5Use classes from the Java API instead of Sun classes.(®Õ½“ýÿÿÿÿH¾%RMAJORZ
-CODE_SMELL
-Zsquid:S1068;"(Remove this unused "type" private field.(É¾µ²þÿÿÿÿH¿%RMAJORZ
-CODE_SMELL
-Xsquid:S1481K"+Remove this unused "scopes" local variable.(€¸„¼HÇ%RMINORZ
-CODE_SMELL
-Tsquid:S1068>"(Remove this unused "flow" private field.(øìâ9HÂ%RMAJORZ
-CODE_SMELL
-\squid:S1068@"*Remove this unused "scopes" private field.(‡ßŠûÿÿÿÿÿHÄ%RMAJORZ
-CODE_SMELL
-isquid:S2629k"7Use the built-in formatting to construct this argument.(‡¶¬¬úÿÿÿÿH½%RMAJORZ
-CODE_SMELL
-Ssquid:S1170;"!Make this final field static too.(É¾µ²þÿÿÿÿHÈ%RMINORZ
-CODE_SMELL
-rsquid:S2147z"ECombine this catch with the one at line 120, which has the same body.(ï­£ÄHÉ%RMINORZ
-CODE_SMELL

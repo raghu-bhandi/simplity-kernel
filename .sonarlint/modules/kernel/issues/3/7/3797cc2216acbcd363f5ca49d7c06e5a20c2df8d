@@ -1,11 +1,0 @@
-
-Ysquid:S1172H"*Remove this unused method parameter "ctx".(•¹»àıÿÿÿÿRMAJORZ
-CODE_SMELL
-^squid:S1066K"/Merge this if statement with the enclosing one.(ÖÜÙûÿÿÿÿRMAJORZ
-CODE_SMELL
-xsquid:S1192L"FDefine a constant instead of duplicating this literal "List " 3 times.(„ÿ¦şÿÿÿÿRCRITICALZ
-CODE_SMELL
-ysquid:S1192L"GDefine a constant instead of duplicating this literal " rows." 3 times.(„ÿ¦şÿÿÿÿRCRITICALZ
-CODE_SMELL
-Xsquid:S1125O")Remove the literal "false" boolean value.(ÊåÿøıÿÿÿÿRMINORZ
-CODE_SMELL

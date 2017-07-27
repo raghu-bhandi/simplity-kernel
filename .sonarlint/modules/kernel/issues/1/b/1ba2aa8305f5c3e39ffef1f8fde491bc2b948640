@@ -1,21 +1,0 @@
-
-]squid:S1172º"*Remove this unused method parameter "ctx".(¼ÙŞüÿÿÿÿHË8RMAJORZ
-CODE_SMELL
-asquid:S1172Ó".Remove this unused method parameter "service".(ÂØ¸öùÿÿÿÿHÉ8RMAJORZ
-CODE_SMELL
-†squid:S1450W"YRemove the "serviceIdx" field and declare it as a local variable in the relevant methods.(Äı ·HÎ8RMINORZ
-CODE_SMELL
-‚squid:S3776c"RRefactor this method to reduce its Cognitive Complexity from 25 to the 15 allowed.(’¥› HÌ8RCRITICALZ
-CODE_SMELL
-psquid:S2629s"7Use the built-in formatting to construct this argument.(ñˆë…ùÿÿÿÿ8Ù¹ªó×+HØDRMAJORZ
-CODE_SMELL
-gsquid:S3400ç"9Remove this method and declare a constant for this value.(”·³›HÇ8RMINORZ
-CODE_SMELL
-[squid:S1172®"-Remove this unused method parameter "driver".(ë¹ğÙHÊ8RMAJORZ
-CODE_SMELL
-Wsquid:S1125‰")Remove the literal "false" boolean value.(’ÀÏïHÍ8RMINORZ
-CODE_SMELL
-]squid:S1172æ"*Remove this unused method parameter "vtx".(¶Â¶ŞşÿÿÿÿHÈ8RMAJORZ
-CODE_SMELL
-psquid:S2629o"7Use the built-in formatting to construct this argument.(÷¶æûÿÿÿÿ8Ù¹ªó×+H×DRMAJORZ
-CODE_SMELL

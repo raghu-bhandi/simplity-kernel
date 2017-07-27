@@ -1,21 +1,0 @@
-
-ˆsquid:S00115&"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(å›ñ—RCRITICALZ
-CODE_SMELL
-squid:S00115*"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(»ÀøûúÿÿÿÿRCRITICALZ
-CODE_SMELL
-squid:S001150"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(õö øÿÿÿÿRCRITICALZ
-CODE_SMELL
-ˆsquid:S00115 "ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(­˜ì‰RCRITICALZ
-CODE_SMELL
-ˆsquid:S00115."ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(×”„©RCRITICALZ
-CODE_SMELL
-squid:S00115$"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(‚¥’ÍûÿÿÿÿRCRITICALZ
-CODE_SMELL
-squid:S00115,"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(—¶²šÿÿÿÿÿRCRITICALZ
-CODE_SMELL
-squid:S00115("ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(Ş¡«ûÿÿÿÿRCRITICALZ
-CODE_SMELL
-squid:S00115"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(èë¡—ùÿÿÿÿRCRITICALZ
-CODE_SMELL
-ˆsquid:S00115""ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(œÜ›ÈRCRITICALZ
-CODE_SMELL

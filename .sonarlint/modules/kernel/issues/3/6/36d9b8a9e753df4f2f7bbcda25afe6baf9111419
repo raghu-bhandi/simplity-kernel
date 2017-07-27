@@ -1,16 +1,0 @@
-
-dsquid:S2629x"7Use the built-in formatting to construct this argument.(ÑóÆÅH“9RMAJORZ
-CODE_SMELL
-Osquid:S2131§"!Use "Character.toString" instead.(úÄµÜH—9RMAJORZ
-CODE_SMELL
-isquid:S2629D"7Use the built-in formatting to construct this argument.(ªâÿ¦ÿÿÿÿÿHš9RMAJORZ
-CODE_SMELL
-`squid:S2093™"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿH–9RCRITICALZ
-CODE_SMELL
-Hsquid:S1989^"Add a "try/catch" block.(Ð”‘ÒH”9RMINORZVULNERABILITY
-isquid:S2629~"7Use the built-in formatting to construct this argument.(™ÆÒ½úÿÿÿÿH™9RMAJORZ
-CODE_SMELL
-ysquid:S1858¨"F"hdr" is already a string, there's no need to call "toString()" on it.(¶Ž¾¦ýÿÿÿÿH˜9RMINORZ
-CODE_SMELL
-jsquid:S2629Š"7Use the built-in formatting to construct this argument.(ÜïˆêÿÿÿÿÿH•9RMAJORZ
-CODE_SMELL

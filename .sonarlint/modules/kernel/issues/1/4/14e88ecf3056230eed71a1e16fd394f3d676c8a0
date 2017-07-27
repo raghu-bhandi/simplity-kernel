@@ -1,15 +1,0 @@
-
-Ssquid:S1125T")Remove the literal "false" boolean value.(‡åè©RMINORZ
-CODE_SMELL
-¢squid:S2159c"zRemove this call to "equals"; comparisons against null always return false; consider using '== null' to check for nullity.(þŽãÁùÿÿÿÿRMAJORZBUG
-Ysquid:S1066h"/Merge this if statement with the enclosing one.(¤—ƒÂRMAJORZ
-CODE_SMELL
-lsquid:S2583c"DChange this condition so that it does not always evaluate to "false"(þŽãÁùÿÿÿÿRMAJORZBUG
-Xsquid:S1125G")Remove the literal "false" boolean value.(ìýÃêøÿÿÿÿRMINORZ
-CODE_SMELL
-Xsquid:S1125p")Remove the literal "false" boolean value.(ÄðŠµþÿÿÿÿRMINORZ
-CODE_SMELL
-squid:S3776E"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(Ê °ˆRCRITICALZ
-CODE_SMELL
-Ssquid:S1125h")Remove the literal "false" boolean value.(¤—ƒÂRMINORZ
-CODE_SMELL

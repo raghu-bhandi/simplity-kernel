@@ -1,47 +1,0 @@
-
-\squid:S1125ü")Remove the literal "false" boolean value.(¶ ÖışÿÿÿÿH÷9RMINORZ
-CODE_SMELL
-esquid:S2629"7Use the built-in formatting to construct this argument.(œ½ìæHü9RMAJORZ
-CODE_SMELL
-esquid:S2629À"7Use the built-in formatting to construct this argument.(³ø´ÖHí9RMAJORZ
-CODE_SMELL
-‡squid:S2293¨"YReplace the type specification in this constructor call with the diamond operator ("<>").(ôóöHî9RMINORZ
-CODE_SMELL
-jsquid:S2629„"7Use the built-in formatting to construct this argument.(‘¬ÊÕÿÿÿÿÿHø9RMAJORZ
-CODE_SMELL
-jsquid:S2629†"7Use the built-in formatting to construct this argument.(ş²„ºıÿÿÿÿHÿ9RMAJORZ
-CODE_SMELL
-isquid:S2629q"7Use the built-in formatting to construct this argument.(ş²„ºıÿÿÿÿHë9RMAJORZ
-CODE_SMELL
-esquid:S2629÷"7Use the built-in formatting to construct this argument.(ÍØé—Hì9RMAJORZ
-CODE_SMELL
-‡squid:S2293ñ"YReplace the type specification in this constructor call with the diamond operator ("<>").(øÇêñHò9RMINORZ
-CODE_SMELL
-Wsquid:S1125å")Remove the literal "false" boolean value.(³˜¨«Hû9RMINORZ
-CODE_SMELL
-‡squid:S2293Å"YReplace the type specification in this constructor call with the diamond operator ("<>").(‚öÂ£Hı9RMINORZ
-CODE_SMELL
-jsquid:S2629Å"7Use the built-in formatting to construct this argument.(ôÁ§æúÿÿÿÿH€:RMAJORZ
-CODE_SMELL
-Tsquid:S2131Œ"!Use "Character.toString" instead.(“İ±ûÿÿÿÿHú9RMAJORZ
-CODE_SMELL
-gsquid:S1141e"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿHğ9RMAJORZ
-CODE_SMELL
-bsquid:S1172Ñ"/Remove this unused method parameter "compName".(Üˆ¶ıÿÿÿÿHï9RMAJORZ
-CODE_SMELL
-Šsquid:S2629 "\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(‹»¶ËHş9RMAJORZ
-CODE_SMELL
-Šsquid:S2629Û"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(ÑÑ°˜H:RMAJORZ
-CODE_SMELL
-jsquid:S2629ñ"7Use the built-in formatting to construct this argument.(‡çÙûÿÿÿÿHô9RMAJORZ
-CODE_SMELL
-\squid:S1125¾")Remove the literal "false" boolean value.(ƒ¦ÆèûÿÿÿÿHñ9RMINORZ
-CODE_SMELL
-\squid:S1125ğ")Remove the literal "false" boolean value.(¶ ÖışÿÿÿÿHõ9RMINORZ
-CODE_SMELL
-‰squid:S2629w"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(‹»¶ËHù9RMAJORZ
-CODE_SMELL
-Wsquid:S1125‹")Remove the literal "false" boolean value.(¸™×ŠHö9RMINORZ
-CODE_SMELL
-Wsquid:S1125")Remove the literal "false" boolean value.(ŠÙÌHó9RMINORZ
-CODE_SMELL

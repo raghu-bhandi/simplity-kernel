@@ -1,12 +1,0 @@
-
-ƒsquid:S2293N"YReplace the type specification in this constructor call with the diamond operator ("<>").(®Ø‡ÚRMINORZ
-CODE_SMELL
-­squid:S1186>"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(÷ô}RCRITICALZ
-CODE_SMELL
-ˆsquid:S2293}"YReplace the type specification in this constructor call with the diamond operator ("<>").(©ª¾úÿÿÿÿRMINORZ
-CODE_SMELL
-Vsquid:S1148‘"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿRMINORZVULNERABILITY
-Vsquid:S1148˜"#Use a logger to log this exception.(Ú¸ÿÿÿÿÿRMINORZVULNERABILITY
-Vsquid:S1148"#Use a logger to log this exception.(Ú¸ÿÿÿÿÿRMINORZVULNERABILITY
-„squid:S3776E"RRefactor this method to reduce its Cognitive Complexity from 33 to the 15 allowed.(¼ÙŞüÿÿÿÿRCRITICALZ
-CODE_SMELL

@@ -1,11 +1,0 @@
-
-Rsquid:S1125C")Remove the literal "false" boolean value.(Ò∆êTRMINORZ
-CODE_SMELL
-squid:S3776L"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(ﬂ‘çÖRCRITICALZ
-CODE_SMELL
-Ysquid:S1066q"/Merge this if statement with the enclosing one.(ÒÔó…RMAJORZ
-CODE_SMELL
-rsquid:S2272Ñ"NAdd a "NoSuchElementException" for iteration beyond the end of the collection.(ø˘ﬂ‡RMINORZBUG
-á
-squid:S135["YReduce the total number of break and continue statements in this loop to use at most one.(„”¥÷ˇˇˇˇˇRMINORZ
-CODE_SMELL

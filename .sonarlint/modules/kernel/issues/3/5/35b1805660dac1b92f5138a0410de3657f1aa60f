@@ -1,43 +1,0 @@
-
-Ésquid:S3776˙"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(æıç˜HŒ=RCRITICALZ
-CODE_SMELL
-~squid:CommentedOutCodeLine¬"<This block of commented-out lines of code should be removed.(£ôì≥˝ˇˇˇˇHƒ=RMAJORZ
-CODE_SMELL
-esquid:S2629˛"7Use the built-in formatting to construct this argument.(˚´‡ÚH∆=RMAJORZ
-CODE_SMELL
-~squid:CommentedOutCodeLine˙"<This block of commented-out lines of code should be removed.(⁄ﬂˇùˇˇˇˇˇH≈=RMAJORZ
-CODE_SMELL
-qsquid:S1155à">Use isEmpty() to check whether the collection is empty or not.(ıŸÌÄ˛ˇˇˇˇH¡=RMINORZ
-CODE_SMELL
-lsquid:S1155">Use isEmpty() to check whether the collection is empty or not.(˙ªë∞H—=RMINORZ
-CODE_SMELL
-ásquid:S2293î"YReplace the type specification in this constructor call with the diamond operator ("<>").(ˇöñ¥HÀ=RMINORZ
-CODE_SMELL
-Wsquid:S1125Á")Remove the literal "false" boolean value.(»ÉÆ•H»=RMINORZ
-CODE_SMELL
-Ö
-squid:S135∑"YReduce the total number of break and continue statements in this loop to use at most one.(âÎ˘pHÃ=RMINORZ
-CODE_SMELL
-äsquid:S2629Ñ"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(°≈∫·H¬=RMAJORZ
-CODE_SMELL
-Wsquid:S1125˝")Remove the literal "false" boolean value.(≤‰àÈHÕ=RMINORZ
-CODE_SMELL
-Wsquid:S1125Â")Remove the literal "false" boolean value.(û°ŒÇH“=RMINORZ
-CODE_SMELL
-ásquid:S2293í"YReplace the type specification in this constructor call with the diamond operator ("<>").(ìπÄﬂH =RMINORZ
-CODE_SMELL
-\squid:S1125ú")Remove the literal "false" boolean value.(«¿¶Í˝ˇˇˇˇHø=RMINORZ
-CODE_SMELL
-àsquid:S3776Û"RRefactor this method to reduce its Cognitive Complexity from 31 to the 15 allowed.(™ø…Æ˛ˇˇˇˇH…=RCRITICALZ
-CODE_SMELL
-]squid:S1066"/Merge this if statement with the enclosing one.(˙ªë∞H«=RMAJORZ
-CODE_SMELL
-Ésquid:S3776¸"RRefactor this method to reduce its Cognitive Complexity from 17 to the 15 allowed.(ì’±ÿHœ=RCRITICALZ
-CODE_SMELL
-Ü
-squid:S135‚"YReduce the total number of break and continue statements in this loop to use at most one.(É’ìôH√=RMINORZ
-CODE_SMELL
-Çsquid:S3776•"RRefactor this method to reduce its Cognitive Complexity from 28 to the 15 allowed.(ﬂÖÜlH¿=RCRITICALZ
-CODE_SMELL
-lsquid:S1155˝">Use isEmpty() to check whether the collection is empty or not.(≤‰àÈH–=RMINORZ
-CODE_SMELL

@@ -1,9 +1,0 @@
-
-Â%squid:RedundantThrowsDeclarationCheckX"~Remove the declaration of thrown exception 'org.simplity.tp.InvalidRowException' which is a subclass of 'java.lang.Exception'.(Ç½®ƒRMINORZ
-CODE_SMELL
-qsquid:S00112I"FDefine and throw a dedicated exception instead of using a generic one.(Ç½®ƒRMAJORZ
-CODE_SMELL
-qsquid:S00112X"FDefine and throw a dedicated exception instead of using a generic one.(Ç½®ƒRMAJORZ
-CODE_SMELL
-Â%squid:RedundantThrowsDeclarationCheckI"~Remove the declaration of thrown exception 'org.simplity.tp.InvalidRowException' which is a subclass of 'java.lang.Exception'.(Ç½®ƒRMINORZ
-CODE_SMELL

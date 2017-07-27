@@ -1,84 +1,0 @@
-
-¯%squid:RedundantThrowsDeclarationCheck¡"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(‘ÏÕíRMINORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheckÆ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(¾ˆö–RMINORZ
-CODE_SMELL
-‰squid:S2293"YReplace the type specification in this constructor call with the diamond operator ("<>").(…¼Ë©ùÿÿÿÿRMINORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheck³"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(èº€—RMINORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheck¯"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ò¹ÒøÿÿÿÿRMINORZ
-CODE_SMELL
-Ysquid:S1125")Remove the literal "false" boolean value.(Äáæ¸ıÿÿÿÿRMINORZ
-CODE_SMELL
-®%squid:RedundantThrowsDeclarationCheckÙ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ÔÍÅ:RMINORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheck"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(‚ˆ‡ıÿÿÿÿRMINORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheckÖ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(å‚æÅRMINORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheck†"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(èŒ…‚RMINORZ
-CODE_SMELL
-zsquid:S1192¸"LDefine a constant instead of duplicating this literal "JSONArray[" 12 times.(üÉ¢„RCRITICALZ
-CODE_SMELL
-Hsquid:S2129à"Remove this "Long" constructor(µø¯qRMAJORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheckµ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(óÍõÙRMINORZ
-CODE_SMELL
-@squid:S2225”"Return empty string instead.(¥¹ïRMAJORZBUG
-Isquid:S2129¾"Remove this "Long" constructor(¼ÍíåRMAJORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheck…"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(Ü×ï°şÿÿÿÿRMINORZ
-CODE_SMELL
-Psquid:S2129¢" Remove this "Double" constructor(ÿ¦°æüÿÿÿÿRMAJORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheckû"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ëöØRMINORZ
-CODE_SMELL
-³%squid:RedundantThrowsDeclarationCheck_"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(È”åºÿÿÿÿÿRMINORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheck½"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(‰°¹úÿÿÿÿRMINORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheckù"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(‚»ŒÄÿÿÿÿÿRMINORZ
-CODE_SMELL
-ˆsquid:S2293V"YReplace the type specification in this constructor call with the diamond operator ("<>").(…¼Ë©ùÿÿÿÿRMINORZ
-CODE_SMELL
-Psquid:S2129È" Remove this "Double" constructor(­ÍîÎşÿÿÿÿRMAJORZ
-CODE_SMELL
-Qsquid:S2129Õ"!Remove this "Integer" constructor(Òà‡ßÿÿÿÿÿRMAJORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheck…"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ä¼´şúÿÿÿÿRMINORZ
-CODE_SMELL
-bsquid:S2589Ë"7Remove this expression which always evaluates to "true"(¦‹ôšRMAJORZ
-CODE_SMELL
-Tsquid:S1125ğ")Remove the literal "false" boolean value.(¹¦ğƒRMINORZ
-CODE_SMELL
-Lsquid:S2129°"!Remove this "Integer" constructor(í¾İ÷RMAJORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheckÙ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ø’Â™RMINORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheckÇ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(÷ƒ‚ÛÿÿÿÿÿRMINORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheckÊ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(Õ–ÅòRMINORZ
-CODE_SMELL
-®%squid:RedundantThrowsDeclarationCheckÃ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ÀÖÿLRMINORZ
-CODE_SMELL
-squid:S1192à"SDefine a constant instead of duplicating this literal "] is not a number." 3 times.(°ÆèŒRCRITICALZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheckå"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(Ñ‹ÒûÿÿÿÿRMINORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheck‹"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(×¿Ú¡ıÿÿÿÿRMINORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheck´"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ÃÿøRMINORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheckô"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(“ú™ùÿÿÿÿRMINORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheck¡"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(‘ÉààRMINORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheck“"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ÄıÍRMINORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheckÄ"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ÜŞ±ıÿÿÿÿRMINORZ
-CODE_SMELL
-´%squid:RedundantThrowsDeclarationCheck¢"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(¡ÉÛÕşÿÿÿÿRMINORZ
-CODE_SMELL
-¯%squid:RedundantThrowsDeclarationCheck£"jRemove the declaration of thrown exception 'org.simplity.json.JSONException' which is a runtime exception.(ı†ÏËRMINORZ
-CODE_SMELL

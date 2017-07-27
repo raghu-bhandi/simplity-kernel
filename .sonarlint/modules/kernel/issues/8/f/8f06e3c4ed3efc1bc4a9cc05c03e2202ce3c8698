@@ -1,77 +1,0 @@
-
-Wsquid:S1125¦")Remove the literal "false" boolean value.(ºõ¢ÚHß%RMINORZ
-CODE_SMELL
-ƒsquid:S3776ü"RRefactor this method to reduce its Cognitive Complexity from 20 to the 15 allowed.(¯êˆòHì%RCRITICALZ
-CODE_SMELL
-lsquid:S2696˜"6Make the enclosing method "static" or remove this set.(ÑÓÁÒùÿÿÿÿHå%RCRITICALZ
-CODE_SMELL
-k
-squid:S106Ä"9Replace this use of System.out or System.err by a logger.(—áìÿÿÿÿÿHÖ%RMAJORZ
-CODE_SMELL
-–squid:S1192¨"eDefine a constant instead of duplicating this literal " Application will not work properly." 3 times.(©š¥§HÑ%RCRITICALZ
-CODE_SMELL
-jsquid:S2629À"7Use the built-in formatting to construct this argument.(íèıüÿÿÿÿHÏ%RMAJORZ
-CODE_SMELL
-jsquid:S2629î"7Use the built-in formatting to construct this argument.(øçÂÏøÿÿÿÿHĞ%RMAJORZ
-CODE_SMELL
-lsquid:S2696æ"6Make the enclosing method "static" or remove this set.(šß‚òüÿÿÿÿHá%RCRITICALZ
-CODE_SMELL
-f
-squid:S106«"9Replace this use of System.out or System.err by a logger.(Îã­ÃHÕ%RMAJORZ
-CODE_SMELL
-lsquid:S2696­"6Make the enclosing method "static" or remove this set.(Æ·šûÿÿÿÿHã%RCRITICALZ
-CODE_SMELL
-lsquid:S2696ª"6Make the enclosing method "static" or remove this set.(‡ã·ÇşÿÿÿÿHæ%RCRITICALZ
-CODE_SMELL
-qsquid:S1155Ò">Use isEmpty() to check whether the collection is empty or not.(ô§üãûÿÿÿÿHï%RMINORZ
-CODE_SMELL
-lsquid:S2696"6Make the enclosing method "static" or remove this set.(ëÇğÿÿÿÿÿHâ%RCRITICALZ
-CODE_SMELL
-fsquid:S2696À"6Make the enclosing method "static" or remove this set.(çÛ:Hé%RCRITICALZ
-CODE_SMELL
-Wsquid:S1125 ")Remove the literal "false" boolean value.(ºõ¢ÚHà%RMINORZ
-CODE_SMELL
-k
-squid:S106ª"9Replace this use of System.out or System.err by a logger.(°ô¿ÆøÿÿÿÿHÔ%RMAJORZ
-CODE_SMELL
-lsquid:S2696—"6Make the enclosing method "static" or remove this set.(‚ÛÜ§üÿÿÿÿHä%RCRITICALZ
-CODE_SMELL
-f
-squid:S106Ì"9Replace this use of System.out or System.err by a logger.(¬¯…ÅHÚ%RMAJORZ
-CODE_SMELL
-gsquid:S2696ñ"6Make the enclosing method "static" or remove this set.(ºò°ÜHê%RCRITICALZ
-CODE_SMELL
-e
-squid:S106Æ"9Replace this use of System.out or System.err by a logger.(•ÃÇSHØ%RMAJORZ
-CODE_SMELL
-f
-squid:S106¡"9Replace this use of System.out or System.err by a logger.(ÆÀûıHÓ%RMAJORZ
-CODE_SMELL
-gsquid:S2696±"6Make the enclosing method "static" or remove this set.(ÒÔåÃHè%RCRITICALZ
-CODE_SMELL
-f
-squid:S106Å"9Replace this use of System.out or System.err by a logger.(áÂØÈH×%RMAJORZ
-CODE_SMELL
-f
-squid:S106Ó"9Replace this use of System.out or System.err by a logger.(ÆÀûıHİ%RMAJORZ
-CODE_SMELL
-Vsquid:S1125®")Remove the literal "false" boolean value.(ÍÒDHŞ%RMINORZ
-CODE_SMELL
-Ssquid:S2201º",The return value of "parseInt" must be used.(¯¯öšHí%RMAJORZBUG
-lsquid:S2696¬"6Make the enclosing method "static" or remove this set.(‚Øû²üÿÿÿÿHç%RCRITICALZ
-CODE_SMELL
-zsquid:S00112°"FDefine and throw a dedicated exception instead of using a generic one.(´Ñ¢úüÿÿÿÿHî%RMAJORZ
-CODE_SMELL
-ˆsquid:S3776â"RRefactor this method to reduce its Cognitive Complexity from 57 to the 15 allowed.(•š¸ƒùÿÿÿÿHë%RCRITICALZ
-CODE_SMELL
-e
-squid:S106Í"9Replace this use of System.out or System.err by a logger.(Ôİø7HÛ%RMAJORZ
-CODE_SMELL
-f
-squid:S106Ç"9Replace this use of System.out or System.err by a logger.(÷•ãªHÙ%RMAJORZ
-CODE_SMELL
-Œsquid:S2293ã"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÍüÊÂÿÿÿÿÿHÒ%RMINORZ
-CODE_SMELL
-f
-squid:S106Ñ"9Replace this use of System.out or System.err by a logger.(ÆÀûıHÜ%RMAJORZ
-CODE_SMELL

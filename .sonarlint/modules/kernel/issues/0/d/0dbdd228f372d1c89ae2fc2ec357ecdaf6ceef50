@@ -1,24 +1,0 @@
-
-Tsquid:S1168£"&Return an empty array instead of null.(¥¹ïHŞ:RMAJORZ
-CODE_SMELL
-Wsquid:S2629³"$Invoke method(s) only conditionally.(”àéúÿÿÿÿHç:RMAJORZ
-CODE_SMELL
-Qsquid:S2629±"$Invoke method(s) only conditionally.(ï›á?Hä:RMAJORZ
-CODE_SMELL
-dsquid:S1135ç"2Complete the task associated to this TODO comment.(ß›ßÅúÿÿÿÿHæ:RINFOZ
-CODE_SMELL
-Vsquid:S1125Ø")Remove the literal "false" boolean value.(•îÆ\Hß:RMINORZ
-CODE_SMELL
-jsquid:S2629İ"7Use the built-in formatting to construct this argument.(æ‚®øÿÿÿÿHè:RMAJORZ
-CODE_SMELL
-‘squid:S1488ë"^Immediately return this expression instead of assigning it to the temporary variable "values".(¥ã¢şÿÿÿÿHá:RMINORZ
-CODE_SMELL
-‹squid:S22937"YReplace the type specification in this constructor call with the diamond operator ("<>").(ËìèûÿÿÿÿHã:RMINORZ
-CODE_SMELL
-squid:S2159÷"ZRemove this call to "equals"; comparisons between an array and a type always return false.(ÀÓ•ìHâ:RMAJORZBUG
-’squid:S1488ˆ"_Immediately return this expression instead of assigning it to the temporary variable "rawData".(Ä×àˆûÿÿÿÿHå:RMINORZ
-CODE_SMELL
-Œsquid:S2293±"YReplace the type specification in this constructor call with the diamond operator ("<>").(ÛôˆùüÿÿÿÿHà:RMINORZ
-CODE_SMELL
-dsquid:S1135ò"2Complete the task associated to this TODO comment.(ß›ßÅúÿÿÿÿHİ:RINFOZ
-CODE_SMELL

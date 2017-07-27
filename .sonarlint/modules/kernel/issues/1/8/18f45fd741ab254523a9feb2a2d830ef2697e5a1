@@ -1,19 +1,0 @@
-
-\squid:S1125­")Remove the literal "false" boolean value.(ÉˆñşÿÿÿÿHåARMINORZ
-CODE_SMELL
-Tsquid:S1168—"&Return an empty array instead of null.(¥¹ïHéARMAJORZ
-CODE_SMELL
-esquid:S2629š"7Use the built-in formatting to construct this argument.(§ÒöÑHäARMAJORZ
-CODE_SMELL
-esquid:S2629è"7Use the built-in formatting to construct this argument.(×ãñØHãARMAJORZ
-CODE_SMELL
-esquid:S2629¡"7Use the built-in formatting to construct this argument.(§ÒöÑHçARMAJORZ
-CODE_SMELL
-Tsquid:S1168ü"&Return an empty array instead of null.(¥¹ïHêARMAJORZ
-CODE_SMELL
-isquid:S3516¦"9Refactor this method to not always return the same value.(Ú¾© HæARBLOCKERZ
-CODE_SMELL
-jsquid:S2629§"7Use the built-in formatting to construct this argument.(·ê…úøÿÿÿÿHëARMAJORZ
-CODE_SMELL
-ƒsquid:S3776ˆ"RRefactor this method to reduce its Cognitive Complexity from 19 to the 15 allowed.(–Ìó¶HèARCRITICALZ
-CODE_SMELL

@@ -1,51 +1,0 @@
-
-Œsquid:S00115ú"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(Ş¼ßÓHÉURCRITICALZ
-CODE_SMELL
-Œsquid:S00115µ"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(àßÔHÊURCRITICALZ
-CODE_SMELL
-Osquid:S2131®"!Use "Character.toString" instead.(î°ŞƒHËURMAJORZ
-CODE_SMELL
-Osquid:S2131˜"!Use "Character.toString" instead.(»·±¢HÌURMAJORZ
-CODE_SMELL
-Nsquid:S2131â"!Use "Character.toString" instead.(Œğ³HÍURMAJORZ
-CODE_SMELL
-Œsquid:S00115"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(ĞŸëHÎURCRITICALZ
-CODE_SMELL
-Nsquid:S2131p"!Use "Character.toString" instead.(ñø²ıHÏURMAJORZ
-CODE_SMELL
-‹squid:S00115t"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(êõßğHĞURCRITICALZ
-CODE_SMELL
-squid:S00115A"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(«Ì™ÿÿÿÿÿHÑURCRITICALZ
-CODE_SMELL
-‘squid:S00115æ"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(Ò‰ÛëıÿÿÿÿHÒURCRITICALZ
-CODE_SMELL
-Tsquid:S2131‘"!Use "Character.toString" instead.(êîÚ…úÿÿÿÿHÓURMAJORZ
-CODE_SMELL
-‘squid:S00115¿"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(ğ¿†£øÿÿÿÿHÔURCRITICALZ
-CODE_SMELL
-Šsquid:S00115\"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(á‹·-HÕURCRITICALZ
-CODE_SMELL
-‹squid:S00115×"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(„Øğ_HÖURCRITICALZ
-CODE_SMELL
-‹squid:S00115&"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(©ŸñƒH×URCRITICALZ
-CODE_SMELL
-Tsquid:S2131À"!Use "Character.toString" instead.(ÖÌõÅÿÿÿÿÿHØURMAJORZ
-CODE_SMELL
-Œsquid:S00115 "ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(–äşÚHÙURCRITICALZ
-CODE_SMELL
-Œsquid:S00115²"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(ı¨ÜÒHÚURCRITICALZ
-CODE_SMELL
-Œsquid:S00115•"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(üœØŞHÛURCRITICALZ
-CODE_SMELL
-Ssquid:S2131="!Use "Character.toString" instead.(»ƒÁ™ÿÿÿÿÿHÜURMAJORZ
-CODE_SMELL
-Tsquid:S2131Ó"!Use "Character.toString" instead.(¯ãô…ÿÿÿÿÿHİURMAJORZ
-CODE_SMELL
-Tsquid:S2131œ"!Use "Character.toString" instead.(Ü¥£øøÿÿÿÿHŞURMAJORZ
-CODE_SMELL
-Œsquid:S00115œ"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(ùúÜÃHßURCRITICALZ
-CODE_SMELL
-Nsquid:S2131X"!Use "Character.toString" instead.(™ûœHàURMAJORZ
-CODE_SMELL
-Tsquid:S2131±"!Use "Character.toString" instead.(­Á·úşÿÿÿÿHáURMAJORZ
-CODE_SMELL

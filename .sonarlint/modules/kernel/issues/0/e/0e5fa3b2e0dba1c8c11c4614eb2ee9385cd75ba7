@@ -1,6 +1,0 @@
-
-[squid:S1125@")Remove the literal "false" boolean value.(”§äÖùÿÿÿÿH³GRMINORZ
-CODE_SMELL
-ksquid:S2629C"7Use the built-in formatting to construct this argument.(„ë±Ù8ÿÉ½ó×+H¶GRMAJORZ
-CODE_SMELL
-lsquid:S2142`"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€H²GRMAJORZBUG

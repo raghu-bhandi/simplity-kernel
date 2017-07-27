@@ -1,15 +1,0 @@
-
-jsquid:S2629Ğ"7Use the built-in formatting to construct this argument.(ü¨¬”ûÿÿÿÿH»?RMAJORZ
-CODE_SMELL
-tsquid:S1126"AReplace this if-then-else statement by a single return statement.(£•şÿÿÿÿH½?RMINORZ
-CODE_SMELL
-Šsquid:S2629İ"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(Ù´¯µH¿?RMAJORZ
-CODE_SMELL
-bsquid:EmptyStatementUsageCheckÿ"Remove this empty statement.(Åñ­õşÿÿÿÿH¼?RMINORZ
-CODE_SMELL
-€squid:S3008…"MRename this field "N1" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ØÎ‹ÈÿÿÿÿÿHÁ?RMINORZ
-CODE_SMELL
-esquid:S2629Á"7Use the built-in formatting to construct this argument.(î¼Ã¼H¾?RMAJORZ
-CODE_SMELL
-squid:S2629É"\Invoke method(s) only conditionally. Use the built-in formatting to construct this argument.(µìÌ°ûÿÿÿÿHÀ?RMAJORZ
-CODE_SMELL

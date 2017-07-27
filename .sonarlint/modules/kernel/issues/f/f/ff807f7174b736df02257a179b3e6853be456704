@@ -1,9 +1,0 @@
-
-Ssquid:S2129≥" Remove this "Double" constructor(é¡ÛÅ¸ˇˇˇˇH∏=RMAJORZ
-CODE_SMELL
-tsquid:S3457≥"AFormat specifiers should be used instead of string concatenation.(é¡ÛÅ¸ˇˇˇˇHπ=RMAJORZ
-CODE_SMELL
-Jsquid:S2131±"Use "Long.toString" instead.(òà´‰H∑=RMAJORZ
-CODE_SMELL
-jsquid:S1854>"=Remove this useless assignment to local variable "longValue".(ßΩÅ H∂=RMAJORZ
-CODE_SMELL

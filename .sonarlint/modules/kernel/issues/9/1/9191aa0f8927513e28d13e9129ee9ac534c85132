@@ -1,49 +1,0 @@
-
-Vsquid:S1125t")Remove the literal "false" boolean value.(–ËÊµHÔ=RMINORZ
-CODE_SMELL
-p
-squid:S899Í";Do something with the "boolean" value returned by "delete".(²Œ­ûÿÿÿÿHè=RMINORZVULNERABILITY
-Jsquid:S2131©"Use "Long.toString" instead.(§âŠŒHå=RMAJORZ
-CODE_SMELL
-`squid:S2093©"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿHâ=RCRITICALZ
-CODE_SMELL
-jsquid:S2629"7Use the built-in formatting to construct this argument.(ÄñÿÿÿÿÿHá=RMAJORZ
-CODE_SMELL
-†squid:S2293["YReplace the type specification in this constructor call with the diamond operator ("<>").(÷ÿ¿ˆHÚ=RMINORZ
-CODE_SMELL
-dsquid:S2629z"7Use the built-in formatting to construct this argument.(Ø£ÇªHç=RMAJORZ
-CODE_SMELL
-`squid:S2093æ"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿHë=RCRITICALZ
-CODE_SMELL
-`squid:S2093Š"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿH×=RCRITICALZ
-CODE_SMELL
-|squid:S1192¤"FDefine a constant instead of duplicating this literal "UTF-8" 3 times.(¢”â€ùÿÿÿÿHÜ=RCRITICALZ
-CODE_SMELL
-vsquid:S2674’"JCheck the return value of the "read" call to see how many bytes were read.(§ÖœåúÿÿÿÿHİ=RMINORZBUG
-Wsquid:S1125«")Remove the literal "false" boolean value.(ºõ¢ÚHÕ=RMINORZ
-CODE_SMELL
-usquid:S00112½"FDefine and throw a dedicated exception instead of using a generic one.(õÀºäHê=RMAJORZ
-CODE_SMELL
-w
-squid:S899Ğ"BDo something with the "boolean" value returned by "createNewFile".(Ğ’ÍùÿÿÿÿHß=RMINORZVULNERABILITY
-Osquid:S2131—"Use "Long.toString" instead.(Ö•ºÅÿÿÿÿÿHØ=RMAJORZ
-CODE_SMELL
-gsquid:S11185":Add a private constructor to hide the implicit public one.(²ÁHŞ=RMAJORZ
-CODE_SMELL
-esquid:S2629Ã"7Use the built-in formatting to construct this argument.(„ûÿHä=RMAJORZ
-CODE_SMELL
-Nsquid:S2131u"!Use "Character.toString" instead.(‡º–ŸHÖ=RMAJORZ
-CODE_SMELL
-`squid:S2093ß"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿHé=RCRITICALZ
-CODE_SMELL
-Vsquid:S1125x")Remove the literal "false" boolean value.(ºõ¢ÚHã=RMINORZ
-CODE_SMELL
-`squid:S2093‚"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿHà=RCRITICALZ
-CODE_SMELL
-qsquid:S2184D"FCast one of the operands of this multiplication operation to a "long".(„æÙàÿÿÿÿÿHÙ=RMINORZBUG
-`squid:S2093š"*Change this "try" to a try-with-resources.(¡»¢üùÿÿÿÿHæ=RCRITICALZ
-CODE_SMELL
-jsquid:S2629¾"7Use the built-in formatting to construct this argument.(ôùûëüÿÿÿÿHÛ=RMAJORZ
-CODE_SMELL
-Wsquid:S1125™")Remove the literal "false" boolean value.(ºõ¢ÚHì=RMINORZ
-CODE_SMELL

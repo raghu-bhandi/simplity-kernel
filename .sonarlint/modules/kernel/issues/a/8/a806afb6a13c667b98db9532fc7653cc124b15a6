@@ -1,12 +1,0 @@
-
-isquid:S1161X":Add the "@Override" annotation above this method signature(ÇĞüÇùÿÿÿÿRMAJORZ
-CODE_SMELL
-ˆsquid:S001150"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(€˜€ñRCRITICALZ
-CODE_SMELL
-squid:S001151"ZRename this constant name to match the regular expression '^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$'.(Ö´Ï—ûÿÿÿÿRCRITICALZ
-CODE_SMELL
-®squid:S1186I"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(‡Âÿ¾RCRITICALZ
-CODE_SMELL
-Usquid:S1148|"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿRMINORZVULNERABILITY
-squid:S1149h"_Replace the synchronized class "StringBuffer" by an unsynchronized one such as "StringBuilder".(Ò¨ïıÿÿÿÿRMAJORZ
-CODE_SMELL

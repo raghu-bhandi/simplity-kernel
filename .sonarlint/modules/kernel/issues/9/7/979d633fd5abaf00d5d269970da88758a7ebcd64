@@ -1,46 +1,0 @@
-
-jsquid:S2629Ñ"7Use the built-in formatting to construct this argument.(˙‡≤¡˛ˇˇˇˇHÆ>RMAJORZ
-CODE_SMELL
-asquid:S1066t"/Merge this if statement with the enclosing one.(ñéôÚ¸ˇˇˇˇHß>RMAJORZ
-CODE_SMELL
-\squid:S1125«")Remove the literal "false" boolean value.(™˘Ñ¬˚ˇˇˇˇH≤>RMINORZ
-CODE_SMELL
-Ü
-squid:S135…"YReduce the total number of break and continue statements in this loop to use at most one.(˚®ˆÖH∏>RMINORZ
-CODE_SMELL
-isquid:S2629w"7Use the built-in formatting to construct this argument.(ì¶ùÑ˛ˇˇˇˇH™>RMAJORZ
-CODE_SMELL
-\squid:S1125Ï")Remove the literal "false" boolean value.(™˘Ñ¬˚ˇˇˇˇH´>RMINORZ
-CODE_SMELL
-isquid:S2629?"7Use the built-in formatting to construct this argument.(ì¶ùÑ˛ˇˇˇˇH∑>RMAJORZ
-CODE_SMELL
-ásquid:S2293ù"YReplace the type specification in this constructor call with the diamond operator ("<>").(≈ëºªH•>RMINORZ
-CODE_SMELL
-asquid:S1066<"/Merge this if statement with the enclosing one.(ñéôÚ¸ˇˇˇˇHπ>RMAJORZ
-CODE_SMELL
-esquid:S2629‰"7Use the built-in formatting to construct this argument.(îù·ıH∂>RMAJORZ
-CODE_SMELL
-ksquid:S1172±"8Remove this unused method parameter "considerModifiers".(†À⁄ø˝ˇˇˇˇH±>RMAJORZ
-CODE_SMELL
-esquid:S2629“"7Use the built-in formatting to construct this argument.(∑àú¨H¥>RMAJORZ
-CODE_SMELL
-osquid:S1126á"AReplace this if-then-else statement by a single return statement.(›€‹˙H¶>RMINORZ
-CODE_SMELL
-\squid:S1125û")Remove the literal "false" boolean value.(›‡Ú«¸ˇˇˇˇH∞>RMINORZ
-CODE_SMELL
-esquid:S1172k"8Remove this unused method parameter "considerModifiers".(¸ö–›H©>RMAJORZ
-CODE_SMELL
-isquid:S2629L"7Use the built-in formatting to construct this argument.(˙‡≤¡˛ˇˇˇˇHµ>RMAJORZ
-CODE_SMELL
-lsquid:S1118'":Add a private constructor to hide the implicit public one.(Â√∏·ˇˇˇˇˇH∫>RMAJORZ
-CODE_SMELL
-\squid:S1125¥")Remove the literal "false" boolean value.(›‡Ú«¸ˇˇˇˇH¨>RMINORZ
-CODE_SMELL
-ásquid:S2293≥"YReplace the type specification in this constructor call with the diamond operator ("<>").(≈ëºªH®>RMINORZ
-CODE_SMELL
-\squid:S1125œ")Remove the literal "false" boolean value.(É¿¨õ¸ˇˇˇˇH≠>RMINORZ
-CODE_SMELL
-esquid:S2629œ"7Use the built-in formatting to construct this argument.(™¬‰‘HØ>RMAJORZ
-CODE_SMELL
-ksquid:S1172Í"8Remove this unused method parameter "considerModifiers".(ù¯•Á¯ˇˇˇˇH≥>RMAJORZ
-CODE_SMELL
