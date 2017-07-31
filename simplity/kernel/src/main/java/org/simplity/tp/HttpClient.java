@@ -23,7 +23,7 @@
 package org.simplity.tp;
 
 import org.simplity.gateway.OutboundAgent;
-import org.simplity.http.HttpGateway;
+import org.simplity.kernel.HttpGateway;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
@@ -47,6 +47,7 @@ public class HttpClient extends ExternalService {
 	 * and still go ahead.
 	 */
 	String urlString;
+	private String parsedUrlString;	
 	/**
 	 * GET, POST etc..
 	 */
@@ -94,6 +95,9 @@ public class HttpClient extends ExternalService {
 	@Override
 	boolean preServe(OutboundAgent agent, ServiceContext ctx) {
 		HttpGateway.Agent hagent = (HttpGateway.Agent) agent;
+	    if (this.parsedUrlString != null) {
+	        this.urlString = ctx.getTextValue(this.parsedUrlString);
+	      }
 		String path;
 		if (this.urlParts == null) {
 			path = this.urlString;
@@ -145,6 +149,9 @@ public class HttpClient extends ExternalService {
 	@Override
 	public void getReady(int idx, Service service) {
 		super.getReady(idx, service);
+	    if (this.urlString != null) {
+	        this.parsedUrlString = TextUtil.getFieldName(this.urlString);
+	      }
 		if (this.urlString.indexOf('$') != -1) {
 			this.urlParts = TextUtil.parseToParts(this.urlString);
 		}
