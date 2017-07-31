@@ -22,17 +22,15 @@
 
 package org.simplity.kernel.data;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
-
 import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * how the JMS message body is used
@@ -599,7 +597,7 @@ public enum DataSerializationType {
   /** serialized object - special case of Map */
   ,
   MAP;
-	private static final Logger logger = LoggerFactory.getLogger(DataSerializationType.class);
+	protected static final Logger logger = LoggerFactory.getLogger(DataSerializationType.class);
 
   protected static final String NL = "\\r?\\n";
   protected static final char COMMA = ',';
