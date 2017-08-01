@@ -44,503 +44,550 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * components are the basic building blocks of application. This is an enumeration of them. Types
+ * components are the basic building blocks of application. This is an
+ * enumeration of them. Types
  * come with utility methods to load the components
  *
  * @author simplity.org
  */
 public enum ComponentType {
-  /** Data Type */
-  DT(0, DataType.class, "dt/", true),
-  /** Message */
-  MSG(1, Message.class, "msg/", true),
-  /** Record */
-  REC(2, Record.class, "rec/", false),
-  /** service */
-  SERVICE(3, Service.class, "service/tp/", false) {
+	/** Data Type */
+	DT(0, DataType.class, "dt/", true),
+	/** Message */
+	MSG(1, Message.class, "msg/", true),
+	/** Record */
+	REC(2, Record.class, "rec/", false),
+	/** service */
+	SERVICE(3, Service.class, "service/tp/", false) {
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.simplity.kernel.comp.ComponentType#generateComp(java.lang.String)
-     */
-    @Override
-    protected Component generateComp(String compName) {
-      /*
-       * is this service an alias?
-       */
-      Object entry = serviceAliases.get(compName);
-      if (entry != null) {
-        return this.getComponentOrNull(entry.toString());
-      }
-      /*
-       * try on-the-fly service generation
-       */
-      return Service.generateService(compName);
-    }
-  },
-  /** Sql */
-  SQL(4, Sql.class, "sql/", false),
-  /** Stored procedure */
-  SP(5, StoredProcedure.class, "sp/", false),
-  /** function */
-  FUNCTION(6, Function.class, "fn/", true) {
-    @Override
-    protected void loadAll() {
-      try {
-        loadGroups(this.folder, null, this.cachedOnes);
-        /*
-         * we have to initialize the components
-         */
-        for (Map.Entry<String, Object> entry : this.cachedOnes.entrySet()) {
-          String fname = entry.getValue().toString();
-          Object obj = null;
-          try {
-            obj = Class.forName(fname).newInstance();
-          } catch (Exception e) {
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see
+		 * org.simplity.kernel.comp.ComponentType#generateComp(java.lang.String)
+		 */
+		@Override
+		protected Component generateComp(String compName) {
+			/*
+			 * is this service an alias?
+			 */
+			Object entry = serviceAliases.get(compName);
+			if (entry != null) {
+				return this.getComponentOrNull(entry.toString());
+			}
+			/*
+			 * try on-the-fly service generation
+			 */
+			return Service.generateService(compName);
+		}
+	},
+	/** Sql */
+	SQL(4, Sql.class, "sql/", false),
+	/** Stored procedure */
+	SP(5, StoredProcedure.class, "sp/", false),
+	/** function */
+	FUNCTION(6, Function.class, "fn/", true) {
+		@Override
+		protected void loadAll() {
+			try {
+				loadGroups(this.folder, null, this.cachedOnes);
+				/*
+				 * we have to initialize the components
+				 */
+				for (Map.Entry<String, Object> entry : this.cachedOnes.entrySet()) {
+					String fname = entry.getValue().toString();
+					Object obj = null;
+					try {
+						obj = Class.forName(fname).newInstance();
+					} catch (Exception e) {
 
-            logger.error("Unable to create an instance of Function based on class " + fname, e);
-          }
-          if (obj != null) {
-            if (obj instanceof Function) {
-              entry.setValue(obj);
-            } else {
+						logger.error("Unable to create an instance of Function based on class " + fname, e);
+					}
+					if (obj != null) {
+						if (obj instanceof Function) {
+							entry.setValue(obj);
+						} else {
 
-              logger.info(
-                  fname
-                      + " is a valid class but not a sub-class of Function. Function entry ignored.");
-            }
-          }
-        }
+							logger.info(fname
+									+ " is a valid class but not a sub-class of Function. Function entry ignored.");
+						}
+					}
+				}
 
-        logger.info(this.cachedOnes.size() + " " + this + " loaded.");
+				logger.info(this.cachedOnes.size() + " " + this + " loaded.");
 
-      } catch (Exception e) {
-        this.cachedOnes.clear();
+			} catch (Exception e) {
+				this.cachedOnes.clear();
 
-        logger.error(
-            this
-                + " pre-loading failed. No component of this type is available till we successfully pre-load them again.",
-            e);
-      }
-      for (Function fn : BUILT_IN_FUNCTIONS) {
-        String fname = fn.getSimpleName();
-        if (this.cachedOnes.get(fname) != null) {
+				logger.error(
+						this + " pre-loading failed. No component of this type is available till we successfully pre-load them again.",
+						e);
+			}
+			for (Function fn : BUILT_IN_FUNCTIONS) {
+				String fname = fn.getSimpleName();
+				if (this.cachedOnes.get(fname) != null) {
 
-          logger.info(
-              fname
-                  + " is a built-in function and can not be over-ridden. User defined function with the same name is discarded.");
-        }
-        this.cachedOnes.put(fname, fn);
-      }
-    }
-  },
+					logger.info(fname
+							+ " is a built-in function and can not be over-ridden. User defined function with the same name is discarded.");
+				}
+				this.cachedOnes.put(fname, fn);
+			}
+		}
+	},
 
-  /** test cases for service */
-  TEST_RUN(7, TestRun.class, "test/", false),
+	/** test cases for service */
+	TEST_RUN(7, TestRun.class, "test/", false),
 
-  /** test cases for service */
-  JOBS(8, Jobs.class, "batch/", false);
+	/** test cases for service */
+	JOBS(8, Jobs.class, "batch/", false);
 	protected static final Logger logger = LoggerFactory.getLogger(ComponentType.class);
 
-  /*
-   * constants
-   */
-  private static final char FOLDER_CHAR = '/';
-  private static final String FOLDER_STR = "/";
-  private static final char DELIMITER = '.';
-  private static final String EXTN = ".xml";
-  private static final String CLASS_FOLDER = "service/list/";
-  /*
-   * list of built-in functions
-   */
-  protected static final Function[] BUILT_IN_FUNCTIONS = {new Concat()};
+	/*
+	 * constants
+	 */
+	private static final char FOLDER_CHAR = '/';
+	private static final String FOLDER_STR = "/";
+	private static final char DELIMITER = '.';
+	private static final String EXTN = ".xml";
+	private static final String CLASS_FOLDER = "service/list/";
+	/*
+	 * list of built-in functions
+	 */
+	protected static final Function[] BUILT_IN_FUNCTIONS = { new Concat() };
 
-  /** root folder where components are located, relative to file-manager's root. */
-  private static String componentFolder = "/comp/";
-  /**
-   * service has a way to generate rather than load.. One way is to have a class associated with
-   * that
-   */
-  protected static final Map<String, Object> serviceAliases = new HashMap<String, Object>();
-  /*
-   * attributes of component type
-   */
-  /** allows us to use array instead of map while dealing with componentType based collections */
-  private final int idx;
+	/**
+	 * root folder where components are located, relative to file-manager's
+	 * root.
+	 */
+	private static String componentFolder = "/comp/";
+	/**
+	 * service has a way to generate rather than load.. One way is to have a
+	 * class associated with
+	 * that
+	 */
+	protected static final Map<String, Object> serviceAliases = new HashMap<String, Object>();
+	/*
+	 * attributes of component type
+	 */
+	/**
+	 * allows us to use array instead of map while dealing with componentType
+	 * based collections
+	 */
+	private final int idx;
 
-  /** class associated with this type that is used for loading component/s */
-  protected final Class<?> cls;
+	/** class associated with this type that is used for loading component/s */
+	protected final Class<?> cls;
 
-  /** folder name under which components are saved */
-  protected final String folder;
+	/** folder name under which components are saved */
+	protected final String folder;
 
-  /** is this loaded on a need basis or pre-loaded? */
-  private final boolean preLoaded;
+	/** is this loaded on a need basis or pre-loaded? */
+	private final boolean isGrouped;
 
-  protected Map<String, Object> cachedOnes;
+	protected Map<String, Object> cachedOnes;
 
-  /**
-   * @param idx
-   * @param cls
-   * @param folder
-   */
-  ComponentType(int idx, Class<? extends Component> cls, String folder, boolean preLoaded) {
-    this.idx = idx;
-    this.cls = cls;
-    this.folder = folder;
-    this.preLoaded = preLoaded;
-    if (this.preLoaded) {
-      this.cachedOnes = new HashMap<String, Object>();
-    }
-  }
+	/**
+	 * @param idx
+	 * @param cls
+	 * @param folder
+	 */
+	ComponentType(int idx, Class<? extends Component> cls, String folder, boolean preLoaded) {
+		this.idx = idx;
+		this.cls = cls;
+		this.folder = folder;
+		this.isGrouped = preLoaded;
+		if (this.isGrouped) {
+			this.cachedOnes = new HashMap<String, Object>();
+		}
+	}
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.lang.Enum#toString()
-   */
-  @Override
-  public String toString() {
-    return this.cls.getSimpleName();
-  }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Enum#toString()
+	 */
+	@Override
+	public String toString() {
+		return this.cls.getSimpleName();
+	}
 
-  /** @return idx associated with this comp type */
-  public int getIdx() {
-    return this.idx;
-  }
+	/**
+	 * @return idx associated with this comp type
+	 */
+	public int getIdx() {
+		return this.idx;
+	}
 
-  /** @return true if it is pre-loaded. false if it is loaded on a need basis */
-  public boolean isPreloded() {
-    return this.preLoaded;
-  }
+	/**
+	 * @return folder name within the component folder. e.g. service/tp/ for
+	 *         service
+	 */
+	public String getFolderPrefix() {
+		return this.folder;
+	}
 
-  /**
-   * @param compName qualified component name
-   * @return instance of the desired component. Throws ApplicationError if this component is not
-   *     found. use getComponentOrNull() if you do not want an error
-   */
-  public Component getComponent(String compName) {
-    Component comp = this.getComponentOrNull(compName);
-    /*
-     * look no further if this is always cached
-     */
-    if (comp == null) {
-      throw new MissingComponentError(this, compName);
-    }
-    return comp;
-  }
+	/**
+	 * @return true if it is pre-loaded. false if it is loaded on a need basis
+	 */
+	public boolean isGrouped() {
+		return this.isGrouped;
+	}
 
-  /**
-   * @param compName qualified component name
-   * @return instance of the desired component. Throws ApplicationError if this component is not
-   *     found. use getComponentOrNull() if you do not want an error
-   */
-  public Component getComponentOrNull(String compName) {
-    /*
-     * do we have it in our cache?
-     */
-    Object object = null;
-    if (this.cachedOnes != null) {
-      object = this.cachedOnes.get(compName);
-      if (object != null) {
-        return (Component) object;
-      }
-    }
+	/**
+	 * @param compName
+	 *            qualified component name
+	 * @return instance of the desired component. Throws ApplicationError if
+	 *         this component is not
+	 *         found. use getComponentOrNull() if you do not want an error
+	 */
+	public Component getComponent(String compName) {
+		Component comp = this.getComponentOrNull(compName);
+		/*
+		 * look no further if this is always cached
+		 */
+		if (comp == null) {
+			throw new MissingComponentError(this, compName);
+		}
+		return comp;
+	}
 
-    /*
-     * look no further if this is always cached
-     */
-    if (this.preLoaded) {
-      return null;
-    }
+	/**
+	 * @param compName
+	 *            qualified component name
+	 * @return instance of the desired component. Throws ApplicationError if
+	 *         this component is not
+	 *         found. use getComponentOrNull() if you do not want an error
+	 */
+	public Component getComponentOrNull(String compName) {
+		/*
+		 * do we have it in our cache?
+		 */
+		Object object = null;
+		if (this.cachedOnes != null) {
+			object = this.cachedOnes.get(compName);
+			if (object != null) {
+				return (Component) object;
+			}
+		}
 
-    object = this.generateComp(compName);
-    if (object == null) {
-      object = this.load(compName);
-    }
+		/*
+		 * look no further if this is always cached
+		 */
+		if (this.isGrouped) {
+			return null;
+		}
 
-    if (object == null) {
-      return null;
-    }
+		object = this.generateComp(compName);
+		if (object == null) {
+			object = this.load(compName);
+		}
 
-    Component comp = (Component) object;
-    comp.getReady();
-    if (this.cachedOnes != null) {
-      this.cachedOnes.put(compName, comp);
-    }
-    return comp;
-  }
+		if (object == null) {
+			return null;
+		}
 
-  /**
-   * get all pre-loaded Components
-   *
-   * @return map of all pre-loaded components
-   * @throws ApplicationError in case this type is not pre-loaded
-   */
-  public Collection<Object> getAll() {
-    if (this.preLoaded) {
-      return this.cachedOnes.values();
-    }
-    throw new ApplicationError(
-        this + " is not pre-loaded and hence we can not respond to getAll()");
-  }
+		Component comp = (Component) object;
+		comp.getReady();
+		if (this.cachedOnes != null) {
+			this.cachedOnes.put(compName, comp);
+		}
+		return comp;
+	}
 
-  /**
-   * replace the component in the cache.
-   *
-   * @param comp
-   */
-  public void replaceComponent(Component comp) {
-    if (this.cachedOnes == null || comp == null) {
-      return;
-    }
+	/**
+	 * get all pre-loaded Components
+	 *
+	 * @return map of all pre-loaded components
+	 * @throws ApplicationError
+	 *             in case this type is not pre-loaded
+	 */
+	public Collection<Object> getAll() {
+		if (this.isGrouped) {
+			return this.cachedOnes.values();
+		}
+		throw new ApplicationError(this + " is not pre-loaded and hence we can not respond to getAll()");
+	}
 
-    if (this.cls.isInstance(comp)) {
-      this.cachedOnes.put(comp.getQualifiedName(), comp);
-    } else if (this == ComponentType.SERVICE && comp instanceof ServiceInterface) {
-      /*
-       * that was bit clumsy, but the actual occurrence is rare, hence we
-       * live with that
-       */
-      this.cachedOnes.put(comp.getQualifiedName(), comp);
-    } else {
-      throw new ApplicationError(
-          "An object of type "
-              + comp.getClass().getName()
-              + " is being passed as component "
-              + this);
-    }
-  }
+	/**
+	 * replace the component in the cache.
+	 *
+	 * @param comp
+	 */
+	public void replaceComponent(Component comp) {
+		if (this.cachedOnes == null || comp == null) {
+			return;
+		}
 
-  /**
-   * remove the component from cache.
-   *
-   * @param compName fully qualified name
-   */
-  public void removeComponent(String compName) {
-    if (this.cachedOnes != null) {
-      this.cachedOnes.remove(compName);
-    }
-  }
+		if (this.cls.isInstance(comp)) {
+			this.cachedOnes.put(comp.getQualifiedName(), comp);
+		} else if (this == ComponentType.SERVICE && comp instanceof ServiceInterface) {
+			/*
+			 * that was bit clumsy, but the actual occurrence is rare, hence we
+			 * live with that
+			 */
+			this.cachedOnes.put(comp.getQualifiedName(), comp);
+		} else {
+			throw new ApplicationError(
+					"An object of type " + comp.getClass().getName() + " is being passed as component " + this);
+		}
+	}
 
-  /**
-   * service has a way to generate. We may have similar ones for other components in the future.
-   * Default is to return null, so that the actual type can override this
-   *
-   * @param compName
-   * @return
-   */
-  protected Component generateComp(String compName) {
-    return null;
-  }
+	/**
+	 * remove the component from cache.
+	 *
+	 * @param compName
+	 *            fully qualified name
+	 */
+	public void removeComponent(String compName) {
+		if (this.cachedOnes != null) {
+			this.cachedOnes.remove(compName);
+		}
+	}
 
-  /**
-   * load a component from storage into an instance
-   *
-   * @param compName
-   * @return un-initialized component, or null if it is not found
-   */
-  public Object load(String compName) {
-    if (this.preLoaded) {
-      return this.cachedOnes.get(compName);
-    }
-    String fileName =
-        componentFolder + this.folder + compName.replace(DELIMITER, FOLDER_CHAR) + EXTN;
-    Exception exp = null;
-    Object obj = null;
-    try {
-      obj = this.cls.newInstance();
-      if (XmlUtil.xmlToObject(fileName, obj) == false) {
-        /*
-         * load failed. obj is not valid any more.
-         */
-        obj = null;
-      }
-    } catch (Exception e) {
-      exp = e;
-    }
+	/**
+	 * service has a way to generate. We may have similar ones for other
+	 * components in the future.
+	 * Default is to return null, so that the actual type can override this
+	 *
+	 * @param compName
+	 * @return
+	 */
+	protected Component generateComp(String compName) {
+		return null;
+	}
 
-    if (exp != null) {
+	/**
+	 * load a component from storage into an instance
+	 *
+	 * @param compName
+	 * @return un-initialized component, or null if it is not found
+	 */
+	public Object load(String compName) {
+		if (this.isGrouped) {
+			return this.cachedOnes.get(compName);
+		}
+		String fileName = componentFolder + this.folder + compName.replace(DELIMITER, FOLDER_CHAR) + EXTN;
+		Exception exp = null;
+		Object obj = null;
+		try {
+			obj = this.cls.newInstance();
+			if (XmlUtil.xmlToObject(fileName, obj) == false) {
+				/*
+				 * load failed. obj is not valid any more.
+				 */
+				obj = null;
+			}
+		} catch (Exception e) {
+			exp = e;
+		}
 
-      logger.error("error while loading component " + compName, exp);
+		if (exp != null) {
 
-      return null;
-    }
-    if (obj == null) {
+			logger.error("error while loading component " + compName, exp);
 
-      logger.info("error while loading component " + compName);
+			return null;
+		}
+		if (obj == null) {
 
-      return null;
-    }
-    /*
-     * we insist that components be stored with the right naming convention
-     */
-    Component comp = (Component) obj;
-    String fullName = comp.getQualifiedName();
+			logger.info("error while loading component " + compName);
 
-    if (compName.equalsIgnoreCase(fullName) == false) {
+			return null;
+		}
+		/*
+		 * we insist that components be stored with the right naming convention
+		 */
+		Component comp = (Component) obj;
+		String fullName = comp.getQualifiedName();
 
-      logger.info(
-          "Component has a qualified name of "
-              + fullName
-              + " that is different from its storage name "
-              + compName);
+		if (compName.equalsIgnoreCase(fullName) == false) {
 
-      return null;
-    }
-    return comp;
-  }
+			logger.info("Component has a qualified name of " + fullName + " that is different from its storage name "
+					+ compName);
 
-  /**
-   * load all components inside folder. This is used by components that are pre-loaded. These are
-   * saved as collections, and not within their own files
-   *
-   * @param folder
-   * @param packageName
-   * @param objects
-   */
-  protected void loadAll() {
-    try {
-      loadGroups(this.folder, this.cls, this.cachedOnes);
-      /*
-       * we have to initialize the components
-       */
-      for (Object obj : this.cachedOnes.values()) {
-        ((Component) obj).getReady();
-      }
+			return null;
+		}
+		return comp;
+	}
 
-      logger.info(this.cachedOnes.size() + " " + this + " loaded.");
+	/**
+	 * load all components inside folder. This is used by components that are
+	 * pre-loaded. These are
+	 * saved as collections, and not within their own files
+	 *
+	 * @param folder
+	 * @param packageName
+	 * @param objects
+	 */
+	protected void loadAll() {
+		try {
+			loadGroups(this.folder, this.cls, this.cachedOnes);
+			/*
+			 * we have to initialize the components
+			 */
+			for (Object obj : this.cachedOnes.values()) {
+				((Component) obj).getReady();
+			}
 
-    } catch (Exception e) {
-      this.cachedOnes.clear();
+			logger.info(this.cachedOnes.size() + " " + this + " loaded.");
 
-      logger.error(
-          this
-              + " pre-loading failed. No component of this type is available till we successfully pre-load them again.",
-          e);
-    }
-  }
+		} catch (Exception e) {
+			this.cachedOnes.clear();
 
-  /**
-   * load all components inside folder. This is used by components that are pre-loaded. These are
-   * saved as collections, and not within their own files
-   *
-   * @param folderName
-   * @param rootClass this is typically the abstract class or the main class. Actual components
-   *     would be sub-class of this. However, they should be part of the same package. we use
-   *     package of this root class as the package for all components to be loaded. null if the
-   *     group is to be loaded as name-value pairs.
-   * @param objects
-   */
-  protected static void loadGroups(
-      String folderName, Class<?> rootClass, Map<String, Object> objects) {
-    String packageName = null;
-    if (rootClass != null) {
-      packageName = rootClass.getPackage().getName() + '.';
-    }
-    for (String resName : FileManager.getResources(componentFolder + folderName)) {
-      if (resName.endsWith(EXTN) == false) {
+			logger.error(
+					this + " pre-loading failed. No component of this type is available till we successfully pre-load them again.",
+					e);
+		}
+	}
 
-        logger.info("Skipping Non-resource " + resName);
+	/**
+	 * load all components inside folder. This is used by components that are
+	 * pre-loaded. These are
+	 * saved as collections, and not within their own files
+	 *
+	 * @param folderName
+	 * @param rootClass
+	 *            this is typically the abstract class or the main class. Actual
+	 *            components
+	 *            would be sub-class of this. However, they should be part of
+	 *            the same package. we use
+	 *            package of this root class as the package for all components
+	 *            to be loaded. null if the
+	 *            group is to be loaded as name-value pairs.
+	 * @param objects
+	 */
+	protected static void loadGroups(String folderName, Class<?> rootClass, Map<String, Object> objects) {
+		String packageName = null;
+		if (rootClass != null) {
+			packageName = rootClass.getPackage().getName() + '.';
+		}
+		for (String resName : FileManager.getResources(componentFolder + folderName)) {
+			if (resName.endsWith(EXTN) == false) {
 
-        continue;
-      }
+				logger.info("Skipping Non-resource " + resName);
 
-      logger.info("Going to load components from " + resName);
+				continue;
+			}
 
-      try {
-        XmlUtil.xmlToCollection(resName, objects, packageName);
-      } catch (Exception e) {
+			logger.info("Going to load components from " + resName);
 
-        logger.error("Resource " + resName + " failed to load.", e);
-      }
-    }
-  }
+			try {
+				XmlUtil.xmlToCollection(resName, objects, packageName);
+			} catch (Exception e) {
 
-  /*
-   * static methods that are used by infra-set up to load/cache components
-   */
-  /**
-   * MUST BE CALLED AS PART OF APPLICATION INIT. Initial load, or reload of components that are
-   * pre-loaded. It also resets and cached components that are not pre-loaded
-   */
-  private static void preLoad() {
-    serviceAliases.clear();
-    loadGroups(CLASS_FOLDER, null, serviceAliases);
+				logger.error("Resource " + resName + " failed to load.", e);
+			}
+		}
+	}
 
-    logger.info(serviceAliases.size() + " java class names loaded as services.");
+	/*
+	 * static methods that are used by infra-set up to load/cache components
+	 */
+	/**
+	 * MUST BE CALLED AS PART OF APPLICATION INIT. Initial load, or reload of
+	 * components that are
+	 * pre-loaded. It also resets and cached components that are not pre-loaded
+	 */
+	private static void preLoad() {
+		serviceAliases.clear();
+		loadGroups(CLASS_FOLDER, null, serviceAliases);
 
-    /*
-     * clean and pre-load if required
-     */
-    for (ComponentType aType : ComponentType.values()) {
-      if (aType.cachedOnes != null) {
-        aType.cachedOnes.clear();
-      }
-      if (aType.preLoaded) {
-        aType.loadAll();
-      }
-    }
-  }
+		logger.info(serviceAliases.size() + " java class names loaded as services.");
 
-  /** let components be cached once they are loaded. Typically used in production environment */
-  public static void startCaching() {
-    /*
-     * component caching happens if the collection exists
-     */
-    for (ComponentType aType : ComponentType.values()) {
-      if (aType.preLoaded == false) {
-        aType.cachedOnes = new HashMap<String, Object>();
-      }
-    }
-  }
+		/*
+		 * clean and pre-load if required
+		 */
+		for (ComponentType aType : ComponentType.values()) {
+			if (aType.cachedOnes != null) {
+				aType.cachedOnes.clear();
+			}
+			if (aType.isGrouped) {
+				aType.loadAll();
+			}
+		}
+	}
 
-  /** purge cached components, and do not cache any more. During development. */
-  public static void stopCaching() {
-    /*
-     * remove existing cache. Also, null implies that they are not be cached
-     */
-    for (ComponentType aType : ComponentType.values()) {
-      if (aType.preLoaded == false) {
-        aType.cachedOnes = null;
-      }
-    }
-  }
+	/**
+	 * let components be cached once they are loaded. Typically used in
+	 * production environment
+	 */
+	public static void startCaching() {
+		/*
+		 * component caching happens if the collection exists
+		 */
+		for (ComponentType aType : ComponentType.values()) {
+			if (aType.isGrouped == false) {
+				aType.cachedOnes = new HashMap<String, Object>();
+			}
+		}
+	}
 
-  /**
-   * set the root folder for components
-   *
-   * @param folder
-   * @return actual folder being used. Possible that the missing folder character is added at the
-   *     end
-   */
-  public static String setComponentFolder(String folder) {
-    componentFolder = folder;
-    if (folder.endsWith(FOLDER_STR) == false) {
-      componentFolder += FOLDER_CHAR;
-    }
+	/**
+	 * purge cached components, and do not cache any more. During development.
+	 */
+	public static void stopCaching() {
+		/*
+		 * remove existing cache. Also, null implies that they are not be cached
+		 */
+		for (ComponentType aType : ComponentType.values()) {
+			if (aType.isGrouped == false) {
+				aType.cachedOnes = null;
+			}
+		}
+	}
 
-    logger.info("component folder set to " + componentFolder);
+	/**
+	 * set the root folder for components
+	 *
+	 * @param folder
+	 * @return actual folder being used. Possible that the missing folder
+	 *         character is added at the
+	 *         end
+	 */
+	public static String setComponentFolder(String folder) {
+		componentFolder = folder;
+		if (folder.endsWith(FOLDER_STR) == false) {
+			componentFolder += FOLDER_CHAR;
+		}
 
-    /*
-     * Some components like data-type are to be pre-loaded for the app to
-     * work.
-     */
-    preLoad();
+		logger.info("component folder set to " + componentFolder);
 
-    logger.info("components pre-loaded");
+		/*
+		 * Some components like data-type are to be pre-loaded for the app to
+		 * work.
+		 */
+		preLoad();
 
-    return componentFolder;
-  }
+		logger.info("components pre-loaded");
 
-  /**
-   * @return return the component folder. This is absolute folder in case of non-web environment,
-   *     and relative to web-root in case of web environment. FileManager has the web-context if
-   *     required.
-   */
-  public static String getComponentFolder() {
-    return componentFolder;
-  }
+		return componentFolder;
+	}
+
+	/**
+	 * @return return the component folder. This is absolute folder in case of
+	 *         non-web environment,
+	 *         and relative to web-root in case of web environment. FileManager
+	 *         has the web-context if
+	 *         required.
+	 */
+	public static String getComponentFolder() {
+		return componentFolder;
+	}
+
+	/**
+	 * find out what type of resource is expected based on the folder-prefix
+	 *
+	 * @param fileName
+	 *            file name relative to to component root. for example
+	 *            dt/internal.xml or /service/tp/mod/s.xml
+	 * @return component type based on the folder, or null if no component type
+	 *         expects the folder structure
+	 */
+	public static ComponentType getTypeByFolder(String fileName) {
+		for (ComponentType ct : ComponentType.values()) {
+			if (fileName.startsWith(ct.getFolderPrefix())) {
+				return ct;
+			}
+		}
+		return null;
+	}
 }
