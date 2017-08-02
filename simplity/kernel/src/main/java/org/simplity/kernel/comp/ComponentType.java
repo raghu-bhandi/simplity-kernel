@@ -234,6 +234,13 @@ public enum ComponentType {
 	}
 
 	/**
+	 *
+	 * @return the base class of the underlying component
+	 */
+	public Class<?> getComponentClass(){
+		return this.cls;
+	}
+	/**
 	 * @param compName
 	 *            qualified component name
 	 * @return instance of the desired component. Throws ApplicationError if
