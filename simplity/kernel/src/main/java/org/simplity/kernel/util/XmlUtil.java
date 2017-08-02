@@ -210,7 +210,7 @@ public class XmlUtil {
 			if (rootElementName != null) {
 				String tagName = rootElement.getTagName();
 				if (rootElementName.equalsIgnoreCase(tagName) == false) {
-					logger.info("We are to load the object if the xml hs root tag as " + rootElementName + ". We got "
+					logger.info("We are to load the object if the xml has root tag as " + rootElementName + ". We got "
 							+ tagName + " and hence it is not loaded.");
 					return false;
 				}
@@ -253,7 +253,7 @@ public class XmlUtil {
 			if (rootElementName != null) {
 				String tagName = rootElement.getTagName();
 				if (rootElementName.equalsIgnoreCase(tagName) == false) {
-					logger.info("We are to load the object if the xml hs root tag as " + rootElementName + ". We got "
+					logger.info("We are to load the object if the xml has root tag as " + rootElementName + ". We got "
 							+ tagName + " and hence it is not loaded.");
 					return false;
 				}
