@@ -24,12 +24,13 @@ package org.simplity.kernel.data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.simplity.gateway.RespWriter;
 import org.simplity.json.JSONWriter;
-
+import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 
 /**
@@ -158,8 +159,7 @@ public class HierarchicalSheet {
 	 * @return
 	 */
 	public List<Value[]> getRows(Value[] parentRow) {
-		// TODO Auto-generated method stub
-		return null;
+		return this.data.get(parentRow[this.parentKeyIdx].toString());		
 	}
 
 	/**
