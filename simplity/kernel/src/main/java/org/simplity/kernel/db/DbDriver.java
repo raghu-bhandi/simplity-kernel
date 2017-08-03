@@ -22,9 +22,6 @@
  */
 package org.simplity.kernel.db;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -44,7 +41,6 @@ import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
 import org.simplity.kernel.ApplicationError;
-
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.DynamicSheet;
 import org.simplity.kernel.data.FieldsInterface;
@@ -54,6 +50,8 @@ import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.service.ResponseWriter;
 import org.simplity.service.ServiceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oracle.jdbc.driver.OracleConnection;
 import oracle.sql.ARRAY;
@@ -1758,6 +1756,13 @@ public class DbDriver {
     return dbVendor;
   }
 
+  /**
+   * is the driver set-up?
+ * @return true if the driver is ready to connect, false if no connections are possible
+   */
+  public static boolean isSetup(){
+	  return dbVendor != null;
+  }
   /**
    * @param con
    * @param schema

@@ -21,9 +21,6 @@
  */
 package org.simplity.kernel.value;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
@@ -36,10 +33,11 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import org.simplity.kernel.ApplicationError;
-
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.DateUtil;
 import org.simplity.kernel.util.JsonUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * basic type of values used to represent data values in application.
@@ -509,7 +507,7 @@ public enum ValueType {
       return result;
     }
   };
-	private static final Logger logger = LoggerFactory.getLogger(ValueType.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ValueType.class);
 
   protected static final String NULL = "null";
   protected static final char ZERO = '0';
