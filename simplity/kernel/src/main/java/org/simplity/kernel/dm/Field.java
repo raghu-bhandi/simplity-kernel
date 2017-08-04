@@ -22,9 +22,6 @@
  */
 package org.simplity.kernel.dm;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +30,6 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
-
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -45,6 +41,8 @@ import org.simplity.kernel.value.BooleanValue;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.service.ServiceProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a basic unit of data. Like unitPrice, dateOfBirth. This is used in different contexts,
@@ -823,16 +821,6 @@ public class Field {
     if (this.requiresDataType()) {
       if (this.dataType != null) {
         ctx.addReference(ComponentType.DT, this.dataType);
-      }
-      try {
-        DataType dt = ComponentManager.getDataTypeOrNull(this.dataType);
-        if (dt == null) {
-          ctx.addError("field " + this.name + " has an invalid data type of " + this.dataType);
-          count++;
-        }
-      } catch (Exception e) {
-        // means that the dt exists but it has errors while getting
-        // ready()
       }
       if (this.fieldType == FieldType.VALUE_ARRAY && this.sqlTypeName == null) {
         ctx.addError(
