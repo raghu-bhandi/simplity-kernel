@@ -1,0 +1,358 @@
+/*
+ * Copyright (c) 2017 simplity.org
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package org.simplity.gateway;
+
+import java.util.Map;
+
+import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.data.MultiRowsSheet;
+import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
+import org.simplity.service.ServiceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.protobuf.Descriptors.FieldDescriptor;
+import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
+import com.google.protobuf.Descriptors.FieldDescriptor.Type;
+import com.google.protobuf.Message;
+
+/**
+ * request reader for json input
+ *
+ * @author simplity.org
+ *
+ */
+public class ProtoReqReader implements ReqReader {
+	private static final Logger logger = LoggerFactory.getLogger(ReqReader.class);
+	/**
+	 * payload parsed into a Message object.
+	 */
+	private final Message inputMessage;
+
+	/**
+	 * instantiate a translator for the input payload
+	 *
+	 * @param message
+	 */
+	public ProtoReqReader(Message message) {
+		this.inputMessage = message;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.simplity.service.DataTranslator#saveRawInput(org.simplity.service.
+	 * ServiceContext, java.lang.String)
+	 */
+	@Override
+	public Object getRawInput() {
+		return this.inputMessage;
+	}
+
+	private static void throwError() {
+		throw new ApplicationError("ProtoReqReader can not be used for pulling data.");
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.DataTranslator#getValueType(java.lang.String)
+	 */
+	@Override
+	public InputValueType getValueType(String fieldName) {
+		throwError();
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#getValueType(int)
+	 */
+	@Override
+	public InputValueType getValueType(int idx) {
+		throwError();
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.DataTranslator#getValue(java.lang.String)
+	 */
+	@Override
+	public Object getValue(String fieldName) {
+		throwError();
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#openObject(java.lang.String)
+	 */
+	@Override
+	public boolean openObject(String attributeName) {
+		throwError();
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#openObject(int)
+	 */
+	@Override
+	public boolean openObject(int idx) {
+		throwError();
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#closeObject()
+	 */
+	@Override
+	public boolean closeObject() {
+		throwError();
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#openArray(java.lang.String)
+	 */
+	@Override
+	public boolean openArray(String attributeName) {
+		throwError();
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#openArray(int)
+	 */
+	@Override
+	public boolean openArray(int zeroBasedIdx) {
+		throwError();
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#endArray()
+	 */
+	@Override
+	public boolean closeArray() {
+		throwError();
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#getValue(int)
+	 */
+	@Override
+	public Object getValue(int zeroBasedIdx) {
+		throwError();
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#getNbrElements()
+	 */
+	@Override
+	public int getNbrElements() {
+		throwError();
+		return 0;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.service.ReqReader#getAttributeNames()
+	 */
+	@Override
+	public String[] getAttributeNames() {
+		throwError();
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.gateway.ReqReader#readAll(org.simplity.service.
+	 * ServiceContext)
+	 */
+	@Override
+	public void readAsPerSpec(ServiceContext ctx) {
+		for (Map.Entry<FieldDescriptor, Object> entry : this.inputMessage.getAllFields().entrySet()) {
+			Object fieldValue = entry.getValue();
+			if (fieldValue == null) {
+				continue;
+			}
+
+			FieldDescriptor fd = entry.getKey();
+			String fieldName = fd.getName();
+
+			/*
+			 * array
+			 */
+			if (fd.isRepeated()) {
+				DataSheet sheet = null;
+				if (fd.getJavaType() == JavaType.MESSAGE) {
+					sheet = getDataSheet((Message[]) fieldValue);
+				} else {
+					sheet = arrayToSheet(fieldName, (Object[]) fieldValue);
+				}
+				if (sheet != null) {
+					ctx.putDataSheet(fieldName, sheet);
+					logger.info("Table " + fieldName + " extracted with " + sheet.length() + " rows");
+				}
+				continue;
+			}
+
+			/*
+			 * embedded object
+			 */
+			if (fd.getJavaType() == JavaType.MESSAGE) {
+				DataSheet sheet = messageToSheet((Message) fieldValue);
+				if (sheet != null) {
+					ctx.putDataSheet(fieldName, sheet);
+					logger.info("Object " + fieldName + " extracted as a single-row data sheet.");
+				}
+				continue;
+			}
+			/*
+			 * primitive value
+			 */
+			ctx.setValue(fieldName, Value.parseObject(fieldValue));
+		}
+	}
+
+	/**
+	 * create a data sheet for an array of primitive values.
+	 *
+	 * @param fieldName
+	 * @param arr
+	 * @return data sheet with one column
+	 */
+	private static DataSheet arrayToSheet(String fieldName, Object[] arr) {
+		String[] names = { fieldName };
+		Value[][] values = new Value[arr.length][1];
+		for (int i = 0; i < arr.length; i++) {
+			values[i][0] = Value.parseObject(arr[i]);
+		}
+		return new MultiRowsSheet(names, values);
+	}
+
+	/**
+	 * @param value
+	 * @return
+	 */
+	private static DataSheet messageToSheet(Message message) {
+		/*
+		 * create a sheet with one row of data. We need names and types to
+		 * create data sheet, and in the process we also get first data row
+		 */
+		Map<FieldDescriptor, Object> fields = message.getAllFields();
+		int nbr = fields.size();
+		String[] names = new String[nbr];
+		ValueType[] types = new ValueType[nbr];
+		Value[] firstRow = new Value[nbr];
+
+		int col = 0;
+		for (Map.Entry<FieldDescriptor, Object> entry : fields.entrySet()) {
+			FieldDescriptor field = entry.getKey();
+			if (field.isRepeated() || field.getType() == Type.MESSAGE) {
+				throw new ApplicationError("We have not built features to accept arbitrary object structure, Only one level of child array/message is implemented");
+			}
+
+			names[col] = field.getName();
+			Object fieldValue = entry.getValue();
+			Value value = Value.parseObject(fieldValue);
+			firstRow[col] = value;
+			types[col] = value.getValueType();
+			col++;
+		}
+		/*
+		 *
+		 */
+		DataSheet ds = new MultiRowsSheet(names, types);
+		ds.addRow(firstRow);
+		return ds;
+	}
+
+	/**
+	 * create data sheet for an array of messages
+	 *
+	 * @param messages
+	 * @return
+	 */
+	private static DataSheet getDataSheet(Message[] messages) {
+		Message message = messages[0];
+		if (message == null) {
+			logger.info("array has its first object as null, and hence we abandoned parsing it.");
+			return null;
+		}
+		DataSheet ds = messageToSheet(message);
+		String[] names = ds.getColumnNames();
+		int nbrCols = names.length;
+		/*
+		 * first row was already added. start with i = 1;
+		 */
+		for (int i = 1; i < messages.length; i++) {
+			message = messages[i];
+			if (message == null) {
+				logger.info("Row " + (i + 1) + " is null. Not extracted");
+				continue;
+			}
+			Value[] row = new Value[nbrCols];
+			int j = 0;
+			/*
+			 * getAllFields() guarantees that the fields are always in the same
+			 * order. Hence row will have the right columns
+			 */
+			for (Object fieldValue : message.getAllFields().values()) {
+				if (j == nbrCols) {
+					throw new ApplicationError(
+							"ProtoReqReader has encountered a problem with field value collections.");
+				}
+				row[j] = Value.parseObject(fieldValue);
+				j++;
+			}
+			ds.addRow(row);
+		}
+		return ds;
+	}
+}
