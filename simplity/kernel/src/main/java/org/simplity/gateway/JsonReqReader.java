@@ -26,6 +26,11 @@ import java.util.Stack;
 
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
+import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.data.MultiRowsSheet;
+import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
+import org.simplity.service.ServiceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +72,7 @@ public class JsonReqReader implements ReqReader {
 	 * @param payload
 	 */
 	public JsonReqReader(String payload) {
-		logger.info("Payload received : = " , payload);
+		logger.info("Payload received : = ", payload);
 		if (payload == null || payload.isEmpty()) {
 			logger.info("Input is empty for translator.");
 			this.inputJson = null;
@@ -95,7 +100,7 @@ public class JsonReqReader implements ReqReader {
 	 * @param json
 	 */
 	public JsonReqReader(JSONObject json) {
-		logger.info("Payload Json : = " , json.toString());
+		logger.info("Payload Json : = ", json.toString());
 		this.currentObject = this.inputJson = json;
 		this.inputText = null;
 	}
@@ -295,7 +300,6 @@ public class JsonReqReader implements ReqReader {
 		return this.currentArray.opt(zeroBasedIdx);
 	}
 
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -316,10 +320,118 @@ public class JsonReqReader implements ReqReader {
 	 */
 	@Override
 	public String[] getAttributeNames() {
-		if(this.currentObject == null){
+		if (this.currentObject == null) {
 			return new String[0];
 		}
 		return JSONObject.getNames(this.currentObject);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.gateway.ReqReader#readAll(org.simplity.service.
+	 * ServiceContext)
+	 */
+	@Override
+	public void readAsPerSpec(ServiceContext ctx) {
+		for (String key : JSONObject.getNames(this.inputJson)) {
+			Object value = this.inputJson.opt(key);
+			switch (getType(value)) {
+			case ARRAY:
+				JSONArray arr = (JSONArray) value;
+				if (arr.length() != 0) {
+					DataSheet sheet = getSheet(arr);
+					if (sheet != null) {
+						ctx.putDataSheet(key, sheet);
+						logger.info("Table " + key + " extracted with " + sheet.length() + " rows");
+					}
+				}
+				break;
+
+			case OBJECT:
+				DataSheet sheet = getSheet((JSONObject) value);
+				if (sheet != null) {
+					ctx.putDataSheet(key, sheet);
+					logger.info("Object " + key + " extracted as a single-row data sheet.");
+				}
+				break;
+			case VALUE:
+				ctx.setValue(key, Value.parseObject(value));
+				break;
+			case NULL:
+				break;
+			default:
+				logger.error("JsonReqReader needs to have code to handle json value type of " + getType(value));
+			}
+
+		}
+	}
+
+	/**
+	 * @param value
+	 * @return
+	 */
+	private static DataSheet getSheet(JSONObject object) {
+		String[] names = JSONObject.getNames(object);
+		int nbr = names.length;
+		ValueType[] types = new ValueType[nbr];
+		Value[] values = new Value[nbr];
+
+		for (int i = 0; i < names.length; i++) {
+			Object obj = object.opt(names[i]);
+			InputValueType ivt = getType(obj);
+
+			if (ivt == null) {
+				types[i] = ValueType.TEXT;
+				values[i] = Value.newUnknownValue(ValueType.TEXT);
+				continue;
+			}
+
+			if (ivt == InputValueType.VALUE) {
+				Value value = Value.parseObject(obj);
+				values[i] = value;
+				types[i] = value.getValueType();
+				continue;
+			}
+			/*
+			 * we can not handle embedded object structures
+			 */
+			logger.error(
+					"Input contains arbitrary object structure that can not be parsed without input specification. Value not extracted");
+			return null;
+
+		}
+		DataSheet ds = new MultiRowsSheet(names, types);
+		ds.addRow(values);
+		return ds;
+	}
+
+	private static DataSheet getSheet(JSONArray arr) {
+		/*
+		 * we guess the fields based on the attributes of first element in
+		 * the array
+		 */
+		JSONObject exampleObject = arr.optJSONObject(0);
+		if (exampleObject == null) {
+			logger.info("Json array has its first object as null, and hence we abandoned parsing it.");
+			return null;
+		}
+		DataSheet ds = getSheet(exampleObject);
+		String[] names = ds.getColumnNames();
+		int nbrCols = names.length;
+		int nbr = arr.length();
+		for (int i = 1; i < nbr; i++){
+			JSONObject obj = arr.optJSONObject(i);
+			if (obj == null) {
+				logger.info("Row " + (i + 1) + " is null. Not extracted");
+				continue;
+			}
+			Value[] row = new Value[nbrCols];
+			for (int j = 0; j < names.length; j++) {
+				row[j] = Value.parseObject(obj.opt(names[j]));
+			}
+			ds.addRow(row);
+		}
+		return ds;
+	}
 }

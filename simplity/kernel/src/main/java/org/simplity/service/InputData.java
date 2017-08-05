@@ -22,7 +22,6 @@
 package org.simplity.service;
 
 import org.simplity.gateway.ReqReader;
-import org.simplity.gateway.ReqReader.InputValueType;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.AttachmentManager;
@@ -358,7 +357,7 @@ public class InputData {
 		}
 
 		if (this.justInputEveryThing) {
-			this.readAll(reader, ctx);
+			reader.readAsPerSpec(ctx);
 			return;
 		}
 
@@ -382,35 +381,6 @@ public class InputData {
 
 		if (this.attachmentColumns != null) {
 			storeColumnAttaches(this.attachmentColumns, ctx, true);
-		}
-	}
-
-	/**
-	 * extract data as it is with no validation
-	 *
-	 * @param reader
-	 * @param ctx
-	 */
-	private void readAll(ReqReader reader, ServiceContext ctx) {
-		String[] names = reader.getAttributeNames();
-		if (names == null || names.length == 0) {
-			logger.info("Input is empty");
-			return;
-		}
-		for (String name : names) {
-			ReqReader.InputValueType vt = reader.getValueType(name);
-			if (vt == InputValueType.NULL) {
-				continue;
-			}
-			if (vt == InputValueType.VALUE) {
-				Object obj = reader.getValue(name);
-				ctx.setValue(name, Value.parseObject(obj));
-				continue;
-			}
-			DataSheet sheet = InputRecord.readUnspecifiedSheet(reader, name);
-			if (sheet != null) {
-				ctx.putDataSheet(name, sheet);
-			}
 		}
 	}
 

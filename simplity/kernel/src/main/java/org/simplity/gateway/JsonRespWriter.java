@@ -24,6 +24,7 @@ package org.simplity.gateway;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Map;
 
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
@@ -31,6 +32,7 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
+import org.simplity.service.ServiceContext;
 
 /**
  * prepares a JSON response based on output specifications. Important to note
@@ -65,7 +67,8 @@ public class JsonRespWriter implements RespWriter {
 	private String cachingKey;
 
 	/**
-	 * valid if cachingKey is non-null. number of minutes after which this cache is to be invalidated. 0 means no such
+	 * valid if cachingKey is non-null. number of minutes after which this cache
+	 * is to be invalidated. 0 means no such
 	 */
 	private int cacheValidityMinutes;
 
@@ -74,6 +77,7 @@ public class JsonRespWriter implements RespWriter {
 	 * nothing is to be invalidated
 	 */
 	private String[] invalidations;
+
 	/**
 	 * crate a string writer.
 	 */
@@ -331,6 +335,7 @@ public class JsonRespWriter implements RespWriter {
 		this.writer.endArray();
 		return this;
 	}
+
 	/**
 	 * @return
 	 * 		get the key based on which the response can be cached.
@@ -386,5 +391,63 @@ public class JsonRespWriter implements RespWriter {
 		this.invalidations = invalidations;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.gateway.RespWriter#writeout(java.io.Writer)
+	 */
+	@Override
+	public void writeout(Writer riter) throws IOException {
+		if (this.writer == null) {
+			/*
+			 * stream was already closed
+			 */
+			return;
+		}
+		if (this.ioWriter == null) {
+			riter.write(this.writer.toString());
+		} else {
+			// it is already flushed
+		}
+		this.writer = null;
+		this.responseText = "";
+	}
 
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.gateway.RespWriter#writeAsPerSpec(org.simplity.service.
+	 * ServiceContext)
+	 */
+	@Override
+	public void writeAsPerSpec(ServiceContext ctx) {
+		this.checkNull();
+		/*
+		 * we are to write based on our spec
+		 */
+		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
+			this.field(entry.getKey(), entry.getValue());
+		}
+
+		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
+			DataSheet sheet = entry.getValue();
+			if (sheet == null || sheet.length() == 0) {
+				continue;
+			}
+
+			this.beginArray(entry.getKey());
+
+			int nbrRows = sheet.length();
+			String[] names = sheet.getColumnNames();
+			for (int i = 0; i < nbrRows; i++) {
+				Value[] row = sheet.getRow(i);
+				this.beginObject();
+				for (int j = 0; j < names.length; j++) {
+					this.field(names[j], row[i]);
+				}
+				this.endObject();
+			}
+			this.endArray();
+		}
+	}
 }

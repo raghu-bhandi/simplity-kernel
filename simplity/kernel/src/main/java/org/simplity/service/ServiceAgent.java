@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceAgent {
 	private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
-	private static final String[] EMPTY_ARRAY = {};
+	//private static final String[] EMPTY_ARRAY = {};
 	/** singleton instance that is instantiated with right parameters */
 	private static ServiceAgent instance;
 
@@ -397,6 +397,7 @@ public class ServiceAgent {
 	 * invalidate any cached response for this service
 	 *
 	 * @param serviceName
+	 * @param inData
 	 */
 	public void invalidateCache(String serviceName, ServiceData inData) {
 		if (instance.cacheManager != null) {

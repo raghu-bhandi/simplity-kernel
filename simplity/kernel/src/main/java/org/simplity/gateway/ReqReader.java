@@ -22,6 +22,8 @@
 
 package org.simplity.gateway;
 
+import org.simplity.service.ServiceContext;
+
 /**
  * translate data from data source to service context based on
  * InputDataSpecification, or create output data from service context based on
@@ -75,6 +77,7 @@ public interface ReqReader {
 	/**
 	 * close an object that was opened recently. Ensure that your open-close
 	 * calls are well co-ordinated
+	 *
 	 * @return true if we did close
 	 */
 	public boolean closeObject();
@@ -132,10 +135,20 @@ public interface ReqReader {
 	public String[] getAttributeNames();
 
 	/**
-	  * @return true if we did close
-
+	 * @return true if we did close
 	 */
 	public boolean closeArray();
+
+	/**
+	 * read all data into service context. This should be used only if we are
+	 * sure to have protected ourselves against arbitrary data coming in from
+	 * client. Should be used ONLY IF the reader itself driven by input
+	 * specification, like open-api or protobuff. Another use-case is for
+	 * utility services used internally.
+	 *
+	 * @param ctx
+	 */
+	public void readAsPerSpec(ServiceContext ctx);
 
 	/**
 	 * type of value received as input

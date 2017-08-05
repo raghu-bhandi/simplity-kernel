@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class OutputData {
-	private  static final Logger logger = LoggerFactory.getLogger(OutputData.class);
+	private static final Logger logger = LoggerFactory.getLogger(OutputData.class);
 
 	static final String EMPTY_RESPONSE = "{\"" + ServiceProtocol.REQUEST_STATUS + "\":\"" + ServiceProtocol.STATUS_OK
 			+ "\"}";
@@ -585,6 +585,17 @@ public class OutputData {
 			return;
 		}
 
+		/*
+		 * extract attachments if required
+		 */
+		if (this.attachmentFields != null) {
+			InputData.storeFieldAttaches(this.attachmentFields, ctx, false);
+		}
+
+		if (this.attachmentColumns != null) {
+			InputData.storeColumnAttaches(this.attachmentColumns, ctx, false);
+		}
+
 		if (this.responseTextFieldName != null) {
 			/*
 			 * service is supposed to have kept response ready for us
@@ -603,17 +614,6 @@ public class OutputData {
 		}
 
 		/*
-		 * extract attachments if required
-		 */
-		if (this.attachmentFields != null) {
-			InputData.storeFieldAttaches(this.attachmentFields, ctx, false);
-		}
-
-		if (this.attachmentColumns != null) {
-			InputData.storeColumnAttaches(this.attachmentColumns, ctx, false);
-		}
-
-		/*
 		 * messages
 		 */
 
@@ -625,7 +625,10 @@ public class OutputData {
 		}
 
 		if (this.justOutputEveryThing) {
-			writeAllFromCtx(writer, ctx);
+			/*
+			 * it is up to the writer to pick data
+			 */
+			writer.writeAsPerSpec(ctx);
 			return;
 		}
 
@@ -646,23 +649,6 @@ public class OutputData {
 				rec.write(writer, ctx);
 			}
 		}
-	}
-
-	/**
-	 * just dump everything from ctx to response
-	 *
-	 * @param writer
-	 * @param ctx
-	 */
-	public static void writeAllFromCtx(RespWriter writer, ServiceContext ctx) {
-		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
-			writer.field(entry.getKey(), entry.getValue());
-		}
-
-		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
-			OutputRecord.writeSheet(writer, entry.getKey(), entry.getValue(), null, false);
-		}
-
 	}
 
 	private void writeFields(RespWriter writer, ServiceContext ctx) {

@@ -22,7 +22,11 @@
 
 package org.simplity.gateway;
 
+import java.io.IOException;
+import java.io.Writer;
+
 import org.simplity.kernel.data.DataSheet;
+import org.simplity.service.ServiceContext;
 
 /**
  * @author simplity.org
@@ -114,7 +118,7 @@ public interface RespWriter {
 	public RespWriter beginObject();
 
 	/**
-	 * start name-object pair, and allow its attrivutes to be written out
+	 * start name-object pair, and allow its attributes to be written out
 	 *
 	 * @param objectName
 	 * @return writer, so that methods can be cascaded
@@ -163,12 +167,21 @@ public interface RespWriter {
 	/**
 	 *
 	 * @return final response as specific object. writer is closed, if it is not
-	 *         already closed
-	 *         You have to choose to use this method or getFinalResponseObject
-	 *         for optimal use by avoiding unnecessary
+	 *         already closed. You have to choose to use this method or
+	 *         getFinalResponseObject for optimal use by avoiding unnecessary
 	 *         serialization/de-serialization
 	 */
 	public Object getFinalResponseObject();
+
+	/**
+	 * job is done. flush out.
+	 *
+	 * @param writer
+	 *            to which output should be flushed to. null if the writer was
+	 *            created with a writer.
+	 * @throws IOException
+	 */
+	public void writeout(Writer writer) throws IOException;
 
 	/**
 	 * @return
@@ -202,10 +215,19 @@ public interface RespWriter {
 	 * 		cached keys that need to be invalidated
 	 */
 	public String[] getInvalidations();
+
 	/**
 	 * @param invalidations
 	 *            cached keys that need to be invalidated
 	 */
 	public void setInvalidations(String[] invalidations);
+
+	/**
+	 * Service has delegated writing to this writer. write out response based on
+	 * spec
+	 *
+	 * @param ctx
+	 */
+	public void writeAsPerSpec(ServiceContext ctx);
 
 }
