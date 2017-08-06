@@ -23,7 +23,8 @@
 package org.simplity.gateway;
 
 import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStream;
+import java.util.Collection;
 import java.util.List;
 
 import org.simplity.kernel.ApplicationError;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
+import com.google.protobuf.Descriptors.FieldDescriptor.Type;
 import com.google.protobuf.Message;
 import com.google.protobuf.Message.Builder;
 
@@ -51,7 +53,7 @@ public class ProtoRespWriter implements RespWriter {
 	/**
 	 * initialized on instantiation. set to null once writer is closed.
 	 */
-	private Message outputMessage;
+	private Builder messageBuilder;
 	/**
 	 * null till the writer is closed. will be null if the writer was not a
 	 * string writer. Keeps the final string, if the writer was not piped to any
@@ -80,11 +82,11 @@ public class ProtoRespWriter implements RespWriter {
 	/**
 	 * crate a string writer.
 	 *
-	 * @param message
+	 * @param builder
 	 *            that will receive the output
 	 */
-	public ProtoRespWriter(Message message) {
-		this.outputMessage = message;
+	public ProtoRespWriter(Builder builder) {
+		this.messageBuilder = builder;
 	}
 
 	/**
@@ -97,10 +99,7 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	@Override
 	public String getFinalResponseText() {
-		if (this.outputMessage != null) {
-			this.outputMessage = null;
-		}
-		return this.responseText;
+		return this.messageBuilder.build().toString();
 	}
 
 	/**
@@ -113,7 +112,7 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	@Override
 	public Object getFinalResponseObject() {
-		return this.getFinalResponseText();
+		return this.messageBuilder.build();
 	}
 
 	/**
@@ -321,8 +320,8 @@ public class ProtoRespWriter implements RespWriter {
 	 * @see org.simplity.gateway.RespWriter#writeout(java.io.Writer)
 	 */
 	@Override
-	public void writeout(Writer riter) throws IOException {
-		this.throwException();
+	public void writeout(OutputStream stream) throws IOException {
+		stream.write(this.messageBuilder.build().toByteArray());
 	}
 
 	/*
@@ -333,8 +332,8 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	@Override
 	public void writeAsPerSpec(ServiceContext ctx) {
-		Message.Builder builder = this.outputMessage.toBuilder();
-		for (FieldDescriptor fd : this.outputMessage.getAllFields().keySet()) {
+		Collection<FieldDescriptor>fields = this.messageBuilder.getDescriptorForType().getFields();
+		for (FieldDescriptor fd : fields) {
 			String fieldName = fd.getName();
 			/*
 			 * array
@@ -344,9 +343,9 @@ public class ProtoRespWriter implements RespWriter {
 				if (sheet == null || sheet.length() == 0) {
 					logger.info("No data for array field " + fieldName);
 				} else if (fd.getJavaType() == JavaType.MESSAGE) {
-					addMessages(builder, fd, sheet);
+					addMessages(this.messageBuilder, fd, sheet);
 				} else {
-					this.addArray(builder, fd, sheet);
+					this.addArray(this.messageBuilder, fd, sheet);
 				}
 				continue;
 			}
@@ -356,11 +355,11 @@ public class ProtoRespWriter implements RespWriter {
 			if (fd.getJavaType() == JavaType.MESSAGE) {
 				DataSheet sheet = ctx.getDataSheet(fieldName);
 				if (sheet == null || sheet.length() == 0) {
-					logger.info("No dta found for embedded maessage " + fieldName);
+					logger.info("No data found for embedded maessage " + fieldName);
 				} else {
-					Message child = createMessage(builder.newBuilderForField(fd), fd.getMessageType().getFields(), sheet);
+					Message child = createMessage(this.messageBuilder.newBuilderForField(fd), fd.getMessageType().getFields(), sheet);
 					if (child != null) {
-						builder.setField(fd, child);
+						this.messageBuilder.setField(fd, child);
 					}
 				}
 				continue;
@@ -370,10 +369,9 @@ public class ProtoRespWriter implements RespWriter {
 			 */
 			Value value = ctx.getValue(fieldName);
 			if (value != null) {
-				builder.setField(fd, value.toObject());
+				setFieldValue(this.messageBuilder, fd, value);
 			}
 		}
-		this.outputMessage = builder.build();
 	}
 
 	/**
@@ -424,7 +422,7 @@ public class ProtoRespWriter implements RespWriter {
 				if (idx >= 0) {
 					Value value = row[idx];
 					if(Value.isNull(value) == false){
-						builder.setField(fields.get(i), value.toObject());
+						setFieldValue(builder, fields.get(i), value);
 					}
 				}
 			}
@@ -435,6 +433,18 @@ public class ProtoRespWriter implements RespWriter {
 		}
 	}
 
+	private static void setFieldValue(Builder builder, FieldDescriptor fd, Value value){
+		Type type = fd.getType();
+		Object fieldValue = null;
+		if(type == Type.ENUM){
+			fieldValue = fd.getEnumType().findValueByName(value.toString());
+		}else if(type == Type.STRING){
+			fieldValue = value.toString();
+		}else{
+			fieldValue= value.toObject();
+		}
+		builder.setField(fd, fieldValue);
+	}
 	/**
 	 * @param newBuilderForField
 	 * @param fields

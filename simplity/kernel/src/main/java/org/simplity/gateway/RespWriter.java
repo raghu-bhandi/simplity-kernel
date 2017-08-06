@@ -23,7 +23,7 @@
 package org.simplity.gateway;
 
 import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStream;
 
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.service.ServiceContext;
@@ -176,12 +176,12 @@ public interface RespWriter {
 	/**
 	 * job is done. flush out.
 	 *
-	 * @param writer
+	 * @param stream
 	 *            to which output should be flushed to. null if the writer was
 	 *            created with a writer.
 	 * @throws IOException
 	 */
-	public void writeout(Writer writer) throws IOException;
+	public void writeout(OutputStream stream) throws IOException;
 
 	/**
 	 * @return

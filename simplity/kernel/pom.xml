@@ -111,6 +111,12 @@
 			<version>5.7.0</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>3.3.1</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<testResources>

@@ -23,6 +23,8 @@
 package org.simplity.gateway;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Map;
 
@@ -397,7 +399,7 @@ public class JsonRespWriter implements RespWriter {
 	 * @see org.simplity.gateway.RespWriter#writeout(java.io.Writer)
 	 */
 	@Override
-	public void writeout(Writer riter) throws IOException {
+	public void writeout(OutputStream stream) throws IOException {
 		if (this.writer == null) {
 			/*
 			 * stream was already closed
@@ -405,6 +407,7 @@ public class JsonRespWriter implements RespWriter {
 			return;
 		}
 		if (this.ioWriter == null) {
+			Writer riter = new OutputStreamWriter(stream);
 			riter.write(this.writer.toString());
 		} else {
 			// it is already flushed

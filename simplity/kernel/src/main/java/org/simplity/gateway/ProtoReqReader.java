@@ -22,8 +22,16 @@
 
 package org.simplity.gateway;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Map;
 
+import org.simplity.gateway.TtTroubleTicket.TroubleTicket.TroubleTicket_Statu;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.MultiRowsSheet;
@@ -216,7 +224,8 @@ public class ProtoReqReader implements ReqReader {
 	 */
 	@Override
 	public void readAsPerSpec(ServiceContext ctx) {
-		for (Map.Entry<FieldDescriptor, Object> entry : this.inputMessage.getAllFields().entrySet()) {
+		Map<FieldDescriptor, Object> fields = this.inputMessage.getAllFields();
+		for (Map.Entry<FieldDescriptor, Object> entry : fields.entrySet()) {
 			Object fieldValue = entry.getValue();
 			if (fieldValue == null) {
 				continue;
@@ -231,9 +240,10 @@ public class ProtoReqReader implements ReqReader {
 			if (fd.isRepeated()) {
 				DataSheet sheet = null;
 				if (fd.getJavaType() == JavaType.MESSAGE) {
-					sheet = getDataSheet((Message[]) fieldValue);
+					Message[] messages = ((Collection<?>) fieldValue).toArray(new Message[0]);
+					sheet = getDataSheet(messages);
 				} else {
-					sheet = arrayToSheet(fieldName, (Object[]) fieldValue);
+					sheet = arrayToSheet(fieldName, ((Collection<?>) fieldValue).toArray());
 				}
 				if (sheet != null) {
 					ctx.putDataSheet(fieldName, sheet);
@@ -258,6 +268,7 @@ public class ProtoReqReader implements ReqReader {
 			 */
 			ctx.setValue(fieldName, Value.parseObject(fieldValue));
 		}
+
 	}
 
 	/**
@@ -295,7 +306,8 @@ public class ProtoReqReader implements ReqReader {
 		for (Map.Entry<FieldDescriptor, Object> entry : fields.entrySet()) {
 			FieldDescriptor field = entry.getKey();
 			if (field.isRepeated() || field.getType() == Type.MESSAGE) {
-				throw new ApplicationError("We have not built features to accept arbitrary object structure, Only one level of child array/message is implemented");
+				throw new ApplicationError(
+						"We have not built features to accept arbitrary object structure, Only one level of child array/message is implemented");
 			}
 
 			names[col] = field.getName();
@@ -354,5 +366,140 @@ public class ProtoReqReader implements ReqReader {
 			ds.addRow(row);
 		}
 		return ds;
+	}
+
+	public static void main(String[] args) throws IOException {
+		/*
+		 * first create a local file with a trouble ticket. We can use this to
+		 * simulate HttpRequestInpiutStream
+		 */
+		String fileName = "c:/temp/a";
+		TtTroubleTicket.TroubleTicket ticket = createTicket();
+		createFile(fileName, ticket);
+		/*
+		 * create ticket using input stream
+		 */
+		TtTroubleTicket.TroubleTicket.Builder builder = TtTroubleTicket.TroubleTicket.newBuilder();
+		InputStream input = new FileInputStream(fileName);
+		builder.mergeFrom(input);
+		input.close();
+		ticket = builder.build();
+		logger.info("Input ticket is \n" + ticket.toString());
+		/*
+		 * create reqReader to extract data into ctx
+		 */
+		ReqReader reeder = new ProtoReqReader(ticket);
+		ServiceContext ctx = new ServiceContext("junk", Value.newTextValue("100"));
+		reeder.readAsPerSpec(ctx);
+
+		/*
+		 * simulate service execution by changing data in ctx
+		 */
+		ctx.setTextValue("severity", "warning");
+		DataSheet sheet = ctx.getDataSheet("note");
+		Value[] row = { Value.newTextValue("addedAuthor"), Value.newTextValue("added date"),
+				Value.newTextValue("added text") };
+		sheet.addRow(row);
+
+		/*
+		 * write data to file simulating response output stream
+		 */
+		RespWriter writer = new ProtoRespWriter(TtTroubleTicket.TroubleTicket.newBuilder());
+		writer.writeAsPerSpec(ctx);
+		writer.getFinalResponseObject();
+		logger.info("response text = \n " + writer.getFinalResponseText());
+		/*
+		 * though we are calling this .txt, it is actually in internal format of
+		 * protobuf. However, it can be opened and checked for data as text file, with some special characters
+		 */
+		OutputStream stream = new FileOutputStream(fileName + ".txt");
+		writer.writeout(stream);
+		stream.close();
+	}
+
+	private static TtTroubleTicket.TroubleTicket createTicket() {
+		TtTroubleTicket.TroubleTicket.Builder builder = TtTroubleTicket.TroubleTicket.newBuilder();
+		builder.setCorrelationId("cor123");
+		builder.setCreationDate("2017-06-27T12:21:23.234Z");
+		builder.setDescription("tt description");
+		builder.setId("id1");
+
+		TtTroubleTicket.Note.Builder noteBuilder = TtTroubleTicket.Note.newBuilder();
+		for (int i = 1; i < 3; i++) {
+			noteBuilder.clear();
+			noteBuilder.setAuthor("auth" + i);
+			noteBuilder.setDate("2016-12-31");
+			noteBuilder.setText("author-" + i + " text");
+			builder.addNote(noteBuilder.build());
+		}
+
+		TtTroubleTicket.RelatedObject.Builder raBuilder = TtTroubleTicket.RelatedObject.newBuilder();
+		for (int i = 1; i < 4; i++) {
+			raBuilder.clear();
+			raBuilder.setInvolvement("inv-" + i);
+			raBuilder.setReference("reference-" + i);
+			builder.addRelatedObject(raBuilder.build());
+		}
+
+		TtTroubleTicket.RelatedParty.Builder rpBuilder = TtTroubleTicket.RelatedParty.newBuilder();
+		for (int i = 1; i < 6; i++) {
+			rpBuilder.clear();
+			rpBuilder.setHref("urlll-" + i);
+			rpBuilder.setRole("rollole-" + i);
+			builder.addRelatedParty(rpBuilder.build());
+		}
+
+		builder.setSeverity("error");
+		builder.setStatus(TroubleTicket_Statu.TROUBLETICKET_STATU_ACKNOWLEDGED);
+		builder.setType("ttType1");
+
+		return builder.build();
+	}
+
+	/**
+	 *
+	 * @param fileName
+	 */
+	private static void createFile(String fileName, TtTroubleTicket.TroubleTicket ticket) {
+		File file = new File(fileName);
+		OutputStream stream = null;
+		try {
+			stream = new FileOutputStream(file);
+			stream.write(ticket.toByteArray());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (Exception e) {
+					//
+				}
+			}
+		}
+	}
+
+	private static TtTroubleTicket.TroubleTicket loadTicket(String fileName) {
+		File file = new File(fileName);
+		InputStream stream = null;
+		try {
+			stream = new FileInputStream(file);
+			TtTroubleTicket.TroubleTicket.Builder builder = TtTroubleTicket.TroubleTicket.newBuilder();
+			builder.mergeFrom(stream);
+			return builder.build();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (Exception e) {
+					//
+				}
+			}
+		}
+		return null;
 	}
 }
