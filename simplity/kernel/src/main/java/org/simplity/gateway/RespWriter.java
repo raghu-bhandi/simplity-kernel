@@ -177,8 +177,8 @@ public interface RespWriter {
 	 * job is done. flush out.
 	 *
 	 * @param stream
-	 *            to which output should be flushed to. null if the writer was
-	 *            created with a writer.
+	 *            to which output should be flushed to. null if the writer is
+	 *            already bound to a stream.
 	 * @throws IOException
 	 */
 	public void writeout(OutputStream stream) throws IOException;

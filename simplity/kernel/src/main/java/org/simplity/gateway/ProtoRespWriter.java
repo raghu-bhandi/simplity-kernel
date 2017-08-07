@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.simplity.kernel.ApplicationError;
+import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
@@ -55,12 +56,10 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	private Builder messageBuilder;
 	/**
-	 * null till the writer is closed. will be null if the writer was not a
-	 * string writer. Keeps the final string, if the writer was not piped to any
-	 * other output
+	 * in case the service has returned with errors, we hav e the text here, and
+	 * the builder should not be used.
 	 */
-	private final String responseText = "";
-
+	private String errorText;
 	/**
 	 * key by which this response can be cached. It is serviceName, possibly
 	 * appended with values of some key-fields. null means can not be cached
@@ -99,7 +98,10 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	@Override
 	public String getFinalResponseText() {
+		if(this.errorText == null){
 		return this.messageBuilder.build().toString();
+		}
+		return this.errorText;
 	}
 
 	/**
@@ -112,7 +114,10 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	@Override
 	public Object getFinalResponseObject() {
+		if(this.errorText == null){
 		return this.messageBuilder.build();
+		}
+		return null;
 	}
 
 	/**
@@ -332,7 +337,15 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	@Override
 	public void writeAsPerSpec(ServiceContext ctx) {
-		Collection<FieldDescriptor>fields = this.messageBuilder.getDescriptorForType().getFields();
+		/*
+		 * are there errors?
+		 */
+		if (ctx.isInError()) {
+			this.errorText = FormattedMessage.toString(ctx.getMessages());
+			return;
+		}
+
+		Collection<FieldDescriptor> fields = this.messageBuilder.getDescriptorForType().getFields();
 		for (FieldDescriptor fd : fields) {
 			String fieldName = fd.getName();
 			/*
@@ -357,7 +370,8 @@ public class ProtoRespWriter implements RespWriter {
 				if (sheet == null || sheet.length() == 0) {
 					logger.info("No data found for embedded maessage " + fieldName);
 				} else {
-					Message child = createMessage(this.messageBuilder.newBuilderForField(fd), fd.getMessageType().getFields(), sheet);
+					Message child = createMessage(this.messageBuilder.newBuilderForField(fd),
+							fd.getMessageType().getFields(), sheet);
 					if (child != null) {
 						this.messageBuilder.setField(fd, child);
 					}
@@ -381,9 +395,9 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	private void addArray(Builder builder, FieldDescriptor fd, DataSheet sheet) {
 		int nbr = sheet.length();
-		for(int i = 0; i < nbr; i++){
+		for (int i = 0; i < nbr; i++) {
 			Value value = sheet.getRow(i)[0];
-			if(Value.isNull(value) == false){
+			if (Value.isNull(value) == false) {
 				builder.addRepeatedField(fd, value.toObject());
 			}
 		}
@@ -406,7 +420,8 @@ public class ProtoRespWriter implements RespWriter {
 		for (int i = 0; i < colIndexes.length; i++) {
 			FieldDescriptor field = fields.get(i);
 			if (field.isRepeated() || field.getJavaType() == JavaType.MESSAGE) {
-				throw new ApplicationError("We are yet to implement arbitrary object structures. Only one level of chil-array/message is handled.");
+				throw new ApplicationError(
+						"We are yet to implement arbitrary object structures. Only one level of chil-array/message is handled.");
 			}
 			colIndexes[i] = sheet.getColIdx(field.getName());
 		}
@@ -421,7 +436,7 @@ public class ProtoRespWriter implements RespWriter {
 				int idx = colIndexes[i];
 				if (idx >= 0) {
 					Value value = row[idx];
-					if(Value.isNull(value) == false){
+					if (Value.isNull(value) == false) {
 						setFieldValue(builder, fields.get(i), value);
 					}
 				}
@@ -433,18 +448,19 @@ public class ProtoRespWriter implements RespWriter {
 		}
 	}
 
-	private static void setFieldValue(Builder builder, FieldDescriptor fd, Value value){
+	private static void setFieldValue(Builder builder, FieldDescriptor fd, Value value) {
 		Type type = fd.getType();
 		Object fieldValue = null;
-		if(type == Type.ENUM){
+		if (type == Type.ENUM) {
 			fieldValue = fd.getEnumType().findValueByName(value.toString());
-		}else if(type == Type.STRING){
+		} else if (type == Type.STRING) {
 			fieldValue = value.toString();
-		}else{
-			fieldValue= value.toObject();
+		} else {
+			fieldValue = value.toObject();
 		}
 		builder.setField(fd, fieldValue);
 	}
+
 	/**
 	 * @param newBuilderForField
 	 * @param fields
@@ -453,7 +469,8 @@ public class ProtoRespWriter implements RespWriter {
 	private static Message createMessage(Builder builder, List<FieldDescriptor> fields, DataSheet sheet) {
 		for (FieldDescriptor field : fields) {
 			if (field.isRepeated() || field.getJavaType() == JavaType.MESSAGE) {
-				throw new ApplicationError("We are yet to implement arbitrary object structures. Only one level of chil-array/message is handled.");
+				throw new ApplicationError(
+						"We are yet to implement arbitrary object structures. Only one level of chil-array/message is handled.");
 			}
 			Value value = sheet.getColumnValue(field.getName(), 0);
 			if (Value.isNull(value) == false) {

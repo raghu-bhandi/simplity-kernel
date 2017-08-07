@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.auth.AuthRequirement;
+import org.simplity.gateway.ProtoReqReader;
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
@@ -42,6 +43,8 @@ import org.simplity.rest.param.Parameter;
 import org.simplity.service.ServiceProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.protobuf.Message.Builder;
 
 /**
  * specification for an operation based on Open API/swgger.
@@ -94,6 +97,7 @@ public class Operation {
 	/**
 	 * @param operationSpec
 	 * @param serviceName
+	 * @param defaultAuths
 	 */
 	public Operation(JSONObject operationSpec, String serviceName, AuthRequirement[] defaultAuths) {
 		this.serviceName = serviceName;
@@ -444,8 +448,6 @@ public class Operation {
 		}
 	}
 
-
-
 	/**
 	 * writes response based on service output and service spec on successful
 	 * service execution
@@ -514,5 +516,28 @@ public class Operation {
 	 */
 	public AuthRequirement[] getAuthSchemes() {
 		return this.authSchemes;
+	}
+
+	/*
+	 * methods added to handle protobuf using swagger/open api.
+	 */
+	/**
+	 * create a reader for this operation
+	 *
+	 * @param req
+	 * @return reader that marshals input data to service context
+	 * @throws IOException
+	 */
+	public ProtoReqReader getProtoReader(HttpServletRequest req) throws IOException {
+		Builder builder = Operations.getMessageBuilder(this.bodyParameter.getName());
+		builder.mergeFrom(req.getInputStream());
+		return new ProtoReqReader(builder.build());
+	}
+
+	/**
+	 * @return default success response
+	 */
+	public Response getDefaultResponse() {
+		return this.defaultResponse;
 	}
 }

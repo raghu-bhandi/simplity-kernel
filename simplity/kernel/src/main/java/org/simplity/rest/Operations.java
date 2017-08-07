@@ -30,12 +30,16 @@ import org.simplity.auth.AuthRequirement;
 import org.simplity.auth.AuthType;
 import org.simplity.auth.SecurityAgent;
 import org.simplity.json.JSONObject;
+import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.HierarchicalSheet;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.JsonUtil;
+import org.simplity.kernel.util.TextUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.protobuf.Message.Builder;
 
 /**
  * static class that gets swagger/openApi for a given url
@@ -44,8 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class Operations {
-	private  static final Logger logger = LoggerFactory.getLogger(HierarchicalSheet.class);
-
+	private static final Logger logger = LoggerFactory.getLogger(HierarchicalSheet.class);
 
 	/**
 	 * root node of the path-tree that holds service spec for paths
@@ -172,7 +175,7 @@ public class Operations {
 			String json = FileManager.readResource(fileName);
 			loadFromJsonText(json);
 		} catch (Exception e) {
-			logger.info(e.getMessage() +  ". Error while loading open-api spec " + fileName);
+			logger.info(e.getMessage() + ". Error while loading open-api spec " + fileName);
 		}
 	}
 
@@ -199,10 +202,11 @@ public class Operations {
 			logger.info(" No paths in the API");
 			return;
 		}
-		
+
 		JSONObject secs = json.optJSONObject(Tags.SEC_DEF_ATTR);
-		if(secs!=null)
+		if (secs != null) {
 			addSecurityDefinitions(secs);
+		}
 		/*
 		 * for run-time efficiency, we substitute refs with actual JSON
 		 */
@@ -212,7 +216,6 @@ public class Operations {
 		AuthRequirement[] defaultAuths = AuthRequirement.parse(json.optJSONArray(Tags.SECURITY_ATTR));
 		loadAnApi(paths, basePath, moduleName, defaultAuths);
 	}
-
 
 	/**
 	 * add security definitions. What if there are more than one api files, and
@@ -248,7 +251,7 @@ public class Operations {
 
 	/**
 	 * @param paths
-	 * @param secs 
+	 * @param secs
 	 * @param basePath
 	 */
 	private static void loadAnApi(JSONObject paths, String basePath, String moduleName,
@@ -304,13 +307,13 @@ public class Operations {
 
 	/**
 	 * get the agent associated with this authenticationId
+	 *
 	 * @param authSchemeName
 	 * @return agent or null if no such agent
 	 */
-	public static SecurityAgent getSecurityAgent(String authSchemeName){
+	public static SecurityAgent getSecurityAgent(String authSchemeName) {
 		return securitySchemes.get(authSchemeName);
 	}
-
 
 	/**
 	 *
@@ -321,7 +324,7 @@ public class Operations {
 		String txt = FileManager.readFile(new File(rootFolder + "troubleTicket.json.txt"));
 		JSONObject swagger = new JSONObject(txt);
 		JSONObject defs = swagger.optJSONObject(Tags.DEFS_ATTR);
-		if(defs == null){
+		if (defs == null) {
 			logger.info("No defintions found");
 			return;
 		}
@@ -330,18 +333,21 @@ public class Operations {
 		Record[] recs = Record.fromSwaggerDefinitions(null, defs);
 		logger.info(recs.length + " records generated");
 		/*
-		loadFromFile(rootFolder+"junk.json");
-		Operation op = rootNode.getChild("app").getChild("t").getOpertion("post");
-		System.out.print("");
-		loadAll(rootFolder);
-		JSONObject params = new JSONObject();
-		Operation spec = getServiceSpec("/app/troubleTicket/1234", "get", params);
-		if (spec == null) {
-			logger.info("That is not a valid request");
-		} else {
-			System.out.println("ServiceName is " + spec.getServiceName());
-			System.out.println("params is " + params.toString(2));
-		}*/
+		 * loadFromFile(rootFolder+"junk.json");
+		 * Operation op =
+		 * rootNode.getChild("app").getChild("t").getOpertion("post");
+		 * System.out.print("");
+		 * loadAll(rootFolder);
+		 * JSONObject params = new JSONObject();
+		 * Operation spec = getServiceSpec("/app/troubleTicket/1234", "get",
+		 * params);
+		 * if (spec == null) {
+		 * logger.info("That is not a valid request");
+		 * } else {
+		 * System.out.println("ServiceName is " + spec.getServiceName());
+		 * System.out.println("params is " + params.toString(2));
+		 * }
+		 */
 	}
 	/*
 	 * 1. parameters and responses at the root level to be used as reference
@@ -349,4 +355,37 @@ public class Operations {
 	 * objects/primitive. How do we want to handle that?
 	 *
 	 */
+
+	private static String protoPrefix = null;
+
+	/**
+	 * create a protobuf builder for the parameter
+	 *
+	 * @param paramName
+	 * @return protobuf builder for the class corresponding to the parameter
+	 */
+	public static Builder getMessageBuilder(String paramName) {
+		if (protoPrefix == null) {
+			throw new ApplicationError(
+					"protobuf is used without setting prefix. use proto-class-prefix web-context parameter for this. For example org.simplity.examples.tt.proto.ttTroubleTicket$");
+		}
+		String className = protoPrefix + TextUtil.nameToClassName(paramName);
+		try {
+			Class<?> cls = Class.forName(className);
+			return (Builder) cls.getMethod("newBuilder").invoke(null);
+
+		} catch (Exception e) {
+			throw new ApplicationError(
+					"Error while creating a builder for parameter named '" + className + "'. " + e.getMessage());
+		}
+	}
+
+	/**
+	 * @param prefix
+	 *            that has packageName and root class name ending with $ for
+	 *            proto class names to be qualified
+	 */
+	public static void setProtoClassPrefix(String prefix) {
+		protoPrefix = prefix;
+	}
 }

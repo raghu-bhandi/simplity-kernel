@@ -26,6 +26,7 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.gateway.ProtoRespWriter;
 import org.simplity.json.JSONArray;
 import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
@@ -38,6 +39,8 @@ import org.simplity.rest.param.Parameter;
 import org.simplity.service.ServiceProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.protobuf.Message.Builder;
 
 /**
  * represents a response from a swagger (open api) document
@@ -277,5 +280,18 @@ public class Response {
 			JsonUtil.addObject(writer, messages);
 			writer.endObject();
 		}
+	}
+
+	/*
+	 * methods added for proto
+	 */
+
+	/**
+	 * @param resp
+	 * @return response writer for this response
+	 */
+	public ProtoRespWriter getProtoWriter(HttpServletResponse resp) {
+		Builder builder = Operations.getMessageBuilder(this.bodyParameter.getName());
+		return new ProtoRespWriter(builder);
 	}
 }

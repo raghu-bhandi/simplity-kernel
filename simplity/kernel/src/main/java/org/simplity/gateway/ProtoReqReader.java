@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Map;
 
@@ -368,7 +369,12 @@ public class ProtoReqReader implements ReqReader {
 		return ds;
 	}
 
-	public static void main(String[] args) throws IOException {
+	/**
+	 *
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args) throws Exception {
 		/*
 		 * first create a local file with a trouble ticket. We can use this to
 		 * simulate HttpRequestInpiutStream
@@ -379,7 +385,15 @@ public class ProtoReqReader implements ReqReader {
 		/*
 		 * create ticket using input stream
 		 */
-		TtTroubleTicket.TroubleTicket.Builder builder = TtTroubleTicket.TroubleTicket.newBuilder();
+		String classPrefix = "org.simplity.gateway.TtTroubleTicket$";
+		String className = "TroubleTicket";
+		Class<?> cls = Class.forName(classPrefix + className);
+		logger.info("Created class " + cls.getName());
+		Method method = cls.getMethod("newBuilder");
+		Object obj = method.invoke(null);
+
+		//TtTroubleTicket.TroubleTicket.Builder builder = TtTroubleTicket.TroubleTicket.newBuilder();
+		TtTroubleTicket.TroubleTicket.Builder builder = (TtTroubleTicket.TroubleTicket.Builder)obj;
 		InputStream input = new FileInputStream(fileName);
 		builder.mergeFrom(input);
 		input.close();
@@ -467,7 +481,6 @@ public class ProtoReqReader implements ReqReader {
 			stream = new FileOutputStream(file);
 			stream.write(ticket.toByteArray());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			if (stream != null) {

@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.simplity.gateway.ProtoInboundAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -42,22 +43,23 @@ import org.slf4j.MDC;
  *
  */
 public class Serve extends HttpServlet {
-	private  static final Logger logger = LoggerFactory.getLogger(Serve.class);
+	private static final Logger logger = LoggerFactory.getLogger(Serve.class);
 
 	private static final long serialVersionUID = 1L;
-
 
 	/**
 	 * post is to be used by client in AJAX call.
 	 */
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
 			/** Correlation ID has be available from the beginning **/
-			MDC.put(Tags.CORRELATION_ID, getCorrelationId(req));
-			
-			RestInboundAgent.serve(req, resp);
+			MDC.put(Tags.CORRELATION_ID, this.getCorrelationId(req));
+			if (req.getContentType().equalsIgnoreCase("application/octet-stream")) {
+				ProtoInboundAgent.serve(req, resp);
+			} else {
+				RestInboundAgent.serve(req, resp);
+			}
 		} catch (Exception e) {
 			String msg = "We have an internal error. ";
 			logger.info(msg + e.getMessage());
@@ -66,70 +68,84 @@ public class Serve extends HttpServlet {
 		}
 	}
 
-
 	/**
 	 * Get is to be used ONLY IF POST is not possible for some reason. From
 	 * security angle POST is preferred
 	 */
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		this.doPost(req, resp);
 	}
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doDelete(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see javax.servlet.http.HttpServlet#doDelete(javax.servlet.http.
+	 * HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		this.doPost(req, resp);
 	}
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doHead(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see javax.servlet.http.HttpServlet#doHead(javax.servlet.http.
+	 * HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
 	protected void doHead(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		this.doPost(req, resp);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doOptions(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see javax.servlet.http.HttpServlet#doOptions(javax.servlet.http.
+	 * HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
 	protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		this.doPost(req, resp);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doPut(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see javax.servlet.http.HttpServlet#doPut(javax.servlet.http.
+	 * HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		this.doPost(req, resp);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.servlet.http.HttpServlet#doTrace(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see javax.servlet.http.HttpServlet#doTrace(javax.servlet.http.
+	 * HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
 	protected void doTrace(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		this.doPost(req, resp);
 	}
-	
 
 	private String getCorrelationId(HttpServletRequest req) {
 
-	    String correlationId = req.getHeader(Tags.CORRELATION_ID);
-	    if (correlationId == null) {
-	    	correlationId = req.getParameter(Tags.CORRELATION_ID);
-	    }
-	    if (correlationId == null) {
-	    	correlationId = (String) req.getAttribute(Tags.CORRELATION_ID);
-	    }
-	    if (correlationId == null) {	  
-	    	String uuidGen = UUID.randomUUID().toString();
-	    	correlationId = uuidGen.substring(uuidGen.length() - 9);
-	    }
-	    return correlationId;
+		String correlationId = req.getHeader(Tags.CORRELATION_ID);
+		if (correlationId == null) {
+			correlationId = req.getParameter(Tags.CORRELATION_ID);
+		}
+		if (correlationId == null) {
+			correlationId = (String) req.getAttribute(Tags.CORRELATION_ID);
+		}
+		if (correlationId == null) {
+			String uuidGen = UUID.randomUUID().toString();
+			correlationId = uuidGen.substring(uuidGen.length() - 9);
+		}
+		return correlationId;
 	}
 
 }

@@ -22,9 +22,6 @@
  */
 package org.simplity.rest;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.MalformedURLException;
 
 import javax.servlet.ServletContext;
@@ -32,8 +29,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import org.simplity.kernel.Application;
-
 import org.simplity.kernel.file.FileManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * to be configured to run as a startup servlet when Simplity application needs to be exposed as
@@ -56,6 +54,10 @@ public class Startup extends HttpServlet {
   public static final String DEFAULT_COMP_FOLDER = "/WEB-INF/comp/";
   /** default folder for api */
   public static final String DEFAULT_API_FOLDER = "/WEB-INF/api/";
+  /**
+   *
+   */
+  public static final String PROTO_CLASS_PREFIX = "proto-class-prefix";
 
   @Override
   public void init() throws ServletException {
@@ -138,5 +140,14 @@ public class Startup extends HttpServlet {
 
       logger.error("Unable to load APIs from folder " + folder + ". Application will not work.", e);
     }
+
+    String protoClassPrefix = ctx.getInitParameter(PROTO_CLASS_PREFIX);
+    if(protoClassPrefix == null){
+    	logger.info(PROTO_CLASS_PREFIX + " is not set in web context. protobuf utilities will not work");
+    }else{
+    	Operations.setProtoClassPrefix(protoClassPrefix);
+    	logger.info("All proto classes will be prefixed with " + protoClassPrefix + " to get their actual class.");
+    }
+
   }
 }

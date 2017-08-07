@@ -19,13 +19,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.rest;
+package org.simplity.gateway;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -33,14 +30,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.auth.AuthRequirement;
 import org.simplity.auth.OAuth2Agent;
-import org.simplity.gateway.Cacher;
-import org.simplity.gateway.JsonReqReader;
-import org.simplity.gateway.JsonRespWriter;
-import org.simplity.gateway.ReqReader;
-import org.simplity.gateway.RespWriter;
-import org.simplity.json.JSONObject;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.value.Value;
+import org.simplity.rest.Operation;
+import org.simplity.rest.Operations;
+import org.simplity.rest.Response;
 import org.simplity.service.ServiceAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,15 +46,10 @@ import org.slf4j.LoggerFactory;
  * @author simplity.org
  *
  */
-public class RestInboundAgent {
-	private  static final Logger logger = LoggerFactory.getLogger(RestInboundAgent.class);
+public class ProtoInboundAgent {
+	private static final Logger logger = LoggerFactory.getLogger(ProtoInboundAgent.class);
 	private static final String UTF = "UTF-8";
-	private static final int MILLIS = 60000;
 
-	/**
-	 * cache assistant
-	 */
-	private static Cacher cacher;
 
 	/**
 	 * message to be sent to client if there is any internal error
@@ -113,11 +102,7 @@ public class RestInboundAgent {
 				path = path.substring(idx);
 				logger.info("Going to use path=" + path + " for mapping this request to an operation/service");
 			}
-			/*
-			 * parse body and query string into json object
-			 */
-			JSONObject pathJson = new JSONObject();
-			Operation operation = Operations.getOperation(path, req.getMethod().toLowerCase(), pathJson);
+			Operation operation = Operations.getOperation(path, req.getMethod().toLowerCase(), null);
 			if (operation == null) {
 				respondWithError(resp, "We do not serve that request path");
 				return;
@@ -142,73 +127,30 @@ public class RestInboundAgent {
 				}
 			}
 			/*
-			 * using operation specification, get service name and input data
+			 * get ready to call service agent..
 			 */
-			JSONObject json = new JSONObject();
-			List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
-			String serviceName = operation.prepareRequest(req, json, pathJson, messages);
-
-			if (messages.size() > 0) {
-				logger.info("Input data has validation errors. Responding back without calling the service");
-				operation.writeResponse(resp, messages.toArray(new FormattedMessage[0]));
-				return;
-			}
-
+			String serviceName = operation.getServiceName();
 			logger.info("Request received for service " + serviceName);
-
+			ProtoReqReader reader = operation.getProtoReader(req);
 			Value userId = Value.newTextValue("100");
-			ReqReader reader = new JsonReqReader(json);
 			ServiceAgent agent = ServiceAgent.getAgent();
-			if (cacher != null) {
-				String cacheKey = agent.getCachingKey(serviceName, reader, userId);
-				if(cacheKey != null){
-					Object cache = cacher.get(cacheKey);
-					if (cache != null) {
-						logger.info("Response retrieved from cache.");
-						operation.writeResponse(resp, (JSONObject) cache, serviceName);
-						return;
-					}
-				}
+			Response response = operation.getDefaultResponse();
+			RespWriter writer = response.getProtoWriter(resp);
+
+			FormattedMessage[] messages = agent.executeService(serviceName, userId, reader, writer);
+			if(messages == null || messages.length == 0){
+				resp.setContentType("application/octet-stream");
+				writer.writeout(resp.getOutputStream());
+			}else{
+				respondWithError(resp, FormattedMessage.toString(messages));
 			}
 
-			RespWriter writer = new JsonRespWriter();
-			FormattedMessage[] msgs = agent.executeService(serviceName, userId, reader, writer);
-			if(msgs != null){
-				respondWithError(resp, FormattedMessage.toString(msgs));
-				return;
-			}
-			JSONObject response = (JSONObject) writer.getFinalResponseObject();
-			logger.info("Response recd = " + response.toString());
-
-			if (cacher != null) {
-				handleCaching(writer, json);
-			}
-
-			operation.writeResponse(resp, response, serviceName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			respondWithError(resp, INTERNAL_ERROR);
 		}
 	}
 
-	private static void handleCaching(RespWriter writer, Object response){
-		String key  = writer.getCachingKey();
-		if(key != null){
-			Date exp = null;
-			int minutes = writer.getCacheValidity();
-			if(minutes != 0){
-				exp = new Date(new Date().getTime() + minutes * MILLIS);
-			}
-			cacher.put(key, response, exp);
-		}else{
-			String[] invalidations = writer.getInvalidations();
-			if(invalidations != null){
-				for(String k : invalidations){
-					cacher.remove(k);
-				}
-			}
-		}
-	}
 	/**
 	 * @param resp
 	 * @param message

@@ -21,10 +21,8 @@
  */
 package org.simplity.kernel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.simplity.json.JSONWriter;
 import org.simplity.json.Jsonable;
@@ -33,6 +31,8 @@ import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * formatted message data structure.
@@ -203,4 +203,50 @@ public class FormattedMessage implements Jsonable {
 		}
 		return result;
 	}
+
+	/**
+	 * append this message as descriptive text to a string builder
+	 * @param sbf
+	 */
+	public void toString(StringBuilder sbf) {
+		sbf.append(this.text);
+		sbf.append(" FieldName=").append(this.fieldName);
+		if(this.tableName != null){
+			sbf.append(" tableName=").append(this.tableName);
+		}
+		if(this.rowNumber != 0){
+			sbf.append(" row=").append(this.rowNumber);
+		}
+		if(this.relatedFieldName != null){
+			sbf.append(" related field Name=").append(this.relatedFieldName);
+		}
+	}
+
+	/**
+	 *
+	 * @param messages
+	 * @return new-line separated text for all messages
+	 */
+	public static String toString(Collection<FormattedMessage> messages){
+		StringBuilder sbf = new StringBuilder();
+		for(FormattedMessage msg : messages){
+			msg.toString(sbf);
+			sbf.append('\n');
+		}
+		return sbf.toString();
+	}
+	/**
+	 *
+	 * @param messages
+	 * @return new-line separated text for all messages
+	 */
+	public static String toString(FormattedMessage[] messages){
+		StringBuilder sbf = new StringBuilder();
+		for(FormattedMessage msg : messages){
+			msg.toString(sbf);
+			sbf.append('\n');
+		}
+		return sbf.toString();
+	}
+
 }
