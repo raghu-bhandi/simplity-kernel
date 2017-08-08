@@ -23,6 +23,8 @@ package org.simplity.gateway;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.simplity.auth.AuthRequirement;
 import org.simplity.auth.OAuth2Agent;
+import org.simplity.json.JSONObject;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.value.Value;
 import org.simplity.rest.Operation;
@@ -102,7 +105,8 @@ public class ProtoInboundAgent {
 				path = path.substring(idx);
 				logger.info("Going to use path=" + path + " for mapping this request to an operation/service");
 			}
-			Operation operation = Operations.getOperation(path, req.getMethod().toLowerCase(), null);
+			JSONObject pathJson = new JSONObject();
+			Operation operation = Operations.getOperation(path, req.getMethod().toLowerCase(), pathJson);
 			if (operation == null) {
 				respondWithError(resp, "We do not serve that request path");
 				return;
@@ -131,7 +135,13 @@ public class ProtoInboundAgent {
 			 */
 			String serviceName = operation.getServiceName();
 			logger.info("Request received for service " + serviceName);
-			ProtoReqReader reader = operation.getProtoReader(req);
+			List<FormattedMessage> errors = new ArrayList<FormattedMessage>();
+			ProtoReqReader reader = operation.getProtoReader(req, pathJson, errors);
+			if(reader == null){
+				logger.info("Input data has validation errors. Responding back without calling the service");
+				operation.writeResponse(resp, errors.toArray(new FormattedMessage[0]));
+				return;
+			}
 			Value userId = Value.newTextValue("100");
 			ServiceAgent agent = ServiceAgent.getAgent();
 			Response response = operation.getDefaultResponse();

@@ -44,9 +44,15 @@ import org.slf4j.MDC;
  */
 public class Serve extends HttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(Serve.class);
-
+	private static boolean useProto = false;
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * if this is a protobuf deployment
+	 */
+	public static void startUsingProto(){
+		useProto = true;
+	}
 	/**
 	 * post is to be used by client in AJAX call.
 	 */
@@ -55,7 +61,7 @@ public class Serve extends HttpServlet {
 		try {
 			/** Correlation ID has be available from the beginning **/
 			MDC.put(Tags.CORRELATION_ID, this.getCorrelationId(req));
-			if (req.getContentType().equalsIgnoreCase("application/octet-stream")) {
+			if (useProto) {
 				ProtoInboundAgent.serve(req, resp);
 			} else {
 				RestInboundAgent.serve(req, resp);

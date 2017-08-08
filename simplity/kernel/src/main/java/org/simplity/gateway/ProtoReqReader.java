@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.simplity.gateway.TtTroubleTicket.TroubleTicket.TroubleTicket_Statu;
+import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.MultiRowsSheet;
@@ -61,12 +62,18 @@ public class ProtoReqReader implements ReqReader {
 	private final Message inputMessage;
 
 	/**
+	 * data from header, query and path
+	 */
+	private final JSONObject nonBodyData;
+	/**
 	 * instantiate a translator for the input payload
 	 *
 	 * @param message
+	 * @param data that has data from header, query string and path
 	 */
-	public ProtoReqReader(Message message) {
+	public ProtoReqReader(Message message, JSONObject data) {
 		this.inputMessage = message;
+		this.nonBodyData = data;
 	}
 
 	/*
@@ -225,6 +232,21 @@ public class ProtoReqReader implements ReqReader {
 	 */
 	@Override
 	public void readAsPerSpec(ServiceContext ctx) {
+		/*
+		 * header related fields
+		 */
+		if(this.nonBodyData != null){
+			for(String name: JSONObject.getNames(this.nonBodyData)){
+				ctx.setValue(name, Value.parseObject(this.nonBodyData.get(name)));
+			}
+		}
+		/*
+		 * body data
+		 */
+		if(this.inputMessage == null){
+			return;
+		}
+
 		Map<FieldDescriptor, Object> fields = this.inputMessage.getAllFields();
 		for (Map.Entry<FieldDescriptor, Object> entry : fields.entrySet()) {
 			Object fieldValue = entry.getValue();
@@ -402,7 +424,7 @@ public class ProtoReqReader implements ReqReader {
 		/*
 		 * create reqReader to extract data into ctx
 		 */
-		ReqReader reeder = new ProtoReqReader(ticket);
+		ReqReader reeder = new ProtoReqReader(ticket, new JSONObject());
 		ServiceContext ctx = new ServiceContext("junk", Value.newTextValue("100"));
 		reeder.readAsPerSpec(ctx);
 

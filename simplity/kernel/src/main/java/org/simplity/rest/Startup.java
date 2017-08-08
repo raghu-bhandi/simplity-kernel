@@ -145,6 +145,7 @@ public class Startup extends HttpServlet {
     if(protoClassPrefix == null){
     	logger.info(PROTO_CLASS_PREFIX + " is not set in web context. protobuf utilities will not work");
     }else{
+    	Serve.startUsingProto();
     	Operations.setProtoClassPrefix(protoClassPrefix);
     	logger.info("All proto classes will be prefixed with " + protoClassPrefix + " to get their actual class.");
     }

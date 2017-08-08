@@ -44,6 +44,7 @@ import org.simplity.service.ServiceProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.protobuf.Message;
 import com.google.protobuf.Message.Builder;
 
 /**
@@ -525,13 +526,43 @@ public class Operation {
 	 * create a reader for this operation
 	 *
 	 * @param req
+	 * @param pathData
+	 * @param messages
 	 * @return reader that marshals input data to service context
 	 * @throws IOException
 	 */
-	public ProtoReqReader getProtoReader(HttpServletRequest req) throws IOException {
-		Builder builder = Operations.getMessageBuilder(this.bodyParameter.getName());
-		builder.mergeFrom(req.getInputStream());
-		return new ProtoReqReader(builder.build());
+	public ProtoReqReader getProtoReader(HttpServletRequest req, JSONObject pathData, List<FormattedMessage> messages) throws IOException {
+		Message message = null;
+		if(this.bodyParameter != null){
+			Builder builder = Operations.getMessageBuilder(this.bodyParameter.getName());
+			builder.mergeFrom(req.getInputStream());
+			message = builder.build();
+		}
+		JSONObject serviceData = null;
+		if (this.qryParameters != null) {
+			serviceData = new JSONObject();
+			this.parseAndValidate(this.qryParameters, HttpUtil.parseQueryString(req, null), serviceData, messages);
+		}
+		if (this.pathParameters != null) {
+			if(serviceData == null){
+				serviceData = new JSONObject();
+			}
+			if (pathData == null) {
+				this.parseAndValidate(this.pathParameters, new JSONObject(), serviceData, messages);
+			} else {
+				this.parseAndValidate(this.pathParameters, pathData, serviceData, messages);
+			}
+		}
+		if (this.headerParameters != null) {
+			if(serviceData == null){
+				serviceData = new JSONObject();
+			}
+			this.parseAndValidateHeaderFields(req, serviceData, messages);
+		}
+		if(messages.size() == 0){
+		return new ProtoReqReader(message, serviceData);
+		}
+		return null;
 	}
 
 	/**
