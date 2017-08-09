@@ -421,7 +421,7 @@ public class ProtoRespWriter implements RespWriter {
 			FieldDescriptor field = fields.get(i);
 			if (field.isRepeated() || field.getJavaType() == JavaType.MESSAGE) {
 				throw new ApplicationError(
-						"We are yet to implement arbitrary object structures. Only one level of chil-array/message is handled.");
+						"We are yet to implement arbitrary object structures. Only one level of child-array/message is handled.");
 			}
 			colIndexes[i] = sheet.getColIdx(field.getName());
 		}

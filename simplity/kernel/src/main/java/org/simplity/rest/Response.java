@@ -291,7 +291,7 @@ public class Response {
 	 * @return response writer for this response
 	 */
 	public ProtoRespWriter getProtoWriter(HttpServletResponse resp) {
-		Builder builder = Operations.getMessageBuilder(this.bodyParameter.getName());
+		Builder builder = Operations.getMessageBuilder(this.bodyParameter.getFieldName());
 		return new ProtoRespWriter(builder);
 	}
 }

@@ -401,7 +401,7 @@ public class ProtoReqReader implements ReqReader {
 		 * first create a local file with a trouble ticket. We can use this to
 		 * simulate HttpRequestInpiutStream
 		 */
-		String fileName = "c:/temp/a";
+		String fileName = "d:/tmp/a";
 		TtTroubleTicket.TroubleTicket ticket = createTicket();
 		createFile(fileName, ticket);
 		/*

@@ -53,6 +53,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class RestInboundAgent {
+	private RestInboundAgent() {
+	}
 	private  static final Logger logger = LoggerFactory.getLogger(RestInboundAgent.class);
 	private static final String UTF = "UTF-8";
 	private static final int MILLIS = 60000;
@@ -81,7 +83,7 @@ public class RestInboundAgent {
 	 *
 	 */
 
-	public static void serve(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	public static void serve(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		resp.setContentType("text/json");
 		resp.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
 		resp.setDateHeader("Expires", 0);
@@ -94,7 +96,7 @@ public class RestInboundAgent {
 			 * we need to get a/b/c as RESTful path
 			 */
 			String path = URLDecoder.decode(req.getRequestURI(), UTF);
-			logger.info("Started serving URI=" + path);
+			logger.info("Started serving URI= {}",path);
 			/*
 			 * path now is set to /app1/subapp/a/b/c
 			 */
@@ -111,7 +113,7 @@ public class RestInboundAgent {
 				path = "";
 			} else {
 				path = path.substring(idx);
-				logger.info("Going to use path=" + path + " for mapping this request to an operation/service");
+				logger.info("Going to use path={} for mapping this request to an operation/service",path);
 			}
 			/*
 			 * parse body and query string into json object
@@ -136,7 +138,7 @@ public class RestInboundAgent {
 				 * as parameters
 				 */
 				OAuth2Agent oAgent = (OAuth2Agent) Operations.getSecurityAgent(auths[0].getAuthName());
-				if (oAgent.securityCleared(req, resp) == false) {
+				if (!oAgent.securityCleared(req, resp)) {
 					logger.info("Authentication failed.");
 					return;
 				}
@@ -148,13 +150,13 @@ public class RestInboundAgent {
 			List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
 			String serviceName = operation.prepareRequest(req, json, pathJson, messages);
 
-			if (messages.size() > 0) {
+			if (!messages.isEmpty()) {
 				logger.info("Input data has validation errors. Responding back without calling the service");
 				operation.writeResponse(resp, messages.toArray(new FormattedMessage[0]));
 				return;
 			}
 
-			logger.info("Request received for service " + serviceName);
+			logger.info("Request received for service {}", serviceName);
 
 			Value userId = Value.newTextValue("100");
 			ReqReader reader = new JsonReqReader(json);
@@ -178,7 +180,8 @@ public class RestInboundAgent {
 				return;
 			}
 			JSONObject response = (JSONObject) writer.getFinalResponseObject();
-			logger.info("Response recd = " + response.toString());
+			if(logger.isInfoEnabled())
+				logger.info("Response recd = {}", response.toString());
 
 			if (cacher != null) {
 				handleCaching(writer, json);
@@ -186,7 +189,7 @@ public class RestInboundAgent {
 
 			operation.writeResponse(resp, response, serviceName);
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Error occured while serving the request",e);
 			respondWithError(resp, INTERNAL_ERROR);
 		}
 	}

@@ -569,6 +569,10 @@ public class Operation {
 	 * @return default success response
 	 */
 	public Response getDefaultResponse() {
-		return this.defaultResponse;
+		if(this.defaultResponse!=null)
+			return this.defaultResponse;
+		if(this.successResponses.length!=0)
+			return this.successResponses[0];
+		return null;
 	}
 }
