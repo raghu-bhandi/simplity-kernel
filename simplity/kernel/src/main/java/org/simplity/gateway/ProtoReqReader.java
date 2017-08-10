@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +36,12 @@ import java.util.Map;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.value.Value;
+import org.simplity.kernel.value.ValueType;
 import org.simplity.proto.ProtoUtil;
+import org.simplity.rest.Operation;
+import org.simplity.rest.Operations;
 import org.simplity.service.ServiceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -287,8 +292,6 @@ public class ProtoReqReader implements ReqReader {
 		}
 	}
 
-
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -299,6 +302,85 @@ public class ProtoReqReader implements ReqReader {
 		return true;
 	}
 
+	/**
+	 *
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		/*
+		 * test whether we get the right operation and class name
+		 */
+		String messageClassPrefix = "org.simplity.apiscdb.ScdbApi$";
+		String apiPath = "c:/temp";
+		Operations.setProtoClassPrefix(messageClassPrefix);
+		Operations.loadAll(apiPath);
+		String path = "/scdb/storagecontracts/contract";
+		JSONObject headerData = new JSONObject();
+		Operation operation = Operations.getOperation(path, "post", headerData);
+
+		if (operation == null) {
+			logger.error("No operation found");
+			return;
+		}
+		String schemaName = operation.getBodySchemaName();
+		String serviceName = operation.getServiceName();
+		logger.info("got serviceName={} and schemaNAme={} for path={}", serviceName, schemaName, path);
+
+		Message message = getSampleMessage(messageClassPrefix + schemaName);
+		headerData.put("junk", "junk vakue for test");
+		ReqReader reader = new ProtoReqReader(message, headerData);
+		Value userId = Value.newTextValue("100");
+		ServiceContext ctx = new ServiceContext(serviceName, userId);
+
+		/*
+		 * push an empty child sheet to context for roleType
+		 */
+		String[] namesForRole = {"id", "primaryIndividual","secondaryIndividual"};
+		ValueType[] typesForRole = {ValueType.INTEGER, ValueType.TEXT, ValueType.TEXT};
+		DataSheet sheet = new MultiRowsSheet(namesForRole, typesForRole);
+		ctx.putDataSheet("roles", sheet);
+
+		String[] namesForRoleType = {"roleId", "id", "name"};
+		ValueType[] typesForRoleType = {ValueType.INTEGER, ValueType.INTEGER, ValueType.TEXT};
+		sheet = new MultiRowsSheet(namesForRoleType, typesForRoleType);
+		ctx.putDataSheet("roleType", sheet);
+		String[] parentKeys = {"id"};
+		String[] childKeys = {"roleId"};
+		ctx.addSheetLink("roles", "roleType", parentKeys, childKeys);
+
+		reader.pushDataToContext(ctx);
+
+		logger.info("**** data sheets in context ***");
+		for(Map.Entry<String, DataSheet> entry : ctx.getAllSheets()){
+			DataSheet ds = entry.getValue();
+			logger.info("Sheet {} has {} columns and {} rows", entry.getKey(), ds.width(), ds.length());
+		}
+		/*
+		 * for retrieval simulate data-preparation
+		 */
+		ctx.prepareChildSheets("roles", "roleType", parentKeys, childKeys);
+
+		RespWriter writer = new ProtoRespWriter(message.newBuilderForType());
+		writer.pullDataFromContext(ctx);
+		Object obj = writer.getFinalResponseObject();
+		logger.info("**************************   final ******************");
+		logger.info(obj.toString());
+
+	}
+
+
+	private static Message getSampleMessage(String className) {
+		try {
+			Class<?> cls = Class.forName(className);
+			Method method = cls.getMethod("newBuilder");
+			Builder builder = (Builder) method.invoke(null);
+			Message message = ProtoUtil.createSample(builder, 1);
+			logger.info(message.toString());
+			return message;
+		} catch (Exception e) {
+			throw new ApplicationError(e, "Error while creating builder. " + e.getMessage());
+		}
+	}
 
 	/**
 	 *

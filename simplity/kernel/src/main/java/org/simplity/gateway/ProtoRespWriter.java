@@ -358,6 +358,7 @@ public class ProtoRespWriter implements RespWriter {
 			 */
 			if (fd.isRepeated()) {
 				DataSheet sheet = ctx.getDataSheet(fieldName);
+				logger.info("Data sheet {} is to be extracted.", fieldName);
 				if (sheet == null || sheet.length() == 0) {
 					logger.info("No data for array field {}", fieldName);
 				} else if (fd.getType() == Type.MESSAGE) {
@@ -384,7 +385,8 @@ public class ProtoRespWriter implements RespWriter {
 			 */
 			Value value = ctx.getValue(fieldName);
 			if (value != null) {
-				this.messageBuilder.setField(fd, ProtoUtil.convertFieldValue(fd, value));
+				Object objValue = ProtoUtil.convertFieldValue(fd, value);
+				this.messageBuilder.setField(fd, objValue);
 			}
 		}
 	}

@@ -31,7 +31,9 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.DataSheetLink;
 import org.simplity.kernel.data.MultiRowsSheet;
+import org.simplity.kernel.value.BooleanValue;
 import org.simplity.kernel.value.DateValue;
+import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.service.ServiceContext;
@@ -137,7 +139,6 @@ public class ProtoUtil {
 		int col = 0;
 		for (FieldDescriptor field : fields) {
 			if (field.isRepeated() || field.getType() == Type.MESSAGE) {
-				logger.info("found an embedded array/message. Will be extracyed separately ");
 				continue;
 			}
 			names[col] = field.getName();
@@ -236,7 +237,7 @@ public class ProtoUtil {
 			 */
 			DataSheet childSheet = ctx.getChildSheet(childField.getName(), row);
 			if (childSheet == null) {
-				logger.info("Child data sheet found, and hence no data for field {} for this row");
+				logger.info("Child data sheet not found, and hence no data for field {} for this row", childField.getName());
 				continue;
 			}
 			if (idx == MESSAGE_ARRAY) {
@@ -279,18 +280,65 @@ public class ProtoUtil {
 	 * @param value
 	 * @return object representation of value that is suitable for this field
 	 */
+	@SuppressWarnings("boxing")
 	public static Object convertFieldValue(FieldDescriptor fd, Value value) {
+
+
+
 		Type type = fd.getType();
+		/*
+		 * most common one. for efficiency, let us do it first
+		 */
 		if (type == Type.STRING) {
 			return value.toString();
 		}
+		/*
+		 * tricky one about date..
+		 */
 		if (value.getValueType() == ValueType.DATE) {
 			return new Long(((DateValue) value).getDate());
 		}
-		if (type == Type.ENUM) {
+		/*
+		 * proto does not support assignments across long/int/float/double
+		 */
+		try{
+		switch (type) {
+		case BOOL:
+			if (((BooleanValue)value).getBoolean()){
+				return Boolean.TRUE;
+			}
+			return Boolean.FALSE;
+
+		case ENUM:
 			return fd.getEnumType().findValueByName(value.toString());
+
+		case FIXED32:
+		case SFIXED32:
+		case FLOAT:
+			return (float)value.toDecimal();
+
+		case DOUBLE:
+		case FIXED64:
+		case SFIXED64:
+			return value.toDecimal();
+
+		case INT32:
+		case SINT32:
+		case UINT32:
+			return (int)value.toInteger();
+
+		case INT64:
+		case SINT64:
+		case UINT64:
+			return value.toInteger();
+
+		default:
+			logger.error(" unexpected condition in switch block. proto field type {} should not be reached. string value assumed.", type);
+			return value.toString();
 		}
-		return value.toObject();
+		}catch(InvalidValueException e){
+			throw new ApplicationError("proto field type " + type + " is receiving a value type of " + value.getValueType());
+		}
 	}
 
 	/**
@@ -348,6 +396,7 @@ public class ProtoUtil {
 			buildMessage(builder, colIndexes, fields, sheet.getRow(rowIdx), ctx);
 			parentBuilder.addRepeatedField(fd, builder.build());
 		}
+		logger.info("{} rows extracted ", nbrRows);
 	}
 
 	/**
@@ -393,7 +442,7 @@ public class ProtoUtil {
 	 */
 	public static void appendArrayToSheet(Object[] arr, DataSheet sheet) {
 		if (sheet.width() != 1) {
-			throw new ApplicationError("Data sheet for an array should have just one column We found " + sheet.width());
+			throw new ApplicationError("Data sheet for an array should have just one column. We found " + sheet.width());
 		}
 		for (int i = 0; i < arr.length; i++) {
 			Value[] row = { Value.parseObject(arr[i]) };
@@ -438,7 +487,7 @@ public class ProtoUtil {
 		if (sheet == null) {
 			if (parentRow != null) {
 				logger.error(
-						"Service context does not have a data sheet named {}, and hence this child sheet can not be extracted from protobuf input");
+						"Service context does not have a data sheet named {}, and hence this child sheet can not be extracted from protobuf input", fieldName);
 				return;
 			}
 			sheet = createEmptySheet(childFields);

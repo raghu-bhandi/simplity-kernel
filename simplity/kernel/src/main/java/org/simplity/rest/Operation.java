@@ -578,4 +578,14 @@ public class Operation {
 		}
 		return this.successResponses[0];
 	}
+
+	/**
+	 * @return schema name associated with the input body for this operation. null if no body data is expected
+	 */
+	public String getBodySchemaName(){
+		if(this.bodyParameter == null){
+			return null;
+		}
+		return this.bodyParameter.getSchemaName();
+	}
 }

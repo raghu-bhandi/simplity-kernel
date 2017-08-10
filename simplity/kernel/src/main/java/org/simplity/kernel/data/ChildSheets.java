@@ -28,6 +28,8 @@ import java.util.Map;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class to break a child data by its parent row. It manages to provide
@@ -37,6 +39,7 @@ import org.simplity.kernel.value.ValueType;
  *
  */
 public class ChildSheets {
+	private static final Logger logger = LoggerFactory.getLogger(ChildSheets.class);
 	/**
 	 * array of column index that has the value for the key in parent row
 	 */
@@ -44,10 +47,11 @@ public class ChildSheets {
 	/**
 	 * child sheets mapped by parent key values
 	 */
-	private final Map<Value[], DataSheet> children = new HashMap<Value[], DataSheet>();
+	private final Map<String, DataSheet> children = new HashMap<String, DataSheet>();
 
 	/**
 	 * create an instance for parent-child combination
+	 *
 	 * @param parentKeys
 	 * @param childKeys
 	 * @param parentSheet
@@ -68,19 +72,22 @@ public class ChildSheets {
 		 * split this sheet into a number of child-sheets :one for each unique
 		 * combination of key values
 		 */
+		StringBuilder keys = new StringBuilder();
 		for (int rowIdx = 0; rowIdx < nbrRows; rowIdx++) {
 			Value[] row = childSheet.getRow(rowIdx);
-			Value[] keys = new Value[nbrKeys];
-			for (int keyIdx = 0; keyIdx < keys.length; keyIdx++) {
-				keys[keyIdx] = row[indexes[keyIdx]];
+			for (int keyIdx = 0; keyIdx < indexes.length; keyIdx++) {
+				keys.append(row[indexes[keyIdx]].toString());
 			}
+			String key =keys.toString();
+			keys.setLength(0);
 			/*
 			 * do we have a filtered child-sheet for these keys combination?
 			 */
-			DataSheet sheet = this.children.get(keys);
+			DataSheet sheet = this.children.get(key);
 			if (sheet == null) {
 				sheet = new MultiRowsSheet(colNames, types);
-				this.children.put(keys, sheet);
+				logger.info("Child sheet created for key = " + key);
+				this.children.put(key, sheet);
 			}
 
 			sheet.addRow(row);
@@ -92,12 +99,15 @@ public class ChildSheets {
 	 * @param parentRow
 	 * @return a child data sheet for the given parent row
 	 */
-	public DataSheet getChildSheet(Value[] parentRow){
-		Value[] keys = new Value[this.parentIndexes.length];
-		for(int i = 0; i < keys.length;i++){
-			keys[i] = parentRow[this.parentIndexes[i]];
+	public DataSheet getChildSheet(Value[] parentRow) {
+		String key = parentRow[this.parentIndexes[0]].toString();
+		if (this.parentIndexes.length > 1) {
+			for (int i = 1; i < this.parentIndexes.length; i++) {
+				key += parentRow[this.parentIndexes[i]];
+			}
 		}
-		return this.children.get(keys);
+
+		return this.children.get(key);
 	}
 
 	private static int[] getKeys(String[] names, DataSheet sheet) {
