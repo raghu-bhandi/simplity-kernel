@@ -423,7 +423,7 @@ public class JsonRespWriter implements RespWriter {
 	 * ServiceContext)
 	 */
 	@Override
-	public void writeAsPerSpec(ServiceContext ctx) {
+	public void pullDataFromContext(ServiceContext ctx) {
 		this.checkNull();
 		/*
 		 * we are to write based on our spec
@@ -452,5 +452,13 @@ public class JsonRespWriter implements RespWriter {
 			}
 			this.endArray();
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.RespWriter#hasOutputSpec()
+	 */
+	@Override
+	public boolean hasOutputSpec() {
+		return true;
 	}
 }

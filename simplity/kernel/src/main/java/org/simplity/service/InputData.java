@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  */
 
 public class InputData {
-	private  static final Logger logger = LoggerFactory.getLogger(InputData.class);
+	private static final Logger logger = LoggerFactory.getLogger(InputData.class);
 	/**
 	 * do not parse the request text. Just set it to this field. Service will
 	 * take care of that
@@ -320,7 +320,7 @@ public class InputData {
 	 *
 	 * @param inFields
 	 */
-	public void setInputFields(InputField[] inFields){
+	public void setInputFields(InputField[] inFields) {
 		this.inputFields = inFields;
 	}
 
@@ -357,7 +357,7 @@ public class InputData {
 		}
 
 		if (this.justInputEveryThing) {
-			reader.readAsPerSpec(ctx);
+			reader.pushDataToContext(ctx);
 			return;
 		}
 
@@ -384,11 +384,36 @@ public class InputData {
 		}
 	}
 
-    /**
-     *
-     * @return input fields list
-     */
-    public InputField[] getInputFields() {
-        return this.inputFields;
-    }
+	/**
+	 *
+	 * @return input fields list
+	 */
+	public InputField[] getInputFields() {
+		return this.inputFields;
+	}
+
+	/**
+	 * input reader has the specs, and is going to push data to context. We may
+	 * have to prepare hierarchical data-structure etc..
+	 *
+	 * @param ctx
+	 */
+	public void prepareForInput(ServiceContext ctx) {
+		if(this.inputRecords == null){
+			return;
+		}
+		/*
+		 * create empty sheets to receive data
+		 */
+		for(InputRecord rec : this.inputRecords){
+			rec.addEmptySheet(ctx);
+		}
+		/*
+		 * add links for parent-child
+		 */
+		for(InputRecord rec : this.inputRecords){
+			rec.addDataSheetLink(ctx);
+		}
+
+	}
 }

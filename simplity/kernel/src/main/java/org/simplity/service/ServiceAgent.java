@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceAgent {
 	private static final Logger logger = LoggerFactory.getLogger(ServiceAgent.class);
-	//private static final String[] EMPTY_ARRAY = {};
+	// private static final String[] EMPTY_ARRAY = {};
 	/** singleton instance that is instantiated with right parameters */
 	private static ServiceAgent instance;
 
@@ -448,18 +448,24 @@ public class ServiceAgent {
 		}
 
 		try {
-			ServiceContext ctx = new ServiceContext(serviceName, userId);
 			InputData inData = service.getInputSpecification();
-			if (inData != null) {
-				inData.read(reader, ctx);
+			ServiceContext ctx = new ServiceContext(serviceName, userId);
+			if (reader.hasInputSpecs()) {
+				if(inData != null){
+					inData.prepareForInput(ctx);
+				}
+				reader.pushDataToContext(ctx);
+			} else {
+				if (inData != null) {
+					inData.read(reader, ctx);
+					inData = null;
+				}
 			}
-
 			if (ctx.isInError()) {
 				logger.info("Errors found in input for service " + serviceName + ". Service not invoked.");
 				return ctx.getMessages().toArray(new FormattedMessage[0]);
 			}
 
-			inData = null;
 			logger.info("Invoking service " + serviceName);
 			service.serve(ctx);
 			if (ctx.isInError()) {
@@ -467,11 +473,9 @@ public class ServiceAgent {
 				return ctx.getMessages().toArray(new FormattedMessage[0]);
 			}
 
-			OutputData outData = service.getOutputSpecification();
-			if (outData != null) {
-				outData.write(writer, ctx);
-			}
-
+			/*
+			 * cachable?
+			 */
 			if (service.okToCache()) {
 				String key = ctx.getCachingKey();
 				writer.setCaching(key, ctx.getCacheValidity());
@@ -482,12 +486,26 @@ public class ServiceAgent {
 				}
 			}
 
-			logger.info("Service " + serviceName + " succeeded.");
+			/*
+			 * write output
+			 */
+			OutputData outData = service.getOutputSpecification();
+			if (writer.hasOutputSpec()) {
+				if (outData != null) {
+					outData.prepareForOutput(ctx);
+				}
+				writer.pullDataFromContext(ctx);
+			}else{
+				if (outData != null) {
+					outData.write(writer, ctx);
+				}
+			}
 
+			logger.info("Service " + serviceName + " succeeded.");
 			return null;
 		} catch (Exception e) {
 			Application.reportApplicationError(null, e);
-			logger.info(e.getMessage() + "Exception thrown by service " + serviceName);
+			logger.info("{}Exception thrown by service {}", e.getMessage(), serviceName);
 			FormattedMessage[] msgs = { Messages.getMessage(Messages.INTERNAL_ERROR, e.getMessage()) };
 			return msgs;
 		}

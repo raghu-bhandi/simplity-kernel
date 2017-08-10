@@ -598,7 +598,7 @@ public class ActionsTest extends Mockito {
       for (numOfTries = 3; numOfTries > 0; numOfTries--) {
 
         try {
-          Thread.currentThread().sleep(100);
+          Thread.sleep(100);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
@@ -639,7 +639,7 @@ public class ActionsTest extends Mockito {
       Enumeration<Object> queueBrowserEnumeration = null;
       for (numOfTries = 3; numOfTries > 0; numOfTries--) {
         try {
-          Thread.currentThread().sleep(100);
+          Thread.sleep(100);
         } catch (InterruptedException e) {
           e.printStackTrace();
         }

@@ -165,18 +165,18 @@ public class Tags {
   /** all of data type */
   public static final String ALL_OF_ATTR = "allOf";
   /** security definitions **/
-  public static final String SEC_DEF_ATTR = "securityDefinitions";  
+  public static final String SEC_DEF_ATTR = "securityDefinitions";
   /** security requirements **/
   public static final String SEC_ATTR = "security";
-  /** access code **/ 
+  /** access code **/
   public static final String ACCESS_CODE = "accessCode";
   /** access token **/
   public static final String ACCESS_TOKEN = "access_token";
   /** refresh token **/
   public static final String REFRESH_TOKEN = "refresh_token";
-  /** correlation Id **/ 
+  /** correlation Id **/
   public static final String CORRELATION_ID = "correlationId";
-  
+
 
 	/*
 	 * security related attributes
@@ -197,7 +197,7 @@ public class Tags {
 	/**
 	 * descriptions
 	 */
-	public static final String DESC = "description";	
+	public static final String DESC = "description";
 	/**
 	 * flow type of this auth
 	 */
@@ -214,6 +214,10 @@ public class Tags {
 	 * auth scopes
 	 */
 	public static final String SCOPES_ATTR = "scopes";
+	/**
+	 *
+	 */
+	public static final String OBJECT_TYPE_ATTR = "x-object-type";
 
   private Tags() {
     // as an indication that this is a static class

@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -76,8 +75,6 @@ public class RestInboundAgent {
 	 *            http request
 	 * @param resp
 	 *            http response
-	 * @throws ServletException
-	 *             Servlet exception
 	 * @throws IOException
 	 *             IO exception
 	 *
@@ -180,8 +177,9 @@ public class RestInboundAgent {
 				return;
 			}
 			JSONObject response = (JSONObject) writer.getFinalResponseObject();
-			if(logger.isInfoEnabled())
+			if(logger.isInfoEnabled()) {
 				logger.info("Response recd = {}", response.toString());
+			}
 
 			if (cacher != null) {
 				handleCaching(writer, json);

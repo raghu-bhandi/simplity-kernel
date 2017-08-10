@@ -22,9 +22,6 @@
 
 package org.simplity.kernel.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Array;
@@ -41,7 +38,6 @@ import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FilterCondition;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.Messages;
-
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.FieldsInterface;
@@ -51,8 +47,11 @@ import org.simplity.kernel.dm.Field;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.simplity.rest.Tags;
 import org.simplity.service.ServiceContext;
 import org.simplity.service.ServiceProtocol;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * utilities that help Simplity deal with JSON
@@ -884,7 +883,7 @@ public class JsonUtil {
 	 * @param fieldSelector
 	 * @param json
 	 * @param option
-	 * 
+	 *
 	 *            <pre>
 	 * 0 means do not create/add anything. return null if anything is not found
 	 * 1 means create, add and return a JSON object at the end if it is missing
@@ -1115,6 +1114,12 @@ public class JsonUtil {
 			return;
 		}
 		/*
+		 * we need class name at times. induce names
+		 */
+		for(String key : defs.keySet()){
+			defs.getJSONObject(key).put(Tags.OBJECT_TYPE_ATTR, key);
+		}
+		/*
 		 * defs may contain refs. substitute them first
 		 */
 		replaceRefs(defs, defs, true);
@@ -1245,82 +1250,5 @@ public class JsonUtil {
 		logger.info("Found a ref entry for " + ref);
 
 		return ref.substring(REF_PREFIX_LEN);
-	}
-
-	public static void dereferenceSecurityDef(JSONObject json) {
-
-		if (json == null) {
-			return;
-		}
-
-		JSONObject defs = json.optJSONObject("securityDefinitions");
-		if (defs == null) {
-			logger.info("No security definitions in this json");
-			return;
-		}
-		/*
-		 * replace refs in rest of the api
-		 */
-		if (json.length() == 0) {
-			return;
-		}
-		
-		if(json.has("security")){
-			replaceSecRefs(json, defs);
-		};
-		
-		if(json.has("paths")){
-			Object pathObj = json.get("paths");
-			for(String name:((JSONObject)pathObj).keySet()){
-				Object childPathObj = ((JSONObject)pathObj).get(name);
-				for(String mname:((JSONObject)childPathObj).keySet()){
-					Object childPathMethodObj = ((JSONObject)childPathObj).get(mname);
-					if(((JSONObject)childPathMethodObj).has("security")){
-						replaceSecRefs((JSONObject)childPathMethodObj, defs);
-					}
-					
-				}
-			}
-			
-		}
-	
-	}
-
-	private static void replaceSecRefs(JSONObject json, JSONObject defs) {
-		JSONArray tObj = new JSONArray();
-		
-		Object obj = json.get("security");
-		for(Object jObj:((JSONArray)obj)){				
-			Object sub = getSecSubstitution((JSONObject) jObj, defs, true);
-			if (sub != null) {
-				tObj.put(sub);
-			}
-			continue;
-		}
-		json.put("security",tObj);
-	
-	}
-
-	private static Object getSecSubstitution(JSONObject childJson, JSONObject definitions, boolean forRefs) {
-		JSONObject tObj = new JSONObject();
-		if(childJson!=null){
-			if(definitions.has(childJson.names().get(0).toString())){
-				JSONObject secObj = (JSONObject)definitions.get(childJson.names().get(0).toString());
-				if(secObj.get("type").equals("oauth2")){
-					JSONArray scopesArr = (JSONArray)childJson.get(childJson.names().get(0).toString());
-					JSONObject tScopeObj = new JSONObject();
-					for(Object scopeArr:scopesArr){
-						for(String scopeObj:((JSONObject)secObj.get("scopes")).keySet()){
-							if(scopeObj.equals(scopeArr)){
-								tScopeObj.put(scopeObj,((JSONObject)secObj.get("scopes")).get(scopeObj));							
-							}
-						}
-					}
-					((JSONObject)secObj).put("scopes",  tScopeObj);
-				};
-				tObj.put(childJson.names().get(0).toString(), secObj);
-			};	
-		}
-		return tObj;
 	}
 }

@@ -613,6 +613,21 @@ public class OutputData {
 			return;
 		}
 
+		if (this.justOutputEveryThing) {
+			/*
+			 * there may be hierarchical data
+			 */
+			if (this.outputRecords != null) {
+				for (OutputRecord rec : this.outputRecords) {
+					rec.prepareChildSheets(ctx);
+				}
+			}
+			/*
+			 * it is up to the writer to pick data
+			 */
+			writer.pullDataFromContext(ctx);
+			return;
+		}
 		/*
 		 * messages
 		 */
@@ -624,13 +639,6 @@ public class OutputData {
 			OutputRecord.writeSheet(writer, ServiceProtocol.MESSAGES, sheet, null, false);
 		}
 
-		if (this.justOutputEveryThing) {
-			/*
-			 * it is up to the writer to pick data
-			 */
-			writer.writeAsPerSpec(ctx);
-			return;
-		}
 
 		if (this.fieldNames != null) {
 			this.writeFields(writer, ctx);
@@ -707,6 +715,21 @@ public class OutputData {
 
 	public void setOutputFields(String[] fields) {
 		this.fieldNames = fields;
+	}
+
+	/**
+	 * prepare data, possibly for writer to pull
+	 * @param ctx
+	 */
+	public void prepareForOutput(ServiceContext ctx) {
+		/*
+		 * there may be hierarchical data
+		 */
+		if (this.outputRecords != null) {
+			for (OutputRecord rec : this.outputRecords) {
+				rec.prepareChildSheets(ctx);
+			}
+		}
 	}
 
 }

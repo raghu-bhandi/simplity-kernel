@@ -148,7 +148,16 @@ public interface ReqReader {
 	 *
 	 * @param ctx
 	 */
-	public void readAsPerSpec(ServiceContext ctx);
+	public void pushDataToContext(ServiceContext ctx);
+
+	/**
+	 * is this reader equipped to parse and validate input based on input
+	 * specifications?
+	 *
+	 * @return true if this is based on spec, so that it can safely push data to
+	 *         context. false if it is for service to do that
+	 */
+	public boolean hasInputSpecs();
 
 	/**
 	 * type of value received as input

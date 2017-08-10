@@ -57,7 +57,7 @@ public class ArrayParameter extends Parameter {
 		this.setSpecificAttributes(paramSpec);
 	}
 
-	private void setSpecificAttributes(JSONObject paramSpec){
+	private void setSpecificAttributes(JSONObject paramSpec) {
 		if (this.validValues != null) {
 			return;
 		}
@@ -66,7 +66,8 @@ public class ArrayParameter extends Parameter {
 		if (txt != null) {
 			this.colnType = CollectionType.valueOf(txt);
 			if (this.colnType == null) {
-				throw new ApplicationError("Parameter " +this.name + " uses an invalid collectionormat value of " + txt );
+				throw new ApplicationError(
+						"Parameter " + this.name + " uses an invalid collectionormat value of " + txt);
 			}
 			if (this.colnType == CollectionType.multi) {
 				logger.info(
@@ -145,8 +146,8 @@ public class ArrayParameter extends Parameter {
 		 */
 		int len = arr.length();
 		if (len < this.minItems || (this.maxItems != 0 && len > this.maxItems)) {
-			logger.info("Array field " + this.name + " has minItems=" + this.minItems + " and maxItems="
-					+ this.maxItems + " but it received " + len + " items");
+			logger.info("Array field " + this.name + " has minItems=" + this.minItems + " and maxItems=" + this.maxItems
+					+ " but it received " + len + " items");
 			return this.invalidValue(messages);
 		}
 
@@ -306,5 +307,18 @@ public class ArrayParameter extends Parameter {
 	 */
 	public String serialize(JSONArray data) {
 		return this.colnType.arrayToText(data);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.rest.param.Parameter#getSchemaName()
+	 */
+	@Override
+	public String getSchemaName() {
+		if (this.item != null) {
+			return this.item.schemaName;
+		}
+		return super.getSchemaName();
 	}
 }

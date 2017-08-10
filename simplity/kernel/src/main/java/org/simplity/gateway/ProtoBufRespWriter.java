@@ -391,13 +391,25 @@ public class ProtoBufRespWriter implements RespWriter {
 	@Override
 	public void writeout(OutputStream stream) throws IOException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.RespWriter#pullDataFromContext(org.simplity.service.ServiceContext)
+	 */
 	@Override
-	public void writeAsPerSpec(ServiceContext ctx) {
+	public void pullDataFromContext(ServiceContext ctx) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.RespWriter#hasOutputSpec()
+	 */
+	@Override
+	public boolean hasOutputSpec() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 

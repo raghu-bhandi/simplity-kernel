@@ -228,6 +228,14 @@ public interface RespWriter {
 	 *
 	 * @param ctx
 	 */
-	public void writeAsPerSpec(ServiceContext ctx);
+	public void pullDataFromContext(ServiceContext ctx);
 
+	/**
+	 * is this writer based on output specification so that it can select, and
+	 * format required out put data
+	 *
+	 * @return true if it has details of output parameters. false if it is a
+	 *         pipe and service should take care of that
+	 */
+	public boolean hasOutputSpec();
 }

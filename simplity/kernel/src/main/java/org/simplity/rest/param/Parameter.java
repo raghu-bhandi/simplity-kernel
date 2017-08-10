@@ -43,6 +43,11 @@ import org.simplity.rest.Tags;
 public abstract class Parameter {
 
 	/**
+	 * name to be used when the context has no name
+	 */
+	private static final String UNKNOWN_NAME = "array-item";
+
+	/**
 	 * parse swagger document node into an appropriate Parameter
 	 *
 	 * @param param
@@ -97,6 +102,12 @@ public abstract class Parameter {
 	 */
 	protected String fieldName;
 	/**
+	 * schema that is used to define the fields, if this is either object, or
+	 * array of objects. null if this is primitive, or the schema is defined
+	 * in-line
+	 */
+	protected String schemaName;
+	/**
 	 * is this mandatory
 	 */
 	protected boolean isRequired;
@@ -122,7 +133,7 @@ public abstract class Parameter {
 		/*
 		 * for array item, name could be null as we recurse into it.
 		 */
-		this.name = paramSpec.optString(Tags.PARAM_NAME_ATTR, "array-item");
+		this.name = paramSpec.optString(Tags.PARAM_NAME_ATTR, UNKNOWN_NAME);
 		this.fieldName = paramSpec.optString(Tags.FIELD_NAME_ATTR, this.name);
 		this.defaultValue = paramSpec.opt(Tags.DEFAULT_ATTR);
 		this.isRequired = paramSpec.optBoolean(Tags.REQUIRED_ATTR, false);
@@ -154,7 +165,7 @@ public abstract class Parameter {
 		this.name = name;
 		if (fn != null) {
 			this.fieldName = fn;
-		}else if(defFieldUsed){
+		} else if (defFieldUsed) {
 			this.fieldName = name;
 		}
 	}
@@ -275,5 +286,26 @@ public abstract class Parameter {
 	public void enableRequired() {
 		this.isRequired = true;
 
+	}
+
+	/**
+	 * in case this is an object, or array of objects, what is the
+	 *
+	 *
+	 * @return class/message/schema name that describes the structure of this
+	 *         parameter. null if this is primitive, or is defined in-line
+	 *         without a definition
+	 */
+	public String getSchemaName() {
+		if(this.schemaName != null){
+			return this.schemaName;
+		}
+		/*
+		 * try name of this field, unless it is unknown
+		 */
+		if(UNKNOWN_NAME.equals(this.name)){
+			return null;
+		}
+		return this.name;
 	}
 }

@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * represents a record/row/table that is used as input for a service
  */
 public class InputRecord {
-	private  static final Logger logger = LoggerFactory.getLogger(InputRecord.class);
+	private static final Logger logger = LoggerFactory.getLogger(InputRecord.class);
 
 	/**
 	 * fully qualified name of the record that we are expecting as input. In
@@ -171,8 +171,8 @@ public class InputRecord {
 	 * @param childColName
 	 * @param parentColName
 	 */
-	public InputRecord(String recName, String sheetName, String parentSheetName,
-			String childColName, String parentColName) {
+	public InputRecord(String recName, String sheetName, String parentSheetName, String childColName,
+			String parentColName) {
 		this.recordName = recName;
 		this.sheetName = sheetName;
 		this.parentSheetName = parentSheetName;
@@ -189,8 +189,8 @@ public class InputRecord {
 	 * @param childColNames
 	 * @param parentColNames
 	 */
-	public InputRecord(String recName, String sheetName, String parentSheetName,
-			String[] childColNames, String[] parentColNames) {
+	public InputRecord(String recName, String sheetName, String parentSheetName, String[] childColNames,
+			String[] parentColNames) {
 		this.recordName = recName;
 		this.sheetName = sheetName;
 		this.parentSheetName = parentSheetName;
@@ -220,8 +220,7 @@ public class InputRecord {
 		 * service. Hopefully enforced by design reviews :-)
 		 */
 		if (this.fields == null) {
-			JsonUtil.extractWithNoValidation(json, ctx, this.sheetName,
-					this.parentSheetName);
+			JsonUtil.extractWithNoValidation(json, ctx, this.sheetName, this.parentSheetName);
 			return;
 		}
 
@@ -263,8 +262,7 @@ public class InputRecord {
 		 */
 		if (sheet == null || sheet.length() == 0) {
 			if (this.minRows > 1) {
-				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, "" + this.minRows, ""
-						+ this.maxRows);
+				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, "" + this.minRows, "" + this.maxRows);
 			} else {
 				logger.info("No data for sheet " + this.sheetName);
 			}
@@ -274,11 +272,9 @@ public class InputRecord {
 		int nbrRows = sheet.length();
 		if (nbrRows < this.minRows || (this.maxRows != 0 && nbrRows > this.maxRows)) {
 			if (this.minRows > 0) {
-				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, "" + this.minRows, ""
-						+ this.maxRows);
+				ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, "" + this.minRows, "" + this.maxRows);
 			} else {
-				ctx.addMessage(ServiceMessages.MAX_INPUT_ROWS, "" + this.maxRows, ""
-						+ this.maxRows);
+				ctx.addMessage(ServiceMessages.MAX_INPUT_ROWS, "" + this.maxRows, "" + this.maxRows);
 			}
 			return;
 		}
@@ -291,8 +287,7 @@ public class InputRecord {
 
 		}
 		ctx.putDataSheet(this.sheetName, sheet);
-		logger.info("Datasheet " + this.sheetName + " with " + nbrRows
-				+ " rows added to the context.");
+		logger.info("Datasheet " + this.sheetName + " with " + nbrRows + " rows added to the context.");
 	}
 
 	/**
@@ -307,11 +302,10 @@ public class InputRecord {
 		Object object = json.opt(this.sheetName);
 		if (object != null) {
 			ctx.setObject(this.sheetName, object);
-			logger.info("Data input for " + this.sheetName + " saved as " + object
-					.getClass().getName() + " for later use.");
+			logger.info("Data input for " + this.sheetName + " saved as " + object.getClass().getName()
+					+ " for later use.");
 		} else if (this.minRows > 0) {
-			ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, "" + this.minRows, ""
-					+ this.maxRows);
+			ctx.addMessage(ServiceMessages.MIN_INPUT_ROWS, "" + this.minRows, "" + this.maxRows);
 
 		} else {
 			logger.info("No data for sheet " + this.sheetName);
@@ -350,17 +344,15 @@ public class InputRecord {
 			return;
 		}
 
-		logger.info(
-				"We expected an object, or an array with an objectas its first element, but got "
-						+ object + ". This is ignored.");
+		logger.info("We expected an object, or an array with an objectas its first element, but got " + object
+				+ ". This is ignored.");
 		/*
 		 * let us not give-up, but try at the top itself
 		 */
 		this.extractFields(json, ctx);
 	}
 
-	private DataSheet getSheetFromParent(JSONObject json, ServiceContext ctx,
-			List<FormattedMessage> errors) {
+	private DataSheet getSheetFromParent(JSONObject json, ServiceContext ctx, List<FormattedMessage> errors) {
 		/*
 		 * this is a child sheet. parent may or may not be a sheet
 		 */
@@ -393,8 +385,8 @@ public class InputRecord {
 		if (inputFields == null) {
 			inputFields = this.guessFieldsFromChildRows(data, json);
 			if (inputFields == null) {
-				logger.info("We did not get any non-empty rows for " + this.sheetName
-						+ " and hence no rows extracted.");
+				logger.info(
+						"We did not get any non-empty rows for " + this.sheetName + " and hence no rows extracted.");
 				return null;
 			}
 		}
@@ -462,8 +454,8 @@ public class InputRecord {
 	 * @return data sheet with all child rows, with link fields duly copied from
 	 *         parent to child
 	 */
-	private DataSheet getChildSheetWithMultipleLinks(JSONArray parentRows,
-			Field[] inputFields, List<FormattedMessage> errors) {
+	private DataSheet getChildSheetWithMultipleLinks(JSONArray parentRows, Field[] inputFields,
+			List<FormattedMessage> errors) {
 
 		DataSheet ds = new MultiRowsSheet(inputFields);
 
@@ -483,8 +475,8 @@ public class InputRecord {
 				continue;
 			}
 			if (obj instanceof JSONObject == false) {
-				logger.info("Child row element is expected to be an object but we got "
-						+ obj.getClass().getSimpleName() + ". Input ignored.");
+				logger.info("Child row element is expected to be an object but we got " + obj.getClass().getSimpleName()
+						+ ". Input ignored.");
 				continue;
 			}
 			JSONObject parentObject = (JSONObject) obj;
@@ -499,8 +491,7 @@ public class InputRecord {
 			for (int childIdx = 0; childIdx < n; childIdx++) {
 				JSONObject child = rows.optJSONObject(childIdx);
 				if (child == null) {
-					logger.info("Child element at " + (childIdx + 1)
-							+ " is not an object. Row ignored.");
+					logger.info("Child element at " + (childIdx + 1) + " is not an object. Row ignored.");
 					continue;
 				}
 				Value[] row = new Value[nbrFields];
@@ -511,8 +502,7 @@ public class InputRecord {
 					if (val == null) {
 						val = child.opt(fieldName);
 					}
-					row[fieldIdx] = field.parseObject(val, errors, allFieldsAreOptional,
-							this.sheetName);
+					row[fieldIdx] = field.parseObject(val, errors, allFieldsAreOptional, this.sheetName);
 				}
 				ds.addRow(row);
 			}
@@ -534,8 +524,8 @@ public class InputRecord {
 	 * @param errors
 	 *            accumulate any error while parsing data
 	 */
-	private void addRowsFromParent(JSONObject parentObject, Field[] inputFields,
-			int parentKeyIdx, DataSheet ds, List<FormattedMessage> errors) {
+	private void addRowsFromParent(JSONObject parentObject, Field[] inputFields, int parentKeyIdx, DataSheet ds,
+			List<FormattedMessage> errors) {
 		JSONArray rows = parentObject.optJSONArray(this.sheetName);
 		if (rows == null) {
 			return;
@@ -556,8 +546,7 @@ public class InputRecord {
 				} else {
 					val = obj.opt(field.getName());
 				}
-				row[fieldIdx] = field.parseObject(val, errors,
-						this.purpose == DataPurpose.SUBSET, this.sheetName);
+				row[fieldIdx] = field.parseObject(val, errors, this.purpose == DataPurpose.SUBSET, this.sheetName);
 				fieldIdx++;
 			}
 			ds.addRow(row);
@@ -596,8 +585,7 @@ public class InputRecord {
 	 * @param parentRows
 	 * @return
 	 */
-	private Field[] guessFieldsFromChildRows(JSONArray childRows,
-			JSONObject parentObject) {
+	private Field[] guessFieldsFromChildRows(JSONArray childRows, JSONObject parentObject) {
 		/*
 		 * go down till we get the first row for this child, and we get all
 		 * attributes as fields.
@@ -614,31 +602,27 @@ public class InputRecord {
 		return null;
 	}
 
-	private DataSheet getSheetFromArray(JSONObject json, ServiceContext ctx,
-			List<FormattedMessage> errors) {
+	private DataSheet getSheetFromArray(JSONObject json, ServiceContext ctx, List<FormattedMessage> errors) {
 		Object object = json.opt(this.sheetName);
 		if (object == null) {
 			/*
 			 * data sheet not recd. We try fields
 			 */
 			if (this.minRows <= 1) {
-				logger.info("No data for sheet " + this.sheetName
-						+ ". We try and add fields instead.");
+				logger.info("No data for sheet " + this.sheetName + ". We try and add fields instead.");
 				this.extractFields(json, ctx);
 			}
 			return null;
 		}
 		boolean allFieldsAreOptional = this.purpose == DataPurpose.SUBSET;
 		if (object instanceof JSONArray) {
-			return JsonUtil.getSheet((JSONArray) object, this.fields, errors,
-					allFieldsAreOptional, null, null);
+			return JsonUtil.getSheet((JSONArray) object, this.fields, errors, allFieldsAreOptional, null, null);
 		}
 
 		if (object instanceof JSONObject) {
 			JSONArray arr = new JSONArray();
 			arr.put(object);
-			return JsonUtil.getSheet(arr, this.fields, errors, allFieldsAreOptional, null,
-					null);
+			return JsonUtil.getSheet(arr, this.fields, errors, allFieldsAreOptional, null, null);
 		}
 		logger.info("Receieved " + object + " as value for " + this.sheetName
 				+ " while we would have been happy with an array or an object. Input ignored");
@@ -654,20 +638,17 @@ public class InputRecord {
 			nbr = JsonUtil.extractFilterFields(json, this.fields, ctx, errors);
 
 		} else {
-			nbr = JsonUtil.extractFields(json, this.fields, ctx, errors,
-					allFieldsAreOptional);
+			nbr = JsonUtil.extractFields(json, this.fields, ctx, errors, allFieldsAreOptional);
 		}
 		logger.info(nbr + " fields into ctx based on record " + this.recordName);
 
-		if (errors.size() == 0 && this.hasInterFieldValidations
-				&& allFieldsAreOptional == false && nbr > 1) {
+		if (errors.size() == 0 && this.hasInterFieldValidations && allFieldsAreOptional == false && nbr > 1) {
 			for (Field field : this.fields) {
 				field.validateInterfield(ctx, errors, null);
 			}
 		}
 		if (errors.size() > 0) {
-			logger.info(" We got " + errors.size()
-					+ " validaiton errors during this record input");
+			logger.info(" We got " + errors.size() + " validaiton errors during this record input");
 			ctx.addMessages(errors);
 		}
 		return;
@@ -704,8 +685,7 @@ public class InputRecord {
 			return;
 		}
 
-		this.fields = record.getFieldsToBeExtracted(this.fieldNames, this.purpose,
-				this.saveActionExpected);
+		this.fields = record.getFieldsToBeExtracted(this.fieldNames, this.purpose, this.saveActionExpected);
 		this.hasInterFieldValidations = record.hasInterFieldValidations();
 	}
 
@@ -733,30 +713,28 @@ public class InputRecord {
 		 */
 		if (this.parentSheetName != null) {
 			if (this.sheetName == null) {
-				ctx.addError(
-						"Can not have a parent sheet name without a sheet name for this record");
+				ctx.addError("Can not have a parent sheet name without a sheet name for this record");
 				count++;
 			}
-			if (this.linkColumnInParentSheet == null){
-				if(this.linkColumnInThisSheet != null){
+			if (this.linkColumnInParentSheet == null) {
+				if (this.linkColumnInThisSheet != null) {
 					ctx.reportUnusualSetting(
 							"linkColumnInThisSheet is not relevant unless linkColumnInParentSheet is specified.");
 				}
-				if(this.listOfLinkColumnsInThisSheet == null){
+				if (this.listOfLinkColumnsInThisSheet == null) {
 					ctx.addError(
 							"linkColumnInThisSheet or listOfLinkClumnsInParentSheet to be specified when parentSheetNme is specified.");
 				}
-			}else{
-				if(this.linkColumnInThisSheet == null){
-					ctx.addError(
-							"linkColumnInThisSheet must be specified in tune with linkColumnInParentSheet.");
+			} else {
+				if (this.linkColumnInThisSheet == null) {
+					ctx.addError("linkColumnInThisSheet must be specified in tune with linkColumnInParentSheet.");
 				}
-				if(this.listOfLinkColumnsInThisSheet != null){
+				if (this.listOfLinkColumnsInThisSheet != null) {
 					ctx.reportUnusualSetting(
 							"listOfLinkColumnsInThisSheet is not relevant when  linkColumnInThisSheet is specified.");
 				}
 			}
-			if(this.linkColumnInThisSheet == null) {
+			if (this.linkColumnInThisSheet == null) {
 				ctx.addError(
 						"linkColumnInParentSheet and linkColumnInThisSheet are required to link this sheet with parent sheet.");
 				count++;
@@ -769,12 +747,10 @@ public class InputRecord {
 		}
 
 		if (this.minRows < 0 || this.maxRows < 0 || this.minRows > this.maxRows) {
-			ctx.addError(
-					"minRows and maxRows are to be positive and min should not be greater than max.");
+			ctx.addError("minRows and maxRows are to be positive and min should not be greater than max.");
 			count++;
 		}
-		if ((this.sheetName == null || this.extractIntoFields) && (this.minRows > 1
-				|| this.maxRows > 1)) {
+		if ((this.sheetName == null || this.extractIntoFields) && (this.minRows > 1 || this.maxRows > 1)) {
 			String msg = "minRows=" + this.minRows + " and maxRows=" + this.maxRows;
 			if (this.sheetName == null) {
 				msg += " but no sheetName specified.";
@@ -794,8 +770,10 @@ public class InputRecord {
 		this.recordName = recName;
 
 	}
+
 	/**
-	 * @param purpose the purpose to set
+	 * @param purpose
+	 *            the purpose to set
 	 */
 	public void setPurpose(DataPurpose purpose) {
 		this.purpose = purpose;
@@ -804,7 +782,7 @@ public class InputRecord {
 	/**
 	 * set saveActionExpected = true
 	 */
-	public void enableSaveAction(){
+	public void enableSaveAction() {
 		this.saveActionExpected = true;
 	}
 
@@ -1268,5 +1246,47 @@ public class InputRecord {
 		return new MultiRowsSheet(names, types);
 	}
 
+	/**
+	 * @param ctx
+	 */
+	public void addEmptySheet(ServiceContext ctx) {
+		if (this.fields == null) {
+			return;
+		}
+		/*
+		 * create a data sheet in anticipation of data
+		 */
+		DataSheet sheet = new MultiRowsSheet(this.fields);
+		if (this.extractIntoFields) {
+			/*
+			 * fields will be extracted to root, but we create a sheet to
+			 * provide data types
+			 */
+			ctx.putDataSheet(ServiceProtocol.ROOT_SHEET, sheet);
+		} else {
+			ctx.putDataSheet(this.sheetName, sheet);
+		}
+	}
+
+	/**
+	 * if this is a child sheet, add data sheet link to the context
+	 * @param ctx
+	 */
+	public void addDataSheetLink(ServiceContext ctx){
+		if(this.parentSheetName == null){
+			return ;
+		}
+		String[] pkeys = this.listOfLinkColumnsInParentSheet;
+		String[] ckeys;
+		if(pkeys == null){
+			pkeys = new String[0];
+			pkeys[0] = this.linkColumnInParentSheet;
+			ckeys = new String[0];
+			ckeys[0] = this.linkColumnInThisSheet;
+		}else{
+			ckeys = this.listOfLinkColumnsInThisSheet;
+		}
+		ctx.addSheetLink(this.parentSheetName, this.sheetName, pkeys, ckeys);
+	}
 
 }

@@ -24,6 +24,7 @@ package org.simplity.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,13 +38,17 @@ import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.MessageBox;
 import org.simplity.kernel.MessageType;
 import org.simplity.kernel.Messages;
+import org.simplity.kernel.data.ChildSheets;
 import org.simplity.kernel.data.CommonData;
 import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.data.DataSheetLink;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.data.MultiRowsSheet;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Context is created for an execution of a service. A service execution
@@ -66,7 +71,7 @@ import org.simplity.kernel.value.ValueType;
  * @author simplity.org
  */
 public class ServiceContext extends CommonData {
-
+	private static final Logger logger = LoggerFactory.getLogger(ServiceContext.class);
 	private final String serviceName;
 	private final Value userId;
 	private List<FormattedMessage> messages = new ArrayList<FormattedMessage>();
@@ -96,7 +101,12 @@ public class ServiceContext extends CommonData {
 	 * nothing is to be invalidated
 	 */
 	private String[] invalidations;
+	/**
+	 * Hierarchical child sheets prepared for output
+	 */
+	private Map<String, ChildSheets> outputChildSheets;
 
+	private Map<String, DataSheetLink> inputSheetLinks;
 	/**
 	 * @param serviceName
 	 * @param userId
@@ -430,4 +440,88 @@ public class ServiceContext extends CommonData {
 		this.invalidations = invalidations;
 	}
 
+	/**
+	 * Break a child sheet into small sheets, one for each key-combination s per
+	 * parent-child relationship
+	 *
+	 * @param parentSheetName
+	 * @param childSheetName
+	 * @param parentKeys
+	 * @param childKeys
+	 */
+	public void prepareChildSheets(String parentSheetName, String childSheetName, String[] parentKeys,
+			String[] childKeys) {
+		DataSheet parentSheet = this.getDataSheet(parentSheetName);
+		if (parentSheet == null) {
+			logger.error("Data sheet named {} not found. child sheets not prepared for this parent.", parentSheetName);
+		}
+		DataSheet childSheet = this.getDataSheet(childSheetName);
+		if (childSheet == null) {
+			logger.error("Data sheet named {} not found. child sheets not prepared for this child.", childSheetName);
+		}
+		ChildSheets children = new ChildSheets(parentKeys, childKeys, parentSheet, childSheet);
+		if (this.outputChildSheets == null) {
+			this.outputChildSheets = new HashMap<String, ChildSheets>();
+		}
+		this.outputChildSheets.put(childSheetName, children);
+	}
+
+	/**
+	 * @param parentSheetName
+	 * @param childSheetName
+	 * @param pkeys
+	 * @param ckeys
+	 */
+	public void addSheetLink(String parentSheetName, String childSheetName, String[] pkeys, String[] ckeys) {
+		if(this.inputSheetLinks == null){
+			this.inputSheetLinks = new HashMap<String, DataSheetLink>();
+		}
+		DataSheet sheet =this.getDataSheet(parentSheetName);
+		if(sheet == null){
+			logger.error("parent sheet {} not found in ctx. link not created.", parentSheetName);
+			return;
+		}
+		int[] pindexes = sheet.getColumnIndexes(pkeys);
+		sheet =this.getDataSheet(childSheetName);
+		if(sheet == null){
+			logger.error("parent sheet {} not found in ctx. link not created.", childSheetName);
+			return;
+		}
+		int[] chindexes = sheet.getColumnIndexes(ckeys);
+
+		this.inputSheetLinks.put(childSheetName, new DataSheetLink(parentSheetName, childSheetName, pindexes, chindexes));
+	}
+
+	/**
+	 * DataSheetLink
+	 * @param childSheetName
+	 * @return link, or null if there is no link for this child sheet
+	 */
+	public DataSheetLink getDataSheetLink(String childSheetName){
+		if(this.inputSheetLinks == null){
+			return null;
+		}
+		return this.inputSheetLinks.get(childSheetName);
+	}
+	/**
+	 * get filtered child-sheet for the parent row.
+	 *
+	 * @param childSheetName
+	 * @param parentRow
+	 *            for which child sheet is to be returned
+	 * @return filtered child sheet for this parent row
+	 */
+	public DataSheet getChildSheet(String childSheetName, Value[] parentRow) {
+		ChildSheets children = null;
+		if (this.outputChildSheets != null) {
+			children = this.outputChildSheets.get(childSheetName);
+		}
+
+		if (children == null) {
+			logger.error("Child sheet " + childSheetName
+					+ " is not filtered for its parent. outputRecord may be missing for this");
+			return null;
+		}
+		return children.getChildSheet(parentRow);
+	}
 }

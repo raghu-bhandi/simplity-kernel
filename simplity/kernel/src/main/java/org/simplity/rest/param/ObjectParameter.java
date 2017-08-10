@@ -73,6 +73,7 @@ public class ObjectParameter extends Parameter {
 		 * just a safety. valid values is not valid for this type
 		 */
 		this.validValues = null;
+		this.schemaName = paramSpec.optString(Tags.OBJECT_TYPE_ATTR, null);
 		String text = paramSpec.optString(Tags.REQUIRED_ATTR, null);
 		Set<String> requiredParams = null;
 		if(text != null && text.isEmpty() == false){

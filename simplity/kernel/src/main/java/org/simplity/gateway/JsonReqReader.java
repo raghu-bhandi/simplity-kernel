@@ -333,7 +333,7 @@ public class JsonReqReader implements ReqReader {
 	 * ServiceContext)
 	 */
 	@Override
-	public void readAsPerSpec(ServiceContext ctx) {
+	public void pushDataToContext(ServiceContext ctx) {
 		for (String key : JSONObject.getNames(this.inputJson)) {
 			Object value = this.inputJson.opt(key);
 			switch (getType(value)) {
@@ -433,5 +433,13 @@ public class JsonReqReader implements ReqReader {
 			ds.addRow(row);
 		}
 		return ds;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.ReqReader#hasInputSpecs()
+	 */
+	@Override
+	public boolean hasInputSpecs() {
+		return true;
 	}
 }

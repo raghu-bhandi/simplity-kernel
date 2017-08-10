@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class OutputRecord {
-	private  static final Logger logger = LoggerFactory.getLogger(OutputRecord.class);
+	private static final Logger logger = LoggerFactory.getLogger(OutputRecord.class);
 
 	/**
 	 * sheet into which output should get into. If null, then recordName should
@@ -551,4 +551,31 @@ public class OutputRecord {
 		}
 	}
 
+	/**
+	 * if this is a child sheet, then we have to prepare sub-sheets.
+	 *
+	 *
+	 * @param ctx
+	 */
+	public void prepareChildSheets(ServiceContext ctx) {
+		if (this.parentSheetName == null) {
+			return;
+		}
+		/*
+		 * we have done some optimization at the cost of complexity. if array is
+		 * null, we have to use single one.
+		 */
+		String[] pranetKeys = this.listOfLinkColumnsInParentSheet;
+		String[] childKeys;
+		if (pranetKeys == null) {
+			pranetKeys = new String[1];
+			pranetKeys[0] = this.linkColumnInParentSheet;
+			childKeys = new String[1];
+			childKeys[0] = this.linkColumnInThisSheet;
+		} else {
+			childKeys = this.listOfLinkColumnsInThisSheet;
+		}
+
+		ctx.prepareChildSheets(this.parentSheetName, this.sheetName, pranetKeys, childKeys);
+	}
 }

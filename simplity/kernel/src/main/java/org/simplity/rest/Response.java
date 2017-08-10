@@ -188,7 +188,7 @@ public class Response {
 		}
 
 		logger.info(
-				"Preparing response body based on a parameter type " + this.bodyParameter.getClass().getSimpleName());
+				"Preparing response body based on a parameter type {}", this.bodyParameter.getClass().getSimpleName());
 		/*
 		 * most of the time, it is an object
 		 */
@@ -291,7 +291,12 @@ public class Response {
 	 * @return response writer for this response
 	 */
 	public ProtoRespWriter getProtoWriter(HttpServletResponse resp) {
-		Builder builder = Operations.getMessageBuilder(this.bodyParameter.getFieldName());
+		String schemaName = this.bodyParameter.getName();
+		if(schemaName == null){
+			throw new ApplicationError("Response has a non-object schema, or the object schema is defined in-line. proto-buf requires the root to be an object, and you should define the schema in definitions for a protobuf class to be generated for that.");
+		}
+
+		Builder builder = Operations.getMessageBuilder(schemaName);
 		return new ProtoRespWriter(builder);
 	}
 }

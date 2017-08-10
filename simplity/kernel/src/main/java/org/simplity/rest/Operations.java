@@ -32,7 +32,6 @@ import org.simplity.auth.SecurityAgent;
 import org.simplity.json.JSONObject;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.HierarchicalSheet;
-import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.TextUtil;
@@ -321,40 +320,19 @@ public class Operations {
 	 */
 	public static void main(String[] args) {
 		String rootFolder = "C:/repos/simplity/test/WebContent/WEB-INF/api/";
-		String txt = FileManager.readFile(new File(rootFolder + "troubleTicket.json.txt"));
-		JSONObject swagger = new JSONObject(txt);
-		JSONObject defs = swagger.optJSONObject(Tags.DEFS_ATTR);
-		if (defs == null) {
-			logger.info("No defintions found");
-			return;
+		loadAll(rootFolder);
+
+		JSONObject pathData = new JSONObject();
+		Operation op = Operations.getOperation("/scdb/storagecontracts/contract", "post", pathData);
+		if(op == null){
+			logger.info("op is null");
+		}else{
+			logger.info(op.getServiceName() + "is the service name of oepration");
+			logger.info("ticket id is " + pathData.optDouble("troubleTicketId"));
 		}
 
-		logger.info("going to scan " + defs.length() + " schemas at the root level");
-		Record[] recs = Record.fromSwaggerDefinitions(null, defs);
-		logger.info(recs.length + " records generated");
-		/*
-		 * loadFromFile(rootFolder+"junk.json");
-		 * Operation op =
-		 * rootNode.getChild("app").getChild("t").getOpertion("post");
-		 * System.out.print("");
-		 * loadAll(rootFolder);
-		 * JSONObject params = new JSONObject();
-		 * Operation spec = getServiceSpec("/app/troubleTicket/1234", "get",
-		 * params);
-		 * if (spec == null) {
-		 * logger.info("That is not a valid request");
-		 * } else {
-		 * System.out.println("ServiceName is " + spec.getServiceName());
-		 * System.out.println("params is " + params.toString(2));
-		 * }
-		 */
+		logger.info("We are all done");
 	}
-	/*
-	 * 1. parameters and responses at the root level to be used as reference
-	 * 2. body is an object in swagger. In our convention, it contains other
-	 * objects/primitive. How do we want to handle that?
-	 *
-	 */
 
 	private static String protoPrefix = null;
 

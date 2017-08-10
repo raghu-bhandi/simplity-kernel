@@ -25,20 +25,18 @@ package org.simplity.gateway;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.List;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.FormattedMessage;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.value.Value;
+import org.simplity.proto.ProtoUtil;
 import org.simplity.service.ServiceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.protobuf.Descriptors.FieldDescriptor;
-import com.google.protobuf.Descriptors.FieldDescriptor.JavaType;
 import com.google.protobuf.Descriptors.FieldDescriptor.Type;
-import com.google.protobuf.Message;
 import com.google.protobuf.Message.Builder;
 
 /**
@@ -98,8 +96,8 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	@Override
 	public String getFinalResponseText() {
-		if(this.errorText == null){
-		return this.messageBuilder.build().toString();
+		if (this.errorText == null) {
+			return this.messageBuilder.build().toString();
 		}
 		return this.errorText;
 	}
@@ -114,8 +112,8 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	@Override
 	public Object getFinalResponseObject() {
-		if(this.errorText == null){
-		return this.messageBuilder.build();
+		if (this.errorText == null) {
+			return this.messageBuilder.build();
 		}
 		return null;
 	}
@@ -336,7 +334,7 @@ public class ProtoRespWriter implements RespWriter {
 	 * ServiceContext)
 	 */
 	@Override
-	public void writeAsPerSpec(ServiceContext ctx) {
+	public void pullDataFromContext(ServiceContext ctx) {
 		/*
 		 * are there errors?
 		 */
@@ -345,6 +343,13 @@ public class ProtoRespWriter implements RespWriter {
 			return;
 		}
 
+		/*
+		 * build the root object. its primitive fields are available as fields,
+		 * and embedded message, messageArray and primitiveArrays are available
+		 * as data sheets. If an embedded message, or embedded message array in
+		 * turn contains message/array, then the are available as child sheets
+		 * in context
+		 */
 		Collection<FieldDescriptor> fields = this.messageBuilder.getDescriptorForType().getFields();
 		for (FieldDescriptor fd : fields) {
 			String fieldName = fd.getName();
@@ -354,27 +359,23 @@ public class ProtoRespWriter implements RespWriter {
 			if (fd.isRepeated()) {
 				DataSheet sheet = ctx.getDataSheet(fieldName);
 				if (sheet == null || sheet.length() == 0) {
-					logger.info("No data for array field " + fieldName);
-				} else if (fd.getJavaType() == JavaType.MESSAGE) {
-					addMessages(this.messageBuilder, fd, sheet);
+					logger.info("No data for array field {}", fieldName);
+				} else if (fd.getType() == Type.MESSAGE) {
+					ProtoUtil.setMessagesArray(this.messageBuilder, fd, sheet, ctx);
 				} else {
-					this.addArray(this.messageBuilder, fd, sheet);
+					ProtoUtil.setPrimitiveArray(this.messageBuilder, fd, sheet);
 				}
 				continue;
 			}
 			/*
 			 * embedded object
 			 */
-			if (fd.getJavaType() == JavaType.MESSAGE) {
+			if (fd.getType() == Type.MESSAGE) {
 				DataSheet sheet = ctx.getDataSheet(fieldName);
 				if (sheet == null || sheet.length() == 0) {
-					logger.info("No data found for embedded maessage " + fieldName);
+					logger.info("No data found for embedded maessage {}", fieldName);
 				} else {
-					Message child = createMessage(this.messageBuilder.newBuilderForField(fd),
-							fd.getMessageType().getFields(), sheet);
-					if (child != null) {
-						this.messageBuilder.setField(fd, child);
-					}
+					ProtoUtil.setMessage(this.messageBuilder, fd, sheet, ctx);
 				}
 				continue;
 			}
@@ -383,100 +384,18 @@ public class ProtoRespWriter implements RespWriter {
 			 */
 			Value value = ctx.getValue(fieldName);
 			if (value != null) {
-				setFieldValue(this.messageBuilder, fd, value);
+				this.messageBuilder.setField(fd, ProtoUtil.convertFieldValue(fd, value));
 			}
 		}
 	}
 
-	/**
-	 * @param builder
-	 * @param fd
-	 * @param sheet
-	 */
-	private void addArray(Builder builder, FieldDescriptor fd, DataSheet sheet) {
-		int nbr = sheet.length();
-		for (int i = 0; i < nbr; i++) {
-			Value value = sheet.getRow(i)[0];
-			if (Value.isNull(value) == false) {
-				builder.addRepeatedField(fd, value.toObject());
-			}
-		}
-	}
-
-	/**
+	/*
+	 * (non-Javadoc)
 	 *
-	 * @param parentBuilder
-	 * @param fd
-	 * @param sheet
+	 * @see org.simplity.gateway.RespWriter#hasOutputSpec()
 	 */
-	private static void addMessages(Builder parentBuilder, FieldDescriptor fd, DataSheet sheet) {
-		Builder builder = parentBuilder.newBuilderForField(fd);
-		List<FieldDescriptor> fields = fd.getMessageType().getFields();
-		/*
-		 * we optimize extraction of data from sheet by taking a row at a time,
-		 * and cache the col indexes
-		 */
-		int[] colIndexes = new int[fields.size()];
-		for (int i = 0; i < colIndexes.length; i++) {
-			FieldDescriptor field = fields.get(i);
-			if (field.isRepeated() || field.getJavaType() == JavaType.MESSAGE) {
-				throw new ApplicationError(
-						"We are yet to implement arbitrary object structures. Only one level of child-array/message is handled.");
-			}
-			colIndexes[i] = sheet.getColIdx(field.getName());
-		}
-		/*
-		 * now create a message for each row, and add it to the field
-		 */
-		int nbrRows = sheet.length();
-		for (int rowIdx = 0; rowIdx < nbrRows; rowIdx++) {
-			builder.clear();
-			Value[] row = sheet.getRow(rowIdx);
-			for (int i = 0; i < colIndexes.length; i++) {
-				int idx = colIndexes[i];
-				if (idx >= 0) {
-					Value value = row[idx];
-					if (Value.isNull(value) == false) {
-						setFieldValue(builder, fields.get(i), value);
-					}
-				}
-			}
-			/*
-			 * child-message attributes are all set. create and add it.
-			 */
-			parentBuilder.addRepeatedField(fd, builder.build());
-		}
-	}
-
-	private static void setFieldValue(Builder builder, FieldDescriptor fd, Value value) {
-		Type type = fd.getType();
-		Object fieldValue = null;
-		if (type == Type.ENUM) {
-			fieldValue = fd.getEnumType().findValueByName(value.toString());
-		} else if (type == Type.STRING) {
-			fieldValue = value.toString();
-		} else {
-			fieldValue = value.toObject();
-		}
-		builder.setField(fd, fieldValue);
-	}
-
-	/**
-	 * @param newBuilderForField
-	 * @param fields
-	 * @return
-	 */
-	private static Message createMessage(Builder builder, List<FieldDescriptor> fields, DataSheet sheet) {
-		for (FieldDescriptor field : fields) {
-			if (field.isRepeated() || field.getJavaType() == JavaType.MESSAGE) {
-				throw new ApplicationError(
-						"We are yet to implement arbitrary object structures. Only one level of chil-array/message is handled.");
-			}
-			Value value = sheet.getColumnValue(field.getName(), 0);
-			if (Value.isNull(value) == false) {
-				builder.setField(field, value.toObject());
-			}
-		}
-		return builder.build();
+	@Override
+	public boolean hasOutputSpec() {
+		return true;
 	}
 }

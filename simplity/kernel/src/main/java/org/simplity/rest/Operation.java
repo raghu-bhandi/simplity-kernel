@@ -531,10 +531,11 @@ public class Operation {
 	 * @return reader that marshals input data to service context
 	 * @throws IOException
 	 */
-	public ProtoReqReader getProtoReader(HttpServletRequest req, JSONObject pathData, List<FormattedMessage> messages) throws IOException {
+	public ProtoReqReader getProtoReader(HttpServletRequest req, JSONObject pathData, List<FormattedMessage> messages)
+			throws IOException {
 		Message message = null;
-		if(this.bodyParameter != null){
-			Builder builder = Operations.getMessageBuilder(this.bodyParameter.getName());
+		if (this.bodyParameter != null) {
+			Builder builder = Operations.getMessageBuilder(this.bodyParameter.getSchemaName());
 			builder.mergeFrom(req.getInputStream());
 			message = builder.build();
 		}
@@ -544,7 +545,7 @@ public class Operation {
 			this.parseAndValidate(this.qryParameters, HttpUtil.parseQueryString(req, null), serviceData, messages);
 		}
 		if (this.pathParameters != null) {
-			if(serviceData == null){
+			if (serviceData == null) {
 				serviceData = new JSONObject();
 			}
 			if (pathData == null) {
@@ -554,13 +555,13 @@ public class Operation {
 			}
 		}
 		if (this.headerParameters != null) {
-			if(serviceData == null){
+			if (serviceData == null) {
 				serviceData = new JSONObject();
 			}
 			this.parseAndValidateHeaderFields(req, serviceData, messages);
 		}
-		if(messages.size() == 0){
-		return new ProtoReqReader(message, serviceData);
+		if (messages.size() == 0) {
+			return new ProtoReqReader(message, serviceData);
 		}
 		return null;
 	}
@@ -569,10 +570,12 @@ public class Operation {
 	 * @return default success response
 	 */
 	public Response getDefaultResponse() {
-		if(this.defaultResponse!=null)
+		if (this.defaultResponse != null) {
 			return this.defaultResponse;
-		if(this.successResponses.length!=0)
-			return this.successResponses[0];
-		return null;
+		}
+		if (this.successResponses == null || this.successResponses.length == 0) {
+			throw new ApplicationError("Operation has not defined any response for success.");
+		}
+		return this.successResponses[0];
 	}
 }
