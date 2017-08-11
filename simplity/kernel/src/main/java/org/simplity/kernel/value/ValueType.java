@@ -31,6 +31,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Date;
 
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.file.FileManager;
@@ -300,6 +301,11 @@ public enum ValueType {
       if (dbObject instanceof java.util.Date) {
         return Value.newDateValue(((java.util.Date) dbObject).getTime());
       }
+
+      if(dbObject instanceof Number){
+    	return Value.newDateValue(new Date(((Number)dbObject).longValue()));
+      }
+
       String val = dbObject.toString();
       java.util.Date date = DateUtil.parseDateWithOptionalTime(val);
       if (date != null) {

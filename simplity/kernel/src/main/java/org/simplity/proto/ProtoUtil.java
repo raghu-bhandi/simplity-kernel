@@ -283,8 +283,6 @@ public class ProtoUtil {
 	@SuppressWarnings("boxing")
 	public static Object convertFieldValue(FieldDescriptor fd, Value value) {
 
-
-
 		Type type = fd.getType();
 		/*
 		 * most common one. for efficiency, let us do it first
@@ -337,8 +335,7 @@ public class ProtoUtil {
 			return value.toString();
 		}
 		}catch(InvalidValueException e){
-			logger.error("Field parsing error",e);
-			throw new ApplicationError("proto field type " + type + " is receiving a value type of " + value.getValueType());
+			throw new ApplicationError("proto field " + fd.getFullName() + " of type " + type + " is receiving a value of " + value + "  with type of " + value.getValueType());
 		}
 	}
 
@@ -504,7 +501,7 @@ public class ProtoUtil {
 		if (link == null) {
 			if (parentRow != null) {
 				logger.error(
-						"Service context does not have a data-sheet-link for child sheet {}, and hence this child sheet can not be extracted from protobuf input");
+						"Service context does not have a data-sheet-link for child sheet {}, and hence this child sheet can not be extracted from protobuf input", fieldName);
 				return;
 			}
 		} else {
