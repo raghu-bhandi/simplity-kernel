@@ -291,7 +291,7 @@ public class Response {
 	 * @return response writer for this response
 	 */
 	public ProtoRespWriter getProtoWriter(HttpServletResponse resp) {
-		String schemaName = this.bodyParameter.getName();
+		String schemaName = this.bodyParameter.getSchemaName();
 		if(schemaName == null){
 			throw new ApplicationError("Response has a non-object schema, or the object schema is defined in-line. proto-buf requires the root to be an object, and you should define the schema in definitions for a protobuf class to be generated for that.");
 		}

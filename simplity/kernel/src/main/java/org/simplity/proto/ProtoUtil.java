@@ -310,7 +310,7 @@ public class ProtoUtil {
 			return Boolean.FALSE;
 
 		case ENUM:
-			return fd.getEnumType().findValueByName(value.toString());
+			return fd.getEnumType().findValueByName(value.toString().toUpperCase());
 
 		case FIXED32:
 		case SFIXED32:
@@ -337,6 +337,7 @@ public class ProtoUtil {
 			return value.toString();
 		}
 		}catch(InvalidValueException e){
+			logger.error("Field parsing error",e);
 			throw new ApplicationError("proto field type " + type + " is receiving a value type of " + value.getValueType());
 		}
 	}
