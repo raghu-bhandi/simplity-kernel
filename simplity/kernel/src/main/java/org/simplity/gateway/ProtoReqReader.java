@@ -43,6 +43,7 @@ import org.simplity.proto.ProtoUtil;
 import org.simplity.rest.Operation;
 import org.simplity.rest.Operations;
 import org.simplity.service.ServiceContext;
+import org.simplity.service.ServiceProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -252,6 +253,17 @@ public class ProtoReqReader implements ReqReader {
 			return;
 		}
 
+		/*
+		 * root sheet is created as an empty sheet in ctx in case an input
+		 * record is specified that determines the fields to be extracted to the
+		 * fields collection. This sheet, if present, is used to determine data
+		 * type, specifically any DATE fields.
+		 */
+		DataSheet rootSheet = ctx.getDataSheet(ServiceProtocol.ROOT_SHEET);
+		ValueType[] rootTypes = null;
+		if(rootSheet != null){
+			rootTypes = rootSheet.getValueTypes();
+		}
 		Map<FieldDescriptor, Object> fields = this.inputMessage.getAllFields();
 		for (Map.Entry<FieldDescriptor, Object> entry : fields.entrySet()) {
 			Object fieldValue = entry.getValue();
@@ -288,7 +300,20 @@ public class ProtoReqReader implements ReqReader {
 			/*
 			 * primitive value
 			 */
-			ctx.setValue(fieldName, Value.parseObject(fieldValue));
+			ValueType valueType = null;
+			if(rootTypes != null && rootSheet != null){
+				int colIdx = rootSheet.getColIdx(fieldName);
+				if(colIdx >= 0){
+					valueType = rootTypes[colIdx];
+				}
+			}
+			Value value;
+			if(valueType == null){
+				value = Value.parseObject(fieldValue);
+			}else{
+				value = valueType.parseObject(fieldValue);
+			}
+			ctx.setValue(fieldName, value);
 		}
 	}
 
@@ -314,7 +339,7 @@ public class ProtoReqReader implements ReqReader {
 		String apiPath = "c:/temp";
 		Operations.setProtoClassPrefix(messageClassPrefix);
 		Operations.loadAll(apiPath);
-		String path = "/scdb/storagecontracts/contract";
+		String path = "/scdb/storagecontracts/contracts";
 		JSONObject headerData = new JSONObject();
 		Operation operation = Operations.getOperation(path, "post", headerData);
 
@@ -327,38 +352,83 @@ public class ProtoReqReader implements ReqReader {
 		logger.info("got serviceName={} and schemaNAme={} for path={}", serviceName, schemaName, path);
 
 		Message message = getSampleMessage(messageClassPrefix + schemaName);
-		headerData.put("junk", "junk vakue for test");
+		headerData.put("junk", "junk value for test");
 		ReqReader reader = new ProtoReqReader(message, headerData);
 		Value userId = Value.newTextValue("100");
 		ServiceContext ctx = new ServiceContext(serviceName, userId);
 
 		/*
-		 * push an empty child sheet to context for roleType
+		 * push empty child sheets and child-parent relations for proper input
+		 * (this is actually done by serverAgent)
 		 */
-		String[] namesForRole = {"id", "primaryIndividual","secondaryIndividual"};
-		ValueType[] typesForRole = {ValueType.INTEGER, ValueType.TEXT, ValueType.TEXT};
+		String[] namesForRole = { "contractId", "id", "primaryIndividual", "secondaryIndividual" };
+		ValueType[] typesForRole = { ValueType.INTEGER, ValueType.INTEGER, ValueType.TEXT, ValueType.TEXT };
 		DataSheet sheet = new MultiRowsSheet(namesForRole, typesForRole);
 		ctx.putDataSheet("roles", sheet);
 
-		String[] namesForRoleType = {"roleId", "id", "name"};
-		ValueType[] typesForRoleType = {ValueType.INTEGER, ValueType.INTEGER, ValueType.TEXT};
+		String[] namesForRoleType = { "roleId", "id", "name" };
+		ValueType[] typesForRoleType = { ValueType.INTEGER, ValueType.INTEGER, ValueType.TEXT };
 		sheet = new MultiRowsSheet(namesForRoleType, typesForRoleType);
 		ctx.putDataSheet("roleType", sheet);
-		String[] parentKeys = {"id"};
-		String[] childKeys = {"roleId"};
-		ctx.addSheetLink("roles", "roleType", parentKeys, childKeys);
+
+		String[] namesForTank = { "contractId", "id", "tankId", "desc", "quantity", "uom", "storageRate", "currency",
+				"gradeGroup", "action" };
+		ValueType[] typesForTank = { ValueType.INTEGER, ValueType.INTEGER, ValueType.TEXT, ValueType.TEXT,
+				ValueType.INTEGER, ValueType.TEXT, ValueType.DECIMAL, ValueType.INTEGER, ValueType.INTEGER,
+				ValueType.TEXT };
+		sheet = new MultiRowsSheet(namesForTank, typesForTank);
+		ctx.putDataSheet("tanks", sheet);
+
+		String[] namesForHdr = { "id", "country", "state", "county", "city", "terminal", "region", "bench", "assetName",
+				"assetOwner", "dealName", "dealCounterParty", "contractNum", "externalContractNum", "otherRefNum",
+				"desc", "segment", "contractingEntity", "leaseType", "status", "contractSignDate", "contractStartDate",
+				"contractEndDate", "durationInMonths", "excessThroughputRate", "excessThroughputRateUOM",
+				"throughputsPerYear", "econs", "econsUOM", "notes", "contractLink" };
+		ValueType[] typesForHdr = new ValueType[namesForHdr.length];
+		for (int i = 0; i < typesForHdr.length; i++) {
+			typesForHdr[i] = ValueType.TEXT;
+		}
+		typesForHdr[0] = ValueType.INTEGER;
+		typesForHdr[1] = ValueType.INTEGER;
+		typesForHdr[6] = ValueType.INTEGER;
+		typesForHdr[7] = ValueType.INTEGER;
+		typesForHdr[20] = ValueType.DATE;
+		typesForHdr[21] = ValueType.DATE;
+		typesForHdr[22] = ValueType.DATE;
+		typesForHdr[23] = ValueType.INTEGER;
+		typesForHdr[24] = ValueType.INTEGER;
+		typesForHdr[26] = ValueType.INTEGER;
+		typesForHdr[27] = ValueType.INTEGER;
+
+		sheet = new MultiRowsSheet(namesForHdr, typesForHdr);
+		ctx.putDataSheet("contractHeaders", sheet);
+
+		String[] parentKeys = { "id" };
+		String[] child1Keys = { "contractId" };
+		String[] child2Keys = { "roleId" };
+
+		ctx.addSheetLink("contractHeaders", "roles", parentKeys, child1Keys);
+		ctx.addSheetLink("contractHeaders", "tanks", parentKeys, child1Keys);
+		ctx.addSheetLink("roles", "roleType", parentKeys, child2Keys);
 
 		reader.pushDataToContext(ctx);
 
 		logger.info("**** data sheets in context ***");
-		for(Map.Entry<String, DataSheet> entry : ctx.getAllSheets()){
+		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
 			DataSheet ds = entry.getValue();
 			logger.info("Sheet {} has {} columns and {} rows", entry.getKey(), ds.width(), ds.length());
 		}
+		Value[] hdr = ctx.getDataSheet("contractHeaders").getRow(0);
+		for (int i = 0; i < typesForHdr.length; i++) {
+			logger.info("{}={}={}", namesForHdr[i], typesForHdr[i], hdr[i]);
+		}
+
 		/*
 		 * for retrieval simulate data-preparation
 		 */
-		ctx.prepareChildSheets("roles", "roleType", parentKeys, childKeys);
+		ctx.prepareChildSheets("contractHeaders", "roles", parentKeys, child1Keys);
+		ctx.prepareChildSheets("contractHeaders", "tanks", parentKeys, child1Keys);
+		ctx.prepareChildSheets("roles", "roleType", parentKeys, child2Keys);
 
 		RespWriter writer = new ProtoRespWriter(message.newBuilderForType());
 		writer.pullDataFromContext(ctx);
@@ -367,7 +437,6 @@ public class ProtoReqReader implements ReqReader {
 		logger.info(obj.toString());
 
 	}
-
 
 	private static Message getSampleMessage(String className) {
 		try {
