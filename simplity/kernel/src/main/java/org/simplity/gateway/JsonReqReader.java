@@ -334,6 +334,9 @@ public class JsonReqReader implements ReqReader {
 	 */
 	@Override
 	public void pushDataToContext(ServiceContext ctx) {
+		if(JSONObject.getNames(this.inputJson)==null){
+			return;
+		}
 		for (String key : JSONObject.getNames(this.inputJson)) {
 			Object value = this.inputJson.opt(key);
 			switch (getType(value)) {
