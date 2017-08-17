@@ -33,115 +33,121 @@ import org.simplity.kernel.dm.Record;
 import org.simplity.service.ServiceContext;
 
 /**
- * Read a row from a record, and possibly read relevant rows from related records
+ * Read a row from a record, and possibly read relevant rows from related
+ * records
  *
  * @author simplity.org
  */
 public class Filter extends DbAction {
-private static final Logger actionLogger = LoggerFactory.getLogger(Filter.class);
+	private static final Logger actionLogger = LoggerFactory.getLogger(Filter.class);
 
-  /** record that is used for inputting and creating filter criteria */
-  String filterRecordName;
-  /** optional. defaults to filterRecordName */
-  String outputRecordName;
-  /**
-   * name of the sheet in which data is received. if null, we take data from fields. Sheet can not
-   * contain more than one rows
-   */
-  String inputSheetName;
-  /** name of the sheet in which output is sent. Defaults to simple name of outputRecordName */
-  String outputSheetName;
-  /** child records from which to read rows, for the row read in this record */
-  RelatedRecord[] childRecords;
+	/** record that is used for inputting and creating filter criteria */
+	String filterRecordName;
+	/** optional. defaults to filterRecordName */
+	String outputRecordName;
+	/**
+	 * name of the sheet in which data is received. if null, we take data from
+	 * fields. Sheet can not contain more than one rows
+	 */
+	String inputSheetName;
+	/**
+	 * name of the sheet in which output is sent. Defaults to simple name of
+	 * outputRecordName
+	 */
+	String outputSheetName;
+	/**
+	 * child records from which to read rows, for the row read in this record
+	 */
+	RelatedRecord[] childRecords;
 
-  /** should child records for this filter/record be filtered automatically? */
-  boolean cascadeFilterForChildren;
+	/**
+	 * should child records for this filter/record be filtered automatically?
+	 */
+	boolean cascadeFilterForChildren;
 
-  /** default constructor */
-  public Filter() {}
+	/** default constructor */
+	public Filter() {
+	}
 
-  /**
-   * get a default filterAction for a record, possibly with child rows
-   *
-   * @param record
-   */
-  public Filter(Record record) {
-    this.actionName = "filter_" + record.getSimpleName();
-    String recordName = record.getQualifiedName();
-    this.filterRecordName = recordName;
-    this.outputRecordName = recordName;
-    this.outputSheetName = record.getDefaultSheetName();
-    this.cascadeFilterForChildren = true;
-  }
+	/**
+	 * get a default filterAction for a record, possibly with child rows
+	 *
+	 * @param record
+	 */
+	public Filter(Record record) {
+		this.actionName = "filter_" + record.getSimpleName();
+		String recordName = record.getQualifiedName();
+		this.filterRecordName = recordName;
+		this.outputRecordName = recordName;
+		this.outputSheetName = record.getDefaultSheetName();
+		this.cascadeFilterForChildren = true;
+	}
 
-  @Override
-  protected int doDbAct(ServiceContext ctx, DbDriver driver) {
-    Record record = ComponentManager.getRecord(this.filterRecordName);
-    Record outRecord = record;
-    if (this.outputRecordName != null) {
-      outRecord = ComponentManager.getRecord(this.outputRecordName);
-    }
+	@Override
+	protected int doDbAct(ServiceContext ctx, DbDriver driver) {
+		Record record = ComponentManager.getRecord(this.filterRecordName);
+		Record outRecord = record;
+		if (this.outputRecordName != null) {
+			outRecord = ComponentManager.getRecord(this.outputRecordName);
+		}
 
-    DataSheet outSheet = null;
+		DataSheet outSheet = null;
 
-    if (this.inputSheetName == null) {
-      outSheet = outRecord.filter(record, ctx, driver, ctx.getUserId());
-    } else {
-      DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
-      if (inSheet == null) {
+		if (this.inputSheetName == null) {
+			outSheet = outRecord.filter(record, ctx, driver, ctx.getUserId());
+		} else {
+			DataSheet inSheet = ctx.getDataSheet(this.inputSheetName);
+			if (inSheet == null) {
 
-    	  actionLogger.info(
-            "Filter Action "
-                + this.actionName
-                + " did not execute because input sheet "
-                + this.inputSheetName
-                + " is not found.");
+				actionLogger.info("Filter Action " + this.actionName + " did not execute because input sheet "
+						+ this.inputSheetName + " is not found.");
 
-        return 0;
-      }
+				return 0;
+			}
 
-      outSheet = outRecord.filter(record, inSheet, driver, ctx.getUserId());
-    }
-    int result = outSheet.length();
-    if (this.outputSheetName == null) {
-      if (result == 0) {
-        return 0;
-      }
-      ctx.copyFrom(outSheet);
-      result = 1;
-    }
-    ctx.putDataSheet(this.outputSheetName, outSheet);
-    if (result == 0) {
-      return 0;
-    }
-    if (this.childRecords != null) {
-      for (RelatedRecord rr : this.childRecords) {
-        Record cr = ComponentManager.getRecord(rr.recordName);
-        cr.filterForParents(outSheet, driver, rr.sheetName, this.cascadeFilterForChildren, ctx);
-      }
-      return result;
-    }
-    if (this.cascadeFilterForChildren) {
-      record.filterChildRecords(outSheet, driver, ctx);
-    }
-    return result;
-  }
+			outSheet = outRecord.filter(record, inSheet, driver, ctx.getUserId());
+		}
+		int result = outSheet.length();
+		if (this.outputSheetName == null) {
+			if (result == 0) {
+				return 0;
+			}
+			ctx.copyFrom(outSheet);
+			result = 1;
+		} else {
+			ctx.putDataSheet(this.outputSheetName, outSheet);
+		}
+		if (result == 0) {
+			return 0;
+		}
+		if (this.childRecords != null) {
+			for (RelatedRecord rr : this.childRecords) {
+				Record cr = ComponentManager.getRecord(rr.recordName);
+				cr.filterForParents(outSheet, driver, rr.sheetName, this.cascadeFilterForChildren, ctx);
+			}
+			return result;
+		}
+		if (this.cascadeFilterForChildren) {
+			record.filterChildRecords(outSheet, driver, ctx);
+		}
+		return result;
+	}
 
-  @Override
-  public DbAccessType getDataAccessType() {
-    return DbAccessType.READ_ONLY;
-  }
+	@Override
+	public DbAccessType getDataAccessType() {
+		return DbAccessType.READ_ONLY;
+	}
 
-  @Override
-  public int validate(ValidationContext ctx, Service service) {
-    int count = super.validate(ctx, service);
-    count += ctx.checkRecordExistence(this.filterRecordName, "filterRecordName", true);
-    count += ctx.checkRecordExistence(this.outputRecordName, "outputRecordName", false);
-    if (this.childRecords != null) {
-      for (RelatedRecord rec : this.childRecords) {
-        count += rec.validate(ctx);
-      }
-    }
-    return count;
-  }
+	@Override
+	public int validate(ValidationContext ctx, Service service) {
+		int count = super.validate(ctx, service);
+		count += ctx.checkRecordExistence(this.filterRecordName, "filterRecordName", true);
+		count += ctx.checkRecordExistence(this.outputRecordName, "outputRecordName", false);
+		if (this.childRecords != null) {
+			for (RelatedRecord rec : this.childRecords) {
+				count += rec.validate(ctx);
+			}
+		}
+		return count;
+	}
 }

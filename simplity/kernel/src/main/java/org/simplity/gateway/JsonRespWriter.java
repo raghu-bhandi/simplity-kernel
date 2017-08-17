@@ -446,7 +446,7 @@ public class JsonRespWriter implements RespWriter {
 				Value[] row = sheet.getRow(i);
 				this.beginObject();
 				for (int j = 0; j < names.length; j++) {
-					this.field(names[j], row[i]);
+					this.field(names[j], row[j]);
 				}
 				this.endObject();
 			}
