@@ -148,6 +148,8 @@ public class HttpGateway extends Gateway {
 
 		private HttpURLConnection conn;
 
+		private String contentType;
+
 		/**
 		 * set connection parameter before calling serve method
 		 *
@@ -163,7 +165,7 @@ public class HttpGateway extends Gateway {
 		 * @param values
 		 *            associate array for headerNamesToSend with values for each
 		 */
-		public void setConnectionParams(String path, String httpMethod, String[] headerNamesToSend, String[] values) {
+		public void setConnectionParams(String path, String httpMethod, String[] headerNamesToSend, String[] values,String contentType) {
 			this.path = path;
 			if (httpMethod != null) {
 				this.method = httpMethod;
@@ -171,6 +173,9 @@ public class HttpGateway extends Gateway {
 			if (headerNamesToSend != null) {
 				this.headerNames = headerNamesToSend;
 				this.headerValues = values;
+			}
+			if (contentType!=null){
+				this.contentType = contentType;
 			}
 		}
 
@@ -217,12 +222,12 @@ public class HttpGateway extends Gateway {
 					this.conn = (HttpURLConnection) url.openConnection();
 				}
 
+				this.setHeader();
 				/*
 				 * despatch request
 				 */
-				this.setHeader();
-				this.conn.setDoOutput(true);
 				if (payload != null) {
+					this.conn.setDoOutput(true);
 					this.conn.getOutputStream().write(payload.getBytes("UTF-8"));
 				}
 				/*
@@ -309,7 +314,7 @@ public class HttpGateway extends Gateway {
 		 */
 		private void setHeader() throws ProtocolException {
 			this.conn.setRequestMethod(this.method);
-			String ct = HttpGateway.this.contentType;
+			String ct = this.contentType;
 			this.conn.setRequestProperty("Accept", ct);
 			this.conn.setRequestProperty("Content-Type", ct);
 			if (this.headerNames != null) {

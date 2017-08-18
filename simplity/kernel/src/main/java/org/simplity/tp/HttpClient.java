@@ -81,10 +81,15 @@ public class HttpClient extends ExternalService {
 	String setStatusCodeTo;
 
 	/**
+	 * set contentType
+	 */
+	String contentType;
+	/**
 	 * in case url has variables in it, cache its parts for efficiency at run
 	 * time. into an array which has its odd-index (0-based) has names and other
 	 */
 	private String[] urlParts;
+	
 
 	/*
 	 * (non-Javadoc)
@@ -104,7 +109,7 @@ public class HttpClient extends ExternalService {
 		} else {
 			path = TextUtil.substituteFields(this.urlParts, ctx);
 		}
-
+		
 		String[] values = null;
 		if (this.headerFieldSources != null) {
 			values = new String[this.headerFieldSources.length];
@@ -115,7 +120,7 @@ public class HttpClient extends ExternalService {
 				}
 			}
 		}
-		hagent.setConnectionParams(path, this.httpMethod, this.headerNamesToSend, values);
+		hagent.setConnectionParams(path, this.httpMethod, this.headerNamesToSend, values,this.contentType);
 		return true;
 	}
 
