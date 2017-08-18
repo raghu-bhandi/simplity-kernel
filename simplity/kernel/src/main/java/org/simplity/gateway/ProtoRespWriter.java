@@ -324,7 +324,7 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	@Override
 	public void writeout(OutputStream stream) throws IOException {
-		stream.write(this.messageBuilder.build().toByteArray());
+		this.messageBuilder.build().writeTo(stream);
 	}
 
 	/*
