@@ -109,7 +109,8 @@ public class DateValue extends Value {
     return new java.sql.Date(this.value);
   }
 
-  @Override
+  @SuppressWarnings("unchecked")
+@Override
   public Object[] toArray(Value[] values) {
     int n = values.length;
     java.sql.Date[] arr = new java.sql.Date[n];

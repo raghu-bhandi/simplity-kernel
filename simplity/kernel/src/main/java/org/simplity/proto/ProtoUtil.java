@@ -237,7 +237,8 @@ public class ProtoUtil {
 			 */
 			DataSheet childSheet = ctx.getChildSheet(childField.getName(), row);
 			if (childSheet == null) {
-				logger.info("Child data sheet not found, and hence no data for field {} for this row", childField.getName());
+				logger.info("Child data sheet not found, and hence no data for field {} for this row",
+						childField.getName());
 				continue;
 			}
 			if (idx == MESSAGE_ARRAY) {
@@ -299,43 +300,47 @@ public class ProtoUtil {
 		/*
 		 * proto does not support assignments across long/int/float/double
 		 */
-		try{
-		switch (type) {
-		case BOOL:
-			if (((BooleanValue)value).getBoolean()){
-				return Boolean.TRUE;
+		try {
+			switch (type) {
+			case BOOL:
+				if (((BooleanValue) value).getBoolean()) {
+					return Boolean.TRUE;
+				}
+				return Boolean.FALSE;
+
+			case ENUM:
+				return fd.getEnumType().findValueByName(value.toString().toUpperCase());
+
+			case FIXED32:
+			case SFIXED32:
+			case FLOAT:
+				return (float) value.toDecimal();
+
+			case DOUBLE:
+			case FIXED64:
+			case SFIXED64:
+				return value.toDecimal();
+
+			case INT32:
+			case SINT32:
+			case UINT32:
+				return (int) value.toInteger();
+
+			case INT64:
+			case SINT64:
+			case UINT64:
+				return value.toInteger();
+
+			default:
+				logger.error(
+						" unexpected condition in switch block. proto field type {} should not be reached. string value assumed.",
+						type);
+				return value.toString();
 			}
-			return Boolean.FALSE;
-
-		case ENUM:
-			return fd.getEnumType().findValueByName(value.toString().toUpperCase());
-
-		case FIXED32:
-		case SFIXED32:
-		case FLOAT:
-			return (float)value.toDecimal();
-
-		case DOUBLE:
-		case FIXED64:
-		case SFIXED64:
-			return value.toDecimal();
-
-		case INT32:
-		case SINT32:
-		case UINT32:
-			return (int)value.toInteger();
-
-		case INT64:
-		case SINT64:
-		case UINT64:
-			return value.toInteger();
-
-		default:
-			logger.error(" unexpected condition in switch block. proto field type {} should not be reached. string value assumed.", type);
-			return value.toString();
-		}
-		}catch(InvalidValueException e){
-			throw new ApplicationError("proto field " + fd.getFullName() + " of type " + type + " is receiving a value of " + value + "  with type of " + value.getValueType());
+		} catch (InvalidValueException e) {
+			logger.error("Field passing error", e);
+			throw new ApplicationError("proto field " + fd.getFullName() + " of type " + type
+					+ " is receiving a value of " + value + "  with type of " + value.getValueType());
 		}
 	}
 
@@ -440,14 +445,14 @@ public class ProtoUtil {
 	 */
 	public static void appendArrayToSheet(Object[] arr, DataSheet sheet) {
 		if (sheet.width() != 1) {
-			throw new ApplicationError("Data sheet for an array should have just one column. We found " + sheet.width());
+			throw new ApplicationError(
+					"Data sheet for an array should have just one column. We found " + sheet.width());
 		}
 		for (int i = 0; i < arr.length; i++) {
 			Value[] row = { Value.parseObject(arr[i]) };
 			sheet.addRow(row);
 		}
 	}
-
 
 	/**
 	 * if any of the child field is message/array, we have to extract that
@@ -485,7 +490,8 @@ public class ProtoUtil {
 		if (sheet == null) {
 			if (parentRow != null) {
 				logger.error(
-						"Service context does not have a data sheet named {}, and hence this child sheet can not be extracted from protobuf input", fieldName);
+						"Service context does not have a data sheet named {}, and hence this child sheet can not be extracted from protobuf input",
+						fieldName);
 				return;
 			}
 			sheet = createEmptySheet(childFields);
@@ -501,7 +507,8 @@ public class ProtoUtil {
 		if (link == null) {
 			if (parentRow != null) {
 				logger.error(
-						"Service context does not have a data-sheet-link for child sheet {}, and hence this child sheet can not be extracted from protobuf input", fieldName);
+						"Service context does not have a data-sheet-link for child sheet {}, and hence this child sheet can not be extracted from protobuf input",
+						fieldName);
 				return;
 			}
 		} else {
@@ -536,7 +543,7 @@ public class ProtoUtil {
 		 * we may have grand-children as well. If so, we will have to handle
 		 * that for each row.
 		 */
-		List<FieldDescriptor> nonPrimitiveFields = getNonPrimitivesFields(childFields);
+		List<FieldDescriptor> nonPrimitiveFields = getNonPrimitiveFields(childFields);
 
 		for (Message message : messages) {
 			if (message == null) {
@@ -590,7 +597,7 @@ public class ProtoUtil {
 	 * @param fields
 	 * @return null if all are primitive. if non-null, it is non-empty
 	 */
-	public static List<FieldDescriptor> getNonPrimitivesFields(List<FieldDescriptor> fields) {
+	public static List<FieldDescriptor> getNonPrimitiveFields(List<FieldDescriptor> fields) {
 		/*
 		 * instantiate only if required, so that we return null in case we do
 		 * not find anything
@@ -633,4 +640,73 @@ public class ProtoUtil {
 			return Value.newTextValue(fieldValue.toString());
 		}
 	}
+
+	/**
+	 * @param builder
+	 * @param fieldName
+	 * @return field with this field name, null if no such field
+	 */
+	public static FieldDescriptor getField(Builder builder, String fieldName) {
+		for (FieldDescriptor field : builder.getAllFields().keySet()) {
+			if (fieldName.equals(field.getName())) {
+				return field;
+			}
+		}
+		logger.info("Builder has no field named {}", fieldName);
+		return null;
+	}
+
+	/**
+	 * @param rootBuilder
+	 * @param qualifiedFieldName
+	 * @param arrayExpected is the field value expected to be an array?
+	 * @return field with the qualified name. null if no such field.
+	 */
+	public static Builder getBuilderForQualifiedField(Builder rootBuilder, String qualifiedFieldName, boolean arrayExpected) {
+		if (qualifiedFieldName == null || qualifiedFieldName.isEmpty() || qualifiedFieldName.equals(".")) {
+			if(arrayExpected){
+				logger.error("root builder is always an object, but teh caller expetcs it to be an array. null builder returned.");
+				return null;
+			}
+			return rootBuilder;
+		}
+
+		Builder builder = rootBuilder;
+		FieldDescriptor arrField = null;
+		for (String part : qualifiedFieldName.split("\\.")) {
+			if (arrField != null) {
+				int idx = 0;
+				try {
+					idx = Integer.parseInt(part);
+				} catch (Exception e) {
+					logger.error(
+							"{} is an array field, and hence the qualified name part for this should be the array index. we found {}",
+							arrField.getName(), part);
+					return null;
+				}
+				builder = builder.getRepeatedFieldBuilder(arrField, idx);
+				arrField = null;
+				continue;
+			}
+			FieldDescriptor field = ProtoUtil.getField(builder, part);
+			if (field == null) {
+				return null;
+			}
+			builder = builder.getFieldBuilder(field);
+			if (field.isRepeated()) {
+				arrField = field;
+			}
+		}
+		if(arrField == null){
+			if(arrayExpected){
+				logger.error("Field {} is an object, but the caller is expecting an array. null returned.", qualifiedFieldName);
+				return null;
+			}
+		}else if(!arrayExpected){
+			logger.error("Field {} is an array, but the caller is expecting an object. null returned.", qualifiedFieldName);
+			return null;
+		}
+		return builder;
+	}
+
 }

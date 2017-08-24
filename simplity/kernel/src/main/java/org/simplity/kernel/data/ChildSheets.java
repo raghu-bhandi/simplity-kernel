@@ -40,12 +40,14 @@ import org.slf4j.LoggerFactory;
  */
 public class ChildSheets {
 	private static final Logger logger = LoggerFactory.getLogger(ChildSheets.class);
+	private static final char SEP = '\0';
 	/**
 	 * array of column index that has the value for the key in parent row
 	 */
 	private final int[] parentIndexes;
 	/**
-	 * child sheets mapped by parent key values
+	 * child sheets mapped by parent key values. IMPORTANT : map key is
+	 * key1+'\0'+key2 etc.. if there are more than one keys.
 	 */
 	private final Map<String, DataSheet> children = new HashMap<String, DataSheet>();
 
@@ -67,19 +69,23 @@ public class ChildSheets {
 		String[] colNames = childSheet.getColumnNames();
 		ValueType[] types = childSheet.getValueTypes();
 		int nbrRows = childSheet.length();
-		int nbrKeys = parentKeys.length;
 		/*
 		 * split this sheet into a number of child-sheets :one for each unique
 		 * combination of key values
 		 */
-		StringBuilder keys = new StringBuilder();
+		StringBuilder keys = indexes.length > 1 ? new StringBuilder() : null;
 		for (int rowIdx = 0; rowIdx < nbrRows; rowIdx++) {
 			Value[] row = childSheet.getRow(rowIdx);
-			for (int keyIdx = 0; keyIdx < indexes.length; keyIdx++) {
-				keys.append(row[indexes[keyIdx]].toString());
+			String key = row[indexes[0]].toString();
+			if (keys != null) {
+				keys.setLength(0);
+				keys.append(key);
+
+				for (int keyIdx = 1; keyIdx < indexes.length; keyIdx++) {
+					keys.append(SEP).append(row[indexes[keyIdx]].toString());
+				}
+				key = keys.toString();
 			}
-			String key =keys.toString();
-			keys.setLength(0);
 			/*
 			 * do we have a filtered child-sheet for these keys combination?
 			 */
@@ -102,9 +108,11 @@ public class ChildSheets {
 	public DataSheet getChildSheet(Value[] parentRow) {
 		String key = parentRow[this.parentIndexes[0]].toString();
 		if (this.parentIndexes.length > 1) {
+			StringBuilder sbf = new StringBuilder(key);
 			for (int i = 1; i < this.parentIndexes.length; i++) {
-				key += parentRow[this.parentIndexes[i]];
+				sbf.append(SEP).append(parentRow[this.parentIndexes[i]].toString());
 			}
+			key = sbf.toString();
 		}
 
 		return this.children.get(key);

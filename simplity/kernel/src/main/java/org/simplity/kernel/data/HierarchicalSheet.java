@@ -194,11 +194,11 @@ public class HierarchicalSheet {
 				continue;
 			}
 
-			writer.beginObject();
+			writer.beginObjectAsArrayElement();
 
 			for (int i = 0; i < this.fieldNames.length; i++) {
 				String fieldName = this.fieldNames[i];
-				writer.field(fieldName, row[i]);
+				writer.setField(fieldName, row[i]);
 			}
 			/*
 			 * do we have children?

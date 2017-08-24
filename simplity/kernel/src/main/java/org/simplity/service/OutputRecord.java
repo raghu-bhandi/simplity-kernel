@@ -427,7 +427,7 @@ public class OutputRecord {
 			if (obj == null) {
 				logger.info("No Object found for complex structure " + this.sheetName + ". Null sent to client");
 			}
-			writer.object(this.sheetName, obj);
+			writer.setObject(this.sheetName, obj);
 			return;
 		}
 		/*
@@ -448,7 +448,7 @@ public class OutputRecord {
 			if (value == null) {
 				logger.info(fieldName + " has no value and hence is not added to output");
 			} else {
-				writer.field(fieldName, value);
+				writer.setField(fieldName, value);
 			}
 		}
 	}
@@ -522,7 +522,7 @@ public class OutputRecord {
 			int nbrRows = sheet.length();
 			String[] names = sheet.getColumnNames();
 			for (int i = 0; i < nbrRows; i++) {
-				writer.beginObject();
+				writer.beginObjectAsArrayElement();
 				/*
 				 * note that getRow() returns values in the same order as in
 				 * getColumnNames()
@@ -537,7 +537,7 @@ public class OutputRecord {
 	private static void writeOneRow(RespWriter writer, Value[] row, String[] names, HierarchicalSheet[] children) {
 		for (int j = 0; j < names.length; j++) {
 			String colName = names[j];
-			writer.field(colName, row[j]);
+			writer.setField(colName, row[j]);
 		}
 		/*
 		 * child rows?

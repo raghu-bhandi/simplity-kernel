@@ -28,7 +28,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Map;
 
-import org.simplity.json.JSONObject;
 import org.simplity.json.JSONWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.DataSheet;
@@ -110,7 +109,7 @@ public class JsonRespWriter implements RespWriter {
 	 *         was piped to another output mechanism
 	 */
 	@Override
-	public String getFinalResponseText() {
+	public Object getFinalResponseObject() {
 		if (this.writer == null) {
 			/*
 			 * it was already closed..
@@ -137,19 +136,6 @@ public class JsonRespWriter implements RespWriter {
 	}
 
 	/**
-	 * get the response text and close the writer. That is the reason this
-	 * method is called getFinalResponse rather than getResponse. Side effect of
-	 * closing the writer is hinted with this name
-	 *
-	 * @return response text.Null if nothing was written so far, or the writer
-	 *         was piped to another output mechanism
-	 */
-	@Override
-	public Object getFinalResponseObject() {
-		return new JSONObject(this.getFinalResponseText());
-	}
-
-	/**
 	 * every call to write requires us to check if teh writer is still open
 	 */
 	private void checkNull() {
@@ -161,51 +147,32 @@ public class JsonRespWriter implements RespWriter {
 	/*
 	 * (non-Javadoc)
 	 *
-	 * @see org.simplity.service.OutputWriter#writeResponse(java.lang.String)
-	 */
-	@Override
-	public JsonRespWriter writeCompleteResponse(String response) {
-		this.checkNull();
-		if (this.ioWriter != null) {
-			/*
-			 * we have no idea whether something was already written. But that
-			 * is caller's problem
-			 */
-			try {
-				this.ioWriter.write(response);
-			} catch (IOException e) {
-				throw new ApplicationError(e, "error whielwriting a pre-cdetermined text as response");
-			}
-		} else {
-			this.responseText = response;
-		}
-		this.writer = null;
-		return this;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 *
 	 * @see org.simplity.service.OutputWriter#field(java.lang.String,
 	 * org.simplity.kernel.value.Value)
 	 */
 	@Override
-	public JsonRespWriter field(String fieldName, Object value) {
+	public void setField(String fieldName, Object value) {
 		this.checkNull();
 		this.writer.key(fieldName).value(value);
-		return this;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.RespWriter#setField(java.lang.String, com.google.protobuf.Value)
+	 */
+	@Override
+	public void setField(String fieldName, Value value) {
+		this.checkNull();
+		this.writer.key(fieldName).value(value);
+	}
 	/*
 	 * (non-Javadoc)
 	 *
 	 * @see org.simplity.service.OutputWriter#field(java.lang.Object)
 	 */
 	@Override
-	public RespWriter field(Object value) {
+	public void addToArray(Object value) {
 		this.checkNull();
 		this.writer.value(value);
-		return null;
 	}
 
 	/*
@@ -215,12 +182,11 @@ public class JsonRespWriter implements RespWriter {
 	 * java.lang.Object)
 	 */
 	@Override
-	public JsonRespWriter object(String fieldName, Object value) {
+	public void setObject(String fieldName, Object value) {
 		this.checkNull();
 
 		this.writer.key(fieldName);
 		JsonUtil.addObject(this.writer, value);
-		return this;
 	}
 
 	/*
@@ -230,7 +196,7 @@ public class JsonRespWriter implements RespWriter {
 	 * java.lang.Object[])
 	 */
 	@Override
-	public RespWriter array(String arrayName, Object[] arr) {
+	public void setArray(String arrayName, Object[] arr) {
 		this.checkNull();
 		this.writer.key(arrayName).array();
 		if (arr != null && arr.length != 0) {
@@ -239,7 +205,6 @@ public class JsonRespWriter implements RespWriter {
 			}
 		}
 		this.writer.endArray();
-		return this;
 	}
 
 	/*
@@ -249,7 +214,7 @@ public class JsonRespWriter implements RespWriter {
 	 * org.simplity.kernel.data.DataSheet)
 	 */
 	@Override
-	public JsonRespWriter array(String arrayName, DataSheet sheet) {
+	public void setArray(String arrayName, DataSheet sheet) {
 		this.checkNull();
 		this.writer.array();
 		if (sheet != null && sheet.length() > 0 && sheet.width() > 0) {
@@ -261,7 +226,6 @@ public class JsonRespWriter implements RespWriter {
 			}
 		}
 		this.writer.endArray();
-		return this;
 
 	}
 
@@ -271,10 +235,10 @@ public class JsonRespWriter implements RespWriter {
 	 * @see org.simplity.service.OutputWriter#beginObject(java.lang.String)
 	 */
 	@Override
-	public JsonRespWriter beginObject(String objectName) {
+	public Object beginObject(String objectName) {
 		this.checkNull();
 		this.writer.key(objectName).object();
-		return this;
+		return null;
 
 	}
 
@@ -284,10 +248,10 @@ public class JsonRespWriter implements RespWriter {
 	 * @see org.simplity.service.OutputWriter#beginObject(java.lang.String)
 	 */
 	@Override
-	public JsonRespWriter beginObject() {
+	public Object beginObjectAsArrayElement() {
 		this.checkNull();
 		this.writer.object();
-		return this;
+		return null;
 	}
 
 	/*
@@ -296,10 +260,10 @@ public class JsonRespWriter implements RespWriter {
 	 * @see org.simplity.service.OutputWriter#endObject()
 	 */
 	@Override
-	public JsonRespWriter endObject() {
+	public Object endObject() {
 		this.checkNull();
 		this.writer.endObject();
-		return this;
+		return null;
 	}
 
 	/*
@@ -308,10 +272,10 @@ public class JsonRespWriter implements RespWriter {
 	 * @see org.simplity.service.OutputWriter#beginArray(java.lang.String)
 	 */
 	@Override
-	public JsonRespWriter beginArray(String arrayName) {
+	public Object beginArray(String arrayName) {
 		this.checkNull();
 		this.writer.key(arrayName).array();
-		return this;
+		return null;
 	}
 
 	/*
@@ -320,10 +284,10 @@ public class JsonRespWriter implements RespWriter {
 	 * @see org.simplity.service.OutputWriter#beginArray()
 	 */
 	@Override
-	public RespWriter beginArray() {
+	public Object beginArrayAsArrayElement() {
 		this.checkNull();
 		this.writer.array();
-		return this;
+		return null;
 	}
 
 	/*
@@ -332,10 +296,10 @@ public class JsonRespWriter implements RespWriter {
 	 * @see org.simplity.service.OutputWriter#endArray()
 	 */
 	@Override
-	public JsonRespWriter endArray() {
+	public Object endArray() {
 		this.checkNull();
 		this.writer.endArray();
-		return this;
+		return null;
 	}
 
 	/**
@@ -429,7 +393,7 @@ public class JsonRespWriter implements RespWriter {
 		 * we are to write based on our spec
 		 */
 		for (Map.Entry<String, Value> entry : ctx.getAllFields()) {
-			this.field(entry.getKey(), entry.getValue());
+			this.setField(entry.getKey(), entry.getValue());
 		}
 
 		for (Map.Entry<String, DataSheet> entry : ctx.getAllSheets()) {
@@ -444,9 +408,9 @@ public class JsonRespWriter implements RespWriter {
 			String[] names = sheet.getColumnNames();
 			for (int i = 0; i < nbrRows; i++) {
 				Value[] row = sheet.getRow(i);
-				this.beginObject();
+				this.beginObjectAsArrayElement();
 				for (int j = 0; j < names.length; j++) {
-					this.field(names[j], row[j]);
+					this.setField(names[j], row[j]);
 				}
 				this.endObject();
 			}
@@ -460,5 +424,38 @@ public class JsonRespWriter implements RespWriter {
 	@Override
 	public boolean hasOutputSpec() {
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.RespWriter#useAsResponse(java.lang.Object)
+	 */
+	@Override
+	public void setAsResponse(Object responseObject) {
+		throw new ApplicationError("This writer streams data as and when it is writtern, and hance can not just set an object as response.");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.RespWriter#moveToField(java.lang.String)
+	 */
+	@Override
+	public Object moveToObject(String qualifiedFieldName) {
+		throw new ApplicationError("This writer streams data as and when it is writtern, and hance can not re-position.");
+	}
+
+
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.RespWriter#moveToArray(java.lang.String)
+	 */
+	@Override
+	public Object moveToArray(String qualifiedFieldName) {
+		throw new ApplicationError("This writer can not move round the object tree.");
+	}
+
+	/* (non-Javadoc)
+	 * @see org.simplity.gateway.RespWriter#setAsCurrentObject(java.lang.Object)
+	 */
+	@Override
+	public void setAsCurrentObject(Object object) {
+		throw new ApplicationError("This writer can not move round the object tree.");
 	}
 }

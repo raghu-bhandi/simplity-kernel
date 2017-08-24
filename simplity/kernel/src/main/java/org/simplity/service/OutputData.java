@@ -608,7 +608,7 @@ public class OutputData {
 				logger.info(this.responseTextFieldName
 						+ " is expected to have a ready text as response. Service context has no value with that name.");
 			} else {
-				writer.writeCompleteResponse(obj.toString());
+				writer.setAsResponse(obj.toString());
 			}
 			return;
 		}
@@ -665,13 +665,13 @@ public class OutputData {
 			Value value = ctx.getValue(fieldName);
 			if (value != null) {
 				if (value.isUnknown() == false) {
-					writer.field(fieldName, value);
+					writer.setField(fieldName, value);
 				}
 				continue;
 			}
 			Object obj = ctx.getObject(fieldName);
 			if (obj != null) {
-				writer.object(fieldName, obj);
+				writer.setObject(fieldName, obj);
 			}
 		}
 	}
@@ -692,14 +692,14 @@ public class OutputData {
 		for (String arrayName : this.arrayNames) {
 			DataSheet sheet = ctx.getDataSheet(arrayName);
 			if (sheet != null) {
-				writer.array(arrayName, sheet);
+				writer.setArray(arrayName, sheet);
 				continue;
 			}
 
 			Value value = ctx.getValue(arrayName);
 			if (value != null) {
 				Object[] arr = { value };
-				writer.array(arrayName, arr);
+				writer.setArray(arrayName, arr);
 			} else {
 				logger.info("Service context has no sheet with name " + arrayName + " for output.");
 			}

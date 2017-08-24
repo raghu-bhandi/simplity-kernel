@@ -148,7 +148,7 @@ public class HttpGateway extends Gateway {
 
 		private HttpURLConnection conn;
 
-		private String contentType;
+		private String contentTypeToUse;
 
 		/**
 		 * set connection parameter before calling serve method
@@ -164,8 +164,9 @@ public class HttpGateway extends Gateway {
 		 *            also be provided in the next parameter.
 		 * @param values
 		 *            associate array for headerNamesToSend with values for each
+		 * @param contentType null to leave it as default
 		 */
-		public void setConnectionParams(String path, String httpMethod, String[] headerNamesToSend, String[] values,String contentType) {
+		public void setConnectionParams(String path, String httpMethod, String[] headerNamesToSend, String[] values, String contentType) {
 			this.path = path;
 			if (httpMethod != null) {
 				this.method = httpMethod;
@@ -174,8 +175,10 @@ public class HttpGateway extends Gateway {
 				this.headerNames = headerNamesToSend;
 				this.headerValues = values;
 			}
-			if (contentType!=null){
-				this.contentType = contentType;
+			if(contentType != null){
+				this.contentTypeToUse = contentType;
+			}else{
+				this.contentTypeToUse = HttpGateway.this.contentType;
 			}
 		}
 
@@ -196,7 +199,7 @@ public class HttpGateway extends Gateway {
 			if (dataTobeSent != null) {
 				JsonRespWriter writer = new JsonRespWriter();
 				dataTobeSent.write(writer, ctx);
-				payload = writer.getFinalResponseText();
+				payload = writer.getFinalResponseObject().toString();
 			}
 
 			/*
@@ -222,10 +225,10 @@ public class HttpGateway extends Gateway {
 					this.conn = (HttpURLConnection) url.openConnection();
 				}
 
-				this.setHeader();
 				/*
 				 * despatch request
 				 */
+				this.setHeader();
 				if (payload != null) {
 					this.conn.setDoOutput(true);
 					this.conn.getOutputStream().write(payload.getBytes("UTF-8"));
@@ -314,7 +317,7 @@ public class HttpGateway extends Gateway {
 		 */
 		private void setHeader() throws ProtocolException {
 			this.conn.setRequestMethod(this.method);
-			String ct = this.contentType;
+			String ct = this.contentTypeToUse;
 			this.conn.setRequestProperty("Accept", ct);
 			this.conn.setRequestProperty("Content-Type", ct);
 			if (this.headerNames != null) {

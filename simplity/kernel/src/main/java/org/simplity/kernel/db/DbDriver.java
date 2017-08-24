@@ -40,6 +40,7 @@ import java.util.Map;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 
+import org.simplity.gateway.RespWriter;
 import org.simplity.kernel.ApplicationError;
 import org.simplity.kernel.data.DataSheet;
 import org.simplity.kernel.data.DynamicSheet;
@@ -2072,4 +2073,41 @@ public class DbDriver {
     }
     this.connection.rollback();
   }
+
+
+
+
+  /*
+   * experimental methods under construction.Not wired yet.
+   */
+
+  /**
+   * extract output from sql into data sheet
+   *
+   * @param sql must be a single prepared sql, with no semicolon at the end.
+   * @param values to be put into the prepared sql
+ * @param names
+ * @param writer
+   * @param oneRowOnly true if (at most) one row is to be extracted. false to extract all rows
+   * @return number of rows extracted
+   */
+  public int extractFromSql(String sql, Value[] values, String[] names, RespWriter writer, boolean oneRowOnly) {
+    if (traceSqls) {
+      this.traceSql(sql, values);
+      if (this.connection == null) {
+        return 0;
+      }
+    }
+    PreparedStatement stmt = null;
+    try {
+    	this.setParams(stmt, values);
+  		ResultSet rs = this.connection.prepareStatement(sql).executeQuery();
+  		return DbUtil.rsToWriter(rs, writer, names, oneRowOnly);
+    } catch (SQLException e) {
+      throw new ApplicationError(e, "Sql Error while extracting data ");
+    } finally {
+      this.closeStatment(stmt);
+    }
+  }
+
 }

@@ -334,10 +334,16 @@ public class JsonReqReader implements ReqReader {
 	 */
 	@Override
 	public void pushDataToContext(ServiceContext ctx) {
-		if(JSONObject.getNames(this.inputJson)==null){
+		if(this.inputJson == null){
+			logger.info("No input json assigned to the reader before extracting data.");
 			return;
 		}
-		for (String key : JSONObject.getNames(this.inputJson)) {
+		String[] names = JSONObject.getNames(this.inputJson);
+		if(names == null || names.length == 0){
+			logger.info("Input json is empty. No data extracted.");
+			return;
+		}
+		for (String key : names) {
 			Object value = this.inputJson.opt(key);
 			switch (getType(value)) {
 			case ARRAY:

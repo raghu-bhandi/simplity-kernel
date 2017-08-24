@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.simplity.kernel.data.DataSheet;
+import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
 /**
@@ -35,18 +36,12 @@ import org.simplity.service.ServiceContext;
 public interface RespWriter {
 
 	/**
-	 * this text is the response. Disregard if something was written earlier,
-	 * and do not allow any more writes
+	 * use this as the response object. If used, typically this is the only call
+	 * before a writeOut() call.
 	 *
-	 * @param string
-	 * @return writer, so that methods can be cascaded
+	 * @param responseObject
 	 */
-	public RespWriter writeCompleteResponse(String string);
-
-	/*
-	 * methods used by outputData when the data is fully ready, and we need to
-	 * just send them to client
-	 */
+	public void setAsResponse(Object responseObject);
 
 	/**
 	 * write a field as attribute-value pair. Simplity deals with primitives as
@@ -55,34 +50,37 @@ public interface RespWriter {
 	 *
 	 * @param fieldName
 	 * @param value
-	 * @return writer, so that methods can be cascaded
 	 */
-	public RespWriter field(String fieldName, Object value);
+	public void setField(String fieldName, Value value);
 
 	/**
-	 * write a name-object pair. If the object is primitive value
-	 * (simplity-value, or string and date) then this is similar to a field.
+	 * write a field as attribute-value pair. Simplity deals with primitives as
+	 * Value objects, and hence a specific method for this. use object() to set
+	 * non-value attributes
 	 *
-	 * If object is collection then we follow the rules for writing out them as
-	 * collections.
-	 *
-	 * if it is any other object, we resort to just taking taking toString() and
-	 * write it out as if it is a text field
+	 * @param fieldName
+	 * @param value
+	 */
+	public void setField(String fieldName, Object value);
+
+	/**
+	 * A non-primitive object. Writer may reject object assignments that it does
+	 * not know how to handle.
 	 *
 	 * @param fieldName
 	 * @param obj
 	 * @return writer, so that methods can be cascaded
 	 */
-	public RespWriter object(String fieldName, Object obj);
+	public void setObject(String fieldName, Object obj);
 
 	/**
-	 * write an a name-array
+	 * write a n a name-array
 	 *
 	 * @param arrayName
 	 * @param arr
 	 * @return writer, so that methods can be cascaded
 	 */
-	public RespWriter array(String arrayName, Object[] arr);
+	public void setArray(String arrayName, Object[] arr);
 
 	/**
 	 * use the first column of the data sheet as an array
@@ -91,7 +89,7 @@ public interface RespWriter {
 	 * @param sheet
 	 * @return writer, so that methods can be cascaded
 	 */
-	public RespWriter array(String arrayName, DataSheet sheet);
+	public void setArray(String arrayName, DataSheet sheet);
 
 	/*
 	 * It may be expensive to build data sheet and then write them out.
@@ -99,6 +97,49 @@ public interface RespWriter {
 	 * methods to write them out as and when the lower level data is available,
 	 * there by avoiding creation of large data-objects
 	 */
+	/**
+	 * start name-object pair, and allow its attributes to be written out
+	 *
+	 * @param objectName
+	 * @return writer, so that methods can be cascaded
+	 */
+	public Object beginObject(String objectName);
+
+	/**
+	 * start an object as an element of an array (hence no name)
+	 *
+	 * @return writer, so that methods can be cascaded
+	 */
+	public Object beginObjectAsArrayElement();
+
+	/**
+	 * close the last open object
+	 *
+	 * @return writer, so that methods can be cascaded
+	 */
+	public Object endObject();
+
+	/**
+	 * begin an array as an attribute (hence name)
+	 *
+	 * @param arrayName
+	 * @return writer, so that methods can be cascaded
+	 */
+	public Object beginArray(String arrayName);
+
+	/**
+	 * begin an array as an element of parent array (hence no name)
+	 *
+	 * @return writer, so that methods can be cascaded
+	 */
+	public Object beginArrayAsArrayElement();
+
+	/**
+	 * close the array
+	 *
+	 * @return writer, so that methods can be cascaded
+	 */
+	public Object endArray();
 
 	/**
 	 * write a field as an element of an array (hence no name). this is valid
@@ -108,61 +149,7 @@ public interface RespWriter {
 	 * @param value
 	 * @return writer, so that methods can be cascaded
 	 */
-	public RespWriter field(Object value);
-
-	/**
-	 * start an object as an element of an array (hence no name)
-	 *
-	 * @return writer, so that methods can be cascaded
-	 */
-	public RespWriter beginObject();
-
-	/**
-	 * start name-object pair, and allow its attributes to be written out
-	 *
-	 * @param objectName
-	 * @return writer, so that methods can be cascaded
-	 */
-	public RespWriter beginObject(String objectName);
-
-	/**
-	 * close the last open object
-	 *
-	 * @return writer, so that methods can be cascaded
-	 */
-	public RespWriter endObject();
-
-	/**
-	 * begin an array as an attribute (hence name)
-	 *
-	 * @param arrayName
-	 * @return writer, so that methods can be cascaded
-	 */
-	public RespWriter beginArray(String arrayName);
-
-	/**
-	 * begin an array as an element of parent array (hence no name)
-	 *
-	 * @return writer, so that methods can be cascaded
-	 */
-	public RespWriter beginArray();
-
-	/**
-	 * close the array
-	 *
-	 * @return writer, so that methods can be cascaded
-	 */
-	public RespWriter endArray();
-
-	/**
-	 *
-	 * @return final response. writer is closed, if it is not already closed.
-	 *         You have to choose to use this method or getFinalResponseObject
-	 *         for optimal use by avoiding unnecessary
-	 *         serialization/de-serialization
-	 *
-	 */
-	public String getFinalResponseText();
+	public void addToArray(Object value);
 
 	/**
 	 *
@@ -182,6 +169,62 @@ public interface RespWriter {
 	 * @throws IOException
 	 */
 	public void writeout(OutputStream stream) throws IOException;
+
+	/**
+	 * Service has delegated writing to this writer. write out response based on
+	 * spec
+	 *
+	 * @param ctx
+	 */
+	public void pullDataFromContext(ServiceContext ctx);
+
+	/**
+	 * is this writer based on output specification so that it can select, and
+	 * format required out put data
+	 *
+	 * @return true if it has details of output parameters. false if it is a
+	 *         pipe and service should take care of that
+	 */
+	public boolean hasOutputSpec();
+
+	/**
+	 * make this qualified field as the target object for all setXXX commands.
+	 * fields of root objects have no prefix. child filed is prefixed with
+	 * parentField and a dot. for example "orders.orderDetails". This array is
+	 * created if required.
+	 *
+	 * @param qualifiedFieldName
+	 * @return null if no object found with that field name, and it could not be
+	 *         created.
+	 */
+
+	public Object moveToObject(String qualifiedFieldName);
+
+	/**
+	 * make this qualified field as the target array for all setXXX commands.
+	 * fields of root objects have no prefix. child filed is prefixed with
+	 * parentField and a dot. for example "orders.orderDetails". This array is
+	 * created if required.
+	 *
+	 * @param qualifiedFieldName
+	 * @return null if no object found with that field name, and it could not be
+	 *         created.
+	 */
+
+	public Object moveToArray(String qualifiedFieldName);
+
+	/**
+	 * Use this as the current object.
+	 *
+	 * @param object
+	 *            typically an object that was returned earlier. Advanced users
+	 *            can use this to build different objects all together.
+	 */
+	public void setAsCurrentObject(Object object);
+	/*
+	 * caching related functionality is temporary. This will be re-factored
+	 * directly to service agent
+	 */
 
 	/**
 	 * @return
@@ -222,20 +265,4 @@ public interface RespWriter {
 	 */
 	public void setInvalidations(String[] invalidations);
 
-	/**
-	 * Service has delegated writing to this writer. write out response based on
-	 * spec
-	 *
-	 * @param ctx
-	 */
-	public void pullDataFromContext(ServiceContext ctx);
-
-	/**
-	 * is this writer based on output specification so that it can select, and
-	 * format required out put data
-	 *
-	 * @return true if it has details of output parameters. false if it is a
-	 *         pipe and service should take care of that
-	 */
-	public boolean hasOutputSpec();
 }
