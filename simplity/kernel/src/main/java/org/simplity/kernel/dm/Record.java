@@ -1489,13 +1489,13 @@ public class Record implements Component {
 			}
 		}
 		update.append(this.primaryWhereClause);
-		if (this.modifiedStampField != null) {
+		if (this.useTimestampForConcurrency) {
 			update.append(" AND ").append(this.modifiedStampField.columnName).append(Record.EQUAL_PARAM);
 		}
 		/*
 		 * append values for primary keys and timestamp
 		 */
-		Value[] whereValues = this.getPrimaryValues(inData, true);
+		Value[] whereValues = this.getPrimaryValues(inData, this.useTimestampForConcurrency);
 		if (whereValues == null) {
 
 			logger.info("Primary keys not available and hence update operaiton aborted.");
@@ -2194,8 +2194,15 @@ public class Record implements Component {
 		 * if we have a primary key
 		 */
 		if (this.allPrimaryKeys != null) {
-			this.updateSql = update.append(this.primaryWhereClause).toString();
-			this.deleteSql = "DELETE FROM " + this.tableName + this.primaryWhereClause;
+			if(this.useTimestampForConcurrency){
+				String clause = " AND " + this.modifiedStampField.columnName + "=?";
+				this.updateSql = update.append(this.primaryWhereClause).append(clause).toString();
+				this.deleteSql = "DELETE FROM " + this.tableName + this.primaryWhereClause + clause;
+
+			}else{
+				this.updateSql = update.append(this.primaryWhereClause).toString();
+				this.deleteSql = "DELETE FROM " + this.tableName + this.primaryWhereClause;
+			}
 		}
 	}
 

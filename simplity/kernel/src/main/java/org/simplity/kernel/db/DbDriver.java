@@ -83,7 +83,6 @@ public class DbDriver {
    * we store sql types with corresponding value types
    */
   private static final int[] LONG_TYPES = {Types.BIGINT, Types.INTEGER, Types.SMALLINT};
-  private static final int[] DATE_TYPES = {Types.DATE, Types.TIME, Types.TIMESTAMP};
   private static final int[] DOUBLE_TYPES = {Types.DECIMAL, Types.DOUBLE, Types.FLOAT, Types.REAL};
   private static final int[] BOOLEAN_TYPES = {Types.BIT, Types.BOOLEAN};
   private static final Map<Integer, ValueType> SQL_TYPES = new HashMap<Integer, ValueType>();
@@ -214,9 +213,9 @@ public class DbDriver {
     for (int i : LONG_TYPES) {
       SQL_TYPES.put(new Integer(i), ValueType.INTEGER);
     }
-    for (int i : DATE_TYPES) {
-      SQL_TYPES.put(new Integer(i), ValueType.DATE);
-    }
+      SQL_TYPES.put(Types.DATE, ValueType.DATE);
+      SQL_TYPES.put(Types.TIME, ValueType.DATE);
+      SQL_TYPES.put(Types.TIMESTAMP, ValueType.TIMESTAMP);
     for (int i : DOUBLE_TYPES) {
       SQL_TYPES.put(new Integer(i), ValueType.DECIMAL);
     }

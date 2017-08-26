@@ -21,133 +21,140 @@
  */
 package org.simplity.kernel.value;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Date;
 
-import org.simplity.kernel.util.DateUtil;
-
 /**
- * Very special value, and should not be used except for specific timestap field defined in an
- * rdbms. Simplity uses time-stamp field to take care of concurrency issues. This class is designed
+ * Very special value, and should not be used except for specific timestap field
+ * defined in an
+ * rdbms. Simplity uses time-stamp field to take care of concurrency issues.
+ * This class is designed
  * to facilitate that
  *
  * @author simplity.org
  */
 public class TimestampValue extends Value {
+	private static final long NANO = 1000000000;
 
-  /** */
-  private static final long serialVersionUID = 1L;
-  /** this is the number of nano-seconds from epoch. this is 1000*Date.getTime() */
-  private long value;
+	/** */
+	private static final long serialVersionUID = 1L;
+	/**
+	 * this is the number of nano-seconds from epoch.
+	 */
+	private long value;
 
-  protected TimestampValue(long value) {
-    this.value = value;
-  }
+	protected TimestampValue(long value) {
+		this.value = value;
+	}
 
-  protected TimestampValue(Timestamp value) {
-    this.value = value.getTime() * 1000 + value.getNanos();
-  }
+	protected TimestampValue(Timestamp ts) {
+		/*
+		 * remove fractional secs from date and convert that to nanos
+		 */
+		long nanosInDate = (ts.getTime() / 1000) * 1000000000;
+		this.value = nanosInDate + ts.getNanos();
+	}
 
-  protected TimestampValue() {
-    this.valueIsNull = true;
-  }
+	protected TimestampValue() {
+		this.valueIsNull = true;
+	}
 
-  @Override
-  public ValueType getValueType() {
-    return ValueType.TIMESTAMP;
-  }
+	@Override
+	public ValueType getValueType() {
+		return ValueType.TIMESTAMP;
+	}
 
-  @Override
-  protected void format() {
-    this.textValue = Long.toString(this.value);
-  }
+	@Override
+	protected void format() {
+		this.textValue = Long.toString(this.value);
+	}
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.simplity.kernel.value.Value#toInteger()
-   */
-  @Override
-  public long toInteger() throws InvalidValueException {
-    return this.value;
-  }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.kernel.value.Value#toInteger()
+	 */
+	@Override
+	public long toInteger() throws InvalidValueException {
+		return this.value;
+	}
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.simplity.kernel.value.Value#toDecimal()
-   */
-  @Override
-  public double toDecimal() throws InvalidValueException {
-    return this.value;
-  }
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.simplity.kernel.value.Value#toDecimal()
+	 */
+	@Override
+	public double toDecimal() throws InvalidValueException {
+		return this.value;
+	}
 
-  @Override
-  public Date toDate() throws InvalidValueException {
-    /*
-     * we return new date instead of caching because Date, unfortunately, is
-     * mutable
-     */
-    return new Date(this.value / 1000);
-  }
+	@Override
+	public Date toDate() throws InvalidValueException {
+		/*
+		 * we return new date instead of caching because Date, unfortunately, is
+		 * mutable
+		 */
+		return new Date(this.value / 1000000);
+	}
 
-  @Override
-  protected boolean equalValue(Value otherValue) {
-    if (otherValue instanceof TimestampValue) {
-      return ((TimestampValue) otherValue).value == this.value;
-    }
-    return false;
-  }
+	@Override
+	protected boolean equalValue(Value otherValue) {
+		if (otherValue instanceof TimestampValue) {
+			return ((TimestampValue) otherValue).value == this.value;
+		}
+		return false;
+	}
 
-  /**
-   * method to be used on a concrete class to avoid exception handling
-   *
-   * @return date
-   */
-  public long getDate() {
-    return this.value / 1000;
-  }
+	/**
+	 * method to be used on a concrete class to avoid exception handling
+	 *
+	 * @return date
+	 */
+	public long getDate() {
+		return this.value / 1000000;
+	}
 
-  /**
-   * method to be used on a concrete class to avoid exception handling
-   *
-   * @return date
-   */
-  public long getInteger() {
-    return this.value;
-  }
+	/**
+	 * method to be used on a concrete class to avoid exception handling
+	 *
+	 * @return date
+	 */
+	public long getInteger() {
+		return this.value;
+	}
 
-  @Override
-  public void setToStatement(PreparedStatement statement, int idx) throws SQLException {
-    if (this.valueIsNull) {
-      statement.setNull(idx, Types.TIMESTAMP);
-    } else {
-      Timestamp dateValue = new Timestamp(this.value);
-      if(logger.isInfoEnabled())
-    	  logger.info("Set set a timestamp of {}", DateUtil.format(dateValue));
-      statement.setTimestamp(idx, dateValue);
-    }
-  }
+	@Override
+	public void setToStatement(PreparedStatement statement, int idx) throws SQLException {
+		if (this.valueIsNull) {
+			statement.setNull(idx, Types.TIMESTAMP);
+		} else {
+			/*
+			 * create date with truncated seconds
+			 */
+			Timestamp dateValue = new Timestamp((this.value / NANO) * 1000);
+			dateValue.setNanos((int) (this.value % NANO));
+			statement.setTimestamp(idx, dateValue);
+		}
+	}
 
-  @Override
-  public Object getObject() {
-    return this.value;
-  }
+	@Override
+	public Object getObject() {
+		return this.value;
+	}
 
-  @Override
-  public Object[] toArray(Value[] values) {
-    int n = values.length;
-    Long[] arr = new Long[n];
-    for (int i = 0; i < n; i++) {
-      TimestampValue val = (TimestampValue) values[i];
-      arr[i] = new Long(val.value);
-    }
-    return arr;
-  }
+	@SuppressWarnings("unchecked")
+	@Override
+	public Object[] toArray(Value[] values) {
+		int n = values.length;
+		Long[] arr = new Long[n];
+		for (int i = 0; i < n; i++) {
+			TimestampValue val = (TimestampValue) values[i];
+			arr[i] = new Long(val.value);
+		}
+		return arr;
+	}
 }
