@@ -57,7 +57,6 @@ import org.simplity.kernel.data.SingleRowSheet;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dt.DataType;
 import org.simplity.kernel.dt.DataTypeSuggester;
-import org.simplity.kernel.file.FileManager;
 import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.util.XmlUtil;
@@ -558,7 +557,7 @@ public class Record implements Component {
 
 		boolean singleRow = nbrRows == 1;
 		if (singleRow) {
-			Value[] values = this.getPrimaryValues(inSheet, 0);
+			Value[] values = this.getPrimaryKeyValues(inSheet, 0);
 			if (values == null) {
 
 				logger.info("Primary key value not available and hence no read operation.");
@@ -570,7 +569,7 @@ public class Record implements Component {
 
 		Value[][] values = new Value[nbrRows][];
 		for (int i = 0; i < nbrRows; i++) {
-			Value[] vals = this.getPrimaryValues(inSheet, i);
+			Value[] vals = this.getPrimaryKeyValues(inSheet, i);
 			if (vals == null) {
 
 				logger.info("Primary key value not available and hence no read operation.");
@@ -586,7 +585,7 @@ public class Record implements Component {
 		return nbr;
 	}
 
-	private Value[] getPrimaryValues(DataSheet inSheet, int idx) {
+	private Value[] getPrimaryKeyValues(DataSheet inSheet, int idx) {
 		Value[] values = new Value[this.allPrimaryKeys.length];
 		for (int i = 0; i < this.allPrimaryKeys.length; i++) {
 			Value value = inSheet.getColumnValue(this.allPrimaryKeys[i].name, idx);
@@ -598,12 +597,17 @@ public class Record implements Component {
 		return values;
 	}
 
-	private Value[] getPrimaryValues(FieldsInterface inFields, boolean includeTimeStamp) {
+	private Value[] getWhereValues(FieldsInterface inFields, boolean includeTimeStamp) {
 		Value[] values;
 		int nbr = this.allPrimaryKeys.length;
-		if (includeTimeStamp && this.useTimestampForConcurrency) {
+		if (includeTimeStamp) {
 			values = new Value[nbr + 1];
-			values[nbr] = inFields.getValue(this.modifiedStampField.name);
+			Value stamp = inFields.getValue(this.modifiedStampField.name);
+			if (Value.isNull(stamp)) {
+				throw new ApplicationError("Field " + this.modifiedStampField.name
+						+ " is timestamp, and value is required for an update operation to check for concurrency.");
+			}
+			values[nbr] = Value.newTimestampValue(stamp);
 		} else {
 			values = new Value[nbr];
 		}
@@ -642,7 +646,7 @@ public class Record implements Component {
 
 			return 0;
 		}
-		Value[] values = this.getPrimaryValues(inData, false);
+		Value[] values = this.getWhereValues(inData, false);
 		if (values == null) {
 
 			logger.info("Value for primary key not present, and hence no read operation.");
@@ -682,7 +686,7 @@ public class Record implements Component {
 				logger.info("There are more than one primary keys, and hence supplied name keyFieldName of "
 						+ keyFieldName + " is ognored");
 
-				values = this.getPrimaryValues(inData, false);
+				values = this.getWhereValues(inData, false);
 			} else {
 				Value value = inData.getValue(keyFieldName);
 				if (Value.isNull(value)) {
@@ -695,7 +699,7 @@ public class Record implements Component {
 				values[0] = value;
 			}
 		} else {
-			values = this.getPrimaryValues(inData, false);
+			values = this.getWhereValues(inData, false);
 		}
 		return driver.hasResult(this.readSql, values);
 	}
@@ -886,7 +890,7 @@ public class Record implements Component {
 				driver.executeSql(this.insertSql, values, treatSqlErrorAsNoResult);
 			}
 		} else if (saveAction == SaveActionType.DELETE) {
-			values = this.getPrimaryValues(row, true);
+			values = this.getWhereValues(row, this.useTimestampForConcurrency);
 			driver.executeSql(this.deleteSql, values, treatSqlErrorAsNoResult);
 		} else {
 			values = this.getUpdateValues(row, userId);
@@ -1036,7 +1040,7 @@ public class Record implements Component {
 			}
 			valueIdx++;
 		}
-		for (Value value : this.getPrimaryValues(row, true)) {
+		for (Value value : this.getWhereValues(row, this.useTimestampForConcurrency)) {
 			values[valueIdx++] = value;
 		}
 		return values;
@@ -1325,7 +1329,7 @@ public class Record implements Component {
 		Value[][] allValues = new Value[nbrRows][];
 		nbrRows = 0;
 		for (FieldsInterface row : inSheet) {
-			allValues[nbrRows++] = this.getPrimaryValues(row, true);
+			allValues[nbrRows++] = this.getWhereValues(row, this.useTimestampForConcurrency);
 		}
 		return this.executeWorker(driver, this.deleteSql, allValues, treatSqlErrorAsNoResult);
 	}
@@ -1349,7 +1353,7 @@ public class Record implements Component {
 			this.noPrimaryKey();
 		}
 		Value[][] allValues = new Value[1][];
-		allValues[0] = this.getPrimaryValues(inData, true);
+		allValues[0] = this.getWhereValues(inData, this.useTimestampForConcurrency);
 		return this.executeWorker(driver, this.deleteSql, allValues, treatSqlErrorAsNoResult);
 	}
 
@@ -1495,7 +1499,7 @@ public class Record implements Component {
 		/*
 		 * append values for primary keys and timestamp
 		 */
-		Value[] whereValues = this.getPrimaryValues(inData, this.useTimestampForConcurrency);
+		Value[] whereValues = this.getWhereValues(inData, this.useTimestampForConcurrency);
 		if (whereValues == null) {
 
 			logger.info("Primary keys not available and hence update operaiton aborted.");
@@ -2194,12 +2198,12 @@ public class Record implements Component {
 		 * if we have a primary key
 		 */
 		if (this.allPrimaryKeys != null) {
-			if(this.useTimestampForConcurrency){
+			if (this.useTimestampForConcurrency) {
 				String clause = " AND " + this.modifiedStampField.columnName + "=?";
 				this.updateSql = update.append(this.primaryWhereClause).append(clause).toString();
 				this.deleteSql = "DELETE FROM " + this.tableName + this.primaryWhereClause + clause;
 
-			}else{
+			} else {
 				this.updateSql = update.append(this.primaryWhereClause).toString();
 				this.deleteSql = "DELETE FROM " + this.tableName + this.primaryWhereClause;
 			}
@@ -3730,8 +3734,6 @@ public class Record implements Component {
 	}
 
 	/** definitions object */
-	private static final String DEFS_ATTR = "definitions";
-
 	private static final String REF_ATTR = "$ref";
 	private static final String DEFAULT_ATTR = "default";
 	private static final String FIELD_NAME_ATTR = "x-fieldName";
@@ -3753,6 +3755,7 @@ public class Record implements Component {
 	 * @param moduleName
 	 *            can be null. module name. Full name of record would be
 	 *            moduleName.recordNme
+	 * @param defNames default names
 	 * @return record, or null in case the schema is not valid.
 	 */
 	public static Record fromSwagger(JSONObject schema, String recordName, String moduleName, String[] defNames) {
@@ -3838,6 +3841,7 @@ public class Record implements Component {
 	}
 
 	/**
+	 * @param field
 	 * @param parm
 	 */
 	public static void setTypeForSwaggerType(Field field, JSONObject parm) {
@@ -3942,23 +3946,6 @@ public class Record implements Component {
 		}
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		String rootFolder = "D:/";
-		String txt = FileManager.readFile(new File(rootFolder + "troubleTicket.json"));
-		JSONObject swagger = new JSONObject(txt);
-		JSONObject defs = swagger.optJSONObject(DEFS_ATTR);
-		if (defs == null) {
-
-			return;
-		}
-
-		Record[] recs = Record.fromSwaggerDefinitions(null, defs);
-		for (Record rec : recs) {
-		}
-	}
 }
 
 class SqlAndValues {
