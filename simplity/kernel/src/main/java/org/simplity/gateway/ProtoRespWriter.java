@@ -74,7 +74,7 @@ public class ProtoRespWriter implements RespWriter {
 	 * current object that is receiving data. null if an array is receiving
 	 * data.
 	 */
-	private Target currentTarget = new Target(this.messageBuilder, null);
+	private Target currentTarget;
 
 	/**
 	 * in case the service has returned with errors, we hav e the text here, and
@@ -107,6 +107,7 @@ public class ProtoRespWriter implements RespWriter {
 	 */
 	public ProtoRespWriter(Builder builder) {
 		this.messageBuilder = builder;
+		this.currentTarget = new Target(builder, null);
 	}
 
 	/**

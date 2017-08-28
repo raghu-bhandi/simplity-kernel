@@ -22,20 +22,27 @@
  */
 package org.simplity.kernel;
 
+import java.sql.SQLException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.SQLException;
-
 /**
- * represents an application design error. We have decided to make it an unchecked exception because
- * there is no reason for this error to occur at run time, except that the programmer has not run
- * design-time validations. This is like syntax error in a script language. We expect that the
- * project has put reasonable build procedure to catch such errors. Examples are missing components,
+ * represents an application design error. We have decided to make it an
+ * unchecked exception because
+ * there is no reason for this error to occur at run time, except that the
+ * programmer has not run
+ * design-time validations. This is like syntax error in a script language. We
+ * expect that the
+ * project has put reasonable build procedure to catch such errors. Examples are
+ * missing components,
  * incompatible data-types etc..
  *
- * <p>Even sql exceptions are not to be handled at the component level, they are actually re-thrown
- * as ApplicationExcption We would like to catch all such exceptions at the highest level and deal
+ * <p>
+ * Even sql exceptions are not to be handled at the component level, they are
+ * actually re-thrown
+ * as ApplicationExcption We would like to catch all such exceptions at the
+ * highest level and deal
  * with them rather than each component worrying about it.
  *
  * @author simplity.org
@@ -43,47 +50,51 @@ import java.sql.SQLException;
 public class ApplicationError extends RuntimeException {
 	private static final Logger logger = LoggerFactory.getLogger(ApplicationError.class);
 
-  protected static final long serialVersionUID = 1L;
-  protected String msg;
+	protected static final long serialVersionUID = 1L;
+	protected String msg;
 
-  /**
-   * construct with cause of this error
-   *
-   * @param error error message
-   */
-  public ApplicationError(String error) {
-    this.msg = error;
-  }
+	/**
+	 * construct with cause of this error
+	 *
+	 * @param error
+	 *            error message
+	 */
+	public ApplicationError(String error) {
+		logger.error(error);
+		this.msg = error;
+	}
 
-  /**
-   * handles SqlException that is likely to be chained to get all messages
-   *
-   * @param e exception being caught
-   * @param msg additional error message
-   */
-  public ApplicationError(Exception e, String msg) {
+	/**
+	 * handles SqlException that is likely to be chained to get all messages
+	 *
+	 * @param e
+	 *            exception being caught
+	 * @param msg
+	 *            additional error message
+	 */
+	public ApplicationError(Exception e, String msg) {
 
-    logger.error(msg, e);
+		logger.error(msg, e);
 
-    if (e instanceof SQLException) {
-      this.msg = this.getSqlMessage((SQLException) e);
-    } else {
-      this.msg = e.getMessage();
-    }
-  }
+		if (e instanceof SQLException) {
+			this.msg = this.getSqlMessage((SQLException) e);
+		} else {
+			this.msg = e.getMessage();
+		}
+	}
 
-  private String getSqlMessage(SQLException e) {
-    StringBuilder sbf = new StringBuilder();
-    for (Throwable t : e) {
-      sbf.append(t.getMessage()).append('\n');
+	private String getSqlMessage(SQLException e) {
+		StringBuilder sbf = new StringBuilder();
+		for (Throwable t : e) {
+			sbf.append(t.getMessage()).append('\n');
 
-      logger.info(e.getMessage());
-    }
-    return sbf.toString();
-  }
+			logger.error(e.getMessage());
+		}
+		return sbf.toString();
+	}
 
-  @Override
-  public String getMessage() {
-    return this.msg;
-  }
+	@Override
+	public String getMessage() {
+		return this.msg;
+	}
 }

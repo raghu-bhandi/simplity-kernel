@@ -23,7 +23,7 @@
 package org.simplity.tp;
 
 import org.simplity.gateway.OutboundAgent;
-import org.simplity.kernel.HttpGateway;
+import org.simplity.http.HttpGateway;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
@@ -47,7 +47,7 @@ public class HttpClient extends ExternalService {
 	 * and still go ahead.
 	 */
 	String urlString;
-	private String parsedUrlString;	
+	private String parsedUrlString;
 	/**
 	 * GET, POST etc..
 	 */
@@ -81,7 +81,7 @@ public class HttpClient extends ExternalService {
 	String setStatusCodeTo;
 
 	/**
-	 * set contentType
+	 * content type. Specify only if you have to over-ride teh default content type specified on the gateway
 	 */
 	String contentType;
 	/**
@@ -89,7 +89,6 @@ public class HttpClient extends ExternalService {
 	 * time. into an array which has its odd-index (0-based) has names and other
 	 */
 	private String[] urlParts;
-	
 
 	/*
 	 * (non-Javadoc)
@@ -109,7 +108,7 @@ public class HttpClient extends ExternalService {
 		} else {
 			path = TextUtil.substituteFields(this.urlParts, ctx);
 		}
-		
+
 		String[] values = null;
 		if (this.headerFieldSources != null) {
 			values = new String[this.headerFieldSources.length];
@@ -120,7 +119,7 @@ public class HttpClient extends ExternalService {
 				}
 			}
 		}
-		hagent.setConnectionParams(path, this.httpMethod, this.headerNamesToSend, values,this.contentType);
+		hagent.setConnectionParams(path, this.httpMethod, this.headerNamesToSend, values, this.contentType);
 		return true;
 	}
 
