@@ -74,21 +74,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This is the main part of our data model. Every piece of data that the
- * application has to keep as
- * part of "system of records" must be modeled into this. Data structures that
- * are used as input to,
- * or output from a service are modeled as records as well.
+ * application has to keep as part of "system of records" must be modeled into
+ * this. Data structures that are used as input to, or output from a service are
+ * modeled as records as well.
  *
  * <p>
  * It is common industry practice to have "physical data model" and "logical
- * data model" for
- * proper understanding. We encourage such designs before recording them using
- * the Record concept.
+ * data model" for proper understanding. We encourage such designs before
+ * recording them using the Record concept.
  *
  * <p>
  * Record is a good candidate to represent any data structure that is used
- * across components,
- * even if it is not persisted.
+ * across components, even if it is not persisted.
  */
 public class Record implements Component {
 
@@ -123,18 +120,15 @@ public class Record implements Component {
 
 	/**
 	 * module name + name would be unique for a component type within an
-	 * application. we also insist
-	 * on a java-like convention that the the resource is stored in a folder
-	 * structure that mimics
-	 * module name
+	 * application. we also insist on a java-like convention that the the
+	 * resource is stored in a folder structure that mimics module name
 	 */
 	String moduleName;
 	/** type of this record */
 	RecordUsageType recordType = RecordUsageType.STORAGE;
 	/**
 	 * name of the rdbms table, if this is either a storage table, or a view
-	 * that is to be defined in
-	 * the rdbms
+	 * that is to be defined in the rdbms
 	 */
 	String tableName;
 
@@ -145,21 +139,18 @@ public class Record implements Component {
 	boolean keyToBeGenerated;
 	/**
 	 * oracle does not support auto-increment. Standard practice is to have a
-	 * sequence, typically
-	 * named as tableName_SEQ, and use sequence.NEXTVAL as value of the key
-	 * field. If you follow
-	 * different standard that that, please specify the expression. We have made
-	 * this an expression to
-	 * provide flexibility to have any expression, including functions that you
-	 * may have written.
+	 * sequence, typically named as tableName_SEQ, and use sequence.NEXTVAL as
+	 * value of the key field. If you follow different standard that that,
+	 * please specify the expression. We have made this an expression to provide
+	 * flexibility to have any expression, including functions that you may have
+	 * written.
 	 */
 	String sequenceName;
 	/**
 	 * if this table is expected to have large number of rows, we would like to
-	 * protect against a
-	 * select with no where conditions. Of course one can always argue that this
-	 * is no protection, as
-	 * some one can easily put a condition like 1 = 1
+	 * protect against a select with no where conditions. Of course one can
+	 * always argue that this is no protection, as some one can easily put a
+	 * condition like 1 = 1
 	 */
 	boolean okToSelectAll;
 
@@ -178,25 +169,21 @@ public class Record implements Component {
 
 	/**
 	 * In case this is a table that supplies key-value list for drop-downs, then
-	 * we use primary key as
-	 * internal key. Specify the field to be used as display value. key of this
-	 * table is the internal
-	 * value
+	 * we use primary key as internal key. Specify the field to be used as
+	 * display value. key of this table is the internal value
 	 */
 	String listFieldName = null;
 
 	/**
 	 * relevant only if valueListFieldName is used. If the list of values need
-	 * be further filtered
-	 * with a key, like country code for list of state, specify the that field
-	 * name.
+	 * be further filtered with a key, like country code for list of state,
+	 * specify the that field name.
 	 */
 	String listGroupKeyName = null;
 
 	/**
 	 * what is the sheet name to be used as input/output sheet. (specifically
-	 * used in creating
-	 * services on the fly)
+	 * used in creating services on the fly)
 	 */
 	String defaultSheetName = null;
 
@@ -218,46 +205,39 @@ public class Record implements Component {
 
 	/**
 	 * if this application uses multiple schemas, and the underlying table of
-	 * this record belongs to a
-	 * schema other than the default, then specify it here, so that the
-	 * on-the-fly services based on
-	 * this record can use the right schema.
+	 * this record belongs to a schema other than the default, then specify it
+	 * here, so that the on-the-fly services based on this record can use the
+	 * right schema.
 	 */
 	String schemaName;
 
 	/**
 	 * should we insist that the client returns the last time stamp during an
-	 * update that we match
-	 * with the current row before updating it? This technique allows us to
-	 * detect whether the row was
-	 * updated after it was sent to client.
+	 * update that we match with the current row before updating it? This
+	 * technique allows us to detect whether the row was updated after it was
+	 * sent to client.
 	 */
 	boolean useTimestampForConcurrency = false;
 
 	/**
 	 * if this table is (almost) static, and the vauleList that is delivered on
-	 * a list request can be
-	 * cached by the agent. Valid only if valueListField is set (list_ auto
-	 * service is enabled) if
-	 * valueListKey is specified, the result will be cached by that field. For
-	 * example, by
-	 * country-code.
+	 * a list request can be cached by the agent. Valid only if valueListField
+	 * is set (list_ auto service is enabled) if valueListKey is specified, the
+	 * result will be cached by that field. For example, by country-code.
 	 */
 	boolean okToCacheList;
 
 	/**
 	 * If this record represents a data structure corresponding to an object
-	 * defined in the RDBMS,
-	 * what is the Object name in the sql. This is used while handling stored
-	 * procedure parameters
-	 * that pass objects and array of objects
+	 * defined in the RDBMS, what is the Object name in the sql. This is used
+	 * while handling stored procedure parameters that pass objects and array of
+	 * objects
 	 */
 	String sqlStructName;
 
 	/**
 	 * do you intend to use this to read from /write to flat file with fixed
-	 * width rows? If this is
-	 * set to true, then each field must set fieldWidth;
+	 * width rows? If this is set to true, then each field must set fieldWidth;
 	 */
 	boolean forFixedWidthRow;
 
@@ -266,8 +246,7 @@ public class Record implements Component {
 	 */
 	/**
 	 * Is there at least one field that has validations linked to another field.
-	 * Initialized during
-	 * init operation
+	 * Initialized during init operation
 	 */
 	private boolean hasInterFieldValidations;
 
@@ -325,10 +304,9 @@ public class Record implements Component {
 
 	/**
 	 * in case the primary is a composite key : with more than one fields, then
-	 * we keep all of them in
-	 * an array. This is null if we have a single key. We have designed it that
-	 * way to keep the single
-	 * key case as simple as possible
+	 * we keep all of them in an array. This is null if we have a single key. We
+	 * have designed it that way to keep the single key case as simple as
+	 * possible
 	 */
 	private Field[] allPrimaryKeys;
 
@@ -428,8 +406,7 @@ public class Record implements Component {
 
 	/**
 	 * get value types of fields in the same order that getFieldName() and an
-	 * additional field for
-	 * save action
+	 * additional field for save action
 	 *
 	 * @return value types of fields and the last field a save action, which is
 	 *         TEXT
@@ -447,8 +424,7 @@ public class Record implements Component {
 
 	/**
 	 * to avoid confusion, we do not have a method called setName. name is
-	 * split, if required into
-	 * module name and name
+	 * split, if required into module name and name
 	 *
 	 * @param nam
 	 *            qualified name
@@ -530,9 +506,8 @@ public class Record implements Component {
 
 	/**
 	 * read, in our vocabulary, is ALWAYS primary key based read. Hence we
-	 * expect (at most) one row of
-	 * output per read. If values has more than one rows, we read for primary
-	 * key in each row.
+	 * expect (at most) one row of output per read. If values has more than one
+	 * rows, we read for primary key in each row.
 	 *
 	 * @param inSheet
 	 *            one or more rows that has value for the primary key.
@@ -541,8 +516,7 @@ public class Record implements Component {
 	 * @param driver
 	 * @param userId
 	 *            we may have a common security strategy to restrict output rows
-	 *            based on user. Not
-	 *            used as of now
+	 *            based on user. Not used as of now
 	 * @return data sheet for sure. With data that is returned by the driver
 	 */
 	public int readMany(DataSheet inSheet, DataSheet outSheet, DbDriver driver, Value userId) {
@@ -623,9 +597,8 @@ public class Record implements Component {
 
 	/**
 	 * read, in our vocabulary, is ALWAYS primary key based read. Hence we
-	 * expect (at most) one row of
-	 * output per read. If values has more than one rows, we read for primary
-	 * key in each row.
+	 * expect (at most) one row of output per read. If values has more than one
+	 * rows, we read for primary key in each row.
 	 *
 	 * @param inData
 	 *            one or more rows that has value for the primary key.
@@ -634,8 +607,7 @@ public class Record implements Component {
 	 * @param driver
 	 * @param userId
 	 *            we may have a common security strategy to restrict output rows
-	 *            based on user. Not
-	 *            used as of now
+	 *            based on user. Not used as of now
 	 * @return number of rows extracted
 	 */
 	public int readOne(FieldsInterface inData, DataSheet outData, DbDriver driver, Value userId) {
@@ -711,8 +683,7 @@ public class Record implements Component {
 	 *            record that has fields for filter criterion
 	 * @param userId
 	 *            we may have a common security strategy to restrict output rows
-	 *            based on user. Not
-	 *            used as of now
+	 *            based on user. Not used as of now
 	 * @param inData
 	 *            as per filtering conventions
 	 * @param driver
@@ -813,9 +784,8 @@ public class Record implements Component {
 
 	/**
 	 * add, modify and delete are the three operations we can do for a record.
-	 * "save" is a special
-	 * convenient command. If key is specified, it is assumed to be modify, else
-	 * add. Save
+	 * "save" is a special convenient command. If key is specified, it is
+	 * assumed to be modify, else add. Save
 	 *
 	 * @param row
 	 *            data to be saved.
@@ -825,8 +795,7 @@ public class Record implements Component {
 	 *            if true, we assume that some constraints are set at db level,
 	 *            and sql error is treated as if affected rows is zero
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public SaveActionType saveOne(FieldsInterface row, DbDriver driver, Value userId, boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
@@ -904,9 +873,8 @@ public class Record implements Component {
 
 	/**
 	 * add, modify and delete are the three operations we can do for a record.
-	 * "save" is a special
-	 * convenient command. If key is specified, it is assumed to be modify, else
-	 * add. Save
+	 * "save" is a special convenient command. If key is specified, it is
+	 * assumed to be modify, else add. Save
 	 *
 	 * @param inSheet
 	 *            data to be saved.
@@ -914,8 +882,7 @@ public class Record implements Component {
 	 * @param userId
 	 * @param treatSqlErrorAsNoResult
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public SaveActionType[] saveMany(DataSheet inSheet, DbDriver driver, Value userId,
 			boolean treatSqlErrorAsNoResult) {
@@ -1006,7 +973,7 @@ public class Record implements Component {
 	 * @param rowIdx
 	 * @return
 	 */
-	private Value[] getUpdateValues(FieldsInterface row, Value userId) {
+	private Value[] getUpdateValues1(FieldsInterface row, Value userId) {
 		int nbrValues = this.nbrUpdateFields + this.allPrimaryKeys.length;
 		/*
 		 * we need an extra field for concurrency check
@@ -1054,8 +1021,7 @@ public class Record implements Component {
 	 * @param userId
 	 * @param treatSqlErrorAsNoResult
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int insert(DataSheet inSheet, DbDriver driver, Value userId, boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
@@ -1099,8 +1065,7 @@ public class Record implements Component {
 	 * @param userId
 	 * @param treatSqlErrorAsNoResult
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int insert(FieldsInterface inData, DbDriver driver, Value userId, boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
@@ -1141,8 +1106,7 @@ public class Record implements Component {
 	 * @param driver
 	 * @param userId
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int insertWithParent(DataSheet inSheet, FieldsInterface parentRow, DbDriver driver, Value userId) {
 		if (this.readOnly) {
@@ -1253,10 +1217,10 @@ public class Record implements Component {
 	 * @param userId
 	 * @param treatSqlErrorAsNoResult
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int update(DataSheet inSheet, DbDriver driver, Value userId, boolean treatSqlErrorAsNoResult) {
+
 		if (this.readOnly) {
 			this.notWritable();
 		}
@@ -1286,10 +1250,10 @@ public class Record implements Component {
 	 * @param userId
 	 * @param treatSqlErrorAsNoResult
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int update(FieldsInterface inputData, DbDriver driver, Value userId, boolean treatSqlErrorAsNoResult) {
+
 		if (this.readOnly) {
 			this.notWritable();
 		}
@@ -1311,8 +1275,7 @@ public class Record implements Component {
 	 * @param driver
 	 * @param treatSqlErrorAsNoResult
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int delete(DataSheet inSheet, DbDriver driver, boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
@@ -1342,8 +1305,7 @@ public class Record implements Component {
 	 * @param driver
 	 * @param treatSqlErrorAsNoResult
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int delete(FieldsInterface inData, DbDriver driver, boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
@@ -1380,8 +1342,7 @@ public class Record implements Component {
 	 * @param driver
 	 * @param userId
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int deleteWithParent(FieldsInterface parentRow, DbDriver driver, Value userId) {
 		if (this.readOnly) {
@@ -1453,8 +1414,7 @@ public class Record implements Component {
 	 * @param userId
 	 * @param treatSqlErrorAsNoResult
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int selectiveUpdate(FieldsInterface inData, DbDriver driver, Value userId, boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
@@ -1536,8 +1496,7 @@ public class Record implements Component {
 	 * @param userId
 	 * @param treatSqlErrorAsNoResult
 	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved
-	 *         rows
+	 *         unable to count the saved rows
 	 */
 	public int selectiveUpdate(DataSheet inSheet, DbDriver driver, Value userId, boolean treatSqlErrorAsNoResult) {
 		if (this.readOnly) {
@@ -2124,9 +2083,8 @@ public class Record implements Component {
 
 	/**
 	 * set sql strings. We are setting four fields at the end. For clarity, you
-	 * should trace one
-	 * string at a time and understand what we are trying to do. Otherwise it
-	 * looks confusing
+	 * should trace one string at a time and understand what we are trying to
+	 * do. Otherwise it looks confusing
 	 */
 	private void createWriteSqls() {
 		String timeStamp = DbDriver.getTimeStamp();
@@ -2208,6 +2166,97 @@ public class Record implements Component {
 				this.deleteSql = "DELETE FROM " + this.tableName + this.primaryWhereClause;
 			}
 		}
+	}
+
+	/**
+	 * set sql strings. We are setting four fields at the end. For clarity, you
+	 * should trace one string at a time and understand what we are trying to
+	 * do. Otherwise it looks confusing
+	 * 
+	 * @param row
+	 * @param userId
+	 * @return
+	 */
+	private Value[] getUpdateValues(FieldsInterface row, Value userId) {
+		List<Value> values = new ArrayList();
+		String timeStamp = DbDriver.getTimeStamp();
+		/*
+		 * we have two buffers for insert as fields are to be inserted at two
+		 * parts
+		 */
+		StringBuilder update = new StringBuilder("UPDATE ");
+		update.append(this.tableName).append(" SET ");
+
+		boolean firstUpdatableField = true;
+		for (Field field : this.fields) {
+			if (field.fieldType == FieldType.MODIFIED_BY_USER) {
+				firstUpdatableField = updateValSql(userId, values, timeStamp, update, firstUpdatableField, field);
+				continue;
+			}
+			/*
+			 * some fields are not updatable
+			 */
+			if (field.canUpdate() || field.fieldType == FieldType.MODIFIED_TIME_STAMP) {
+				if (!row.hasValue(field.getName())) {
+					continue;
+				}
+				Value value = field.getValue(row);
+				if (Value.isNull(value)) {
+					if (field.isNullable) {
+						value = Value.newUnknownValue(field.getValueType());
+					} else {
+						throw new ApplicationError("Column " + field.columnName + " in table " + this.tableName
+								+ " is designed to be non-null, but a row is being updated with a null value in it.");
+					}
+				}
+				if (field.isEncrypted) {
+					value = this.crypt(value, false);
+				}
+				firstUpdatableField = updateValSql(value, values, timeStamp, update, firstUpdatableField, field);
+			}
+
+		}
+		/*
+		 * where clause of delete and update are same, but they are valid only
+		 * if we have a primary key
+		 */
+		
+
+
+		for (Field field : this.allPrimaryKeys) {
+			values.add(row.getValue(field.getName()));
+		}
+
+	
+		if (this.allPrimaryKeys != null) {
+			if (this.useTimestampForConcurrency) {
+				String clause = " AND " + this.modifiedStampField.columnName + "=?";
+				this.updateSql = update.append(this.primaryWhereClause).append(clause).toString();
+
+			} else {
+				this.updateSql = update.append(this.primaryWhereClause).toString();
+			}
+		}
+
+		return values.toArray(new Value[values.size()]);
+
+	}
+
+	private boolean updateValSql(Value value, List<Value> values, String timeStamp, StringBuilder update,
+			boolean firstUpdatableField, Field field) {
+		values.add(value);
+		if (firstUpdatableField) {
+			firstUpdatableField = false;
+		} else {
+			update.append(COMMA);
+		}
+		update.append(field.columnName).append(Record.EQUAL);
+		if (field.fieldType == FieldType.MODIFIED_TIME_STAMP) {
+			update.append(timeStamp);
+		} else {
+			update.append(Record.PARAM);
+		}
+		return firstUpdatableField;
 	}
 
 	private void setPrimaryWhere() {
@@ -2935,8 +2984,7 @@ public class Record implements Component {
 
 	/**
 	 * get schema name that the table/view associated with this record is part
-	 * of. null if it is part
-	 * of default schema
+	 * of. null if it is part of default schema
 	 *
 	 * @return null if it is default. Otherwise schema name.
 	 */
@@ -3301,8 +3349,7 @@ public class Record implements Component {
 	 *
 	 * @param schemaName
 	 *            null to use default schema. non-null to use that specific
-	 *            schema that this
-	 *            table belongs to
+	 *            schema that this table belongs to
 	 * @param qualifiedName
 	 *            like modulename.recordName
 	 * @param tableName
@@ -3367,11 +3414,9 @@ public class Record implements Component {
 	 *
 	 * @param folder
 	 *            where record.xmls are to be saved. Should be a valid folder.
-	 *            Created if the path
-	 *            is valid but folder does not exist. since we replace any
-	 *            existing file, we recommend that
-	 *            you call with a new folder, and then do file copying if
-	 *            required
+	 *            Created if the path is valid but folder does not exist. since
+	 *            we replace any existing file, we recommend that you call with
+	 *            a new folder, and then do file copying if required
 	 * @param conversion
 	 *            how do we form record/field names table/column
 	 * @return number of records saved
@@ -3499,12 +3544,11 @@ public class Record implements Component {
 	 * @param driver
 	 * @param useCompactFormat
 	 *            json compact format is an array of arrays of data, with first
-	 *            row as
-	 *            header. Otherwise, each row is an object
+	 *            row as header. Otherwise, each row is an object
 	 * @param writer
 	 *            json writer to which we will output 0 or more objects or
-	 *            arrays. (Caller should
-	 *            have started an array. and shoudl end array after this call
+	 *            arrays. (Caller should have started an array. and shoudl end
+	 *            array after this call
 	 */
 	public void filterToJson(Record inRecord, FieldsInterface inData, DbDriver driver, boolean useCompactFormat,
 			ResponseWriter writer) {
@@ -3644,8 +3688,7 @@ public class Record implements Component {
 	 * @param inDataFormat
 	 * @param errors
 	 * @return array of values, or null in case of any validation error. Error
-	 *         message would have been
-	 *         added to errors
+	 *         message would have been added to errors
 	 */
 	public Value[] extractFromFlatRow(String inText, FlatFileRowType inDataFormat, List<FormattedMessage> errors) {
 		/*
@@ -3755,7 +3798,8 @@ public class Record implements Component {
 	 * @param moduleName
 	 *            can be null. module name. Full name of record would be
 	 *            moduleName.recordNme
-	 * @param defNames default names
+	 * @param defNames
+	 *            default names
 	 * @return record, or null in case the schema is not valid.
 	 */
 	public static Record fromSwagger(JSONObject schema, String recordName, String moduleName, String[] defNames) {
