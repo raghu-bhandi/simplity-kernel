@@ -23,6 +23,7 @@
 package org.simplity.rest;
 
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -145,6 +146,15 @@ public class Operations {
 	 */
 	public static void loadAll(String apiFolder) {
 		File folder = new File(apiFolder);
+		if (!folder.exists()) {
+			URL url = Thread.currentThread().getContextClassLoader().getResource(apiFolder);
+			if (url == null) {
+				logger.error("{} is neither a valid folder, nor a path to valid resource. Boot strap failed.",apiFolder);
+			} else {
+				apiFolder = url.getPath();
+				folder = new File(apiFolder);
+			}
+		}
 		if (folder.exists() == false || folder.isDirectory() == false) {
 			logger.info("Api spec folder " + apiFolder + " is not a folder.");
 			return;
