@@ -102,7 +102,7 @@ public class JsonObjectRespWriter implements RespWriter {
 	 */
 	@Override
 	public Object getFinalResponseObject() {
-		return this.rootObject;
+		return this.currentObject;
 	}
 
 	private void checkNullObject() {
