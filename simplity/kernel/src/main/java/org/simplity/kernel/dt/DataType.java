@@ -30,6 +30,7 @@ import org.simplity.kernel.comp.Component;
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
+import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 
@@ -213,6 +214,8 @@ public abstract class DataType implements Component {
   @Override
   public int validate(ValidationContext ctx) {
     ctx.beginValidation(ComponentType.DT, this.name);
+    String tagName = TextUtil.classNameToName(this.getClass().getSimpleName());
+    ctx.beginTag(tagName);
     try {
       int count = 0;
 
@@ -220,7 +223,7 @@ public abstract class DataType implements Component {
         ctx.addReference(ComponentType.MSG, this.messageName);
         Message msg = ComponentManager.getMessageOrNull(this.messageName);
         if (msg == null) {
-          ctx.addError(this.messageName + " is not defined");
+          ctx.addError(this.messageName + " is not defined", null, "name");
         }
         count++;
       }
@@ -228,7 +231,7 @@ public abstract class DataType implements Component {
         try {
           Value.parseValueList(this.valueList, this.getValueType());
         } catch (ApplicationError e) {
-          ctx.addError(e.getMessage());
+          ctx.addError(e.getMessage(), null, "valueList");
           count++;
         }
       }
@@ -236,6 +239,7 @@ public abstract class DataType implements Component {
       return count;
     } finally {
       ctx.endValidation();
+      ctx.endTag(tagName);
     }
   }
 

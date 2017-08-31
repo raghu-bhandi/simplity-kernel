@@ -22,15 +22,14 @@
  */
 package org.simplity.kernel.dt;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.value.DecimalValue;
 import org.simplity.kernel.value.IntegerValue;
 import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * numeric with or without decimals
@@ -137,15 +136,16 @@ public class NumericDataType extends DataType {
   protected int validateSpecific(ValidationContext ctx) {
     int count = 0;
     if (this.minValue > this.maxValue) {
-      ctx.addError(
-          "Invalid number range. Min vaue of "
-              + this.minValue
-              + " is greater that max value of "
-              + this.maxValue);
-      count = 1;
+    	String msg = "Invalid number range. Min vaue of "
+                + this.minValue
+                + " is greater that max value of "
+                + this.maxValue;
+      ctx.addError(msg, null, "minValue");
+      ctx.addError(msg, null, "maxValue");
+      count = 2;
     }
     if (this.nbrFractionDigits < 0) {
-      ctx.addError("nbrFractionDigits is set to a negative value of " + this.nbrFractionDigits);
+      ctx.addError("nbrFractionDigits is set to a negative value of " + this.nbrFractionDigits, null, "nbrFractionDigits");
       count++;
     }
     return count;

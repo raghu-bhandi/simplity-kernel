@@ -157,7 +157,7 @@ public class Message implements Component {
       return 0;
     }
     ctx.beginValidation(MY_TYPE, this.name);
-    ctx.addError("Text is required for message");
+    ctx.addError("Text is required for message", "message", "text");
     ctx.endValidation();
     return 1;
   }

@@ -83,11 +83,11 @@ public class TextDataType extends DataType {
       count = 1;
     }
     if (this.minLength < 0) {
-      ctx.addError("Min length is set to a negative value of " + this.minLength);
+      ctx.addError("Min length is set to a negative value of " + this.minLength, null, "minLength");
       count++;
     }
     if (this.maxLength < 0) {
-      ctx.addError("Max length is set to a negative value of " + this.maxLength);
+      ctx.addError("Max length is set to a negative value of " + this.maxLength, null, "maxLength");
       count++;
     }
     return count;

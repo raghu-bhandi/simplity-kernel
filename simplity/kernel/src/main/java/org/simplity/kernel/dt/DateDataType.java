@@ -22,9 +22,6 @@
  */
 package org.simplity.kernel.dt;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Date;
 
 import org.simplity.kernel.comp.ValidationContext;
@@ -33,6 +30,8 @@ import org.simplity.kernel.value.DateValue;
 import org.simplity.kernel.value.InvalidValueException;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** @author simplity.org */
 public class DateDataType extends DataType {
@@ -128,9 +127,10 @@ public class DateDataType extends DataType {
   protected int validateSpecific(ValidationContext ctx) {
     if (this.maxDaysIntoFuture != Integer.MAX_VALUE && this.maxDaysIntoPast != Integer.MAX_VALUE) {
       if (-this.maxDaysIntoPast > this.maxDaysIntoFuture) {
-        ctx.addError(
-            "Invalid date range. Earliest possible date is specified to be after the latest possibe date.");
-        return 1;
+    	  String msg = "Invalid date range. Earliest possible date is specified to be after the latest possibe date.";
+        ctx.addError(msg, null, "maxDaysIntoFuture");
+        ctx.addError(msg, null, "maxDaysIntoPast");
+        return 2;
       }
     }
     return 0;
