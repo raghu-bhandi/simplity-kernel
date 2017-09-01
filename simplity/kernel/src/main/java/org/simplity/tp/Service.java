@@ -987,6 +987,9 @@ public class Service implements ServiceInterface {
 	@Override
 	public int validate(ValidationContext ctx) {
 		ctx.beginValidation(MY_TYPE, this.getQualifiedName());
+		String tagName = TextUtil.classNameToName(this.getClass().getSimpleName());
+		System.out.println(this.getClass().getSimpleName() + " - " + tagName);
+	    ctx.beginTag(tagName);
 		/*
 		 * it is important that we endValidtion() before returning
 		 */
@@ -1078,6 +1081,7 @@ public class Service implements ServiceInterface {
 			return count;
 		} finally {
 			ctx.endValidation();
+			ctx.endTag(tagName);
 		}
 	}
 
@@ -1094,6 +1098,9 @@ public class Service implements ServiceInterface {
 		boolean dbAccessErrorRaised = false;
 		boolean delegated = this.dbAccessType == DbAccessType.SUB_SERVICE;
 		for (Action action : this.actions) {
+			String tagName = "actions";
+			System.out.println(this.getClass().getSimpleName() + " - " + tagName);
+		    ctx.beginTag(tagName);
 			actionNbr++;
 			if (action.actionName != null) {
 				if (addedSoFar.add(action.actionName) == false) {
@@ -1103,6 +1110,7 @@ public class Service implements ServiceInterface {
 			}
 			count += action.validate(ctx, this);
 			if (dbAccessErrorRaised || (delegated && (action instanceof SubService))) {
+				ctx.endTag(tagName);
 				continue;
 			}
 
@@ -1112,6 +1120,7 @@ public class Service implements ServiceInterface {
 				count++;
 				dbAccessErrorRaised = true;
 			}
+			ctx.endTag(tagName);
 		}
 		return count;
 	}

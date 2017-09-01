@@ -2776,6 +2776,8 @@ public class Record implements Component {
 		 * sequential, we have not bothered to cut them to pieces :-)
 		 */
 		ctx.beginValidation(MY_TYPE, this.getQualifiedName());
+		String tagName = TextUtil.classNameToName(this.getClass().getSimpleName());
+	    ctx.beginTag(tagName);
 		try {
 			int count = 0;
 			/*
@@ -2922,6 +2924,7 @@ public class Record implements Component {
 			return count;
 		} finally {
 			ctx.endValidation();
+			ctx.endTag(tagName);
 		}
 	}
 

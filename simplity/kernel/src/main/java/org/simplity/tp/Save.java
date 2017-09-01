@@ -35,6 +35,7 @@ import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbDriver;
 import org.simplity.kernel.dm.Record;
 import org.simplity.kernel.dm.SaveActionType;
+import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -270,6 +271,9 @@ private static final Logger actionLogger = LoggerFactory.getLogger(Save.class);
   @Override
   public int validate(ValidationContext ctx, Service service) {
     int count = super.validate(ctx, service);
+    String tagName = TextUtil.classNameToName(this.getClass().getSimpleName());
+    System.out.println(this.getClass().getSimpleName() + " - " + tagName);
+    ctx.beginTag(tagName);
     if (this.recordName == null) {
       ctx.addError("Record name is required for save action");
       count++;
@@ -281,6 +285,7 @@ private static final Logger actionLogger = LoggerFactory.getLogger(Save.class);
         count += rec.validate(ctx);
       }
     }
+	ctx.endTag(tagName);
     return count;
   }
 }
