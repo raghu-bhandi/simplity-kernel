@@ -27,6 +27,7 @@ import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.db.DbAccessType;
 import org.simplity.kernel.db.DbClientInterface;
 import org.simplity.kernel.db.DbDriver;
+import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
 
@@ -98,17 +99,21 @@ public abstract class DbAction extends Action {
    * ValidationContext
    * , org.simplity.tp.Service)
    */
-  @Override
-  public int validate(ValidationContext ctx, Service service) {
-    int count = super.validate(ctx, service);
-    if (this.failureMessageName != null) {
-      ctx.addReference(ComponentType.MSG, this.failureMessageName);
-    }
-    if (this.successMessageName != null) {
-      ctx.addReference(ComponentType.MSG, this.successMessageName);
-    }
-    return count;
-  }
+	@Override
+	public int validate(ValidationContext ctx, Service service) {
+		String tagName = TextUtil.classNameToName(this.getClass().getSimpleName());
+		System.out.println(this.getClass().getSimpleName() + " - " + tagName);
+		ctx.beginTag(tagName);
+		int count = super.validate(ctx, service);
+		if (this.failureMessageName != null) {
+			ctx.addReference(ComponentType.MSG, this.failureMessageName);
+		}
+		if (this.successMessageName != null) {
+			ctx.addReference(ComponentType.MSG, this.successMessageName);
+		}
+		ctx.endTag(tagName);
+		return count;
+	}
 
   /*
    * as per our design, this method should never be invoked
