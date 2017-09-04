@@ -34,121 +34,94 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * to be configured to run as a startup servlet when Simplity application needs to be exposed as
- * servlet
+ * to be configured to run as a startup servlet when Simplity application needs
+ * to be exposed as servlet
  *
  * @author simplity.org
  */
 public class Startup extends HttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(Startup.class);
 
-  private static final long serialVersionUID = 1L;
-  /**
-   * name of parameter in web.xml that has the root folder for resources. defaults to
-   * "WEB-INF/components"
-   */
-  public static final String COMP_FOLDER = "comp-folder";
-  /** context name to which web.xml would have set api-folder */
-  public static final String API_FOLDER = "api-folder";
-  /** default resource folder relative to web-root. */
-  public static final String DEFAULT_COMP_FOLDER = "/WEB-INF/comp/";
-  /** default folder for api */
-  public static final String DEFAULT_API_FOLDER = "/WEB-INF/api/";
-  /**
-   *
-   */
-  public static final String PROTO_CLASS_PREFIX = "proto-class-prefix";
+	private static final long serialVersionUID = 1L;
+	/**
+	 * name of parameter in web.xml that has the root folder for resources.
+	 * defaults to "WEB-INF/components"
+	 */
+	public static final String COMP_FOLDER = "comp-folder";
+	/** context name to which web.xml would have set api-folder */
+	public static final String API_FOLDER = "api-folder";
+	/** default resource folder relative to web-root. */
+	public static final String DEFAULT_COMP_FOLDER = "/WEB-INF/comp/";
+	/** default folder for api */
+	public static final String DEFAULT_API_FOLDER = "/WEB-INF/api/";
+	/**
+	 *
+	 */
+	public static final String PROTO_CLASS_PREFIX = "proto-class-prefix";
 
-  @Override
-  public void init() throws ServletException {
-    ServletContext ctx = this.getServletContext();
-    bootStrap(ctx);
-    loadApis(ctx);
-  }
+	@Override
+	public void init() throws ServletException {
+		ServletContext ctx = this.getServletContext();
+		bootStrap(ctx);
+		loadApis(ctx);
+	}
 
-  /**
-   * made this a public static to get flexibility of calling this from another servlet
-   *
-   * @param ctx Context
-   */
-  public static void bootStrap(ServletContext ctx) {
-    FileManager.setContext(ctx);
-    String folder = ctx.getInitParameter(COMP_FOLDER);
-    if (folder == null) {
-      /*
-       * comp folder not set in web.xml. Let us look for that in context
-       */
-      folder = DEFAULT_COMP_FOLDER;
-      try {
-        folder = ctx.getResource(folder).getPath();
+	/**
+	 * made this a public static to get flexibility of calling this from another
+	 * servlet
+	 *
+	 * @param ctx
+	 *            Context
+	 */
+	public static void bootStrap(ServletContext ctx) {
+		FileManager.setContext(ctx);
+		String folder = ctx.getInitParameter(COMP_FOLDER) != null ? ctx.getInitParameter(COMP_FOLDER)
+				: DEFAULT_COMP_FOLDER;
+		folder = ctx.getRealPath("/WEB-INF/classes/" + folder);
+		if (folder != null) {
+			logger.info("Going to bootstrap Application with comp folder at " + folder);
+			try {
+				Application.bootStrap(folder);
+			} catch (Exception e) {
+				logger.error("Unable to bootstrap Application using resource folder " + folder
+						+ ". Application will not work.", e);
+			}
+		} else {
+			logger.error(
+					"Unable to bootstrap Application using resource folder " + folder + ". Application will not work.");
+		}
+	}
 
-        logger.info("Root folder is set using recource to " + folder);
+	/**
+	 * made this a public static to get flexibility of calling this from another
+	 * servlet
+	 *
+	 * @param ctx
+	 *            Context
+	 */
+	public static void loadApis(ServletContext ctx) {
+		String folder = ctx.getInitParameter(API_FOLDER) != null ? ctx.getInitParameter(API_FOLDER)
+				: DEFAULT_API_FOLDER;
+		folder = ctx.getRealPath("/WEB-INF/classes/" + folder);
+		if (folder != null) {
+			logger.info("API folder is set to " + folder);
+			try {
+				Operations.loadAll(folder);
+			} catch (Exception e) {
+				logger.error("Unable to load APIs from folder " + folder + ". Application will not work.", e);
+			}
+		} else {
+			logger.error("Unable to load APIs from folder " + folder + ". Application will not work.");
+		}
 
-      } catch (MalformedURLException e) {
+		String protoClassPrefix = ctx.getInitParameter(PROTO_CLASS_PREFIX);
+		if (protoClassPrefix == null) {
+			logger.info(PROTO_CLASS_PREFIX + " is not set in web context. protobuf utilities will not work");
+		} else {
+			Serve.startUsingProto();
+			Operations.setProtoClassPrefix(protoClassPrefix);
+			logger.info("All proto classes will be prefixed with " + protoClassPrefix + " to get their actual class.");
+		}
 
-        logger.error("Error while getting root folder path from servlet context", e);
-      }
-    } else {
-
-      logger.info("Root folder is set to " + folder + " as a web parameter.");
-    }
-
-    logger.info("Going to bootstrap Application with comp folder at " + folder);
-
-    try {
-      Application.bootStrap(folder);
-    } catch (Exception e) {
-
-      logger.error(
-          "Unable to bootstrap Application using resource folder "
-              + folder
-              + ". Application will not work.",
-          e);
-    }
-  }
-  /**
-   * made this a public static to get flexibility of calling this from another servlet
-   *
-   * @param ctx Context
-   */
-  public static void loadApis(ServletContext ctx) {
-    String folder = ctx.getInitParameter(API_FOLDER);
-    if (folder == null) {
-      /*
-       * comp folder not set in web.xml. Let us look for that in context
-       */
-      folder = DEFAULT_API_FOLDER;
-      try {
-        folder = ctx.getResource(folder).getPath();
-
-        logger.info("API folder is set to " + folder);
-
-      } catch (MalformedURLException e) {
-
-        logger.error("Error while getting folder path from servlet context", e);
-      }
-    } else {
-
-      logger.info("API folder is set to " + folder + " as a web parameter.");
-    }
-
-    logger.info("Going to load apis from " + folder);
-
-    try {
-      Operations.loadAll(folder);
-    } catch (Exception e) {
-
-      logger.error("Unable to load APIs from folder " + folder + ". Application will not work.", e);
-    }
-
-    String protoClassPrefix = ctx.getInitParameter(PROTO_CLASS_PREFIX);
-    if(protoClassPrefix == null){
-    	logger.info(PROTO_CLASS_PREFIX + " is not set in web context. protobuf utilities will not work");
-    }else{
-    	Serve.startUsingProto();
-    	Operations.setProtoClassPrefix(protoClassPrefix);
-    	logger.info("All proto classes will be prefixed with " + protoClassPrefix + " to get their actual class.");
-    }
-
-  }
+	}
 }
