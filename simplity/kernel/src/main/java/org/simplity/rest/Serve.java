@@ -44,15 +44,11 @@ import org.slf4j.MDC;
  */
 public class Serve extends HttpServlet {
 	private static final Logger logger = LoggerFactory.getLogger(Serve.class);
-	private static boolean useProto = false;
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * if this is a protobuf deployment
-	 */
-	public static void startUsingProto(){
-		useProto = true;
-	}
+	private static final String ACCEPT_HEADER = "Accept";
+	private static final String ACCEPT_PROTO = "application/octet-stream";
+
 	/**
 	 * post is to be used by client in AJAX call.
 	 */
@@ -61,17 +57,23 @@ public class Serve extends HttpServlet {
 		try {
 			/** Correlation ID has be available from the beginning **/
 			MDC.put(Tags.CORRELATION_ID, this.getCorrelationId(req));
-			if (useProto) {
+			if (isProto(req.getHeader(ACCEPT_HEADER))) {
 				ProtoInboundAgent.serve(req, resp);
-			} else {
-				RestInboundAgent.serve(req, resp);
+				return;
 			}
+			RestInboundAgent.serve(req, resp);
 		} catch (Exception e) {
 			String msg = "We have an internal error. ";
 			logger.info(msg + e.getMessage());
 			RestInboundAgent.respondWithError(resp, msg + e.getMessage());
 			return;
 		}
+	}
+
+	private boolean isProto(String acceptHeader) {
+		if (acceptHeader.contains(ACCEPT_PROTO))
+			return true;
+		return false;
 	}
 
 	/**
