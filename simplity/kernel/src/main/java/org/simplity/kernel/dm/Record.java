@@ -29,6 +29,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Struct;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -316,9 +317,9 @@ public class Record implements Component {
 	/** " WHERE key1=?,key2=? */
 	private String primaryWhereClause;
 
-	private int nbrUpdateFields;
+	private int nbrUpdateFields = 0;
 
-	private int nbrInsertFields;
+	private int nbrInsertFields = 0;
 
 	private Field[] encryptedFields;
 	/*
@@ -968,52 +969,6 @@ public class Record implements Component {
 	}
 
 	/**
-	 * @param row
-	 * @param userId
-	 * @param rowIdx
-	 * @return
-	 */
-	private Value[] getUpdateValues1(FieldsInterface row, Value userId) {
-		int nbrValues = this.nbrUpdateFields + this.allPrimaryKeys.length;
-		/*
-		 * we need an extra field for concurrency check
-		 */
-		if (this.useTimestampForConcurrency) {
-			nbrValues++;
-		}
-
-		Value[] values = new Value[nbrValues];
-		int valueIdx = 0;
-		for (Field field : this.fields) {
-			if (field.canUpdate() == false) {
-				continue;
-			}
-			if (field.fieldType == FieldType.MODIFIED_BY_USER) {
-				values[valueIdx] = userId;
-			} else {
-				Value value = field.getValue(row);
-				if (Value.isNull(value)) {
-					if (field.isNullable) {
-						value = Value.newUnknownValue(field.getValueType());
-					} else {
-						throw new ApplicationError("Column " + field.columnName + " in table " + this.tableName
-								+ " is designed to be non-null, but a row is being updated with a null value in it.");
-					}
-				}
-				if (field.isEncrypted) {
-					value = this.crypt(value, false);
-				}
-				values[valueIdx] = value;
-			}
-			valueIdx++;
-		}
-		for (Value value : this.getWhereValues(row, this.useTimestampForConcurrency)) {
-			values[valueIdx++] = value;
-		}
-		return values;
-	}
-
-	/**
 	 * insert row/s
 	 *
 	 * @param inSheet
@@ -1403,114 +1358,6 @@ public class Record implements Component {
 			result += n;
 		}
 		return result;
-	}
-
-	/**
-	 * update subset of fields.
-	 *
-	 * @param inData
-	 *            data to be saved.
-	 * @param driver
-	 * @param userId
-	 * @param treatSqlErrorAsNoResult
-	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved rows
-	 */
-	public int selectiveUpdate(FieldsInterface inData, DbDriver driver, Value userId, boolean treatSqlErrorAsNoResult) {
-		if (this.readOnly) {
-			this.notWritable();
-		}
-		if (this.allPrimaryKeys == null) {
-			this.noPrimaryKey();
-		}
-		/*
-		 * we have primary key in where clause.
-		 */
-		int nbrFields = this.fields.length;
-		Value[] values = new Value[nbrFields];
-		int valueIdx = 0;
-		StringBuilder update = new StringBuilder("UPDATE ");
-		update.append(this.tableName).append(" SET ");
-		for (Field field : this.fields) {
-			Value value = null;
-			if (field.canUpdate() == false) {
-				continue;
-			}
-			if (field.fieldType == FieldType.MODIFIED_BY_USER) {
-				value = userId;
-			} else {
-				value = inData.getValue(field.name);
-			}
-			if (value != null) {
-				if (field.isEncrypted) {
-					value = this.crypt(value, false);
-				}
-				if (valueIdx != 0) {
-					update.append(Record.COMMA);
-				}
-				update.append(field.columnName).append(Record.EQUAL_PARAM);
-				values[valueIdx++] = value;
-			}
-		}
-		update.append(this.primaryWhereClause);
-		if (this.useTimestampForConcurrency) {
-			update.append(" AND ").append(this.modifiedStampField.columnName).append(Record.EQUAL_PARAM);
-		}
-		/*
-		 * append values for primary keys and timestamp
-		 */
-		Value[] whereValues = this.getWhereValues(inData, this.useTimestampForConcurrency);
-		if (whereValues == null) {
-
-			logger.info("Primary keys not available and hence update operaiton aborted.");
-
-			return 0;
-		}
-		for (Value value : whereValues) {
-			values[valueIdx++] = value;
-		}
-
-		/*
-		 * did we skip some values?
-		 */
-		if (nbrFields != valueIdx) {
-			values = this.chopValues(values, valueIdx);
-		}
-		return driver.executeSql(this.updateSql, values, treatSqlErrorAsNoResult);
-	}
-
-	private Value[] chopValues(Value[] values, int nbrsToRetain) {
-		Value[] newValues = new Value[nbrsToRetain];
-		for (int i = 0; i < nbrsToRetain; i++) {
-			newValues[i] = values[i];
-		}
-		return newValues;
-	}
-
-	/**
-	 * update subset of fields.
-	 *
-	 * @param inSheet
-	 *            data to be saved.
-	 * @param driver
-	 * @param userId
-	 * @param treatSqlErrorAsNoResult
-	 * @return number of rows saved. -1 in case of batch, and the driver is
-	 *         unable to count the saved rows
-	 */
-	public int selectiveUpdate(DataSheet inSheet, DbDriver driver, Value userId, boolean treatSqlErrorAsNoResult) {
-		if (this.readOnly) {
-			this.notWritable();
-		}
-		int nbrRows = inSheet.length();
-		if (nbrRows == 1) {
-			return this.selectiveUpdate(inSheet, driver, userId, treatSqlErrorAsNoResult);
-		}
-		nbrRows = 0;
-		for (FieldsInterface row : inSheet) {
-			nbrRows += this.selectiveUpdate(row, driver, userId, treatSqlErrorAsNoResult);
-		}
-		return nbrRows;
 	}
 
 	/**
@@ -2193,11 +2040,15 @@ public class Record implements Component {
 				firstUpdatableField = updateValSql(userId, values, timeStamp, update, firstUpdatableField, field);
 				continue;
 			}
+			if (field.fieldType == FieldType.MODIFIED_TIME_STAMP) {
+				firstUpdatableField = updateValSql(userId, values, timeStamp, update, firstUpdatableField, field);
+				continue;
+			}			
 			/*
 			 * some fields are not updatable
 			 */
-			if (field.canUpdate() || field.fieldType == FieldType.MODIFIED_TIME_STAMP) {
-				if (!row.hasValue(field.getName())) {
+			if (field.canUpdate()) {
+				if (!row.hasValue(field.getName()))  {
 					continue;
 				}
 				Value value = field.getValue(row);
@@ -2244,7 +2095,7 @@ public class Record implements Component {
 
 	private boolean updateValSql(Value value, List<Value> values, String timeStamp, StringBuilder update,
 			boolean firstUpdatableField, Field field) {
-		values.add(value);
+		
 		if (firstUpdatableField) {
 			firstUpdatableField = false;
 		} else {
@@ -2255,6 +2106,7 @@ public class Record implements Component {
 			update.append(timeStamp);
 		} else {
 			update.append(Record.PARAM);
+			values.add(value);
 		}
 		return firstUpdatableField;
 	}
