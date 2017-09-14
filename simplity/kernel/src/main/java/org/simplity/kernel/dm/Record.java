@@ -2083,7 +2083,10 @@ public class Record implements Component {
 			if (this.useTimestampForConcurrency) {
 				String clause = " AND " + this.modifiedStampField.columnName + "=?";
 				this.updateSql = update.append(this.primaryWhereClause).append(clause).toString();
-
+				if(!row.hasValue(this.modifiedStampField.getName())){
+					throw new ApplicationError("Timestamp field for concurrency is required " + this.modifiedStampField.getName() + " is not available ");
+				}
+				values.add(row.getValue(this.modifiedStampField.getName()));
 			} else {
 				this.updateSql = update.append(this.primaryWhereClause).toString();
 			}
