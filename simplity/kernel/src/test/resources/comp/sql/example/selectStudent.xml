@@ -3,10 +3,7 @@
 	name="selectStudent"
 	moduleName="example"
 	sqlType="multiSelect"
-	xmlns="http://www.simplity.org/schema"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.simplity.org/schema http://www.simplity.org/schema "
->
+	xmlns="http://www.simplity.org/schema">
 	<inputParameters>
 		<sqlParameter
 			dataType="_number"

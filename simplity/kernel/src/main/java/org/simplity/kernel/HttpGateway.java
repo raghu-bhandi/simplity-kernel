@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.simplity.http;
+package org.simplity.kernel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,7 +37,6 @@ import org.simplity.gateway.JsonReqReader;
 import org.simplity.gateway.JsonRespWriter;
 import org.simplity.gateway.OutboundAgent;
 import org.simplity.json.JSONObject;
-import org.simplity.kernel.ApplicationError;
 import org.simplity.service.InputData;
 import org.simplity.service.OutputData;
 import org.simplity.service.ServiceContext;

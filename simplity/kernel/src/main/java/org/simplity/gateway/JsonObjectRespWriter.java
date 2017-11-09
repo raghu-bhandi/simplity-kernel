@@ -133,7 +133,8 @@ public class JsonObjectRespWriter implements RespWriter {
 	@Override
 	public void setField(String fieldName, Value value) {
 		this.checkNullObject();
-		this.currentObject.put(fieldName, value.toObject());
+		if(value != null)
+		 this.currentObject.put(fieldName, value.toObject());
 	}
 
 	/*

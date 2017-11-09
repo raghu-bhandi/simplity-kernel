@@ -334,12 +334,12 @@ public class JsonReqReader implements ReqReader {
 	 */
 	@Override
 	public void pushDataToContext(ServiceContext ctx) {
-		if(this.inputJson == null){
+		if (this.inputJson == null) {
 			logger.info("No input json assigned to the reader before extracting data.");
 			return;
 		}
 		String[] names = JSONObject.getNames(this.inputJson);
-		if(names == null || names.length == 0){
+		if (names == null || names.length == 0) {
 			logger.info("Input json is empty. No data extracted.");
 			return;
 		}
@@ -349,7 +349,7 @@ public class JsonReqReader implements ReqReader {
 			case ARRAY:
 				JSONArray arr = (JSONArray) value;
 				if (arr.length() != 0) {
-					DataSheet sheet = getSheet(arr);
+					DataSheet sheet = getSheet(arr,ctx);
 					if (sheet != null) {
 						ctx.putDataSheet(key, sheet);
 						logger.info("Table " + key + " extracted with " + sheet.length() + " rows");
@@ -358,7 +358,7 @@ public class JsonReqReader implements ReqReader {
 				break;
 
 			case OBJECT:
-				DataSheet sheet = getSheet((JSONObject) value);
+				DataSheet sheet = getSheet((JSONObject) value,ctx);
 				if (sheet != null) {
 					ctx.putDataSheet(key, sheet);
 					logger.info("Object " + key + " extracted as a single-row data sheet.");
@@ -380,7 +380,7 @@ public class JsonReqReader implements ReqReader {
 	 * @param value
 	 * @return
 	 */
-	private static DataSheet getSheet(JSONObject object) {
+	private static DataSheet getSheet(JSONObject object,ServiceContext ctx) {
 		String[] names = JSONObject.getNames(object);
 		int nbr = names.length;
 		ValueType[] types = new ValueType[nbr];
@@ -402,6 +402,26 @@ public class JsonReqReader implements ReqReader {
 				types[i] = value.getValueType();
 				continue;
 			}
+			
+			if (ivt == InputValueType.ARRAY) {
+				JSONArray arr = (JSONArray) obj;
+				if (arr.length() != 0) {
+					DataSheet sheet = getSheet(arr,ctx);
+					if(sheet != null){
+						ctx.putDataSheet(names[i], sheet);
+					}
+				}
+				continue;
+			}
+	
+			if (ivt == InputValueType.OBJECT) {
+				DataSheet sheet = getSheet((JSONObject) obj,ctx);
+				if(sheet != null){
+					ctx.putDataSheet(names[i], sheet);
+				}
+				continue;
+			}
+			
 			/*
 			 * we can not handle embedded object structures
 			 */
@@ -415,21 +435,21 @@ public class JsonReqReader implements ReqReader {
 		return ds;
 	}
 
-	private static DataSheet getSheet(JSONArray arr) {
+	private static DataSheet getSheet(JSONArray arr,ServiceContext ctx) {
 		/*
-		 * we guess the fields based on the attributes of first element in
-		 * the array
+		 * we guess the fields based on the attributes of first element in the
+		 * array
 		 */
 		JSONObject exampleObject = arr.optJSONObject(0);
 		if (exampleObject == null) {
 			logger.info("Json array has its first object as null, and hence we abandoned parsing it.");
 			return null;
 		}
-		DataSheet ds = getSheet(exampleObject);
+		DataSheet ds = getSheet(exampleObject,ctx);
 		String[] names = ds.getColumnNames();
 		int nbrCols = names.length;
 		int nbr = arr.length();
-		for (int i = 1; i < nbr; i++){
+		for (int i = 1; i < nbr; i++) {
 			JSONObject obj = arr.optJSONObject(i);
 			if (obj == null) {
 				logger.info("Row " + (i + 1) + " is null. Not extracted");
@@ -444,7 +464,9 @@ public class JsonReqReader implements ReqReader {
 		return ds;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.simplity.gateway.ReqReader#hasInputSpecs()
 	 */
 	@Override
