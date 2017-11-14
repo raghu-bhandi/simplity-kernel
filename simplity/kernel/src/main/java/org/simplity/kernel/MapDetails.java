@@ -43,7 +43,7 @@ public @interface MapDetails {
    *
    * @return package name
    */
-  public String packgaeName() default "";
+  public String packageName() default "";
 
   /**
    * we use "name" as the default field name that the object will be indexed on. Use this annotation

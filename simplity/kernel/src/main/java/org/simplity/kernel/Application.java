@@ -391,6 +391,7 @@ public class Application {
 	/**
 	 * gateways for external services, indexed by id
 	 */
+	@MapDetails(packageName="org.simplity.gateway",indexFieldName="name")
 	Map<String, Gateway> gateways = new HashMap<String, Gateway>();
 
 	/**

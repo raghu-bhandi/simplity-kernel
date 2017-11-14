@@ -877,7 +877,7 @@ public class XmlUtil {
 				String packageName = null;
 				MapDetails ant = field.getAnnotation(MapDetails.class);
 				if (ant != null) {
-					packageName = ant.packgaeName();
+					packageName = ant.packageName();
 				} else {
 					packageName = referenceType.getPackage().getName();
 				}

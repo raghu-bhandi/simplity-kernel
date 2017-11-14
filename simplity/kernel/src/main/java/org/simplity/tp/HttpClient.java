@@ -22,8 +22,8 @@
 
 package org.simplity.tp;
 
+import org.simplity.gateway.HttpGateway;
 import org.simplity.gateway.OutboundAgent;
-import org.simplity.kernel.HttpGateway;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
