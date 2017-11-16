@@ -9,8 +9,68 @@
 	<version>1.2.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>simplity-all</name>
+	<url>https://github.com/simplity/simplity</url>
+	<description>Simple set of APIs for faster app development</description>
+	<licenses>
+		<license>
+			<name>MIT License</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<email>raghu.bhandi@gmail.com</email>
+			<name>Raghu Bhandi</name>
+			<id>raghu.bhandi</id>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git://github.com/simplity/simplity.git</connection>
+		<developerConnection>scm:git:git@github.com:simplity/simplity.git</developerConnection>
+		<url>https://github.com/simplity/simplity.git</url>
+		<tag>all-1.2</tag>
+	</scm>	
 	<modules>
 		<module>install-ojdbc6</module>
 		<module>simplity</module>
 	</modules>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>sign-artifacts</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>sign</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+				<configuration>
+					<pushChanges>false</pushChanges>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus snapshot repository</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<name>Sonatype Nexus release repository</name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>	
 </project>
