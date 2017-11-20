@@ -606,7 +606,7 @@ public class Service implements ServiceInterface {
 			}
 		}
 
-		if(this.okToCache){
+		if (this.okToCache) {
 			this.setCacheKeys();
 		}
 	}
@@ -641,22 +641,22 @@ public class Service implements ServiceInterface {
 	/**
 	 * if caching keys are not set, we may infer it from input specification
 	 */
-	private void setCacheKeys(){
-		if(this.cacheKeyNames != null){
+	private void setCacheKeys() {
+		if (this.cacheKeyNames != null) {
 			this.parsedCacheKeys = this.cacheKeyNames;
 			return;
 		}
 
 		InputField[] fields = null;
-		if(this.inputData != null){
-			fields =  this.inputData.getInputFields();
+		if (this.inputData != null) {
+			fields = this.inputData.getInputFields();
 		}
-		if(fields == null || fields.length == 0){
+		if (fields == null || fields.length == 0) {
 			return;
 		}
 
 		this.parsedCacheKeys = new String[fields.length];
-		for(int i = 0; i < fields.length; i++){
+		for (int i = 0; i < fields.length; i++) {
 			this.parsedCacheKeys[i] = fields[i].getName();
 		}
 	}
@@ -988,8 +988,7 @@ public class Service implements ServiceInterface {
 	public int validate(ValidationContext ctx) {
 		ctx.beginValidation(MY_TYPE, this.getQualifiedName());
 		String tagName = TextUtil.classNameToName(this.getClass().getSimpleName());
-		System.out.println(this.getClass().getSimpleName() + " - " + tagName);
-	    ctx.beginTag(tagName);
+		ctx.beginTag(tagName);
 		/*
 		 * it is important that we endValidtion() before returning
 		 */
@@ -1100,7 +1099,7 @@ public class Service implements ServiceInterface {
 		for (Action action : this.actions) {
 			String tagName = "actions";
 			System.out.println(this.getClass().getSimpleName() + " - " + tagName);
-		    ctx.beginTag(tagName);
+			ctx.beginTag(tagName);
 			actionNbr++;
 			if (action.actionName != null) {
 				if (addedSoFar.add(action.actionName) == false) {
@@ -1194,6 +1193,13 @@ public class Service implements ServiceInterface {
 	private static final String SCHEMA_ATTR = "schema";
 	private static final String TYPE_ATTR = "type";
 
+	/**
+	 * get list of services based on Swagger specifications
+	 *
+	 * @param pathsObj
+	 * @param defs
+	 * @return list of services referred in the swagger specifications
+	 */
 	public static Service[] fromSwaggerPaths(JSONObject pathsObj, JSONObject defs) {
 		Service[] empty = new Service[0];
 		if (pathsObj == null) {
@@ -1206,7 +1212,7 @@ public class Service implements ServiceInterface {
 
 		List<Service> services = new ArrayList<Service>();
 		for (String path : paths) {
-			parsePathSchema(pathsObj.getJSONObject(path), services, paths, defs);
+			parsePathSchema(pathsObj.getJSONObject(path), services, defs);
 		}
 
 		if (services.size() == 0) {
@@ -1215,9 +1221,8 @@ public class Service implements ServiceInterface {
 		return services.toArray(empty);
 	}
 
-	private static void parsePathSchema(JSONObject pathObject, List<Service> services, String[] names,
-			JSONObject defs) {
-		Service[] pathServices = fromSwagger(pathObject, names, defs);
+	private static void parsePathSchema(JSONObject pathObject, List<Service> services, JSONObject defs) {
+		Service[] pathServices = fromSwagger(pathObject, defs);
 		if (pathServices != null) {
 			for (Service service : pathServices) {
 				services.add(service);
@@ -1225,9 +1230,8 @@ public class Service implements ServiceInterface {
 		}
 	}
 
-	private static Service[] fromSwagger(JSONObject pathObject, String[] names, JSONObject defs) {
+	private static Service[] fromSwagger(JSONObject pathObject, JSONObject defs) {
 		if (pathObject == null) {
-			// Tracer.trace("schema for record " + recordName + " is null");
 			return null;
 		}
 		String[] methods = JSONObject.getNames(pathObject);
@@ -1257,7 +1261,7 @@ public class Service implements ServiceInterface {
 			}
 			if (methodObj.has(RESPONSES_ATTR)) {
 				responses = methodObj.getJSONObject(RESPONSES_ATTR);
-				service.outputData = getOuputDataFromSwagger(responses, defs);
+				service.outputData = getOuputDataFromSwagger(responses);
 			}
 
 			if (method.equals("get")) {
@@ -1342,7 +1346,7 @@ public class Service implements ServiceInterface {
 		return inData;
 	}
 
-	private static OutputData getOuputDataFromSwagger(JSONObject responses, JSONObject defs) {
+	private static OutputData getOuputDataFromSwagger(JSONObject responses) {
 		OutputData outData = new OutputData();
 		List<String> outFields = new ArrayList<String>();
 		List<OutputRecord> outputRecords = new ArrayList<OutputRecord>();
@@ -1392,6 +1396,9 @@ public class Service implements ServiceInterface {
 	}
 
 	/**
+	 * set simplity data type for a swagger data type
+	 *
+	 * @param field
 	 * @param param
 	 */
 	public static void setTypeForSwaggerType(InputField field, JSONObject param) {
@@ -1434,12 +1441,20 @@ public class Service implements ServiceInterface {
 	}
 
 	/**
-	 * * @return
+	 * @return list of service-cache to be invalidated when this service is
+	 *         executed. This is the list of cache that would be affected when
+	 *         this service updates some data
 	 */
 	public String[] getServicesToInvalidate() {
 		return this.serviceCachesToInvalidate;
 	}
 
+	/**
+	 *
+	 * @return time in minutes after which the cached response for this service
+	 *         should be refreshed or invalidated. a value of 0 implies that the
+	 *         service-cache validity is not time-bound.
+	 */
 	public int getCacheRefreshTime() {
 		return this.cacheValidityMinutes;
 	}
@@ -1555,13 +1570,17 @@ public class Service implements ServiceInterface {
 	}
 
 	/**
-	 * generates key for the service to be cached
+	 * A service may be marked as okay-to-cache, but only by one or more fields
+	 * as key. If there is more than one keys, we use a convention to append the
+	 * values to create a string.
 	 *
 	 * @param serviceName
-	 * @param inputData
-	 * @return
+	 * @param inData
+	 * @return a string that has the values for the key fields, appended as per
+	 *         caching-norm, that can be used to look for a cached-response for
+	 *         this service.
 	 */
-	public String generateKeyToCache(String serviceName, ServiceData inputData) {
+	public String generateKeyToCache(String serviceName, ServiceData inData) {
 		int hashKey = 0;
 		String fields[] = null;
 		if (this.cacheKeyNames != null) {
@@ -1584,7 +1603,7 @@ public class Service implements ServiceInterface {
 			}
 			if (fields != null && fields.length > 0) {
 				if (fields[0].equals(ServiceProtocol.USER_ID)) {
-					hashKey += inputData.getUserId().hashCode();
+					hashKey += inData.getUserId().hashCode();
 					int n = fields.length;
 					if (n > 0) {
 						n--;
@@ -1596,7 +1615,7 @@ public class Service implements ServiceInterface {
 					}
 				}
 				for (String field : fields) {
-					hashKey += inputData.get(field).hashCode();
+					hashKey += inData.get(field).hashCode();
 				}
 			}
 		}

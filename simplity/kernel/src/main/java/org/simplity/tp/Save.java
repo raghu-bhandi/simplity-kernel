@@ -22,11 +22,7 @@
  */
 package org.simplity.tp;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.simplity.kernel.ApplicationError;
-
 import org.simplity.kernel.comp.ComponentManager;
 import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
@@ -38,6 +34,8 @@ import org.simplity.kernel.dm.SaveActionType;
 import org.simplity.kernel.util.TextUtil;
 import org.simplity.kernel.value.Value;
 import org.simplity.service.ServiceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Save (add/modify/delete) a row from a record, and possibly save relevant rows from related
@@ -272,7 +270,6 @@ private static final Logger actionLogger = LoggerFactory.getLogger(Save.class);
   public int validate(ValidationContext ctx, Service service) {
     int count = super.validate(ctx, service);
     String tagName = TextUtil.classNameToName(this.getClass().getSimpleName());
-    System.out.println(this.getClass().getSimpleName() + " - " + tagName);
     ctx.beginTag(tagName);
     if (this.recordName == null) {
       ctx.addError("Record name is required for save action");

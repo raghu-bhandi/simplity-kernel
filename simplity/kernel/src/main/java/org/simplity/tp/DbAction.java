@@ -102,7 +102,6 @@ public abstract class DbAction extends Action {
 	@Override
 	public int validate(ValidationContext ctx, Service service) {
 		String tagName = TextUtil.classNameToName(this.getClass().getSimpleName());
-		System.out.println(this.getClass().getSimpleName() + " - " + tagName);
 		ctx.beginTag(tagName);
 		int count = super.validate(ctx, service);
 		if (this.failureMessageName != null) {

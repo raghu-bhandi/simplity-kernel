@@ -52,9 +52,10 @@ import org.slf4j.LoggerFactory;
 public class JsonObjectRespWriter implements RespWriter {
 	private static final Logger logger = LoggerFactory.getLogger(JsonObjectRespWriter.class);
 	/**
-	 * JSON object that holds all data
+	 * JSON object that holds all data. We start with an outermost wrapper
+	 * object.
 	 */
-	private Object rootObject = this.currentObject;
+	private Object rootObject;
 
 	/**
 	 * we keep objects that are being built into stack, in case of recursive
@@ -65,8 +66,9 @@ public class JsonObjectRespWriter implements RespWriter {
 	/**
 	 * current object that is receiving data. null if an array is receiving
 	 * data.
+	 * To begin with,this is the root object
 	 */
-	private JSONObject currentObject = new JSONObject();
+	private JSONObject currentObject;
 
 	/**
 	 * current array that is receiving data. null if an object is receiving
@@ -93,6 +95,14 @@ public class JsonObjectRespWriter implements RespWriter {
 	private String[] invalidations;
 
 	/**
+	 * default constructor initializes a JSON object as the root wrapper object
+	 */
+	public JsonObjectRespWriter() {
+		this.currentObject = new JSONObject();
+		this.rootObject = this.currentObject;
+	}
+
+	/**
 	 * get the response text and close the writer. That is the reason this
 	 * method is called getFinalResponse rather than getResponse. Side effect of
 	 * closing the writer is hinted with this name
@@ -102,7 +112,7 @@ public class JsonObjectRespWriter implements RespWriter {
 	 */
 	@Override
 	public Object getFinalResponseObject() {
-		return this.currentObject;
+		return this.rootObject;
 	}
 
 	private void checkNullObject() {
@@ -133,8 +143,12 @@ public class JsonObjectRespWriter implements RespWriter {
 	@Override
 	public void setField(String fieldName, Value value) {
 		this.checkNullObject();
-		if(value != null)
-		 this.currentObject.put(fieldName, value.toObject());
+		/*
+		 * what do we do if the value is null? same as not setting it at all
+		 */
+		if (value != null) {
+			this.currentObject.put(fieldName, value.toObject());
+		}
 	}
 
 	/*
@@ -447,8 +461,8 @@ public class JsonObjectRespWriter implements RespWriter {
 	 */
 	@Override
 	public Object moveToObject(String qualifiedFieldName) {
-		if(qualifiedFieldName == null || qualifiedFieldName.isEmpty() || qualifiedFieldName.equals(".")){
-			if(this.rootObject instanceof JSONObject){
+		if (qualifiedFieldName == null || qualifiedFieldName.isEmpty() || qualifiedFieldName.equals(".")) {
+			if (this.rootObject instanceof JSONObject) {
 				return this.rootObject;
 			}
 			throw new ApplicationError("Root is an Array, but is being used as an object");
@@ -463,8 +477,8 @@ public class JsonObjectRespWriter implements RespWriter {
 	 */
 	@Override
 	public Object moveToArray(String qualifiedFieldName) {
-		if(qualifiedFieldName == null || qualifiedFieldName.isEmpty() || qualifiedFieldName.equals(".")){
-			if(this.rootObject instanceof JSONObject){
+		if (qualifiedFieldName == null || qualifiedFieldName.isEmpty() || qualifiedFieldName.equals(".")) {
+			if (this.rootObject instanceof JSONObject) {
 				throw new ApplicationError("Root is an Object, but is being used as an array");
 			}
 			return this.rootObject;
@@ -473,10 +487,14 @@ public class JsonObjectRespWriter implements RespWriter {
 	}
 
 	/**
-	 * get the value of the qualified and make it the current object. Create this if required.
+	 * get the value of the qualified and make it the current object. Create
+	 * this if required.
+	 *
 	 * @param qualifiedFieldName
-	 * @param toObject field value is to be JSONObject, and JSONArray
-	 * @return value of field. null if the value does not exist, and it can not be created
+	 * @param toObject
+	 *            field value is to be JSONObject, and JSONArray
+	 * @return value of field. null if the value does not exist, and it can not
+	 *         be created
 	 */
 	private Object moveToTarget(String qualifiedFieldName, boolean toObject) {
 		String[] parts = qualifiedFieldName.split("\\.");
@@ -541,7 +559,8 @@ public class JsonObjectRespWriter implements RespWriter {
 	 *            be a JSONArray
 	 * @return field value at the end of the child-tree that is created
 	 */
-	private Object createChildTree(String[] parts, int startAt, Object parent, boolean parentIsObject, boolean childIsObject) {
+	private Object createChildTree(String[] parts, int startAt, Object parent, boolean parentIsObject,
+			boolean childIsObject) {
 		/*
 		 * algorithm looks quite complex if you just read it. You should have an
 		 * example by your side to understand what is being done and why
@@ -583,9 +602,9 @@ public class JsonObjectRespWriter implements RespWriter {
 		 * child-tree is ready. Add it to the parent.
 		 */
 		String part = parts[startAt];
-		if(parentIsObject){
+		if (parentIsObject) {
 			((JSONObject) parent).put(part, child);
-		}else{
+		} else {
 			((JSONArray) parent).put(Integer.parseInt(part), child);
 		}
 		return objectAtLeaf;

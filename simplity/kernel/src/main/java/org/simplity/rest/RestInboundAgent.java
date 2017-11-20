@@ -35,7 +35,6 @@ import org.simplity.auth.OAuth2Agent;
 import org.simplity.gateway.Cacher;
 import org.simplity.gateway.JsonObjectRespWriter;
 import org.simplity.gateway.JsonReqReader;
-import org.simplity.gateway.JsonRespWriter;
 import org.simplity.gateway.ReqReader;
 import org.simplity.gateway.RespWriter;
 import org.simplity.json.JSONObject;
@@ -171,7 +170,6 @@ public class RestInboundAgent {
 				}
 			}
 
-			//RespWriter writer = new JsonRespWriter();
 			RespWriter writer = new JsonObjectRespWriter();
 			FormattedMessage[] msgs = agent.executeService(serviceName, userId, reader, writer);
 			if(msgs != null){

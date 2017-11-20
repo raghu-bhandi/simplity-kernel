@@ -35,12 +35,10 @@ import org.simplity.kernel.comp.ComponentType;
 import org.simplity.kernel.comp.ValidationContext;
 import org.simplity.kernel.data.FieldsInterface;
 import org.simplity.kernel.dt.DataType;
-import org.simplity.kernel.dt.DateDataType;
 import org.simplity.kernel.expr.BinaryOperator;
 import org.simplity.kernel.expr.InvalidOperationException;
 import org.simplity.kernel.value.BooleanValue;
 import org.simplity.kernel.value.InvalidValueException;
-import org.simplity.kernel.value.TextValue;
 import org.simplity.kernel.value.Value;
 import org.simplity.kernel.value.ValueType;
 import org.simplity.service.ServiceProtocol;
@@ -730,11 +728,12 @@ public class Field {
 		}
 
 		if (this.dataType.equals(ValueType.DATE.getDefaultDataType())) {
-			if(value.getValueType().equals(ValueType.INTEGER))
-			try {
-				value = Value.newDateValue(value.toInteger());
-			} catch (InvalidValueException e) {
-				e.printStackTrace();
+			if(value.getValueType().equals(ValueType.INTEGER)){
+				try {
+					value = Value.newDateValue(value.toInteger());
+				} catch (InvalidValueException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		return value;
