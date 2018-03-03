@@ -313,18 +313,22 @@ public class ServiceAgent {
 			 * OK. here we go and call the actual service
 			 */
 			try {
-
-				logger.info("Invoking service " + serviceName);
+				logger.info("Invoking service {}", serviceName);
 
 				response = service.respond(inputData, payloadType);
-				boolean hasErrors = response != null && response.hasErrors();
-				if (hasErrors) {
+				if(response == null) {
+					response = this.defaultResponse(inputData);
+					logger.info("{} returned with null response. A default response is used.", serviceName);
+					break;
 
-					logger.info(serviceName + " returned with errors.");
+				}
+				if (response.hasErrors()) {
+
+					logger.info("{} returned with errors.", serviceName);
 
 				} else {
 
-					logger.info(serviceName + " responded with all OK signal");
+					logger.info("{} responded with all OK signal", serviceName);
 
 					String[] servicesToInvalidate = service.getServicesToInvalidate();
 
@@ -333,10 +337,10 @@ public class ServiceAgent {
 							this.invalidateCache(servName, inputData);
 						}
 					}
-				}
-				if (this.cacheManager != null && hasErrors == false && service.okToCache()) {
-					response.setCacheKey(this.cacheKey);
-					this.cacheManager.cache(inputData, response);
+					if (this.cacheManager != null && service.okToCache()) {
+						response.setCacheKey(this.cacheKey);
+						this.cacheManager.cache(inputData, response);
+					}
 				}
 			} catch (Exception e) {
 				Application.reportApplicationError(inputData, e);
