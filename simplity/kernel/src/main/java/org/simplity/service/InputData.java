@@ -32,6 +32,7 @@ import org.simplity.kernel.util.JsonUtil;
 import org.simplity.kernel.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 /**
  * Component that specifies what inputs are expected
@@ -415,5 +416,20 @@ public class InputData {
 			rec.addDataSheetLink(ctx);
 		}
 
+	}
+
+	/**
+	 * @param xmlString
+	 * @param ctx
+	 */
+	public void extractFromXml(String xmlString, ServiceContext ctx) {
+		throw new ApplicationError("InputData.extractFromXml() not yet implemented");
+	}
+	/**
+	 * @param xml
+	 * @param ctx
+	 */
+	public void extractFromXml(Document xml, ServiceContext ctx) {
+		throw new ApplicationError("InputData.extractFromXml() not yet implemented");
 	}
 }

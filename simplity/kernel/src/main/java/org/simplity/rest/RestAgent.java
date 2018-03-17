@@ -150,7 +150,7 @@ public class RestAgent {
 
     ServiceData outData = null;
     try {
-      outData = ServiceAgent.getAgent().executeService(inData, PayloadType.JSON);
+      outData = ServiceAgent.getAgent().executeService(inData, PayloadType.JSON_TEXT);
     } catch (ApplicationError e) {
       Application.reportApplicationError(inData, e);
       message = INTERNAL_ERROR;
@@ -169,7 +169,7 @@ public class RestAgent {
     } else if (outData.hasErrors()) {
       operation.writeResponse(resp, outData.getMessages());
     } else {
-      String payload = outData.getPayLoad();
+      String payload = outData.getPayLoadAsJsonText();
       if (payload == null || payload.isEmpty()) {
         json = new JSONObject();
       } else {

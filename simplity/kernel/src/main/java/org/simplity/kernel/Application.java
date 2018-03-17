@@ -771,7 +771,7 @@ public class Application {
 		ServiceData inData = new ServiceData(Value.newTextValue(user), serviceName);
 		inData.setPayLoad(json);
 		ServiceData outData = ServiceAgent.getAgent().executeService(inData);
-		System.out.println("response :" + outData.getPayLoad());
+		System.out.println("response :" + outData.getPayLoadAsJsonText());
 		System.out.println("message :" + JsonUtil.toJson(outData.getMessages()));
 	}
 

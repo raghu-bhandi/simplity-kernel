@@ -73,7 +73,7 @@ public class RunningJob implements Runnable {
     logger.info("Job status set to  " + this.jobStatus);
 
     try {
-      this.service.respond(this.inData, PayloadType.JSON);
+      this.service.respond(this.inData, PayloadType.JSON_TEXT);
 
       logger.info("Service " + this.service.getQualifiedName() + " is done..");
 

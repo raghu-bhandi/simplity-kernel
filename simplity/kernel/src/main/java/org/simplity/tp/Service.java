@@ -64,6 +64,7 @@ import org.simplity.service.ServiceInterface;
 import org.simplity.service.ServiceProtocol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
 
 /**
  * Transaction Processing Service
@@ -254,7 +255,7 @@ public class Service implements ServiceInterface {
 		 * process input specification
 		 */
 		if (payloadType != PayloadType.NONE) {
-			this.extractInput(ctx, inData.getPayLoad(), payloadType);
+			this.extractInput(ctx, inData.getPayLoadAsJsonText(), payloadType);
 		}
 
 		/*
@@ -411,10 +412,24 @@ public class Service implements ServiceInterface {
 			return;
 		}
 		try {
-			if (payloadType == PayloadType.JSON) {
+			if (payloadType == PayloadType.JSON_TEXT) {
 				this.inputData.extractFromJson(payload.toString(), ctx);
-			} else {
-				this.inputData.extractFromJson((JSONObject) payload, ctx);
+			} else if (payloadType == PayloadType.JSON) {
+				if (payload instanceof JSONObject) {
+					this.inputData.extractFromJson((JSONObject) payload, ctx);
+				} else {
+					logger.error("We expected payload to be a JSON object, but it is {}. Input data ignored.",
+							payload.getClass().getName());
+				}
+			} else if (payloadType == PayloadType.XML_TEXT) {
+				this.inputData.extractFromXml(payload.toString(), ctx);
+			} else if (payloadType == PayloadType.XML) {
+				if (payload instanceof Document) {
+					this.inputData.extractFromXml((Document) payload, ctx);
+				} else {
+					logger.error("We expected payload to be a Document object, but it is {}. Input data ignored.",
+							payload.getClass().getName());
+				}
 			}
 
 		} catch (Exception e) {

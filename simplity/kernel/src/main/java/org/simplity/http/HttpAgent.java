@@ -218,7 +218,7 @@ public class HttpAgent {
             break;
           }
         }
-        outData = ServiceAgent.getAgent().executeService(inData, PayloadType.JSON);
+        outData = ServiceAgent.getAgent().executeService(inData, PayloadType.JSON_TEXT);
         /*
          * by our convention, server may send data in outData to be set
          * to session
@@ -266,7 +266,7 @@ public class HttpAgent {
       /*
        * all OK
        */
-      response = outData.getPayLoad();
+      response = outData.getPayLoadAsJsonText();
 
       logger.info(
           "Service succeeded and has "
@@ -378,7 +378,7 @@ public class HttpAgent {
 
     logger.info("Login succeeded for loginId " + loginId);
 
-    String result = outData.getPayLoad();
+    String result = outData.getPayLoadAsJsonText();
     if (result == null || result.length() == 0) {
       result = "{}";
     }
@@ -660,7 +660,7 @@ public class HttpAgent {
       if (outData.hasErrors()) {
         response = getResponseForError(outData.getMessages());
       } else {
-        response = outData.getPayLoad();
+        response = outData.getPayLoadAsJsonText();
       }
     } else {
       /*

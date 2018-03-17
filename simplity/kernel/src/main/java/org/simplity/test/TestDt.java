@@ -52,7 +52,7 @@ public class TestDt extends AbstractService {
    */
   @Override
   public ServiceData respond(ServiceData inputData, PayloadType payloadType) {
-    String input = inputData.getPayLoad();
+    String input = inputData.getPayLoadAsJsonText();
     if (input == null || input.isEmpty()) {
       input = "{}";
     }

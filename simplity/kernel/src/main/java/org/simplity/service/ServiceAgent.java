@@ -79,6 +79,38 @@ public class ServiceAgent {
 		instance = new ServiceAgent(autoLoginUserId, userIdIsNumber, login, logout, cacher, guard);
 	}
 
+	/**
+	 * use this instance of simplity application as a sub-ordinate to a main
+	 * application. This means that the agent is responsible for executing
+	 * service, and nothing else. That is no login or security or caching
+	 * related aspects.
+	 *
+	 * This call should be used just once as part of set-up of caller. returned
+	 * instance must be cached for repeated thread-safe use
+	 *
+	 * @param resourceRootPrefix
+	 *            where the resources are available. folder as well as
+	 *            jar-like-resource are valid.
+	 * @return re-usable, thread-safe instance, or null if application could not
+	 *         be set-up with the supplied resourceRootPrefix
+	 */
+	public static ServiceAgent getAgentAsSubordinate(String resourceRootPrefix) {
+		if (instance != null) {
+			logger.warn(
+					"getAgentAsSubordinate() invoked after the app is boot-strapped. This is reulting in a re-boot.");
+		}
+		try {
+			if (Application.bootStrap(resourceRootPrefix)) {
+				return getAgent();
+			}
+			logger.error("Simplity Application bootrsapper failed.");
+			return null;
+		} catch (Exception e) {
+			logger.error("Simplity Application bootrsapper threw an exception.", e);
+			return null;
+		}
+	}
+
 	/** @return an instance for use */
 	public static ServiceAgent getAgent() {
 		if (instance == null) {
@@ -206,6 +238,15 @@ public class ServiceAgent {
 	}
 
 	/**
+	 *
+	 * @return true if this application uses a numeric userId. false if it uses
+	 *         text/string as userId
+	 */
+	public boolean userIdIsNumber() {
+		return this.numericUserId;
+	}
+
+	/**
 	 * user has logged-out. Take care of any update on the server
 	 *
 	 * @param inputData
@@ -313,10 +354,11 @@ public class ServiceAgent {
 			 * OK. here we go and call the actual service
 			 */
 			try {
+
 				logger.info("Invoking service {}", serviceName);
 
 				response = service.respond(inputData, payloadType);
-				if(response == null) {
+				if (response == null) {
 					response = this.defaultResponse(inputData);
 					logger.info("{} returned with null response. A default response is used.", serviceName);
 					break;
@@ -455,7 +497,7 @@ public class ServiceAgent {
 			InputData inData = service.getInputSpecification();
 			ServiceContext ctx = new ServiceContext(serviceName, userId);
 			if (reader.hasInputSpecs()) {
-				if(inData != null){
+				if (inData != null) {
 					inData.prepareForInput(ctx);
 				}
 				reader.pushDataToContext(ctx);
@@ -499,7 +541,7 @@ public class ServiceAgent {
 					outData.prepareForOutput(ctx);
 				}
 				writer.pullDataFromContext(ctx);
-			}else{
+			} else {
 				if (outData != null) {
 					outData.write(writer, ctx);
 				}
@@ -550,5 +592,14 @@ public class ServiceAgent {
 			}
 		}
 		return Service.createCachingKey(serviceName, vals);
+	}
+
+	/**
+	 *
+	 * @return true if the user-id used by the underlying app is numeric. false
+	 *         if it is text
+	 */
+	public boolean userIdIsNumeric() {
+		return this.numericUserId;
 	}
 }

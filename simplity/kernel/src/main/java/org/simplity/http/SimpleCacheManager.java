@@ -214,10 +214,10 @@ class CachedService {
    */
   void cache(ServiceData inData, ServiceData outData) {
     if (this.fieldNames == null) {
-      this.response = outData.getPayLoad();
+      this.response = outData.getPayLoadAsJsonText();
       return;
     }
-    this.responses.put(this.getInDataKey(inData.getPayLoad()), outData.getPayLoad());
+    this.responses.put(this.getInDataKey(inData.getPayLoadAsJsonText()), outData.getPayLoadAsJsonText());
   }
 
   /**
@@ -230,7 +230,7 @@ class CachedService {
     if (this.response != null) {
       return this.response;
     }
-    return this.responses.get(this.getInDataKey(inData.getPayLoad()));
+    return this.responses.get(this.getInDataKey(inData.getPayLoadAsJsonText()));
   }
 
   /**

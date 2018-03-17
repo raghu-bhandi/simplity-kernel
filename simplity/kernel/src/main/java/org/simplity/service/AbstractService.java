@@ -205,7 +205,7 @@ public abstract class AbstractService implements ServiceInterface {
       return ctx;
     }
 
-    String payload = inData.getPayLoad();
+    String payload = inData.getPayLoadAsJsonText();
     if (payload == null) {
 
       logger.info("No input from client");

@@ -22,8 +22,6 @@
  */
 package org.simplity.rest;
 
-import java.net.MalformedURLException;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -51,7 +49,7 @@ public class Startup extends HttpServlet {
 	/** context name to which web.xml would have set api-folder */
 	public static final String API_FOLDER = "api-folder";
 	/** default resource folder relative to web-root. */
-	public static final String DEFAULT_COMP_FOLDER = "/WEB-INF/comp/";
+	public static final String DEFAULT_COMP_FOLDER = "/WEB-INF/classes/comp/";
 	/** default folder for api */
 	public static final String DEFAULT_API_FOLDER = "/WEB-INF/api/";
 	/**
@@ -75,9 +73,12 @@ public class Startup extends HttpServlet {
 	 */
 	public static void bootStrap(ServletContext ctx) {
 		FileManager.setContext(ctx);
-		String folder = ctx.getInitParameter(COMP_FOLDER) != null ? ctx.getInitParameter(COMP_FOLDER)
-				: DEFAULT_COMP_FOLDER;
-		folder = ctx.getRealPath("/WEB-INF/classes/" + folder);
+
+		String folder = ctx.getInitParameter(COMP_FOLDER);
+		if(folder == null) {
+			folder =  DEFAULT_COMP_FOLDER;
+		}
+		folder = ctx.getRealPath(folder);
 		if (folder != null) {
 			logger.info("Going to bootstrap Application with comp folder at " + folder);
 			try {
@@ -100,9 +101,11 @@ public class Startup extends HttpServlet {
 	 *            Context
 	 */
 	public static void loadApis(ServletContext ctx) {
-		String folder = ctx.getInitParameter(API_FOLDER) != null ? ctx.getInitParameter(API_FOLDER)
-				: DEFAULT_API_FOLDER;
-		folder = ctx.getRealPath("/WEB-INF/classes/" + folder);
+		String folder = ctx.getInitParameter(API_FOLDER);
+		if(folder == null) {
+			folder =  DEFAULT_API_FOLDER;
+		}
+		folder = ctx.getRealPath(folder);
 		if (folder != null) {
 			logger.info("API folder is set to " + folder);
 			try {

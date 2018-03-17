@@ -99,7 +99,7 @@ public class ActionsTest extends Mockito {
               @Override
               public Context answer(InvocationOnMock invocation) throws Throwable {
                 System.out.println("hello");
-                return (DirContext) Mockito.mock(DirContext.class);
+                return Mockito.mock(DirContext.class);
               }
             });
 
@@ -109,7 +109,8 @@ public class ActionsTest extends Mockito {
     when(context.getResourceAsStream(anyString()))
         .thenAnswer(
             new Answer<InputStream>() {
-              public InputStream answer(InvocationOnMock invocation) throws Throwable {
+              @Override
+			public InputStream answer(InvocationOnMock invocation) throws Throwable {
                 InputStream is = null;
                 String newPath = (String) invocation.getArguments()[0];
                 if (newPath.startsWith("/")) {
@@ -130,7 +131,8 @@ public class ActionsTest extends Mockito {
     when(context.getResourcePaths(anyString()))
         .thenAnswer(
             new Answer<Set<String>>() {
-              public Set<String> answer(InvocationOnMock invocation) throws Throwable {
+              @Override
+			public Set<String> answer(InvocationOnMock invocation) throws Throwable {
                 return TestUtils.listFiles(
                     new File(TestUtils.getFile((String) invocation.getArguments()[0], testFolder)));
               }
@@ -146,7 +148,7 @@ public class ActionsTest extends Mockito {
     initialContext = new InitialContext();
     ConnectionFactory connectionFactory =
         (ConnectionFactory) initialContext.lookup("vm://localhost?broker.persistent=false");
-    javax.jms.Connection connection = (javax.jms.Connection) connectionFactory.createConnection();
+    javax.jms.Connection connection = connectionFactory.createConnection();
     jmsSession = connection.createSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
     connection.start();
 
@@ -191,8 +193,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void setValueTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("test.SetValue", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("test.SetValue", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals("Peter Pan", obj.getString("leader"));
     assertEquals("Captain Hook,Mr.Smee", obj.getString("adversaries"));
   }
@@ -202,8 +204,8 @@ public class ActionsTest extends Mockito {
   public void LogicTest() {
     String payLoad = "{'switch':'winner'}";
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("test.Logic", payLoad, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("test.Logic", payLoad, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
 
     assertEquals("Peter Pan", obj.getString("leader"));
 
@@ -219,7 +221,7 @@ public class ActionsTest extends Mockito {
     // Check for defaultValue assignment to Inputfield
     assertEquals(obj.get("switch"), "winner");
 
-    exception.expect(JSONException.class);
+    this.exception.expect(JSONException.class);
     obj.get("NotEmptyDS");
   }
 
@@ -228,8 +230,8 @@ public class ActionsTest extends Mockito {
   public void addColumnTest() {
 
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.addColumn", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.addColumn", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
 
     assertEquals(
         ((JSONObject) ((JSONArray) obj.get("weekendBoxOffice")).get(0)).get("testcolumn"),
@@ -241,8 +243,8 @@ public class ActionsTest extends Mockito {
   public void copyRowsTest() {
 
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.copyRows", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.copyRows", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
 
     assertEquals(
         ((JSONObject) ((JSONArray) obj.get("copiedweekendBoxOffice")).get(0)).get("Theaters"),
@@ -254,8 +256,8 @@ public class ActionsTest extends Mockito {
   public void renameSheetTest() {
 
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.renameSheet", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.renameSheet", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
 
     assertEquals(
         ((JSONObject) ((JSONArray) obj.get("newweekendBoxOffice")).get(0)).get("Theaters"), "465");
@@ -266,7 +268,7 @@ public class ActionsTest extends Mockito {
   public void addMessageTest() {
 
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.addMessage", null, PayloadType.JSON);
+        JavaAgent.getAgent("100", null).serve("tutorial.addMessage", null, PayloadType.JSON_TEXT);
     FormattedMessage[] msgs = outData.getMessages();
 
     assertEquals(msgs[0].text, "NeverLand Custom Message From My Messages XML File");
@@ -277,8 +279,8 @@ public class ActionsTest extends Mockito {
   public void createSheetTest() {
 
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.createSheet", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.createSheet", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
 
     assertEquals(
         ((JSONObject) ((JSONArray) obj.get("newsheet")).get(0)).get("text"),
@@ -289,8 +291,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void jumpToTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.jumpTo", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.jumpTo", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(false, obj.has("adversary1"));
   }
 
@@ -298,8 +300,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void copyUserIdTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.copyUserId", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.copyUserId", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(obj.get("UserIDCopy"), "100");
   }
 
@@ -307,8 +309,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void filterTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.filterTest", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.filterTest", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(
         ((JSONObject) ((JSONArray) obj.get("customers")).get(0)).get("customerName"),
         "Signal Gift Stores");
@@ -318,8 +320,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void rowExistsTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.rowExists", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.rowExists", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(obj.get("testValue"), 1234);
   }
 
@@ -327,8 +329,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void readDataTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.readData", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.readData", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(obj.get("customerName"), "Signal Gift Stores");
   }
 
@@ -336,8 +338,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void suggestTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.suggest", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.suggest", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("firstName"), "Mary");
   }
 
@@ -345,8 +347,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void saveDataDeleteTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.saveDataDelete", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.saveDataDelete", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(obj.get("testValue"), 1234);
   }
 
@@ -354,8 +356,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void saveDataAddTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("dbactions.saveDataAdd", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("dbactions.saveDataAdd", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(obj.get("testValue"), 1234);
   }
 
@@ -363,8 +365,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void saveDataModifyTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.saveDataModify", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.saveDataModify", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(obj.get("testValue"), 1234);
   }
 
@@ -372,8 +374,8 @@ public class ActionsTest extends Mockito {
   @Test
   public void readWithSqlTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("dbactions.readWithSql", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("dbactions.readWithSql", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(
         ((JSONObject) ((JSONArray) obj.get("Employees")).get(0)).get("lastName"), "Patterson");
   }
@@ -382,16 +384,16 @@ public class ActionsTest extends Mockito {
   @Test
   public void executeSqlTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.executeSql", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.executeSql", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(obj.get("updateSql"), 1);
   }
 
   @Test
   public void schemaReadWithSqlTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("tutorial.schemaReadWithSql", null, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+        JavaAgent.getAgent("100", null).serve("tutorial.schemaReadWithSql", null, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     assertEquals(((JSONObject) ((JSONArray) obj.get("Students")).get(0)).get("name"), "Sham");
   }
 
@@ -399,16 +401,16 @@ public class ActionsTest extends Mockito {
   public void ldapAuthenticate1Test() {
     String payLoad = "{'_userId':'winner','_userToken':'pwd'}";
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("ldap.ldapAuth", payLoad, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
-    assertEquals((String) obj.get("_userId"), "winner");
+        JavaAgent.getAgent("100", null).serve("ldap.ldapAuth", payLoad, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
+    assertEquals(obj.get("_userId"), "winner");
   }
 
   @Test
   public void ldapAuthenticate2Test() {
     String payLoad = "{'_userId':'rogue','_userToken':'guess'}";
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("ldap.ldapAuth", payLoad, PayloadType.JSON);
+        JavaAgent.getAgent("100", null).serve("ldap.ldapAuth", payLoad, PayloadType.JSON_TEXT);
     assertEquals(outData.hasErrors(), true);
   }
 
@@ -418,7 +420,7 @@ public class ActionsTest extends Mockito {
   @Test
   public void sendMailTest() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("test.sendMail", null, PayloadType.JSON);
+        JavaAgent.getAgent("100", null).serve("test.sendMail", null, PayloadType.JSON_TEXT);
 
     try {
 
@@ -437,7 +439,7 @@ public class ActionsTest extends Mockito {
       folder.open(Folder.READ_ONLY);
       assertEquals(1, folder.getMessages().length);
       for (Message message : folder.getMessages()) {
-        assertEquals((String) message.getSubject(), "Simplity - sample subject");
+        assertEquals(message.getSubject(), "Simplity - sample subject");
       }
     } catch (MessagingException e) {
       e.printStackTrace();
@@ -448,9 +450,9 @@ public class ActionsTest extends Mockito {
   public void ldapLookupExistsTest() {
     String payLoad = "{'objectId':'CN=Sunita Williams','fieldname':'ldapLookup'}";
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("ldap.ldapLookupExists", payLoad, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
-    assertEquals((Boolean) obj.get("ldapLookup"), true);
+        JavaAgent.getAgent("100", null).serve("ldap.ldapLookupExists", payLoad, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
+    assertEquals(obj.get("ldapLookup"), true);
   }
 
   @Test
@@ -458,9 +460,9 @@ public class ActionsTest extends Mockito {
     String payLoad = "{'objectId':'CN=Sunita Williams','attrName':'surname'}";
     ServiceData outData =
         JavaAgent.getAgent("100", null)
-            .serve("ldap.ldapLookupSingleAttr", payLoad, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
-    assertEquals((String) obj.get("surname"), "Williams");
+            .serve("ldap.ldapLookupSingleAttr", payLoad, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
+    assertEquals(obj.get("surname"), "Williams");
   }
 
   @Test
@@ -468,8 +470,8 @@ public class ActionsTest extends Mockito {
     String payLoad = "{'objectId':'CN=Sunita Williams','outputDataSheetName':'outsheet'}";
     ServiceData outData =
         JavaAgent.getAgent("100", null)
-            .serve("ldap.ldapLookupMultiAttr", payLoad, PayloadType.JSON);
-    JSONObject obj = new JSONObject(outData.getPayLoad());
+            .serve("ldap.ldapLookupMultiAttr", payLoad, PayloadType.JSON_TEXT);
+    JSONObject obj = new JSONObject(outData.getPayLoadAsJsonText());
     JSONArray arr = obj.getJSONArray("outsheet");
     assertEquals(arr.getJSONObject(0).get("value").toString(), "Williams");
   }
@@ -498,7 +500,7 @@ public class ActionsTest extends Mockito {
   public void fileProcessingTest() {
     ServiceData outData =
         JavaAgent.getAgent("100", null)
-            .serve("batchProcess.FileInFileOutGroupBy", null, PayloadType.JSON);
+            .serve("batchProcess.FileInFileOutGroupBy", null, PayloadType.JSON_TEXT);
   }
 
   @Test
@@ -509,7 +511,7 @@ public class ActionsTest extends Mockito {
 
       ConnectionFactory connectionFactory =
           (ConnectionFactory) ic.lookup("vm://localhost?broker.persistent=false");
-      javax.jms.Connection connection = (javax.jms.Connection) connectionFactory.createConnection();
+      javax.jms.Connection connection = connectionFactory.createConnection();
       javax.jms.Session jmsSession =
           connection.createSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
       connection.start();
@@ -519,7 +521,7 @@ public class ActionsTest extends Mockito {
       MessageListener messageListener = jmsSession.getMessageListener();
       consumer.setMessageListener(messageListener);
       ServiceData outData =
-          JavaAgent.getAgent("100", null).serve("batchProcess.DbInFileOut", null, PayloadType.JSON);
+          JavaAgent.getAgent("100", null).serve("batchProcess.DbInFileOut", null, PayloadType.JSON_TEXT);
       QueueBrowser qBrowser = jmsSession.createBrowser((Queue) destination);
       Enumeration qe = qBrowser.getEnumeration();
       while (qe.hasMoreElements()) {
@@ -538,7 +540,7 @@ public class ActionsTest extends Mockito {
   @Test
   public void batchProcessingTest1() {
     ServiceData outData =
-        JavaAgent.getAgent("100", null).serve("batchProcess.FileInFileOut", null, PayloadType.JSON);
+        JavaAgent.getAgent("100", null).serve("batchProcess.FileInFileOut", null, PayloadType.JSON_TEXT);
   }
 
   @Test
@@ -549,7 +551,7 @@ public class ActionsTest extends Mockito {
 
       ConnectionFactory connectionFactory =
           (ConnectionFactory) ic.lookup("vm://localhost?broker.persistent=false");
-      javax.jms.Connection connection = (javax.jms.Connection) connectionFactory.createConnection();
+      javax.jms.Connection connection = connectionFactory.createConnection();
       javax.jms.Session jmsSession =
           connection.createSession(false, javax.jms.Session.DUPS_OK_ACKNOWLEDGE);
       connection.start();
@@ -560,7 +562,7 @@ public class ActionsTest extends Mockito {
       consumer.setMessageListener(messageListener);
       ServiceData outData =
           JavaAgent.getAgent("100", null)
-              .serve("batchProcess.FileInJMSOut", null, PayloadType.JSON);
+              .serve("batchProcess.FileInJMSOut", null, PayloadType.JSON_TEXT);
       QueueBrowser qBrowser = jmsSession.createBrowser((Queue) destination);
       Enumeration qe = qBrowser.getEnumeration();
       int outMessagesCount = 0;
@@ -610,7 +612,7 @@ public class ActionsTest extends Mockito {
       if (queueBrowserEnumeration.hasMoreElements()) {
         ServiceData outData =
             JavaAgent.getAgent("100", null)
-                .serve("batchProcess.JMSInFileOut", null, PayloadType.JSON);
+                .serve("batchProcess.JMSInFileOut", null, PayloadType.JSON_TEXT);
       }
     } catch (NamingException e) {
       e.printStackTrace();
@@ -651,7 +653,7 @@ public class ActionsTest extends Mockito {
       if (queueBrowserEnumeration.hasMoreElements()) {
         ServiceData outData =
             JavaAgent.getAgent("100", null)
-                .serve("batchProcess.JMSInFileOut", null, PayloadType.JSON);
+                .serve("batchProcess.JMSInFileOut", null, PayloadType.JSON_TEXT);
       }
     } catch (NamingException e) {
       e.printStackTrace();
@@ -670,7 +672,7 @@ public class ActionsTest extends Mockito {
               + "'comments':'comments123',"
               + "'tokens':'token123'}";
       ServiceData producerData =
-          JavaAgent.getAgent("100", null).serve("jms.jmsProducer", payLoad, PayloadType.JSON);
+          JavaAgent.getAgent("100", null).serve("jms.jmsProducer", payLoad, PayloadType.JSON_TEXT);
       QueueBrowser queueBrowser = jmsSession.createBrowser((Queue) destination);
 
       int numOfTries = 3;
@@ -711,14 +713,18 @@ public class ActionsTest extends Mockito {
 
       if (queueBrowser.getEnumeration().hasMoreElements()) {
         ServiceData consumerData =
-            JavaAgent.getAgent("100", null).serve("jms.jmsConsumer", null, PayloadType.JSON);
-        JSONObject consumerObject = new JSONObject(consumerData.getPayLoad());
-        JSONArray commentSheet = (JSONArray) consumerObject.get("commentSheet");
-        for (int i = 0; i < commentSheet.length(); i++) {
-          JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
-          assertEquals(commentSheetRow.get("personId"), "personid123");
-          assertEquals(commentSheetRow.get("comments"), "comments123");
-          assertEquals(commentSheetRow.get("tokens"), "token123");
+            JavaAgent.getAgent("100", null).serve("jms.jmsConsumer", null, PayloadType.JSON_TEXT);
+        String jsonText = consumerData.getPayLoadAsJsonText();
+        JSONObject consumerObject = new JSONObject(jsonText);
+        Object obj = consumerObject.get("commentSheet");
+        if(obj != null) {
+	        JSONArray commentSheet = (JSONArray) obj;
+	        for (int i = 0; i < commentSheet.length(); i++) {
+	          JSONObject commentSheetRow = (JSONObject) commentSheet.get(i);
+	          assertEquals(commentSheetRow.get("personId"), "personid123");
+	          assertEquals(commentSheetRow.get("comments"), "comments123");
+	          assertEquals(commentSheetRow.get("tokens"), "token123");
+	        }
         }
       }
     } catch (Exception e) {

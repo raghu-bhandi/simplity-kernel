@@ -68,7 +68,7 @@ public class JavaAgent {
    * @return response from the service
    */
   public ServiceData serve(String serviceName, String payLoad) {
-    return this.serve(serviceName, payLoad, PayloadType.JSON);
+    return this.serve(serviceName, payLoad, PayloadType.JSON_TEXT);
   }
 
   /**

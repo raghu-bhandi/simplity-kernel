@@ -606,6 +606,6 @@ private static final Logger actionLogger = LoggerFactory.getLogger(BatchProcesso
     String serviceName = "file.po";
     JavaAgent agent = JavaAgent.getAgent("420", "pwd");
     ServiceData outData = agent.serve(serviceName, "");
-    System.out.println(outData.getPayLoad());
+    System.out.println(outData.getPayLoadAsJsonText());
   }
 }

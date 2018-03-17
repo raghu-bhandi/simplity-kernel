@@ -31,5 +31,18 @@ public enum PayloadType {
   /** no pay load - implies that the call is from local object */
   NONE,
   /** json text */
-  JSON;
+  JSON_TEXT,
+  /**
+   * json object
+   */
+  JSON,
+  /**
+   * xml text
+   */
+  XML_TEXT,
+  /**
+   * document object
+   */
+  XML
+  ;
 }
