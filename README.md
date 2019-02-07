@@ -1,4 +1,4 @@
-# simplity
+# simplity - moved to github.com/simplity/
 ridiculously simple development platform for micro services 
 
 simplity is not like anything else you have seen in the frameworks world. So, if you try to understand it in comparison to say, Spring framework, you will be lost completely. But, let us say you start from your project specific context:
